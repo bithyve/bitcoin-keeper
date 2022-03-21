@@ -1,12 +1,10 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-import Navigator from './navigation';
+import Navigator from './src/navigation';
 
 const App = () => {
   return <Navigator />;
 };
-
-const styles = StyleSheet.create({});
 
 export default App;
