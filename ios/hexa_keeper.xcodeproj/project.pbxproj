@@ -14,6 +14,8 @@
 		6172F2D35A4C3AA820D92908 /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6423831EA8574132BED9D8CC /* libPods-hexa_keeper.a */; };
 		7EF68E3733C33B6898317E18 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABFE59519B596E51CEFDCCC0 /* libPods-hexa_keeper-hexa_keeperTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		B77996F2A85493E52257B75C /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05D05F479F1F4B84BB2F403 /* ExpoModulesProvider.swift */; };
+		F0C461A2A43FBA1DBD82F4BE /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 083C6743FECDD067BC4B3E5B /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,6 +32,7 @@
 		00E356EE1AD99517003FC87E /* hexa_keeperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = hexa_keeperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* hexa_keeperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = hexa_keeperTests.m; sourceTree = "<group>"; };
+		083C6743FECDD067BC4B3E5B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* hexa_keeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = hexa_keeper/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = hexa_keeper/AppDelegate.m; sourceTree = "<group>"; };
@@ -43,6 +46,7 @@
 		ABFE59519B596E51CEFDCCC0 /* libPods-hexa_keeper-hexa_keeperTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper-hexa_keeperTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0A881CF5CF3F2B244570E2A /* Pods-hexa_keeper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.debug.xcconfig"; sourceTree = "<group>"; };
 		D00AAFFCFCFDA5787532823F /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
+		E05D05F479F1F4B84BB2F403 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -106,6 +110,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		7F3E2F0EE55CE49937E89BA2 /* hexa_keeperTests */ = {
+			isa = PBXGroup;
+			children = (
+				083C6743FECDD067BC4B3E5B /* ExpoModulesProvider.swift */,
+			);
+			name = hexa_keeperTests;
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,6 +134,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E233CBF5F47BEE60B243DCF8 /* Pods */,
+				BEDE4FF5D7ABEB328346A216 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -135,6 +148,23 @@
 				00E356EE1AD99517003FC87E /* hexa_keeperTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BCC30AA160E1F72AE74A76E4 /* hexa_keeper */ = {
+			isa = PBXGroup;
+			children = (
+				E05D05F479F1F4B84BB2F403 /* ExpoModulesProvider.swift */,
+			);
+			name = hexa_keeper;
+			sourceTree = "<group>";
+		};
+		BEDE4FF5D7ABEB328346A216 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				BCC30AA160E1F72AE74A76E4 /* hexa_keeper */,
+				7F3E2F0EE55CE49937E89BA2 /* hexa_keeperTests */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		E233CBF5F47BEE60B243DCF8 /* Pods */ = {
@@ -404,6 +434,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F31AD99517003FC87E /* hexa_keeperTests.m in Sources */,
+				F0C461A2A43FBA1DBD82F4BE /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,6 +444,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				B77996F2A85493E52257B75C /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,7 +469,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = hexa_keeperTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -461,7 +493,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = hexa_keeperTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -577,7 +609,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -635,7 +667,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
