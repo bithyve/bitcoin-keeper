@@ -1,5 +1,5 @@
+import android.os.Bundle;
 package com.hexa_keeper;
-
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -12,4 +12,9 @@ public class MainActivity extends ReactActivity {
   protected String getMainComponentName() {
     return "hexa_keeper";
   }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(null);
+  } 
 }
