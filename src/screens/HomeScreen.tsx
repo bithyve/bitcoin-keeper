@@ -1,16 +1,33 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, SafeAreaView } from 'react-native';
 import React from 'react';
+import { Text, useColorMode, useColorModeValue } from 'native-base'
+import Fonts from '../common/Fonts';
 
 const HomeScreen = () => {
+  const {
+    colorMode,
+    toggleColorMode
+  } = useColorMode();
   return (
-    <View style={styles.screen}>
-      <Text>HomeScreen</Text>
+    <SafeAreaView style={styles.sectionContainer}>
+    <View>
+      <Text style={styles.sectionTitle} fontFamily="body" fontWeight={100} onPress={toggleColorMode} color={useColorModeValue("light.light", "dark.black")} >{colorMode}</Text>
     </View>
+  </SafeAreaView >
   );
 };
 
-export default HomeScreen;
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  sectionContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
 });
+export default HomeScreen;
