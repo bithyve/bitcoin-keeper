@@ -9,8 +9,8 @@ const LockScreen = () => {
   );
 };
 
-export default LockScreen;
-
 const styles = StyleSheet.create({
   screen: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
+
+export default LockScreen;

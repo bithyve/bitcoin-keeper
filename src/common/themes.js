@@ -1,0 +1,37 @@
+import { extendTheme } from 'native-base';
+import Fonts from './Fonts';
+export const customTheme = extendTheme({
+  fontConfig: {
+    Roboto: {
+      100: {
+        normal: Fonts.RobotoCondensedLight,
+        italic: Fonts.RobotoCondensedLightItalic,
+      },
+      200: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      300: {
+        normal: Fonts.RobotoCondensedBold,
+        italic: Fonts.RobotoCondensedBoldItalic,
+      },
+    },
+  },
+  fonts: {
+    heading: 'Roboto',
+    body: 'Roboto',
+    mono: 'Roboto',
+  },
+  
+  colors: {
+    light: {
+      light: '#00836A',
+    },
+    dark: {
+      black: '#000000',
+    },
+  },
+  config: {
+    initialColorMode: 'light',
+  },
+});
