@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="52.336" height="48.093" viewBox="0 0 52.336 48.093">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.183" y1="0.204" x2="0.887" y2="0.761" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="hexagontile2" transform="translate(-45 -393)">
+    <path id="Polygon_3" data-name="Polygon 3" d="M30.117,0a5,5,0,0,1,4.327,2.495l8.105,14a5,5,0,0,1,0,5.01l-8.105,14A5,5,0,0,1,30.117,38H13.883a5,5,0,0,1-4.327-2.495l-8.105-14a5,5,0,0,1,0-5.01l8.105-14A5,5,0,0,1,13.883,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 54.835, 393)" fill="url(#linear-gradient)"/>
+  </g>
+</svg>
