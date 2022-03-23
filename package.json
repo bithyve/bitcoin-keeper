@@ -7,7 +7,9 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "prepare": "chmod +x setup.sh && sh ./setup.sh",
+    "postinstall": "jetify"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.0",
