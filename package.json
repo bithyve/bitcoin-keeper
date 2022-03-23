@@ -23,7 +23,7 @@
     "bip39": "^3.0.4",
     "bitcoinjs-lib": "^5.1.6",
     "browserify-zlib": "~0.1.4",
-    "buffer": "^4.9.1",
+    "buffer": "^6.0.3",
     "coinselect": "^3.1.11",
     "console-browserify": "^1.1.0",
     "constants-browserify": "^1.0.0",
