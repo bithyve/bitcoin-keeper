@@ -11,15 +11,10 @@ import {
   AccountType,
   APP_STAGE,
   PersonalNode,
+  SUB_PRIMARY_ACCOUNT, DONATION_ACCOUNT, WYRE, RAMP, SWAN
 } from './utilities/Interface'
 import Config from 'react-native-config'
 import _ from 'lodash'
-
-export const SUB_PRIMARY_ACCOUNT = 'SUB_PRIMARY_ACCOUNT'
-export const DONATION_ACCOUNT = 'DONATION_ACCOUNT'
-export const WYRE = 'WYRE'
-export const RAMP = 'RAMP'
-export const SWAN = 'SWAN'
 
 class HexaConfig {
   //RAMP details

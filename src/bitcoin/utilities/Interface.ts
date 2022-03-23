@@ -1112,3 +1112,9 @@ export type PersonalNode = {
   urlPath: string | null;
   useFallback: boolean | null;
 };
+
+export const SUB_PRIMARY_ACCOUNT = 'SUB_PRIMARY_ACCOUNT'
+export const DONATION_ACCOUNT = 'DONATION_ACCOUNT'
+export const WYRE = 'WYRE'
+export const RAMP = 'RAMP'
+export const SWAN = 'SWAN'
