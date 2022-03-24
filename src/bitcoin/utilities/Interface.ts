@@ -890,6 +890,7 @@ export interface Account {
   instanceNum: number,                  // instance number of the aforementioned type
   networkType: NetworkType,             // testnet/mainnet
   derivationPath: string,               // derivation path of the extended keys belonging to this account
+  primaryMnemonic?: string,             // primary mnemonic for imported account
   xpub: string | null,                  // account's xpub (primary for multi-sig accounts)
   xpriv: string | null,                 // account's xpriv (primary for multi-sig accounts)
   accountName: string,                  // name of the account
@@ -960,7 +961,8 @@ export enum AccountType {
   WYRE_ACCOUNT = 'WYRE_ACCOUNT',
   EXCHANGE_ACCOUNT = 'EXCHANGE_ACCOUNT',
   FNF_ACCOUNT = 'FNF_ACCOUNT',
-  LIGHTNING_ACCOUNT = 'LIGHTNING_ACCOUNT'
+  LIGHTNING_ACCOUNT = 'LIGHTNING_ACCOUNT',
+  IMPORTED_ACCOUNT = 'IMPORTED_ACCOUNT',
 }
 
 export interface Accounts {

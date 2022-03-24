@@ -145,6 +145,10 @@ class HexaConfig {
       series: 50,
       upperBound: 1,
     },
+    [ AccountType.IMPORTED_ACCOUNT ]: {
+      series: 0,
+      upperBound: 10,
+    },
   }
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {

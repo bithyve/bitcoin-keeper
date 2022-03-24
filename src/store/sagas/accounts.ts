@@ -49,6 +49,7 @@ import {
   GENERATE_GIFTS,
   giftCreationSuccess,
   updateAccountSettings,
+  IMPORT_NEW_ACCOUNT,
 } from '../actions/accounts'
 // import {
 //   setAllowSecureAccount,
@@ -75,7 +76,8 @@ import {
   Trusted_Contacts,
   UnecryptedStreamData,
   Wallet,
-  LNNode
+  LNNode,
+  DerivationPurpose
 } from '../../bitcoin/utilities/Interface'
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces'
 import AccountShell from '../../common/data/models/AccountShell'
@@ -103,6 +105,7 @@ import Relay from '../../bitcoin/utilities/Relay'
 import AccountVisibility from '../../common/data/enums/AccountVisibility'
 import TrustedContactsOperations from '../../bitcoin/utilities/TrustedContactsOperations'
 import { updateWallet } from '../actions/storage'
+import FullyImportedWalletSubAccountInfo from 'src/common/data/models/SubAccountInfo/ImportedWalletSubAccounts/FullyImportedWalletSubAccountInfo'
 
 
 // to be used by react components(w/ dispatch)
@@ -445,6 +448,11 @@ function* refreshAccountShellsWorker( { payload }: { payload: {
   // if( Object.keys( activeAddressesWithNewTxsMap ).length )  yield call( updatePaymentAddressesToChannels, activeAddressesWithNewTxsMap, synchedAccounts )
 }
 
+export const refreshAccountShellsWatcher = createWatcher(
+  refreshAccountShellsWorker,
+  REFRESH_ACCOUNT_SHELLS
+)
+
 function* autoSyncShellsWorker( { payload }: { payload: { syncAll?: boolean, hardRefresh?: boolean }} ) {
   const { syncAll, hardRefresh } = payload
   const shells: AccountShell[] = yield select(
@@ -628,6 +636,17 @@ export function* generateShellFromAccount ( account: Account | MultiSigAccount )
           node: account.node
         } )
         break
+
+      case AccountType.IMPORTED_ACCOUNT:
+        primarySubAccount = new FullyImportedWalletSubAccountInfo( {
+          id: account.id,
+          xPub: yield call( AccountUtilities.generateYpub, account.xpub, network ),
+          isUsable: account.isUsable,
+          instanceNumber: account.instanceNum,
+          customDisplayName: account.accountName,
+          customDescription: account.accountDescription,
+        } )
+        break
   }
 
   let accountShell: AccountShell
@@ -652,7 +671,7 @@ export function* generateShellFromAccount ( account: Account | MultiSigAccount )
   return accountShell
 }
 
-export function* addNewAccount( accountType: AccountType, accountDetails: newAccountDetails, recreationInstanceNumber?: number ) {
+export function* addNewAccount( accountType: AccountType, accountDetails: newAccountDetails, recreationInstanceNumber?: number, importDetails?: { primaryMnemonic: string, primarySeed: string }  ) {
   const wallet: Wallet = yield select( state => state.storage.wallet )
   const { walletId, primarySeed, accounts } = wallet
   const { name: accountName, description: accountDescription, is2FAEnabled, doneeName } = accountDetails
@@ -732,10 +751,12 @@ export function* addNewAccount( accountType: AccountType, accountDetails: newAcc
       case AccountType.SWAN_ACCOUNT:
       case AccountType.DEPOSIT_ACCOUNT:
         let defaultAccountName, defaultAccountDescription
+        let purpose = DerivationPurpose.BIP49
         switch( accountType ){
             case AccountType.SWAN_ACCOUNT:
               defaultAccountName = 'Swan Bitcoin'
               defaultAccountDescription = 'Register\nand claim $10'
+              purpose = DerivationPurpose.BIP84
               break
 
             case AccountType.DEPOSIT_ACCOUNT:
@@ -752,7 +773,7 @@ export function* addNewAccount( accountType: AccountType, accountDetails: newAcc
           accountName: accountName? accountName: defaultAccountName,
           accountDescription: accountDescription? accountDescription: defaultAccountDescription,
           primarySeed,
-          derivationPath: yield call( AccountUtilities.getDerivationPath, NetworkType.MAINNET, accountType, serviceInstanceCount ),
+          derivationPath: yield call( AccountUtilities.getDerivationPath, NetworkType.MAINNET, accountType, serviceInstanceCount, null, purpose ),
           networkType: config.APP_STAGE === APP_STAGE.DEVELOPMENT? NetworkType.TESTNET: NetworkType.MAINNET,
         } )
         if( accountType === AccountType.SWAN_ACCOUNT ) serviceAccount.isUsable = false
@@ -774,6 +795,21 @@ export function* addNewAccount( accountType: AccountType, accountDetails: newAcc
           node
         } )
         return lnAccount
+
+      case AccountType.IMPORTED_ACCOUNT:
+        const importedInstanceCount = recreationInstanceNumber !== undefined ? recreationInstanceNumber: ( accounts[ AccountType.IMPORTED_ACCOUNT ] )?.length | 0
+        const importedAccount: Account = yield call( generateAccount, {
+          walletId,
+          type: AccountType.IMPORTED_ACCOUNT,
+          instanceNum: importedInstanceCount,
+          accountName: accountName? accountName: 'Imported Account',
+          accountDescription: accountDescription? accountDescription: 'Bitcoin Wallet',
+          primarySeed: importDetails.primarySeed,
+          primaryMnemonic: importDetails.primaryMnemonic,
+          derivationPath: yield call( AccountUtilities.getDerivationPath, NetworkType.MAINNET, AccountType.IMPORTED_ACCOUNT, importedInstanceCount, null, DerivationPurpose.BIP84 ),
+          networkType: config.APP_STAGE === APP_STAGE.DEVELOPMENT? NetworkType.TESTNET: NetworkType.MAINNET,
+        } )
+          return importedAccount
   }
 }
 export interface newAccountDetails {
@@ -849,6 +885,78 @@ export function* addNewAccountShellsWorker( { payload: newAccountsInfo }: {paylo
 export const addNewAccountShellsWatcher = createWatcher(
   addNewAccountShellsWorker,
   ADD_NEW_ACCOUNT_SHELLS
+)
+
+
+export function* importNewAccountWorker( { payload }: { payload: { mnemonic: string } } ) {
+  const newAccountShells: AccountShell[] = []
+  const accounts = {
+  }
+  const accountIds = []
+  const newAccountsInfo: newAccountsInfo[] = [{
+    accountType: AccountType.IMPORTED_ACCOUNT
+  }]
+
+  const importDetails = {
+    primaryMnemonic: payload.mnemonic,
+    primarySeed: bip39.mnemonicToSeedSync( payload.mnemonic ).toString( 'hex' ),
+  }
+
+  for ( const { accountType, accountDetails, recreationInstanceNumber } of newAccountsInfo ){
+    const account: Account | MultiSigAccount | DonationAccount = yield call(
+      addNewAccount,
+      accountType,
+      accountDetails || {
+      },
+      recreationInstanceNumber,
+      importDetails
+    )
+    accountIds.push( account.id )
+    const accountShell = yield call( generateShellFromAccount, account )
+    newAccountShells.push( accountShell )
+    accounts [ account.id ] = account
+  }
+
+  const wallet: Wallet = yield select( state => state.storage.wallet )
+  let presentAccounts = _.cloneDeep( wallet.accounts )
+  Object.values( ( accounts as Accounts ) ).forEach( account => {
+    if( presentAccounts[ account.type ] ){
+      if( !presentAccounts[ account.type ].includes( account.id ) )  presentAccounts[ account.type ].push( account.id )
+    }
+    else presentAccounts = {
+      ...presentAccounts,
+      [ account.type ]: [ account.id ]
+    }
+  } )
+
+  const updatedWallet: Wallet = {
+    ...wallet,
+    accounts: presentAccounts
+  }
+  yield put( updateWallet( updatedWallet ) )
+
+  yield put( newAccountShellsAdded( {
+    accountShells: newAccountShells,
+    accounts,
+  } ) )
+
+  yield put( refreshAccountShells ( newAccountShells, {
+    hardRefresh: true,
+  } ) )
+  // yield call( dbManager.createAccounts, accounts )
+  // yield call( dbManager.updateWallet, {
+  //   accounts: presentAccounts
+  // } )
+  // yield put( updateWalletImageHealth( {
+  //   updateAccounts: true,
+  //   accountIds: accountIds
+  // } ) )
+
+}
+
+export const importNewAccountWatcher = createWatcher(
+  importNewAccountWorker,
+  IMPORT_NEW_ACCOUNT
 )
 
 function* updateAccountSettingsWorker( { payload }: {
