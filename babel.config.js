@@ -12,10 +12,10 @@ module.exports = {
           '.android.js',
           '.android.tsx',
           '.ios.js',
-          '.ios.tsx'
+          '.ios.tsx',
         ],
-        root: ['.']
-      }
-    ]
-  ]
+        root: ['.'],
+      },
+    ],
+  ],
 };
