@@ -102,6 +102,7 @@ import _ from 'lodash'
 import Relay from '../../bitcoin/utilities/Relay'
 import AccountVisibility from '../../common/data/enums/AccountVisibility'
 import TrustedContactsOperations from '../../bitcoin/utilities/TrustedContactsOperations'
+import { updateWallet } from '../actions/storage'
 
 
 // to be used by react components(w/ dispatch)
@@ -171,6 +172,11 @@ export function* syncAccountsWorker( { payload }: {payload: {
     }
   }
 }
+
+export const syncAccountsWatcher = createWatcher(
+  syncAccountsWorker,
+  SYNC_ACCOUNTS
+)
 
 function* accountCheckWoker( { payload } ) {
   const { shellId } = payload
@@ -822,7 +828,7 @@ export function* addNewAccountShellsWorker( { payload: newAccountsInfo }: {paylo
     ...wallet,
     accounts: presentAccounts
   }
-  // yield put( updateWallet( updatedWallet ) )
+  yield put( updateWallet( updatedWallet ) )
 
   yield put( newAccountShellsAdded( {
     accountShells: newAccountShells,
