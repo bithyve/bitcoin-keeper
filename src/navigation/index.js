@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LockScreen from '../screens/LockScreen';
 import HomeScreen from '../screens/HomeScreen';
 import AddWallet from '../screens/AddWalletScreen';
+import TestingBottomsheet from 'src/screens/TestingBottomsheet';
 
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
@@ -12,6 +13,7 @@ const Navigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name="Test" component={TestingBottomsheet} options={{ headerShown: false }} />
         <Stack.Screen
           name="AddWallet Screen"
           component={AddWallet}
