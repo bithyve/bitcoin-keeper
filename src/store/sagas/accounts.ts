@@ -448,6 +448,11 @@ function* refreshAccountShellsWorker( { payload }: { payload: {
   // if( Object.keys( activeAddressesWithNewTxsMap ).length )  yield call( updatePaymentAddressesToChannels, activeAddressesWithNewTxsMap, synchedAccounts )
 }
 
+export const refreshAccountShellsWatcher = createWatcher(
+  refreshAccountShellsWorker,
+  REFRESH_ACCOUNT_SHELLS
+)
+
 function* autoSyncShellsWorker( { payload }: { payload: { syncAll?: boolean, hardRefresh?: boolean }} ) {
   const { syncAll, hardRefresh } = payload
   const shells: AccountShell[] = yield select(
@@ -933,6 +938,10 @@ export function* importNewAccountWorker( { payload }: { payload: { mnemonic: str
   yield put( newAccountShellsAdded( {
     accountShells: newAccountShells,
     accounts,
+  } ) )
+
+  yield put( refreshAccountShells ( newAccountShells, {
+    hardRefresh: true,
   } ) )
   // yield call( dbManager.createAccounts, accounts )
   // yield call( dbManager.updateWallet, {
