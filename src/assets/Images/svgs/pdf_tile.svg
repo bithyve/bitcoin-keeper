@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="52.336" height="48.093" viewBox="0 0 52.336 48.093">
+  <g id="pdftile" transform="translate(-286 -354)">
+    <g id="hexagontile1" transform="translate(241 -39)">
+      <path id="Polygon_3" data-name="Polygon 3" d="M30.117,0a5,5,0,0,1,4.327,2.495l8.105,14a5,5,0,0,1,0,5.01l-8.105,14A5,5,0,0,1,30.117,38H13.883a5,5,0,0,1-4.327-2.495l-8.105-14a5,5,0,0,1,0-5.01l8.105-14A5,5,0,0,1,13.883,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 54.835, 393)" fill="#fac48b"/>
+    </g>
+    <g id="PDF" transform="translate(305.698 370.488)">
+      <path id="Shape" d="M1.852,14.7A1.851,1.851,0,0,1,0,12.844V1.859A1.857,1.857,0,0,1,1.852,0H6.48V3.7A1.851,1.851,0,0,0,8.331,5.553h3.7v7.3A1.852,1.852,0,0,1,10.182,14.7Zm6.48-11V.067L11.966,3.7Z" transform="translate(0.302 0.51)" fill="#073e39"/>
+    </g>
+  </g>
+</svg>

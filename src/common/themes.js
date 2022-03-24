@@ -26,6 +26,10 @@ export const customTheme = extendTheme({
   colors: {
     light: {
       light: '#00836A',
+      lightYellow: '#FDF7F0',
+      white: '#fff',
+      lightBlack: '#041513',
+      brown: '#D8A572',
     },
     dark: {
       black: '#000000',
