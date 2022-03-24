@@ -448,6 +448,11 @@ function* refreshAccountShellsWorker( { payload }: { payload: {
   // if( Object.keys( activeAddressesWithNewTxsMap ).length )  yield call( updatePaymentAddressesToChannels, activeAddressesWithNewTxsMap, synchedAccounts )
 }
 
+export const refreshAccountShellsWatcher = createWatcher(
+  refreshAccountShellsWorker,
+  REFRESH_ACCOUNT_SHELLS
+)
+
 function* autoSyncShellsWorker( { payload }: { payload: { syncAll?: boolean, hardRefresh?: boolean }} ) {
   const { syncAll, hardRefresh } = payload
   const shells: AccountShell[] = yield select(
@@ -666,7 +671,7 @@ export function* generateShellFromAccount ( account: Account | MultiSigAccount )
   return accountShell
 }
 
-export function* addNewAccount( accountType: AccountType, accountDetails: newAccountDetails, recreationInstanceNumber?: number, importDetails?: { primarySeed: string }  ) {
+export function* addNewAccount( accountType: AccountType, accountDetails: newAccountDetails, recreationInstanceNumber?: number, importDetails?: { primaryMnemonic: string, primarySeed: string }  ) {
   const wallet: Wallet = yield select( state => state.storage.wallet )
   const { walletId, primarySeed, accounts } = wallet
   const { name: accountName, description: accountDescription, is2FAEnabled, doneeName } = accountDetails
@@ -800,6 +805,7 @@ export function* addNewAccount( accountType: AccountType, accountDetails: newAcc
           accountName: accountName? accountName: 'Imported Account',
           accountDescription: accountDescription? accountDescription: 'Bitcoin Wallet',
           primarySeed: importDetails.primarySeed,
+          primaryMnemonic: importDetails.primaryMnemonic,
           derivationPath: yield call( AccountUtilities.getDerivationPath, NetworkType.MAINNET, AccountType.IMPORTED_ACCOUNT, importedInstanceCount, null, DerivationPurpose.BIP84 ),
           networkType: config.APP_STAGE === APP_STAGE.DEVELOPMENT? NetworkType.TESTNET: NetworkType.MAINNET,
         } )
@@ -882,7 +888,7 @@ export const addNewAccountShellsWatcher = createWatcher(
 )
 
 
-export function* importNewAccountWorker( { mnemonic }: { mnemonic: string } ) {
+export function* importNewAccountWorker( { payload }: { payload: { mnemonic: string } } ) {
   const newAccountShells: AccountShell[] = []
   const accounts = {
   }
@@ -890,8 +896,10 @@ export function* importNewAccountWorker( { mnemonic }: { mnemonic: string } ) {
   const newAccountsInfo: newAccountsInfo[] = [{
     accountType: AccountType.IMPORTED_ACCOUNT
   }]
+
   const importDetails = {
-    primarySeed: bip39.mnemonicToSeedSync( mnemonic ).toString( 'hex' )
+    primaryMnemonic: payload.mnemonic,
+    primarySeed: bip39.mnemonicToSeedSync( payload.mnemonic ).toString( 'hex' ),
   }
 
   for ( const { accountType, accountDetails, recreationInstanceNumber } of newAccountsInfo ){
@@ -930,6 +938,10 @@ export function* importNewAccountWorker( { mnemonic }: { mnemonic: string } ) {
   yield put( newAccountShellsAdded( {
     accountShells: newAccountShells,
     accounts,
+  } ) )
+
+  yield put( refreshAccountShells ( newAccountShells, {
+    hardRefresh: true,
   } ) )
   // yield call( dbManager.createAccounts, accounts )
   // yield call( dbManager.updateWallet, {
