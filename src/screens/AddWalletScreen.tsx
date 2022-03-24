@@ -1,9 +1,9 @@
 import React from 'react';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Text } from 'native-base'
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { FlatList, TouchableOpacity } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
@@ -73,6 +73,6 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(12),
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
-  }
+  },
 });
 export default AddWalletScreen;
