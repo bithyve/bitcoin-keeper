@@ -7,8 +7,8 @@ import { ImageBackground, FlatList, TouchableOpacity, ScrollView } from 'react-n
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from '../components/AccordionsComponent';
-import LeftArrow from '../assets/Images/svgs/down_arrow.svg';
-import HardWare from '../assets/Images/svgs/hardware.svg'
+import HardWare from '../assets/Images/svgs/hardware.svg';
+import BackButton from '../assets/Images/svgs/back.svg';
 
 const AddWalletScreen = () => {
 
@@ -45,7 +45,7 @@ const AddWalletScreen = () => {
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
       <TouchableOpacity>
-        <LeftArrow />
+        <BackButton />
       </TouchableOpacity>
       <Text numberOfLines={1} style={styles.addWalletText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'200'}>Add a Wallet</Text>
       <Text numberOfLines={1} style={styles.addWalletDescription} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'100'}>Lorem ipsum dolor sit amet,</Text>
