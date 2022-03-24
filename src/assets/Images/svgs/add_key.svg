@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="52.336" height="48.093" viewBox="0 0 52.336 48.093">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.183" y1="0.204" x2="0.887" y2="0.761" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="add" transform="translate(-350 -354)">
+    <g id="hexagontile2" transform="translate(305 -39)">
+      <path id="Polygon_3" data-name="Polygon 3" d="M30.117,0a5,5,0,0,1,4.327,2.495l8.105,14a5,5,0,0,1,0,5.01l-8.105,14A5,5,0,0,1,30.117,38H13.883a5,5,0,0,1-4.327-2.495l-8.105-14a5,5,0,0,1,0-5.01l8.105-14A5,5,0,0,1,13.883,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 54.835, 393)" fill="url(#linear-gradient)"/>
+    </g>
+    <g id="add-2" data-name="add" transform="translate(370 371)">
+      <path id="Path" d="M12.075,5.315H8.308a.208.208,0,0,1-.193-.193V1.45A1.347,1.347,0,0,0,6.763,0,1.423,1.423,0,0,0,5.314,1.45V5.218a.208.208,0,0,1-.193.193H1.45A1.3,1.3,0,0,0,0,6.764,1.486,1.486,0,0,0,1.45,8.214H5.218a.208.208,0,0,1,.193.193v3.769a1.319,1.319,0,0,0,1.352,1.353,1.486,1.486,0,0,0,1.449-1.449V8.31a.208.208,0,0,1,.193-.193h3.767a1.382,1.382,0,0,0,1.352-1.353,1.345,1.345,0,0,0-1.449-1.449Z" transform="translate(0 0)" fill="#fdf7f0"/>
+    </g>
+  </g>
+</svg>

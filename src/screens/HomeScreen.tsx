@@ -9,14 +9,19 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
 import backgroundImage from '../assets/Images/background.png';
 import HomeCard from '../components/HomeCard';
-import ScannerIcon from '../assets/Images/svgs/ScannerIcon.svg';
-import SettingIcon from '../assets/Images/svgs/SettingIcon.svg';
-import MobileIcon from '../assets/Images/svgs/MobileIcon.svg';
-import LaptopIcon from '../assets/Images/svgs/LaptopIcon.svg';
-import ColdCardIcon from '../assets/Images/svgs/ColdCardIcon.svg';
-import IPardIcon from '../assets/Images/svgs/IPadIcon.svg';
-import PdfIcon from '../assets/Images/svgs/PdfIcon.svg';
-import DiamondIcon from '../assets/Images/svgs/DiamondIcon.svg';
+import ScannerIcon from '../assets/Images/svgs/scanner.svg';
+import SettingIcon from '../assets/Images/svgs/settings.svg';
+import MobileIcon from '../assets/Images/svgs/iphone_tile.svg';
+import LaptopIcon from '../assets/Images/svgs/laptop_tile.svg';
+import ColdCardIcon from '../assets/Images/svgs/coldcard_tile.svg';
+import IPardIcon from '../assets/Images/svgs/ipad_tile.svg';
+import PdfIcon from '../assets/Images/svgs/pdf_tile.svg';
+import DiamondIcon from '../assets/Images/svgs/elite.svg';
+import AddNewIcon from '../assets/Images/svgs/add_key.svg';
+
+import SingleSigIcon from '../assets/Images/svgs/single_sig.svg';
+import BlueWalletIcon from '../assets/Images/svgs/blue_wallet.svg';
+import MultiSigIcon from '../assets/Images/svgs/multi_sig.svg';
 
 const DATA = [
   {
@@ -53,25 +58,40 @@ const DATA = [
     Childern: PdfIcon
 
   },
+  {
+    id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
+    title: 'Add',
+    subtitle: 'New Key',
+    Childern: AddNewIcon
+
+  },
 
 ];
 
 const DATATWO = [
   {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
+    id: 'bd7acbea-c1b1-46c2-aed5-3ad53a56bb28ba',
+    titles: 'First Item',
+    Childern: SingleSigIcon,
+    icontitle: 'Single-sig'
   },
   {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
+    id: '3ac68afc-c605-48d3-a4f8-fbd91aa67897f63',
+    titles: 'Second Item',
+    Childern: BlueWalletIcon,
+    icontitle: 'Blue Wallet'
   },
   {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
+    id: '58694a0f-3da1-471f-bd96-145571e6729d72',
+    titles: 'Third Item',
+    Childern: MultiSigIcon,
+    icontitle: 'Multi Sig'
   },
   {
-    id: '58694a0f-3da1-471f-bd96-14557671e29d72',
-    title: 'four Item',
+    id: '58694a0f-3da1-471f-bd96-14557677891e29d72',
+    titles: 'four Item',
+    Childern: LaptopIcon,
+    last:'true',
   },
   
 ];
@@ -81,9 +101,13 @@ const HomeScreen = () => {
   const renderItem = ( item ) => (
     <DevicesComponent item ={item} />
   );
-  const renderItemTwo = ( item ) => (
-    <HomeCard title ={item?.title} />
-  );
+  const renderItemTwo = ( {item} ) => {
+    console.log(item)
+    
+    return (
+    <HomeCard item ={item} />
+    );
+  };
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
@@ -118,6 +142,7 @@ const HomeScreen = () => {
         horizontal={true}
         style={styles.flatlistContainer}
         showsHorizontalScrollIndicator={false}
+        ListFooterComponent={<View style={{width:40}}></View>}
       />
        <Text style={styles.devicesText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'200'}>10 Wallets</Text>
       <Text style={styles.securingFundsText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'100'}>lorem ipsum dolor</Text>
@@ -128,7 +153,9 @@ const HomeScreen = () => {
         horizontal={true}
         style={styles.cardFlatlistContainer}
         showsHorizontalScrollIndicator={false}
+        ListFooterComponent={<View style={{width:50}}></View>}
       />
+      
     </View >
   );
 };
@@ -181,7 +208,7 @@ const styles = ScaledSheet.create({
     flexGrow:0,
     marginBottom:hp(4),
     marginTop:hp(3),
-    paddingLeft:wp(8),
+    paddingLeft:wp(10),
   },
   cardFlatlistContainer:{
     paddingLeft:wp(8),
