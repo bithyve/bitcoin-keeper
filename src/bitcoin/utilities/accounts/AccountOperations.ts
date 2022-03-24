@@ -38,7 +38,7 @@ export default class AccountOperations {
       bithyve: ( account as MultiSigAccount ).xpubs.bithyve,
     }, 2, network, account.nextFreeAddressIndex, false ).address
     else {
-      const purpose = account.type === AccountType.SWAN_ACCOUNT? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+      const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
       receivingAddress = AccountUtilities.getAddressByIndex( account.xpub, false, account.nextFreeAddressIndex, network, purpose )
     }
 
@@ -61,7 +61,7 @@ export default class AccountOperations {
     const hardGapLimit = 10
     const network = AccountUtilities.getNetworkByType( account.networkType )
 
-    const purpose = account.type === AccountType.SWAN_ACCOUNT? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+    const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
     let externalAddress: string
     if( ( account as MultiSigAccount ).is2FA ) externalAddress = AccountUtilities.createMultiSig( {
       primary: account.xpub,
@@ -153,7 +153,7 @@ export default class AccountOperations {
     } = {
     }
     for( const account of Object.values( accounts ) ){
-      const purpose = account.type === AccountType.SWAN_ACCOUNT? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+      const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
       const ownedAddresses = [] // owned address mapping
       // owned addresses are used for apt tx categorization and transfer amount calculation
 
@@ -244,7 +244,7 @@ export default class AccountOperations {
         hasNewTxn
       } = synchedAccounts[ account.id ]
       const { internalAddresses } = accountsInternals[ account.id ]
-      const purpose = account.type === AccountType.SWAN_ACCOUNT? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+      const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
 
       // update utxo sets and balances
       const balances: Balances = {
@@ -397,7 +397,7 @@ export default class AccountOperations {
         }} ),
     }
 
-    const purpose = account.type === AccountType.SWAN_ACCOUNT? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+    const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type) ? DerivationPurpose.BIP84: DerivationPurpose.BIP49
     for( const consumedUTXO of Object.values( consumedUTXOs ) ){
       let found = false
       // is out of bound external address?
@@ -717,7 +717,7 @@ export default class AccountOperations {
       )
 
       for ( const input of inputs ) {
-        if( account.type === AccountType.SWAN_ACCOUNT ){
+        if( [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type) ){
           // native segwit
           const privateKey = AccountUtilities.addressToPrivateKey(
             input.address,
@@ -806,7 +806,7 @@ export default class AccountOperations {
           redeemScript = AccountUtilities.getP2SH( keyPair, network ).redeem.output
         }
 
-        if( account.type === AccountType.SWAN_ACCOUNT ){
+        if( [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type) ){
           // native segwit
           txb.sign(
             vin,

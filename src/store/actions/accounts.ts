@@ -27,6 +27,7 @@ export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE'
 export const SETUP_DONATION_ACCOUNT = 'SETUP_DONATION_ACCOUNT'
 export const UPDATE_DONATION_PREFERENCES = 'UPDATE_DONATION_PREFERENCES'
 export const ADD_NEW_ACCOUNT_SHELLS = 'ADD_NEW_ACCOUNT_SHELLS'
+export const IMPORT_NEW_ACCOUNT= 'IMPORT_NEW_ACCOUNT'
 export const RESTORE_ACCOUNT_SHELLS = 'RESTORE_ACCOUNT_SHELLS'
 export const ADD_NEW_SECONDARY_SUBACCOUNT = 'ADD_NEW_SECONDARY_SUBACCOUNT'
 export const ADD_NEW_ACCOUNT_SHELL_COMPLETED =
@@ -392,6 +393,18 @@ export const addNewAccountShells = (
     payload
   }
 }
+
+export const importNewAccount = (
+  mnemonic: string
+) => {
+  return {
+    type: IMPORT_NEW_ACCOUNT,
+    payload: {
+      mnemonic
+    }
+  }
+}
+
 
 export interface RestoreAccountShellsAction extends Action {
   type: typeof RESTORE_ACCOUNT_SHELLS;
