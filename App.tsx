@@ -1,8 +1,9 @@
 import React from 'react';
+import { StyleSheet, SafeAreaView, StatusBar, Platform, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './src/navigation';
 import makeStore from './src/store'
 import { Provider } from 'react-redux'
-import { StyleSheet,SafeAreaView, StatusBar } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 
 import { customTheme } from './src/common/themes';
@@ -21,9 +22,9 @@ export default function AppWrapper() {
 const App = () => {
   return (
     <NativeBaseProvider theme={customTheme}>
-      <SafeAreaView/>
-      <StatusBar barStyle={'dark-content'} />
-      <Navigator/>
+      <SafeAreaProvider>
+        <Navigator />
+      </SafeAreaProvider>
     </NativeBaseProvider>);
 };
 

@@ -11,8 +11,8 @@ const Navigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Lock Screen" component={LockScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{headerShown : false}}/>
+        <Stack.Screen name="Lock Screen" component={LockScreen} options={{headerShown : false}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
