@@ -4,8 +4,11 @@ import createSagaMiddleware from 'redux-saga'
 import { call, all, spawn } from 'redux-saga/effects'
 import { composeWithDevTools } from '@redux-devtools/extension'
 import { persistStore, persistReducer } from 'redux-persist'
-import { getAllAccountsDataWatcher } from './sagas/accounts'
 import accountsReducer from './reducers/accounts'
+import storageReducer from './reducers/storage'
+import { addNewAccountShellsWatcher, syncAccountsWatcher } from './sagas/accounts'
+import { setupWalletWatcher } from './sagas/storage'
+console.log({ syncAccountsWatcher })
 
 const config = {
   key: 'root',
@@ -14,7 +17,12 @@ const config = {
 
 const rootSaga = function* () {
   const sagas = [
-    getAllAccountsDataWatcher
+    // storage watchers
+    setupWalletWatcher,
+
+    // account watchers
+    addNewAccountShellsWatcher,
+    syncAccountsWatcher,
   ]
 
   yield all(
@@ -34,6 +42,7 @@ const rootSaga = function* () {
 }
 
 const rootReducer = combineReducers( {
+  storage: storageReducer,
   accounts: accountsReducer,
 } )
 
