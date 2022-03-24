@@ -43,6 +43,7 @@ const AddWalletScreen = () => {
   );
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
+      <StatusBarComponent padding={50} />
       <TouchableOpacity>
         <LeftArrow />
       </TouchableOpacity>
