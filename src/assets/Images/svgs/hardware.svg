@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="39.176" height="36" viewBox="0 0 39.176 36">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.157" y1="0.247" x2="0.87" y2="0.724" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="hardware" transform="translate(-54 -461)">
+    <path id="hexagontile3" d="M21.819,0a5,5,0,0,1,4.327,2.495l5.339,9.222a5,5,0,0,1,0,5.01L26.146,25.95a5,5,0,0,1-4.327,2.495h-10.7A5,5,0,0,1,6.79,25.95L1.45,16.728a5,5,0,0,1,0-5.01L6.79,2.495A5,5,0,0,1,11.117,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 61.362, 461)" fill="url(#linear-gradient)"/>
+    <g id="card" transform="translate(67.077 473.673)">
+      <path id="Shape" d="M1.776,10.654A1.776,1.776,0,0,1,0,8.878V4.143H13.022V8.878a1.776,1.776,0,0,1-1.776,1.776Zm.469-3.228a.9.9,0,0,0-.263.633.9.9,0,0,0,.9.9H4.911a.9.9,0,0,0,.9-.9.9.9,0,0,0-.9-.9H2.878A.894.894,0,0,0,2.245,7.426ZM0,2.96V1.776A1.776,1.776,0,0,1,1.776,0h9.471a1.776,1.776,0,0,1,1.776,1.776V2.96Z" transform="translate(0)" fill="#fff"/>
+    </g>
+  </g>
+</svg>
