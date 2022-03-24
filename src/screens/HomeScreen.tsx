@@ -3,7 +3,7 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import { View, Text } from 'native-base'
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground,FlatList,TouchableOpacity } from 'react-native';
+import { ImageBackground, FlatList, TouchableOpacity } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
@@ -91,21 +91,21 @@ const DATATWO = [
     id: '58694a0f-3da1-471f-bd96-14557677891e29d72',
     titles: 'four Item',
     Childern: LaptopIcon,
-    last:'true',
+    last: 'true',
   },
-  
+
 ];
 
 const HomeScreen = () => {
 
-  const renderItem = ( item ) => (
-    <DevicesComponent item ={item} />
+  const renderItem = (item) => (
+    <DevicesComponent item={item} />
   );
-  const renderItemTwo = ( {item} ) => {
+  const renderItemTwo = ({ item }) => {
     console.log(item)
-    
+
     return (
-    <HomeCard item ={item} />
+      <HomeCard item={item} />
     );
   };
 
@@ -115,16 +115,16 @@ const HomeScreen = () => {
       <ImageBackground style={styles.backgroundImage} source={backgroundImage}>
         <View style={styles.headerContainer}>
           <TouchableOpacity>
-          <ScannerIcon/>
+            <ScannerIcon />
           </TouchableOpacity>
           <TouchableOpacity>
-          <SettingIcon/>
+            <SettingIcon />
           </TouchableOpacity>
         </View>
         <View style={styles.eliteUserContentContainer}>
-          <DiamondIcon/>
+          <DiamondIcon />
           <View style={styles.eliteUserContainer} backgroundColor={'light.brown'}>
-          <Text style={styles.eliteUserText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'300'}>Elite User</Text>
+            <Text style={styles.eliteUserText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'300'}>Elite User</Text>
           </View>
         </View>
         <View style={styles.userNameContainer}>
@@ -142,9 +142,9 @@ const HomeScreen = () => {
         horizontal={true}
         style={styles.flatlistContainer}
         showsHorizontalScrollIndicator={false}
-        ListFooterComponent={<View style={{width:40}}></View>}
+        ListFooterComponent={<View style={{ width: 40 }}></View>}
       />
-       <Text style={styles.devicesText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'200'}>10 Wallets</Text>
+      <Text style={styles.devicesText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'200'}>10 Wallets</Text>
       <Text style={styles.securingFundsText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'100'}>lorem ipsum dolor</Text>
       <FlatList
         data={DATATWO}
@@ -153,9 +153,9 @@ const HomeScreen = () => {
         horizontal={true}
         style={styles.cardFlatlistContainer}
         showsHorizontalScrollIndicator={false}
-        ListFooterComponent={<View style={{width:50}}></View>}
+        ListFooterComponent={<View style={{ width: 50 }}></View>}
       />
-      
+
     </View >
   );
 };
@@ -164,12 +164,12 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
   },
-  headerContainer:{
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'space-between',
-    paddingTop:hp(4),
-    paddingHorizontal:wp(2),
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: hp(4),
+    paddingHorizontal: wp(2),
   },
   backgroundImage: {
     width: wp('100%'),
@@ -190,43 +190,43 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(12),
     lineHeight: '20@s',
     letterSpacing: '0.5@s',
-    textAlign:'center',
+    textAlign: 'center',
   },
-  devicesText:{
+  devicesText: {
     fontSize: RFValue(20),
     lineHeight: '27@s',
     letterSpacing: '0.5@s',
-    marginLeft:wp(10)
+    marginLeft: wp(10)
   },
-  securingFundsText:{
+  securingFundsText: {
     fontSize: RFValue(12),
     lineHeight: '16@s',
     letterSpacing: '0.5@s',
-    marginLeft:wp(10)
+    marginLeft: wp(10)
   },
-  flatlistContainer:{
-    flexGrow:0,
-    marginBottom:hp(4),
-    marginTop:hp(3),
-    paddingLeft:wp(10),
+  flatlistContainer: {
+    flexGrow: 0,
+    marginBottom: hp(4),
+    marginTop: hp(3),
+    paddingLeft: wp(10),
   },
-  cardFlatlistContainer:{
-    paddingLeft:wp(8),
+  cardFlatlistContainer: {
+    paddingLeft: wp(8),
   },
-  eliteUserContentContainer:{
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'center',
-    marginTop:hp(8),
-    marginBottom:hp(1.3)
+  eliteUserContentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: hp(8),
+    marginBottom: hp(1.3)
   },
-  eliteUserContainer:{
-    paddingHorizontal:wp(1.5),
-    borderRadius:'20@s',
-    height:hp(1.7),
-    marginLeft:wp(1)
+  eliteUserContainer: {
+    paddingHorizontal: wp(1.5),
+    borderRadius: '20@s',
+    height: hp(1.7),
+    marginLeft: wp(1)
   },
-  eliteUserText:{
+  eliteUserText: {
     fontSize: RFValue(8),
     lineHeight: '12@s',
     letterSpacing: '0.5@s',

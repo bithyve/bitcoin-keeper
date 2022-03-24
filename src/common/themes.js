@@ -22,7 +22,7 @@ export const customTheme = extendTheme({
     body: 'Roboto',
     mono: 'Roboto',
   },
-  
+
   colors: {
     light: {
       light: '#00836A',
@@ -30,6 +30,8 @@ export const customTheme = extendTheme({
       white: '#fff',
       lightBlack: '#041513',
       brown: '#D8A572',
+      textBlack: '#092C27',
+      greenText: '#073E39',
     },
     dark: {
       black: '#000000',

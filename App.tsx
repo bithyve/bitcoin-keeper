@@ -14,7 +14,7 @@ export default function AppWrapper() {
   const store = makeStore()
   return (
     <Provider store={store}>
-      <App/>
+      <App />
     </Provider>
   )
 }
