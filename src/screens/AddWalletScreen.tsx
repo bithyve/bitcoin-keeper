@@ -6,9 +6,9 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { ImageBackground, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import AccordionsComponent from '../components/AccordionsComponent';
-import HardWare from '../assets/Images/svgs/hardware.svg';
-import BackButton from '../assets/Images/svgs/back.svg';
+import AccordionsComponent from 'src/components/AccordionsComponent';
+import HardWare from 'src/assets/Images/svgs/hardware.svg';
+import BackButton from 'src/assets/Images/svgs/back.svg';
 
 const AddWalletScreen = () => {
 
@@ -22,7 +22,7 @@ const AddWalletScreen = () => {
           title: 'Single-sig Wallet',
           description: 'Lorem ipsum dolor sit amet, consectetur',
           icon: HardWare
-        }
+        },
       ]
     },
     {
