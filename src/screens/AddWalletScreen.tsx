@@ -1,15 +1,15 @@
-import React from 'react';
+import React, from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Text } from 'native-base'
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList, TouchableOpacity } from 'react-native';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/Images/svgs/hardware.svg';
 import BackButton from 'src/assets/Images/svgs/back.svg';
-import HexaBottomSheet from 'src/components/BottomSheet';
 
 const AddWalletScreen = () => {
   const Data = [
@@ -39,6 +39,7 @@ const AddWalletScreen = () => {
     },
   ];
   const renderItem = ({ item }) => <AccordionsComponent item={item} />;
+
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
@@ -64,7 +65,6 @@ const AddWalletScreen = () => {
         Lorem ipsum dolor sit amet,
       </Text>
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      <HexaBottomSheet>{null}</HexaBottomSheet>
     </View>
   );
 };
@@ -84,6 +84,6 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(12),
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
-  },
+  }
 });
 export default AddWalletScreen;
