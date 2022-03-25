@@ -1,4 +1,4 @@
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import HexaBottomSheet from 'src/components/BottomSheet';
@@ -17,6 +17,10 @@ const TestingBottomsheet = () => {
         title="Assign Beneficiary"
         subTitle={'Lorem Ipsum Dolor Amet...'}
         snapPoints={['25%', '50%']}
+        primaryText={'Primary'}
+        secondaryText={'Secondary'}
+        primaryCallback={null}
+        secondaryCallback={null}
       >
         <Heading>Hola!</Heading>
       </HexaBottomSheet>

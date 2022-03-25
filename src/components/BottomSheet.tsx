@@ -4,7 +4,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
-// import Close from 'src/assets/Images/svgs/close.svg';
+// import Close from 'src/assets/images/svgs/close.svg';
 type Ref<T> = RefCallback<T> | RefObject<T> | null;
 const HexaBottomSheet: React.FunctionComponent<{
   children: React.FunctionComponent | Element;
@@ -12,7 +12,21 @@ const HexaBottomSheet: React.FunctionComponent<{
   subTitle: string;
   snapPoints: string[];
   bottomSheetRef: Ref<BottomSheet>;
-}> = ({ children, title, subTitle, snapPoints: snaps, bottomSheetRef }) => {
+  primaryText?: string;
+  secondaryText?: string;
+  primaryCallback?: () => void;
+  secondaryCallback?: () => void;
+}> = ({
+  children,
+  title,
+  subTitle,
+  snapPoints: snaps,
+  bottomSheetRef,
+  primaryText,
+  secondaryText,
+  primaryCallback,
+  secondaryCallback,
+}) => {
   const snapPoints = useMemo(() => snaps, []);
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
@@ -36,8 +50,8 @@ const HexaBottomSheet: React.FunctionComponent<{
         </VStack>
         {children}
         <HStack alignSelf={'flex-end'}>
-          <SecondaryButton text={'Later'} callback={null} />
-          <PrimaryButton text={'Proceed'} callback={null} />
+          <SecondaryButton text={secondaryText} callback={secondaryCallback} />
+          <PrimaryButton text={primaryText} callback={primaryCallback} />
         </HStack>
       </BottomSheetView>
     </BottomSheet>
