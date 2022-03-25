@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet, SafeAreaView, StatusBar, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './src/navigation';
 import makeStore from './src/store';

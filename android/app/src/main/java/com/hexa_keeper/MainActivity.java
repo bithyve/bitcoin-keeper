@@ -1,5 +1,7 @@
 import android.os.Bundle;
 package com.hexa_keeper;
+import expo.modules.ReactActivityDelegateWrapper;
+import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -17,4 +19,11 @@ public class MainActivity extends ReactActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(null);
   } 
+
+  @Override
+  protected ReactActivityDelegate createReactActivityDelegate() {
+    return new ReactActivityDelegateWrapper(this,
+      new ReactActivityDelegate(this, getMainComponentName())
+    );
+  }
 }
