@@ -9,9 +9,9 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/Images/svgs/hardware.svg';
 import BackButton from 'src/assets/Images/svgs/back.svg';
+import HexaBottomSheet from 'src/components/BottomSheet';
 
 const AddWalletScreen = () => {
-
   const Data = [
     {
       id: 1,
@@ -21,40 +21,51 @@ const AddWalletScreen = () => {
         {
           title: 'Single-sig Wallet',
           description: 'Lorem ipsum dolor sit amet, consectetur',
-          icon: HardWare
+          icon: HardWare,
         },
-      ]
+      ],
     },
     {
       id: 2,
       heading: 'Import a Wallet',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
-      items: []
+      items: [],
     },
     {
       id: 3,
       heading: 'Add a Vault',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
-      items: []
+      items: [],
     },
-  ]
-  const renderItem = ({ item }) => (
-    <AccordionsComponent item={item} />
-  );
+  ];
+  const renderItem = ({ item }) => <AccordionsComponent item={item} />;
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
       <TouchableOpacity>
         <BackButton />
       </TouchableOpacity>
-      <Text numberOfLines={1} style={styles.addWalletText} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'200'}>Add a Wallet</Text>
-      <Text numberOfLines={1} style={styles.addWalletDescription} color={'light.lightBlack'} fontFamily={'body'} fontWeight={'100'}>Lorem ipsum dolor sit amet,</Text>
-      <FlatList
-        data={Data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-      />
-    </View >
+      <Text
+        numberOfLines={1}
+        style={styles.addWalletText}
+        color={'light.lightBlack'}
+        fontFamily={'body'}
+        fontWeight={'200'}
+      >
+        Add a Wallet
+      </Text>
+      <Text
+        numberOfLines={1}
+        style={styles.addWalletDescription}
+        color={'light.lightBlack'}
+        fontFamily={'body'}
+        fontWeight={'100'}
+      >
+        Lorem ipsum dolor sit amet,
+      </Text>
+      <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
+      <HexaBottomSheet>{null}</HexaBottomSheet>
+    </View>
   );
 };
 
@@ -67,7 +78,7 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(22),
     lineHeight: '20@s',
     letterSpacing: '0.7@s',
-    marginTop: hp(5)
+    marginTop: hp(5),
   },
   addWalletDescription: {
     fontSize: RFValue(12),
