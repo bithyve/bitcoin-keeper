@@ -1,4 +1,4 @@
-import React, from 'react';
+import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Text } from 'native-base'
 import { RFValue } from 'react-native-responsive-fontsize';
