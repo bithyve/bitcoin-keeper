@@ -1,9 +1,12 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useRef } from 'react';
 import Header from 'src/components/Header';
 import { Heading, Text, VStack } from 'native-base';
 import InheritanceModes from './InheritanceModes';
+import HexaBottomSheet from 'src/components/BottomSheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const InheritanceScreen = () => {
+  const assignRef = useRef<BottomSheet>(null);
   return (
     <Fragment>
       <Header />
@@ -17,8 +20,20 @@ const InheritanceScreen = () => {
           consectetur sapiente incidunt saepe qui, ullam facilis unde est fugiat cupiditate dolorem
           sint eum distinctio et similique minus. Rerum.
         </Text>
-        <InheritanceModes />
+        <InheritanceModes assignRef={assignRef} />
       </VStack>
+      <HexaBottomSheet
+        title={'Assign Benificiary'}
+        subTitle={'Lorem ipsum dolor sit, amet'}
+        snapPoints={['90%']}
+        bottomSheetRef={assignRef}
+        primaryText={'Proceed'}
+        secondaryText={'Setup Later'}
+      >
+        <Text noOfLines={2} marginY={12}>
+          Yet to implement
+        </Text>
+      </HexaBottomSheet>
     </Fragment>
   );
 };

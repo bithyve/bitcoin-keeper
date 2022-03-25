@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RightArrow from 'src/assets/images/rightarrow.svg';
@@ -6,6 +6,7 @@ import Benificiary from 'src/assets/images/Beneficiary.svg';
 import Declaration from 'src/assets/images/Declaration.svg';
 import Transfer from 'src/assets/images/Transfer.svg';
 import { HStack, VStack, Text } from 'native-base';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 const { height } = Dimensions.get('screen');
 
 const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ children, Icon }) => {
@@ -33,15 +34,20 @@ const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ child
     </LinearGradient>
   );
 };
-const InheritanceModes = () => {
+const InheritanceModes = ({ assignRef }) => {
+  const handleExpandPress = useCallback(() => {
+    assignRef.current?.expand();
+  }, []);
   return (
     <Fragment>
-      <Wrapper Icon={<Benificiary />}>
-        <Text fontSize={'13'}>Assign Beneficiary</Text>
-        <Text fontSize={'xs'} fontFamily={'mono'}>
-          Lorem ipsum dolor sit, amet
-        </Text>
-      </Wrapper>
+      <TouchableOpacity onPress={handleExpandPress}>
+        <Wrapper Icon={<Benificiary />}>
+          <Text fontSize={'13'}>Assign Beneficiary</Text>
+          <Text fontSize={'xs'} fontFamily={'mono'}>
+            Lorem ipsum dolor sit, amet
+          </Text>
+        </Wrapper>
+      </TouchableOpacity>
       <Wrapper Icon={<Declaration />}>
         <Text fontSize={'13'}>Sign Declaration</Text>
         <Text fontSize={'xs'} fontFamily={'mono'}>
