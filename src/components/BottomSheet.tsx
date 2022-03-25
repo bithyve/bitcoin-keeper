@@ -1,17 +1,18 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { RefCallback, RefObject, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
-
+// import Close from 'src/assets/Images/svgs/close.svg';
+type Ref<T> = RefCallback<T> | RefObject<T> | null;
 const HexaBottomSheet: React.FunctionComponent<{
   children: React.FunctionComponent | Element;
   title: string;
   subTitle: string;
   snapPoints: string[];
-}> = ({ children, title, subTitle, snapPoints: snaps }) => {
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  bottomSheetRef: Ref<BottomSheet>;
+}> = ({ children, title, subTitle, snapPoints: snaps, bottomSheetRef }) => {
   const snapPoints = useMemo(() => snaps, []);
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
@@ -19,12 +20,15 @@ const HexaBottomSheet: React.FunctionComponent<{
 
   return (
     <BottomSheet
-      index={1}
+      index={-1}
       ref={bottomSheetRef}
       enablePanDownToClose
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
     >
+      {/* <HStack justifyContent="flex-end" paddingX={'10'}>
+        <Close />
+      </HStack> */}
       <BottomSheetView style={styles.contentContainer}>
         <VStack>
           <Heading fontSize={'lg'}>{title}</Heading>
