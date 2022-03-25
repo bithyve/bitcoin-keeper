@@ -13,12 +13,12 @@ const Navigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Lock Screen" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen
           name="AddWallet Screen"
           component={AddWallet}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="Lock Screen" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Test" component={TestingBottomsheet} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       </Stack.Navigator>

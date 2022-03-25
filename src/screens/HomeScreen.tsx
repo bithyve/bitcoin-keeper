@@ -95,8 +95,6 @@ const DATATWO = [
 const HomeScreen = () => {
   const renderItem = (item) => <DevicesComponent item={item} />;
   const renderItemTwo = ({ item }) => {
-    console.log(item);
-
     return <HomeCard item={item} />;
   };
 

@@ -8,44 +8,40 @@ import { ScaledSheet } from 'react-native-size-matters';
 
 import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
+import TransectionSignComponent from 'src/components/TransectionSignComponent';
 
-const SecureHexa = ({ }) => {
+const SignTransection = ({ }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
       title="Secure Hexa Pay"
       subTitle={'Lorem Ipsum Dolor Amet'}
-      snapPoints={['25%', '65%']}
+      snapPoints={['25%', '79%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
       primaryCallback={null}
       secondaryCallback={null}
     >
-      <View>
-        <View style={styles.item}>
-          <HexaPayComponent />
-        </View>
-        <View style={styles.item}>
-          <Text style={styles.text} color={'light.lightBlack'} fontWeight={200} fontFamily={'body'} numberOfLines={2}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore e
-          </Text>
-        </View>
-      </View>
+      <Text style={styles.text} color={'light.greenText'} fontWeight={200} fontFamily={'body'} numberOfLines={2}>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore e
+      </Text>
+      <TransectionSignComponent />
+
     </HexaBottomSheet>
   );
 };
 
-export default SecureHexa;
+export default SignTransection;
 
 const styles = ScaledSheet.create({
   text: {
     fontSize: RFValue(12),
     letterSpacing: '0.6@s',
     width: wp('80%'),
-    fontWeight: '400'
-  },
-  item: {
-    marginVertical: hp(2)
+    fontWeight: '400',
+    paddingHorizontal: wp(2),
+    paddingVertical: hp(3)
+
   }
 });

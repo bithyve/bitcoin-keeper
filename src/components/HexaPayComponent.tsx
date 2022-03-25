@@ -1,15 +1,17 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import { Text } from 'native-base';
 
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import HardWare from 'src/assets/Images/svgs/hardware.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 
+const windowHeight = Dimensions.get('window').height;
+
 const HexaPayComponent = ({ }) => {
   return (
     <View style={styles.container} >
-      <View style={{ marginTop: 'auto', marginBottom: 'auto', marginLeft: wp(4) }}>
+      <View style={{ marginVertical: hp(2), marginLeft: wp(4) }}>
         <View style={styles.item}>
           <HardWare />
         </View>
@@ -40,9 +42,9 @@ export default HexaPayComponent;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ECD1B6',
+    backgroundColor: '#FDF6F0',
     borderRadius: 10,
-    height: hp('20%'),
+    height: hp(windowHeight >= 850 ? '20%' : windowHeight >= 750 ? '22%' : windowHeight >= 650 ? '24%' : '24%'),
     width: wp('80%'),
   },
   text: {

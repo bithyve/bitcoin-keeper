@@ -10,6 +10,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/Images/svgs/hardware.svg';
 import BackButton from 'src/assets/Images/svgs/back.svg';
+import SecureHexa from 'src/components/SecureHexa';
 
 const AddWalletScreen = () => {
   const Data = [
@@ -65,6 +66,7 @@ const AddWalletScreen = () => {
         Lorem ipsum dolor sit amet,
       </Text>
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
+      <SecureHexa />
     </View>
   );
 };
