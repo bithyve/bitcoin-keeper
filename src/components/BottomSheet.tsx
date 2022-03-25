@@ -5,6 +5,7 @@ import { Heading, HStack, Text, VStack } from 'native-base';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
 // import Close from 'src/assets/images/svgs/close.svg';
+// import Close from 'src/assets/Images/svgs/close.svg';
 type Ref<T> = RefCallback<T> | RefObject<T> | null;
 const HexaBottomSheet: React.FunctionComponent<{
   children: React.FunctionComponent | Element;
