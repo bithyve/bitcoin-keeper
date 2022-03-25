@@ -5,6 +5,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LockScreen from '../screens/LockScreen';
 import HomeScreen from '../screens/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
+import AddWallet from '../screens/AddWalletScreen';
+import TestingBottomsheet from 'src/screens/TestingBottomsheet';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -20,6 +22,8 @@ const Navigator = () => {
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
+        <Stack.Screen name="Test" component={TestingBottomsheet} />
+        <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Lock Screen" component={LockScreen} />
       </Stack.Navigator>

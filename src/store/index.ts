@@ -6,7 +6,7 @@ import { composeWithDevTools } from '@redux-devtools/extension'
 import { persistStore, persistReducer } from 'redux-persist'
 import accountsReducer from './reducers/accounts'
 import storageReducer from './reducers/storage'
-import { addNewAccountShellsWatcher, syncAccountsWatcher } from './sagas/accounts'
+import { addNewAccountShellsWatcher, importNewAccountWatcher, refreshAccountShellsWatcher, syncAccountsWatcher } from './sagas/accounts'
 import { setupWalletWatcher } from './sagas/storage'
 console.log({ syncAccountsWatcher })
 
@@ -23,6 +23,8 @@ const rootSaga = function* () {
     // account watchers
     addNewAccountShellsWatcher,
     syncAccountsWatcher,
+    refreshAccountShellsWatcher,
+    importNewAccountWatcher
   ]
 
   yield all(

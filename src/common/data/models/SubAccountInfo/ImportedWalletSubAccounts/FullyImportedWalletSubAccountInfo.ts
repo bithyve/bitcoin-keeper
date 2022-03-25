@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import {
+  AccountType,
   Balances,
   TransactionDetails,
 } from '../../../../../bitcoin/utilities/Interface'
@@ -17,12 +18,14 @@ type ConstructorProps = SubAccountDescribingConstructorProps & {};
 export default class FullyImportedWalletSubAccountInfo
 implements ImportedWalletSubAccountDescribing {
   id: string;
+  isUsable: boolean;
   xPub: string;
   accountShellID: string | null;
   instanceNumber: number;
 
   kind: SubAccountKind = SubAccountKind.FULLY_IMPORTED_WALLET;
   sourceKind: SourceAccountKind;
+  type: AccountType = AccountType.IMPORTED_ACCOUNT
 
   balances: Balances;
 
@@ -44,6 +47,7 @@ implements ImportedWalletSubAccountDescribing {
     xPub = null,
     accountShellID = null,
     instanceNumber = null,
+    isUsable,
     defaultTitle = 'Full Import',
     balances = {
       confirmed: 0, unconfirmed: 0
@@ -56,6 +60,7 @@ implements ImportedWalletSubAccountDescribing {
   }: ConstructorProps ) {
     this.id = id
     this.xPub = xPub
+    this.isUsable = isUsable,
     this.accountShellID = accountShellID
     this.instanceNumber = instanceNumber
     this.defaultTitle = defaultTitle
