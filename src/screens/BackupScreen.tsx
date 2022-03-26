@@ -77,10 +77,12 @@ const BackupScreen = () => {
         title='Add a Backup Key'
         subtitle='Lorem ipsum dolor sit amet, consectetur'
       />
-
-      <View style={{ marginTop: hp(2), marginBottom: hp(2) }}>
-        <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      </View>
+      <FlatList
+        style={{ marginTop: hp(2) }}
+        showsVerticalScrollIndicator={false}
+        data={Data}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id} />
     </View>
   );
 };
