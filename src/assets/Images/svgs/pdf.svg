@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="39.176" height="36" viewBox="0 0 39.176 36">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.157" y1="0.247" x2="0.87" y2="0.724" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="pdf" transform="translate(-44 -384)">
+    <path id="hexagontile3" d="M21.819,0a5,5,0,0,1,4.327,2.495l5.339,9.222a5,5,0,0,1,0,5.01L26.146,25.95a5,5,0,0,1-4.327,2.495h-10.7A5,5,0,0,1,6.79,25.95L1.45,16.728a5,5,0,0,1,0-5.01L6.79,2.495A5,5,0,0,1,11.117,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 51.362, 384)" fill="url(#linear-gradient)"/>
+    <g id="file" transform="translate(58.698 395.712)">
+      <path id="Shape" d="M1.544,12.259A1.543,1.543,0,0,1,0,10.709V1.55A1.548,1.548,0,0,1,1.544,0H5.4V3.086A1.543,1.543,0,0,0,6.946,4.63h3.086v6.085a1.544,1.544,0,0,1-1.543,1.544Zm5.4-9.172V.056l3.031,3.03Z" transform="translate(0.302 0.51)" fill="#fffcfa"/>
+    </g>
+  </g>
+</svg>

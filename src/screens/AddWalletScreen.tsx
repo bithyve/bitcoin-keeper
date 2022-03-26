@@ -9,6 +9,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/Images/svgs/hardware.svg';
 import BackButton from 'src/assets/Images/svgs/back.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 const AddWalletScreen = () => {
   const Data = [
@@ -42,29 +43,11 @@ const AddWalletScreen = () => {
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
-      <TouchableOpacity>
-        <BackButton />
-      </TouchableOpacity>
-      <Text
-        numberOfLines={1}
-        style={styles.addWalletText}
-        color={'light.lightBlack'}
-        fontFamily={'body'}
-        fontWeight={'200'}
-      >
-        Add a Wallet
-      </Text>
-      <Text
-        numberOfLines={1}
-        style={styles.addWalletDescription}
-        color={'light.lightBlack'}
-        fontFamily={'body'}
-        fontWeight={'100'}
-      >
-        Lorem ipsum dolor sit amet,
-      </Text>
+      <HeaderTitle
+        title='Add a Wallet'
+        subtitle='Lorem ipsum dolor sit amet, consectetur'
+      />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-
     </View>
   );
 };
