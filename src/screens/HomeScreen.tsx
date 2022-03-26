@@ -274,5 +274,10 @@ const styles = ScaledSheet.create({
     lineHeight: '12@s',
     letterSpacing: '0.5@s',
   },
+  eliteUserText: {
+    fontSize: RFValue(8),
+    lineHeight: '12@s',
+    letterSpacing: '0.5@s',
+  },
 });
 export default HomeScreen;

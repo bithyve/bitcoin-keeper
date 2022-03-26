@@ -67,7 +67,6 @@ const AddWalletScreen = () => {
         Lorem ipsum dolor sit amet,
       </Text>
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      <HexaBottomSheet>{null}</HexaBottomSheet>
     </View>
   );
 };
