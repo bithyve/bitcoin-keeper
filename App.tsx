@@ -1,9 +1,8 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView, StatusBar, Platform, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigator from './src/navigation';
 import makeStore from './src/store';
 import { Provider } from 'react-redux';
+import { StatusBar } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from './src/common/themes';
 import { LogBox } from 'react-native';
@@ -11,6 +10,7 @@ import { LogBox } from 'react-native';
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
+  /[Require cycle]*/,
 ]);
 
 export default function AppWrapper() {
@@ -27,9 +27,8 @@ export default function AppWrapper() {
 const App = () => {
   return (
     <NativeBaseProvider theme={customTheme}>
-      <SafeAreaProvider>
-        <Navigator />
-      </SafeAreaProvider>
+      <StatusBar barStyle={'dark-content'} />
+      <Navigator />
     </NativeBaseProvider>
   );
 };

@@ -1,14 +1,13 @@
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { View, Text } from 'native-base';
+import { View } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { FlatList } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
-import BackButton from 'src/assets/images/svgs/back.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 
 const AddWalletScreen = () => {
