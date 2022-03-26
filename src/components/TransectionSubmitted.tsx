@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { View } from 'react-native';
 import { Text } from 'native-base';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -7,17 +6,16 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import HexaBottomSheet from 'src/components/BottomSheet';
-import HexaPayComponent from 'src/components/HexaPayComponent';
-import TransectionSignComponent from 'src/components/TransectionSignComponent';
+import TransectionSubmittedComponent from 'src/components/TransectionSubmittedComponent';
 
-const SignTransection = ({ }) => {
+const TransectionSubmitted = ({ }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
-      title="Sign transaction"
+      title="Transection Submitted"
       subTitle={'Lorem Ipsum Dolor Amet'}
-      snapPoints={['25%', '79%']}
+      snapPoints={['25%', '65%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
       primaryCallback={null}
@@ -26,13 +24,13 @@ const SignTransection = ({ }) => {
       <Text style={styles.text} color={'light.greenText'} fontWeight={200} fontFamily={'body'} numberOfLines={2}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore e
       </Text>
-      <TransectionSignComponent />
+      <TransectionSubmittedComponent />
 
     </HexaBottomSheet>
   );
 };
 
-export default SignTransection;
+export default TransectionSubmitted;
 
 const styles = ScaledSheet.create({
   text: {
