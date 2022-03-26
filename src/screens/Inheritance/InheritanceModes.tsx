@@ -34,13 +34,16 @@ const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ child
     </LinearGradient>
   );
 };
-const InheritanceModes = ({ assignRef }) => {
-  const handleExpandPress = useCallback(() => {
+const InheritanceModes = ({ assignRef, declarationRef }) => {
+  const expandBeneficiaries = useCallback(() => {
     assignRef.current?.expand();
+  }, []);
+  const expandDecalarations = useCallback(() => {
+    declarationRef.current?.expand();
   }, []);
   return (
     <Fragment>
-      <TouchableOpacity onPress={handleExpandPress}>
+      <TouchableOpacity onPress={expandBeneficiaries}>
         <Wrapper Icon={<Benificiary />}>
           <Text fontSize={'13'}>Assign Beneficiary</Text>
           <Text fontSize={'xs'} fontFamily={'mono'}>
@@ -48,12 +51,14 @@ const InheritanceModes = ({ assignRef }) => {
           </Text>
         </Wrapper>
       </TouchableOpacity>
-      <Wrapper Icon={<Declaration />}>
-        <Text fontSize={'13'}>Sign Declaration</Text>
-        <Text fontSize={'xs'} fontFamily={'mono'}>
-          Lorem ipsum dolor sit, amet
-        </Text>
-      </Wrapper>
+      <TouchableOpacity onPress={expandDecalarations}>
+        <Wrapper Icon={<Declaration />}>
+          <Text fontSize={'13'}>Sign Declaration</Text>
+          <Text fontSize={'xs'} fontFamily={'mono'}>
+            Lorem ipsum dolor sit, amet
+          </Text>
+        </Wrapper>
+      </TouchableOpacity>
       <Wrapper Icon={<Transfer />}>
         <Text fontSize={'13'}>Activate Transfer</Text>
         <Text fontSize={'xs'} fontFamily={'mono'}>

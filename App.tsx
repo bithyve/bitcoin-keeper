@@ -10,6 +10,7 @@ import { LogBox } from 'react-native';
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
+  /[Require cycle]*/,
 ]);
 
 export default function AppWrapper() {

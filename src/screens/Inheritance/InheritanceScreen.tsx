@@ -1,12 +1,21 @@
-import React, { Fragment, useRef } from 'react';
+import React, { Fragment, useCallback, useRef } from 'react';
 import Header from 'src/components/Header';
 import { Heading, Text, VStack } from 'native-base';
 import InheritanceModes from './InheritanceModes';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import BottomSheet from '@gorhom/bottom-sheet';
+import BenificiaryList from './BenificiaryList';
+import DeclarationForm from './DeclarationForm';
 
 const InheritanceScreen = () => {
   const assignRef = useRef<BottomSheet>(null);
+  const declarationRef = useRef<BottomSheet>(null);
+  const closeDecalarationSheet = useCallback(() => {
+    declarationRef.current?.close();
+  }, []);
+  const closeBeneficiarySheet = useCallback(() => {
+    assignRef.current?.close();
+  }, []);
   return (
     <Fragment>
       <Header />
@@ -20,7 +29,7 @@ const InheritanceScreen = () => {
           consectetur sapiente incidunt saepe qui, ullam facilis unde est fugiat cupiditate dolorem
           sint eum distinctio et similique minus. Rerum.
         </Text>
-        <InheritanceModes assignRef={assignRef} />
+        <InheritanceModes assignRef={assignRef} declarationRef={declarationRef} />
       </VStack>
       <HexaBottomSheet
         title={'Assign Benificiary'}
@@ -29,10 +38,20 @@ const InheritanceScreen = () => {
         bottomSheetRef={assignRef}
         primaryText={'Proceed'}
         secondaryText={'Setup Later'}
+        secondaryCallback={closeBeneficiarySheet}
       >
-        <Text noOfLines={2} marginY={12}>
-          Yet to implement
-        </Text>
+        <BenificiaryList />
+      </HexaBottomSheet>
+      <HexaBottomSheet
+        title={'Sign Declaration'}
+        subTitle={'Lorem ipsum dolor sit, amet'}
+        snapPoints={['90%']}
+        bottomSheetRef={declarationRef}
+        primaryText={'Sign'}
+        secondaryText={'Cancel'}
+        secondaryCallback={closeDecalarationSheet}
+      >
+        <DeclarationForm />
       </HexaBottomSheet>
     </Fragment>
   );

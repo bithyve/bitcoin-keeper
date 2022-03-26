@@ -1,12 +1,11 @@
 import React, { RefCallback, RefObject, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
-// import Close from 'src/assets/images/svgs/close.svg';
-// import Close from 'src/assets/images/svgs/close.svg';
 type Ref<T> = RefCallback<T> | RefObject<T> | null;
+
 const HexaBottomSheet: React.FunctionComponent<{
   children: React.FunctionComponent | Element;
   title: string;
@@ -32,6 +31,12 @@ const HexaBottomSheet: React.FunctionComponent<{
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
+  const backdropComponent = useCallback(
+    (props) => (
+      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={1} opacity={1} />
+    ),
+    []
+  );
 
   return (
     <BottomSheet
@@ -40,6 +45,8 @@ const HexaBottomSheet: React.FunctionComponent<{
       enablePanDownToClose
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
+      backdropComponent={backdropComponent}
+      backgroundStyle={{ backgroundColor: '#FFFBF7' }}
     >
       {/* <HStack justifyContent="flex-end" paddingX={'10'}>
         <Close />
