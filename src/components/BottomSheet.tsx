@@ -1,9 +1,16 @@
 import React, { RefCallback, RefObject, useCallback, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
-import PrimaryButton from './PrimaryButton';
-import SecondaryButton from './SecondaryButton';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import Buttons from './Buttons';
+import Close from 'src/assets/images/svgs/close.svg';
+import Fonts from 'src/common/Fonts';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { customTheme } from 'src/common/themes';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
+const Colors = customTheme.colors.light;
+
 type Ref<T> = RefCallback<T> | RefObject<T> | null;
 
 const HexaBottomSheet: React.FunctionComponent<{
@@ -46,20 +53,40 @@ const HexaBottomSheet: React.FunctionComponent<{
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
       backdropComponent={backdropComponent}
-      backgroundStyle={{ backgroundColor: '#FFFBF7' }}
+      backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
     >
-      {/* <HStack justifyContent="flex-end" paddingX={'10'}>
-        <Close />
-      </HStack> */}
+      <HStack justifyContent="flex-end" paddingX={'10'} paddingY={'1'}>
+        <TouchableOpacity>
+          <Close />
+        </TouchableOpacity>
+      </HStack>
       <BottomSheetView style={styles.contentContainer}>
-        <VStack>
-          <Heading fontSize={'lg'}>{title}</Heading>
-          <Text fontSize={'xs'}>{subTitle}</Text>
+        <VStack paddingX={'2'} backgroundColor="red">
+          <Heading style={styles.heading} fontSize={'lg'}>
+            {title}
+          </Heading>
+          <Text
+            style={{
+              fontWeight: '100',
+              letterSpacing: 0.6,
+              fontSize: RFValue(12),
+              marginTop: hp(0.7),
+            }}
+            fontWeight={'200'}
+            color="light.textBlack"
+            fontFamily={'body'}
+          >
+            {subTitle}
+          </Text>
         </VStack>
         {children}
-        <HStack alignSelf={'flex-end'}>
-          <SecondaryButton text={secondaryText} callback={secondaryCallback} />
-          <PrimaryButton text={primaryText} callback={primaryCallback} />
+        <HStack alignSelf={'flex-end'} marginBottom="3">
+          <Buttons
+            secondaryText={secondaryText}
+            secondaryCallback={secondaryCallback}
+            primaryText={primaryText}
+            primaryCallback={primaryCallback}
+          />
         </HStack>
       </BottomSheetView>
     </BottomSheet>
@@ -77,6 +104,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: '8%',
     marginBottom: '10%',
+  },
+  heading: {
+    fontFamily: Fonts.RobotoCondensedRegular,
+    fontSize: RFValue(18),
+    letterSpacing: 0.9,
+    color: Colors.textBlack,
   },
 });
 

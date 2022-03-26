@@ -95,8 +95,6 @@ const DATATWO = [
 const HomeScreen = () => {
   const renderItem = (item) => <DevicesComponent item={item} />;
   const renderItemTwo = ({ item }) => {
-    console.log(item);
-
     return <HomeCard item={item} />;
   };
 
@@ -268,11 +266,6 @@ const styles = ScaledSheet.create({
     borderRadius: '20@s',
     height: hp(1.7),
     marginLeft: wp(1),
-  },
-  eliteUserText: {
-    fontSize: RFValue(8),
-    lineHeight: '12@s',
-    letterSpacing: '0.5@s',
   },
   eliteUserText: {
     fontSize: RFValue(8),

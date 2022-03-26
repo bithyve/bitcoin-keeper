@@ -6,6 +6,7 @@ import HomeScreen from 'src/screens/HomeScreen';
 import AddWallet from '../screens/AddWalletScreen';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
 import LoginScreen from 'src/screens/LoginScreen';
+import BackupScreen from 'src/screens/BackupScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -19,16 +20,13 @@ const Navigator = () => {
 
   return (
     <NavigationContainer theme={defaultTheme}>
-      <Stack.Navigator>
-        <Stack.Screen name="Lock Screen" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="AddWallet Screen"
-          component={AddWallet}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Test" component={TestingBottomsheet} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Lock Screen" component={LoginScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Backup" component={BackupScreen} />
+        <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
+        <Stack.Screen name="Test" component={TestingBottomsheet} />
       </Stack.Navigator>
     </NavigationContainer>
   );
