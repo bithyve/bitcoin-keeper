@@ -2,34 +2,42 @@ import React from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { Text } from 'native-base';
 
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import HardWare from 'src/assets/Images/svgs/hardware.svg';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+import HardWare from 'src/assets/images/svgs/hardware.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import BitCoinBlack from 'src/assets/Images/svgs/btc (black).svg'
+import BitCoinBlack from 'src/assets/images/svgs/btc (black).svg';
 
 const windowHeight = Dimensions.get('window').height;
 
-const TransectionSubmittedComponent = ({ }) => {
+const TransectionSubmittedComponent = ({}) => {
   return (
-    <View style={styles.container} >
+    <View style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.item}>
           <HardWare />
-          <Text style={styles.text} color={'light.textBlack'} fontFamily='body' fontWeight={'200'} >
+          <Text style={styles.text} color={'light.textBlack'} fontFamily="body" fontWeight={'200'}>
             Hexa Pay
           </Text>
-          <Text style={styles.text1} color={'light.textBlack'} fontFamily='body' fontWeight={'100'}>
+          <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
             lorem ipsum dolor
           </Text>
         </View>
         <View style={styles.moreDetails}>
-          <Text style={styles.amountText} color={'light.textBlack'} fontFamily='body' fontWeight={'100'}>
+          <Text
+            style={styles.amountText}
+            color={'light.textBlack'}
+            fontFamily="body"
+            fontWeight={'100'}
+          >
             <BitCoinBlack />
             0.000024
           </Text>
         </View>
       </View>
-    </View >
+    </View>
   );
 };
 
@@ -39,10 +47,18 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FDF6F0',
     borderRadius: 10,
-    height: hp(windowHeight >= 850 ? '19%' : windowHeight >= 750 ? '20.5%' : windowHeight >= 650 ? '22%' : '23%'),
+    height: hp(
+      windowHeight >= 850
+        ? '19%'
+        : windowHeight >= 750
+        ? '20.5%'
+        : windowHeight >= 650
+        ? '22%'
+        : '23%'
+    ),
     width: wp('83%'),
     marginBottom: hp(2),
-    paddingVertical: hp(2)
+    paddingVertical: hp(2),
   },
   innerContainer: {
     marginHorizontal: wp(5.5),
@@ -52,14 +68,14 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: RFValue(14),
-    letterSpacing: 0.28
+    letterSpacing: 0.28,
   },
   text1: {
     fontSize: RFValue(10),
-    letterSpacing: 0.5
+    letterSpacing: 0.5,
   },
   item: {
-    marginVertical: hp(.5)
+    marginVertical: hp(0.5),
   },
   moreDetails: {
     alignSelf: 'flex-end',

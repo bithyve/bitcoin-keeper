@@ -9,7 +9,7 @@ import {
 import { List } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 
-import DownArrowIcon from 'src/assets/Images/svgs/down_arrow.svg';
+import DownArrowIcon from 'src/assets/images/svgs/down_arrow.svg';
 import Fonts from 'src/common/Fonts';
 import { customTheme } from 'src/common/themes';
 

@@ -2,11 +2,8 @@ import React, { RefCallback, RefObject, useCallback, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
-import PrimaryButton from './PrimaryButton';
-import SecondaryButton from './SecondaryButton';
 import Buttons from './Buttons';
-// import Close from 'src/assets/images/svgs/close.svg';
-import Close from 'src/assets/Images/svgs/close.svg';
+import Close from 'src/assets/images/svgs/close.svg';
 import Fonts from 'src/common/Fonts';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { customTheme } from 'src/common/themes';
@@ -36,49 +33,57 @@ const HexaBottomSheet: React.FunctionComponent<{
   primaryCallback,
   secondaryCallback,
 }) => {
-    const snapPoints = useMemo(() => snaps, []);
-    const handleSheetChanges = useCallback((index: number) => {
-      console.log('handleSheetChanges', index);
-    }, []);
+  const snapPoints = useMemo(() => snaps, []);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
-    return (
-      <BottomSheet
-        index={1}
-        ref={bottomSheetRef}
-        enablePanDownToClose
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-        backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
-      >
-        <HStack justifyContent="flex-end" paddingX={'10'} paddingY={'1'}>
-          <TouchableOpacity>
-            <Close />
-          </TouchableOpacity>
+  return (
+    <BottomSheet
+      index={1}
+      ref={bottomSheetRef}
+      enablePanDownToClose
+      snapPoints={snapPoints}
+      onChange={handleSheetChanges}
+      backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
+    >
+      <HStack justifyContent="flex-end" paddingX={'10'} paddingY={'1'}>
+        <TouchableOpacity>
+          <Close />
+        </TouchableOpacity>
+      </HStack>
+      <BottomSheetView style={styles.contentContainer}>
+        <VStack paddingX={'2'} backgroundColor="red">
+          <Heading style={styles.heading} fontSize={'lg'}>
+            {title}
+          </Heading>
+          <Text
+            style={{
+              fontWeight: '100',
+              letterSpacing: 0.6,
+              fontSize: RFValue(12),
+              marginTop: hp(0.7),
+            }}
+            fontWeight={'200'}
+            color="light.textBlack"
+            fontFamily={'body'}
+          >
+            {subTitle}
+          </Text>
+        </VStack>
+        {children}
+        <HStack alignSelf={'flex-end'} marginBottom="3">
+          <Buttons
+            secondaryText={secondaryText}
+            secondaryCallback={secondaryCallback}
+            primaryText={primaryText}
+            primaryCallback={primaryCallback}
+          />
         </HStack>
-        <BottomSheetView style={styles.contentContainer}>
-          <VStack paddingX={'2'} backgroundColor='red' >
-            <Heading style={styles.heading} fontSize={'lg'}>{title}</Heading>
-            <Text
-              style={{ fontWeight: '100', letterSpacing: 0.6, fontSize: RFValue(12), marginTop: hp(0.7) }}
-              fontWeight={'200'}
-              color='light.textBlack'
-              fontFamily={'body'} >
-              {subTitle}
-            </Text>
-          </VStack>
-          {children}
-
-          <HStack alignSelf={'flex-end'} marginBottom='3'>
-            <Buttons
-              secondaryText={secondaryText}
-              secondaryCallback={secondaryCallback}
-              primaryText={primaryText}
-              primaryCallback={primaryCallback} />
-          </HStack>
-        </BottomSheetView>
-      </BottomSheet >
-    );
-  };
+      </BottomSheetView>
+    </BottomSheet>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -96,9 +101,8 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: RFValue(18),
     letterSpacing: 0.9,
-    color: Colors.textBlack
-  }
-
+    color: Colors.textBlack,
+  },
 });
 
 export default HexaBottomSheet;

@@ -1,14 +1,14 @@
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { View, Text } from 'native-base'
+import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList, TouchableOpacity } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
-import HardWare from 'src/assets/Images/svgs/hardware.svg';
-import BackButton from 'src/assets/Images/svgs/back.svg';
+import HardWare from 'src/assets/images/svgs/hardware.svg';
+import BackButton from 'src/assets/images/svgs/back.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 
 const AddWalletScreen = () => {
@@ -43,10 +43,7 @@ const AddWalletScreen = () => {
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title='Add a Wallet'
-        subtitle='Lorem ipsum dolor sit amet, consectetur'
-      />
+      <HeaderTitle title="Add a Wallet" subtitle="Lorem ipsum dolor sit amet, consectetur" />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
     </View>
   );
@@ -67,6 +64,6 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(12),
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
-  }
+  },
 });
 export default AddWalletScreen;

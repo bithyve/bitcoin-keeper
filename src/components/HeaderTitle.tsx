@@ -1,14 +1,16 @@
 import React from 'react';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import { View, Text } from 'native-base'
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 
-import BackButton from 'src/assets/Images/svgs/back.svg';
+import BackButton from 'src/assets/images/svgs/back.svg';
 
 const HeaderTitle = ({ title = '', subtitle = '' }) => {
-
   return (
     <View background={'light.lightYellow'}>
       <TouchableOpacity>
@@ -53,7 +55,7 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(12),
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
-    width: wp('60%')
-  }
+    width: wp('60%'),
+  },
 });
 export default HeaderTitle;

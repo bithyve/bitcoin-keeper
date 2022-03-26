@@ -1,20 +1,18 @@
 import React from 'react';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import { View, Text } from 'native-base'
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
-import Laptop from 'src/assets/Images/svgs/laptop.svg';
-import Next from 'src/assets/Images/svgs/next.svg';
+import Laptop from 'src/assets/images/svgs/laptop.svg';
+import Next from 'src/assets/images/svgs/next.svg';
 
-const BackupListComponent = ({
-  title = '',
-  subtitle = '',
-  Icon = null
-}) => {
-
+const BackupListComponent = ({ title = '', subtitle = '', Icon = null }) => {
   return (
     <LinearGradient
       start={{ x: 0, y: 0 }}
@@ -26,10 +24,15 @@ const BackupListComponent = ({
         <View style={{ flexDirection: 'row' }}>
           <Icon />
           <View style={{ marginLeft: wp(2) }}>
-            <Text style={styles.title} fontFamily='body' fontWeight='200' color='light.textBlack' >
+            <Text style={styles.title} fontFamily="body" fontWeight="200" color="light.textBlack">
               {title}
             </Text>
-            <Text style={styles.subtitle} fontFamily='body' fontWeight='100' color='light.textBlack'>
+            <Text
+              style={styles.subtitle}
+              fontFamily="body"
+              fontWeight="100"
+              color="light.textBlack"
+            >
               {subtitle}
             </Text>
           </View>
@@ -52,19 +55,19 @@ const styles = ScaledSheet.create({
     marginTop: hp(2),
   },
   cardContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: wp(5),
     paddingVertical: hp(3),
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   title: {
     fontSize: RFValue(12),
-    letterSpacing: '0.24@s'
+    letterSpacing: '0.24@s',
   },
   subtitle: {
     fontSize: RFValue(10),
-    letterSpacing: '0.20@s'
-  }
+    letterSpacing: '0.20@s',
+  },
 });
 export default BackupListComponent;
