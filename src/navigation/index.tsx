@@ -6,6 +6,7 @@ import LoginScreen from 'src/screens/LoginScreen';
 import HomeScreen from 'src/screens/HomeScreen';
 import AddWallet from '../screens/AddWalletScreen';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
+import BackupScreen from 'src/screens/BackupScreen';
 
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
@@ -19,6 +20,7 @@ const Navigator = () => {
           component={AddWallet}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="Backup" component={BackupScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Test" component={TestingBottomsheet} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
