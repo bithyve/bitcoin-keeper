@@ -1,5 +1,5 @@
-import android.os.Bundle;
 package com.hexa_keeper;
+import android.os.Bundle;
 import expo.modules.ReactActivityDelegateWrapper;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactActivity;

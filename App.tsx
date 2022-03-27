@@ -1,11 +1,13 @@
 import React from 'react';
-import Navigator from './src/navigation';
+import Navigator from './src/navigation/Navigator';
 import makeStore from './src/store';
 import { Provider } from 'react-redux';
 import { Platform, StatusBar, UIManager } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from './src/common/themes';
 import { LogBox } from 'react-native';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
@@ -32,9 +34,13 @@ if (Platform.OS === 'android') {
 
 const App = () => {
   return (
-    <NativeBaseProvider theme={customTheme}>
-      <StatusBar barStyle={'dark-content'} />
-      <Navigator />
-    </NativeBaseProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <NativeBaseProvider theme={customTheme}>
+          <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
+          <Navigator />
+        </NativeBaseProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 };
