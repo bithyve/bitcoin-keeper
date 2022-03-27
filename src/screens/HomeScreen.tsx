@@ -25,6 +25,7 @@ import AddNewIcon from '../assets/images/svgs/add_key.svg';
 import SingleSigIcon from '../assets/images/svgs/single_sig.svg';
 import BlueWalletIcon from '../assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from '../assets/images/svgs/multi_sig.svg';
+import SettingSheet from './Settings/SettingSheet';
 
 const DATA = [
   {
@@ -93,10 +94,15 @@ const DATATWO = [
 ];
 
 const HomeScreen = ({ navigation }) => {
+  const bottomSheetRef = React.useRef(null);
+
   const renderItem = (item) => <DevicesComponent item={item} />;
   const renderItemTwo = ({ item }) => {
     return <HomeCard item={item} />;
   };
+  const openSettings = React.useCallback(() => {
+    bottomSheetRef.current?.expand();
+  }, []);
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
@@ -106,7 +112,7 @@ const HomeScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.navigate('QRscanner')}>
             <ScannerIcon />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={openSettings}>
             <SettingIcon />
           </TouchableOpacity>
         </View>
@@ -197,6 +203,7 @@ const HomeScreen = ({ navigation }) => {
         showsHorizontalScrollIndicator={false}
         ListFooterComponent={<View style={{ width: 50 }}></View>}
       />
+      <SettingSheet bottomSheetRef={bottomSheetRef} />
     </View>
   );
 };
