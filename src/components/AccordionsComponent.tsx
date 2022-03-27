@@ -12,12 +12,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import DownArrowIcon from 'src/assets/images/svgs/down_arrow.svg';
 import Fonts from 'src/common/Fonts';
 import { customTheme } from 'src/common/themes';
+import { LayoutAnimation } from 'react-native';
 
 const Colors = customTheme.colors.light;
 
 const AccordionsComponent = ({ item }) => {
-  const [expanded, setExpanded] = useState(true);
-  const handlePress = () => setExpanded(!expanded);
+  // const [expanded, setExpanded] = useState(true);
+  // const handlePress = () => setExpanded(!expanded);
 
   return (
     <LinearGradient
@@ -31,6 +32,10 @@ const AccordionsComponent = ({ item }) => {
           style={styles.accordionContainer}
           theme={{ colors: { background: 'transparent' } }}
           accessibilityLabel="false"
+          onPress={() => {
+            item.onPress && item.onPress();
+            LayoutAnimation.configureNext(LayoutAnimation.create(100, 'linear', 'opacity'));
+          }}
           title={item?.heading}
           titleNumberOfLines={1}
           titleStyle={styles.accordionTitle}
