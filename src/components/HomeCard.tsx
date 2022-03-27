@@ -11,16 +11,17 @@ import { View, Text } from 'native-base';
 import HomeCardImage from '../assets/images/homecard.png';
 import AddSCardIcon from '../assets/images/svgs/card_add.svg';
 import BtcIcon from '../assets/images/svgs/btc.svg';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeCard = ({ item }) => {
   const Icon = item?.Childern;
-
+  const navigation = useNavigation();
   return (
     <View>
       <ImageBackground style={styles.homeCard} source={HomeCardImage}>
         {item?.last === 'true' ? (
           <View style={styles.addWalletContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('AddWallet Screen')}>
               <AddSCardIcon />
             </TouchableOpacity>
             <Text

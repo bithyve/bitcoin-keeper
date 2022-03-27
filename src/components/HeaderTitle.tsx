@@ -10,10 +10,10 @@ import { TouchableOpacity } from 'react-native';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
 
-const HeaderTitle = ({ title = '', subtitle = '' }) => {
+const HeaderTitle = ({ title = '', subtitle = '', onPressHandler }) => {
   return (
     <View background={'light.lightYellow'}>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={onPressHandler}>
         <BackButton />
       </TouchableOpacity>
       <View style={{ marginTop: hp(2) }}>

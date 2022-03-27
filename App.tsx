@@ -2,7 +2,7 @@ import React from 'react';
 import Navigator from './src/navigation/Navigator';
 import makeStore from './src/store';
 import { Provider } from 'react-redux';
-import { StatusBar } from 'react-native';
+import { Platform, StatusBar, UIManager } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from './src/common/themes';
 import { LogBox } from 'react-native';
@@ -24,6 +24,12 @@ export default function AppWrapper() {
       <App />
     </Provider>
   );
+}
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
 }
 
 const App = () => {
