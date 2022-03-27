@@ -1,6 +1,6 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { View } from 'native-base';
+import { Input, View } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList, Text } from 'react-native';
@@ -14,10 +14,21 @@ import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
 
 const AddWalletScreen = () => {
+  const [addWalletType, setAddWalletType] = useState('');
   const addVaultSheetRef = useRef<BottomSheet>(null);
+  const addWalletSheetRef = useRef<BottomSheet>(null);
+
+  const closeAddWalletSheet = useCallback(() => {
+    addVaultSheetRef.current?.close();
+  }, []);
+
+  const expandAddWalletSheet = useCallback((addWalletType) => {
+    setAddWalletType(addWalletType);
+    addWalletSheetRef.current?.expand();
+  }, []);
 
   const closeAddVaultSheet = useCallback(() => {
-    addVaultSheetRef.current?.close();
+    addWalletSheetRef.current?.close();
   }, []);
 
   const expandAddVaultSheet = useCallback(() => {
@@ -40,6 +51,50 @@ const AddWalletScreen = () => {
     );
   };
 
+  const AddWalletSheet = () => {
+    return (
+      <HexaBottomSheet
+        title={'Add Wallet Details'}
+        subTitle={'Lorem Ipsum Dolor Amet'}
+        snapPoints={['50%']}
+        bottomSheetRef={addWalletSheetRef}
+        primaryText={'Create'}
+        secondaryText={'Cancel'}
+        secondaryCallback={closeAddWalletSheet}
+      >
+        <Input
+          w="100%"
+          placeholder={addWalletType}
+          value={addWalletType}
+          style={{ padding: 30 }}
+          size={'lg'}
+          backgroundColor={'#D8A57210'}
+          color={'#073E39'}
+          borderWidth={'0'}
+          padding={3}
+        />
+        <Input
+          w="100%"
+          placeholder="Default Input"
+          size={'lg'}
+          backgroundColor={'#D8A57210'}
+          color={'#073E39'}
+          borderWidth={'0'}
+          padding={3}
+        />
+        <Input
+          w="100%"
+          placeholder="Default Input"
+          size={'lg'}
+          backgroundColor={'#D8A57210'}
+          color={'#073E39'}
+          borderWidth={'0'}
+          padding={3}
+        />
+      </HexaBottomSheet>
+    );
+  };
+
   const Data = [
     {
       id: 1,
@@ -50,6 +105,7 @@ const AddWalletScreen = () => {
           title: 'Single-sig Wallet',
           description: 'Lorem ipsum dolor sit amet, consectetur',
           icon: HardWare,
+          onPress: expandAddWalletSheet,
         },
       ],
     },
@@ -80,6 +136,7 @@ const AddWalletScreen = () => {
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
       <AddVaultSheet />
+      <AddWalletSheet />
     </View>
   );
 };

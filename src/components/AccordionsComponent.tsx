@@ -82,7 +82,9 @@ const AccordionsComponent = ({ item }) => {
                     <Icon />
                   </View>
                 )}
-                onPress={() => {}}
+                onPress={() => {
+                  x?.onPress && x?.onPress(x.title);
+                }}
               />
             );
           })}
