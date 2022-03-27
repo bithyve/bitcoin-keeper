@@ -14,13 +14,13 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
 		2EE0712077A446F0A113BE41 /* RobotoCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */; };
-		4EFB0DF48EB0641117EF06A4 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3112F25770564BC4C6D968F5 /* ExpoModulesProvider.swift */; };
-		68571A30E26EE97E73DE6CD4 /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BDE50404D0ABFD291A0919E /* libPods-hexa_keeper.a */; };
+		584C17AE95243EBD8BE78E01 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D80B3701FCA0506C2032994 /* ExpoModulesProvider.swift */; };
+		7A4ECC5390F7538B8ACA96A7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EBBFA7A5C9548A92D56FDC /* ExpoModulesProvider.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		9819EF4D6004499582832416 /* RobotoCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */; };
-		B0125242154BB638F65436F5 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB960B4CAC4AB6D370F4D470 /* ExpoModulesProvider.swift */; };
+		9AC5D3F31318A3339D146AF9 /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D6C4022B39271AF66C841AFE /* libPods-hexa_keeper.a */; };
 		C3AFCD97B1C74642870953EA /* RobotoCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0165F274E9EB4FC08B1A5F5F /* RobotoCondensed-LightItalic.ttf */; };
-		FA09033268056363C3FA9437 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 16C26C751AD603BECB7E8826 /* libPods-hexa_keeper-hexa_keeperTests.a */; };
+		D1EFFC7F54FE6176433725CC /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FB73C990A3091482C0B4E812 /* libPods-hexa_keeper-hexa_keeperTests.a */; };
 		FC2BB76F4FCB47F787279B0C /* RobotoCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */; };
 /* End PBXBuildFile section */
 
@@ -38,28 +38,28 @@
 		00E356EE1AD99517003FC87E /* hexa_keeperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = hexa_keeperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* hexa_keeperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = hexa_keeperTests.m; sourceTree = "<group>"; };
+		015009D0BC49BD6CB24290F5 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; sourceTree = "<group>"; };
 		0165F274E9EB4FC08B1A5F5F /* RobotoCondensed-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-LightItalic.ttf"; path = "../src/assets/fonts/RobotoCondensed-LightItalic.ttf"; sourceTree = "<group>"; };
 		072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Light.ttf"; path = "../src/assets/fonts/RobotoCondensed-Light.ttf"; sourceTree = "<group>"; };
+		0D80B3701FCA0506C2032994 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* hexa_keeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = hexa_keeper/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = hexa_keeper/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = hexa_keeper/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = hexa_keeper/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = hexa_keeper/main.m; sourceTree = "<group>"; };
-		16C26C751AD603BECB7E8826 /* libPods-hexa_keeper-hexa_keeperTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper-hexa_keeperTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		24DE908B3F23835A923F297B /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
-		3112F25770564BC4C6D968F5 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		148A4C1051F6B5EB6F2AE0D6 /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
 		399257CB0DEE494B9A06CFFE /* RobotoCondensed-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Regular.ttf"; path = "../src/assets/fonts/RobotoCondensed-Regular.ttf"; sourceTree = "<group>"; };
+		42EBBFA7A5C9548A92D56FDC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Bold.ttf"; path = "../src/assets/fonts/RobotoCondensed-Bold.ttf"; sourceTree = "<group>"; };
-		5EE72C7AC7118E9920A7234B /* Pods-hexa_keeper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.debug.xcconfig"; sourceTree = "<group>"; };
 		66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/RobotoCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = hexa_keeper/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		867FC9F152ED0EDCAD19F51C /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; sourceTree = "<group>"; };
-		8BDE50404D0ABFD291A0919E /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9436F9D86CB51546B5F50E29 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; sourceTree = "<group>"; };
-		CB960B4CAC4AB6D370F4D470 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		B0A55EE7D666CA27D5937227 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; sourceTree = "<group>"; };
+		C60BC747907E5A797B6A719E /* Pods-hexa_keeper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.debug.xcconfig"; sourceTree = "<group>"; };
+		D6C4022B39271AF66C841AFE /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Italic.ttf"; path = "../src/assets/fonts/RobotoCondensed-Italic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FB73C990A3091482C0B4E812 /* libPods-hexa_keeper-hexa_keeperTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper-hexa_keeperTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA09033268056363C3FA9437 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */,
+				D1EFFC7F54FE6176433725CC /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68571A30E26EE97E73DE6CD4 /* libPods-hexa_keeper.a in Frameworks */,
+				9AC5D3F31318A3339D146AF9 /* libPods-hexa_keeper.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,25 +112,23 @@
 			name = hexa_keeper;
 			sourceTree = "<group>";
 		};
-		216500850BEB86C7E43AA39C /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				5EE72C7AC7118E9920A7234B /* Pods-hexa_keeper.debug.xcconfig */,
-				24DE908B3F23835A923F297B /* Pods-hexa_keeper.release.xcconfig */,
-				867FC9F152ED0EDCAD19F51C /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */,
-				9436F9D86CB51546B5F50E29 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				8BDE50404D0ABFD291A0919E /* libPods-hexa_keeper.a */,
-				16C26C751AD603BECB7E8826 /* libPods-hexa_keeper-hexa_keeperTests.a */,
+				D6C4022B39271AF66C841AFE /* libPods-hexa_keeper.a */,
+				FB73C990A3091482C0B4E812 /* libPods-hexa_keeper-hexa_keeperTests.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		63D12BA32A6CF00C4424B969 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				EAFF39F9C3FBF09B16C3D410 /* hexa_keeper */,
+				D51E1CD5718CBF30B50D168D /* hexa_keeperTests */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		81DE8301CA3743D287378279 /* Resources */ = {
@@ -161,9 +159,9 @@
 				00E356EF1AD99517003FC87E /* hexa_keeperTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
+				E233CBF5F47BEE60B243DCF8 /* Pods */,
 				81DE8301CA3743D287378279 /* Resources */,
-				AE98F36E971D3DE4F6E7A78D /* ExpoModulesProviders */,
-				216500850BEB86C7E43AA39C /* Pods */,
+				63D12BA32A6CF00C4424B969 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -179,29 +177,31 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8C22576DF44F5E547C7013FE /* hexa_keeper */ = {
+		D51E1CD5718CBF30B50D168D /* hexa_keeperTests */ = {
 			isa = PBXGroup;
 			children = (
-				3112F25770564BC4C6D968F5 /* ExpoModulesProvider.swift */,
-			);
-			name = hexa_keeper;
-			sourceTree = "<group>";
-		};
-		AE98F36E971D3DE4F6E7A78D /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				8C22576DF44F5E547C7013FE /* hexa_keeper */,
-				CCE534B5AC96524E9C20A77D /* hexa_keeperTests */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		CCE534B5AC96524E9C20A77D /* hexa_keeperTests */ = {
-			isa = PBXGroup;
-			children = (
-				CB960B4CAC4AB6D370F4D470 /* ExpoModulesProvider.swift */,
+				42EBBFA7A5C9548A92D56FDC /* ExpoModulesProvider.swift */,
 			);
 			name = hexa_keeperTests;
+			sourceTree = "<group>";
+		};
+		E233CBF5F47BEE60B243DCF8 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C60BC747907E5A797B6A719E /* Pods-hexa_keeper.debug.xcconfig */,
+				148A4C1051F6B5EB6F2AE0D6 /* Pods-hexa_keeper.release.xcconfig */,
+				015009D0BC49BD6CB24290F5 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */,
+				B0A55EE7D666CA27D5937227 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		EAFF39F9C3FBF09B16C3D410 /* hexa_keeper */ = {
+			isa = PBXGroup;
+			children = (
+				0D80B3701FCA0506C2032994 /* ExpoModulesProvider.swift */,
+			);
+			name = hexa_keeper;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,11 +211,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "hexa_keeperTests" */;
 			buildPhases = (
-				FE6DD595A2F925280B14938B /* [CP] Check Pods Manifest.lock */,
+				23880276AAD8E9F877DB3BEF /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				DCD2FFD58BD1AC18739C06B9 /* [CP] Copy Pods Resources */,
+				C2A6D0515208E953BCAB03AD /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -231,13 +231,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "hexa_keeper" */;
 			buildPhases = (
-				47DA3A041F98654BF24BB281 /* [CP] Check Pods Manifest.lock */,
+				7E92C9CE5700243364052259 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				AAEF8E469255678D783DFBC0 /* [CP] Copy Pods Resources */,
+				F3C8125A0F591FA537ACACCE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -324,82 +324,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		47DA3A041F98654BF24BB281 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-hexa_keeper-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		AAEF8E469255678D783DFBC0 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		DCD2FFD58BD1AC18739C06B9 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		FD10A7F022414F080027D42C /* Start Packager */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Start Packager";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export RCT_METRO_PORT=\"${RCT_METRO_PORT:=8081}\"\necho \"export RCT_METRO_PORT=${RCT_METRO_PORT}\" > \"${SRCROOT}/../node_modules/react-native/scripts/.packager.env\"\nif [ -z \"${RCT_NO_LAUNCH_PACKAGER+xxx}\" ] ; then\n  if nc -w 5 -z localhost ${RCT_METRO_PORT} ; then\n    if ! curl -s \"http://localhost:${RCT_METRO_PORT}/status\" | grep -q \"packager-status:running\" ; then\n      echo \"Port ${RCT_METRO_PORT} already in use, packager is either not running or not running correctly\"\n      exit 2\n    fi\n  else\n    open \"$SRCROOT/../node_modules/react-native/scripts/launchPackager.command\" || echo \"Can't start packager automatically\"\n  fi\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		FE6DD595A2F925280B14938B /* [CP] Check Pods Manifest.lock */ = {
+		23880276AAD8E9F877DB3BEF /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -421,6 +346,81 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		7E92C9CE5700243364052259 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-hexa_keeper-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C2A6D0515208E953BCAB03AD /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F3C8125A0F591FA537ACACCE /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FD10A7F022414F080027D42C /* Start Packager */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Start Packager";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export RCT_METRO_PORT=\"${RCT_METRO_PORT:=8081}\"\necho \"export RCT_METRO_PORT=${RCT_METRO_PORT}\" > \"${SRCROOT}/../node_modules/react-native/scripts/.packager.env\"\nif [ -z \"${RCT_NO_LAUNCH_PACKAGER+xxx}\" ] ; then\n  if nc -w 5 -z localhost ${RCT_METRO_PORT} ; then\n    if ! curl -s \"http://localhost:${RCT_METRO_PORT}/status\" | grep -q \"packager-status:running\" ; then\n      echo \"Port ${RCT_METRO_PORT} already in use, packager is either not running or not running correctly\"\n      exit 2\n    fi\n  else\n    open \"$SRCROOT/../node_modules/react-native/scripts/launchPackager.command\" || echo \"Can't start packager automatically\"\n  fi\nfi\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -429,7 +429,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F31AD99517003FC87E /* hexa_keeperTests.m in Sources */,
-				B0125242154BB638F65436F5 /* ExpoModulesProvider.swift in Sources */,
+				7A4ECC5390F7538B8ACA96A7 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,7 +439,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				4EFB0DF48EB0641117EF06A4 /* ExpoModulesProvider.swift in Sources */,
+				584C17AE95243EBD8BE78E01 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -456,7 +456,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 867FC9F152ED0EDCAD19F51C /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */;
+			baseConfigurationReference = 015009D0BC49BD6CB24290F5 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = Y5TCB759QL;
@@ -465,7 +465,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = hexa_keeperTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -484,12 +484,12 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9436F9D86CB51546B5F50E29 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */;
+			baseConfigurationReference = B0A55EE7D666CA27D5937227 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				INFOPLIST_FILE = hexa_keeperTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -508,7 +508,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5EE72C7AC7118E9920A7234B /* Pods-hexa_keeper.debug.xcconfig */;
+			baseConfigurationReference = C60BC747907E5A797B6A719E /* Pods-hexa_keeper.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -516,6 +516,7 @@
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = hexa_keeper/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -536,12 +537,13 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 24DE908B3F23835A923F297B /* Pods-hexa_keeper.release.xcconfig */;
+			baseConfigurationReference = 148A4C1051F6B5EB6F2AE0D6 /* Pods-hexa_keeper.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = hexa_keeper/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -608,7 +610,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -666,7 +668,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",

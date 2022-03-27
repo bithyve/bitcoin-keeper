@@ -1,17 +1,14 @@
 import React from 'react';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
-import { View, Text } from 'native-base';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { View } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { FlatList } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
-import HardWare from 'src/assets/Images/svgs/hardware.svg';
-import BackButtonIcon from 'src/assets/Images/svgs/back.svg';
+import HardWare from 'src/assets/images/svgs/hardware.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 const AddWalletScreen = () => {
   const Data = [
@@ -41,30 +38,11 @@ const AddWalletScreen = () => {
     },
   ];
   const renderItem = ({ item }) => <AccordionsComponent item={item} />;
+
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
-      <TouchableOpacity>
-        <BackButtonIcon />
-      </TouchableOpacity>
-      <Text
-        numberOfLines={1}
-        style={styles.addWalletText}
-        color={'light.lightBlack'}
-        fontFamily={'body'}
-        fontWeight={'200'}
-      >
-        Add a Wallet
-      </Text>
-      <Text
-        numberOfLines={1}
-        style={styles.addWalletDescription}
-        color={'light.lightBlack'}
-        fontFamily={'body'}
-        fontWeight={'100'}
-      >
-        Lorem ipsum dolor sit amet,
-      </Text>
+      <HeaderTitle title="Add a Wallet" subtitle="Lorem ipsum dolor sit amet, consectetur" />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
     </View>
   );

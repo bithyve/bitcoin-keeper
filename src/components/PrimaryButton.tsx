@@ -16,8 +16,10 @@ const PrimaryButton = ({ callback, text }) => {
         <Button
           bgColor={'transparent'}
           _text={{
+            minW: 60,
             color: '#FAFAFA',
             fontSize: '14',
+            textAlign: 'center',
           }}
         >
           {text}

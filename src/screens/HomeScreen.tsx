@@ -10,21 +10,21 @@ import { ImageBackground, FlatList, TouchableOpacity } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
-import backgroundImage from '../assets/Images/background.png';
+import backgroundImage from '../assets/images/background.png';
 import HomeCard from '../components/HomeCard';
-import ScannerIcon from '../assets/Images/svgs/scanner.svg';
-import SettingIcon from '../assets/Images/svgs/settings.svg';
-import MobileIcon from '../assets/Images/svgs/iphone_tile.svg';
-import LaptopIcon from '../assets/Images/svgs/laptop_tile.svg';
-import ColdCardIcon from '../assets/Images/svgs/coldcard_tile.svg';
-import IPardIcon from '../assets/Images/svgs/ipad_tile.svg';
-import PdfIcon from '../assets/Images/svgs/pdf_tile.svg';
-import DiamondIcon from '../assets/Images/svgs/elite.svg';
-import AddNewIcon from '../assets/Images/svgs/add_key.svg';
+import ScannerIcon from '../assets/images/svgs/scanner.svg';
+import SettingIcon from '../assets/images/svgs/settings.svg';
+import MobileIcon from '../assets/images/svgs/iphone_tile.svg';
+import LaptopIcon from '../assets/images/svgs/laptop_tile.svg';
+import ColdCardIcon from '../assets/images/svgs/coldcard_tile.svg';
+import IPardIcon from '../assets/images/svgs/ipad_tile.svg';
+import PdfIcon from '../assets/images/svgs/pdf_tile.svg';
+import DiamondIcon from '../assets/images/svgs/elite.svg';
+import AddNewIcon from '../assets/images/svgs/add_key.svg';
 
-import SingleSigIcon from '../assets/Images/svgs/single_sig.svg';
-import BlueWalletIcon from '../assets/Images/svgs/blue_wallet.svg';
-import MultiSigIcon from '../assets/Images/svgs/multi_sig.svg';
+import SingleSigIcon from '../assets/images/svgs/single_sig.svg';
+import BlueWalletIcon from '../assets/images/svgs/blue_wallet.svg';
+import MultiSigIcon from '../assets/images/svgs/multi_sig.svg';
 
 const DATA = [
   {
@@ -95,8 +95,6 @@ const DATATWO = [
 const HomeScreen = ({ navigation }) => {
   const renderItem = (item) => <DevicesComponent item={item} />;
   const renderItemTwo = ({ item }) => {
-    console.log(item);
-
     return <HomeCard item={item} />;
   };
 
@@ -268,11 +266,6 @@ const styles = ScaledSheet.create({
     borderRadius: '20@s',
     height: hp(1.7),
     marginLeft: wp(1),
-  },
-  eliteUserText: {
-    fontSize: RFValue(8),
-    lineHeight: '12@s',
-    letterSpacing: '0.5@s',
   },
   eliteUserText: {
     fontSize: RFValue(8),
