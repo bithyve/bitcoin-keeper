@@ -11,8 +11,7 @@ import { FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/Images/svgs/hardware.svg';
-import BackButton from 'src/assets/Images/svgs/back.svg';
-import HexaBottomSheet from 'src/components/BottomSheet';
+import BackButtonIcon from 'src/assets/Images/svgs/back.svg';
 
 const AddWalletScreen = () => {
   const Data = [
@@ -46,7 +45,7 @@ const AddWalletScreen = () => {
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
       <TouchableOpacity>
-        <BackButton />
+        <BackButtonIcon />
       </TouchableOpacity>
       <Text
         numberOfLines={1}

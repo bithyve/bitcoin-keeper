@@ -6,21 +6,19 @@ import LoginScreen from 'src/screens/LoginScreen';
 import HomeScreen from 'src/screens/HomeScreen';
 import AddWallet from '../screens/AddWalletScreen';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
+import QRscanner from 'src/screens/QRscannerScreen';
 
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Lock Screen" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="AddWallet Screen"
-          component={AddWallet}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Test" component={TestingBottomsheet} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="QRscanner" component={QRscanner} />
+        <Stack.Screen name="Lock Screen" component={LoginScreen} />
+        <Stack.Screen name="AddWallet Screen" component={AddWallet} />
+        <Stack.Screen name="Test" component={TestingBottomsheet} />
+        <Stack.Screen name="Home" component={HomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
