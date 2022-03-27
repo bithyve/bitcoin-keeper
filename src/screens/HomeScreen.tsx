@@ -93,7 +93,7 @@ const DATATWO = [
   },
 ];
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const bottomSheetRef = React.useRef(null);
 
   const renderItem = (item) => <DevicesComponent item={item} />;
@@ -109,7 +109,7 @@ const HomeScreen = () => {
       <StatusBarComponent />
       <ImageBackground style={styles.backgroundImage} source={backgroundImage}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('QRscanner')}>
             <ScannerIcon />
           </TouchableOpacity>
           <TouchableOpacity onPress={openSettings}>
