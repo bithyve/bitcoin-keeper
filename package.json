@@ -168,5 +168,12 @@
     "tty": "tty-browserify",
     "vm": "vm-browserify",
     "tls": false
+  },
+  "expo": {
+    "autolinking": {
+      "exclude": [
+        "react-native-reanimated"
+      ]
+    }
   }
 }
