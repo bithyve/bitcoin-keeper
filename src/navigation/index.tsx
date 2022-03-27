@@ -29,7 +29,6 @@ const Navigator = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
-        <Stack.Screen name="Test" component={TestingBottomsheet} />
       </Stack.Navigator>
     </NavigationContainer>
   );

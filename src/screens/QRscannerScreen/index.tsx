@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import QRscanner from 'src/components/QRscanner';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BackButtonIcon from 'src/assets/Images/svgs/back.svg';
+import BackButtonIcon from 'src/assets/images/svgs/back.svg';
 
 const QRscannerScreen = () => {
   return (
