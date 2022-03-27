@@ -106,7 +106,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
-      <StatusBarComponent />
+      {/* <StatusBarComponent /> */}
       <ImageBackground style={styles.backgroundImage} source={backgroundImage}>
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={() => navigation.navigate('QRscanner')}>

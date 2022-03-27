@@ -1,12 +1,11 @@
 import React, { Fragment, useCallback } from 'react';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RightArrow from 'src/assets/images/rightarrow.svg';
 import Benificiary from 'src/assets/images/Beneficiary.svg';
 import Declaration from 'src/assets/images/Declaration.svg';
 import Transfer from 'src/assets/images/Transfer.svg';
 import { HStack, VStack, Text } from 'native-base';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 const { height } = Dimensions.get('screen');
 
 const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ children, Icon }) => {

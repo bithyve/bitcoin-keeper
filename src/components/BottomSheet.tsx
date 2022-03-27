@@ -1,9 +1,8 @@
 import React, { RefCallback, RefObject, useCallback, useMemo } from 'react';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Buttons from './Buttons';
-import Close from 'src/assets/images/svgs/close.svg';
 import Fonts from 'src/common/Fonts';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { customTheme } from 'src/common/themes';
@@ -55,11 +54,6 @@ const HexaBottomSheet: React.FunctionComponent<{
       backdropComponent={backdropComponent}
       backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
     >
-      <HStack justifyContent="flex-end" paddingX={'10'} paddingY={'1'}>
-        <TouchableOpacity>
-          <Close />
-        </TouchableOpacity>
-      </HStack>
       <BottomSheetView style={styles.contentContainer}>
         <VStack paddingX={'2'} backgroundColor="red">
           <Heading style={styles.heading} fontSize={'lg'}>
