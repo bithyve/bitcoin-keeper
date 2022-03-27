@@ -3,11 +3,9 @@ import React from 'react';
 
 const CharButton = ({ char, Icon, pressHandler }) => {
   return (
-    <View style={styles.charContainer}>
-      <TouchableOpacity onPress={() => pressHandler(char)}>
-        {Icon ? <View style={styles.icon}>{Icon}</View> : <Text style={styles.char}>{char}</Text>}
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity onPress={() => pressHandler(char)} style={styles.charContainer}>
+      {Icon ? <View style={styles.icon}>{Icon}</View> : <Text style={styles.char}>{char}</Text>}
+    </TouchableOpacity>
   );
 };
 

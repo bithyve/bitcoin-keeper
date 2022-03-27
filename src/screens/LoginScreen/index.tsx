@@ -8,7 +8,7 @@ import { authStatus } from './constants';
 import AppNumPad from 'src/components/AppNumPad';
 import AppPinInput from 'src/components/AppPinInput';
 
-const userPin = '989898';
+const userPin = '959027';
 const LoginScreen = ({ navigation }) => {
   const [pin, setPin] = useState('');
   const [biommetricStatus, setbiommetricStatus] = useState(authStatus.IN_PROGRESS);
