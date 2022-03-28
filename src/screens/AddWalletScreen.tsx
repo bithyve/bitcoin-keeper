@@ -9,34 +9,113 @@ import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { useNavigation } from '@react-navigation/native';
-import BottomSheet from 'src/components/BottomSheet';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
 import { useDispatch } from 'react-redux';
 import { addNewAccountShells } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
+import BottomSheet from '@gorhom/bottom-sheet';
+
+const AddWalletSheet = ({
+  addWalletSheetRef,
+  closeAddWalletSheet,
+  addWalletType,
+  setAddWalletType,
+  accountName,
+  setAccountName,
+  accountDescription,
+  setAccountDescription,
+  addWallet,
+}) => {
+  return (
+    <HexaBottomSheet
+      title={'Add Wallet Details'}
+      subTitle={'Lorem Ipsum Dolor Amet'}
+      snapPoints={['50%']}
+      bottomSheetRef={addWalletSheetRef}
+      primaryText={'Create'}
+      secondaryText={'Cancel'}
+      primaryCallback={addWallet}
+      secondaryCallback={closeAddWalletSheet}
+    >
+      <Input
+        w="100%"
+        placeholder={addWalletType}
+        value={addWalletType}
+        onChangeText={(value) => setAddWalletType(value)}
+        style={{ padding: 30 }}
+        size={'lg'}
+        backgroundColor={'#D8A57210'}
+        color={'#073E39'}
+        borderWidth={'0'}
+        padding={3}
+      />
+      <Input
+        w="100%"
+        placeholder="Account Name"
+        value={accountName}
+        onChangeText={(value) => setAccountName(value)}
+        size={'lg'}
+        backgroundColor={'#D8A57210'}
+        color={'#073E39'}
+        borderWidth={'0'}
+        padding={3}
+      />
+      <Input
+        w="100%"
+        placeholder="Description"
+        value={accountDescription}
+        onChangeText={(value) => setAccountDescription(value)}
+        size={'lg'}
+        backgroundColor={'#D8A57210'}
+        color={'#073E39'}
+        borderWidth={'0'}
+        padding={3}
+      />
+    </HexaBottomSheet>
+  );
+};
+
+const AddVaultSheet = ({ addVaultSheetRef, closeAddVaultSheet }) => {
+  return (
+    <HexaBottomSheet
+      title={'Import Vault Key'}
+      subTitle={'Insert a seed to import your exsisting Vault Key'}
+      snapPoints={['70%']}
+      bottomSheetRef={addVaultSheetRef}
+      primaryText={'Import'}
+      secondaryText={'Scan'}
+      secondaryCallback={closeAddVaultSheet}
+    >
+      <QRscanner />
+    </HexaBottomSheet>
+  );
+};
 
 const AddWalletScreen = () => {
   const [addWalletType, setAddWalletType] = useState('');
+  const [accountName, setAccountName] = useState('');
+  const [accountDescription, setAccountDescription] = useState('');
+
   const addVaultSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const addWallet = useCallback(() => {
     const newAccountShellInfo: newAccountsInfo = {
       accountType: AccountType.CHECKING_ACCOUNT,
       accountDetails: {
-        name: '',
-        description: ''
-      }
-    }
-    dispatch(addNewAccountShells([newAccountShellInfo]))
-    closeAddWalletSheet()
-  }, [])
+        name: accountName,
+        description: accountDescription,
+      },
+    };
+    dispatch(addNewAccountShells([newAccountShellInfo]));
+    closeAddWalletSheet();
+  }, []);
 
   const closeAddWalletSheet = useCallback(() => {
-    addVaultSheetRef.current?.close();
+    addWalletSheetRef.current?.close();
   }, []);
 
   const expandAddWalletSheet = useCallback((addWalletType) => {
@@ -51,67 +130,6 @@ const AddWalletScreen = () => {
   const expandAddVaultSheet = useCallback(() => {
     addVaultSheetRef.current?.expand();
   }, []);
-
-  const AddVaultSheet = () => {
-    return (
-      <HexaBottomSheet
-        title={'Import Vault Key'}
-        subTitle={'Insert a seed to import your exsisting Vault Key'}
-        snapPoints={['70%']}
-        bottomSheetRef={addVaultSheetRef}
-        primaryText={'Import'}
-        secondaryText={'Scan'}
-        secondaryCallback={closeAddVaultSheet}
-      >
-        <QRscanner />
-      </HexaBottomSheet>
-    );
-  };
-
-  const AddWalletSheet = () => {
-    return (
-      <HexaBottomSheet
-        title={'Add Wallet Details'}
-        subTitle={'Lorem Ipsum Dolor Amet'}
-        snapPoints={['50%']}
-        bottomSheetRef={addWalletSheetRef}
-        primaryText={'Create'}
-        secondaryText={'Cancel'}
-        primaryCallback={addWallet}
-        secondaryCallback={closeAddWalletSheet}
-      >
-        <Input
-          w="100%"
-          placeholder={addWalletType}
-          value={addWalletType}
-          style={{ padding: 30 }}
-          size={'lg'}
-          backgroundColor={'#D8A57210'}
-          color={'#073E39'}
-          borderWidth={'0'}
-          padding={3}
-        />
-        <Input
-          w="100%"
-          placeholder="Default Input"
-          size={'lg'}
-          backgroundColor={'#D8A57210'}
-          color={'#073E39'}
-          borderWidth={'0'}
-          padding={3}
-        />
-        <Input
-          w="100%"
-          placeholder="Default Input"
-          size={'lg'}
-          backgroundColor={'#D8A57210'}
-          color={'#073E39'}
-          borderWidth={'0'}
-          padding={3}
-        />
-      </HexaBottomSheet>
-    );
-  };
 
   const Data = [
     {
@@ -141,6 +159,7 @@ const AddWalletScreen = () => {
       onPress: expandAddVaultSheet,
     },
   ];
+
   const renderItem = ({ item }) => <AccordionsComponent item={item} />;
   const navigtaion = useNavigation();
 
@@ -153,8 +172,18 @@ const AddWalletScreen = () => {
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      <AddVaultSheet />
-      <AddWalletSheet />
+      <AddVaultSheet addVaultSheetRef={addVaultSheetRef} closeAddVaultSheet={addVaultSheetRef} />
+      <AddWalletSheet
+        addWalletSheetRef={addWalletSheetRef}
+        closeAddWalletSheet={closeAddWalletSheet}
+        addWalletType={addWalletType}
+        setAddWalletType={setAddWalletType}
+        accountName={accountName}
+        setAccountName={setAccountName}
+        accountDescription={accountDescription}
+        setAccountDescription={setAccountDescription}
+        addWallet={addWallet}
+      />
     </View>
   );
 };
