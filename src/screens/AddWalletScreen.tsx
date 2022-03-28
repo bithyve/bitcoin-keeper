@@ -12,11 +12,28 @@ import { useNavigation } from '@react-navigation/native';
 import BottomSheet from 'src/components/BottomSheet';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
+import { useDispatch } from 'react-redux';
+import { addNewAccountShells } from 'src/store/actions/accounts';
+import { newAccountsInfo } from 'src/store/sagas/accounts';
+import { AccountType } from 'src/bitcoin/utilities/Interface';
 
 const AddWalletScreen = () => {
   const [addWalletType, setAddWalletType] = useState('');
   const addVaultSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
+  const dispatch = useDispatch()
+
+  const addWallet = useCallback(() => {
+    const newAccountShellInfo: newAccountsInfo = {
+      accountType: AccountType.CHECKING_ACCOUNT,
+      accountDetails: {
+        name: '',
+        description: ''
+      }
+    }
+    dispatch(addNewAccountShells([newAccountShellInfo]))
+    closeAddWalletSheet()
+  }, [])
 
   const closeAddWalletSheet = useCallback(() => {
     addVaultSheetRef.current?.close();
@@ -60,6 +77,7 @@ const AddWalletScreen = () => {
         bottomSheetRef={addWalletSheetRef}
         primaryText={'Create'}
         secondaryText={'Cancel'}
+        primaryCallback={addWallet}
         secondaryCallback={closeAddWalletSheet}
       >
         <Input
