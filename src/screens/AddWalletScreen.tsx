@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
 import { useDispatch } from 'react-redux';
-import { addNewAccountShells } from 'src/store/actions/accounts';
+import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -77,14 +77,15 @@ const AddWalletSheet = ({
   );
 };
 
-const AddVaultSheet = ({ addVaultSheetRef, showQR, setShowQR, vaultKey, setVaultKey }) => {
+const ImportWalletSheet = ({ importWalletSheetRef, showQR, setShowQR, importWallet, importKey, setImportKey }) => {
   return (
     <HexaBottomSheet
-      title={'Import Vault Key'}
-      subTitle={'Insert a seed to import your exsisting Vault Key'}
+      title={'Import Wallet'}
+      subTitle={'Insert a seed to import your existing wallet'}
       snapPoints={['70%']}
-      bottomSheetRef={addVaultSheetRef}
+      bottomSheetRef={importWalletSheetRef}
       primaryText={'Import'}
+      primaryCallback={importWallet}
       secondaryText={showQR ? 'Text' : 'Scan'}
       secondaryCallback={showQR ? () => setShowQR(false) : () => setShowQR(true)}
     >
@@ -97,8 +98,8 @@ const AddVaultSheet = ({ addVaultSheetRef, showQR, setShowQR, vaultKey, setVault
             multiline={true}
             w="100%"
             h="80%"
-            value={vaultKey}
-            onChangeText={(value) => setVaultKey(value)}
+            value={importKey}
+            onChangeText={(value) => setImportKey(value)}
             size={'lg'}
             backgroundColor={'#D8A57210'}
             color={'#073E39'}
@@ -116,8 +117,8 @@ const AddWalletScreen = () => {
   const [accountName, setAccountName] = useState('');
   const [accountDescription, setAccountDescription] = useState('');
   const [showQR, setShowQR] = useState(false);
-  const [vaultKey, setVaultKey] = useState('');
-  const addVaultSheetRef = useRef<BottomSheet>(null);
+  const [importKey, setImportKey] = useState('');
+  const importWalletSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
   const dispatch = useDispatch();
 
@@ -131,7 +132,16 @@ const AddWalletScreen = () => {
     };
     dispatch(addNewAccountShells([newAccountShellInfo]));
     closeAddWalletSheet();
-  }, []);
+  }, [accountName, accountDescription]);
+
+  const importWallet = useCallback(() => {
+    const mnemonic = importKey.trim()
+    if(mnemonic){
+      dispatch(importNewAccount(mnemonic));
+      closeImportWalletSheet();
+    } 
+  }, [importKey]);
+  
 
   const closeAddWalletSheet = useCallback(() => {
     addWalletSheetRef.current?.close();
@@ -142,12 +152,12 @@ const AddWalletScreen = () => {
     addWalletSheetRef.current?.expand();
   }, []);
 
-  const closeAddVaultSheet = useCallback(() => {
-    addWalletSheetRef.current?.close();
+  const closeImportWalletSheet = useCallback(() => {
+    importWalletSheetRef.current?.close();
   }, []);
 
-  const expandAddVaultSheet = useCallback(() => {
-    addVaultSheetRef.current?.expand();
+  const expandImportWalletSheet = useCallback(() => {
+    importWalletSheetRef.current?.expand();
   }, []);
 
   const Data = [
@@ -169,7 +179,7 @@ const AddWalletScreen = () => {
       heading: 'Import a Wallet',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
       items: [],
-      onPress: expandAddVaultSheet,
+      onPress: expandImportWalletSheet,
     },
     {
       id: 3,
@@ -191,12 +201,13 @@ const AddWalletScreen = () => {
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      <AddVaultSheet
-        addVaultSheetRef={addVaultSheetRef}
+      <ImportWalletSheet
+        importWalletSheetRef={importWalletSheetRef}
         showQR={showQR}
         setShowQR={setShowQR}
-        vaultKey={vaultKey}
-        setVaultKey={setVaultKey}
+        importWallet={importWallet}
+        importKey={importKey}
+        setImportKey={setImportKey}
       />
       <AddWalletSheet
         addWalletSheetRef={addWalletSheetRef}
