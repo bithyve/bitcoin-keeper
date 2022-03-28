@@ -12,7 +12,7 @@ import BitCoinBlack from 'src/assets/images/svgs/btc (black).svg';
 
 const windowHeight = Dimensions.get('window').height;
 
-const TransectionSignComponent = ({}) => {
+const TransectionSignComponent = ({ }) => {
   return (
     <View style={styles.container}>
       <View style={styles.upperContainer}>
@@ -64,14 +64,14 @@ const TransectionSignComponent = ({}) => {
           >
             Amount
           </Text>
-          <View>
+          <View style={styles.amountContainer}>
+            <BitCoinBlack />
             <Text
               style={styles.amountText}
               color={'light.textBlack'}
               fontFamily="body"
               fontWeight={'100'}
             >
-              <BitCoinBlack />
               0.000024
             </Text>
           </View>
@@ -85,15 +85,18 @@ const TransectionSignComponent = ({}) => {
           >
             Fees
           </Text>
-          <Text
-            style={styles.feeText}
-            color={'light.textBlack'}
-            fontFamily="body"
-            fontWeight={'100'}
-          >
+          <View style={styles.amountContainer}>
             <BitCoinBlack />
-            0.000004
-          </Text>
+            <Text
+              style={styles.feeText}
+              color={'light.textBlack'}
+              fontFamily="body"
+              fontWeight={'100'}
+            >
+              0.000004
+            </Text>
+          </View>
+
         </View>
       </View>
     </View>
@@ -110,10 +113,10 @@ const styles = StyleSheet.create({
       windowHeight >= 850
         ? '35%'
         : windowHeight >= 750
-        ? '37%'
-        : windowHeight >= 650
-        ? '39%'
-        : '40%'
+          ? '37%'
+          : windowHeight >= 650
+            ? '39%'
+            : '40%'
     ),
     width: wp('83%'),
     marginBottom: hp(2),
@@ -168,11 +171,16 @@ const styles = StyleSheet.create({
     fontSize: RFValue(24),
     letterSpacing: 1.2,
     fontWeight: '400',
+    lineHeight: 30,
+    marginLeft: wp(1)
   },
   feeText: {
     fontSize: RFValue(20),
     letterSpacing: 1,
     fontWeight: '400',
+    marginLeft: wp(1),
+    lineHeight: 27,
+
   },
   emailText: {
     fontSize: RFValue(10),
@@ -185,4 +193,7 @@ const styles = StyleSheet.create({
     marginTop: hp(3),
     marginLeft: wp(1.5),
   },
+  amountContainer: {
+    flexDirection: 'row', alignItems: 'center'
+  }
 });
