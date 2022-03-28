@@ -797,7 +797,7 @@ export function* addNewAccount( accountType: AccountType, accountDetails: newAcc
         return lnAccount
 
       case AccountType.IMPORTED_ACCOUNT:
-        const importedInstanceCount = recreationInstanceNumber !== undefined ? recreationInstanceNumber: ( accounts[ AccountType.IMPORTED_ACCOUNT ] )?.length | 0
+        const importedInstanceCount = 0 // imported accounts always have instance number equal to zero(as they're imported using different seeds)
         const importedAccount: Account = yield call( generateAccount, {
           walletId,
           type: AccountType.IMPORTED_ACCOUNT,
