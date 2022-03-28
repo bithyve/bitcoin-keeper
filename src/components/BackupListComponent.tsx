@@ -7,12 +7,20 @@ import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
-
+import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
 import Laptop from 'src/assets/images/svgs/laptop.svg';
 import Next from 'src/assets/images/svgs/next.svg';
 
-const BackupListComponent = ({ title = '', subtitle = '', Icon = null }) => {
+const BackupListComponent = ({
+  title = '',
+  subtitle = '',
+  Icon = null,
+  item,
+  onPress,
+  showAccordian,
+  touchable,
+}) => {
   return (
     <LinearGradient
       start={{ x: 0, y: 0 }}
@@ -20,7 +28,11 @@ const BackupListComponent = ({ title = '', subtitle = '', Icon = null }) => {
       colors={['#ECD1B600', '#ECD1B6', '#ECD1B6']}
       style={styles.linearGradient}
     >
-      <TouchableOpacity style={styles.cardContainer}>
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => touchable && onPress(item)}
+        disabled={!touchable}
+      >
         <View style={{ flexDirection: 'row' }}>
           <Icon />
           <View style={{ marginLeft: wp(2) }}>
@@ -37,9 +49,11 @@ const BackupListComponent = ({ title = '', subtitle = '', Icon = null }) => {
             </Text>
           </View>
         </View>
-        <View style={{ paddingRight: wp(2) }}>
-          <Next />
-        </View>
+        {showAccordian && (
+          <View style={{ paddingRight: wp(2) }}>
+            <Next />
+          </View>
+        )}
       </TouchableOpacity>
     </LinearGradient>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -18,6 +18,8 @@ import Laptop from 'src/assets/images/svgs/laptop.svg';
 import Hardware from 'src/assets/images/svgs/hardware.svg';
 import Contact from 'src/assets/images/svgs/contacts.svg';
 import Key from 'src/assets/images/svgs/key.svg';
+import HexaBottomSheet from 'src/components/BottomSheet';
+import QRCode from 'react-native-qrcode-svg';
 
 const BackupScreen = () => {
   const Data = [
@@ -65,8 +67,30 @@ const BackupScreen = () => {
     },
   ];
 
+  const [backUpKeyType, setBackUpKeyType] = useState();
+  const addBackUpKeySheetRef = useRef(null);
+
+  const closeAddBackUpKeySheet = useCallback(() => {
+    addBackUpKeySheetRef.current?.close();
+  }, []);
+
+  const expandAddBackUpKeySheet = useCallback((backUpkeyType) => {
+    setBackUpKeyType(backUpkeyType);
+    addBackUpKeySheetRef.current?.expand();
+  }, []);
+
   const renderItem = ({ item }) => {
-    return <BackupListComponent title={item.title} subtitle={item.subtitle} Icon={item.Icon} />;
+    return (
+      <BackupListComponent
+        title={item.title}
+        subtitle={item.subtitle}
+        Icon={item.Icon}
+        item={item}
+        onPress={expandAddBackUpKeySheet}
+        showAccordian
+        touchable
+      />
+    );
   };
 
   return (
@@ -80,6 +104,29 @@ const BackupScreen = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
+      <HexaBottomSheet
+        title={'Add Backup Key'}
+        subTitle={'Lorem Ipsum Dolor Amet'}
+        snapPoints={['80%']}
+        bottomSheetRef={addBackUpKeySheetRef}
+        primaryText={'Done'}
+        primaryCallback={closeAddBackUpKeySheet}
+      >
+        {backUpKeyType && (
+          <BackupListComponent
+            title={backUpKeyType?.title}
+            subtitle={backUpKeyType?.subtitle}
+            Icon={backUpKeyType?.Icon}
+            onPress={expandAddBackUpKeySheet}
+          />
+        )}
+        <Text style={styles.sheetSubText}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit
+        </Text>
+        <View style={styles.qrContainer}>
+          <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />
+        </View>
+      </HexaBottomSheet>
     </View>
   );
 };
@@ -108,5 +155,7 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(10),
     letterSpacing: '0.20@s',
   },
+  sheetSubText: { color: '#073E39', fontWeight: '500', marginVertical: 10 },
+  qrContainer: { alignSelf: 'center', marginVertical: 30 },
 });
 export default BackupScreen;
