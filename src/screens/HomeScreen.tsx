@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -26,6 +27,7 @@ import SingleSigIcon from '../assets/images/svgs/single_sig.svg';
 import BlueWalletIcon from '../assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from '../assets/images/svgs/multi_sig.svg';
 import SettingSheet from './Settings/SettingSheet';
+import { setupWallet } from 'src/store/actions/storage';
 
 const DATA = [
   {
@@ -103,6 +105,18 @@ const HomeScreen = ({ navigation }) => {
   const openSettings = React.useCallback(() => {
     bottomSheetRef.current?.expand();
   }, []);
+  const wallet = useSelector( ( state: RootStateOrAny ) => state.storage.wallet)
+  const rehydrated = useSelector( ( state: RootStateOrAny ) => state._persist.rehydrated)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if(!wallet && rehydrated){
+      // await redux persist's rehydration
+      setTimeout(() => {
+        dispatch(setupWallet())
+      }, 1000) 
+    }
+  }, [wallet, rehydrated])
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
