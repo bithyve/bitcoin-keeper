@@ -1,4 +1,4 @@
-import React, { RefCallback, RefObject, useCallback, useMemo } from 'react';
+import React, { RefCallback, RefObject, useCallback, useMemo, useState } from 'react';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { Heading, HStack, Text, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
@@ -43,7 +43,15 @@ const HexaBottomSheet: React.FunctionComponent<{
     ),
     []
   );
-
+  const [mounted, setMounted] = useState(false);
+  const onAnimate = useCallback((fromIndex: number) => {
+    if (fromIndex === -1) {
+      setMounted(true);
+    }
+  }, []);
+  const onClose = useCallback(() => {
+    setMounted(false);
+  }, []);
   return (
     <BottomSheet
       index={-1}
@@ -53,6 +61,8 @@ const HexaBottomSheet: React.FunctionComponent<{
       onChange={handleSheetChanges}
       backdropComponent={backdropComponent}
       backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
+      onAnimate={onAnimate}
+      onClose={onClose}
     >
       <BottomSheetView style={styles.contentContainer}>
         <VStack paddingX={'2'} backgroundColor="red">
@@ -73,7 +83,7 @@ const HexaBottomSheet: React.FunctionComponent<{
             {subTitle}
           </Text>
         </VStack>
-        {children}
+        {mounted && children}
         <HStack alignSelf={'flex-end'} marginBottom="3">
           <Buttons
             secondaryText={secondaryText}
