@@ -52,6 +52,7 @@
     "react-native-linear-gradient": "^2.5.6",
     "react-native-os": "^1.0.1",
     "react-native-paper": "^4.11.2",
+    "react-native-qrcode-svg": "^6.1.2",
     "react-native-randombytes": "^3.0.0",
     "react-native-reanimated": "^2.5.0",
     "react-native-responsive-fontsize": "^0.5.1",
