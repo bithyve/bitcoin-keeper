@@ -153,7 +153,7 @@ const AddWalletScreen = () => {
   }, []);
 
   const closeImportWalletSheet = useCallback(() => {
-    addWalletSheetRef.current?.close();
+    importWalletSheetRef.current?.close();
   }, []);
 
   const expandImportWalletSheet = useCallback(() => {
