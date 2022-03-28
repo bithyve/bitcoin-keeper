@@ -13,13 +13,13 @@ import AddSCardIcon from '../assets/images/svgs/card_add.svg';
 import BtcIcon from '../assets/images/svgs/btc.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const HomeCard = ({ item }) => {
-  const Icon = item?.Childern;
+const HomeCard = ({ Icon, name, description, balance, isEnd }) => {
+
   const navigation = useNavigation();
   return (
     <View>
       <ImageBackground style={styles.homeCard} source={HomeCardImage}>
-        {item?.last === 'true' ? (
+        {isEnd ? (
           <View style={styles.addWalletContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('AddWallet Screen')}>
               <AddSCardIcon />
@@ -92,7 +92,7 @@ const HomeCard = ({ item }) => {
                 fontFamily={'body'}
                 fontWeight={'100'}
               >
-                {item?.icontitle}
+                Single-sig
               </Text>
             </View>
 
@@ -103,7 +103,7 @@ const HomeCard = ({ item }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                Maldives Funds
+                {name}
               </Text>
               <Text
                 style={styles.fundsSubtitle}
@@ -111,7 +111,7 @@ const HomeCard = ({ item }) => {
                 fontFamily={'body'}
                 fontWeight={'100'}
               >
-                lorem ipsum dolor
+                {description}
               </Text>
             </View>
 
@@ -123,7 +123,7 @@ const HomeCard = ({ item }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                0.000024
+                {balance}
               </Text>
             </View>
           </>

@@ -11,21 +11,21 @@ import { ImageBackground, FlatList, TouchableOpacity } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
-import backgroundImage from '../assets/images/background.png';
-import HomeCard from '../components/HomeCard';
-import ScannerIcon from '../assets/images/svgs/scanner.svg';
-import SettingIcon from '../assets/images/svgs/settings.svg';
-import MobileIcon from '../assets/images/svgs/iphone_tile.svg';
-import LaptopIcon from '../assets/images/svgs/laptop_tile.svg';
-import ColdCardIcon from '../assets/images/svgs/coldcard_tile.svg';
-import IPardIcon from '../assets/images/svgs/ipad_tile.svg';
-import PdfIcon from '../assets/images/svgs/pdf_tile.svg';
-import DiamondIcon from '../assets/images/svgs/elite.svg';
-import AddNewIcon from '../assets/images/svgs/add_key.svg';
+import backgroundImage from 'src/assets/images/background.png';
+import HomeCard from 'src/components/HomeCard';
+import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import MobileIcon from 'src/assets/images/svgs/iphone_tile.svg';
+import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
+import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
+import IPardIcon from 'src/assets/images/svgs/ipad_tile.svg';
+import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
+import DiamondIcon from 'src/assets/images/svgs/elite.svg';
+import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 
-import SingleSigIcon from '../assets/images/svgs/single_sig.svg';
-import BlueWalletIcon from '../assets/images/svgs/blue_wallet.svg';
-import MultiSigIcon from '../assets/images/svgs/multi_sig.svg';
+import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
+import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import SettingSheet from './Settings/SettingSheet';
 import { setupWallet } from 'src/store/actions/storage';
 
@@ -100,21 +100,29 @@ const HomeScreen = ({ navigation }) => {
 
   const renderItem = (item) => <DevicesComponent item={item} />;
   const renderItemTwo = ({ item }) => {
-    return <HomeCard item={item} />;
+    return (
+      <HomeCard
+        Icon={SingleSigIcon}
+        name={item?.primarySubAccount?.customDisplayName}
+        description={item?.primarySubAccount?.customDescription}
+        balance={item?.primarySubAccount?.balances?.confirmed + item?.primarySubAccount?.balances?.unconfirmed}
+        isEnd={item?.isEnd}
+      />);
   };
   const openSettings = React.useCallback(() => {
     bottomSheetRef.current?.expand();
   }, []);
-  const wallet = useSelector( ( state: RootStateOrAny ) => state.storage.wallet)
-  const rehydrated = useSelector( ( state: RootStateOrAny ) => state._persist.rehydrated)
+  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet)
+  const allAccounts = [...useSelector((state: RootStateOrAny) => state.accounts.accountShells), { isEnd: true }]
+  const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated)
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if(!wallet && rehydrated){
+    if (!wallet && rehydrated) {
       // await redux persist's rehydration
       setTimeout(() => {
         dispatch(setupWallet())
-      }, 1000) 
+      }, 1000)
     }
   }, [wallet, rehydrated])
 
@@ -198,7 +206,7 @@ const HomeScreen = ({ navigation }) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        10 Wallets
+        {allAccounts.length - 1} Wallet{allAccounts.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
@@ -208,15 +216,16 @@ const HomeScreen = ({ navigation }) => {
       >
         lorem ipsum dolor
       </Text>
-      <FlatList
-        data={DATATWO}
+      {allAccounts.length != 0 && <FlatList
+        data={allAccounts}
         renderItem={renderItemTwo}
         keyExtractor={(item) => item.id}
         horizontal={true}
         style={styles.cardFlatlistContainer}
         showsHorizontalScrollIndicator={false}
         ListFooterComponent={<View style={{ width: 50 }}></View>}
-      />
+      />}
+
       <SettingSheet bottomSheetRef={bottomSheetRef} />
     </View>
   );
