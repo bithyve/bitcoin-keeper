@@ -7,7 +7,7 @@ import {
 import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, FlatList, TouchableOpacity } from 'react-native';
+import { ImageBackground, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
@@ -28,6 +28,35 @@ import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import SettingSheet from './Settings/SettingSheet';
 import { setupWallet } from 'src/store/actions/storage';
+
+const windowHeight = Dimensions.get('window').height;
+const getResponsive = () => {
+  if (windowHeight >= 850) {
+    return {
+      padingTop: 7,
+      marginTop: 0,
+      height: 35
+    };
+  } else if (windowHeight >= 750) {
+    return {
+      padingTop: 10,
+      marginTop: -2,
+      height: 38
+    }
+  } else if (windowHeight >= 650) {
+    return {
+      padingTop: 14,
+      marginTop: -8,
+      height: 42
+    };
+  } else {
+    return {
+      padingTop: 16,
+      marginTop: -9,
+      height: 44
+    };
+  }
+}
 
 const DATA = [
   {
@@ -239,13 +268,13 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: hp(4),
-    paddingHorizontal: wp(2),
+    paddingTop: hp(getResponsive().padingTop),
+    paddingHorizontal: wp(10)
   },
   backgroundImage: {
     width: wp('100%'),
-    height: hp(35),
-    padding: '30@s',
+    height: hp(getResponsive().height),
+    marginTop: hp(getResponsive().marginTop)
   },
   userNameContainer: {
     flexDirection: 'row',

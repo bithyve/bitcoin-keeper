@@ -5,7 +5,7 @@ import {
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, TouchableOpacity } from 'react-native';
+import { ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
 import { View, Text } from 'native-base';
 
 import HomeCardImage from '../assets/images/homecard.png';
@@ -13,12 +13,24 @@ import AddSCardIcon from '../assets/images/svgs/card_add.svg';
 import BtcIcon from '../assets/images/svgs/btc.svg';
 import { useNavigation } from '@react-navigation/native';
 
+const windowHeight = Dimensions.get('window').height;
+
+const getCardheight = () => {
+  if (windowHeight >= 850) {
+    return 5;
+  } else if (windowHeight >= 750) {
+    return 3
+  } else if (windowHeight >= 650) {
+    return 1;
+  }
+}
+
 const HomeCard = ({ Icon, name, description, balance, isEnd }) => {
 
   const navigation = useNavigation();
   return (
     <View>
-      <ImageBackground style={styles.homeCard} source={HomeCardImage}>
+      <ImageBackground resizeMode='stretch' style={styles.homeCard} source={HomeCardImage}>
         {isEnd ? (
           <View style={styles.addWalletContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('AddWallet Screen')}>
@@ -136,7 +148,7 @@ const HomeCard = ({ Icon, name, description, balance, isEnd }) => {
 const styles = ScaledSheet.create({
   homeCard: {
     width: wp(42),
-    height: hp(30),
+    height: hp(31),
     marginTop: hp(1.5),
     padding: '6@s',
     marginLeft: wp(2),
@@ -171,7 +183,7 @@ const styles = ScaledSheet.create({
     lineHeight: '20@s',
   },
   walletContainer: {
-    marginTop: hp(5),
+    marginTop: hp(getCardheight()),
     marginLeft: wp(2),
   },
   fundsContainer: {
