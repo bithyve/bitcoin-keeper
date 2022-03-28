@@ -77,7 +77,7 @@ const AddWalletSheet = ({
   );
 };
 
-const AddVaultSheet = ({ addVaultSheetRef, closeAddVaultSheet }) => {
+const AddVaultSheet = ({ addVaultSheetRef, showQR, setShowQR, vaultKey, setVaultKey }) => {
   return (
     <HexaBottomSheet
       title={'Import Vault Key'}
@@ -85,10 +85,28 @@ const AddVaultSheet = ({ addVaultSheetRef, closeAddVaultSheet }) => {
       snapPoints={['70%']}
       bottomSheetRef={addVaultSheetRef}
       primaryText={'Import'}
-      secondaryText={'Scan'}
-      secondaryCallback={closeAddVaultSheet}
+      secondaryText={showQR ? 'Text' : 'Scan'}
+      secondaryCallback={showQR ? () => setShowQR(false) : () => setShowQR(true)}
     >
-      <QRscanner />
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        {showQR ? (
+          <QRscanner />
+        ) : (
+          <Input
+            style={{ aspectRatio: 1 }}
+            multiline={true}
+            w="100%"
+            h="80%"
+            value={vaultKey}
+            onChangeText={(value) => setVaultKey(value)}
+            size={'lg'}
+            backgroundColor={'#D8A57210'}
+            color={'#073E39'}
+            borderWidth={'0'}
+            padding={3}
+          />
+        )}
+      </View>
     </HexaBottomSheet>
   );
 };
@@ -97,7 +115,8 @@ const AddWalletScreen = () => {
   const [addWalletType, setAddWalletType] = useState('');
   const [accountName, setAccountName] = useState('');
   const [accountDescription, setAccountDescription] = useState('');
-
+  const [showQR, setShowQR] = useState(false);
+  const [vaultKey, setVaultKey] = useState('');
   const addVaultSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
   const dispatch = useDispatch();
@@ -150,13 +169,13 @@ const AddWalletScreen = () => {
       heading: 'Import a Wallet',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
       items: [],
+      onPress: expandAddVaultSheet,
     },
     {
       id: 3,
       heading: 'Add a Vault',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
       items: [],
-      onPress: expandAddVaultSheet,
     },
   ];
 
@@ -172,7 +191,13 @@ const AddWalletScreen = () => {
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
-      <AddVaultSheet addVaultSheetRef={addVaultSheetRef} closeAddVaultSheet={addVaultSheetRef} />
+      <AddVaultSheet
+        addVaultSheetRef={addVaultSheetRef}
+        showQR={showQR}
+        setShowQR={setShowQR}
+        vaultKey={vaultKey}
+        setVaultKey={setVaultKey}
+      />
       <AddWalletSheet
         addWalletSheetRef={addWalletSheetRef}
         closeAddWalletSheet={closeAddWalletSheet}
