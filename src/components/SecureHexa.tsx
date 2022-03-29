@@ -9,14 +9,13 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
 
-const SecureHexa = ({ }) => {
-  const bottomSheetRef = useRef<BottomSheet>(null);
+const SecureHexa = ({ bottomSheetRef }) => {
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
       title="Secure Hexa Pay"
       subTitle={'Lorem Ipsum Dolor Amet'}
-      snapPoints={['25%', '65%']}
+      snapPoints={['65%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
       primaryCallback={null}
