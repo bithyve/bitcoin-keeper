@@ -10,3 +10,8 @@ export const authStatus = {
   QUEUED: 'Queued',
   APPROVED: 'Approved',
 };
+
+export enum QR_TYPES {
+   SECURE_WITH_HEXA = 'SECURE_WITH_HEXA',
+   LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA'
+}
