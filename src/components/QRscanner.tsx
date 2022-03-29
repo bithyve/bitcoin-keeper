@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useRef } from 'react';
 import { RNCamera } from 'react-native-camera';
 
-const QRscanner = () => {
+const QRscanner = ({ qrData, setQrData }) => {
   const cameraRef = useRef<RNCamera>();
 
   return (
@@ -11,7 +11,9 @@ const QRscanner = () => {
         ref={cameraRef}
         style={styles.cameraView}
         onBarCodeRead={(event) => {
-          console.log('read', event);
+          if (!qrData) {
+            setQrData(event);
+          }
         }}
         captureAudio={false}
       />
