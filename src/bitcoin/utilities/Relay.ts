@@ -8,10 +8,10 @@ import TrustedContactsOperations from './TrustedContactsOperations'
 
 const { HEXA_ID } = config
 const { REQUEST_TIMEOUT, RELAY, SIGNING_SERVER } = config
-export const BH_AXIOS = axios.create( {
+export const BH_AXIOS = axios.create({
   baseURL: RELAY,
   timeout: REQUEST_TIMEOUT * 3,
-} )
+})
 
 export default class Relay {
   public static checkCompatibility = async (
@@ -26,14 +26,14 @@ export default class Relay {
   }> => {
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'checkCompatibility', {
+      res = await BH_AXIOS.post('checkCompatibility', {
         HEXA_ID,
         method,
         version,
-      } )
-    } catch ( err ) {
-      if ( err.response ) console.log( err.response.data.err )
-      if ( err.code ) console.log( err.code )
+      })
+    } catch (err) {
+      if (err.response) console.log(err.response.data.err)
+      if (err.code) console.log(err.code)
     }
     const { compatible, alternatives } = res.data
     return {
@@ -48,15 +48,15 @@ export default class Relay {
   }> => {
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'fetchReleases', {
+      res = await BH_AXIOS.post('fetchReleases', {
         HEXA_ID,
         build,
-      } )
-    } catch ( err ) {
-      if ( err.response ) console.log( err.response.data.err )
-      if ( err.code ) console.log( err.code )
+      })
+    } catch (err) {
+      if (err.response) console.log(err.response.data.err)
+      if (err.code) console.log(err.code)
     }
-    const { releases = [] } = idx( res, ( _ ) => _.data ) || {
+    const { releases = [] } = idx(res, (_) => _.data) || {
     }
     return {
       releases
@@ -72,18 +72,18 @@ export default class Relay {
     try {
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'updateFCMTokens', {
+        res = await BH_AXIOS.post('updateFCMTokens', {
           HEXA_ID,
           walletID,
           FCMs,
-        } )
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        })
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       return res.data
-    } catch ( err ) {
-      throw new Error( 'Failed to fetch GetBittr Details' )
+    } catch (err) {
+      throw new Error('Failed to fetch GetBittr Details')
     }
   };
 
@@ -95,16 +95,16 @@ export default class Relay {
   }> => {
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'fetchNotifications', {
+      res = await BH_AXIOS.post('fetchNotifications', {
         HEXA_ID,
         walletID,
-      } )
-    } catch ( err ) {
-      console.log( {
+      })
+    } catch (err) {
+      console.log({
         err
-      } )
-      if ( err.response ) throw new Error( err.response.data.err )
-      if ( err.code ) throw new Error( err.code )
+      })
+      if (err.response) throw new Error(err.response.data.err)
+      if (err.code) throw new Error(err.code)
     }
 
     const { notifications, DHInfos } = res.data
@@ -122,31 +122,31 @@ export default class Relay {
     try {
       let res: AxiosResponse
 
-      if ( !receivers.length )
-        throw new Error( 'Failed to deliver notification: receivers missing' )
+      if (!receivers.length)
+        throw new Error('Failed to deliver notification: receivers missing')
 
       try {
-        res = await BH_AXIOS.post( 'sendNotifications', {
+        res = await BH_AXIOS.post('sendNotifications', {
           HEXA_ID,
           receivers,
           notification,
-        } )
-        console.log( 'sendNotifications', {
+        })
+        console.log('sendNotifications', {
           res
-        } )
-      } catch ( err ) {
+        })
+      } catch (err) {
         // console.log({ err });
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       const { sent } = res.data
-      if ( !sent ) throw new Error()
+      if (!sent) throw new Error()
 
       return {
         sent
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to deliver notification' )
+    } catch (err) {
+      throw new Error('Failed to deliver notification')
     }
   };
 
@@ -158,49 +158,49 @@ export default class Relay {
   }> => {
     try {
 
-      if ( !txNote || !txNote.txId || !txNote.note )
-        throw new Error( 'Failed to send donation note: txid|note missing' )
+      if (!txNote || !txNote.txId || !txNote.note)
+        throw new Error('Failed to send donation note: txid|note missing')
 
-      const res: AxiosResponse = await BH_AXIOS.post( 'addDonationTxNote', {
+      const res: AxiosResponse = await BH_AXIOS.post('addDonationTxNote', {
         HEXA_ID,
         donationId,
         txNote,
-      } )
+      })
 
       const { added } = res.data
-      if ( !added ) throw new Error()
+      if (!added) throw new Error()
 
       return {
         added
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to send donation note' )
+    } catch (err) {
+      throw new Error('Failed to send donation note')
     }
   };
 
-  public static fetchFeeAndExchangeRates = async ( currencyCode ): Promise<{
+  public static fetchFeeAndExchangeRates = async (currencyCode): Promise<{
     exchangeRates: any;
     averageTxFees: any;
   }> => {
     try {
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'fetchFeeAndExchangeRates', {
+        res = await BH_AXIOS.post('fetchFeeAndExchangeRates', {
           HEXA_ID,
           currencyCode
-        } )
-      } catch ( err ) {
+        })
+      } catch (err) {
         // console.log({ err });
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       const { exchangeRates, averageTxFees } = res.data
 
       return {
         exchangeRates, averageTxFees
       }
-    } catch ( err ) {
-      throw new Error( 'Failed fetch fee and exchange rates' )
+    } catch (err) {
+      throw new Error('Failed fetch fee and exchange rates')
     }
   };
 
@@ -212,18 +212,18 @@ export default class Relay {
     try {
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'claimCampaignGift', {
+        res = await BH_AXIOS.post('claimCampaignGift', {
           HEXA_ID,
           campaignId: campaignId,
           walletID,
-        } )
+        })
         return res.data
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
-    } catch ( err ) {
-      throw new Error( err )
+    } catch (err) {
+      throw new Error(err)
     }
   };
 
@@ -239,22 +239,22 @@ export default class Relay {
         notification,
       }
       try {
-        res = await BH_AXIOS.post( 'sendKeeperNotifications', {
+        res = await BH_AXIOS.post('sendKeeperNotifications', {
           HEXA_ID,
           receivers,
           notification,
-        } )
+        })
         const { sent } = res.data
-        if ( !sent ) throw new Error()
+        if (!sent) throw new Error()
         return {
           sent
         }
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to deliver notification' )
+    } catch (err) {
+      throw new Error('Failed to deliver notification')
     }
   };
 
@@ -263,21 +263,21 @@ export default class Relay {
     walletID: string,
     timeStamp: Date
   ): Promise<{
-    messages:[];
+    messages: [];
   }> => {
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'getMessages', {
+      res = await BH_AXIOS.post('getMessages', {
         HEXA_ID,
         walletID,
         timeStamp
-      } )
-    } catch ( err ) {
-      console.log( {
+      })
+    } catch (err) {
+      console.log({
         err
-      } )
-      if ( err.response ) throw new Error( err.response.data.err )
-      if ( err.code ) throw new Error( err.code )
+      })
+      if (err.response) throw new Error(err.response.data.err)
+      if (err.code) throw new Error(err.code)
     }
 
     const { messages } = res.data
@@ -295,21 +295,21 @@ export default class Relay {
     try {
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'updateMessages', {
+        res = await BH_AXIOS.post('updateMessages', {
           HEXA_ID,
           walletID,
           data,
-        } )
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        })
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       const { updated } = res.data
       return {
         updated
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to fetch GetBittr Details' )
+    } catch (err) {
+      throw new Error('Failed to fetch GetBittr Details')
     }
   }
 
@@ -319,12 +319,12 @@ export default class Relay {
     exchangeRates: { [currency: string]: number };
     averageTxFees: any;
   }> => {
-    const res = await BH_AXIOS.post( 'v2/walletCheckIn', {
+    const res = await BH_AXIOS.post('v2/walletCheckIn', {
       HEXA_ID,
       ...currencyCode && {
         currencyCode
       },
-    } )
+    })
 
     const {
       exchangeRates,
@@ -341,81 +341,81 @@ export default class Relay {
     walletImage: NewWalletImage,
   ): Promise<{
 
-      status: number;
-      data: {
-        updated: boolean;
-      };
-      err?: undefined;
-      message?: undefined;
-    }  > => {
+    status: number;
+    data: {
+      updated: boolean;
+    };
+    err?: undefined;
+    message?: undefined;
+  }> => {
     try {
-      const res: AxiosResponse = await BH_AXIOS.post( 'v2/updateWalletImage', {
+      const res: AxiosResponse = await BH_AXIOS.post('v2/updateWalletImage', {
         HEXA_ID,
         walletID: walletImage.walletId,
         walletImage,
-      } )
+      })
       const { updated } = res.data
       return {
         status: res.status,
         data: updated
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to update Wallet Image' )
+    } catch (err) {
+      throw new Error('Failed to update Wallet Image')
     }
   };
 
-  public static fetchWalletImage = async ( walletId: string ): Promise<{
+  public static fetchWalletImage = async (walletId: string): Promise<{
     walletImage: NewWalletImage;
   }> => {
     try {
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'v2/fetchWalletImage', {
+        res = await BH_AXIOS.post('v2/fetchWalletImage', {
           HEXA_ID,
           walletID: walletId,
-        } )
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        })
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       const { walletImage } = res.data
       return {
         walletImage
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to fetch Wallet Image' )
+    } catch (err) {
+      throw new Error('Failed to fetch Wallet Image')
     }
   };
 
-  public static updateGiftChannel = async ( encryptionKey: string, gift: Gift, metaData: GiftMetaData, previousChannelAddress?: string ): Promise<{
+  public static updateGiftChannel = async (encryptionKey: string, gift: Gift, metaData: GiftMetaData, previousChannelAddress?: string): Promise<{
     updated: boolean;
   }> => {
     try {
-      if( !gift.channelAddress ) throw new Error( 'channel address missing' )
-      const encryptedGift = TrustedContactsOperations.encryptViaPsuedoKey( JSON.stringify( gift ), encryptionKey )
+      if (!gift.channelAddress) throw new Error('channel address missing')
+      const encryptedGift = TrustedContactsOperations.encryptViaPsuedoKey(JSON.stringify(gift), encryptionKey)
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'updateGiftChannel', {
+        res = await BH_AXIOS.post('updateGiftChannel', {
           HEXA_ID,
           channelAddress: gift.channelAddress,
           encryptedGift,
           metaData,
           previousChannelAddress,
-        } )
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        })
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       const { updated } = res.data
       return {
         updated,
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to update gift channel' )
+    } catch (err) {
+      throw new Error('Failed to update gift channel')
     }
   };
 
-  public static fetchGiftChannel = async ( channelAddress: string, decryptionKey: string ): Promise<{
+  public static fetchGiftChannel = async (channelAddress: string, decryptionKey: string): Promise<{
     gift: Gift,
     metaData: GiftMetaData;
   }> => {
@@ -423,26 +423,50 @@ export default class Relay {
 
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'fetchGiftChannel', {
+        res = await BH_AXIOS.post('fetchGiftChannel', {
           HEXA_ID,
           channelAddress,
-        } )
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        })
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
       const { encryptedGift, metaData } = res.data
 
       let gift: Gift
-      if( encryptedGift )
-        gift = JSON.parse( TrustedContactsOperations.decryptViaPsuedoKey( encryptedGift, decryptionKey ) )
+      if (encryptedGift)
+        gift = JSON.parse(TrustedContactsOperations.decryptViaPsuedoKey(encryptedGift, decryptionKey))
 
       return {
         gift,
         metaData
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to fetch gift channel' )
+    } catch (err) {
+      throw new Error('Failed to fetch gift channel')
+    }
+  };
+
+  public static loginWithHexa = async (
+    authToken: string,
+    xPub: string
+  ): Promise<{
+    releases: any[];
+  }> => {
+    let res: AxiosResponse
+    try {
+      res = await BH_AXIOS.post('scanAuthToken', {
+        HEXA_ID,
+        authToken,
+        xPub
+      })
+    } catch (err) {
+      if (err.response) console.log(err.response.data.err)
+      if (err.code) console.log(err.code)
+    }
+    const { releases = [] } = idx(res, (_) => _.data) || {
+    }
+    return {
+      releases
     }
   };
 
@@ -451,34 +475,38 @@ export default class Relay {
       [channelAddress: string]: {
         creator?: boolean,
         metaDataUpdates?: GiftMetaData,
-    }
-  } ): Promise<{
-    synchedGiftChannels:  {
-      [channelAddress: string]: {
-        metaData: GiftMetaData
-    }
-  } }> => {
+      }
+    }): Promise<{
+      synchedGiftChannels: {
+        [channelAddress: string]: {
+          metaData: GiftMetaData
+        }
+      }
+    }> => {
     try {
       let res: AxiosResponse
       try {
-        res = await BH_AXIOS.post( 'syncGiftChannelsMetaData', {
+        res = await BH_AXIOS.post('syncGiftChannelsMetaData', {
           HEXA_ID,
           giftChannelsToSync,
-        } )
-      } catch ( err ) {
-        if ( err.response ) throw new Error( err.response.data.err )
-        if ( err.code ) throw new Error( err.code )
+        })
+      } catch (err) {
+        if (err.response) throw new Error(err.response.data.err)
+        if (err.code) throw new Error(err.code)
       }
-      const { synchedGiftChannels }: { synchedGiftChannels: {
-        [channelAddress: string]: {
-          metaData: GiftMetaData
-      } }} = res.data
+      const { synchedGiftChannels }: {
+        synchedGiftChannels: {
+          [channelAddress: string]: {
+            metaData: GiftMetaData
+          }
+        }
+      } = res.data
 
       return {
         synchedGiftChannels
       }
-    } catch ( err ) {
-      throw new Error( 'Failed to sync gift channels meta-data' )
+    } catch (err) {
+      throw new Error('Failed to sync gift channels meta-data')
     }
   };
 }
