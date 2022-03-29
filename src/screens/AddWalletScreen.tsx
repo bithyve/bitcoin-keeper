@@ -137,7 +137,10 @@ const AddWalletScreen = () => {
   const importWallet = useCallback(() => {
     const mnemonic = importKey.trim()
     if(mnemonic){
-      dispatch(importNewAccount(mnemonic));
+      const accountDetails = {
+        name: 'Blue Wallet',
+      } 
+      dispatch(importNewAccount(mnemonic, accountDetails));
       closeImportWalletSheet();
     } 
   }, [importKey]);
