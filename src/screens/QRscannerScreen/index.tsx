@@ -1,25 +1,25 @@
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import QRscanner from 'src/components/QRscanner';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackButtonWhiteIcon from 'src/assets/images/svgs/backWhite.svg';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-const QRscannerScreen = () => {
-  const navigatoin = useNavigation();
+const QRscannerScreen = ({ route }) => {
+  const navigation = useNavigation();
   const [qrData, setQrData] = useState();
+  const processQR  = route.params?.processQR
 
   useEffect(() => {
     if (qrData) {
-      Alert.alert(qrData); // remove alert after logic is integrated
-      //logc with qrData here
-      navigatoin.goBack();
+      if(processQR) processQR(qrData)
+      navigation.goBack();
     }
   }, [qrData]);
 
   return (
     <SafeAreaView style={styles.contentContainer}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigatoin.goBack()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <BackButtonWhiteIcon />
       </TouchableOpacity>
       <View style={styles.textContainer}>

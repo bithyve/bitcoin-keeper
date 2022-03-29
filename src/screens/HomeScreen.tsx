@@ -7,7 +7,7 @@ import {
 import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import { ImageBackground, FlatList, TouchableOpacity, Dimensions, Alert } from 'react-native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
@@ -28,6 +28,7 @@ import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import SettingSheet from './Settings/SettingSheet';
 import { setupWallet } from 'src/store/actions/storage';
+import { QR_TYPES } from './LoginScreen/constants';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -124,6 +125,24 @@ const DATATWO = [
   },
 ];
 
+const processQR = (qrData: string) => {
+  try{
+    const parsedData = JSON.parse(qrData)
+    switch(parsedData.type){
+      case QR_TYPES.SECURE_WITH_HEXA:
+        break
+
+      case QR_TYPES.SECURE_WITH_HEXA:
+        break
+        
+      default:
+        throw new Error('Invalid QR')
+    }
+  } catch(err) {
+    Alert.alert('Invalid QR')
+  }
+}
+
 const HomeScreen = ({ navigation }) => {
   const bottomSheetRef = React.useRef(null);
 
@@ -160,7 +179,9 @@ const HomeScreen = ({ navigation }) => {
       {/* <StatusBarComponent /> */}
       <ImageBackground style={styles.backgroundImage} source={backgroundImage}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('QRscanner')}>
+          <TouchableOpacity onPress={() => navigation.navigate('QRscanner', {
+            processQR,
+          })}>
             <ScannerIcon />
           </TouchableOpacity>
           <TouchableOpacity onPress={openSettings}>
