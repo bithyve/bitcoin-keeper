@@ -59,7 +59,7 @@ const SettingSheet = ({ bottomSheetRef }) => {
     >
       <BottomSheetView style={styles.contentContainer}>
         <HStack paddingX={'4'} justifyContent={'space-between'}>
-          <Heading fontWeight={'600'} fontSize={'lg'}>
+          <Heading fontWeight={'600'} fontSize={'lg'} onPress={() => bottomSheetRef.current.close()}>
             Done
           </Heading>
           <Heading fontWeight={'600'} fontSize={'lg'}>

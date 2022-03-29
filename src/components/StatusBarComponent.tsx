@@ -6,12 +6,10 @@ import DeviceInfo from 'react-native-device-info';
 const StatusBarComponent = ({ padding = 0, color = null }) => {
 
   const getPadding = () => {
-    if (Platform.OS === 'ios' && DeviceInfo.hasNotch()) {
+    if (DeviceInfo.hasNotch() || Platform.OS === 'android') {
       return padding
     } else if (Platform.OS === 'ios') {
       return 20
-    } else if (Platform.OS === 'android') {
-      return 0
     }
   }
   return (

@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
   qrcontainer: {
     flex: 1,
     margin: 20,
+    overflow: 'hidden'
   },
   cameraView: {
     aspectRatio: 1,
