@@ -29,6 +29,7 @@ import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import SettingSheet from './Settings/SettingSheet';
 import { setupWallet } from 'src/store/actions/storage';
 import { QR_TYPES } from './LoginScreen/constants';
+import SecureHexa from 'src/components/SecureHexa';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -98,53 +99,50 @@ const DATA = [
   },
 ];
 
-const DATATWO = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53a56bb28ba',
-    titles: 'First Item',
-    Childern: SingleSigIcon,
-    icontitle: 'Single-sig',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa67897f63',
-    titles: 'Second Item',
-    Childern: BlueWalletIcon,
-    icontitle: 'Blue Wallet',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e6729d72',
-    titles: 'Third Item',
-    Childern: MultiSigIcon,
-    icontitle: 'Multi Sig',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-14557677891e29d72',
-    titles: 'four Item',
-    Childern: LaptopIcon,
-    last: 'true',
-  },
-];
-
-const processQR = (qrData: string) => {
-  try{
-    const parsedData = JSON.parse(qrData)
-    switch(parsedData.type){
-      case QR_TYPES.SECURE_WITH_HEXA:
-        break
-
-      case QR_TYPES.LOGIN_WITH_HEXA:
-        break
-        
-      default:
-        throw new Error('Invalid QR')
-    }
-  } catch(err) {
-    Alert.alert('Invalid QR')
-  }
-}
+// const DATATWO = [
+//   {
+//     id: 'bd7acbea-c1b1-46c2-aed5-3ad53a56bb28ba',
+//     titles: 'First Item',
+//     Childern: SingleSigIcon,
+//     icontitle: 'Single-sig',
+//   },
+//   {
+//     id: '3ac68afc-c605-48d3-a4f8-fbd91aa67897f63',
+//     titles: 'Second Item',
+//     Childern: BlueWalletIcon,
+//     icontitle: 'Blue Wallet',
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-145571e6729d72',
+//     titles: 'Third Item',
+//     Childern: MultiSigIcon,
+//     icontitle: 'Multi Sig',
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-14557677891e29d72',
+//     titles: 'four Item',
+//     Childern: LaptopIcon,
+//     last: 'true',
+//   },
+// ];
 
 const HomeScreen = ({ navigation }) => {
   const bottomSheetRef = React.useRef(null);
+  const secureHexaRef = React.useRef(null);
+
+  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet)
+  const allAccounts = [...useSelector((state: RootStateOrAny) => state.accounts.accountShells), { isEnd: true }]
+  const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (!wallet && rehydrated) {
+      // await redux persist's rehydration
+      setTimeout(() => {
+        dispatch(setupWallet())
+      }, 1000)
+    }
+  }, [wallet, rehydrated])
 
   const renderItem = (item) => <DevicesComponent item={item} />;
   const renderItemTwo = ({ item }) => {
@@ -160,23 +158,26 @@ const HomeScreen = ({ navigation }) => {
   const openSettings = React.useCallback(() => {
     bottomSheetRef.current?.expand();
   }, []);
-  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet)
-  const allAccounts = [...useSelector((state: RootStateOrAny) => state.accounts.accountShells), { isEnd: true }]
-  const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated)
-  const dispatch = useDispatch()
 
-  useEffect(() => {
-    if (!wallet && rehydrated) {
-      // await redux persist's rehydration
-      setTimeout(() => {
-        dispatch(setupWallet())
-      }, 1000)
+  const processQR = (qrData: string) => {
+    try {
+      const parsedData = JSON.parse(qrData)
+      switch (parsedData.type) {
+        case QR_TYPES.SECURE_WITH_HEXA:
+          secureHexaRef.current.expand();
+          break
+        case QR_TYPES.LOGIN_WITH_HEXA:
+          break
+        default:
+          throw new Error('Invalid QR')
+      }
+    } catch (err) {
+      Alert.alert('Invalid QR')
     }
-  }, [wallet, rehydrated])
+  }
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
-      {/* <StatusBarComponent /> */}
       <ImageBackground style={styles.backgroundImage} source={backgroundImage}>
         <View style={styles.headerContainer}>
           <TouchableOpacity onPress={() => navigation.navigate('QRscanner', {
@@ -277,6 +278,7 @@ const HomeScreen = ({ navigation }) => {
       />}
 
       <SettingSheet bottomSheetRef={bottomSheetRef} />
+      <SecureHexa bottomSheetRef={secureHexaRef} />
     </View>
   );
 };
