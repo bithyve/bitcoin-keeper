@@ -132,7 +132,7 @@ const processQR = (qrData: string) => {
       case QR_TYPES.SECURE_WITH_HEXA:
         break
 
-      case QR_TYPES.SECURE_WITH_HEXA:
+      case QR_TYPES.LOGIN_WITH_HEXA:
         break
         
       default:
