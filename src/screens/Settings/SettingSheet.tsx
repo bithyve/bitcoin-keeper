@@ -1,26 +1,33 @@
 import React, { useCallback, useRef } from 'react';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+  TouchableOpacity,
+} from '@gorhom/bottom-sheet';
 import { Avatar, Heading, HStack, Text, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import RightArrow from 'src/assets/images/rightarrow.svg';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 const SettingItem = ({ name, first, last, callback = null }) => {
   return (
-    <HStack
-      paddingX={'4'}
-      alignItems={'center'}
-      justifyContent={'space-between'}
-      h={'10'}
-      backgroundColor={'#FFFFFF'}
-      borderTopRadius={first ? 10 : 0}
-      borderBottomRadius={last ? 10 : 0}
-      marginBottom={last ? '5' : '0'}
-      borderBottomWidth={1}
-      borderBottomColor={'#F0F0F0'}
-    >
-      <Text>{name}</Text>
-      <RightArrow />
-    </HStack>
+    <TouchableOpacity onPress={callback}>
+      <HStack
+        paddingX={'4'}
+        alignItems={'center'}
+        justifyContent={'space-between'}
+        h={'10'}
+        backgroundColor={'#FFFFFF'}
+        borderTopRadius={first ? 10 : 0}
+        borderBottomRadius={last ? 10 : 0}
+        marginBottom={last ? '5' : '0'}
+        borderBottomWidth={1}
+        borderBottomColor={'#F0F0F0'}
+      >
+        <Text>{name}</Text>
+        <RightArrow />
+      </HStack>
+    </TouchableOpacity>
   );
 };
 const SettingSheet = ({ bottomSheetRef }) => {
@@ -34,6 +41,11 @@ const SettingSheet = ({ bottomSheetRef }) => {
     ),
     []
   );
+  const navigation = useNavigation();
+  const goToInheritance = () => {
+    bottomSheetRef.current?.close();
+    navigation.dispatch(CommonActions.navigate({ name: 'Inheritance' }));
+  };
   return (
     <BottomSheet
       index={-1}
@@ -81,7 +93,8 @@ const SettingSheet = ({ bottomSheetRef }) => {
           </HStack>
           <SettingItem name={'Account'} first={true} last={false} />
           <SettingItem name={'Linked Devices'} first={false} last={false} />
-          <SettingItem name={'Payments'} first={false} last={true} />
+          <SettingItem name={'Payments'} first={false} last={false} />
+          <SettingItem name={'Inheritance'} first={false} last={true} callback={goToInheritance} />
           <SettingItem name={'Appearance'} first={true} last={false} />
           <SettingItem name={'Chats'} first={false} last={false} />
           <SettingItem name={'Notifications'} first={false} last={false} />

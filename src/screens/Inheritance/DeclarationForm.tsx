@@ -1,13 +1,13 @@
 import { Dimensions, Image } from 'react-native';
 import React from 'react';
 import { Avatar, Text, TextArea, VStack } from 'native-base';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const { height } = Dimensions.get('window');
 
 const DeclarationForm = () => {
   return (
-    <BottomSheetScrollView>
+    <ScrollView>
       <VStack marginY={'5'} marginLeft={'2'} marginTop={'10'}>
         <Avatar
           size="md"
@@ -28,7 +28,7 @@ const DeclarationForm = () => {
         {'Your Signature'}
       </Text>
       <Image source={require('src/assets/images/sign.png')} />
-    </BottomSheetScrollView>
+    </ScrollView>
   );
 };
 
