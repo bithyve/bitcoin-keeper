@@ -893,9 +893,58 @@ export const addNewAccountShellsWatcher = createWatcher(
   ADD_NEW_ACCOUNT_SHELLS
 )
 
-export function* loginWithHexaWorker({ payload }: { payload: { authToken: string } }) {
+export function* loginWithHexaWorker({ payload }: { payload: { authToken: string, walletName: string } }) {
   try {
-    const xpub = 'new xpub'
+    const newAccountShells: AccountShell[] = []
+    const accounts = {
+    }
+    const accountIds = []
+    const newAccountsInfo: newAccountsInfo[] = [{
+      accountType: AccountType.CHECKING_ACCOUNT,
+      accountDetails: {
+        name: payload.walletName
+      }
+    }]
+
+    let xpub;
+    for (const { accountType, accountDetails, recreationInstanceNumber } of newAccountsInfo) {
+      const account: Account | MultiSigAccount | DonationAccount = yield call(
+        addNewAccount,
+        accountType,
+        accountDetails || {
+        },
+        recreationInstanceNumber,
+      )
+      xpub = account.xpub
+      accountIds.push(account.id)
+      const accountShell = yield call(generateShellFromAccount, account)
+      newAccountShells.push(accountShell)
+      accounts[account.id] = account
+    }
+  
+    const wallet: Wallet = yield select(state => state.storage.wallet)
+    let presentAccounts = _.cloneDeep(wallet.accounts)
+    Object.values((accounts as Accounts)).forEach(account => {
+      if (presentAccounts[account.type]) {
+        if (!presentAccounts[account.type].includes(account.id)) presentAccounts[account.type].push(account.id)
+      }
+      else presentAccounts = {
+        ...presentAccounts,
+        [account.type]: [account.id]
+      }
+    })
+  
+    const updatedWallet: Wallet = {
+      ...wallet,
+      accounts: presentAccounts
+    }
+    yield put(updateWallet(updatedWallet))
+  
+    yield put(newAccountShellsAdded({
+      accountShells: newAccountShells,
+      accounts,
+    }))
+
     const authResponse = yield call(Relay.loginWithHexa, payload.authToken, xpub)
     if (authResponse && authResponse.walletName) {
 
