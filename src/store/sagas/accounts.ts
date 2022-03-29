@@ -888,13 +888,18 @@ export const addNewAccountShellsWatcher = createWatcher(
 )
 
 
-export function* importNewAccountWorker( { payload }: { payload: { mnemonic: string } } ) {
+export function* importNewAccountWorker( { payload }: { payload: { 
+    mnemonic: string,  
+    accountDetails?: newAccountDetails
+ } 
+} ) {
   const newAccountShells: AccountShell[] = []
   const accounts = {
   }
   const accountIds = []
   const newAccountsInfo: newAccountsInfo[] = [{
-    accountType: AccountType.IMPORTED_ACCOUNT
+    accountType: AccountType.IMPORTED_ACCOUNT,
+    accountDetails: payload.accountDetails
   }]
 
   const importDetails = {

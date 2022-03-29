@@ -21,7 +21,10 @@ const SecureHexa = ({ bottomSheetRef, secureData }) => {
   const secureWithHexa = useCallback(() => {
       const mnemonic = secureData?.mnemonic
       if(mnemonic){
-        dispatch(importNewAccount(mnemonic));
+        const accountDetails = {
+          name: secureData?.walletName,
+        }
+        dispatch(importNewAccount(mnemonic, accountDetails));
         bottomSheetRef.current.close();  
       }
     }, [secureData]);
