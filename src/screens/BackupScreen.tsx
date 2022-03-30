@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -22,8 +22,16 @@ import Key from 'src/assets/images/svgs/key.svg';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRCode from 'react-native-qrcode-svg';
 
+import MobileIcon from 'src/assets/images/svgs/iphone_tile.svg';
+import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
+import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
+import IPardIcon from 'src/assets/images/svgs/ipad_tile.svg';
+import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
+import DiamondIcon from 'src/assets/images/svgs/elite.svg';
+
 const BackupScreen = ({ }) => {
   const navigtaion = useNavigation();
+  let index = -1;
 
   const Data = [
     {
@@ -69,18 +77,34 @@ const BackupScreen = ({ }) => {
       Icon: Key,
     },
   ];
-
+  let data = {};
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
 
-  const closeAddBackUpKeySheet = useCallback(() => {
-    addBackUpKeySheetRef.current?.close();
+  useEffect(() => {
+    if (index == -1) {
+      data = {};
+    }
+  }, [index])
+
+  const expandAddBackUpKeySheet = useCallback((item) => {
+    data = item;
+    if (item.id !== 5) {
+      setBackUpKeyType(item);
+      addBackUpKeySheetRef.current?.expand();
+    } else {
+      // navigate to some new screen 
+    }
   }, []);
 
-  const expandAddBackUpKeySheet = useCallback((backUpkeyType) => {
-    setBackUpKeyType(backUpkeyType);
-    addBackUpKeySheetRef.current?.expand();
+  const closeAddBackUpKeySheet = useCallback(() => {
+    addBackUpKeySheetRef.current?.close();
+    data && navigtaion.navigate('Home', data);
   }, []);
+
+  const getIndex = (i) => {
+    index = i;
+  }
 
   const renderItem = ({ item }) => {
     return (
@@ -118,6 +142,7 @@ const BackupScreen = ({ }) => {
         bottomSheetRef={addBackUpKeySheetRef}
         primaryText={'Done'}
         primaryCallback={closeAddBackUpKeySheet}
+        getIndex={getIndex}
       >
         {backUpKeyType && (
           <BackupListComponent
