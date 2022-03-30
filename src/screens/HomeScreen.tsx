@@ -15,7 +15,7 @@ import backgroundImage from 'src/assets/images/background.png';
 import HomeCard from 'src/components/HomeCard';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import MobileIcon from 'src/assets/images/svgs/iphone_tile.svg';
+import MobileIcon from 'src/assets/images/svgs/mobile_tile.svg';
 import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
 import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import IPardIcon from 'src/assets/images/svgs/ipad_tile.svg';
