@@ -47,13 +47,13 @@ const styles = ScaledSheet.create({
   },
   addWalletText: {
     fontSize: RFValue(22),
-    lineHeight: '20@s',
+    lineHeight: '23@s',
     letterSpacing: '0.7@s',
     marginTop: hp(5),
   },
   addWalletDescription: {
     fontSize: RFValue(12),
-    lineHeight: '15@s',
+    lineHeight: '17@s',
     letterSpacing: '0.5@s',
     width: wp('60%'),
   },
