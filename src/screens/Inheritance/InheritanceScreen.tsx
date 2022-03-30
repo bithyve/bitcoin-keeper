@@ -13,7 +13,14 @@ const InheritanceScreen = () => {
   const closeDecalarationSheet = useCallback(() => {
     declarationRef.current?.close();
   }, []);
+  const openDecalarationSheet = useCallback(() => {
+    declarationRef.current?.expand();
+  }, []);
   const closeBeneficiarySheet = useCallback(() => {
+    assignRef.current?.close();
+  }, []);
+  const closeDecalarationAndBeneficiary = useCallback(() => {
+    declarationRef.current?.close();
     assignRef.current?.close();
   }, []);
   return (
@@ -50,6 +57,7 @@ const InheritanceScreen = () => {
         primaryText={'Proceed'}
         secondaryText={'Setup Later'}
         secondaryCallback={closeBeneficiarySheet}
+        primaryCallback={openDecalarationSheet}
       >
         <BenificiaryList />
       </HexaBottomSheet>
@@ -61,6 +69,7 @@ const InheritanceScreen = () => {
         primaryText={'Sign'}
         secondaryText={'Cancel'}
         secondaryCallback={closeDecalarationSheet}
+        primaryCallback={closeDecalarationAndBeneficiary}
       >
         <DeclarationForm />
       </HexaBottomSheet>
