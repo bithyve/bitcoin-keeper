@@ -450,7 +450,7 @@ export default class Relay {
     authToken: string,
     xPub: string
   ): Promise<{
-    releases: any[];
+    data: object;
   }> => {
     let res: AxiosResponse
     try {
@@ -459,14 +459,11 @@ export default class Relay {
         authToken,
         xPub
       })
+      return res.data
     } catch (err) {
-      if (err.response) console.log(err.response.data.err)
-      if (err.code) console.log(err.code)
-    }
-    const { releases = [] } = idx(res, (_) => _.data) || {
-    }
-    return {
-      releases
+      console.log(err)
+      return undefined
+
     }
   };
 

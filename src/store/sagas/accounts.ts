@@ -902,7 +902,7 @@ export function* loginWithHexaWorker({ payload }: { payload: { authToken: string
     const newAccountsInfo: newAccountsInfo[] = [{
       accountType: AccountType.CHECKING_ACCOUNT,
       accountDetails: {
-        name: payload.walletName
+        name: payload.walletName || ''
       }
     }]
 
@@ -921,7 +921,6 @@ export function* loginWithHexaWorker({ payload }: { payload: { authToken: string
       newAccountShells.push(accountShell)
       accounts[account.id] = account
     }
-  
     const wallet: Wallet = yield select(state => state.storage.wallet)
     let presentAccounts = _.cloneDeep(wallet.accounts)
     Object.values((accounts as Accounts)).forEach(account => {
@@ -933,26 +932,24 @@ export function* loginWithHexaWorker({ payload }: { payload: { authToken: string
         [account.type]: [account.id]
       }
     })
-  
-    const updatedWallet: Wallet = {
-      ...wallet,
-      accounts: presentAccounts
-    }
-    yield put(updateWallet(updatedWallet))
-  
-    yield put(newAccountShellsAdded({
-      accountShells: newAccountShells,
-      accounts,
-    }))
 
     const authResponse = yield call(Relay.loginWithHexa, payload.authToken, xpub)
     if (authResponse && authResponse.walletName) {
+      const updatedWallet: Wallet = {
+        ...wallet,
+        accounts: presentAccounts
+      }
+      yield put(updateWallet(updatedWallet))
 
+      yield put(newAccountShellsAdded({
+        accountShells: newAccountShells,
+        accounts,
+      }))
     } else {
 
     }
   } catch (error) {
-    console.log(error);
+    console.log('error', error);
   }
 }
 

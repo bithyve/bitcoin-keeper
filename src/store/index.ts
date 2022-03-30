@@ -6,9 +6,8 @@ import { composeWithDevTools } from '@redux-devtools/extension'
 import { persistStore, persistReducer } from 'redux-persist'
 import accountsReducer from './reducers/accounts'
 import storageReducer from './reducers/storage'
-import { addNewAccountShellsWatcher, importNewAccountWatcher, refreshAccountShellsWatcher, syncAccountsWatcher } from './sagas/accounts'
+import { addNewAccountShellsWatcher, importNewAccountWatcher, refreshAccountShellsWatcher, syncAccountsWatcher, loginWithHexaWatcher } from './sagas/accounts'
 import { setupWalletWatcher } from './sagas/storage'
-console.log({ syncAccountsWatcher })
 
 const config = {
   key: 'root',
@@ -24,38 +23,39 @@ const rootSaga = function* () {
     addNewAccountShellsWatcher,
     syncAccountsWatcher,
     refreshAccountShellsWatcher,
-    importNewAccountWatcher
+    importNewAccountWatcher,
+    loginWithHexaWatcher
   ]
 
   yield all(
-    sagas.map( ( saga ) =>
-      spawn( function* () {
-        while ( true ) {
+    sagas.map((saga) =>
+      spawn(function* () {
+        while (true) {
           try {
-            yield call( saga )
+            yield call(saga)
             break
-          } catch ( err ) {
-            console.log( err )
+          } catch (err) {
+            console.log(err)
           }
         }
-      } )
+      })
     )
   )
 }
 
-const rootReducer = combineReducers( {
+const rootReducer = combineReducers({
   storage: storageReducer,
   accounts: accountsReducer,
-} )
+})
 
 export default function makeStore() {
   const sagaMiddleware = createSagaMiddleware()
-  const reducers = persistReducer( config, rootReducer )
+  const reducers = persistReducer(config, rootReducer)
   const storeMiddleware = composeWithDevTools(
-    applyMiddleware( sagaMiddleware )
+    applyMiddleware(sagaMiddleware)
   )
-  const store = createStore( reducers, storeMiddleware )
-  persistStore( store )
-  sagaMiddleware.run( rootSaga )
+  const store = createStore(reducers, storeMiddleware)
+  persistStore(store)
+  sagaMiddleware.run(rootSaga)
   return store
 }

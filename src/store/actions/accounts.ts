@@ -871,3 +871,12 @@ export const giftCreationSuccess = (flag) => {
     }
   }
 }
+
+export const loginWithHexa = (authToken, walletName) => {
+  return {
+    type: LOGIN_WITH_HEXA,
+    payload: {
+      authToken, walletName
+    }
+  }
+}
