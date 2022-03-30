@@ -7,6 +7,7 @@ import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -21,7 +22,9 @@ import Key from 'src/assets/images/svgs/key.svg';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRCode from 'react-native-qrcode-svg';
 
-const BackupScreen = () => {
+const BackupScreen = ({ }) => {
+  const navigtaion = useNavigation();
+
   const Data = [
     {
       id: 1,
@@ -96,7 +99,11 @@ const BackupScreen = () => {
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle title="Add a Backup Key" subtitle="Lorem ipsum dolor sit amet, consectetur" />
+      <HeaderTitle
+        title="Add a Backup Key"
+        subtitle="Lorem ipsum dolor sit amet, consectetur"
+        onPressHandler={() => navigtaion.goBack()}
+      />
       <FlatList
         style={{ marginTop: hp(2) }}
         showsVerticalScrollIndicator={false}
@@ -117,8 +124,7 @@ const BackupScreen = () => {
             title={backUpKeyType?.title}
             subtitle={backUpKeyType?.subtitle}
             Icon={backUpKeyType?.Icon}
-            onPress={expandAddBackUpKeySheet}
-          />
+            onPress={expandAddBackUpKeySheet} />
         )}
         <Text style={styles.sheetSubText}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit

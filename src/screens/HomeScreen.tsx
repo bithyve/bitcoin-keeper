@@ -60,45 +60,6 @@ const getResponsive = () => {
   }
 }
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'Arika’s',
-    subtitle: 'iPhone 12',
-    Childern: MobileIcon,
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Personal ',
-    subtitle: 'iMac',
-    Childern: LaptopIcon,
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Cold Card ',
-    subtitle: 'Wallet',
-    Childern: ColdCardIcon,
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-14557671e29d72',
-    title: 'Home',
-    subtitle: 'iPad',
-    Childern: IPardIcon,
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e2679d72',
-    title: 'Arika’s',
-    subtitle: 'PDF',
-    Childern: PdfIcon,
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
-    title: 'Add',
-    subtitle: 'New Key',
-    Childern: AddNewIcon,
-  },
-];
-
 // const DATATWO = [
 //   {
 //     id: 'bd7acbea-c1b1-46c2-aed5-3ad53a56bb28ba',
@@ -135,6 +96,50 @@ const HomeScreen = ({ navigation }) => {
   const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated)
   const dispatch = useDispatch()
 
+  const DATA = [
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      title: 'Arika’s',
+      subtitle: 'iPhone 12',
+      Icon: MobileIcon,
+      onPress: () => { }
+    },
+    {
+      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+      title: 'Personal ',
+      subtitle: 'iMac',
+      Icon: LaptopIcon,
+      onPress: () => { }
+    },
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e29d72',
+      title: 'Cold Card ',
+      subtitle: 'Wallet',
+      Icon: ColdCardIcon,
+      onPress: () => { }
+    },
+    {
+      id: '58694a0f-3da1-471f-bd96-14557671e29d72',
+      title: 'Home',
+      subtitle: 'iPad',
+      Icon: IPardIcon,
+      onPress: () => { }
+    },
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e2679d72',
+      title: 'Arika’s',
+      subtitle: 'PDF',
+      Icon: PdfIcon,
+      onPress: () => { }
+    },
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
+      title: 'Add',
+      subtitle: 'New Key',
+      Icon: AddNewIcon,
+      onPress: () => navigation.navigate('Backup')
+    },
+  ];
   useEffect(() => {
     if (!wallet && rehydrated) {
       // await redux persist's rehydration
@@ -144,7 +149,15 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [wallet, rehydrated])
 
-  const renderItem = (item) => <DevicesComponent item={item} />;
+  const renderItem = ({ item }) => {
+    return (
+      <DevicesComponent
+        title={item.title}
+        onPress={item.onPress}
+        subtitle={item.subtitle}
+        Icon={item.Icon} />
+    )
+  };
   const renderItemTwo = ({ item }) => {
     return (
       <HomeCard
