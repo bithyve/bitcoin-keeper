@@ -44,23 +44,29 @@ const InheritanceModes = ({ assignRef, declarationRef }) => {
     <Fragment>
       <TouchableOpacity onPress={expandBeneficiaries}>
         <Wrapper Icon={<Benificiary />}>
-          <Text fontSize={'13'}>Assign Beneficiary</Text>
-          <Text fontSize={'xs'} fontFamily={'mono'}>
+          <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
+            Assign Beneficiary
+          </Text>
+          <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
             Lorem ipsum dolor sit, amet
           </Text>
         </Wrapper>
       </TouchableOpacity>
       <TouchableOpacity onPress={expandDecalarations}>
         <Wrapper Icon={<Declaration />}>
-          <Text fontSize={'13'}>Sign Declaration</Text>
-          <Text fontSize={'xs'} fontFamily={'mono'}>
+          <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
+            Sign Declaration
+          </Text>
+          <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
             Lorem ipsum dolor sit, amet
           </Text>
         </Wrapper>
       </TouchableOpacity>
       <Wrapper Icon={<Transfer />}>
-        <Text fontSize={'13'}>Activate Transfer</Text>
-        <Text fontSize={'xs'} fontFamily={'mono'}>
+        <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
+          Activate Transfer
+        </Text>
+        <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
           Lorem ipsum dolor sit, amet
         </Text>
       </Wrapper>

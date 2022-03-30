@@ -21,10 +21,21 @@ const InheritanceScreen = () => {
       <Header />
       <VStack marginX={10}>
         <VStack>
-          <Heading size={'md'}>Setup Inheritance</Heading>
-          <Text>Lorem ipsum dolor sit, amet</Text>
+          <Heading fontFamily={'body'} fontWeight={'200'} size={'md'}>
+            Setup Inheritance
+          </Heading>
+          <Text fontFamily={'body'} fontWeight={'100'} size={'sm'} h={'auto'}>
+            Lorem ipsum dolor sit, amet
+          </Text>
         </VStack>
-        <Text noOfLines={2} marginY={12}>
+        <Text
+          fontFamily={'body'}
+          fontWeight={'100'}
+          size={'xs'}
+          noOfLines={2}
+          marginY={12}
+          h={'auto'}
+        >
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam assumenda, quibusdam
           consectetur sapiente incidunt saepe qui, ullam facilis unde est fugiat cupiditate dolorem
           sint eum distinctio et similique minus. Rerum.

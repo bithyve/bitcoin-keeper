@@ -1,14 +1,38 @@
 import React from 'react';
 import { Avatar, HStack, Text, VStack } from 'native-base';
+import { View } from 'react-native';
+import Cecked from 'src/assets/images/checked.svg';
 
-const Wrapper = ({ Profile, owner, decription }) => {
+const Wrapper = ({ Profile, owner, decription, checked = false }) => {
   return (
-    <HStack padding={'4'} marginY={'4'} borderRadius={15} alignItems={'center'} bgColor={'#FDF7F0'}>
-      <HStack alignItems={'center'}>
+    <HStack alignItems={'center'}>
+      {checked ? (
+        <Cecked />
+      ) : (
+        <View
+          style={{
+            height: 12,
+            width: 12,
+            borderRadius: 4,
+            backgroundColor: '#F3DFCB',
+            marginRight: 15,
+          }}
+        />
+      )}
+      <HStack
+        padding={'4'}
+        marginY={'4'}
+        borderRadius={15}
+        alignItems={'center'}
+        bgColor={'#FDF7F0'}
+        w={'90%'}
+      >
         <Profile />
         <VStack marginLeft={'5'}>
-          <Text fontSize={'sm'}>{owner}</Text>
-          <Text fontSize={'xs'} fontFamily={'mono'}>
+          <Text fontSize={'sm'} fontFamily={'body'} fontWeight={'200'}>
+            {owner}
+          </Text>
+          <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
             {decription}
           </Text>
         </VStack>
@@ -17,6 +41,8 @@ const Wrapper = ({ Profile, owner, decription }) => {
   );
 };
 const BenificiaryList = () => {
+  const [index, setIndex] = React.useState(0);
+
   return (
     <VStack flex={1}>
       <Wrapper
@@ -29,7 +55,7 @@ const BenificiaryList = () => {
             }}
           />
         )}
-        owner={'No backup created'}
+        owner={'Julie Geller'}
         decription={'Lorem ipsum dolor sit amet'}
       />
       <Wrapper
@@ -42,8 +68,9 @@ const BenificiaryList = () => {
             }}
           />
         )}
-        owner={'No backup created'}
+        owner={'Gunther Greene'}
         decription={'Lorem ipsum dolor sit amet'}
+        checked
       />
       <Wrapper
         Profile={() => (
@@ -55,7 +82,7 @@ const BenificiaryList = () => {
             }}
           />
         )}
-        owner={'No backup created'}
+        owner={'Arika Andler'}
         decription={'Lorem ipsum dolor sit amet'}
       />
       <Wrapper
@@ -68,7 +95,7 @@ const BenificiaryList = () => {
             }}
           />
         )}
-        owner={'No backup created'}
+        owner={'Huff Nohman'}
         decription={'Lorem ipsum dolor sit amet'}
       />
     </VStack>
