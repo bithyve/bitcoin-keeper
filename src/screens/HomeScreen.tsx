@@ -28,6 +28,7 @@ import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import SettingSheet from './Settings/SettingSheet';
 import { setupWallet } from 'src/store/actions/storage';
+import { loginWithHexa } from 'src/store/actions/accounts';
 import { QR_TYPES } from './LoginScreen/constants';
 import SecureHexa from 'src/components/SecureHexa';
 
@@ -161,8 +162,11 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const processQR = (qrData: string) => {
+    console.log('qrData', qrData.data)
+
     try {
-      const parsedData = JSON.parse(qrData)
+      const parsedData = JSON.parse(qrData.data)
+      console.log('parsedData', parsedData)
       switch (parsedData.type) {
 
         case QR_TYPES.SECURE_WITH_HEXA:
@@ -171,6 +175,7 @@ const HomeScreen = ({ navigation }) => {
           break
 
         case QR_TYPES.LOGIN_WITH_HEXA:
+          dispatch(loginWithHexa(parsedData.authToken, parsedData.walletName))
           break
 
         default:

@@ -27,7 +27,8 @@ export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE'
 export const SETUP_DONATION_ACCOUNT = 'SETUP_DONATION_ACCOUNT'
 export const UPDATE_DONATION_PREFERENCES = 'UPDATE_DONATION_PREFERENCES'
 export const ADD_NEW_ACCOUNT_SHELLS = 'ADD_NEW_ACCOUNT_SHELLS'
-export const IMPORT_NEW_ACCOUNT= 'IMPORT_NEW_ACCOUNT'
+export const IMPORT_NEW_ACCOUNT = 'IMPORT_NEW_ACCOUNT'
+export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA'
 export const RESTORE_ACCOUNT_SHELLS = 'RESTORE_ACCOUNT_SHELLS'
 export const ADD_NEW_SECONDARY_SUBACCOUNT = 'ADD_NEW_SECONDARY_SUBACCOUNT'
 export const ADD_NEW_ACCOUNT_SHELL_COMPLETED =
@@ -73,7 +74,7 @@ export const getAllAccountsData = () => {
   }
 }
 
-export const setAllAccountsData = ( accounts ) => {
+export const setAllAccountsData = (accounts) => {
   return {
     type: SET_ALL_ACCOUNTS_DATA,
     payload: {
@@ -82,7 +83,7 @@ export const setAllAccountsData = ( accounts ) => {
   }
 }
 
-export const accountChecked = ( accountShells: AccountShell [], accounts: Accounts ) => {
+export const accountChecked = (accountShells: AccountShell[], accounts: Accounts) => {
   return {
     type: ACCOUNT_CHECKED,
     payload: {
@@ -92,7 +93,7 @@ export const accountChecked = ( accountShells: AccountShell [], accounts: Accoun
   }
 }
 
-export const readTxn = ( accountShells: AccountShell [], accounts: Accounts ) => {
+export const readTxn = (accountShells: AccountShell[], accounts: Accounts) => {
   return {
     type: READ_TRANSACTION,
     payload: {
@@ -102,7 +103,7 @@ export const readTxn = ( accountShells: AccountShell [], accounts: Accounts ) =>
   }
 }
 
-export const markAccountChecked = ( shellId: string ) => {
+export const markAccountChecked = (shellId: string) => {
   return {
     type: MARK_ACCOUNT_CHECKED,
     payload: {
@@ -111,7 +112,7 @@ export const markAccountChecked = ( shellId: string ) => {
   }
 }
 
-export const markReadTx = ( txIds: string[], shellId: string ) => {
+export const markReadTx = (txIds: string[], shellId: string) => {
   return {
     type: MARK_READ_TRANSACTION,
     payload: {
@@ -129,7 +130,7 @@ export const fetchBalanceTx = (
     shouldNotInsert?: boolean;
     syncTrustedDerivative?: boolean;
   } = {
-  }
+    }
 ) => {
   return {
     type: FETCH_BALANCE_TX, payload: {
@@ -145,7 +146,7 @@ export const syncAccounts = (
     hardRefresh?: boolean;
     blindRefresh?: boolean;
   } = {
-  }
+    }
 ) => {
   return {
     type: SYNC_ACCOUNTS, payload: {
@@ -154,14 +155,14 @@ export const syncAccounts = (
   }
 }
 
-export const getTestcoins = ( testAccount: Account ) => {
+export const getTestcoins = (testAccount: Account) => {
   return {
     type: GET_TESTCOINS,
     payload: testAccount
   }
 }
 
-export const addTransferDetails = ( serviceType, recipientData ) => {
+export const addTransferDetails = (serviceType, recipientData) => {
   return {
     type: ADD_TRANSFER_DETAILS,
     payload: {
@@ -170,7 +171,7 @@ export const addTransferDetails = ( serviceType, recipientData ) => {
   }
 }
 
-export const removeTransferDetails = ( serviceType, recipientData ) => {
+export const removeTransferDetails = (serviceType, recipientData) => {
   return {
     type: REMOVE_TRANSFER_DETAILS,
     payload: {
@@ -179,7 +180,7 @@ export const removeTransferDetails = ( serviceType, recipientData ) => {
   }
 }
 
-export const clearTransfer = ( serviceType, stage? ) => {
+export const clearTransfer = (serviceType, stage?) => {
   return {
     type: CLEAR_TRANSFER, payload: {
       serviceType, stage
@@ -202,7 +203,7 @@ export const clearAccountSyncCache = () => {
 
 // This is called once per login to automatically sync balances and
 // transactions of all shells
-export const autoSyncShells = ( syncAll?: boolean, hardRefresh?: boolean, ) => {
+export const autoSyncShells = (syncAll?: boolean, hardRefresh?: boolean,) => {
   return {
     type: AUTO_SYNC_SHELLS,
     payload: {
@@ -224,7 +225,7 @@ export const syncViaXpubAgent = (
   }
 }
 
-export const validateTwoFA = ( token: number ) => {
+export const validateTwoFA = (token: number) => {
   return {
     type: VALIDATE_TWO_FA,
     payload: {
@@ -239,7 +240,7 @@ export const fetchFeeAndExchangeRates = () => {
   }
 }
 
-export const generateSecondaryXpriv = ( accountShell, secondaryMnemonic ) => {
+export const generateSecondaryXpriv = (accountShell, secondaryMnemonic) => {
   return {
     type: GENERATE_SECONDARY_XPRIV,
     payload: {
@@ -249,7 +250,7 @@ export const generateSecondaryXpriv = ( accountShell, secondaryMnemonic ) => {
   }
 }
 
-export const resetTwoFA = ( secondaryMnemonic ) => {
+export const resetTwoFA = (secondaryMnemonic) => {
   return {
     type: RESET_TWO_FA,
     payload: {
@@ -279,7 +280,7 @@ export const fetchDerivativeAccBalTx = (
   }
 }
 
-export const setAverageTxFee = ( averageTxFees ) => {
+export const setAverageTxFee = (averageTxFees) => {
   return {
     type: AVERAGE_TX_FEE,
     payload: {
@@ -335,7 +336,7 @@ export const updateDonationPreferences = (
   }
 }
 
-export const remapAccountShells = ( services ) => {
+export const remapAccountShells = (services) => {
   return {
     type: REMAP_ACCOUNT_SHELLS, payload: {
       services
@@ -366,14 +367,14 @@ export const blindRefresh = () => {
   }
 }
 
-export const accountShellRefreshStarted = ( payload: AccountShell[] ) => {
+export const accountShellRefreshStarted = (payload: AccountShell[]) => {
   return {
     type: ACCOUNT_SHELLS_REFRESH_STARTED,
     payload,
   }
 }
 
-export const accountShellRefreshCompleted = ( payload: AccountShell[] ) => {
+export const accountShellRefreshCompleted = (payload: AccountShell[]) => {
   return {
     type: ACCOUNT_SHELLS_REFRESH_COMPLETED,
     payload,
@@ -567,7 +568,7 @@ export const accountShellOrderedToFront = (
   }
 }
 
-export const generateGifts = ( { amounts, accountId, includeFee, exclusiveGifts, validity }:{amounts: number[], accountId?: string, includeFee?: boolean, exclusiveGifts?: boolean, validity?: number } ) => {
+export const generateGifts = ({ amounts, accountId, includeFee, exclusiveGifts, validity }: { amounts: number[], accountId?: string, includeFee?: boolean, exclusiveGifts?: boolean, validity?: number }) => {
   return {
     type: GENERATE_GIFTS,
     payload: {
@@ -604,13 +605,13 @@ export const GIFT_ADDED = 'GIFT_ADDED'
 export const SET_GIFTS = 'SET_GIFTS'
 export const GIFT_CREATION_STATUS = 'GIFT_CREATION_STATUS'
 
-export const testcoinsReceived = ( ) => {
+export const testcoinsReceived = () => {
   return {
     type: TESTCOINS_RECEIVED
   }
 }
 
-export const transactionsFetched = ( serviceType, transactions ) => {
+export const transactionsFetched = (serviceType, transactions) => {
   return {
     type: TRANSACTIONS_FETCHED, payload: {
       serviceType, transactions
@@ -618,7 +619,7 @@ export const transactionsFetched = ( serviceType, transactions ) => {
   }
 }
 
-export const accountsSynched = ( synched ) => {
+export const accountsSynched = (synched) => {
   return {
     type: ACCOUNTS_SYNCHED, payload: {
       synched
@@ -626,7 +627,7 @@ export const accountsSynched = ( synched ) => {
   }
 }
 
-export const exchangeRatesCalculated = ( exchangeRates ) => {
+export const exchangeRatesCalculated = (exchangeRates) => {
   return {
     type: EXCHANGE_RATE_CALCULATED, payload: {
       exchangeRates
@@ -634,7 +635,7 @@ export const exchangeRatesCalculated = ( exchangeRates ) => {
   }
 }
 
-export const secondaryXprivGenerated = ( generated ) => {
+export const secondaryXprivGenerated = (generated) => {
   return {
     type: SECONDARY_XPRIV_GENERATED, payload: {
       generated
@@ -642,7 +643,7 @@ export const secondaryXprivGenerated = ( generated ) => {
   }
 }
 
-export const twoFAValid = ( isValid: boolean ) => {
+export const twoFAValid = (isValid: boolean) => {
   return {
     type: TWO_FA_VALID,
     payload: {
@@ -651,7 +652,7 @@ export const twoFAValid = ( isValid: boolean ) => {
   }
 }
 
-export const twoFAResetted = ( resetted ) => {
+export const twoFAResetted = (resetted) => {
   return {
     type: TWO_FA_RESETTED, payload: {
       resetted
@@ -659,13 +660,13 @@ export const twoFAResetted = ( resetted ) => {
   }
 }
 
-export const newAccountShellAddFailed = ( {
+export const newAccountShellAddFailed = ({
   accountShell,
   error,
 }: {
   accountShell: AccountShell;
   error: Error;
-} ) => {
+}) => {
   return {
     type: NEW_ACCOUNT_ADD_FAILED, payload: {
       accountShell, error
@@ -673,10 +674,10 @@ export const newAccountShellAddFailed = ( {
   }
 }
 
-export const newAccountShellsAdded = ( { accountShells, accounts }: {
+export const newAccountShellsAdded = ({ accountShells, accounts }: {
   accountShells: AccountShell[];
   accounts: Accounts
-} ) => {
+}) => {
   return {
     type: NEW_ACCOUNT_SHELLS_ADDED,
     payload: {
@@ -686,7 +687,7 @@ export const newAccountShellsAdded = ( { accountShells, accounts }: {
   }
 }
 
-export const updateAccounts = ( { accounts }: { accounts: Accounts } ) => {
+export const updateAccounts = ({ accounts }: { accounts: Accounts }) => {
   return {
     type: UPDATE_ACCOUNTS,
     payload: {
@@ -695,7 +696,7 @@ export const updateAccounts = ( { accounts }: { accounts: Accounts } ) => {
   }
 }
 
-export const updateAccountShells = ( { accounts }: { accounts: Accounts } ) => {
+export const updateAccountShells = ({ accounts }: { accounts: Accounts }) => {
   return {
     type: UPDATE_ACCOUNT_SHELLS,
     payload: {
@@ -714,9 +715,9 @@ export const updateAccountShells = ( { accounts }: { accounts: Accounts } ) => {
 //   }
 // }
 
-export const accountSettingsUpdateFailed = ( {  error, }: {
+export const accountSettingsUpdateFailed = ({ error, }: {
   error: Error;
-} ) => {
+}) => {
   return {
     type: ACCOUNT_SETTINGS_UPDATE_FAILED, payload: {
       error
@@ -724,7 +725,7 @@ export const accountSettingsUpdateFailed = ( {  error, }: {
   }
 }
 
-export const accountSettingsUpdated = ( ) => {
+export const accountSettingsUpdated = () => {
   return {
     type: ACCOUNT_SETTINGS_UPDATED,
   }
@@ -764,7 +765,7 @@ export const accountShellMergeSucceeded = (
   }
 }
 
-export const blindRefreshStarted = ( refreshed ) => {
+export const blindRefreshStarted = (refreshed) => {
   return {
     type: BLIND_REFRESH_STARTED, payload: {
       refreshed
@@ -774,7 +775,7 @@ export const blindRefreshStarted = ( refreshed ) => {
 
 export const fetchReceiveAddress = (
   subAccountInfo?: SubAccountDescribing
-)  => {
+) => {
   return {
     type: FETCH_RECEIVE_ADDRESS,
     payload: {
@@ -783,7 +784,7 @@ export const fetchReceiveAddress = (
   }
 }
 
-export const fetchReceiveAddressSucceeded = ( receiveAddress: string ) => {
+export const fetchReceiveAddressSucceeded = (receiveAddress: string) => {
   return {
     type: FETCH_RECEIVE_ADDRESS_SUCCEEDED,
     payload: {
@@ -793,13 +794,13 @@ export const fetchReceiveAddressSucceeded = ( receiveAddress: string ) => {
 }
 
 
-export const clearReceiveAddress = ( ) => {
+export const clearReceiveAddress = () => {
   return {
     type: CLEAR_RECEIVE_ADDRESS,
   }
 }
 
-export const getSMAndReSetTFAOrGenerateSXpriv = ( qrdata, QRModalHeader, accountShell ) => {
+export const getSMAndReSetTFAOrGenerateSXpriv = (qrdata, QRModalHeader, accountShell) => {
   return {
     type: CREATE_SM_N_RESETTFA_OR_XPRIV,
     payload: {
@@ -810,7 +811,7 @@ export const getSMAndReSetTFAOrGenerateSXpriv = ( qrdata, QRModalHeader, account
   }
 }
 
-export const setShowAllAccount = ( showAllAccount ) => {
+export const setShowAllAccount = (showAllAccount) => {
   return {
     type: SET_SHOW_ALL_ACCOUNT, payload: {
       showAllAccount
@@ -824,15 +825,15 @@ export const resetAccountUpdateFlag = () => {
   }
 }
 
-export const setResetTwoFALoader = ( flag ) => {
+export const setResetTwoFALoader = (flag) => {
   return {
-    type: RESET_TWO_FA_LOADER, payload:{
+    type: RESET_TWO_FA_LOADER, payload: {
       flag
     }
   }
 }
 
-export const updateGift = ( gift: Gift ) => {
+export const updateGift = (gift: Gift) => {
   return {
     type: UPDATE_GIFT,
     payload: {
@@ -840,22 +841,22 @@ export const updateGift = ( gift: Gift ) => {
     }
   }
 }
-export const giftAccepted = ( channelAddress ) => {
+export const giftAccepted = (channelAddress) => {
   return {
     type: GIFT_ACCEPTED,
     payload: channelAddress
   }
 }
-export const giftAddedToAccount = ( channelAddress ) => {
+export const giftAddedToAccount = (channelAddress) => {
   return {
     type: GIFT_ADDED,
     payload: channelAddress
   }
 }
 
-export const setGifts = ( gifts:{
-    [id: string]: Gift
-  } ) => {
+export const setGifts = (gifts: {
+  [id: string]: Gift
+}) => {
   return {
     type: SET_GIFTS,
     payload: {
@@ -864,11 +865,20 @@ export const setGifts = ( gifts:{
   }
 }
 
-export const giftCreationSuccess = ( flag ) =>{
+export const giftCreationSuccess = (flag) => {
   return {
     type: GIFT_CREATION_STATUS,
     payload: {
       flag
+    }
+  }
+}
+
+export const loginWithHexa = (authToken, walletName) => {
+  return {
+    type: LOGIN_WITH_HEXA,
+    payload: {
+      authToken, walletName
     }
   }
 }
