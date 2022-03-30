@@ -1,19 +1,18 @@
 import React from 'react';
 import { View, Text } from 'native-base';
-import { ImageBackground, Touchable, TouchableOpacity} from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
-const DevicesComponent = ({ item }) => {
-  const Icon = item?.item?.Childern
-  
+const DevicesComponent = ({ title, onPress, subtitle, Icon }) => {
+
   return (
     <View style={styles.container}>
       <View style={styles.iconWrapper}>
-       <TouchableOpacity>
-      <Icon/>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={onPress}>
+          <Icon />
+        </TouchableOpacity>
       </View>
       <Text
         style={styles.deviceName}
@@ -21,7 +20,7 @@ const DevicesComponent = ({ item }) => {
         fontFamily={'body'}
         fontWeight={'100'}
       >
-        {item?.item?.title}
+        {title}
       </Text>
       <Text
         style={styles.deviceName}
@@ -29,7 +28,7 @@ const DevicesComponent = ({ item }) => {
         fontFamily={'body'}
         fontWeight={'100'}
       >
-       {item?.item?.subtitle}
+        {subtitle}
       </Text>
     </View>
   );
@@ -39,7 +38,7 @@ const styles = ScaledSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginRight:wp(5)
+    marginRight: wp(5)
   },
   deviceName: {
     fontSize: RFValue(10),
@@ -53,8 +52,8 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     marginBottom: hp(0.7)
   },
-  iconWrapper:{
-    marginBottom:hp(0.5)
+  iconWrapper: {
+    marginBottom: hp(0.5)
   }
 });
 export default DevicesComponent;
