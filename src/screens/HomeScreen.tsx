@@ -26,10 +26,11 @@ import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
-import SettingSheet from './Settings/SettingSheet';
 import { setupWallet } from 'src/store/actions/storage';
+import { loginWithHexa } from 'src/store/actions/accounts';
 import { QR_TYPES } from './LoginScreen/constants';
 import SecureHexa from 'src/components/SecureHexa';
+import { CommonActions } from '@react-navigation/native';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -37,28 +38,28 @@ const getResponsive = () => {
     return {
       padingTop: 7,
       marginTop: 0,
-      height: 35
+      height: 35,
     };
   } else if (windowHeight >= 750) {
     return {
       padingTop: 10,
       marginTop: -2,
-      height: 38
-    }
+      height: 38,
+    };
   } else if (windowHeight >= 650) {
     return {
       padingTop: 14,
       marginTop: -8,
-      height: 42
+      height: 42,
     };
   } else {
     return {
       padingTop: 16,
       marginTop: -9,
-      height: 44
+      height: 44,
     };
   }
-}
+};
 
 // const DATATWO = [
 //   {
@@ -88,13 +89,16 @@ const getResponsive = () => {
 // ];
 
 const HomeScreen = ({ navigation, route }) => {
-
-  const bottomSheetRef = React.useRef(null);
   const secureHexaRef = React.useRef(null);
-  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet)
-  const allAccounts = [...useSelector((state: RootStateOrAny) => state.accounts.accountShells), { isEnd: true }]
-  const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated)
-  const dispatch = useDispatch()
+  const [parsedQRData, setParsedQRData] = useState(null);
+
+  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet);
+  const allAccounts = [
+    ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
+    { isEnd: true },
+  ];
+  const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
+  const dispatch = useDispatch();
 
   const DATA = [
     {
@@ -154,10 +158,10 @@ const HomeScreen = ({ navigation, route }) => {
     if (!wallet && rehydrated) {
       // await redux persist's rehydration
       setTimeout(() => {
-        dispatch(setupWallet())
-      }, 1000)
+        dispatch(setupWallet());
+      }, 1000);
     }
-  }, [wallet, rehydrated])
+  }, [wallet, rehydrated]);
 
   useEffect(() => {
     if (route.params !== undefined) {
@@ -182,41 +186,56 @@ const HomeScreen = ({ navigation, route }) => {
         Icon={SingleSigIcon}
         name={item?.primarySubAccount?.customDisplayName}
         description={item?.primarySubAccount?.customDescription}
-        balance={item?.primarySubAccount?.balances?.confirmed + item?.primarySubAccount?.balances?.unconfirmed}
+        balance={
+          item?.primarySubAccount?.balances?.confirmed +
+          item?.primarySubAccount?.balances?.unconfirmed
+        }
         isEnd={item?.isEnd}
-      />);
+      />
+    );
   };
-  const openSettings = React.useCallback(() => {
-    bottomSheetRef.current?.expand();
+  const openInheritance = React.useCallback(() => {
+    navigation.dispatch(CommonActions.navigate({ name: 'Inheritance' }));
   }, []);
 
   const processQR = (qrData: string) => {
+    console.log('qrData', qrData.data);
+
     try {
-      const parsedData = JSON.parse(qrData)
+      const parsedData = JSON.parse(qrData.data);
+      console.log('parsedData', parsedData);
       switch (parsedData.type) {
         case QR_TYPES.SECURE_WITH_HEXA:
+          setParsedQRData(parsedData);
           secureHexaRef.current.expand();
-          break
+          break;
+
         case QR_TYPES.LOGIN_WITH_HEXA:
-          break
+          dispatch(loginWithHexa(parsedData.authToken, parsedData.walletName));
+          break;
+
         default:
-          throw new Error('Invalid QR')
+          throw new Error('Invalid QR');
       }
     } catch (err) {
-      Alert.alert('Invalid QR')
+      Alert.alert('Invalid QR');
     }
-  }
+  };
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
       <ImageBackground style={styles.backgroundImage} source={backgroundImage}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('QRscanner', {
-            processQR,
-          })}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('QRscanner', {
+                processQR,
+              })
+            }
+          >
             <ScannerIcon />
           </TouchableOpacity>
-          <TouchableOpacity onPress={openSettings}>
+          <TouchableOpacity onPress={openInheritance}>
             <SettingIcon />
           </TouchableOpacity>
         </View>
@@ -298,18 +317,19 @@ const HomeScreen = ({ navigation, route }) => {
       >
         lorem ipsum dolor
       </Text>
-      {allAccounts.length != 0 && <FlatList
-        data={allAccounts}
-        renderItem={renderItemTwo}
-        keyExtractor={(item) => item.id}
-        horizontal={true}
-        style={styles.cardFlatlistContainer}
-        showsHorizontalScrollIndicator={false}
-        ListFooterComponent={<View style={{ width: 50 }}></View>}
-      />}
+      {allAccounts.length != 0 && (
+        <FlatList
+          data={allAccounts}
+          renderItem={renderItemTwo}
+          keyExtractor={(item) => item.id}
+          horizontal={true}
+          style={styles.cardFlatlistContainer}
+          showsHorizontalScrollIndicator={false}
+          ListFooterComponent={<View style={{ width: 50 }}></View>}
+        />
+      )}
 
-      <SettingSheet bottomSheetRef={bottomSheetRef} />
-      <SecureHexa bottomSheetRef={secureHexaRef} />
+      <SecureHexa bottomSheetRef={secureHexaRef} secureData={parsedQRData} />
     </View>
   );
 };
@@ -323,12 +343,12 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: hp(getResponsive().padingTop),
-    paddingHorizontal: wp(10)
+    paddingHorizontal: wp(10),
   },
   backgroundImage: {
     width: wp('100%'),
     height: hp(getResponsive().height),
-    marginTop: hp(getResponsive().marginTop)
+    marginTop: hp(getResponsive().marginTop),
   },
   userNameContainer: {
     flexDirection: 'row',

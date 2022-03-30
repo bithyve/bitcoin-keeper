@@ -1,4 +1,4 @@
-package com.hexa_keeper;
+package io.hexawallet.hexakeeper;
 import android.content.res.Configuration;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
@@ -66,7 +66,7 @@ public class MainApplication extends Application implements ReactApplication {
          We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
-        Class<?> aClass = Class.forName("com.hexa_keeper.ReactNativeFlipper");
+        Class<?> aClass = Class.forName("io.hexawallet.hexakeeper.ReactNativeFlipper");
         aClass
             .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);

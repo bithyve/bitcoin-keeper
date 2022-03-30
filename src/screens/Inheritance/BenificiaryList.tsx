@@ -1,14 +1,38 @@
 import React from 'react';
 import { Avatar, HStack, Text, VStack } from 'native-base';
+import { View } from 'react-native';
+import Cecked from 'src/assets/images/checked.svg';
 
-const Wrapper = ({ Profile, owner, decription }) => {
+const Wrapper = ({ Profile, owner, decription, checked = false }) => {
   return (
-    <HStack padding={'4'} marginY={'4'} borderRadius={15} alignItems={'center'} bgColor={'#FDF7F0'}>
-      <HStack alignItems={'center'}>
+    <HStack alignItems={'center'}>
+      {checked ? (
+        <Cecked />
+      ) : (
+        <View
+          style={{
+            height: 12,
+            width: 12,
+            borderRadius: 4,
+            backgroundColor: '#F3DFCB',
+            marginRight: 15,
+          }}
+        />
+      )}
+      <HStack
+        padding={'4'}
+        marginY={'4'}
+        borderRadius={15}
+        alignItems={'center'}
+        bgColor={'#FDF7F0'}
+        w={'90%'}
+      >
         <Profile />
         <VStack marginLeft={'5'}>
-          <Text fontSize={'sm'}>{owner}</Text>
-          <Text fontSize={'xs'} fontFamily={'mono'}>
+          <Text fontSize={'sm'} fontFamily={'body'} fontWeight={'200'}>
+            {owner}
+          </Text>
+          <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
             {decription}
           </Text>
         </VStack>
@@ -29,33 +53,7 @@ const BenificiaryList = () => {
             }}
           />
         )}
-        owner={'No backup created'}
-        decription={'Lorem ipsum dolor sit amet'}
-      />
-      <Wrapper
-        Profile={() => (
-          <Avatar
-            size="sm"
-            bg="green.500"
-            source={{
-              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-            }}
-          />
-        )}
-        owner={'No backup created'}
-        decription={'Lorem ipsum dolor sit amet'}
-      />
-      <Wrapper
-        Profile={() => (
-          <Avatar
-            size="sm"
-            bg="green.500"
-            source={{
-              uri: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-            }}
-          />
-        )}
-        owner={'No backup created'}
+        owner={'Julie Geller'}
         decription={'Lorem ipsum dolor sit amet'}
       />
       <Wrapper
@@ -68,7 +66,34 @@ const BenificiaryList = () => {
             }}
           />
         )}
-        owner={'No backup created'}
+        owner={'Gunther Greene'}
+        decription={'Lorem ipsum dolor sit amet'}
+        checked
+      />
+      <Wrapper
+        Profile={() => (
+          <Avatar
+            size="sm"
+            bg="green.500"
+            source={{
+              uri: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+            }}
+          />
+        )}
+        owner={'Arika Andler'}
+        decription={'Lorem ipsum dolor sit amet'}
+      />
+      <Wrapper
+        Profile={() => (
+          <Avatar
+            size="sm"
+            bg="green.500"
+            source={{
+              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+            }}
+          />
+        )}
+        owner={'Huff Nohman'}
         decription={'Lorem ipsum dolor sit amet'}
       />
     </VStack>

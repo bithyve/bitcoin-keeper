@@ -1,4 +1,4 @@
-package com.hexa_keeper;
+package io.hexawallet.hexakeeper;
 import android.os.Bundle;
 import expo.modules.ReactActivityDelegateWrapper;
 import com.facebook.react.ReactActivityDelegate;
