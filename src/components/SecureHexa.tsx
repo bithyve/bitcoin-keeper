@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { View } from 'react-native';
 import { Text } from 'native-base';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
@@ -8,8 +8,27 @@ import { ScaledSheet } from 'react-native-size-matters';
 
 import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
+import { importNewAccount } from 'src/store/actions/accounts';
+import { useDispatch } from 'react-redux';
 
-const SecureHexa = ({ bottomSheetRef }) => {
+const SecureHexa = ({ bottomSheetRef, secureData }) => {
+  const dispatch = useDispatch()
+
+  const closeSheet = useCallback(() => {
+    bottomSheetRef.current?.close();
+  }, []);
+
+  const secureWithHexa = useCallback(() => {
+      const mnemonic = secureData?.mnemonic
+      if(mnemonic){
+        const accountDetails = {
+          name: secureData?.walletName,
+        }
+        dispatch(importNewAccount(mnemonic, accountDetails));
+        bottomSheetRef.current.close();  
+      }
+    }, [secureData]);
+
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
@@ -18,8 +37,8 @@ const SecureHexa = ({ bottomSheetRef }) => {
       snapPoints={['65%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
-      primaryCallback={null}
-      secondaryCallback={null}
+      primaryCallback={secureWithHexa}
+      secondaryCallback={closeSheet}
     >
       <View>
         <View style={styles.item}>

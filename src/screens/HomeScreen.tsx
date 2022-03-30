@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import {
   heightPercentageToDP as hp,
@@ -130,6 +130,7 @@ const DATA = [
 const HomeScreen = ({ navigation }) => {
   const bottomSheetRef = React.useRef(null);
   const secureHexaRef = React.useRef(null);
+  const [parsedQRData, setParsedQRData] = useState(null)
 
   const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet)
   const allAccounts = [...useSelector((state: RootStateOrAny) => state.accounts.accountShells), { isEnd: true }]
@@ -167,12 +168,16 @@ const HomeScreen = ({ navigation }) => {
       const parsedData = JSON.parse(qrData.data)
       console.log('parsedData', parsedData)
       switch (parsedData.type) {
+
         case QR_TYPES.SECURE_WITH_HEXA:
+          setParsedQRData(parsedData)
           secureHexaRef.current.expand();
           break
+
         case QR_TYPES.LOGIN_WITH_HEXA:
           dispatch(loginWithHexa(parsedData.authToken, parsedData.walletName))
           break
+
         default:
           throw new Error('Invalid QR')
       }
@@ -283,7 +288,7 @@ const HomeScreen = ({ navigation }) => {
       />}
 
       <SettingSheet bottomSheetRef={bottomSheetRef} />
-      <SecureHexa bottomSheetRef={secureHexaRef} />
+      <SecureHexa bottomSheetRef={secureHexaRef} secureData={parsedQRData}/>
     </View>
   );
 };

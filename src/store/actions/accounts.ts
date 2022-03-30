@@ -2,7 +2,7 @@ import { Action } from 'redux'
 import { Account, Accounts, ContactInfo, DonationAccount, Gift, AccountVisibility } from '../../bitcoin/utilities/Interface'
 import AccountShell from '../../common/data/models/AccountShell'
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces'
-import { newAccountsInfo } from '../sagas/accounts'
+import { newAccountDetails, newAccountsInfo } from '../sagas/accounts'
 
 // types and action creators: dispatched by components and sagas
 export const FETCH_BALANCE_TX = 'FETCH_BALANCE_TX'
@@ -396,12 +396,14 @@ export const addNewAccountShells = (
 }
 
 export const importNewAccount = (
-  mnemonic: string
+  mnemonic: string,
+  accountDetails?: newAccountDetails
 ) => {
   return {
     type: IMPORT_NEW_ACCOUNT,
     payload: {
-      mnemonic
+      mnemonic,
+      accountDetails
     }
   }
 }
