@@ -31,7 +31,6 @@ const styles = ScaledSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    marginRight: wp(5)
   },
   deviceName: {
     fontSize: RFValue(10),
