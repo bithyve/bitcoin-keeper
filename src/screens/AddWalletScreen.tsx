@@ -1,21 +1,24 @@
 import React, { useRef, useCallback, useState } from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Input, View } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList, Text } from 'react-native';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import AccordionsComponent from 'src/components/AccordionsComponent';
-import HardWare from 'src/assets/images/svgs/hardware.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
 import { useNavigation } from '@react-navigation/native';
+import BottomSheet from '@gorhom/bottom-sheet';
+
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
-import { useDispatch } from 'react-redux';
+import HeaderTitle from 'src/components/HeaderTitle';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import AccordionsComponent from 'src/components/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
-import BottomSheet from '@gorhom/bottom-sheet';
+
+import HardWare from 'src/assets/images/svgs/hardware.svg';
+import MultiSigIcon from 'src/assets/images/svgs/multisig.svg';
 
 const AddWalletSheet = ({
   addWalletSheetRef,
@@ -136,15 +139,15 @@ const AddWalletScreen = () => {
 
   const importWallet = useCallback(() => {
     const mnemonic = importKey.trim()
-    if(mnemonic){
+    if (mnemonic) {
       const accountDetails = {
         name: 'Blue Wallet',
-      } 
+      }
       dispatch(importNewAccount(mnemonic, accountDetails));
       closeImportWalletSheet();
-    } 
+    }
   }, [importKey]);
-  
+
 
   const closeAddWalletSheet = useCallback(() => {
     addWalletSheetRef.current?.close();
@@ -171,6 +174,18 @@ const AddWalletScreen = () => {
       items: [
         {
           title: 'Single-sig Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: HardWare,
+          onPress: expandAddWalletSheet,
+        },
+        {
+          title: 'Multi-sig Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: MultiSigIcon,
+          onPress: expandAddWalletSheet,
+        },
+        {
+          title: 'Multi-sig Hardware Wallet',
           description: 'Lorem ipsum dolor sit amet, consectetur',
           icon: HardWare,
           onPress: expandAddWalletSheet,

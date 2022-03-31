@@ -6,12 +6,15 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text } from 'native-base';
 
 import HomeCardImage from '../assets/images/homecard.png';
 import AddSCardIcon from '../assets/images/svgs/card_add.svg';
 import BtcIcon from '../assets/images/svgs/btc.svg';
-import { useNavigation } from '@react-navigation/native';
+import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
+import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -25,7 +28,7 @@ const getCardheight = () => {
   }
 }
 
-const HomeCard = ({ Icon, name, description, balance, isEnd }) => {
+const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
 
   const navigation = useNavigation();
   return (
@@ -96,7 +99,10 @@ const HomeCard = ({ Icon, name, description, balance, isEnd }) => {
             </View>
             <View style={styles.walletContainer}>
               <TouchableOpacity>
-                <Icon />
+                {index % 3 == 0 ? <SingleSigIcon /> :
+                  index % 3 == 1 ? <MultiSigIcon />
+                    : <BlueWalletIcon />
+                }
               </TouchableOpacity>
               <Text
                 style={styles.walletName}
@@ -104,7 +110,7 @@ const HomeCard = ({ Icon, name, description, balance, isEnd }) => {
                 fontFamily={'body'}
                 fontWeight={'100'}
               >
-                Single-sig
+                {index % 3 == 0 ? 'Single-sig' : index % 3 == 1 ? 'Multi Sig' : 'Blue Wallet'}
               </Text>
             </View>
 

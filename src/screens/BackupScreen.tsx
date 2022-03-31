@@ -8,6 +8,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import uuid from 'react-native-uuid';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -33,7 +34,7 @@ const BackupScreen = ({ }) => {
   }, [index])
 
   const expandAddBackUpKeySheet = useCallback((item) => {
-    data = { ...item, Icon: getIcon(item.id) };
+    data = { ...item, Icon: getIcon(item.id), id: uuid.v4() };
     if (item.id == 5) {
       hardwareSheetRef.current?.expand();
     } if (item.id !== 5 && item.id >= 1 && item.id <= 7) {
