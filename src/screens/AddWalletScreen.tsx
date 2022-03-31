@@ -1,21 +1,24 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { FlatList, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import { CheckIcon, Heading, HStack, Input, Spinner, View, VStack } from 'native-base';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { FlatList, Text } from 'react-native';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import AccordionsComponent from 'src/components/AccordionsComponent';
-import HardWare from 'src/assets/images/svgs/hardware.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { useNavigation } from '@react-navigation/native';
+import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
-import { useDispatch } from 'react-redux';
+import HeaderTitle from 'src/components/HeaderTitle';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import AccordionsComponent from 'src/components/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
-import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+
+import HardWare from 'src/assets/images/svgs/hardware.svg';
+import MultiSigIcon from 'src/assets/images/svgs/multisig.svg';
 import BlockhchainIcon from 'src/assets/images/svgs/blockchain.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
@@ -255,6 +258,18 @@ const AddWalletScreen = () => {
       items: [
         {
           title: 'Single-sig Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: HardWare,
+          onPress: expandAddWalletSheet,
+        },
+        {
+          title: 'Multi-sig Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: MultiSigIcon,
+          onPress: expandAddWalletSheet,
+        },
+        {
+          title: 'Multi-sig Hardware Wallet',
           description: 'Lorem ipsum dolor sit amet, consectetur',
           icon: HardWare,
           onPress: expandAddWalletSheet,

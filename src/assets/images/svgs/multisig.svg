@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="39.176" height="36" viewBox="0 0 39.176 36">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.157" y1="0.247" x2="0.87" y2="0.724" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="multisig" transform="translate(-54 -385)">
+    <path id="hexagontile3" d="M21.819,0a5,5,0,0,1,4.327,2.495l5.339,9.222a5,5,0,0,1,0,5.01L26.146,25.95a5,5,0,0,1-4.327,2.495h-10.7A5,5,0,0,1,6.79,25.95L1.45,16.728a5,5,0,0,1,0-5.01L6.79,2.495A5,5,0,0,1,11.117,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 61.362, 385)" fill="url(#linear-gradient)"/>
+    <g id="shield" transform="translate(67.889 396.829)">
+      <path id="Path" d="M10.771,1.81,6.024.059a.949.949,0,0,0-.658,0L.62,1.81A.951.951,0,0,0,0,2.7V5.33a6.951,6.951,0,0,0,5.546,7,.915.915,0,0,0,.3,0,6.951,6.951,0,0,0,5.546-7V2.7a.951.951,0,0,0-.624-.891Z" transform="translate(0)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

@@ -8,29 +8,22 @@ import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { ImageBackground, FlatList, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
 
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import DevicesComponent from 'src/components/DevicesComponent';
-import backgroundImage from 'src/assets/images/background.png';
 import HomeCard from 'src/components/HomeCard';
-import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import MobileIcon from 'src/assets/images/svgs/mobile_tile.svg';
-import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
-import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
-import IPardIcon from 'src/assets/images/svgs/ipad_tile.svg';
-import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
-import DiamondIcon from 'src/assets/images/svgs/elite.svg';
-import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
-
-import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
-import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
-import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import { setupWallet } from 'src/store/actions/storage';
 import { loginWithHexa } from 'src/store/actions/accounts';
 import { QR_TYPES } from './LoginScreen/constants';
 import SecureHexa from 'src/components/SecureHexa';
-import { CommonActions } from '@react-navigation/native';
+
+import backgroundImage from 'src/assets/images/background.png';
+import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import DiamondIcon from 'src/assets/images/svgs/elite.svg';
+import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
+import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
+
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -88,6 +81,51 @@ const getResponsive = () => {
 //   },
 // ];
 
+// const DATA = [
+//   {
+//     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+//     title: 'Arika’s',
+//     subtitle: 'iPhone 12',
+//     Icon: MobileIcon,
+//     onPress: () => { }
+//   },
+//   {
+//     id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+//     title: 'Personal ',
+//     subtitle: 'iMac',
+//     Icon: LaptopIcon,
+//     onPress: () => { }
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-145571e29d72',
+//     title: 'Cold Card ',
+//     subtitle: 'Wallet',
+//     Icon: ColdCardIcon,
+//     onPress: () => { }
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-14557671e29d72',
+//     title: 'Home',
+//     subtitle: 'iPad',
+//     Icon: IPardIcon,
+//     onPress: () => { }
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-145571e2679d72',
+//     title: 'Arika’s',
+//     subtitle: 'PDF',
+//     Icon: PdfIcon,
+//     onPress: () => { }
+//   },
+//   {
+//     id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
+//     title: 'Add',
+//     subtitle: 'New Key',
+//     Icon: AddNewIcon,
+//     onPress: () => navigation.navigate('Backup')
+//   },
+// ];
+
 const HomeScreen = ({ navigation, route }) => {
   const secureHexaRef = React.useRef(null);
   const [parsedQRData, setParsedQRData] = useState(null);
@@ -99,51 +137,6 @@ const HomeScreen = ({ navigation, route }) => {
   ];
   const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
   const dispatch = useDispatch();
-
-  const DATA = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'Arika’s',
-      subtitle: 'iPhone 12',
-      Icon: MobileIcon,
-      onPress: () => { }
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Personal ',
-      subtitle: 'iMac',
-      Icon: LaptopIcon,
-      onPress: () => { }
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      title: 'Cold Card ',
-      subtitle: 'Wallet',
-      Icon: ColdCardIcon,
-      onPress: () => { }
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-14557671e29d72',
-      title: 'Home',
-      subtitle: 'iPad',
-      Icon: IPardIcon,
-      onPress: () => { }
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e2679d72',
-      title: 'Arika’s',
-      subtitle: 'PDF',
-      Icon: PdfIcon,
-      onPress: () => { }
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
-      title: 'Add',
-      subtitle: 'New Key',
-      Icon: AddNewIcon,
-      onPress: () => navigation.navigate('Backup')
-    },
-  ];
   const [backupKeys, setBackupKeys] = useState([
     {
       id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
@@ -180,7 +173,7 @@ const HomeScreen = ({ navigation, route }) => {
         Icon={item.Icon} />
     )
   };
-  const renderItemTwo = ({ item }) => {
+  const renderItemTwo = ({ item, index }) => {
     return (
       <HomeCard
         Icon={SingleSigIcon}
@@ -191,6 +184,7 @@ const HomeScreen = ({ navigation, route }) => {
           item?.primarySubAccount?.balances?.unconfirmed
         }
         isEnd={item?.isEnd}
+        index={index}
       />
     );
   };
