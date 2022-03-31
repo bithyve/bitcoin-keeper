@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="39.176" height="36" viewBox="0 0 39.176 36">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.157" y1="0.247" x2="0.87" y2="0.724" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="muun" transform="translate(-44 -588)">
+    <path id="hexagontile3" d="M21.819,0a5,5,0,0,1,4.327,2.495l5.339,9.222a5,5,0,0,1,0,5.01L26.146,25.95a5,5,0,0,1-4.327,2.495h-10.7A5,5,0,0,1,6.79,25.95L1.45,16.728a5,5,0,0,1,0-5.01L6.79,2.495A5,5,0,0,1,11.117,0Z" transform="matrix(0.966, 0.259, -0.259, 0.966, 51.362, 588)" fill="url(#linear-gradient)"/>
+    <g id="Unknown" transform="translate(50 587.285)">
+      <path id="Path_16081" data-name="Path 16081" d="M9.048,23.715V15.989a4.9,4.9,0,0,1,2.02-.345c1.326,0,1.917.493,1.917,1.88v6.19h1.9v-6.19c0-.627,0-1.106-.007-1.472a3.78,3.78,0,0,1,1.869-.408c1.512,0,2.075.493,2.075,1.88v6.19h2.055v-6.19A3.673,3.673,0,0,0,20,14.9a4.229,4.229,0,0,0-3.23-1.183,7.8,7.8,0,0,0-2.852.592,6.994,6.994,0,0,0-2.838-.592A18.06,18.06,0,0,0,7,14.327v9.388Z" transform="translate(0 0)" fill="#fff"/>
+    </g>
+  </g>
+</svg>
