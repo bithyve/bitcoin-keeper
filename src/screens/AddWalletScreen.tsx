@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import BlockhchainIcon from 'src/assets/images/svgs/blockchain.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
@@ -57,46 +57,48 @@ const AddWalletSheet = ({
     <HexaBottomSheet
       title={'Add Wallet Details'}
       subTitle={'Lorem Ipsum Dolor Amet'}
-      snapPoints={['50%']}
+      snapPoints={['60%']}
       bottomSheetRef={addWalletSheetRef}
       primaryText={'Create'}
       secondaryText={'Cancel'}
       primaryCallback={addWallet}
       secondaryCallback={closeAddWalletSheet}
     >
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder={addWalletType}
         value={addWalletType}
         onChangeText={(value) => setAddWalletType(value)}
-        style={{ padding: 30 }}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder="Account Name"
         value={accountName}
         onChangeText={(value) => setAccountName(value)}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder="Description"
         value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
     </HexaBottomSheet>
   );

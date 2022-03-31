@@ -22,7 +22,7 @@ const HexaBottomSheet: React.FunctionComponent<{
   secondaryText?: string;
   primaryCallback?: () => void;
   secondaryCallback?: () => void;
-  getIndex?: () => void;
+  index?: number;
 }> = ({
   children,
   title,
@@ -33,12 +33,12 @@ const HexaBottomSheet: React.FunctionComponent<{
   secondaryText,
   primaryCallback,
   secondaryCallback,
-  getIndex = () => {},
+  index = -1,
 }) => {
   const snapPoints = useMemo(() => snaps, []);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-    getIndex(index);
+  const handleSheetChanges = useCallback((i: number) => {
+    console.log('handleSheetChanges', i);
+    index = i;
   }, []);
   const backdropComponent = useCallback(
     (props) => (
