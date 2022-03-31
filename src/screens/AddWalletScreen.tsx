@@ -186,6 +186,7 @@ const AddWalletScreen = () => {
   const [accountDescription, setAccountDescription] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [importKey, setImportKey] = useState('');
+  const [importWalletType, setImportWalletType] = useState('Blue Wallet');
 
   const createWalletSheetRef = useRef<BottomSheet>(null);
   const importWalletSheetRef = useRef<BottomSheet>(null);
@@ -207,12 +208,15 @@ const AddWalletScreen = () => {
   const importWallet = useCallback(() => {
     const mnemonic = importKey.trim();
     if (mnemonic) {
-      // const accountDetails = {
-      //   name: 'Blue Wallet',
-      // };
-      // dispatch(importNewAccount(mnemonic, accountDetails));
+      const accountDetails = {
+        name: importWalletType,
+      };
+      dispatch(importNewAccount(mnemonic, accountDetails));
       closeImportWalletSheet();
       expandCreateWalletSheet();
+      setTimeout(() => {
+        createWalletSheetRef?.current.close();
+      }, 500 * 9);
     }
   }, [importKey]);
 
