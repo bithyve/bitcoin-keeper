@@ -1,12 +1,12 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { Input, View } from 'native-base';
-import { useDispatch } from 'react-redux';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import BottomSheet from '@gorhom/bottom-sheet';
+import { useDispatch } from 'react-redux';
+import { CheckIcon, Heading, HStack, Input, Spinner, View, VStack } from 'native-base';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRscanner from 'src/components/QRscanner';
@@ -19,6 +19,31 @@ import { AccountType } from 'src/bitcoin/utilities/Interface';
 
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multisig.svg';
+import BlockhchainIcon from 'src/assets/images/svgs/blockchain.svg';
+import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
+import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
+import HexagontileIcon from 'src/assets/images/svgs/hexagontile3.svg';
+import MuunIcon from 'src/assets/images/svgs/muun.svg';
+import TrustIcon from 'src/assets/images/svgs/trust.svg';
+
+const LoadingText = ({ text, timeOut }) => {
+  const [loading, setLoading] = useState(true);
+
+  setTimeout(() => {
+    setLoading(false);
+  }, timeOut * 500);
+
+  return (
+    <HStack space={2} justifyContent="center" minHeight={16} alignItems={'center'}>
+      {loading ? (
+        <Spinner accessibilityLabel="Loading posts" color={'#D8A572'} />
+      ) : (
+        <CheckIcon size="5" mt="0.5" color="emerald.500" />
+      )}
+      <Text>{text}</Text>
+    </HStack>
+  );
+};
 
 const AddWalletSheet = ({
   addWalletSheetRef,
@@ -35,52 +60,61 @@ const AddWalletSheet = ({
     <HexaBottomSheet
       title={'Add Wallet Details'}
       subTitle={'Lorem Ipsum Dolor Amet'}
-      snapPoints={['50%']}
+      snapPoints={['60%']}
       bottomSheetRef={addWalletSheetRef}
       primaryText={'Create'}
       secondaryText={'Cancel'}
       primaryCallback={addWallet}
       secondaryCallback={closeAddWalletSheet}
     >
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder={addWalletType}
         value={addWalletType}
         onChangeText={(value) => setAddWalletType(value)}
-        style={{ padding: 30 }}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder="Account Name"
         value={accountName}
         onChangeText={(value) => setAccountName(value)}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder="Description"
         value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
     </HexaBottomSheet>
   );
 };
 
-const ImportWalletSheet = ({ importWalletSheetRef, showQR, setShowQR, importWallet, importKey, setImportKey }) => {
+const ImportWalletSheet = ({
+  importWalletSheetRef,
+  showQR,
+  setShowQR,
+  importWallet,
+  importKey,
+  setImportKey,
+}) => {
   return (
     <HexaBottomSheet
       title={'Import Wallet'}
@@ -115,12 +149,51 @@ const ImportWalletSheet = ({ importWalletSheetRef, showQR, setShowQR, importWall
   );
 };
 
+const CreateWalletSheet = ({ createWalletSheetRef }) => {
+  const processMap = [
+    {
+      id: 1,
+      text: 'Lorem ipsum dolor sit amet.',
+    },
+    {
+      id: 2,
+      text: 'Lorem ipsum dolor sit amet.',
+    },
+    {
+      id: 3,
+      text: 'Lorem ipsum dolor sit amet.',
+    },
+    {
+      id: 4,
+      text: 'Lorem ipsum dolor sit amet.',
+    },
+  ];
+  return (
+    <HexaBottomSheet
+      title={'Creating your wallet'}
+      subTitle={'This may take sometime'}
+      snapPoints={['50%']}
+      bottomSheetRef={createWalletSheetRef}
+    >
+      <VStack alignItems="flex-start">
+        {processMap.map((process, index) => {
+          const timeOut = (index + 1) * 2;
+          return <LoadingText key={process.id} text={process.text} timeOut={timeOut} />;
+        })}
+      </VStack>
+    </HexaBottomSheet>
+  );
+};
+
 const AddWalletScreen = () => {
   const [addWalletType, setAddWalletType] = useState('');
   const [accountName, setAccountName] = useState('');
   const [accountDescription, setAccountDescription] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [importKey, setImportKey] = useState('');
+  const [importWalletType, setImportWalletType] = useState('Blue Wallet');
+
+  const createWalletSheetRef = useRef<BottomSheet>(null);
   const importWalletSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
   const dispatch = useDispatch();
@@ -138,16 +211,19 @@ const AddWalletScreen = () => {
   }, [accountName, accountDescription]);
 
   const importWallet = useCallback(() => {
-    const mnemonic = importKey.trim()
+    const mnemonic = importKey.trim();
     if (mnemonic) {
       const accountDetails = {
-        name: 'Blue Wallet',
-      }
+        name: importWalletType,
+      };
       dispatch(importNewAccount(mnemonic, accountDetails));
       closeImportWalletSheet();
+      expandCreateWalletSheet();
+      setTimeout(() => {
+        createWalletSheetRef?.current.close();
+      }, 500 * 9);
     }
   }, [importKey]);
-
 
   const closeAddWalletSheet = useCallback(() => {
     addWalletSheetRef.current?.close();
@@ -164,6 +240,14 @@ const AddWalletScreen = () => {
 
   const expandImportWalletSheet = useCallback(() => {
     importWalletSheetRef.current?.expand();
+  }, []);
+
+  const expandCreateWalletSheet = useCallback(() => {
+    createWalletSheetRef.current?.expand();
+  }, []);
+
+  const closeCreateWalletShhet = useCallback(() => {
+    createWalletSheetRef.current?.close();
   }, []);
 
   const Data = [
@@ -196,8 +280,44 @@ const AddWalletScreen = () => {
       id: 2,
       heading: 'Import a Wallet',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
-      items: [],
-      onPress: expandImportWalletSheet,
+      items: [
+        {
+          title: 'Trust Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: TrustIcon,
+          onPress: expandImportWalletSheet,
+        },
+        {
+          title: 'Coinbase',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: CoinBaseIcon,
+          onPress: expandImportWalletSheet,
+        },
+        {
+          title: 'Blue Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: BlueWalletIcon,
+          onPress: expandImportWalletSheet,
+        },
+        // {
+        //   title: 'BRD',
+        //   description: 'Lorem ipsum dolor sit amet, consectetur',
+        //   icon: HexagontileIcon,
+        //   onPress: expandImportWalletSheet,
+        // },
+        {
+          title: 'Munn Wallet',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: MuunIcon,
+          onPress: expandImportWalletSheet,
+        },
+        {
+          title: 'Blockchain.com',
+          description: 'Lorem ipsum dolor sit amet, consectetur',
+          icon: BlockhchainIcon,
+          onPress: expandImportWalletSheet,
+        },
+      ],
     },
     {
       id: 3,
@@ -238,6 +358,7 @@ const AddWalletScreen = () => {
         setAccountDescription={setAccountDescription}
         addWallet={addWallet}
       />
+      <CreateWalletSheet createWalletSheetRef={createWalletSheetRef} />
     </View>
   );
 };
