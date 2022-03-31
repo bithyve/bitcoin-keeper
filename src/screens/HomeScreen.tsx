@@ -88,7 +88,7 @@ const getResponsive = () => {
 //   },
 // ];
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation, route }) => {
   const secureHexaRef = React.useRef(null);
   const [parsedQRData, setParsedQRData] = useState(null);
 
@@ -144,6 +144,16 @@ const HomeScreen = ({ navigation }) => {
       onPress: () => navigation.navigate('Backup')
     },
   ];
+  const [backupKeys, setBackupKeys] = useState([
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
+      title: 'Add',
+      subtitle: 'New Key',
+      Icon: AddNewIcon,
+      onPress: () => navigation.navigate('Backup')
+    },
+  ]);
+
   useEffect(() => {
     if (!wallet && rehydrated) {
       // await redux persist's rehydration
@@ -152,6 +162,14 @@ const HomeScreen = ({ navigation }) => {
       }, 1000);
     }
   }, [wallet, rehydrated]);
+
+  useEffect(() => {
+    if (route.params !== undefined) {
+      setBackupKeys((prev) => {
+        return [...prev, route.params];
+      })
+    }
+  }, [route?.params])
 
   const renderItem = ({ item }) => {
     return (
@@ -264,7 +282,7 @@ const HomeScreen = ({ navigation }) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        5 Devices
+        {backupKeys.length - 1} Device{backupKeys.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
@@ -275,9 +293,9 @@ const HomeScreen = ({ navigation }) => {
         used for securing funds
       </Text>
       <FlatList
-        data={DATA}
+        data={backupKeys.reverse()}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item?.id}
         horizontal={true}
         style={styles.flatlistContainer}
         showsHorizontalScrollIndicator={false}

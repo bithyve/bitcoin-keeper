@@ -19,16 +19,9 @@ const DevicesComponent = ({ title, onPress, subtitle, Icon }) => {
         color={'light.lightBlack'}
         fontFamily={'body'}
         fontWeight={'100'}
+        numberOfLines={2}
       >
         {title}
-      </Text>
-      <Text
-        style={styles.deviceName}
-        color={'light.lightBlack'}
-        fontFamily={'body'}
-        fontWeight={'100'}
-      >
-        {subtitle}
       </Text>
     </View>
   );
@@ -44,6 +37,8 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(10),
     lineHeight: '13@s',
     letterSpacing: '0.5@s',
+    width: wp(15),
+    textAlign: 'center'
   },
   deviceBg: {
     width: wp(19),
