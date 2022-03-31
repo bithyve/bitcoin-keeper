@@ -12,74 +12,19 @@ import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import BackupListComponent from 'src/components/BackupListComponent';
-import Cloud from 'src/assets/images/svgs/cloud.svg';
-import Mobile from 'src/assets/images/svgs/mobile.svg';
-import PDF from 'src/assets/images/svgs/pdf.svg';
-import Laptop from 'src/assets/images/svgs/laptop.svg';
-import Hardware from 'src/assets/images/svgs/hardware.svg';
-import Contact from 'src/assets/images/svgs/contacts.svg';
-import Key from 'src/assets/images/svgs/key.svg';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import QRCode from 'react-native-qrcode-svg';
-
-import MobileIcon from 'src/assets/images/svgs/iphone_tile.svg';
-import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
-import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
-import IPardIcon from 'src/assets/images/svgs/ipad_tile.svg';
-import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
-import DiamondIcon from 'src/assets/images/svgs/elite.svg';
+import HardwareSheet from 'src/components/HardwareSheet';
+import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 
 const BackupScreen = ({ }) => {
   const navigtaion = useNavigation();
-  let index = -1;
-
-  const Data = [
-    {
-      id: 1,
-      title: 'Cloud',
-      subtitle: 'we support iCloud, Google Drive and Dropbox',
-      Icon: Cloud,
-    },
-    {
-      id: 2,
-      title: 'Mobile phone',
-      subtitle: 'iOS or Android running Hexa Keeper',
-      Icon: Mobile,
-    },
-    {
-      id: 3,
-      title: 'PDF',
-      subtitle: 'a printout',
-      Icon: PDF,
-    },
-    {
-      id: 4,
-      title: 'Desktop',
-      subtitle: 'A desktop running Hexa Vault',
-      Icon: Laptop,
-    },
-    {
-      id: 5,
-      title: 'Hardware wallet',
-      subtitle: 'we support Ledger, Trezor and Cold Card',
-      Icon: Hardware,
-    },
-    {
-      id: 6,
-      title: 'Contacts',
-      subtitle: 'Contacts who have Hexa Vault',
-      Icon: Contact,
-    },
-    {
-      id: 7,
-      title: 'Signer Apps',
-      subtitle: 'we support Seed Signer and Blue Wallet',
-      Icon: Key,
-    },
-  ];
-  let data = {};
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
+  const hardwareSheetRef = useRef(null);
+
+  let index = -1;
+  let data = {};
 
   useEffect(() => {
     if (index == -1) {
@@ -88,12 +33,15 @@ const BackupScreen = ({ }) => {
   }, [index])
 
   const expandAddBackUpKeySheet = useCallback((item) => {
-    data = item;
-    if (item.id !== 5) {
+    data = { ...item, Icon: getIcon(item.id) };
+    if (item.id == 5) {
+      hardwareSheetRef.current?.expand();
+    } if (item.id !== 5 && item.id >= 1 && item.id <= 7) {
       setBackUpKeyType(item);
       addBackUpKeySheetRef.current?.expand();
-    } else {
-      // navigate to some new screen 
+    } else if (item.id >= 8 && item.id <= 12) {
+      data && navigtaion.navigate('Home', data);
+      hardwareSheetRef.current?.close();
     }
   }, []);
 
@@ -101,10 +49,6 @@ const BackupScreen = ({ }) => {
     addBackUpKeySheetRef.current?.close();
     data && navigtaion.navigate('Home', data);
   }, []);
-
-  const getIndex = (i) => {
-    index = i;
-  }
 
   const renderItem = ({ item }) => {
     return (
@@ -142,7 +86,7 @@ const BackupScreen = ({ }) => {
         bottomSheetRef={addBackUpKeySheetRef}
         primaryText={'Done'}
         primaryCallback={closeAddBackUpKeySheet}
-        getIndex={getIndex}
+        index={index}
       >
         {backUpKeyType && (
           <BackupListComponent
@@ -158,6 +102,11 @@ const BackupScreen = ({ }) => {
           <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />
         </View>
       </HexaBottomSheet>
+      <HardwareSheet
+        bottomSheetRef={hardwareSheetRef}
+        Data={HardwareData}
+        onPress={expandAddBackUpKeySheet}
+      />
     </View>
   );
 };
