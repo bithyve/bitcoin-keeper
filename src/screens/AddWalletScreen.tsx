@@ -3,7 +3,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Input, View } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { FlatList, Text } from 'react-native';
+import { FlatList } from 'react-native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 const AddWalletSheet = ({
   addWalletSheetRef,
@@ -32,52 +32,61 @@ const AddWalletSheet = ({
     <HexaBottomSheet
       title={'Add Wallet Details'}
       subTitle={'Lorem Ipsum Dolor Amet'}
-      snapPoints={['50%']}
+      snapPoints={['60%']}
       bottomSheetRef={addWalletSheetRef}
       primaryText={'Create'}
       secondaryText={'Cancel'}
       primaryCallback={addWallet}
       secondaryCallback={closeAddWalletSheet}
     >
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder={addWalletType}
         value={addWalletType}
         onChangeText={(value) => setAddWalletType(value)}
-        style={{ padding: 30 }}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder="Account Name"
         value={accountName}
         onChangeText={(value) => setAccountName(value)}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
-      <Input
-        w="100%"
+      <BottomSheetTextInput
         placeholder="Description"
         value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
-        size={'lg'}
-        backgroundColor={'#D8A57210'}
-        color={'#073E39'}
-        borderWidth={'0'}
-        padding={3}
+        style={{
+          padding: 30,
+          borderWidth: 0,
+          color: '#073E39',
+          backgroundColor: '#D8A57210',
+          marginVertical: 10,
+        }}
       />
     </HexaBottomSheet>
   );
 };
 
-const ImportWalletSheet = ({ importWalletSheetRef, showQR, setShowQR, importWallet, importKey, setImportKey }) => {
+const ImportWalletSheet = ({
+  importWalletSheetRef,
+  showQR,
+  setShowQR,
+  importWallet,
+  importKey,
+  setImportKey,
+}) => {
   return (
     <HexaBottomSheet
       title={'Import Wallet'}
@@ -135,16 +144,15 @@ const AddWalletScreen = () => {
   }, [accountName, accountDescription]);
 
   const importWallet = useCallback(() => {
-    const mnemonic = importKey.trim()
-    if(mnemonic){
+    const mnemonic = importKey.trim();
+    if (mnemonic) {
       const accountDetails = {
         name: 'Blue Wallet',
-      } 
+      };
       dispatch(importNewAccount(mnemonic, accountDetails));
       closeImportWalletSheet();
-    } 
+    }
   }, [importKey]);
-  
 
   const closeAddWalletSheet = useCallback(() => {
     addWalletSheetRef.current?.close();
