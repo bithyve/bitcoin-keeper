@@ -276,7 +276,7 @@ const HomeScreen = ({ navigation, route }) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        {backupKeys.length - 1} Device{backupKeys.length - 1 > 1 && 's'}
+        {backupKeys.length - 1} Backup Key{backupKeys.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
