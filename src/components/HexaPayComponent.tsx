@@ -6,31 +6,29 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import HardWare from 'src/assets/images/svgs/hardware.svg';
+
 import { RFValue } from 'react-native-responsive-fontsize';
 
 const windowHeight = Dimensions.get('window').height;
 
-const HexaPayComponent = ({}) => {
+export const HexaPayComponent = ({ Icon, title, subtitle = '', body = '' }) => {
   return (
     <View style={styles.container}>
       <View style={{ marginVertical: hp(2), marginLeft: wp(4) }}>
-        <View style={styles.item}>
-          <HardWare />
-        </View>
+        <View style={styles.item}>{Icon}</View>
         <View style={styles.item}>
           <Text style={styles.text} color={'light.textBlack'} fontFamily="body" fontWeight={'200'}>
-            Hexa Pay
+            {title}
           </Text>
         </View>
         <View style={styles.item}>
           <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
-            lorem ipsum dolor
+            {subtitle}
           </Text>
         </View>
         <View style={styles.item}>
           <Text style={styles.name} color={'light.lightBlack'} fontFamily="body" fontWeight={'200'}>
-            Alice’s Wallet
+            {body}
           </Text>
         </View>
       </View>
