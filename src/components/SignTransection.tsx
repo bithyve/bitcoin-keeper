@@ -16,7 +16,7 @@ const SignTransection = ({ }) => {
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
       title="Sign transaction"
-      subTitle={'Lorem Ipsum Dolor Amet'}
+      subTitle={'Authenticating using bitcoin'}
       snapPoints={['25%', '79%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
@@ -24,7 +24,7 @@ const SignTransection = ({ }) => {
       secondaryCallback={null}
     >
       <Text style={styles.text} color={'light.greenText'} fontWeight={200} fontFamily={'body'} numberOfLines={2}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore e
+        Review transaction details below before clicking Confirm
       </Text>
       <TransectionSignComponent />
 

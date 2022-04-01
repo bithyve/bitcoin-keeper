@@ -12,7 +12,7 @@ import BitCoinBlack from 'src/assets/images/svgs/btc (black).svg';
 
 const windowHeight = Dimensions.get('window').height;
 
-const TransectionSubmittedComponent = ({}) => {
+const TransectionSubmittedComponent = ({ }) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
@@ -22,7 +22,7 @@ const TransectionSubmittedComponent = ({}) => {
             Hexa Pay
           </Text>
           <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
-            lorem ipsum dolor
+
           </Text>
         </View>
         <View style={styles.moreDetails}>
@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
       windowHeight >= 850
         ? '19%'
         : windowHeight >= 750
-        ? '20.5%'
-        : windowHeight >= 650
-        ? '22%'
-        : '23%'
+          ? '20.5%'
+          : windowHeight >= 650
+            ? '22%'
+            : '23%'
     ),
     width: wp('83%'),
     marginBottom: hp(2),

@@ -86,14 +86,14 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 </Text>
               </View>
 
-              <View style={styles.hexaWalletContainer} background={'light.brown'}>
+              <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
                 <Text
                   style={styles.hexaWalletText}
                   color={'light.lightBlack'}
                   fontFamily={'body'}
                   fontWeight={'300'}
                 >
-                  Hexa Wallet
+                  Imported
                 </Text>
               </View>
             </View>
@@ -121,7 +121,8 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                {name}
+                {/* {name} */}
+                Hodl Stack
               </Text>
               <Text
                 style={styles.fundsSubtitle}
@@ -129,7 +130,8 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'100'}
               >
-                {description}
+                {/* {description} */}
+                DO NOT shift to single sig.
               </Text>
             </View>
 
@@ -141,7 +143,8 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                {balance}
+                {/* {balance} */}
+                0.976542
               </Text>
             </View>
           </>

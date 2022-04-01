@@ -36,7 +36,7 @@ const SecureHexa = ({ bottomSheetRef, secureData }) => {
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
       title="Secure Hexa Pay"
-      subTitle={'Lorem Ipsum Dolor Amet'}
+      subTitle={'Adding additional security'}
       snapPoints={['65%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
@@ -48,7 +48,7 @@ const SecureHexa = ({ bottomSheetRef, secureData }) => {
           <HexaPayComponent
             icon={HardWare}
             title={'Hexa Pay'}
-            subtitle={'lorem ipsum dolor'}
+            subtitle={''}
             body={'Alice’s Wallet'}
           />
         </View>
@@ -60,8 +60,7 @@ const SecureHexa = ({ bottomSheetRef, secureData }) => {
             fontFamily={'body'}
             numberOfLines={2}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore e
+            You are about the enhance your Hexa Pay wallet's security
           </Text>
         </View>
       </View>

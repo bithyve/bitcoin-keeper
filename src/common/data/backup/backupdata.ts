@@ -46,7 +46,7 @@ export const Data = [
   {
     id: 4,
     title: 'Desktop',
-    subtitle: 'A desktop running Hexa Vault',
+    subtitle: 'A desktop running Keeper',
     Icon: Laptop,
   },
   {
@@ -58,7 +58,7 @@ export const Data = [
   {
     id: 6,
     title: 'Contacts',
-    subtitle: 'Contacts who have Hexa Vault',
+    subtitle: 'Contacts who have Keeper',
     Icon: Contact,
   },
   {
