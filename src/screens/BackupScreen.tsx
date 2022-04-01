@@ -18,7 +18,7 @@ import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 
-const BackupScreen = ({ }) => {
+const BackupScreen = ({}) => {
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
@@ -31,13 +31,14 @@ const BackupScreen = ({ }) => {
     if (index == -1) {
       data = {};
     }
-  }, [index])
+  }, [index]);
 
   const expandAddBackUpKeySheet = useCallback((item) => {
     data = { ...item, Icon: getIcon(item.id), id: uuid.v4() };
     if (item.id == 5) {
       hardwareSheetRef.current?.expand();
-    } if (item.id !== 5 && item.id >= 1 && item.id <= 7) {
+    }
+    if (item.id !== 5 && item.id >= 1 && item.id <= 7) {
       setBackUpKeyType(item);
       addBackUpKeySheetRef.current?.expand();
     } else if (item.id >= 8 && item.id <= 12) {
@@ -94,7 +95,8 @@ const BackupScreen = ({ }) => {
             title={backUpKeyType?.title}
             subtitle={backUpKeyType?.subtitle}
             Icon={backUpKeyType?.Icon}
-            onPress={expandAddBackUpKeySheet} />
+            onPress={expandAddBackUpKeySheet}
+          />
         )}
         <Text style={styles.sheetSubText}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit

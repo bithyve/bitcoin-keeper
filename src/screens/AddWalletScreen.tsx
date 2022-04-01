@@ -107,14 +107,14 @@ const AddWalletSheet = ({
   );
 };
 
-const ImportWalletSheet = ({
+export const ImportWalletSheet = ({
   importWalletSheetRef,
-  showQR,
-  setShowQR,
   importWallet,
   importKey,
   setImportKey,
 }) => {
+  const [showQR, setShowQR] = useState(false);
+
   return (
     <HexaBottomSheet
       title={'Import Wallet'}
@@ -130,18 +130,11 @@ const ImportWalletSheet = ({
         {showQR ? (
           <QRscanner />
         ) : (
-          <Input
-            style={{ aspectRatio: 1 }}
+          <BottomSheetTextInput
             multiline={true}
-            w="100%"
-            h="80%"
             value={importKey}
             onChangeText={(value) => setImportKey(value)}
-            size={'lg'}
-            backgroundColor={'#D8A57210'}
-            color={'#073E39'}
-            borderWidth={'0'}
-            padding={3}
+            style={{ backgroundColor: '#D8A57210', padding: 4, aspectRatio: 1 }}
           />
         )}
       </View>
@@ -189,7 +182,6 @@ const AddWalletScreen = () => {
   const [addWalletType, setAddWalletType] = useState('');
   const [accountName, setAccountName] = useState('');
   const [accountDescription, setAccountDescription] = useState('');
-  const [showQR, setShowQR] = useState(false);
   const [importKey, setImportKey] = useState('');
   const [importWalletType, setImportWalletType] = useState('Blue Wallet');
 
@@ -341,8 +333,6 @@ const AddWalletScreen = () => {
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
       <ImportWalletSheet
         importWalletSheetRef={importWalletSheetRef}
-        showQR={showQR}
-        setShowQR={setShowQR}
         importWallet={importWallet}
         importKey={importKey}
         setImportKey={setImportKey}

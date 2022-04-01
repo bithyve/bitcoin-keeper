@@ -23,7 +23,9 @@ import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import DiamondIcon from 'src/assets/images/svgs/elite.svg';
 import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
-
+import ColdCardIcon from 'src/assets/images/svgs/coldcard.svg';
+import LaptopIcon from 'src/assets/images/svgs/laptop.svg';
+import PdfIcon from 'src/assets/images/svgs/pdf.svg';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -143,7 +145,23 @@ const HomeScreen = ({ navigation, route }) => {
       title: 'Add',
       subtitle: 'New Key',
       Icon: AddNewIcon,
-      onPress: () => navigation.navigate('Backup')
+      onPress: () => navigation.navigate('Backup'),
+    },
+    {
+      id: '1',
+      title: 'Cold Card',
+      Icon: ColdCardIcon,
+    },
+    {
+      id: '2',
+      title: `Arika's MacBook`,
+      Icon: LaptopIcon,
+    },
+    {
+      id: '3',
+      title: `PDF on DropBox`,
+      subtitle: 'New Key',
+      Icon: PdfIcon,
     },
   ]);
 
@@ -160,9 +178,9 @@ const HomeScreen = ({ navigation, route }) => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
         return [...prev, route.params];
-      })
+      });
     }
-  }, [route?.params])
+  }, [route?.params]);
 
   const renderItem = ({ item }) => {
     return (
@@ -170,8 +188,9 @@ const HomeScreen = ({ navigation, route }) => {
         title={item.title}
         onPress={item.onPress}
         subtitle={item.subtitle}
-        Icon={item.Icon} />
-    )
+        Icon={item.Icon}
+      />
+    );
   };
   const renderItemTwo = ({ item, index }) => {
     return (
