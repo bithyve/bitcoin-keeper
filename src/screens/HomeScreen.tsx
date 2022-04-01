@@ -23,9 +23,9 @@ import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import DiamondIcon from 'src/assets/images/svgs/elite.svg';
 import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
-import ColdCardIcon from 'src/assets/images/svgs/coldcard.svg';
-import LaptopIcon from 'src/assets/images/svgs/laptop.svg';
-import PdfIcon from 'src/assets/images/svgs/pdf.svg';
+import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
+import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
+import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -148,17 +148,17 @@ const HomeScreen = ({ navigation, route }) => {
       onPress: () => navigation.navigate('Backup'),
     },
     {
-      id: '1',
+      id: '58694a0f-3da1-471f-bd96-14557114225679d72',
       title: 'Cold Card',
       Icon: ColdCardIcon,
     },
     {
-      id: '2',
+      id: '58694a0f-3da1-471f-da34-145571e26ad5679d72',
       title: `Arika's MacBook`,
       Icon: LaptopIcon,
     },
     {
-      id: '3',
+      id: '58694a0f-vc12-471f-1211-145571e26732179d72',
       title: `PDF on DropBox`,
       subtitle: 'New Key',
       Icon: PdfIcon,
