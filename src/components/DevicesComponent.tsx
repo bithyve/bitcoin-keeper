@@ -3,10 +3,12 @@ import { View, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
-const DevicesComponent = ({ title, onPress, subtitle, Icon }) => {
-
+const DevicesComponent = ({ title, onPress, Icon }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconWrapper}>
@@ -37,17 +39,17 @@ const styles = ScaledSheet.create({
     lineHeight: '13@s',
     letterSpacing: '0.5@s',
     width: wp(15),
-    textAlign: 'center'
+    textAlign: 'center',
   },
   deviceBg: {
     width: wp(19),
     height: hp(7),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: hp(0.7)
+    marginBottom: hp(0.7),
   },
   iconWrapper: {
-    marginBottom: hp(0.5)
-  }
+    marginBottom: hp(0.5),
+  },
 });
 export default DevicesComponent;
