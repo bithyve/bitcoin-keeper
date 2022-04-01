@@ -28,7 +28,7 @@ export const Data = [
   {
     id: 1,
     title: 'Cloud',
-    subtitle: 'we support iCloud, Google Drive and Dropbox',
+    subtitle: 'We support iCloud, Google Drive and Dropbox',
     Icon: Cloud,
   },
   {
@@ -40,7 +40,7 @@ export const Data = [
   {
     id: 3,
     title: 'PDF',
-    subtitle: 'a printout',
+    subtitle: 'Take a print or save elsewhere',
     Icon: PDF,
   },
   {
@@ -52,7 +52,7 @@ export const Data = [
   {
     id: 5,
     title: 'Hardware wallet',
-    subtitle: 'we support Ledger, Trezor and Cold Card',
+    subtitle: 'We support Ledger, Trezor and Cold Card',
     Icon: Hardware,
   },
   {
@@ -64,7 +64,7 @@ export const Data = [
   {
     id: 7,
     title: 'Signer Apps',
-    subtitle: 'we support Seed Signer and Blue Wallet',
+    subtitle: 'We support Seed Signer and Blue Wallet',
     Icon: Key,
   },
 ];

@@ -113,6 +113,8 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(14),
     fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 0.7,
+    fontWeight: '400',
+    marginBottom: hp(.70)
   },
   accordionDescription: {
     letterSpacing: 0.24,
@@ -126,6 +128,8 @@ const styles = ScaledSheet.create({
     letterSpacing: 0.24,
     color: Colors.greenText,
     fontFamily: Fonts.RobotoCondensedRegular,
+    lineHeight: 18,
+    marginBottom: hp(.19)
   },
   itemDescription: {
     fontSize: RFValue(10),
