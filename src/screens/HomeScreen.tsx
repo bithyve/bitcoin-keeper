@@ -141,13 +141,6 @@ const HomeScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [backupKeys, setBackupKeys] = useState([
     {
-      id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
-      title: 'Add',
-      subtitle: 'New Key',
-      Icon: AddNewIcon,
-      onPress: () => navigation.navigate('Backup'),
-    },
-    {
       id: '58694a0f-3da1-471f-bd96-14557114225679d72',
       title: 'Cold Card',
       Icon: ColdCardIcon,
@@ -163,6 +156,13 @@ const HomeScreen = ({ navigation, route }) => {
       subtitle: 'New Key',
       Icon: PdfIcon,
     },
+    {
+      id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
+      title: 'Add',
+      subtitle: 'New Key',
+      Icon: AddNewIcon,
+      onPress: () => navigation.navigate('Backup'),
+    },
   ]);
 
   useEffect(() => {
@@ -177,7 +177,7 @@ const HomeScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
-        return [...prev, route.params];
+        return [route.params, ...prev,];
       });
     }
   }, [route?.params]);
@@ -306,7 +306,7 @@ const HomeScreen = ({ navigation, route }) => {
         Used for securing funds
       </Text>
       <FlatList
-        data={backupKeys.reverse()}
+        data={backupKeys}
         renderItem={renderItem}
         keyExtractor={(item) => item?.id}
         horizontal={true}
