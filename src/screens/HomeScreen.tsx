@@ -177,7 +177,7 @@ const HomeScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
-        return [route.params, ...prev,];
+        return [route.params, ...prev];
       });
     }
   }, [route?.params]);
@@ -282,7 +282,7 @@ const HomeScreen = ({ navigation, route }) => {
             fontStyle={'italic'}
           >
             {' '}
-            Alex
+            Anant
           </Text>
         </View>
         <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'100'}>
