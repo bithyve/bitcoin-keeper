@@ -38,7 +38,7 @@ const QRscannerScreen = ({ route }) => {
           color={'light.white'}
           fontFamily={'body'}
           fontWeight={'100'}
-        >Lorem ipsum dolor sit amet</Text>
+        ></Text>
       </View>
       <QRscanner qrData={qrData} setQrData={setQrData} />
     </SafeAreaView>

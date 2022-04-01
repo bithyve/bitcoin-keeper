@@ -60,8 +60,8 @@ const AddWalletSheet = ({
 }) => {
   return (
     <HexaBottomSheet
-      title={'Add Wallet Details'}
-      subTitle={'Lorem Ipsum Dolor Amet'}
+      title={"Amy's Wallet"}
+      subTitle={''}
       snapPoints={['60%']}
       bottomSheetRef={addWalletSheetRef}
       primaryText={'Create'}
@@ -83,7 +83,7 @@ const AddWalletSheet = ({
       />
       <BottomSheetTextInput
         placeholder="Description"
-        value={accountDescription}
+        value={"To easily remember the wallet's purpose"}
         onChangeText={(value) => setAccountDescription(value)}
         style={styles.inputField}
       />
@@ -269,24 +269,24 @@ const AddWalletScreen = () => {
   const Data = [
     {
       id: 1,
-      heading: 'Hexa Wallets',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
+      heading: 'Create a wallet',
+      description: 'Hodl. Gift. Orange Pill',
       items: [
         {
           title: 'Single-sig Wallet',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: 'For your day to day spends',
           icon: HardWare,
           onPress: expandAddWalletSheet,
         },
         {
           title: 'Multi-sig Wallet',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: 'For long term hodling',
           icon: MultiSigIcon,
           onPress: expandAddWalletSheet,
         },
         {
           title: 'Multi-sig Hardware Wallet',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: 'The ultimate long term bitcoin security',
           icon: HardWare,
           onPress: expandAddWalletSheet,
         },
@@ -295,7 +295,7 @@ const AddWalletScreen = () => {
     {
       id: 2,
       heading: 'Import a Wallet',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
+      description: 'Backup another bitcoin wallet',
       items: [
         {
           title: 'Trust Wallet',
@@ -332,7 +332,7 @@ const AddWalletScreen = () => {
     {
       id: 3,
       heading: 'Add a Vault',
-      description: 'Lorem ipsum dolor sit amet, consectetur adipiscin',
+      description: 'Backup another bitcoin wallet',
       items: [],
     },
   ];
@@ -347,7 +347,7 @@ const AddWalletScreen = () => {
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title="Add a Wallet"
-        subtitle="Lorem ipsum dolor sit amet, consectetur"
+        subtitle="Secure your bitcoin across wallets"
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />

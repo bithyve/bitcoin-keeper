@@ -48,7 +48,7 @@ const InheritanceModes = ({ assignRef, declarationRef }) => {
             Assign Beneficiary
           </Text>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-            Lorem ipsum dolor sit, amet
+            The one you hodled for so long
           </Text>
         </Wrapper>
       </TouchableOpacity>
@@ -58,7 +58,7 @@ const InheritanceModes = ({ assignRef, declarationRef }) => {
             Sign Declaration
           </Text>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-            Lorem ipsum dolor sit, amet
+            Transfer bitcoin custody
           </Text>
         </Wrapper>
       </TouchableOpacity>
@@ -67,7 +67,7 @@ const InheritanceModes = ({ assignRef, declarationRef }) => {
           Activate Transfer
         </Text>
         <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-          Lorem ipsum dolor sit, amet
+          Transfer bitcoin custody
         </Text>
       </Wrapper>
     </Fragment>

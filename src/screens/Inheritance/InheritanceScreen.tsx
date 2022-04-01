@@ -32,7 +32,7 @@ const InheritanceScreen = () => {
             Setup Inheritance
           </Heading>
           <Text fontFamily={'body'} fontWeight={'100'} size={'sm'} h={'auto'}>
-            Lorem ipsum dolor sit, amet
+            Bequeath your bitcoin
           </Text>
         </VStack>
         <Text
@@ -43,15 +43,13 @@ const InheritanceScreen = () => {
           marginY={12}
           h={'auto'}
         >
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam assumenda, quibusdam
-          consectetur sapiente incidunt saepe qui, ullam facilis unde est fugiat cupiditate dolorem
-          sint eum distinctio et similique minus. Rerum.
+          Make sure your legacy would be alive and glorious. Choose your beneficiary carefully.
         </Text>
         <InheritanceModes assignRef={assignRef} declarationRef={declarationRef} />
       </VStack>
       <HexaBottomSheet
         title={'Assign Benificiary'}
-        subTitle={'Lorem ipsum dolor sit, amet'}
+        subTitle={'Select who receives your bitcoin inheritance'}
         snapPoints={['90%']}
         bottomSheetRef={assignRef}
         primaryText={'Proceed'}
@@ -60,10 +58,11 @@ const InheritanceScreen = () => {
         primaryCallback={openDecalarationSheet}
       >
         <BenificiaryList />
+
       </HexaBottomSheet>
       <HexaBottomSheet
         title={'Sign Declaration'}
-        subTitle={'Lorem ipsum dolor sit, amet'}
+        subTitle={'Read the text below before signing'}
         snapPoints={['90%']}
         bottomSheetRef={declarationRef}
         primaryText={'Sign'}

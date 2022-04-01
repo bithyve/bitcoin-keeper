@@ -83,7 +83,7 @@ const BackupScreen = ({ }) => {
       />
       <HexaBottomSheet
         title={'Add Backup Key'}
-        subTitle={'Lorem Ipsum Dolor Amet'}
+        subTitle={'Strengthen your security'}
         snapPoints={['80%']}
         bottomSheetRef={addBackUpKeySheetRef}
         primaryText={'Done'}
@@ -99,7 +99,7 @@ const BackupScreen = ({ }) => {
           />
         )}
         <Text style={styles.sheetSubText} fontFamily='body' fontWeight={'200'}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          Scan the QR below to add Backup Key
         </Text>
         <View style={styles.qrContainer}>
           <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />

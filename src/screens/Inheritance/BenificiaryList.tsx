@@ -54,7 +54,7 @@ const BenificiaryList = () => {
           />
         )}
         owner={'Julie Geller'}
-        decription={'Lorem ipsum dolor sit amet'}
+        decription={'Friend'}
       />
       <Wrapper
         Profile={() => (
@@ -67,7 +67,7 @@ const BenificiaryList = () => {
           />
         )}
         owner={'Gunther Greene'}
-        decription={'Lorem ipsum dolor sit amet'}
+        decription={'Son-in-law'}
         checked
       />
       <Wrapper
@@ -81,7 +81,7 @@ const BenificiaryList = () => {
           />
         )}
         owner={'Arika Andler'}
-        decription={'Lorem ipsum dolor sit amet'}
+        decription={'God-daughter'}
       />
       <Wrapper
         Profile={() => (
@@ -94,7 +94,7 @@ const BenificiaryList = () => {
           />
         )}
         owner={'Huff Nohman'}
-        decription={'Lorem ipsum dolor sit amet'}
+        decription={''}
       />
     </VStack>
   );

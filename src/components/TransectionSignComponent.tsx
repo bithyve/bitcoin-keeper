@@ -22,7 +22,7 @@ const TransectionSignComponent = ({ }) => {
             Hexa Pay
           </Text>
           <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
-            lorem ipsum dolor
+
           </Text>
         </View>
         <View style={styles.moreDetails}>

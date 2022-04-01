@@ -13,8 +13,8 @@ const TransectionSubmitted = ({ }) => {
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
-      title="Transection Submitted"
-      subTitle={'Lorem Ipsum Dolor Amet'}
+      title="Transaction Confirmed"
+      subTitle={''}
       snapPoints={['25%', '65%']}
       primaryText={'Confirm'}
       secondaryText={'Reject'}
