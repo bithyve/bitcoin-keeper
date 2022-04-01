@@ -83,7 +83,7 @@ const AddWalletSheet = ({
       />
       <BottomSheetTextInput
         placeholder="Description"
-        value={"To easily remember the wallet's purpose"}
+        value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
         style={styles.inputField}
       />
@@ -130,19 +130,19 @@ const CreateWalletSheet = ({ createWalletSheetRef }) => {
   const processMap = [
     {
       id: 1,
-      text: 'Lorem ipsum dolor sit amet.',
+      text: 'Create multiple accounts',
     },
     {
       id: 2,
-      text: 'Lorem ipsum dolor sit amet.',
+      text: 'Your bitcoin secured with distributed backup',
     },
     {
       id: 3,
-      text: 'Lorem ipsum dolor sit amet.',
+      text: 'Backup health checked automatically',
     },
     {
       id: 4,
-      text: 'Lorem ipsum dolor sit amet.',
+      text: 'Multiple customization options available',
     },
   ];
   return (
