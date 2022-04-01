@@ -267,7 +267,7 @@ const HomeScreen = ({ navigation, route }) => {
           </Text>
         </View>
         <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'100'}>
-          Lorem Ipsum Dolor Amet
+          Your stack is safe
         </Text>
       </ImageBackground>
       <Text
@@ -284,7 +284,7 @@ const HomeScreen = ({ navigation, route }) => {
         fontFamily={'body'}
         fontWeight={'100'}
       >
-        used for securing funds
+        Used for securing funds
       </Text>
       <FlatList
         data={backupKeys.reverse()}
@@ -309,7 +309,7 @@ const HomeScreen = ({ navigation, route }) => {
         fontFamily={'body'}
         fontWeight={'100'}
       >
-        lorem ipsum dolor
+        Keeper is securing these wallets
       </Text>
       {allAccounts.length != 0 && (
         <FlatList
