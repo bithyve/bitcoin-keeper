@@ -25,6 +25,7 @@ import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import HexagontileIcon from 'src/assets/images/svgs/hexagontile3.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
+import HexaPayComponent from 'src/components/HexaPayComponent';
 import Fonts from 'src/common/Fonts';
 
 const LoadingText = ({ text, timeOut }) => {
@@ -161,6 +162,21 @@ const CreateWalletSheet = ({ createWalletSheetRef }) => {
   );
 };
 
+export const SucccessSheet = ({ title, subTitle, sheetTitle, successSheetRef, Icon }) => {
+  const navigation = useNavigation();
+  return (
+    <HexaBottomSheet
+      title={sheetTitle}
+      snapPoints={['50%']}
+      bottomSheetRef={successSheetRef}
+      primaryText={'View Wallet'}
+      primaryCallback={() => navigation.navigate('Home')}
+    >
+      <HexaPayComponent Icon={Icon} title={title} subtitle={subTitle} />
+    </HexaBottomSheet>
+  );
+};
+
 const AddWalletScreen = () => {
   const [addWalletType, setAddWalletType] = useState('');
   const [accountName, setAccountName] = useState('');
@@ -171,18 +187,26 @@ const AddWalletScreen = () => {
   const createWalletSheetRef = useRef<BottomSheet>(null);
   const importWalletSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
+  const successSheetRef = useRef<BottomSheet>(null);
+  const successSheetImportRef = useRef<BottomSheet>(null);
+
   const dispatch = useDispatch();
 
   const addWallet = useCallback(() => {
-    const newAccountShellInfo: newAccountsInfo = {
-      accountType: AccountType.CHECKING_ACCOUNT,
-      accountDetails: {
-        name: accountName,
-        description: accountDescription,
-      },
-    };
-    dispatch(addNewAccountShells([newAccountShellInfo]));
+    // const newAccountShellInfo: newAccountsInfo = {
+    //   accountType: AccountType.CHECKING_ACCOUNT,
+    //   accountDetails: {
+    //     name: accountName,
+    //     description: accountDescription,
+    //   },
+    // };
+    // dispatch(addNewAccountShells([newAccountShellInfo]));
+    setWalletDetails({
+      name: accountName,
+      description: accountDescription,
+    });
     closeAddWalletSheet();
+    expandSuccessSheet();
   }, [accountName, accountDescription]);
 
   const importWallet = useCallback(() => {
@@ -196,6 +220,7 @@ const AddWalletScreen = () => {
       expandCreateWalletSheet();
       setTimeout(() => {
         createWalletSheetRef?.current.close();
+        expandSuccessImportSheet();
       }, 500 * 9);
     }
   }, [importKey]);
@@ -223,6 +248,22 @@ const AddWalletScreen = () => {
 
   const closeCreateWalletShhet = useCallback(() => {
     createWalletSheetRef.current?.close();
+  }, []);
+
+  const expandSuccessSheet = useCallback(() => {
+    successSheetRef.current?.expand();
+  }, []);
+
+  const closeSuccessSheet = useCallback(() => {
+    successSheetRef.current?.close();
+  }, []);
+
+  const expandSuccessImportSheet = useCallback(() => {
+    successSheetImportRef.current?.expand();
+  }, []);
+
+  const closeSuccessSheetImport = useCallback(() => {
+    successSheetImportRef.current?.close();
   }, []);
 
   const Data = [
@@ -274,12 +315,6 @@ const AddWalletScreen = () => {
           icon: BlueWalletIcon,
           onPress: expandImportWalletSheet,
         },
-        // {
-        //   title: 'BRD',
-        //   description: 'Lorem ipsum dolor sit amet, consectetur',
-        //   icon: HexagontileIcon,
-        //   onPress: expandImportWalletSheet,
-        // },
         {
           title: 'Munn Wallet',
           description: 'Lorem ipsum dolor sit amet, consectetur',
@@ -304,6 +339,8 @@ const AddWalletScreen = () => {
 
   const renderItem = ({ item }) => <AccordionsComponent item={item} />;
   const navigtaion = useNavigation();
+
+  const [walletDetails, setWalletDetails] = useState({});
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
@@ -332,6 +369,20 @@ const AddWalletScreen = () => {
         addWallet={addWallet}
       />
       <CreateWalletSheet createWalletSheetRef={createWalletSheetRef} />
+      <SucccessSheet
+        Icon={<HardWare />}
+        sheetTitle={'Wallet Creation Successful'}
+        title={walletDetails?.name}
+        subTitle={walletDetails?.description}
+        successSheetRef={successSheetRef}
+      />
+      <SucccessSheet
+        Icon={<BlueWalletIcon />}
+        sheetTitle={'Wallet Creation Successful'}
+        title={importWalletType}
+        subTitle={'Daily Spend'}
+        successSheetRef={successSheetImportRef}
+      />
     </View>
   );
 };
@@ -361,7 +412,7 @@ const styles = ScaledSheet.create({
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: RFValue(13),
     letterSpacing: 0.65,
-    borderRadius: 10
-  }
+    borderRadius: 10,
+  },
 });
 export default AddWalletScreen;
