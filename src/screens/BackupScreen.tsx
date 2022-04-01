@@ -17,15 +17,12 @@ import HexaBottomSheet from 'src/components/BottomSheet';
 import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
-import { ImportWalletSheet } from './AddWalletScreen';
 
 const BackupScreen = ({}) => {
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
   const hardwareSheetRef = useRef(null);
-  const importWalletSheetRef = useRef(null);
-  const [importKey, setImportKey] = useState();
 
   let index = -1;
   let data = {};
@@ -52,6 +49,7 @@ const BackupScreen = ({}) => {
 
   const closeAddBackUpKeySheet = useCallback(() => {
     addBackUpKeySheetRef.current?.close();
+    data && navigtaion.navigate('Home', data);
   }, []);
 
   const renderItem = ({ item }) => {
@@ -66,18 +64,6 @@ const BackupScreen = ({}) => {
         touchable
       />
     );
-  };
-
-  const expandImportWalletSheet = () => {
-    importWalletSheetRef?.current.expand();
-  };
-
-  const closeImportWalletSheet = () => {
-    importWalletSheetRef?.current.close();
-  };
-
-  const importWallet = () => {
-    closeImportWalletSheet();
   };
 
   return (
@@ -101,10 +87,7 @@ const BackupScreen = ({}) => {
         snapPoints={['80%']}
         bottomSheetRef={addBackUpKeySheetRef}
         primaryText={'Done'}
-        primaryCallback={() => {
-          closeAddBackUpKeySheet();
-          expandImportWalletSheet();
-        }}
+        primaryCallback={closeAddBackUpKeySheet}
         index={index}
       >
         {backUpKeyType && (
@@ -126,12 +109,6 @@ const BackupScreen = ({}) => {
         bottomSheetRef={hardwareSheetRef}
         Data={HardwareData}
         onPress={expandAddBackUpKeySheet}
-      />
-      <ImportWalletSheet
-        importWalletSheetRef={importWalletSheetRef}
-        importWallet={importWallet}
-        importKey={importKey}
-        setImportKey={setImportKey}
       />
     </View>
   );
