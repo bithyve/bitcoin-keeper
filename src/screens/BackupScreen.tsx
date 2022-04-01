@@ -18,7 +18,7 @@ import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 
-const BackupScreen = ({}) => {
+const BackupScreen = ({ }) => {
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
@@ -98,8 +98,8 @@ const BackupScreen = ({}) => {
             onPress={expandAddBackUpKeySheet}
           />
         )}
-        <Text style={styles.sheetSubText}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit
+        <Text style={styles.sheetSubText} fontFamily='body' fontWeight={'200'}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
         </Text>
         <View style={styles.qrContainer}>
           <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />
@@ -138,7 +138,16 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(10),
     letterSpacing: '0.20@s',
   },
-  sheetSubText: { color: '#073E39', fontWeight: '500', marginVertical: 10 },
-  qrContainer: { alignSelf: 'center', marginVertical: 30 },
+  sheetSubText: {
+    color: '#073E39',
+    marginVertical: hp(3),
+    fontSize: RFValue(12),
+    letterSpacing: 0.6,
+    lineHeight: 18
+  },
+  qrContainer: {
+    alignSelf: 'center',
+    marginVertical: 30
+  },
 });
 export default BackupScreen;
