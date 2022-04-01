@@ -1,18 +1,22 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import QRscanner from 'src/components/QRscanner';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackButtonWhiteIcon from 'src/assets/images/svgs/backWhite.svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Text } from 'native-base';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 const QRscannerScreen = ({ route }) => {
   const navigation = useNavigation();
   const [qrData, setQrData] = useState();
-  const processQR  = route.params?.processQR
+  const processQR = route.params?.processQR
 
   useEffect(() => {
     if (qrData) {
-      if(processQR) processQR(qrData)
+      if (processQR) processQR(qrData)
       navigation.goBack();
     }
   }, [qrData]);
@@ -23,8 +27,18 @@ const QRscannerScreen = ({ route }) => {
         <BackButtonWhiteIcon />
       </TouchableOpacity>
       <View style={styles.textContainer}>
-        <Text style={styles.text}>Scan a QR</Text>
-        <Text style={styles.subText}>Lorem ipsum dolor sit amet</Text>
+        <Text style={styles.text}
+          numberOfLines={1}
+          color={'light.white'}
+          fontFamily={'body'}
+          fontWeight={'200'}>Scan a QR</Text>
+        <Text
+          style={styles.subText}
+          numberOfLines={1}
+          color={'light.white'}
+          fontFamily={'body'}
+          fontWeight={'100'}
+        >Lorem ipsum dolor sit amet</Text>
       </View>
       <QRscanner qrData={qrData} setQrData={setQrData} />
     </SafeAreaView>
@@ -33,7 +47,7 @@ const QRscannerScreen = ({ route }) => {
 
 export default QRscannerScreen;
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   backButton: {
     color: 'white',
     margin: 20,
@@ -44,12 +58,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   text: {
-    fontSize: 20,
-    color: '#FAFCFC',
+    fontSize: RFValue(22),
+    lineHeight: '23@s',
+    letterSpacing: '0.7@s',
+    marginTop: hp(1),
   },
   subText: {
-    fontSize: 12,
-    color: '#FAFCFC',
+    fontSize: RFValue(12),
+    lineHeight: '17@s',
+    letterSpacing: '0.5@s',
+    width: wp('60%'),
   },
   textContainer: {
     margin: 20,

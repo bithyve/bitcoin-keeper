@@ -25,6 +25,7 @@ import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import HexagontileIcon from 'src/assets/images/svgs/hexagontile3.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
+import Fonts from 'src/common/Fonts';
 
 const LoadingText = ({ text, timeOut }) => {
   const [loading, setLoading] = useState(true);
@@ -71,37 +72,19 @@ const AddWalletSheet = ({
         placeholder={addWalletType}
         value={addWalletType}
         onChangeText={(value) => setAddWalletType(value)}
-        style={{
-          padding: 30,
-          borderWidth: 0,
-          color: '#073E39',
-          backgroundColor: '#D8A57210',
-          marginVertical: 10,
-        }}
+        style={styles.inputField}
       />
       <BottomSheetTextInput
         placeholder="Account Name"
         value={accountName}
         onChangeText={(value) => setAccountName(value)}
-        style={{
-          padding: 30,
-          borderWidth: 0,
-          color: '#073E39',
-          backgroundColor: '#D8A57210',
-          marginVertical: 10,
-        }}
+        style={styles.inputField}
       />
       <BottomSheetTextInput
         placeholder="Description"
         value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
-        style={{
-          padding: 30,
-          borderWidth: 0,
-          color: '#073E39',
-          backgroundColor: '#D8A57210',
-          marginVertical: 10,
-        }}
+        style={styles.inputField}
       />
     </HexaBottomSheet>
   );
@@ -369,5 +352,16 @@ const styles = ScaledSheet.create({
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
   },
+  inputField: {
+    padding: 30,
+    borderWidth: 0,
+    color: '#073E39',
+    backgroundColor: '#D8A57210',
+    marginVertical: 10,
+    fontFamily: Fonts.RobotoCondensedRegular,
+    fontSize: RFValue(13),
+    letterSpacing: 0.65,
+    borderRadius: 10
+  }
 });
 export default AddWalletScreen;
