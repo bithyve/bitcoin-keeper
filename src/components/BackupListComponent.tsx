@@ -82,6 +82,7 @@ const styles = ScaledSheet.create({
   subtitle: {
     fontSize: RFValue(10),
     letterSpacing: '0.20@s',
+    fontWeight: '100'
   },
 });
 export default BackupListComponent;

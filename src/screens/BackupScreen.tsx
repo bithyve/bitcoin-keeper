@@ -71,7 +71,7 @@ const BackupScreen = ({}) => {
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title="Add a Backup Key"
-        subtitle="Lorem ipsum dolor sit amet, consectetur"
+        subtitle="Strengthen your security"
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList
