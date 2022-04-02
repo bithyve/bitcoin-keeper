@@ -68,7 +68,7 @@ const LoginScreen = ({ navigation }) => {
         </View>
         <View style={styles.pinContainer}>
           <AppPinInput value={pin} maxLength={6} />
-          <AppNumPad clear setValue={setPin} disable={numPadDisable} />
+          <AppNumPad clear ok setValue={setPin} disable={numPadDisable} />
         </View>
       </View>
     </SafeAreaView>

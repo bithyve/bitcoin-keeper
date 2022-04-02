@@ -22,7 +22,7 @@ const AppNumPad = ({ ok, clear, setValue, disable = false }) => {
     <View style={styles.numPadContainer}>
       {numPadArr.map((char) => {
         if ((char === 'ok') & ok) {
-          return <CharButton key={char} />;
+          return <CharButton key={char} char={'Need Help'} />;
         } else if (char === 'clear' && clear) {
           return <CharButton Icon={<DeleteIcon />} pressHandler={onClear} key={char} />;
         } else if (typeof char === 'number') {
