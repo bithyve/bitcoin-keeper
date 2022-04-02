@@ -193,14 +193,14 @@ const AddWalletScreen = () => {
   const dispatch = useDispatch();
 
   const addWallet = useCallback(() => {
-    // const newAccountShellInfo: newAccountsInfo = {
-    //   accountType: AccountType.CHECKING_ACCOUNT,
-    //   accountDetails: {
-    //     name: accountName,
-    //     description: accountDescription,
-    //   },
-    // };
-    // dispatch(addNewAccountShells([newAccountShellInfo]));
+    const newAccountShellInfo: newAccountsInfo = {
+      accountType: AccountType.CHECKING_ACCOUNT,
+      accountDetails: {
+        name: accountName,
+        description: accountDescription,
+      },
+    };
+    dispatch(addNewAccountShells([newAccountShellInfo]));
     setWalletDetails({
       name: accountName,
       description: accountDescription,
