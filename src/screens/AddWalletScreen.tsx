@@ -60,7 +60,7 @@ const AddWalletSheet = ({
 }) => {
   return (
     <HexaBottomSheet
-      title={"Amy's Wallet"}
+      title={'Add Wallet Details'}
       subTitle={''}
       snapPoints={['60%']}
       bottomSheetRef={addWalletSheetRef}
@@ -82,7 +82,7 @@ const AddWalletSheet = ({
         style={styles.inputField}
       />
       <BottomSheetTextInput
-        placeholder="Description"
+        placeholder="To easily remember wallets purpose"
         value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
         style={styles.inputField}
@@ -347,7 +347,7 @@ const AddWalletScreen = () => {
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title="Add a Wallet"
-        subtitle="Secure your bitcoin across wallets"
+        subtitle="Set up a wallet for you bitcoin"
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
