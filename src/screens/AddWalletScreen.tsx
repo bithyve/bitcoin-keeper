@@ -270,7 +270,7 @@ const AddWalletScreen = () => {
     {
       id: 1,
       heading: 'Create a wallet',
-      description: 'Hodl. Gift. Orange Pill',
+      description: 'Start stacking sats',
       items: [
         {
           title: 'Single-sig Wallet',
