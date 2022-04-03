@@ -17,24 +17,27 @@ import HexaBottomSheet from 'src/components/BottomSheet';
 import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
+import { SucccessSheet } from './AddWalletScreen';
+import HardWare from 'src/assets/images/svgs/hardware.svg';
 
 const BackupScreen = ({ }) => {
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
   const hardwareSheetRef = useRef(null);
+  const successSheetRef = useRef(null);
 
   let index = -1;
-  let data = {};
+  const [data, setData] = useState({});
 
   useEffect(() => {
     if (index == -1) {
-      data = {};
+      setData({});
     }
   }, [index]);
 
   const expandAddBackUpKeySheet = useCallback((item) => {
-    data = { ...item, Icon: getIcon(item.id), id: uuid.v4() };
+    setData({ ...item, Icon: getIcon(item.id), id: uuid.v4() });
     if (item.id == 5) {
       hardwareSheetRef.current?.expand();
     }
@@ -42,14 +45,16 @@ const BackupScreen = ({ }) => {
       setBackUpKeyType(item);
       addBackUpKeySheetRef.current?.expand();
     } else if (item.id >= 8 && item.id <= 12) {
-      data && navigtaion.navigate('Home', data);
+      setBackUpKeyType(item);
+      addBackUpKeySheetRef.current?.expand();
       hardwareSheetRef.current?.close();
     }
   }, []);
 
   const closeAddBackUpKeySheet = useCallback(() => {
     addBackUpKeySheetRef.current?.close();
-    data && navigtaion.navigate('Home', data);
+    console.log('data before ', data);
+    data && successSheetRef.current.expand();
   }, []);
 
   const renderItem = ({ item }) => {
@@ -109,6 +114,15 @@ const BackupScreen = ({ }) => {
         bottomSheetRef={hardwareSheetRef}
         Data={HardwareData}
         onPress={expandAddBackUpKeySheet}
+      />
+      <SucccessSheet
+        title=''
+        subTitle=''
+        sheetTitle='Backup Key Added'
+        successSheetRef={successSheetRef}
+        Icon={HardWare}
+        data={data}
+        primaryText='View Wallet'
       />
     </View>
   );
