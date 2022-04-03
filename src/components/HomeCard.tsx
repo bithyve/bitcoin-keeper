@@ -13,8 +13,6 @@ import HomeCardImage from '../assets/images/homecard.png';
 import AddSCardIcon from '../assets/images/svgs/card_add.svg';
 import BtcIcon from '../assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
-import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
-import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -22,18 +20,26 @@ const getCardheight = () => {
   if (windowHeight >= 850) {
     return 5;
   } else if (windowHeight >= 750) {
-    return 3
+    return 3;
   } else if (windowHeight >= 650) {
     return 1;
   }
-}
+};
 
-const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
-
+const HomeCard = ({
+  Icon = BlueWalletIcon,
+  name = 'Name',
+  description = 'Description',
+  type = 'Single-Sig',
+  balance = '8585',
+  isEnd,
+  index,
+  isImported = true,
+}) => {
   const navigation = useNavigation();
   return (
     <View>
-      <ImageBackground resizeMode='stretch' style={styles.homeCard} source={HomeCardImage}>
+      <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
         {isEnd ? (
           <View style={styles.addWalletContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('AddWallet Screen')}>
@@ -58,51 +64,27 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                   fontFamily={'body'}
                   fontWeight={'300'}
                 >
-                  3{' '}
-                </Text>
-                <Text
-                  style={styles.headerKeeperText}
-                  color={'light.white'}
-                  fontFamily={'body'}
-                  fontWeight={'100'}
-                >
-                  Keepers &{' '}
-                </Text>
-                <Text
-                  style={styles.headerKeeperText}
-                  color={'light.white'}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
-                >
-                  1{' '}
-                </Text>
-                <Text
-                  style={styles.headerKeeperText}
-                  color={'light.white'}
-                  fontFamily={'body'}
-                  fontWeight={'100'}
-                >
-                  Singer
+                  {isImported ? `3 Keepers & 1 Signers` : `2 Keepers`}
                 </Text>
               </View>
 
-              <View style={styles.hexaWalletContainer} background={index == 0 ? 'light.lightYellow' : 'light.lightBlue'}>
+              <View
+                style={styles.hexaWalletContainer}
+                background={isImported ? 'light.lightBlue' : 'none'}
+              >
                 <Text
                   style={styles.hexaWalletText}
                   color={'light.lightBlack'}
                   fontFamily={'body'}
                   fontWeight={'300'}
                 >
-                  {index == 0 ? 'Hexa Wallet' : 'Imported'}
+                  {isImported ? 'Imported' : <></>}
                 </Text>
               </View>
             </View>
             <View style={styles.walletContainer}>
               <TouchableOpacity>
-                {index % 3 == 0 ? <SingleSigIcon /> :
-                  index % 3 == 1 ? <MultiSigIcon />
-                    : <BlueWalletIcon />
-                }
+                <Icon />
               </TouchableOpacity>
               <Text
                 style={styles.walletName}
@@ -110,7 +92,7 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'100'}
               >
-                {index % 3 == 0 ? 'Single-sig' : index % 3 == 1 ? 'Multi Sig' : 'Blue Wallet'}
+                {type}
               </Text>
             </View>
 
@@ -121,11 +103,7 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                {/* {name} */}
-                {
-                  index == 0 ? 'Maldives Funds' : index == 1 ? 'lorem ipsum' : 'Hodl Stack'
-                }
-
+                {name}
               </Text>
               <Text
                 style={styles.fundsSubtitle}
@@ -133,10 +111,7 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'100'}
               >
-                {/* {description} */}
-                {
-                  index == 0 ? 'Beach and sunshine baby!' : index == 1 ? 'lorem ipsum' : 'DO NOT shift to single sig.'
-                }
+                {description}
               </Text>
             </View>
 
@@ -148,11 +123,7 @@ const HomeCard = ({ Icon, name, description, balance, isEnd, index }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                {/* {balance} */}
-                {
-                  index == 0 ? '0.000024' : index == 1 ? '0.000030' : '0.976542'
-                }
-
+                {balance}
               </Text>
             </View>
           </>
