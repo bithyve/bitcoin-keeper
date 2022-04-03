@@ -77,7 +77,7 @@ const BackupScreen = ({ }) => {
       <HeaderTitle
         title="Add a Backup Key"
         subtitle="Strengthen your security"
-        onPressHandler={() => navigtaion.goBack()}
+        onPressHandler={() => navigtaion.navigate('Home', data)}
       />
       <FlatList
         style={{ marginTop: hp(2) }}
