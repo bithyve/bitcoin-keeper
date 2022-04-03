@@ -194,14 +194,14 @@ const AddWalletScreen = () => {
   const dispatch = useDispatch();
 
   const addWallet = useCallback(() => {
-    // const newAccountShellInfo: newAccountsInfo = {
-    //   accountType: AccountType.CHECKING_ACCOUNT,
-    //   accountDetails: {
-    //     name: accountName,
-    //     description: accountDescription,
-    //   },
-    // };
-    // dispatch(addNewAccountShells([newAccountShellInfo]));
+    const newAccountShellInfo: newAccountsInfo = {
+      accountType: AccountType.CHECKING_ACCOUNT,
+      accountDetails: {
+        name: accountName,
+        description: accountDescription,
+      },
+    };
+    dispatch(addNewAccountShells([newAccountShellInfo]));
     setWalletDetails({
       name: accountName,
       description: accountDescription,
@@ -380,7 +380,7 @@ const AddWalletScreen = () => {
       />
       <SucccessSheet
         Icon={BlueWalletIcon}
-        sheetTitle={'Wallet Creation Successful'}
+        sheetTitle={'Wallet Imported Successfully'}
         title={importWalletType}
         subTitle={'Daily Spend'}
         successSheetRef={successSheetImportRef}
