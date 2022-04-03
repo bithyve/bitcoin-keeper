@@ -378,7 +378,7 @@ const AddWalletScreen = () => {
       />
       <SucccessSheet
         Icon={<BlueWalletIcon />}
-        sheetTitle={'Wallet Creation Successful'}
+        sheetTitle={'Wallet Imported Successfully'}
         title={importWalletType}
         subTitle={'Daily Spend'}
         successSheetRef={successSheetImportRef}
