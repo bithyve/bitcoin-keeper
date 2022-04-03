@@ -197,7 +197,9 @@ const HomeScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
-        return [route.params, ...prev];
+        if (prev) {
+          return [route.params, ...prev];
+        }
       });
     }
   }, [route?.params]);
@@ -213,7 +215,6 @@ const HomeScreen = ({ navigation, route }) => {
     );
   };
   const renderItemTwo = ({ item, index }) => {
-    console.log(JSON.stringify(item, null, 2));
     if (item?.primarySubAccount?.defaultTitle === 'Full Import') {
       return (
         <HomeCard

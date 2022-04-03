@@ -20,7 +20,7 @@ import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 import { SucccessSheet } from './AddWalletScreen';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 
-const BackupScreen = ({ }) => {
+const BackupScreen = ({}) => {
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
@@ -103,7 +103,7 @@ const BackupScreen = ({ }) => {
             onPress={expandAddBackUpKeySheet}
           />
         )}
-        <Text style={styles.sheetSubText} fontFamily='body' fontWeight={'200'}>
+        <Text style={styles.sheetSubText} fontFamily="body" fontWeight={'200'}>
           Scan the QR below to add Backup Key
         </Text>
         <View style={styles.qrContainer}>
@@ -116,13 +116,13 @@ const BackupScreen = ({ }) => {
         onPress={expandAddBackUpKeySheet}
       />
       <SucccessSheet
-        title=''
-        subTitle=''
-        sheetTitle='Backup Key Added'
+        title=""
+        subTitle=""
+        sheetTitle="Backup Key Added"
         successSheetRef={successSheetRef}
         Icon={HardWare}
         data={data}
-        primaryText='View Wallet'
+        primaryText="View Wallet"
       />
     </View>
   );
@@ -157,11 +157,11 @@ const styles = ScaledSheet.create({
     marginVertical: hp(3),
     fontSize: RFValue(12),
     letterSpacing: 0.6,
-    lineHeight: 18
+    lineHeight: 18,
   },
   qrContainer: {
     alignSelf: 'center',
-    marginVertical: 30
+    marginVertical: 30,
   },
 });
 export default BackupScreen;
