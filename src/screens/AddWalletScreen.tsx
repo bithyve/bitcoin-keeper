@@ -162,17 +162,18 @@ const CreateWalletSheet = ({ createWalletSheetRef }) => {
   );
 };
 
-export const SucccessSheet = ({ title, subTitle, sheetTitle, successSheetRef, Icon }) => {
+export const SucccessSheet = ({ title, subTitle, sheetTitle, successSheetRef, Icon, data = undefined, primaryText }) => {
   const navigation = useNavigation();
+
   return (
     <HexaBottomSheet
       title={sheetTitle}
       snapPoints={['50%']}
       bottomSheetRef={successSheetRef}
-      primaryText={'View Wallet'}
-      primaryCallback={() => navigation.navigate('Home')}
+      primaryText={primaryText}
+      primaryCallback={() => navigation.navigate('Home', data)}
     >
-      <HexaPayComponent Icon={Icon} title={title} subtitle={subTitle} />
+      <HexaPayComponent Icon={<Icon />} title={title} subtitle={subTitle} />
     </HexaBottomSheet>
   );
 };
@@ -299,31 +300,31 @@ const AddWalletScreen = () => {
       items: [
         {
           title: 'Trust Wallet',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: '',
           icon: TrustIcon,
           onPress: expandImportWalletSheet,
         },
         {
           title: 'Coinbase',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: '',
           icon: CoinBaseIcon,
           onPress: expandImportWalletSheet,
         },
         {
           title: 'Blue Wallet',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: '',
           icon: BlueWalletIcon,
           onPress: expandImportWalletSheet,
         },
         {
           title: 'Munn Wallet',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: '',
           icon: MuunIcon,
           onPress: expandImportWalletSheet,
         },
         {
           title: 'Blockchain.com',
-          description: 'Lorem ipsum dolor sit amet, consectetur',
+          description: '',
           icon: BlockhchainIcon,
           onPress: expandImportWalletSheet,
         },
@@ -370,18 +371,20 @@ const AddWalletScreen = () => {
       />
       <CreateWalletSheet createWalletSheetRef={createWalletSheetRef} />
       <SucccessSheet
-        Icon={<HardWare />}
+        Icon={HardWare}
         sheetTitle={'Wallet Creation Successful'}
         title={walletDetails?.name}
         subTitle={walletDetails?.description}
         successSheetRef={successSheetRef}
+        primaryText='View Wallet'
       />
       <SucccessSheet
-        Icon={<BlueWalletIcon />}
+        Icon={BlueWalletIcon}
         sheetTitle={'Wallet Imported Successfully'}
         title={importWalletType}
         subTitle={'Daily Spend'}
         successSheetRef={successSheetImportRef}
+        primaryText='View Wallet'
       />
     </View>
   );

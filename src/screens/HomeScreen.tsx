@@ -134,6 +134,7 @@ const HomeScreen = ({ navigation, route }) => {
 
   const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet);
   const allAccounts = [
+    {}, {},
     ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
     { isEnd: true },
   ];
