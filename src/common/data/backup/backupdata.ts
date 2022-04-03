@@ -33,7 +33,7 @@ export const Data = [
   },
   {
     id: 2,
-    title: 'Mobile phone',
+    title: 'Mobile Phone',
     subtitle: 'iOS or Android running Hexa Keeper',
     Icon: Mobile,
   },
@@ -51,7 +51,7 @@ export const Data = [
   },
   {
     id: 5,
-    title: 'Hardware wallet',
+    title: 'Hardware Wallet',
     subtitle: 'We support Ledger, Trezor and Cold Card',
     Icon: Hardware,
   },
