@@ -2,6 +2,7 @@ import React from 'react';
 import { Avatar, HStack, Text, VStack } from 'native-base';
 import { View } from 'react-native';
 import Cecked from 'src/assets/images/checked.svg';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 const Wrapper = ({ Profile, owner, decription, checked = false }) => {
   return (
@@ -43,58 +44,41 @@ const Wrapper = ({ Profile, owner, decription, checked = false }) => {
 const BenificiaryList = () => {
   return (
     <VStack flex={1}>
-      <Wrapper
-        Profile={() => (
-          <Avatar
-            size="sm"
-            bg="green.500"
-            source={{
-              uri: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
-            }}
-          />
-        )}
-        owner={'Julie Geller'}
-        decription={'Friend'}
+      <BottomSheetTextInput
+        placeholder="Name"
+        selectionColor={'#073E39'}
+        style={{
+          height: 45,
+          backgroundColor: '#fdf6f0',
+          color: '#073E39',
+          borderRadius: 10,
+          paddingHorizontal: 10,
+          marginTop: 30,
+        }}
       />
-      <Wrapper
-        Profile={() => (
-          <Avatar
-            size="sm"
-            bg="green.500"
-            source={{
-              uri: 'https://images.unsplash.com/photo-1614289371518-722f2615943d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
-            }}
-          />
-        )}
-        owner={'Gunther Greene'}
-        decription={'Son-in-law'}
-        checked
+      <BottomSheetTextInput
+        placeholder="Email"
+        selectionColor={'#073E39'}
+        style={{
+          height: 45,
+          backgroundColor: '#fdf6f0',
+          color: '#073E39',
+          borderRadius: 10,
+          paddingHorizontal: 10,
+          marginTop: 30,
+        }}
       />
-      <Wrapper
-        Profile={() => (
-          <Avatar
-            size="sm"
-            bg="green.500"
-            source={{
-              uri: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-            }}
-          />
-        )}
-        owner={'Arika Andler'}
-        decription={'God-daughter'}
-      />
-      <Wrapper
-        Profile={() => (
-          <Avatar
-            size="sm"
-            bg="green.500"
-            source={{
-              uri: 'https://images.unsplash.com/photo-1603415526960-f7e0328c63b1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
-            }}
-          />
-        )}
-        owner={'Huff Nohman'}
-        decription={''}
+      <BottomSheetTextInput
+        placeholder="Address"
+        selectionColor={'#073E39'}
+        style={{
+          height: 45,
+          backgroundColor: '#fdf6f0',
+          color: '#073E39',
+          borderRadius: 10,
+          paddingHorizontal: 10,
+          marginTop: 30,
+        }}
       />
     </VStack>
   );

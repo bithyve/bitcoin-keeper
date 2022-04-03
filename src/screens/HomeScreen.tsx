@@ -4,7 +4,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { View, Text } from 'native-base';
+import { View, Text, HStack, Box } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { ImageBackground, FlatList, TouchableOpacity, Dimensions, Alert } from 'react-native';
@@ -26,6 +26,7 @@ import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
 import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
 import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
+import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -131,10 +132,12 @@ const getResponsive = () => {
 const HomeScreen = ({ navigation, route }) => {
   const secureHexaRef = React.useRef(null);
   const [parsedQRData, setParsedQRData] = useState(null);
+  const [inheritanceReady, setInheritance] = useState(false);
 
   const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet);
   const allAccounts = [
-    {}, {},
+    {},
+    {},
     ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
     { isEnd: true },
   ];
@@ -209,7 +212,9 @@ const HomeScreen = ({ navigation, route }) => {
     );
   };
   const openInheritance = React.useCallback(() => {
-    navigation.dispatch(CommonActions.navigate({ name: 'Inheritance' }));
+    navigation.dispatch(
+      CommonActions.navigate({ name: 'Inheritance', params: { setInheritance } })
+    );
   }, []);
 
   const processQR = (qrData: string) => {
@@ -249,6 +254,19 @@ const HomeScreen = ({ navigation, route }) => {
           >
             <ScannerIcon />
           </TouchableOpacity>
+          {inheritanceReady ? (
+            <HStack alignItems={'center'}>
+              <SuccessIcon />
+              <Box
+                bg="#F3EABF"
+                px="2"
+                borderRadius={'41'}
+                _text={{ color: '#073E39', fontSize: 9, fontWeight: '300', letterSpacing: 0.6 }}
+              >
+                Inheritance Ready
+              </Box>
+            </HStack>
+          ) : null}
           <TouchableOpacity onPress={openInheritance}>
             <SettingIcon />
           </TouchableOpacity>

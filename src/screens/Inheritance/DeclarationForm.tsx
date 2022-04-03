@@ -9,13 +9,13 @@ const DeclarationForm = () => {
   return (
     <ScrollView>
       <VStack marginY={'5'} marginLeft={'2'} marginTop={'10'}>
-        <Avatar
+        {/* <Avatar
           size="md"
           bg="green.500"
           source={{
             uri: 'https://images.unsplash.com/photo-1614289371518-722f2615943d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80',
           }}
-        />
+        /> */}
         <Text fontSize={'sm'} fontFamily={'body'} fontWeight={'200'}>
           {'Gunther Greene'}
         </Text>
@@ -27,12 +27,14 @@ const DeclarationForm = () => {
         fontSize={'xs'}
         fontFamily={'body'}
         fontWeight={'200'}
-        h={height * 0.5}
+        h={height * 0.2}
         editable={false}
         borderWidth={0}
         textAlign={'left'}
+        letterSpacing={0.7}
+        lineHeight={17}
       >
-        {`I, Alex Geller (owner), being of sound mind and fully understanding the nature and extent of my property and this disposition therof, do hereby make, publish and declare this document to be my Hexa Keeper Inheritance Testament\n\n\nI hereby nominate and appoint Gunther Greene as the sole beneficiary\n\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`}
+        {`This letter is a declaration that I, Alex Geller, wish to leave behind the sum of 7.2 bitcoin to my son Gunther Greene.\n\nI attest that I’m voluntarily choosing to bequeath this wealth to my son and am under no obligation or influence of any kind to do so. Your Signature`}
       </TextArea>
       <Text fontFamily={'body'} fontWeight={'200'} fontSize={'xs'} marginLeft={'5'}>
         {'Your Signature'}

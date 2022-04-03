@@ -33,16 +33,10 @@ const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ child
     </LinearGradient>
   );
 };
-const InheritanceModes = ({ assignRef, declarationRef }) => {
-  const expandBeneficiaries = useCallback(() => {
-    assignRef.current?.expand();
-  }, []);
-  const expandDecalarations = useCallback(() => {
-    declarationRef.current?.expand();
-  }, []);
+const InheritanceModes = ({ openAssignSheet, openDeclarationSheet, openTransferSheet }) => {
   return (
     <Fragment>
-      <TouchableOpacity onPress={expandBeneficiaries}>
+      <TouchableOpacity onPress={openAssignSheet}>
         <Wrapper Icon={<Benificiary />}>
           <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
             Assign Beneficiary
@@ -52,7 +46,7 @@ const InheritanceModes = ({ assignRef, declarationRef }) => {
           </Text>
         </Wrapper>
       </TouchableOpacity>
-      <TouchableOpacity onPress={expandDecalarations}>
+      <TouchableOpacity onPress={openDeclarationSheet}>
         <Wrapper Icon={<Declaration />}>
           <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
             Sign Declaration
@@ -62,14 +56,16 @@ const InheritanceModes = ({ assignRef, declarationRef }) => {
           </Text>
         </Wrapper>
       </TouchableOpacity>
-      <Wrapper Icon={<Transfer />}>
-        <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
-          Activate Transfer
-        </Text>
-        <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-          Transfer bitcoin custody
-        </Text>
-      </Wrapper>
+      <TouchableOpacity onPress={openTransferSheet}>
+        <Wrapper Icon={<Transfer />}>
+          <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
+            Activate Transfer
+          </Text>
+          <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
+            Transfer bitcoin custody
+          </Text>
+        </Wrapper>
+      </TouchableOpacity>
     </Fragment>
   );
 };
