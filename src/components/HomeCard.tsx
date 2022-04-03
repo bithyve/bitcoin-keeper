@@ -41,10 +41,11 @@ const HomeCard = ({
     <View>
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
         {isEnd ? (
-          <View style={styles.addWalletContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('AddWallet Screen')}>
-              <AddSCardIcon />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addWalletContainer}
+            onPress={() => navigation.navigate('AddWallet Screen')}
+          >
+            <AddSCardIcon />
             <Text
               style={styles.addWalletText}
               color={'light.white'}
@@ -53,7 +54,7 @@ const HomeCard = ({
             >
               Add Wallet
             </Text>
-          </View>
+          </TouchableOpacity>
         ) : (
           <>
             <View style={styles.cardHeader}>
