@@ -27,6 +27,8 @@ import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
 import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
+import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -136,8 +138,22 @@ const HomeScreen = ({ navigation, route }) => {
 
   const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet);
   const allAccounts = [
-    {},
-    {},
+    {
+      Icon: SingleSigIcon,
+      type: 'Single-sig',
+      name: 'Maldives Funds',
+      description: 'Beach and Shunshine baby!',
+      isImported: false,
+      balance: 0.000024,
+    },
+    {
+      Icon: SingleSigIcon,
+      type: 'Blockchain.com Wallet',
+      name: 'Investment Funds',
+      description: 'Rocketship',
+      isImported: true,
+      balance: 0.000389,
+    },
     ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
     { isEnd: true },
   ];
@@ -197,15 +213,48 @@ const HomeScreen = ({ navigation, route }) => {
     );
   };
   const renderItemTwo = ({ item, index }) => {
+    console.log(JSON.stringify(item, null, 2));
+    if (item?.primarySubAccount?.defaultTitle === 'Full Import') {
+      return (
+        <HomeCard
+          Icon={BlueWalletIcon}
+          type={'Blue Wallet'}
+          name={'Imported Wallet'}
+          description={item?.primarySubAccount?.customDescription}
+          balance={
+            item?.primarySubAccount?.balances?.confirmed +
+            item?.primarySubAccount?.balances?.unconfirmed
+          }
+          isImported={true}
+          isEnd={item?.isEnd}
+          index={index}
+        />
+      );
+    } else if (item?.primarySubAccount?.defaultTitle === 'Checking Account') {
+      return (
+        <HomeCard
+          Icon={MultiSigIcon}
+          type={'Muti-sig'}
+          name={item?.primarySubAccount?.customDisplayName}
+          description={item?.primarySubAccount?.customDescription}
+          balance={
+            item?.primarySubAccount?.balances?.confirmed +
+            item?.primarySubAccount?.balances?.unconfirmed
+          }
+          isImported={false}
+          isEnd={item?.isEnd}
+          index={index}
+        />
+      );
+    }
     return (
       <HomeCard
-        Icon={SingleSigIcon}
-        name={item?.primarySubAccount?.customDisplayName}
-        description={item?.primarySubAccount?.customDescription}
-        balance={
-          item?.primarySubAccount?.balances?.confirmed +
-          item?.primarySubAccount?.balances?.unconfirmed
-        }
+        Icon={item.Icon}
+        type={item.type}
+        name={item.name}
+        description={item.description}
+        balance={item.balance}
+        isImported={item.isImported}
         isEnd={item?.isEnd}
         index={index}
       />
