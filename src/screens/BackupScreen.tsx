@@ -18,7 +18,6 @@ import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 import { SucccessSheet } from './AddWalletScreen';
-import HardWare from 'src/assets/images/svgs/hardware.svg';
 
 const BackupScreen = ({}) => {
   const navigtaion = useNavigation();
@@ -37,7 +36,7 @@ const BackupScreen = ({}) => {
   }, [index]);
 
   const expandAddBackUpKeySheet = useCallback((item) => {
-    setData({ ...item, Icon: getIcon(item.id), id: uuid.v4() });
+    setData({ ...item, baseIcon: item.Icon, Icon: getIcon(item.id), id: uuid.v4() });
     if (item.id == 5) {
       hardwareSheetRef.current?.expand();
     }
@@ -53,7 +52,6 @@ const BackupScreen = ({}) => {
 
   const closeAddBackUpKeySheet = useCallback(() => {
     addBackUpKeySheetRef.current?.close();
-    console.log('data before ', data);
     data && successSheetRef.current.expand();
   }, []);
 
@@ -120,7 +118,7 @@ const BackupScreen = ({}) => {
         subTitle=""
         sheetTitle="Backup Key Added"
         successSheetRef={successSheetRef}
-        Icon={HardWare}
+        Icon={data.baseIcon}
         data={data}
         primaryText="View Wallet"
       />
