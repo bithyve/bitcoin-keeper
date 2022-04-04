@@ -18,6 +18,7 @@ import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 import { SucccessSheet } from './AddWalletScreen';
+import { Item } from 'react-native-paper/lib/typescript/components/List/List';
 
 const BackupScreen = ({}) => {
   const navigtaion = useNavigation();
@@ -114,13 +115,13 @@ const BackupScreen = ({}) => {
         onPress={expandAddBackUpKeySheet}
       />
       <SucccessSheet
-        title=""
+        title={data.title}
         subTitle=""
         sheetTitle="Backup Key Added"
         successSheetRef={successSheetRef}
         Icon={data.baseIcon}
         data={data}
-        primaryText="View Wallet"
+        primaryText="View Devices"
       />
     </View>
   );
