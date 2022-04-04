@@ -23,7 +23,7 @@ const Navigator = () => {
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
         <Stack.Screen name="QRscanner" component={QRscanner} />
