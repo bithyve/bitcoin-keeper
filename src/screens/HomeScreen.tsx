@@ -197,8 +197,10 @@ const HomeScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
-        if (prev) {
+        if (route.params?.id) {
           return [route.params, ...prev];
+        } else {
+          return prev;
         }
       });
     }
