@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react';
 import Header from 'src/components/Header';
-import { Heading, Text, VStack } from 'native-base';
+import { Box, Heading, HStack, Text, useToast, VStack } from 'native-base';
 import InheritanceModes from './InheritanceModes';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -10,6 +10,7 @@ import TransferState from './TransferState';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import { Keyboard } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 
 const InheritanceScreen = () => {
   const [transferState, setTransfer] = useState('Initiate Transfer');
@@ -20,17 +21,39 @@ const InheritanceScreen = () => {
   const [secondaryText, setSecondary] = useState('Cancel');
   const navigation = useNavigation();
   const route = useRoute<any>();
+  const toast = useToast();
   const assignRef = useRef<BottomSheet>(null);
   const { openSheet: openAssignSheet, closeSheet: closeAssignSheet } =
     useBottomSheetUtils(assignRef);
 
   const declarationRef = useRef<BottomSheet>(null);
-  const { openSheet: _openDeclarationSheet, closeSheet: closeDeclarationSheet } =
+  const { openSheet: _openDeclarationSheet, closeSheet: _closeDeclarationSheet } =
     useBottomSheetUtils(declarationRef);
   const openDeclarationSheet = () => {
     closeAssignSheet();
     _openDeclarationSheet();
     Keyboard.dismiss();
+  };
+  const closeDeclarationSheet = () => {
+    _closeDeclarationSheet();
+    toast.show({
+      placement: 'top',
+      duration: 700,
+      render: () => (
+        <HStack alignItems={'center'}>
+          <SuccessIcon />
+          <Box
+            bg="#F3EABF"
+            px="2"
+            borderRadius={'41'}
+            _text={{ color: '#073E39', fontSize: 9, fontWeight: '300', letterSpacing: 0.6 }}
+          >
+            Inheritance Ready
+          </Box>
+        </HStack>
+      ),
+    });
+    route.params.setInheritance(true);
   };
 
   const transferRef = useRef<BottomSheet>(null);
@@ -43,11 +66,8 @@ const InheritanceScreen = () => {
 
   const initiateTransfer = () => {
     if (transferState == 'Transfer Successful!') {
-      closeDeclarationSheet();
-      closeAssignSheet();
       _closeTransferSheet();
       navigation.goBack();
-      route.params.setInheritance(true);
     }
     setTransfer('Transfer Successful!');
     setDescription('Gunther Greene now has access to your funds in Keeper!');
