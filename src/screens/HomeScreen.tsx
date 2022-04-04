@@ -29,7 +29,7 @@ import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
-import BlockChainIcon from 'src/assets/images/svgs/blockchain.svg';
+import BlockChainHomeIcon from 'src/assets/images/blockchainHome.svg';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -143,15 +143,15 @@ const HomeScreen = ({ navigation, route }) => {
       Icon: SingleSigIcon,
       type: 'Single-sig',
       name: 'Maldives Funds',
-      description: 'Beach and Shunshine baby!',
+      description: 'Beach and Sunshine baby!',
       isImported: false,
       balance: 0.000024,
     },
     {
-      Icon: BlockChainIcon,
+      Icon: BlockChainHomeIcon,
       type: 'Blockchain.com Wallet',
       name: 'Investment Funds',
-      description: 'Rocketship',
+      description: 'Rainy day umbrella',
       isImported: true,
       balance: 0.000389,
     },

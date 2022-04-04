@@ -108,12 +108,14 @@ const AddWalletSheet = ({
       /> */}
       <BottomSheetTextInput
         placeholder="Wallet Name"
+        placeholderTextColor={'#D8DBD5'}
         value={accountName}
         onChangeText={(value) => setAccountName(value)}
         style={styles.inputField}
       />
       <BottomSheetTextInput
         placeholder="To easily remember wallets purpose"
+        placeholderTextColor={'#D8DBD5'}
         value={accountDescription}
         onChangeText={(value) => setAccountDescription(value)}
         style={styles.inputField}

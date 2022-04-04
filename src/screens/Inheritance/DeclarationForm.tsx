@@ -34,7 +34,7 @@ const DeclarationForm = () => {
         letterSpacing={0.7}
         lineHeight={17}
       >
-        {`This letter is a declaration that I, Alex Geller, wish to leave behind the sum of 7.2 bitcoin to my son Gunther Greene.\n\nI attest that I’m voluntarily choosing to bequeath this wealth to my son and am under no obligation or influence of any kind to do so. Your Signature`}
+        {`This letter is a declaration that I, Alex Geller, wish to leave behind the sum of 7.2 bitcoin to my son Gunther Greene.\n\nI attest that I’m voluntarily choosing to bequeath this wealth to my son and am under no obligation or influence of any kind to do so.`}
       </TextArea>
       <Text fontFamily={'body'} fontWeight={'200'} fontSize={'xs'} marginLeft={'5'}>
         {'Your Signature'}
