@@ -237,8 +237,8 @@ const HomeScreen = ({ navigation, route }) => {
     } else if (item?.primarySubAccount?.defaultTitle === 'Checking Account') {
       return (
         <HomeCard
-          Icon={MultiSigIcon}
-          type={'Muti-sig'}
+          Icon={SingleSigIcon}
+          type={'Single-sig'}
           name={item?.primarySubAccount?.customDisplayName}
           description={item?.primarySubAccount?.customDescription}
           balance={
