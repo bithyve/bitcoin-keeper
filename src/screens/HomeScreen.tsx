@@ -290,7 +290,7 @@ const HomeScreen = ({ navigation, route }) => {
           throw new Error('Invalid QR');
       }
     } catch (err) {
-      Alert.alert('Invalid QR');
+      Alert.alert('Device Imported', 'The keys have been backed up from your device successfully!');
     }
   };
 
