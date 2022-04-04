@@ -29,6 +29,7 @@ import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
+import BlockChainIcon from 'src/assets/images/svgs/blockchain.svg';
 
 const windowHeight = Dimensions.get('window').height;
 const getResponsive = () => {
@@ -147,7 +148,7 @@ const HomeScreen = ({ navigation, route }) => {
       balance: 0.000024,
     },
     {
-      Icon: SingleSigIcon,
+      Icon: BlockChainIcon,
       type: 'Blockchain.com Wallet',
       name: 'Investment Funds',
       description: 'Rocketship',
@@ -223,7 +224,7 @@ const HomeScreen = ({ navigation, route }) => {
           Icon={BlueWalletIcon}
           type={'Blue Wallet'}
           name={'Imported Wallet'}
-          description={item?.primarySubAccount?.customDescription}
+          description={'Daily Spends'}
           balance={
             item?.primarySubAccount?.balances?.confirmed +
             item?.primarySubAccount?.balances?.unconfirmed

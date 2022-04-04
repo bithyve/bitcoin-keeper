@@ -27,6 +27,7 @@ import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
 import HexaPayComponent from 'src/components/HexaPayComponent';
 import Fonts from 'src/common/Fonts';
+import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 
 const LoadingText = ({ text, timeOut }) => {
   const [loading, setLoading] = useState(true);
@@ -126,7 +127,7 @@ export const ImportWalletSheet = ({
   );
 };
 
-const CreateWalletSheet = ({ createWalletSheetRef }) => {
+const CreateWalletSheet = ({ createWalletSheetRef, title }) => {
   const processMap = [
     {
       id: 1,
@@ -147,8 +148,8 @@ const CreateWalletSheet = ({ createWalletSheetRef }) => {
   ];
   return (
     <HexaBottomSheet
-      title={'Creating your wallet'}
-      subTitle={'This may take sometime'}
+      title={title}
+      // subTitle={'This may take sometime'}
       snapPoints={['50%']}
       bottomSheetRef={createWalletSheetRef}
     >
@@ -162,7 +163,15 @@ const CreateWalletSheet = ({ createWalletSheetRef }) => {
   );
 };
 
-export const SucccessSheet = ({ title, subTitle, sheetTitle, successSheetRef, Icon, data = undefined, primaryText }) => {
+export const SucccessSheet = ({
+  title,
+  subTitle,
+  sheetTitle,
+  successSheetRef,
+  Icon,
+  data = undefined,
+  primaryText,
+}) => {
   const navigation = useNavigation();
 
   return (
@@ -184,6 +193,9 @@ const AddWalletScreen = () => {
   const [accountDescription, setAccountDescription] = useState('');
   const [importKey, setImportKey] = useState('');
   const [importWalletType, setImportWalletType] = useState('Blue Wallet');
+  const importProcessWalletSheetRef = useRef<BottomSheet>(null);
+  const { openSheet: openImportProcessWalletSheet, closeSheet: closeImportProcessWalletSheet } =
+    useBottomSheetUtils(importProcessWalletSheetRef);
 
   const createWalletSheetRef = useRef<BottomSheet>(null);
   const importWalletSheetRef = useRef<BottomSheet>(null);
@@ -207,7 +219,11 @@ const AddWalletScreen = () => {
       description: accountDescription,
     });
     closeAddWalletSheet();
-    expandSuccessSheet();
+    expandCreateWalletSheet();
+    setTimeout(() => {
+      createWalletSheetRef?.current.close();
+      expandSuccessSheet();
+    }, 500 * 9);
   }, [accountName, accountDescription]);
 
   const importWallet = useCallback(() => {
@@ -218,9 +234,9 @@ const AddWalletScreen = () => {
       };
       dispatch(importNewAccount(mnemonic, accountDetails));
       closeImportWalletSheet();
-      expandCreateWalletSheet();
+      openImportProcessWalletSheet();
       setTimeout(() => {
-        createWalletSheetRef?.current.close();
+        closeImportProcessWalletSheet();
         expandSuccessImportSheet();
       }, 500 * 9);
     }
@@ -369,14 +385,21 @@ const AddWalletScreen = () => {
         setAccountDescription={setAccountDescription}
         addWallet={addWallet}
       />
-      <CreateWalletSheet createWalletSheetRef={createWalletSheetRef} />
+      <CreateWalletSheet
+        createWalletSheetRef={createWalletSheetRef}
+        title={'Creating your wallet'}
+      />
+      <CreateWalletSheet
+        createWalletSheetRef={importProcessWalletSheetRef}
+        title={'Importing Wallet'}
+      />
       <SucccessSheet
-        Icon={HardWare}
+        Icon={MultiSigIcon}
         sheetTitle={'Wallet Creation Successful'}
         title={walletDetails?.name}
         subTitle={walletDetails?.description}
         successSheetRef={successSheetRef}
-        primaryText='View Wallet'
+        primaryText="View Wallet"
       />
       <SucccessSheet
         Icon={BlueWalletIcon}
@@ -384,7 +407,7 @@ const AddWalletScreen = () => {
         title={importWalletType}
         subTitle={'Daily Spend'}
         successSheetRef={successSheetImportRef}
-        primaryText='View Wallet'
+        primaryText="View Wallet"
       />
     </View>
   );
