@@ -23,7 +23,6 @@ const HardwareSheet = ({ bottomSheetRef, Data, onPress }) => {
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
       title="Add Hardware Wallet"
-      subTitle={'Lorem Ipsum Dolor Amet'}
       snapPoints={['85%']}
     >
       <FlatList

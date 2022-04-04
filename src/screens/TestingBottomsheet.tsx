@@ -15,7 +15,6 @@ const TestingBottomsheet = () => {
       <HexaBottomSheet
         bottomSheetRef={bottomSheetRef}
         title="Assign Beneficiary"
-        subTitle={'Lorem Ipsum Dolor Amet...'}
         snapPoints={['25%', '50%']}
         primaryText={'Primary'}
         secondaryText={'Secondary'}
