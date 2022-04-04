@@ -19,6 +19,8 @@ import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 import { SucccessSheet } from './AddWalletScreen';
 import { Item } from 'react-native-paper/lib/typescript/components/List/List';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 
 const BackupScreen = ({}) => {
   const navigtaion = useNavigation();
@@ -26,6 +28,10 @@ const BackupScreen = ({}) => {
   const addBackUpKeySheetRef = useRef(null);
   const hardwareSheetRef = useRef(null);
   const successSheetRef = useRef(null);
+  const addBackUpKeyHardwareSheetRef = useRef(null);
+
+  const { openSheet: openAddBackUpKeyHardwareSheet, closeSheet: closeAddBackUpKeyHardwareSheet } =
+    useBottomSheetUtils(addBackUpKeyHardwareSheetRef);
 
   let index = -1;
   const [data, setData] = useState({});
@@ -46,8 +52,8 @@ const BackupScreen = ({}) => {
       addBackUpKeySheetRef.current?.expand();
     } else if (item.id >= 8 && item.id <= 12) {
       setBackUpKeyType(item);
-      addBackUpKeySheetRef.current?.expand();
       hardwareSheetRef.current?.close();
+      openAddBackUpKeyHardwareSheet();
     }
   }, []);
 
@@ -108,6 +114,35 @@ const BackupScreen = ({}) => {
         <View style={styles.qrContainer}>
           <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />
         </View>
+      </HexaBottomSheet>
+
+      <HexaBottomSheet
+        title={'Add Backup Key'}
+        subTitle={'Strengthen your security'}
+        snapPoints={['80%']}
+        bottomSheetRef={addBackUpKeyHardwareSheetRef}
+        primaryText={'Done'}
+        primaryCallback={() => {
+          closeAddBackUpKeyHardwareSheet();
+          successSheetRef.current.expand();
+        }}
+        index={index}
+      >
+        {backUpKeyType && (
+          <BackupListComponent
+            title={backUpKeyType?.title}
+            subtitle={backUpKeyType?.subtitle}
+            Icon={backUpKeyType?.Icon}
+            onPress={expandAddBackUpKeySheet}
+          />
+        )}
+        <BottomSheetTextInput
+          multiline={true}
+          placeholder={'Insert a Seed'}
+          // value={importKey}
+          // onChangeText={(value) => setImportKey(value)}
+          style={{ backgroundColor: '#D8A57210', padding: 4, aspectRatio: 1, marginTop: 5 }}
+        />
       </HexaBottomSheet>
       <HardwareSheet
         bottomSheetRef={hardwareSheetRef}

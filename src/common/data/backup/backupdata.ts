@@ -73,31 +73,31 @@ export const HardwareData = [
   {
     id: 8,
     title: 'Ledger',
-    subtitle: 'Lorem ipsum dolor sit amet, consectetur',
+    subtitle: '',
     Icon: Ledger,
   },
   {
     id: 9,
     title: 'Trezor',
-    subtitle: 'Lorem ipsum dolor sit amet, consectetur',
+    subtitle: '',
     Icon: Trezor,
   },
   {
     id: 10,
     title: 'Cold Card',
-    subtitle: 'Lorem ipsum dolor sit amet, consecteturt',
+    subtitle: '',
     Icon: ColdCard,
   },
   {
     id: 11,
     title: 'Seed Signer',
-    subtitle: 'Lorem ipsum dolor sit amet, consectetur',
+    subtitle: '',
     Icon: Seedsigner,
   },
   {
     id: 12,
     title: 'Foundation Device',
-    subtitle: 'Lorem ipsum dolor sit amet, consectetur',
+    subtitle: '',
     Icon: Foundationdevice,
   },
 ];
