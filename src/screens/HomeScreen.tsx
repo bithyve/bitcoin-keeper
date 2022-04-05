@@ -7,7 +7,7 @@ import {
 import { View, Text, HStack, Box } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, FlatList, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { ImageBackground, FlatList, TouchableOpacity, Dimensions, Alert, Platform } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 
 import DevicesComponent from 'src/components/DevicesComponent';
@@ -32,6 +32,7 @@ import MultiSigIcon from 'src/assets/images/svgs/multi_sig.svg';
 import BlockChainHomeIcon from 'src/assets/images/blockchainHome.svg';
 
 const windowHeight = Dimensions.get('window').height;
+console.log(windowHeight);
 const getResponsive = () => {
   if (windowHeight >= 850) {
     return {
@@ -44,6 +45,12 @@ const getResponsive = () => {
       padingTop: 10,
       marginTop: -2,
       height: 38,
+    };
+  } else if (windowHeight >= 650 && Platform.OS == 'android') {
+    return {
+      padingTop: 10,
+      marginTop: 0,
+      height: 42,
     };
   } else if (windowHeight >= 650) {
     return {
