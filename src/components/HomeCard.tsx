@@ -160,6 +160,8 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(8),
     letterSpacing: '0.7@s',
     lineHeight: '12@s',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   hexaWalletContainer: {
     paddingHorizontal: wp(0.6),
