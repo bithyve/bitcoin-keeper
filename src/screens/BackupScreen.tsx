@@ -17,12 +17,11 @@ import HexaBottomSheet from 'src/components/BottomSheet';
 import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
-import { SucccessSheet } from './AddWalletScreen';
-import { Item } from 'react-native-paper/lib/typescript/components/List/List';
+import SuccessSheet from 'src/components/SuccessSheet';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 
-const BackupScreen = ({}) => {
+const BackupScreen = ({ }) => {
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
@@ -149,8 +148,7 @@ const BackupScreen = ({}) => {
         Data={HardwareData}
         onPress={expandAddBackUpKeySheet}
       />
-      <SucccessSheet
-        title={data.title}
+      <SuccessSheet
         subTitle=""
         sheetTitle="Backup Key Added"
         successSheetRef={successSheetRef}
