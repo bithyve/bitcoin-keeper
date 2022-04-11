@@ -10,14 +10,14 @@ const HardwareInputSheet = ({
   closeAddBackUpKeyHardwareSheet,
   successSheetRef,
   index,
-  addBackUpKeyHardwareSheetRef
+  hardwareInputSheetRef
 }) => {
   return (
     <HexaBottomSheet
       title={'Add Backup Key'}
       subTitle={'Strengthen your security'}
       snapPoints={['80%']}
-      bottomSheetRef={addBackUpKeyHardwareSheetRef}
+      bottomSheetRef={hardwareInputSheetRef}
       primaryText={'Done'}
       primaryCallback={() => {
         closeAddBackUpKeyHardwareSheet();

@@ -60,7 +60,7 @@ const BackupScreen = ({ }) => {
     data && successSheetRef.current.expand();
   }, []);
 
-  const renderItem = ({ item }) => {
+  const renderBackupKeys = ({ item }) => {
     return (
       <BackupListComponent
         title={item.title}
@@ -86,7 +86,7 @@ const BackupScreen = ({ }) => {
         style={{ marginTop: hp(2) }}
         showsVerticalScrollIndicator={false}
         data={Data}
-        renderItem={renderItem}
+        renderItem={renderBackupKeys}
         keyExtractor={(item) => item.id}
       />
 
@@ -103,7 +103,7 @@ const BackupScreen = ({ }) => {
         closeAddBackUpKeyHardwareSheet={closeAddBackUpKeyHardwareSheet}
         successSheetRef={successSheetRef}
         index={index}
-        addBackUpKeyHardwareSheetRef={addBackUpKeyHardwareSheetRef}
+        hardwareInputSheetRef={addBackUpKeyHardwareSheetRef}
       />
 
       <HardwareSheet
