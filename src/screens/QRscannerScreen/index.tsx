@@ -1,12 +1,14 @@
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import QRscanner from 'src/components/QRscanner';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import BackButtonWhiteIcon from 'src/assets/images/svgs/backWhite.svg';
-import { useNavigation, useRoute } from '@react-navigation/native';
+
+import { View, TouchableOpacity } from 'react-native';
 import { Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+
+import QRscanner from 'src/components/QRscanner';
+import BackButtonWhiteIcon from 'src/assets/images/svgs/backWhite.svg';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 const QRscannerScreen = ({ route }) => {
@@ -45,8 +47,6 @@ const QRscannerScreen = ({ route }) => {
   );
 };
 
-export default QRscannerScreen;
-
 const styles = ScaledSheet.create({
   backButton: {
     color: 'white',
@@ -74,3 +74,5 @@ const styles = ScaledSheet.create({
     marginBottom: 100,
   },
 });
+
+export default QRscannerScreen;

@@ -34,3 +34,13 @@ export const getResponsiveHome = () => {
     };
   }
 };
+
+export const getCardheight = () => {
+  if (windowHeight >= 850) {
+    return 5;
+  } else if (windowHeight >= 750) {
+    return 3;
+  } else if (windowHeight >= 650) {
+    return 1;
+  }
+};
