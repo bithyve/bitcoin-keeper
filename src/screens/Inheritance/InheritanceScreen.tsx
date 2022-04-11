@@ -1,18 +1,24 @@
 import React, { Fragment, useRef, useState } from 'react';
-import Header from 'src/components/Header';
+
+import { Keyboard } from 'react-native';
 import { Box, Heading, HStack, Text, useToast, VStack } from 'native-base';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { useNavigation, useRoute } from '@react-navigation/native';
+
+import Header from 'src/components/Header';
 import InheritanceModes from './InheritanceModes';
 import HexaBottomSheet from 'src/components/BottomSheet';
-import BottomSheet from '@gorhom/bottom-sheet';
 import BenificiaryList from './BenificiaryList';
 import DeclarationForm from './DeclarationForm';
 import TransferState from './TransferState';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
-import { Keyboard } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 
 const InheritanceScreen = () => {
+  const navigtaion = useNavigation();
+
   const [transferState, setTransfer] = useState('Initiate Transfer');
   const [transferDescription, setDescription] = useState(
     'Initiate transfer to Gunther Greene as your benifeciary and transfer access to your funds in Keeper'
@@ -29,6 +35,7 @@ const InheritanceScreen = () => {
   const declarationRef = useRef<BottomSheet>(null);
   const { openSheet: _openDeclarationSheet, closeSheet: _closeDeclarationSheet } =
     useBottomSheetUtils(declarationRef);
+
   const openDeclarationSheet = () => {
     closeAssignSheet();
     _openDeclarationSheet();
@@ -59,6 +66,7 @@ const InheritanceScreen = () => {
   const transferRef = useRef<BottomSheet>(null);
   const { openSheet: _openTransferSheet, closeSheet: _closeTransferSheet } =
     useBottomSheetUtils(transferRef);
+
   const openTransferSheet = () => {
     closeDeclarationSheet();
     _openTransferSheet();
@@ -76,16 +84,14 @@ const InheritanceScreen = () => {
   };
   return (
     <Fragment>
-      <Header />
-      <VStack marginX={10}>
-        <VStack>
-          <Heading fontFamily={'body'} fontWeight={'200'} size={'md'}>
-            Setup Inheritance
-          </Heading>
-          <Text fontFamily={'body'} fontWeight={'100'} size={'sm'} h={'auto'}>
-            Hand down your bitcoin
-          </Text>
-        </VStack>
+      <StatusBarComponent padding={80} />
+      <VStack marginX={8}>
+
+        <HeaderTitle
+          title="Setup Inheritance"
+          subtitle="Hand down your bitcoin"
+          onPressHandler={() => navigtaion.goBack()}
+        />
         <Text
           fontFamily={'body'}
           fontWeight={'100'}
