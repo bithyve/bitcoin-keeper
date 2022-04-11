@@ -3,7 +3,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { View, Text } from 'native-base';
+import { View } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { FlatList } from 'react-native';
@@ -13,26 +13,25 @@ import uuid from 'react-native-uuid';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import BackupListComponent from 'src/components/BackupListComponent';
-import HexaBottomSheet from 'src/components/BottomSheet';
-import QRCode from 'react-native-qrcode-svg';
 import HardwareSheet from 'src/components/HardwareSheet';
 import { HardwareData, Data, getIcon } from 'src/common/data/backup/backupdata';
 import SuccessSheet from 'src/components/SuccessSheet';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
+import QrSheet from 'src/components/QrSheet';
+import HardwareInputSheet from 'src/components/HardwareInputSheet';
 
 const BackupScreen = ({ }) => {
+  let index = -1;
+
   const navigtaion = useNavigation();
   const [backUpKeyType, setBackUpKeyType] = useState();
   const addBackUpKeySheetRef = useRef(null);
   const hardwareSheetRef = useRef(null);
   const successSheetRef = useRef(null);
   const addBackUpKeyHardwareSheetRef = useRef(null);
-
   const { openSheet: openAddBackUpKeyHardwareSheet, closeSheet: closeAddBackUpKeyHardwareSheet } =
     useBottomSheetUtils(addBackUpKeyHardwareSheetRef);
 
-  let index = -1;
   const [data, setData] = useState({});
 
   useEffect(() => {
@@ -90,59 +89,23 @@ const BackupScreen = ({ }) => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
-      <HexaBottomSheet
-        title={'Add Backup Key'}
-        subTitle={'Strengthen your security'}
-        snapPoints={['80%']}
-        bottomSheetRef={addBackUpKeySheetRef}
-        primaryText={'Done'}
-        primaryCallback={closeAddBackUpKeySheet}
-        index={index}
-      >
-        {backUpKeyType && (
-          <BackupListComponent
-            title={backUpKeyType?.title}
-            subtitle={backUpKeyType?.subtitle}
-            Icon={backUpKeyType?.Icon}
-            onPress={expandAddBackUpKeySheet}
-          />
-        )}
-        <Text style={styles.sheetSubText} fontFamily="body" fontWeight={'200'}>
-          Scan the QR below to add Backup Key
-        </Text>
-        <View style={styles.qrContainer}>
-          <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />
-        </View>
-      </HexaBottomSheet>
 
-      <HexaBottomSheet
-        title={'Add Backup Key'}
-        subTitle={'Strengthen your security'}
-        snapPoints={['80%']}
-        bottomSheetRef={addBackUpKeyHardwareSheetRef}
-        primaryText={'Done'}
-        primaryCallback={() => {
-          closeAddBackUpKeyHardwareSheet();
-          successSheetRef.current.expand();
-        }}
+      <QrSheet
+        backUpKeyType={backUpKeyType}
+        expandAddBackUpKeySheet={expandAddBackUpKeySheet}
+        addBackUpKeySheetRef={addBackUpKeySheetRef}
+        closeAddBackUpKeySheet={closeAddBackUpKeySheet}
+        index={index} />
+
+      <HardwareInputSheet
+        backUpKeyType={backUpKeyType}
+        expandAddBackUpKeySheet={expandAddBackUpKeySheet}
+        closeAddBackUpKeyHardwareSheet={closeAddBackUpKeyHardwareSheet}
+        successSheetRef={successSheetRef}
         index={index}
-      >
-        {backUpKeyType && (
-          <BackupListComponent
-            title={backUpKeyType?.title}
-            subtitle={backUpKeyType?.subtitle}
-            Icon={backUpKeyType?.Icon}
-            onPress={expandAddBackUpKeySheet}
-          />
-        )}
-        <BottomSheetTextInput
-          multiline={true}
-          placeholder={'Insert a Seed'}
-          // value={importKey}
-          // onChangeText={(value) => setImportKey(value)}
-          style={{ backgroundColor: '#D8A57210', padding: 4, aspectRatio: 1, marginTop: 5 }}
-        />
-      </HexaBottomSheet>
+        addBackUpKeyHardwareSheetRef={addBackUpKeyHardwareSheetRef}
+      />
+
       <HardwareSheet
         bottomSheetRef={hardwareSheetRef}
         Data={HardwareData}
