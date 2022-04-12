@@ -1,30 +1,21 @@
 import React from 'react';
+
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
+import { ImageBackground, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text } from 'native-base';
 
-import HomeCardImage from '../assets/images/homecard.png';
-import AddSCardIcon from '../assets/images/svgs/card_add.svg';
-import BtcIcon from '../assets/images/svgs/btc.svg';
+import { getCardheight } from 'src/common/data/responsiveness/responsive';
+
+import HomeCardImage from 'src/assets/images/homecard.png';
+import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
+import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
-
-const windowHeight = Dimensions.get('window').height;
-
-const getCardheight = () => {
-  if (windowHeight >= 850) {
-    return 5;
-  } else if (windowHeight >= 750) {
-    return 3;
-  } else if (windowHeight >= 650) {
-    return 1;
-  }
-};
 
 const HomeCard = ({
   Icon = BlueWalletIcon,
@@ -36,7 +27,9 @@ const HomeCard = ({
   index,
   isImported = true,
 }) => {
+
   const navigation = useNavigation();
+
   return (
     <View>
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>

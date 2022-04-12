@@ -13,7 +13,7 @@ import BackButton from 'src/assets/images/svgs/back.svg';
 const HeaderTitle = ({ title = '', subtitle = '', onPressHandler }) => {
   return (
     <View background={'light.lightYellow'}>
-      <TouchableOpacity onPress={onPressHandler}>
+      <TouchableOpacity onPress={onPressHandler} style={{ marginLeft: wp(2.5) }}>
         <BackButton />
       </TouchableOpacity>
       <View style={{ marginTop: hp(2) }}>
