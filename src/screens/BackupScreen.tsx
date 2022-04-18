@@ -75,8 +75,6 @@ const BackupScreen = ({ }) => {
         Icon={item.Icon}
         item={item}
         onPress={expandAddBackUpKeySheet}
-        showAccordian
-        touchable
       />
     );
   };

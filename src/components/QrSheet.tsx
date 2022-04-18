@@ -9,8 +9,23 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import HexaBottomSheet from './BottomSheet';
 import BackupListComponent from './BackupListComponent';
 import QRCode from 'react-native-qrcode-svg';
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData'
 
-const QrSheet = ({ backUpKeyType, expandAddBackUpKeySheet, addBackUpKeySheetRef, closeAddBackUpKeySheet, index }) => {
+type Props = {
+  backUpKeyType: BACKUP_KEYS,
+  expandAddBackUpKeySheet: any,
+  addBackUpKeySheetRef: any,
+  closeAddBackUpKeySheet: () => void,
+  index: number
+};
+
+const QrSheet = ({
+  backUpKeyType,
+  expandAddBackUpKeySheet,
+  addBackUpKeySheetRef,
+  closeAddBackUpKeySheet,
+  index
+}: Props) => {
   return (
     <HexaBottomSheet
       title={'Add Backup Key'}
@@ -27,7 +42,9 @@ const QrSheet = ({ backUpKeyType, expandAddBackUpKeySheet, addBackUpKeySheetRef,
           subtitle={backUpKeyType?.subtitle}
           Icon={backUpKeyType?.Icon}
           onPress={expandAddBackUpKeySheet}
-        />
+          showAccordian={false}
+          touchable={false}
+          item={undefined} />
       )}
       <Text style={styles.sheetSubText} fontFamily="body" fontWeight={'200'}>
         Scan the QR below to add Backup Key
