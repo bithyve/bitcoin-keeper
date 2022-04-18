@@ -5,7 +5,24 @@ import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
 import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
-export const defaultWallets = [
+export interface BACKUP_KEYS {
+	id: string,
+	title: string,
+	Icon: SVGElement,
+	subtitle?: string,
+	onPress?: () => void
+}
+
+export interface WALLET {
+	Icon: SVGElement,
+	type: string,
+	name: string,
+	description: string,
+	isImported: boolean,
+	balance: Number,
+}
+
+export const defaultWallets: WALLET[] = [
 	{
 		Icon: SingleSigIcon,
 		type: 'Single-sig',
@@ -24,7 +41,7 @@ export const defaultWallets = [
 	},
 ]
 
-export const defaultBackupKeys = [
+export const defaultBackupKeys: BACKUP_KEYS[] = [
 	{
 		id: '58694a0f-3da1-471f-bd96-14557114225679d72',
 		title: 'Cold Card',

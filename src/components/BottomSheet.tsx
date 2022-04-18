@@ -1,15 +1,23 @@
-import React, { RefCallback, RefObject, useCallback, useMemo, useState } from 'react';
+import React,
+{
+  RefCallback,
+  RefObject,
+  useCallback,
+  useMemo,
+  useState
+} from 'react';
+
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { Heading, HStack, Text, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
+
 import Buttons from './Buttons';
 import Fonts from 'src/common/Fonts';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { customTheme } from 'src/common/themes';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const Colors = customTheme.colors.light;
-
 type Ref<T> = RefCallback<T> | RefObject<T> | null;
 
 const HexaBottomSheet: React.FunctionComponent<{
@@ -35,70 +43,70 @@ const HexaBottomSheet: React.FunctionComponent<{
   secondaryCallback,
   index = -1,
 }) => {
-  const snapPoints = useMemo(() => snaps, []);
-  const handleSheetChanges = useCallback((i: number) => {
-    console.log('handleSheetChanges', i);
-    index = i;
-  }, []);
-  const backdropComponent = useCallback(
-    (props) => (
-      <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={1} opacity={1} />
-    ),
-    []
-  );
-  const [mounted, setMounted] = useState(false);
-  const onAnimate = useCallback((fromIndex: number) => {
-    if (fromIndex === -1) {
-      setMounted(true);
-    }
-  }, []);
-  const onClose = useCallback(() => {
-    setMounted(false);
-  }, []);
-  return (
-    <BottomSheet
-      index={-1}
-      ref={bottomSheetRef}
-      enablePanDownToClose
-      snapPoints={snapPoints}
-      onChange={handleSheetChanges}
-      backdropComponent={backdropComponent}
-      backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
-      onAnimate={onAnimate}
-      onClose={onClose}
-    >
-      <BottomSheetView style={styles.contentContainer}>
-        <VStack paddingX={'2'} backgroundColor="red">
-          <Heading style={styles.heading} fontSize={'lg'}>
-            {title}
-          </Heading>
-          <Text
-            style={{
-              fontWeight: '100',
-              letterSpacing: 0.6,
-              fontSize: RFValue(12),
-              marginTop: hp(0.7),
-            }}
-            fontWeight={'200'}
-            color="light.textBlack"
-            fontFamily={'body'}
-          >
-            {subTitle}
-          </Text>
-        </VStack>
-        {mounted && children}
-        <HStack alignSelf={'flex-end'} marginBottom="3">
-          <Buttons
-            secondaryText={secondaryText}
-            secondaryCallback={secondaryCallback}
-            primaryText={primaryText}
-            primaryCallback={primaryCallback}
-          />
-        </HStack>
-      </BottomSheetView>
-    </BottomSheet>
-  );
-};
+    const snapPoints = useMemo(() => snaps, []);
+    const handleSheetChanges = useCallback((i: number) => {
+      console.log('handleSheetChanges', i);
+      index = i;
+    }, []);
+    const backdropComponent = useCallback(
+      (props) => (
+        <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={1} opacity={1} />
+      ),
+      []
+    );
+    const [mounted, setMounted] = useState(false);
+    const onAnimate = useCallback((fromIndex: number) => {
+      if (fromIndex === -1) {
+        setMounted(true);
+      }
+    }, []);
+    const onClose = useCallback(() => {
+      setMounted(false);
+    }, []);
+    return (
+      <BottomSheet
+        index={-1}
+        ref={bottomSheetRef}
+        enablePanDownToClose
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        backdropComponent={backdropComponent}
+        backgroundStyle={{ backgroundColor: '#FFFBF7', borderRadius: 15 }}
+        onAnimate={onAnimate}
+        onClose={onClose}
+      >
+        <BottomSheetView style={styles.contentContainer}>
+          <VStack paddingX={'2'} backgroundColor="red">
+            <Heading style={styles.heading} fontSize={'lg'}>
+              {title}
+            </Heading>
+            <Text
+              style={{
+                fontWeight: '100',
+                letterSpacing: 0.6,
+                fontSize: RFValue(12),
+                marginTop: hp(0.7),
+              }}
+              fontWeight={'200'}
+              color="light.textBlack"
+              fontFamily={'body'}
+            >
+              {subTitle}
+            </Text>
+          </VStack>
+          {mounted && children}
+          <HStack alignSelf={'flex-end'} marginBottom="3">
+            <Buttons
+              secondaryText={secondaryText}
+              secondaryCallback={secondaryCallback}
+              primaryText={primaryText}
+              primaryCallback={primaryCallback}
+            />
+          </HStack>
+        </BottomSheetView>
+      </BottomSheet>
+    );
+  };
 
 const styles = StyleSheet.create({
   container: {
