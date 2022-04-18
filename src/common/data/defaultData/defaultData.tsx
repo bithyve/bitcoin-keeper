@@ -8,13 +8,13 @@ import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 export interface BACKUP_KEYS {
 	id: string,
 	title: string,
-	Icon: SVGElement,
+	Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
 	subtitle?: string,
 	onPress?: () => void
 }
 
 export interface WALLET {
-	Icon: SVGElement,
+	Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
 	type: string,
 	name: string,
 	description: string,

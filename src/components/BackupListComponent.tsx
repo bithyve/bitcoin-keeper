@@ -16,7 +16,7 @@ import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
 type Props = {
   title: string,
   subtitle: string,
-  Icon: SVGElement,
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
   item: BACKUP_KEYS,
   onPress: any,
   showAccordian?: boolean,

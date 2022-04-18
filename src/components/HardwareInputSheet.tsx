@@ -3,6 +3,16 @@ import React from 'react'
 import HexaBottomSheet from './BottomSheet';
 import BackupListComponent from './BackupListComponent';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
+
+type Props = {
+  backUpKeyType: BACKUP_KEYS,
+  expandAddBackUpKeySheet: any,
+  successSheetRef: any,
+  closeAddBackUpKeyHardwareSheet: () => void,
+  index: number,
+  hardwareInputSheetRef: any
+};
 
 const HardwareInputSheet = ({
   backUpKeyType,
@@ -11,7 +21,7 @@ const HardwareInputSheet = ({
   successSheetRef,
   index,
   hardwareInputSheetRef
-}) => {
+}: Props) => {
   return (
     <HexaBottomSheet
       title={'Add Backup Key'}
@@ -31,6 +41,7 @@ const HardwareInputSheet = ({
           subtitle={backUpKeyType?.subtitle}
           Icon={backUpKeyType?.Icon}
           onPress={expandAddBackUpKeySheet}
+          item={undefined}
         />
       )}
       <BottomSheetTextInput
