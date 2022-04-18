@@ -1,4 +1,11 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React,
+{
+  useCallback,
+  useRef,
+  useState,
+  useEffect
+} from 'react';
+
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -118,6 +125,7 @@ const BackupScreen = ({ }) => {
         Icon={data.baseIcon}
         data={data}
         primaryText="View Devices"
+        title={''}
       />
     </View>
   );

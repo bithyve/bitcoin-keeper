@@ -3,6 +3,16 @@ import { useNavigation } from '@react-navigation/native';
 import HexaBottomSheet from './BottomSheet';
 import HexaPayComponent from './HexaPayComponent';
 
+type Props = {
+  title: string,
+  subTitle: string,
+  sheetTitle: string,
+  successSheetRef: any,
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
+  data: object | undefined,
+  primaryText: string,
+};
+
 export const SuccessSheet = ({
   title = '',
   subTitle,
@@ -11,7 +21,7 @@ export const SuccessSheet = ({
   Icon,
   data = undefined,
   primaryText,
-}) => {
+}: Props) => {
   const navigation = useNavigation();
 
   return (
@@ -22,7 +32,7 @@ export const SuccessSheet = ({
       primaryText={primaryText}
       primaryCallback={() => navigation.navigate('Home', data)}
     >
-      <HexaPayComponent Icon={<Icon />} title={title} subtitle={subTitle} />
+      <HexaPayComponent Icon={Icon} title={title} subtitle={subTitle} />
     </HexaBottomSheet>
   );
 };

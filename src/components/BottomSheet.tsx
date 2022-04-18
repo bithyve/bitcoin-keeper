@@ -23,7 +23,7 @@ type Ref<T> = RefCallback<T> | RefObject<T> | null;
 const HexaBottomSheet: React.FunctionComponent<{
   children: React.FunctionComponent | Element;
   title: string;
-  subTitle: string;
+  subTitle?: string;
   snapPoints: string[];
   bottomSheetRef: Ref<BottomSheet>;
   primaryText?: string;

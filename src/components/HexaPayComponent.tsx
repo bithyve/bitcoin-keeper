@@ -13,7 +13,7 @@ type Props = {
   Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
   title: string,
   subtitle: string,
-  body: string
+  body?: string
 };
 
 export const HexaPayComponent = ({ Icon, title, subtitle = '', body = '' }: Props) => {
