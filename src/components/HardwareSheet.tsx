@@ -2,10 +2,17 @@ import React from 'react';
 import { FlatList } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import BackupListComponent from './BackupListComponent';
 
-const HardwareSheet = ({ bottomSheetRef, Data, onPress }) => {
+type Props = {
+  bottomSheetRef: any,
+  Data: BACKUP_KEYS[],
+  onPress: any
+};
+
+const HardwareSheet = ({ bottomSheetRef, Data, onPress = () => { } }: Props) => {
   const renderItem = ({ item }) => {
     return (
       <BackupListComponent

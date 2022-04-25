@@ -1,4 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React,
+{
+  useEffect,
+  useState,
+  useCallback,
+  useRef
+} from 'react';
+
 import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import {
   heightPercentageToDP as hp,
@@ -17,7 +24,7 @@ import { loginWithHexa } from 'src/store/actions/accounts';
 import { QR_TYPES } from './LoginScreen/constants';
 import SecureHexa from 'src/components/SecureHexa';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
-import { defaultWallets, defaultBackupKeys, accountData } from 'src/common/data/defaultData/defaultData';
+import { defaultWallets, defaultBackupKeys, accountData, BACKUP_KEYS, WALLET } from 'src/common/data/defaultData/defaultData';
 // icons and images
 import backgroundImage from 'src/assets/images/background.png';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
@@ -26,16 +33,21 @@ import DiamondIcon from 'src/assets/images/svgs/elite.svg';
 import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 
-const HomeScreen = ({ navigation, route }) => {
-  const secureHexaRef = React.useRef(null);
+type Props = {
+  route: any | undefined,
+  navigation: any
+};
+
+const HomeScreen = ({ navigation, route }: Props) => {
+  const secureHexaRef = useRef(null);
   const dispatch = useDispatch();
 
   const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
   const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet);
 
   const [parsedQRData, setParsedQRData] = useState(null);
-  const [inheritanceReady, setInheritance] = useState(false);
-  const [backupKeys, setBackupKeys] = useState([
+  const [inheritanceReady, setInheritance] = useState<boolean>(false);
+  const [backupKeys, setBackupKeys] = useState<BACKUP_KEYS[]>([
     ...defaultBackupKeys,
     {
       id: '58694a0f-3da1-471f-bd96-145571e2675679d72',
@@ -46,7 +58,7 @@ const HomeScreen = ({ navigation, route }) => {
     },
   ]);
 
-  const allWallets = [
+  const allWallets: WALLET[] = [
     ...defaultWallets,
     ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
     { isEnd: true },
@@ -98,7 +110,7 @@ const HomeScreen = ({ navigation, route }) => {
     );
   };
 
-  const openInheritance = React.useCallback(() => {
+  const openInheritance = useCallback(() => {
     navigation.dispatch(
       CommonActions.navigate({ name: 'Inheritance', params: { setInheritance } })
     );
@@ -224,7 +236,7 @@ const HomeScreen = ({ navigation, route }) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        {allWallets.length - 1} Wallet{allWallets.length - 1 > 1 && 's'}
+        {allWallets?.length - 1} Wallet{allWallets?.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
@@ -234,7 +246,7 @@ const HomeScreen = ({ navigation, route }) => {
       >
         Keeper is securing these wallets
       </Text>
-      {allWallets.length != 0 && (
+      {allWallets?.length != 0 && (
         <FlatList
           data={allWallets}
           renderItem={renderWallets}

@@ -17,6 +17,17 @@ import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
+type Props = {
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
+  name: string,
+  description: string,
+  type: string,
+  balance: string,
+  isEnd?: boolean,
+  index?: number,
+  isImported: boolean,
+};
+
 const HomeCard = ({
   Icon = BlueWalletIcon,
   name = 'Name',
@@ -26,7 +37,7 @@ const HomeCard = ({
   isEnd,
   index,
   isImported = true,
-}) => {
+}: Props) => {
 
   const navigation = useNavigation();
 

@@ -11,6 +11,17 @@ import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
 import Laptop from 'src/assets/images/svgs/laptop.svg';
 import Next from 'src/assets/images/svgs/next.svg';
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
+
+type Props = {
+  title: string,
+  subtitle: string,
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
+  item: BACKUP_KEYS,
+  onPress: any,
+  showAccordian?: boolean,
+  touchable?: boolean,
+};
 
 const BackupListComponent = ({
   title = '',
@@ -18,9 +29,9 @@ const BackupListComponent = ({
   Icon = null,
   item,
   onPress,
-  showAccordian,
-  touchable,
-}) => {
+  showAccordian = true,
+  touchable = true,
+}: Props) => {
   return (
     <LinearGradient
       start={{ x: 0, y: 0 }}

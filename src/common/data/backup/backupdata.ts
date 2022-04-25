@@ -23,86 +23,87 @@ import LaptopTile from 'src/assets/images/svgs/laptop_tile.svg';
 import HardwareTile from 'src/assets/images/svgs/hardware_tile.svg';
 import ContactTile from 'src/assets/images/svgs/contacts_tile.svg';
 import KeyTile from 'src/assets/images/svgs/key_tile.svg';
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData'
 
-export const Data = [
+export const Data: BACKUP_KEYS[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Cloud',
     subtitle: 'We support iCloud, Google Drive and Dropbox',
     Icon: Cloud,
   },
   {
-    id: 2,
+    id: '2',
     title: 'Mobile Phone',
     subtitle: 'iOS or Android running Hexa Keeper',
     Icon: Mobile,
   },
   {
-    id: 3,
+    id: '3',
     title: 'PDF',
     subtitle: 'Take a print or save elsewhere',
     Icon: PDF,
   },
   {
-    id: 4,
+    id: '4',
     title: 'Desktop',
     subtitle: 'A desktop running Keeper',
     Icon: Laptop,
   },
   {
-    id: 5,
+    id: '5',
     title: 'Hardware Wallet',
     subtitle: 'We support Ledger, Trezor and Cold Card',
     Icon: Hardware,
   },
   {
-    id: 6,
+    id: '6',
     title: 'Contacts',
     subtitle: 'Contacts who have Keeper',
     Icon: Contact,
   },
   {
-    id: 7,
+    id: '7',
     title: 'Signer Apps',
     subtitle: 'We support Seed Signer and Blue Wallet',
     Icon: Key,
   },
 ];
 
-export const HardwareData = [
+export const HardwareData: BACKUP_KEYS[] = [
   {
-    id: 8,
+    id: '8',
     title: 'Ledger',
     subtitle: '',
     Icon: Ledger,
   },
   {
-    id: 9,
+    id: '9',
     title: 'Trezor',
     subtitle: '',
     Icon: Trezor,
   },
   {
-    id: 10,
+    id: '10',
     title: 'Cold Card',
     subtitle: '',
     Icon: ColdCard,
   },
   {
-    id: 11,
+    id: '11',
     title: 'Seed Signer',
     subtitle: '',
     Icon: Seedsigner,
   },
   {
-    id: 12,
+    id: '12',
     title: 'Foundation Device',
     subtitle: '',
     Icon: Foundationdevice,
   },
 ];
 
-export const getIcon = (id) => {
+export const getIcon = (id): (id) => SVGElement => {
   if (id == 1) {
     return CloudTile;
   } else if (id == 2) {
