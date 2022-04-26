@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react';
 import Header from 'src/components/Header';
-import { Box, Heading, HStack, Text, useToast, VStack } from 'native-base';
+import { Heading, Text, useToast, VStack } from 'native-base';
 import InheritanceModes from './InheritanceModes';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -10,12 +10,11 @@ import TransferState from './TransferState';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import { Keyboard } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 
 const InheritanceScreen = () => {
   const [transferState, setTransfer] = useState('Initiate Transfer');
   const [transferDescription, setDescription] = useState(
-    'Initiate transfer to Gunther Greene as your benifeciary and transfer access to your funds in Keeper'
+    'Initiate transfer to Gunther Greene as your beneficiary and transfer access to your funds in Keeper'
   );
   const [primaryText, setPrimary] = useState('Initiate');
   const [secondaryText, setSecondary] = useState('Cancel');
@@ -36,23 +35,6 @@ const InheritanceScreen = () => {
   };
   const closeDeclarationSheet = () => {
     _closeDeclarationSheet();
-    toast.show({
-      placement: 'top',
-      duration: 700,
-      render: () => (
-        <HStack alignItems={'center'}>
-          <SuccessIcon />
-          <Box
-            bg="#F3EABF"
-            px="2"
-            borderRadius={'41'}
-            _text={{ color: '#073E39', fontSize: 9, fontWeight: '300', letterSpacing: 0.6 }}
-          >
-            Inheritance Ready
-          </Box>
-        </HStack>
-      ),
-    });
     route.params.setInheritance(true);
   };
 
@@ -120,14 +102,18 @@ const InheritanceScreen = () => {
         bottomSheetRef={declarationRef}
         primaryText={'Sign'}
         secondaryText={'Cancel'}
-        secondaryCallback={closeDeclarationSheet}
+        secondaryCallback={_closeDeclarationSheet}
         primaryCallback={openTransferSheet}
       >
         <DeclarationForm />
       </HexaBottomSheet>
       <HexaBottomSheet
         title={transferState}
-        subTitle={'Are you sure you want to initiate transfer to'}
+        subTitle={
+          transferState == 'Transfer Successful!'
+            ? ''
+            : 'Are you sure you want to initiate transfer to'
+        }
         snapPoints={['60%']}
         bottomSheetRef={transferRef}
         primaryText={primaryText}

@@ -7,7 +7,14 @@ import {
 import { View, Text, HStack, Box } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { ImageBackground, FlatList, TouchableOpacity, Dimensions, Alert, Platform } from 'react-native';
+import {
+  ImageBackground,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
+  Alert,
+  Platform,
+} from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 
 import DevicesComponent from 'src/components/DevicesComponent';
@@ -200,6 +207,7 @@ const HomeScreen = ({ navigation, route }) => {
         dispatch(setupWallet());
       }, 1000);
     }
+    Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
   }, [wallet, rehydrated]);
 
   useEffect(() => {

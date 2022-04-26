@@ -62,7 +62,7 @@ const InheritanceModes = ({ openAssignSheet, openDeclarationSheet, openTransferS
             Activate Transfer
           </Text>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-            Transfer bitcoin custody
+            The best inheritance in history
           </Text>
         </Wrapper>
       </TouchableOpacity>
