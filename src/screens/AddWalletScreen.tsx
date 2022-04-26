@@ -1,223 +1,55 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { FlatList, Text } from 'react-native';
+import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { CheckIcon, Heading, HStack, Input, Spinner, View, VStack } from 'native-base';
+import { View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import BottomSheet, { BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 
-import HexaBottomSheet from 'src/components/BottomSheet';
-import QRscanner from 'src/components/QRscanner';
+import Fonts from 'src/common/Fonts';
+import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import { AccountType } from 'src/bitcoin/utilities/Interface';
+import SuccessSheet from 'src/components/SuccessSheet';
+import AddWalletSheet from 'src/components/AddWalletSheet';
+import ImportWalletSheet from 'src/components/ImportWalletSheet';
+import CreateWalletSheet from 'src/components/CreateWalletSheet';
+import { processMapCreate, processMapImport } from 'src/common/data/messages/mesages';
 
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import MultiSigIcon from 'src/assets/images/svgs/multisig.svg';
 import BlockhchainIcon from 'src/assets/images/svgs/blockchain.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
-import HexagontileIcon from 'src/assets/images/svgs/hexagontile3.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
-import HexaPayComponent from 'src/components/HexaPayComponent';
-import Fonts from 'src/common/Fonts';
-import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
-
-const processMapCreate = [
-  {
-    id: 1,
-    text: 'Creating wallet',
-  },
-  {
-    id: 2,
-    text: 'Checking balance',
-  },
-  {
-    id: 3,
-    text: 'Wallet created successfully',
-  },
-];
-
-const processMapImport = [
-  {
-    id: 1,
-    text: 'Creating wallet',
-  },
-  {
-    id: 2,
-    text: 'Checking balance',
-  },
-  {
-    id: 3,
-    text: 'Wallet imported successfully',
-  },
-];
-
-const LoadingText = ({ text, timeOut }) => {
-  const [loading, setLoading] = useState(true);
-
-  setTimeout(() => {
-    setLoading(false);
-  }, timeOut * 500);
-
-  return (
-    <HStack space={2} justifyContent="center" minHeight={16} alignItems={'center'}>
-      {loading ? (
-        <Spinner accessibilityLabel="Loading posts" color={'#D8A572'} />
-      ) : (
-        <CheckIcon size="5" mt="0.5" color="emerald.500" />
-      )}
-      <Text>{text}</Text>
-    </HStack>
-  );
-};
-
-const AddWalletSheet = ({
-  addWalletSheetRef,
-  closeAddWalletSheet,
-  addWalletType,
-  setAddWalletType,
-  accountName,
-  setAccountName,
-  accountDescription,
-  setAccountDescription,
-  addWallet,
-}) => {
-  return (
-    <HexaBottomSheet
-      title={'Add Wallet Details'}
-      subTitle={''}
-      snapPoints={['50%']}
-      bottomSheetRef={addWalletSheetRef}
-      primaryText={'Create'}
-      secondaryText={'Cancel'}
-      primaryCallback={addWallet}
-      secondaryCallback={closeAddWalletSheet}
-    >
-      {/* <BottomSheetTextInput
-        placeholder={addWalletType}
-        value={addWalletType}
-        onChangeText={(value) => setAddWalletType(value)}
-        style={styles.inputField}
-      /> */}
-      <BottomSheetTextInput
-        placeholder="Wallet Name"
-        placeholderTextColor={'#D8DBD5'}
-        value={accountName}
-        onChangeText={(value) => setAccountName(value)}
-        style={styles.inputField}
-      />
-      <BottomSheetTextInput
-        placeholder="To easily remember wallets purpose"
-        placeholderTextColor={'#D8DBD5'}
-        value={accountDescription}
-        onChangeText={(value) => setAccountDescription(value)}
-        style={styles.inputField}
-      />
-    </HexaBottomSheet>
-  );
-};
-
-export const ImportWalletSheet = ({
-  importWalletSheetRef,
-  importWallet,
-  importKey,
-  setImportKey,
-}) => {
-  const [showQR, setShowQR] = useState(false);
-
-  return (
-    <HexaBottomSheet
-      title={'Import Wallet'}
-      subTitle={'Insert a seed to import your existing wallet'}
-      snapPoints={['80%']}
-      bottomSheetRef={importWalletSheetRef}
-      primaryText={'Import'}
-      primaryCallback={importWallet}
-      secondaryText={showQR ? 'Text' : 'Scan'}
-      secondaryCallback={showQR ? () => setShowQR(false) : () => setShowQR(true)}
-    >
-      <View style={{ flex: 1, justifyContent: 'center' }}>
-        {showQR ? (
-          <QRscanner />
-        ) : (
-          <BottomSheetTextInput
-            multiline={true}
-            value={importKey}
-            onChangeText={(value) => setImportKey(value)}
-            style={{ backgroundColor: '#D8A57210', padding: 4, aspectRatio: 1 }}
-          />
-        )}
-      </View>
-    </HexaBottomSheet>
-  );
-};
-
-const CreateWalletSheet = ({ createWalletSheetRef, title, processMap }) => {
-  return (
-    <HexaBottomSheet
-      title={title}
-      // subTitle={'This may take sometime'}
-      snapPoints={['45%']}
-      bottomSheetRef={createWalletSheetRef}
-    >
-      <VStack alignItems="flex-start">
-        {processMap.map((process, index) => {
-          const timeOut = (index + 1) * 2;
-          return <LoadingText key={process.id} text={process.text} timeOut={timeOut} />;
-        })}
-      </VStack>
-    </HexaBottomSheet>
-  );
-};
-
-export const SucccessSheet = ({
-  title,
-  subTitle,
-  sheetTitle,
-  successSheetRef,
-  Icon,
-  data = undefined,
-  primaryText,
-}) => {
-  const navigation = useNavigation();
-
-  return (
-    <HexaBottomSheet
-      title={sheetTitle}
-      snapPoints={['50%']}
-      bottomSheetRef={successSheetRef}
-      primaryText={primaryText}
-      primaryCallback={() => navigation.navigate('Home', data)}
-    >
-      <HexaPayComponent Icon={<Icon />} title={title} subtitle={subTitle} />
-    </HexaBottomSheet>
-  );
-};
 
 const AddWalletScreen = () => {
-  const [addWalletType, setAddWalletType] = useState('');
-  const [accountName, setAccountName] = useState('');
-  const [accountDescription, setAccountDescription] = useState('');
-  const [importKey, setImportKey] = useState('');
-  const [importWalletType, setImportWalletType] = useState('Blue Wallet');
-  const importProcessWalletSheetRef = useRef<BottomSheet>(null);
-  const { openSheet: openImportProcessWalletSheet, closeSheet: closeImportProcessWalletSheet } =
-    useBottomSheetUtils(importProcessWalletSheetRef);
+
+  const dispatch = useDispatch();
+  const navigtaion = useNavigation();
 
   const createWalletSheetRef = useRef<BottomSheet>(null);
   const importWalletSheetRef = useRef<BottomSheet>(null);
   const addWalletSheetRef = useRef<BottomSheet>(null);
   const successSheetRef = useRef<BottomSheet>(null);
   const successSheetImportRef = useRef<BottomSheet>(null);
+  const importProcessWalletSheetRef = useRef<BottomSheet>(null);
 
-  const dispatch = useDispatch();
+  const [addWalletType, setAddWalletType] = useState('');
+  const [accountName, setAccountName] = useState('');
+  const [accountDescription, setAccountDescription] = useState('');
+  const [importKey, setImportKey] = useState('');
+  const [importWalletType, setImportWalletType] = useState('Blue Wallet');
+  const [walletDetails, setWalletDetails] = useState({});
+  const { openSheet: openImportProcessWalletSheet, closeSheet: closeImportProcessWalletSheet } =
+    useBottomSheetUtils(importProcessWalletSheetRef);
 
   const addWallet = useCallback(() => {
     const newAccountShellInfo: newAccountsInfo = {
@@ -369,9 +201,6 @@ const AddWalletScreen = () => {
   ];
 
   const renderItem = ({ item }) => <AccordionsComponent item={item} />;
-  const navigtaion = useNavigation();
-
-  const [walletDetails, setWalletDetails] = useState({});
 
   return (
     <View style={styles.Container} background={'light.lightYellow'}>
@@ -409,7 +238,7 @@ const AddWalletScreen = () => {
         title={'Importing Wallet'}
         processMap={processMapImport}
       />
-      <SucccessSheet
+      <SuccessSheet
         Icon={MultiSigIcon}
         sheetTitle={'Wallet Creation Successful'}
         title={walletDetails?.name}
@@ -417,7 +246,7 @@ const AddWalletScreen = () => {
         successSheetRef={successSheetRef}
         primaryText="View Wallet"
       />
-      <SucccessSheet
+      <SuccessSheet
         Icon={BlueWalletIcon}
         sheetTitle={'Wallet Imported Successfully'}
         title={importWalletType}

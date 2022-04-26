@@ -1,11 +1,13 @@
-import React, { useCallback, useRef } from 'react';
+import React, {
+  useCallback,
+} from 'react';
+
 import { View } from 'react-native';
 import { Text } from 'native-base';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import BottomSheet from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
@@ -14,7 +16,12 @@ import HexaPayComponent from 'src/components/HexaPayComponent';
 import { importNewAccount } from 'src/store/actions/accounts';
 import { useDispatch } from 'react-redux';
 
-const SecureHexa = ({ bottomSheetRef, secureData }) => {
+type Props = {
+  bottomSheetRef: any,
+  secureData: any
+};
+
+const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
   const dispatch = useDispatch();
 
   const closeSheet = useCallback(() => {
@@ -46,7 +53,7 @@ const SecureHexa = ({ bottomSheetRef, secureData }) => {
       <View>
         <View style={styles.item}>
           <HexaPayComponent
-            icon={HardWare}
+            Icon={HardWare}
             title={'Hexa Pay'}
             subtitle={''}
             body={'Alice’s Wallet'}
@@ -68,8 +75,6 @@ const SecureHexa = ({ bottomSheetRef, secureData }) => {
   );
 };
 
-export default SecureHexa;
-
 const styles = ScaledSheet.create({
   text: {
     fontSize: RFValue(12),
@@ -81,3 +86,5 @@ const styles = ScaledSheet.create({
     marginVertical: hp(2),
   },
 });
+
+export default SecureHexa;

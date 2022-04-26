@@ -1,15 +1,17 @@
 import React, { Fragment, useRef, useState } from 'react';
-import Header from 'src/components/Header';
-import { Heading, Text, useToast, VStack } from 'native-base';
-import InheritanceModes from './InheritanceModes';
-import HexaBottomSheet from 'src/components/BottomSheet';
-import BottomSheet from '@gorhom/bottom-sheet';
+import { Text, VStack } from 'native-base';
+import { useNavigation, useRoute } from '@react-navigation/native';
+
 import BenificiaryList from './BenificiaryList';
+import BottomSheet from '@gorhom/bottom-sheet';
 import DeclarationForm from './DeclarationForm';
+import HeaderTitle from 'src/components/HeaderTitle';
+import HexaBottomSheet from 'src/components/BottomSheet';
+import InheritanceModes from './InheritanceModes';
+import { Keyboard } from 'react-native';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransferState from './TransferState';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
-import { Keyboard } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
 const InheritanceScreen = () => {
   const [transferState, setTransfer] = useState('Initiate Transfer');
@@ -20,14 +22,16 @@ const InheritanceScreen = () => {
   const [secondaryText, setSecondary] = useState('Cancel');
   const navigation = useNavigation();
   const route = useRoute<any>();
-  const toast = useToast();
   const assignRef = useRef<BottomSheet>(null);
+  const declarationRef = useRef<BottomSheet>(null);
+  const transferRef = useRef<BottomSheet>(null);
   const { openSheet: openAssignSheet, closeSheet: closeAssignSheet } =
     useBottomSheetUtils(assignRef);
-
-  const declarationRef = useRef<BottomSheet>(null);
   const { openSheet: _openDeclarationSheet, closeSheet: _closeDeclarationSheet } =
     useBottomSheetUtils(declarationRef);
+  const { openSheet: _openTransferSheet, closeSheet: _closeTransferSheet } =
+    useBottomSheetUtils(transferRef);
+
   const openDeclarationSheet = () => {
     closeAssignSheet();
     _openDeclarationSheet();
@@ -38,9 +42,6 @@ const InheritanceScreen = () => {
     route.params.setInheritance(true);
   };
 
-  const transferRef = useRef<BottomSheet>(null);
-  const { openSheet: _openTransferSheet, closeSheet: _closeTransferSheet } =
-    useBottomSheetUtils(transferRef);
   const openTransferSheet = () => {
     closeDeclarationSheet();
     _openTransferSheet();
@@ -58,16 +59,13 @@ const InheritanceScreen = () => {
   };
   return (
     <Fragment>
-      <Header />
-      <VStack marginX={10}>
-        <VStack>
-          <Heading fontFamily={'body'} fontWeight={'200'} size={'md'}>
-            Setup Inheritance
-          </Heading>
-          <Text fontFamily={'body'} fontWeight={'100'} size={'sm'} h={'auto'}>
-            Hand down your bitcoin
-          </Text>
-        </VStack>
+      <StatusBarComponent padding={80} extraPadding={30} />
+      <VStack marginX={8}>
+        <HeaderTitle
+          title="Setup Inheritance"
+          subtitle="Hand down your bitcoin"
+          onPressHandler={() => navigation.goBack()}
+        />
         <Text
           fontFamily={'body'}
           fontWeight={'100'}

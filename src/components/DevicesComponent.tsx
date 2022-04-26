@@ -8,7 +8,13 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 
-const DevicesComponent = ({ title, onPress, Icon }) => {
+type Props = {
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
+  title: string,
+  onPress: () => void
+};
+
+const DevicesComponent = ({ title, onPress, Icon }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconWrapper}>
