@@ -3821,7 +3821,7 @@ buffer@^4.9.1:
     ieee754 "^1.1.4"
     isarray "^1.0.0"
 
-buffer@^5.0.0:
+buffer@^5.0.0, buffer@^5.6.0:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.7.1.tgz#ba62e7c13133053582197160851a8f648e99eed0"
   integrity sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==
@@ -5035,6 +5035,11 @@ events@^1.0.0, events@^1.0.2:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/events/-/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
   integrity sha1-nr23Y1rQmccNzEwqH1AEKI6L2SQ=
+
+events@^3.1.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
+  integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
 
 evp_bytestokey@^1.0.0, evp_bytestokey@^1.0.3:
   version "1.0.3"
@@ -8793,10 +8798,10 @@ react-native-svg@^12.3.0:
     css-select "^4.2.1"
     css-tree "^1.0.0-alpha.39"
 
-react-native-tcp@^3.2.1:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/react-native-tcp/-/react-native-tcp-3.3.2.tgz#b38c153039acac89294caa4991689c003ec62dce"
-  integrity sha512-zjFmjAvYOsBkR1MF7htuPlk+uOzTykKaeu/eN+I7fkZ7UqBCW+9u/gJgWCv6Tjfn2tGgku6hsEWril4Oy3zJhg==
+react-native-tcp@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-tcp/-/react-native-tcp-4.0.0.tgz#142f519798cc41cc3bb39ad45e2970a8643ef461"
+  integrity sha512-68lSq2qns6P33yH7vYuiU5rV7xEiNuA2GYIStFlMvF/uEKDHL53MDgQLC2alKEU9JAHfmB8uUmcu3QQSGkaoig==
   dependencies:
     base64-js "0.0.8"
     buffer "^5.0.0"
@@ -8805,16 +8810,13 @@ react-native-tcp@^3.2.1:
     process "^0.11.9"
     util "^0.10.3"
 
-react-native-udp@^2.1.0:
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/react-native-udp/-/react-native-udp-2.7.0.tgz#d04c5100fcbff343f8a2bf35a3025743d8960f93"
-  integrity sha512-tT+Wn0yLbdaTohXkGGor0HYgScGaASWCaCLSO1kCIUdNke7AtcOX5a5nfNLYrEjdUn7/2HRofuplyky7iJHSQA==
+react-native-udp@^4.1.5:
+  version "4.1.5"
+  resolved "https://registry.yarnpkg.com/react-native-udp/-/react-native-udp-4.1.5.tgz#bd164fa6280fd61c3b19f89e0aff2d2d058c262b"
+  integrity sha512-+4Jt0sbuq7lozbiUY6YtEE7KQIcp/xEnTsU44YaIUHE84wKP5STDBe0Vac6sKDdn/gKVV44RUBobzXnOLKcqFA==
   dependencies:
-    base64-js "0.0.8"
-    events "^1.0.2"
-    inherits "^2.0.1"
-    ip-regex "^1.0.3"
-    util "^0.10.3"
+    buffer "^5.6.0"
+    events "^3.1.0"
 
 react-native-uuid@^2.0.1:
   version "2.0.1"
