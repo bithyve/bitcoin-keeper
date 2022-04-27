@@ -13,13 +13,13 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
+		2EC1B3D817A9B5B72CD7A814 /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 082A16CAEEC1DA76E0AE395C /* libPods-hexa_keeper.a */; };
 		2EE0712077A446F0A113BE41 /* RobotoCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */; };
-		545BA089744E83AB89A52A2C /* libPods-hexa_keeper.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C08C289E30669AD00C36B61 /* libPods-hexa_keeper.a */; };
 		584C17AE95243EBD8BE78E01 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D80B3701FCA0506C2032994 /* ExpoModulesProvider.swift */; };
 		7A4ECC5390F7538B8ACA96A7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EBBFA7A5C9548A92D56FDC /* ExpoModulesProvider.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		9819EF4D6004499582832416 /* RobotoCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */; };
-		B807ABA2E3FCE708DE52F474 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8798D6B48CCBAD3946B7C743 /* libPods-hexa_keeper-hexa_keeperTests.a */; };
+		B5C896766114128C8F9EACD4 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FCBFF90E79AD594BD98CB02 /* libPods-hexa_keeper-hexa_keeperTests.a */; };
 		C3AFCD97B1C74642870953EA /* RobotoCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0165F274E9EB4FC08B1A5F5F /* RobotoCondensed-LightItalic.ttf */; };
 		FC2BB76F4FCB47F787279B0C /* RobotoCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */; };
 /* End PBXBuildFile section */
@@ -39,7 +39,9 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* hexa_keeperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = hexa_keeperTests.m; sourceTree = "<group>"; };
 		0165F274E9EB4FC08B1A5F5F /* RobotoCondensed-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-LightItalic.ttf"; path = "../src/assets/fonts/RobotoCondensed-LightItalic.ttf"; sourceTree = "<group>"; };
+		03ADE8D144679883BE4B9E65 /* Pods-hexa_keeper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.debug.xcconfig"; sourceTree = "<group>"; };
 		072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Light.ttf"; path = "../src/assets/fonts/RobotoCondensed-Light.ttf"; sourceTree = "<group>"; };
+		082A16CAEEC1DA76E0AE395C /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D80B3701FCA0506C2032994 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* hexa_keeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = hexa_keeper/AppDelegate.h; sourceTree = "<group>"; };
@@ -47,17 +49,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = hexa_keeper/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = hexa_keeper/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = hexa_keeper/main.m; sourceTree = "<group>"; };
+		1BF9D905E25CD3B374069207 /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
+		1FCBFF90E79AD594BD98CB02 /* libPods-hexa_keeper-hexa_keeperTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper-hexa_keeperTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		399257CB0DEE494B9A06CFFE /* RobotoCondensed-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Regular.ttf"; path = "../src/assets/fonts/RobotoCondensed-Regular.ttf"; sourceTree = "<group>"; };
-		41A9A1196A38E2D5E41993A0 /* Pods-hexa_keeper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.debug.xcconfig"; sourceTree = "<group>"; };
 		42EBBFA7A5C9548A92D56FDC /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Bold.ttf"; path = "../src/assets/fonts/RobotoCondensed-Bold.ttf"; sourceTree = "<group>"; };
-		5800436365DB059395AC3C99 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; sourceTree = "<group>"; };
 		66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/RobotoCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
-		6862D737E67ADDFE0DFA71A1 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; sourceTree = "<group>"; };
-		7C08C289E30669AD00C36B61 /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = hexa_keeper/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		87280F56E3AE9C3CEE3456BB /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
-		8798D6B48CCBAD3946B7C743 /* libPods-hexa_keeper-hexa_keeperTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper-hexa_keeperTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9248C9CD1ACC6ACB1C6C47B1 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.release.xcconfig"; sourceTree = "<group>"; };
+		ACAB71F26B809B3EEC7FF9F2 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Italic.ttf"; path = "../src/assets/fonts/RobotoCondensed-Italic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -67,7 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B807ABA2E3FCE708DE52F474 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */,
+				B5C896766114128C8F9EACD4 /* libPods-hexa_keeper-hexa_keeperTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				545BA089744E83AB89A52A2C /* libPods-hexa_keeper.a in Frameworks */,
+				2EC1B3D817A9B5B72CD7A814 /* libPods-hexa_keeper.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,8 +116,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				7C08C289E30669AD00C36B61 /* libPods-hexa_keeper.a */,
-				8798D6B48CCBAD3946B7C743 /* libPods-hexa_keeper-hexa_keeperTests.a */,
+				082A16CAEEC1DA76E0AE395C /* libPods-hexa_keeper.a */,
+				1FCBFF90E79AD594BD98CB02 /* libPods-hexa_keeper-hexa_keeperTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -188,10 +188,10 @@
 		E233CBF5F47BEE60B243DCF8 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				41A9A1196A38E2D5E41993A0 /* Pods-hexa_keeper.debug.xcconfig */,
-				87280F56E3AE9C3CEE3456BB /* Pods-hexa_keeper.release.xcconfig */,
-				5800436365DB059395AC3C99 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */,
-				6862D737E67ADDFE0DFA71A1 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */,
+				03ADE8D144679883BE4B9E65 /* Pods-hexa_keeper.debug.xcconfig */,
+				1BF9D905E25CD3B374069207 /* Pods-hexa_keeper.release.xcconfig */,
+				ACAB71F26B809B3EEC7FF9F2 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */,
+				9248C9CD1ACC6ACB1C6C47B1 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -211,12 +211,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "hexa_keeperTests" */;
 			buildPhases = (
-				41942BFB8DB897C0D29EFF68 /* [CP] Check Pods Manifest.lock */,
+				9F216927DF558864977E25A6 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C25A851E66B492EAF2ACB44F /* [CP] Embed Pods Frameworks */,
-				B4B8D2ACA30F28FB7738E964 /* [CP] Copy Pods Resources */,
+				6DEE9966FE062BCA4212C37B /* [CP] Embed Pods Frameworks */,
+				D2FD34FEBC029EF1E0B2EB90 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -232,14 +232,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "hexa_keeper" */;
 			buildPhases = (
-				E5C04F634637BDD31F499E2A /* [CP] Check Pods Manifest.lock */,
+				13ED34355F51DF1DBC3C72A2 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				7E1F1C5D37CBE3C4ACBFDD25 /* [CP] Embed Pods Frameworks */,
-				315780A9A89641DBA7B8FDC5 /* [CP] Copy Pods Resources */,
+				CF6BACCC5B4E1C00B654F340 /* [CP] Embed Pods Frameworks */,
+				47A74470F48C064BD32E2D1A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -326,7 +326,29 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		315780A9A89641DBA7B8FDC5 /* [CP] Copy Pods Resources */ = {
+		13ED34355F51DF1DBC3C72A2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-hexa_keeper-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		47A74470F48C064BD32E2D1A /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -343,7 +365,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		41942BFB8DB897C0D29EFF68 /* [CP] Check Pods Manifest.lock */ = {
+		6DEE9966FE062BCA4212C37B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9F216927DF558864977E25A6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -365,7 +404,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7E1F1C5D37CBE3C4ACBFDD25 /* [CP] Embed Pods Frameworks */ = {
+		CF6BACCC5B4E1C00B654F340 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -382,7 +421,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B4B8D2ACA30F28FB7738E964 /* [CP] Copy Pods Resources */ = {
+		D2FD34FEBC029EF1E0B2EB90 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -397,45 +436,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C25A851E66B492EAF2ACB44F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper-hexa_keeperTests/Pods-hexa_keeper-hexa_keeperTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E5C04F634637BDD31F499E2A /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-hexa_keeper-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -492,7 +492,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5800436365DB059395AC3C99 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */;
+			baseConfigurationReference = ACAB71F26B809B3EEC7FF9F2 /* Pods-hexa_keeper-hexa_keeperTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = Y5TCB759QL;
@@ -520,7 +520,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6862D737E67ADDFE0DFA71A1 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */;
+			baseConfigurationReference = 9248C9CD1ACC6ACB1C6C47B1 /* Pods-hexa_keeper-hexa_keeperTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -544,7 +544,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 41A9A1196A38E2D5E41993A0 /* Pods-hexa_keeper.debug.xcconfig */;
+			baseConfigurationReference = 03ADE8D144679883BE4B9E65 /* Pods-hexa_keeper.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -573,7 +573,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 87280F56E3AE9C3CEE3456BB /* Pods-hexa_keeper.release.xcconfig */;
+			baseConfigurationReference = 1BF9D905E25CD3B374069207 /* Pods-hexa_keeper.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
