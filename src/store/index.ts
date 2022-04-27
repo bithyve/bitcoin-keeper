@@ -1,5 +1,4 @@
 import { applyMiddleware, createStore, combineReducers } from 'redux'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import createSagaMiddleware from 'redux-saga'
 import { call, all, spawn } from 'redux-saga/effects'
 import { composeWithDevTools } from '@redux-devtools/extension'
@@ -8,10 +7,11 @@ import accountsReducer from './reducers/accounts'
 import storageReducer from './reducers/storage'
 import { addNewAccountShellsWatcher, importNewAccountWatcher, refreshAccountShellsWatcher, syncAccountsWatcher, loginWithHexaWatcher } from './sagas/accounts'
 import { setupWalletWatcher } from './sagas/storage'
+import { reduxStorage  } from 'src/storage'
 
 const config = {
   key: 'root',
-  storage: AsyncStorage,
+  storage: reduxStorage,
 }
 
 const rootSaga = function* () {
