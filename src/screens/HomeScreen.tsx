@@ -14,21 +14,21 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 
-import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 import { CommonActions } from '@react-navigation/native';
 // components
 import DevicesComponent from 'src/components/DevicesComponent';
-import DiamondIcon from 'src/assets/images/svgs/elite.svg';
 import HomeCard from 'src/components/HomeCard';
 import { QR_TYPES } from './LoginScreen/constants';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SecureHexa from 'src/components/SecureHexa';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images
-import backgroundImage from 'src/assets/images/background.png';
+import ScannerIcon from '../../assets/images/scanner.svg';
+import DiamondIcon from '../../assets/images/elite.svg';
+import SettingIcon from '../../assets/images/settings.svg';
+import SuccessIcon from '../../assets/images/checkboxfilled.svg';
+import AddNewIcon from '../../assets/images/add_key.svg';
+import backgroundImage from '../../assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import { loginWithHexa } from 'src/store/actions/accounts';
 import { setupWallet } from 'src/store/actions/storage';

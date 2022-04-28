@@ -10,7 +10,7 @@ import { ImageSourcePropType } from 'react-native'
 import {
   Balances,
   TransactionDetails,
-} from '../../../../../bitcoin/utilities/Interface'
+} from '../../../../../config/utilities/Interface'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
 
 type ConstructorProps = SubAccountDescribingConstructorProps & {};

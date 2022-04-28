@@ -1,7 +1,7 @@
 import React from 'react';
 import { NativeBaseProvider } from 'native-base';
 
-import { customTheme } from '../common/themes';
+import { customTheme } from '../theme';
 
 const Provider = () => {
   return (

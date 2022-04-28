@@ -9,8 +9,8 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
-import Laptop from 'src/assets/images/svgs/laptop.svg';
-import Next from 'src/assets/images/svgs/next.svg';
+import Laptop from '../../../../assets/images/svgs/laptop.svg';
+import Next from '../../../../assets/images/svgs/next.svg';
 import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
 
 type Props = {

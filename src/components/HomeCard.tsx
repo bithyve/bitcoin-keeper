@@ -12,10 +12,10 @@ import { View, Text } from 'native-base';
 
 import { getCardheight } from 'src/common/data/responsiveness/responsive';
 
-import HomeCardImage from 'src/assets/images/homecard.png';
-import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
-import BtcIcon from 'src/assets/images/svgs/btc.svg';
-import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import HomeCardImage from '../../assets/images/homecard.png';
+import AddSCardIcon from '../../assets/images/svgs/card_add.svg';
+import BtcIcon from '../../assets/images/svgs/btc.svg';
+import BlueWalletIcon from '../../assets/images/svgs/blue_wallet.svg';
 
 type Props = {
   Icon: React.SFC<React.SVGProps<SVGSVGElement>>,

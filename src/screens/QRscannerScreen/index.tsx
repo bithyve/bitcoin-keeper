@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import QRscanner from 'src/components/QRscanner';
-import BackButtonWhiteIcon from 'src/assets/images/svgs/backWhite.svg';
+import BackButtonWhiteIcon from '../../../assets/images/svgs/backWhite.svg';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 const QRscannerScreen = ({ route }) => {

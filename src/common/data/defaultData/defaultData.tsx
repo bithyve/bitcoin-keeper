@@ -1,9 +1,9 @@
 import BlockChainHomeIcon from 'src/assets/images/blockchainHome.svg';
-import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
-import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
-import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
-import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
-import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import SingleSigIcon from '../../../../assets/images/svgs/single_sig.svg';
+import ColdCardIcon from '../../../../assets/images/svgs/coldcard_tile.svg';
+import LaptopIcon from '../../../../assets/images/svgs/laptop_tile.svg';
+import PdfIcon from '../../../../assets/images/svgs/pdf_tile.svg';
+import BlueWalletIcon from '../../../../assets/images/svgs/blue_wallet.svg';
 
 export interface BACKUP_KEYS {
 	id: string,

@@ -14,8 +14,8 @@ import { Heading, HStack, Text, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 
 import Buttons from './Buttons';
-import Fonts from 'src/common/Fonts';
-import { customTheme } from 'src/common/themes';
+import Fonts from 'src/theme/Fonts';
+import { customTheme } from 'src/theme';
 
 const Colors = customTheme.colors.light;
 type Ref<T> = RefCallback<T> | RefObject<T> | null;

@@ -6,9 +6,9 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import HardWare from 'src/assets/images/svgs/hardware.svg';
+import HardWare from '../../assets/images/svgs/hardware.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import BitCoinBlack from 'src/assets/images/svgs/btc (black).svg';
+import BitCoinBlack from '../../assets/images/svgs/btc (black).svg';
 
 const windowHeight = Dimensions.get('window').height;
 

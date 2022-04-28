@@ -8,27 +8,27 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import BottomSheet from '@gorhom/bottom-sheet';
 
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/theme/Fonts';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
-import { AccountType } from 'src/bitcoin/utilities/Interface';
+import { AccountType } from 'src/config/utilities/Interface';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/components/AddWalletSheet';
 import ImportWalletSheet from 'src/components/ImportWalletSheet';
 import CreateWalletSheet from 'src/components/CreateWalletSheet';
 import { processMapCreate, processMapImport } from 'src/common/data/messages/mesages';
 
-import HardWare from 'src/assets/images/svgs/hardware.svg';
-import MultiSigIcon from 'src/assets/images/svgs/multisig.svg';
-import BlockhchainIcon from 'src/assets/images/svgs/blockchain.svg';
-import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
-import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
-import MuunIcon from 'src/assets/images/svgs/muun.svg';
-import TrustIcon from 'src/assets/images/svgs/trust.svg';
+import HardWare from '../../assets/images/svgs/hardware.svg';
+import MultiSigIcon from '../../assets/images/svgs/multisig.svg';
+import BlockhchainIcon from '../../assets/images/svgs/blockchain.svg';
+import BlueWalletIcon from '../../assets/images/svgs/bluewallet.svg';
+import CoinBaseIcon from '../../assets/images/svgs/coinbase.svg';
+import MuunIcon from '../../assets/images/svgs/muun.svg';
+import TrustIcon from '../../assets/images/svgs/trust.svg';
 
 const AddWalletScreen = () => {
 

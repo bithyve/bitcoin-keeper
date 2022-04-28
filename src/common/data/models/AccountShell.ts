@@ -5,7 +5,7 @@ import UTXOCompatibilityGroup from '../enums/UTXOCompatibilityGroup'
 import SubAccountDescribing from './SubAccountInfo/Interfaces'
 import { Satoshis } from '../typealiases/UnitAliases'
 import TransactionDescribing from './Transactions/Interfaces'
-import { Balances } from '../../../bitcoin/utilities/Interface'
+import { Balances } from '../../../config/utilities/Interface'
 import SyncStatus from '../enums/SyncStatus'
 
 type ConstructorProps = {

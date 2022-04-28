@@ -4,7 +4,7 @@ import makeStore from './src/store';
 import { Provider } from 'react-redux';
 import { Platform, StatusBar, UIManager } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
-import { customTheme } from './src/common/themes';
+import { customTheme } from './src/theme';
 import { LogBox } from 'react-native';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

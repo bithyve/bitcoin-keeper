@@ -4,7 +4,7 @@ import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/theme/Fonts';
 import HexaBottomSheet from './BottomSheet';
 
 const AddWalletSheet = ({
