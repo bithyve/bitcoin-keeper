@@ -39,7 +39,7 @@ const DeclarationForm = () => {
       <Text fontFamily={'body'} fontWeight={'200'} fontSize={'xs'} marginLeft={'5'}>
         {'Your Signature'}
       </Text>
-      <Image source={require('src/assets/images/sign.png')} />
+      <Image source={require('../../../assets/images/sign.png')} />
     </ScrollView>
   );
 };

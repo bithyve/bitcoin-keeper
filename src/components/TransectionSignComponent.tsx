@@ -6,13 +6,13 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import HardWare from '../../assets/images/svgs/hardware.svg';
+import HardWare from '../../assets/images/hardware.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import BitCoinBlack from '../../assets/images/svgs/btc (black).svg';
+import BitCoinBlack from '../../assets/images/btc (black).svg';
 
 const windowHeight = Dimensions.get('window').height;
 
-const TransectionSignComponent = ({ }) => {
+const TransectionSignComponent = ({}) => {
   return (
     <View style={styles.container}>
       <View style={styles.upperContainer}>
@@ -21,9 +21,12 @@ const TransectionSignComponent = ({ }) => {
           <Text style={styles.text} color={'light.textBlack'} fontFamily="body" fontWeight={'200'}>
             Hexa Pay
           </Text>
-          <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
-
-          </Text>
+          <Text
+            style={styles.text1}
+            color={'light.textBlack'}
+            fontFamily="body"
+            fontWeight={'100'}
+          ></Text>
         </View>
         <View style={styles.moreDetails}>
           <Text
@@ -96,7 +99,6 @@ const TransectionSignComponent = ({ }) => {
               0.000004
             </Text>
           </View>
-
         </View>
       </View>
     </View>
@@ -113,10 +115,10 @@ const styles = StyleSheet.create({
       windowHeight >= 850
         ? '35%'
         : windowHeight >= 750
-          ? '37%'
-          : windowHeight >= 650
-            ? '39%'
-            : '40%'
+        ? '37%'
+        : windowHeight >= 650
+        ? '39%'
+        : '40%'
     ),
     width: wp('83%'),
     marginBottom: hp(2),
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     fontWeight: '400',
     lineHeight: 30,
-    marginLeft: wp(1)
+    marginLeft: wp(1),
   },
   feeText: {
     fontSize: RFValue(20),
@@ -180,7 +182,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginLeft: wp(1),
     lineHeight: 27,
-
   },
   emailText: {
     fontSize: RFValue(10),
@@ -194,6 +195,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(1.5),
   },
   amountContainer: {
-    flexDirection: 'row', alignItems: 'center'
-  }
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });

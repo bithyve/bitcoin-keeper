@@ -8,17 +8,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import QRscanner from 'src/components/QRscanner';
-import BackButtonWhiteIcon from '../../../assets/images/svgs/backWhite.svg';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import BackButtonWhiteIcon from '../../../assets/images/backWhite.svg';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 const QRscannerScreen = ({ route }) => {
   const navigation = useNavigation();
   const [qrData, setQrData] = useState();
-  const processQR = route.params?.processQR
+  const processQR = route.params?.processQR;
 
   useEffect(() => {
     if (qrData) {
-      if (processQR) processQR(qrData)
+      if (processQR) processQR(qrData);
       navigation.goBack();
     }
   }, [qrData]);
@@ -29,11 +32,15 @@ const QRscannerScreen = ({ route }) => {
         <BackButtonWhiteIcon />
       </TouchableOpacity>
       <View style={styles.textContainer}>
-        <Text style={styles.text}
+        <Text
+          style={styles.text}
           numberOfLines={1}
           color={'light.white'}
           fontFamily={'body'}
-          fontWeight={'200'}>Scan a QR</Text>
+          fontWeight={'200'}
+        >
+          Scan a QR
+        </Text>
         <Text
           style={styles.subText}
           numberOfLines={1}

@@ -1,29 +1,29 @@
 import Cloud from '../../../../assets/images/cloud.svg';
-import Mobile from '../../../../assets/images/svgs/mobile.svg';
-import PDF from '../../../../assets/images/svgs/pdf.svg';
-import Laptop from '../../../../assets/images/svgs/laptop.svg';
-import Hardware from '../../../../assets/images/svgs/hardware.svg';
-import Contact from '../../../../assets/images/svgs/contacts.svg';
-import Key from '../../../../assets/images/svgs/key.svg';
-import ColdCard from '../../../../assets/images/svgs/coldcard.svg';
-import Ledger from '../../../../assets/images/svgs/ledger.svg';
-import Trezor from '../../../../assets/images/svgs/trezor.svg';
-import Seedsigner from '../../../../assets/images/svgs/seedsigner.svg';
-import Foundationdevice from '../../../../assets/images/svgs/foundationdevice.svg';
+import Mobile from '../../../../assets/images/mobile.svg';
+import PDF from '../../../../assets/images/pdf.svg';
+import Laptop from '../../../../assets/images/laptop.svg';
+import Hardware from '../../../../assets/images/hardware.svg';
+import Contact from '../../../../assets/images/contacts.svg';
+import Key from '../../../../assets/images/key.svg';
+import ColdCard from '../../../../assets/images/coldcard.svg';
+import Ledger from '../../../../assets/images/ledger.svg';
+import Trezor from '../../../../assets/images/trezor.svg';
+import Seedsigner from '../../../../assets/images/seedsigner.svg';
+import Foundationdevice from '../../../../assets/images/foundationdevice.svg';
 
-import ColdCardTile from '../../../../assets/images/svgs/coldcard_tile.svg';
-import LedgerTile from '../../../../assets/images/svgs/ledger_tile.svg';
-import TrezorTile from '../../../../assets/images/svgs/trezor_tile.svg';
-import SeedsignerTile from '../../../../assets/images/svgs/seedsigner_tile.svg';
-import FoundationdeviceTile from '../../../../assets/images/svgs/foundationdevice_tile.svg';
-import CloudTile from '../../../../assets/images/svgs/cloud_tile.svg';
-import MobileTile from '../../../../assets/images/svgs/mobile_tile.svg';
-import PDFTile from '../../../../assets/images/svgs/pdf_tile.svg';
-import LaptopTile from '../../../../assets/images/svgs/laptop_tile.svg';
-import HardwareTile from '../../../../assets/images/svgs/hardware_tile.svg';
-import ContactTile from '../../../../assets/images/svgs/contacts_tile.svg';
-import KeyTile from '../../../../assets/images/svgs/key_tile.svg';
-import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData'
+import ColdCardTile from '../../../../assets/images/coldcard_tile.svg';
+import LedgerTile from '../../../../assets/images/ledger_tile.svg';
+import TrezorTile from '../../../../assets/images/trezor_tile.svg';
+import SeedsignerTile from '../../../../assets/images/seedsigner_tile.svg';
+import FoundationdeviceTile from '../../../../assets/images/foundationdevice_tile.svg';
+import CloudTile from '../../../../assets/images/cloud_tile.svg';
+import MobileTile from '../../../../assets/images/mobile_tile.svg';
+import PDFTile from '../../../../assets/images/pdf_tile.svg';
+import LaptopTile from '../../../../assets/images/laptop_tile.svg';
+import HardwareTile from '../../../../assets/images/hardware_tile.svg';
+import ContactTile from '../../../../assets/images/contacts_tile.svg';
+import KeyTile from '../../../../assets/images/key_tile.svg';
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
 
 export const Data: BACKUP_KEYS[] = [
   {
@@ -103,7 +103,7 @@ export const HardwareData: BACKUP_KEYS[] = [
   },
 ];
 
-export const getIcon = (id): (id) => SVGElement => {
+export const getIcon = (id): ((id) => SVGElement) => {
   if (id == 1) {
     return CloudTile;
   } else if (id == 2) {

@@ -22,16 +22,15 @@ import ImportWalletSheet from 'src/components/ImportWalletSheet';
 import CreateWalletSheet from 'src/components/CreateWalletSheet';
 import { processMapCreate, processMapImport } from 'src/common/data/messages/mesages';
 
-import HardWare from '../../assets/images/svgs/hardware.svg';
-import MultiSigIcon from '../../assets/images/svgs/multisig.svg';
-import BlockhchainIcon from '../../assets/images/svgs/blockchain.svg';
-import BlueWalletIcon from '../../assets/images/svgs/bluewallet.svg';
-import CoinBaseIcon from '../../assets/images/svgs/coinbase.svg';
-import MuunIcon from '../../assets/images/svgs/muun.svg';
-import TrustIcon from '../../assets/images/svgs/trust.svg';
+import HardWare from '../../assets/images/hardware.svg';
+import MultiSigIcon from '../../assets/images/multisig.svg';
+import BlockhchainIcon from '../../assets/images/blockchain.svg';
+import BlueWalletIcon from '../../assets/images/bluewallet.svg';
+import CoinBaseIcon from '../../assets/images/coinbase.svg';
+import MuunIcon from '../../assets/images/muun.svg';
+import TrustIcon from '../../assets/images/trust.svg';
 
 const AddWalletScreen = () => {
-
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
 

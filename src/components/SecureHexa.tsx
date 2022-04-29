@@ -1,6 +1,4 @@
-import React, {
-  useCallback,
-} from 'react';
+import React, { useCallback } from 'react';
 
 import { View } from 'react-native';
 import { Text } from 'native-base';
@@ -10,15 +8,15 @@ import {
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import HardWare from 'src/assets/images/svgs/hardware.svg';
+import HardWare from '../../assets/images/hardware.svg';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
 import { importNewAccount } from 'src/store/actions/accounts';
 import { useDispatch } from 'react-redux';
 
 type Props = {
-  bottomSheetRef: any,
-  secureData: any
+  bottomSheetRef: any;
+  secureData: any;
 };
 
 const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {

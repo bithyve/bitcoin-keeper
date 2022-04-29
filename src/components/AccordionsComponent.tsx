@@ -9,7 +9,7 @@ import {
 import { List } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 
-import DownArrowIcon from '../../../../assets/images/svgs/down_arrow.svg';
+import DownArrowIcon from '../../assets/images/down_arrow.svg';
 import Fonts from 'src/theme/Fonts';
 import { customTheme } from 'src/theme';
 import { LayoutAnimation } from 'react-native';
@@ -114,7 +114,7 @@ const styles = ScaledSheet.create({
     fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 0.7,
     fontWeight: '400',
-    marginBottom: hp(.70)
+    marginBottom: hp(0.7),
   },
   accordionDescription: {
     letterSpacing: 0.24,
@@ -129,7 +129,7 @@ const styles = ScaledSheet.create({
     color: Colors.greenText,
     fontFamily: Fonts.RobotoCondensedRegular,
     lineHeight: 18,
-    marginBottom: hp(.19)
+    marginBottom: hp(0.19),
   },
   itemDescription: {
     fontSize: RFValue(10),

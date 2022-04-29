@@ -8,7 +8,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 
-import BackButton from 'src/assets/images/svgs/back.svg';
+import BackButton from './../../assets/images/back.svg';
 
 const HeaderTitle = ({ title = '', subtitle = '', onPressHandler }) => {
   return (
