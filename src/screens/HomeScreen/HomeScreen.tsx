@@ -17,14 +17,14 @@ import {
 import AddNewIcon from 'src/assets/images/svgs/add_key.svg';
 import { CommonActions } from '@react-navigation/native';
 // components
-import DevicesComponent from 'src/components/DevicesComponent';
+import DevicesComponent from 'src/screens/HomeScreen/DevicesComponent';
 import DiamondIcon from 'src/assets/images/svgs/elite.svg';
-import HomeCard from 'src/components/HomeCard';
-import { QR_TYPES } from './LoginScreen/constants';
+import HomeCard from 'src/screens/HomeScreen/HomeCard';
+import { QR_TYPES } from '../LoginScreen/constants';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
-import SecureHexa from 'src/components/SecureHexa';
+import SecureHexa from 'src/screens/HomeScreen/SecureHexa';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images

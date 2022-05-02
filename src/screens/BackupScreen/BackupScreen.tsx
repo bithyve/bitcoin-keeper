@@ -1,10 +1,4 @@
-import React,
-{
-  useCallback,
-  useRef,
-  useState,
-  useEffect
-} from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 
 import {
   heightPercentageToDP as hp,
@@ -27,7 +21,7 @@ import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import QrSheet from 'src/components/QrSheet';
 import HardwareInputSheet from 'src/components/HardwareInputSheet';
 
-const BackupScreen = ({ }) => {
+const BackupScreen = ({}) => {
   let index = -1;
 
   const navigtaion = useNavigation();
@@ -100,7 +94,8 @@ const BackupScreen = ({ }) => {
         expandAddBackUpKeySheet={expandAddBackUpKeySheet}
         addBackUpKeySheetRef={addBackUpKeySheetRef}
         closeAddBackUpKeySheet={closeAddBackUpKeySheet}
-        index={index} />
+        index={index}
+      />
 
       <HardwareInputSheet
         backUpKeyType={backUpKeyType}
