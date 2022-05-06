@@ -1,13 +1,14 @@
-import React from 'react';
-import Navigator from './src/navigation/Navigator';
-import makeStore from './src/store';
-import { Provider } from 'react-redux';
 import { Platform, StatusBar, UIManager } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from './src/theme';
 import { LogBox } from 'react-native';
+import React, { useEffect } from 'react';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Navigator from './src/navigation/Navigator';
+import { Provider } from 'react-redux';
+import { initRealm } from 'src/storage/realm/realm';
+import makeStore from './src/store';
 
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
@@ -19,6 +20,9 @@ export default function AppWrapper() {
   // Creates and holds an instance of the store so only children in the `Provider`'s
   // context can have access to it.
   const store = makeStore();
+  useEffect(() => {
+    initRealm(Buffer.from('encryptionKey'));
+  }, []);
   return (
     <Provider store={store}>
       <App />
