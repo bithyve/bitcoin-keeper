@@ -1,5 +1,5 @@
 import { Action } from 'redux'
-import { Account, Accounts, ContactInfo, DonationAccount, Gift, AccountVisibility } from '../../bitcoin/utilities/Interface'
+import { Account, Accounts, ContactInfo, DonationAccount, Gift, AccountVisibility } from '../../core/interfaces/Interface'
 import AccountShell from '../../common/data/models/AccountShell'
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces'
 import { newAccountDetails, newAccountsInfo } from '../sagas/accounts'
