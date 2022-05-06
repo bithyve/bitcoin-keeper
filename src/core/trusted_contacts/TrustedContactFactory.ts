@@ -1,6 +1,6 @@
 import idx from 'idx'
 import crypto from 'crypto'
-import { ContactDetails, TrustedContact, UnecryptedStreamData } from './Interface'
+import { ContactDetails, TrustedContact, UnecryptedStreamData } from '../interfaces/Interface'
 
 export function generateTrustedContact(
   {
@@ -32,6 +32,9 @@ export function generateTrustedContact(
     contactsSecondaryChannelKey,
     isActive: true,
     hasNewData: true,
+    timestamps: {
+      created: Date.now(),
+    }
   }
 
   return newContact
