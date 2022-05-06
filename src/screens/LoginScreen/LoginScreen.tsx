@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthCard from 'src/screens/LoginScreen/components/AuthCard/index';
-import LogoContainer from 'src/screens/LoginScreen/components/LogoContainer/index';
+import LogoContainer from 'src/screens/LoginScreen/components/LogoContainer/LogoContanier';
 import { authStatus } from './constants';
 import AppNumPad from 'src/components/AppNumPad';
 import AppPinInput from 'src/components/AppPinInput';
