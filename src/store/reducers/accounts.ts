@@ -51,7 +51,7 @@ import {
 } from '../actions/accounts'
 import AccountShell from '../../common/data/models/AccountShell'
 import SyncStatus from '../../common/data/enums/SyncStatus'
-import { Account, Accounts, Gift } from '../../bitcoin/utilities/Interface'
+import { Account, Accounts, Gift } from '../../core/interfaces/Interface'
 import SourceAccountKind from '../../common/data/enums/SourceAccountKind'
 
 export type AccountsState = {
