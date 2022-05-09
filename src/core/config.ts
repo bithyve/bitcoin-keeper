@@ -130,6 +130,10 @@ class HexaConfig {
       series: 0,
       upperBound: 10,
     },
+    [ AccountType.IMPORTED_ACCOUNT ]: {
+      series: 0,
+      upperBound: 10,
+    },
     [ AccountType.SAVINGS_ACCOUNT ]: {
       series: 10,
       upperBound: 10,
