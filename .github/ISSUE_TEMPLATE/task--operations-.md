@@ -2,7 +2,7 @@
 name: Task (Operations)
 about: Operation related task
 title: ''
-labels: task
+labels: task-operations
 assignees: ''
 
 ---
