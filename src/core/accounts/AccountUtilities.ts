@@ -11,11 +11,10 @@ const ECPair = ECPairFactory( ecc )
 import config from '../config'
 import _ from 'lodash'
 import { Transaction, ScannedAddressKind, Balances, MultiSigAccount, Account, NetworkType, AccountType, DonationAccount, ActiveAddresses, TransactionType, DerivationPurpose, DerivativeAccountTypes } from '../interfaces/Interface'
-import { BH_AXIOS, SIGNING_AXIOS } from '../utilities/api'
 import idx from 'idx'
 
 
-const { REQUEST_TIMEOUT } = config
+const { REQUEST_TIMEOUT, RELAY_AXIOS, SIGNING_AXIOS } = config
 const accAxios: AxiosInstance = axios.create( {
   timeout: REQUEST_TIMEOUT * 3
 } )
@@ -1048,7 +1047,7 @@ export default class AccountUtilities {
 
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'setupDonationAccount', {
+      res = await RELAY_AXIOS.post( 'setupDonationAccount', {
         HEXA_ID: config.HEXA_ID,
         donationId: account.id.slice( 0, 15 ),
         walletID: account.walletId,
@@ -1091,7 +1090,7 @@ export default class AccountUtilities {
 
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'updatePreferences', {
+      res = await RELAY_AXIOS.post( 'updatePreferences', {
         HEXA_ID: config.HEXA_ID,
         donationId: account.id.slice( 0, 15 ),
         walletID: account.walletId,
@@ -1144,7 +1143,7 @@ export default class AccountUtilities {
 
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'fetchXpubInfo', {
+      res = await RELAY_AXIOS.post( 'fetchXpubInfo', {
         HEXA_ID: config.HEXA_ID,
         xpubId,
         accountType: DerivativeAccountTypes.DONATION_ACCOUNT,
