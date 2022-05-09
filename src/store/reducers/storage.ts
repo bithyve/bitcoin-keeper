@@ -1,5 +1,5 @@
 import { UPDATE_WALLET } from '../actions/storage';
-import { Wallet } from '../../config/utilities/Interface';
+import { Wallet } from '../../core/interfaces/Interface';
 
 const initialState: {
   wallet: Wallet;

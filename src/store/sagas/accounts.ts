@@ -79,23 +79,23 @@ import {
   Wallet,
   LNNode,
   DerivationPurpose,
-} from '../../config/utilities/Interface';
+} from '../../core/interfaces/Interface';
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces';
 import AccountShell from '../../common/data/models/AccountShell';
 import BitcoinUnit from '../../common/data/enums/BitcoinUnit';
 import ServiceAccountKind from '../../common/data/enums/ServiceAccountKind';
 import SyncStatus from '../../common/data/enums/SyncStatus';
-import config from '../../config/config';
+import config from '../../core/config';
 import { AccountsState } from '../reducers/accounts';
-import AccountOperations from '../../config/utilities/accounts/AccountOperations';
+import AccountOperations from '../../core/accounts/AccountOperations';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import AccountUtilities from '../../config/utilities/accounts/AccountUtilities';
+import AccountUtilities from '../../core/accounts/AccountUtilities';
 import {
   generateAccount,
   generateDonationAccount,
   generateMultiSigAccount,
-} from '../../config/utilities/accounts/AccountFactory';
-import { APP_STAGE } from '../../config/utilities/Interface';
+} from '../../core/accounts/AccountFactory';
+import { APP_STAGE } from '../../core/config';
 import * as bip39 from 'bip39';
 import crypto from 'crypto';
 import TestSubAccountInfo from '../../common/data/models/SubAccountInfo/HexaSubAccounts/TestSubAccountInfo';
@@ -106,9 +106,9 @@ import ExternalServiceSubAccountInfo from '../../common/data/models/SubAccountIn
 import LightningSubAccountInfo from '../../common/data/models/SubAccountInfo/HexaSubAccounts/LightningSubAccountInfo';
 
 import _ from 'lodash';
-import Relay from '../../config/utilities/Relay';
+import Relay from '../../core/utilities/Relay';
 import AccountVisibility from '../../common/data/enums/AccountVisibility';
-import TrustedContactsOperations from '../../config/utilities/TrustedContactsOperations';
+import TrustedContactsOperations from '../../core/trusted_contacts/TrustedContactsOperations';
 import { updateWallet } from '../actions/storage';
 import FullyImportedWalletSubAccountInfo from 'src/common/data/models/SubAccountInfo/ImportedWalletSubAccounts/FullyImportedWalletSubAccountInfo';
 
@@ -865,8 +865,7 @@ export function* addNewAccount(
           NetworkType.MAINNET,
           accountType,
           serviceInstanceCount,
-          null,
-          purpose
+          null
         ),
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,

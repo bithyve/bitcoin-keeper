@@ -6,7 +6,7 @@ import {
   DonationAccount,
   Gift,
   AccountVisibility,
-} from '../../config/utilities/Interface';
+} from '../../core/interfaces/Interface';
 import AccountShell from '../../common/data/models/AccountShell';
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces';
 import { newAccountDetails, newAccountsInfo } from '../sagas/accounts';

@@ -5,8 +5,8 @@ import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import HomeScreen from 'src/screens/HomeScreen';
 import AddWallet from '../screens/AddWalletScreen';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
-import QRscanner from 'src/screens/QRscannerScreen';
-import LoginScreen from 'src/screens/LoginScreen';
+import QRscanner from 'src/screens/QRscannerScreen/QRScannerScreen';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import BackupScreen from 'src/screens/BackupScreen';
 
 const defaultTheme = {

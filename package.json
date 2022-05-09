@@ -29,6 +29,7 @@
     "constants-browserify": "^1.0.0",
     "dns.js": "^1.0.1",
     "domain-browser": "^1.1.1",
+    "ecpair": "^2.0.1",
     "events": "^1.0.0",
     "expo": ">=44.0.0-0 <45.0.0",
     "expo-local-authentication": "~12.1.0",

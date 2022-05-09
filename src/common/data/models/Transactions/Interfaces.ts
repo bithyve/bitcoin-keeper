@@ -1,8 +1,8 @@
-import SubAccountKind from '../../enums/SubAccountKind'
-import ServiceAccountKind from '../../enums/ServiceAccountKind'
-import TransactionConfirmationStatus from '../../enums/TransactionConfirmationStatus'
-import TransactionKind from '../../enums/TransactionKind'
-import { TransactionDetails } from '../../../../config/utilities/Interface'
+import SubAccountKind from '../../enums/SubAccountKind';
+import ServiceAccountKind from '../../enums/ServiceAccountKind';
+import TransactionConfirmationStatus from '../../enums/TransactionConfirmationStatus';
+import TransactionKind from '../../enums/TransactionKind';
+import { TransactionDetails } from '../../../../core/interfaces/Interface';
 
 export interface BaseTransactionDescribing {
   txID: string;
@@ -38,8 +38,7 @@ export interface BaseTransactionDescribing {
   xPubServiceKind?: ServiceAccountKind;
 }
 
-export interface InboundTransactionDescribing
-  extends BaseTransactionDescribing {
+export interface InboundTransactionDescribing extends BaseTransactionDescribing {
   /**
    * The address that this transaction was sent from.
    * (Applies when the transaction is an inbound (AKA "RECEIVE") transaction)
@@ -52,8 +51,7 @@ export interface InboundTransactionDescribing
   sourceXPubAccountID: string | null;
 }
 
-export interface OutboundTransactionDescribing
-  extends BaseTransactionDescribing {
+export interface OutboundTransactionDescribing extends BaseTransactionDescribing {
   /**
    * The address that this transaction was sent to.
    * (Applies when the transaction is an outgoing (AKA "SEND") transaction)
@@ -65,4 +63,4 @@ type TransactionDescribing = TransactionDetails; // tx-describing now stands for
 // InboundTransactionDescribing |
 // OutboundTransactionDescribing;
 
-export default TransactionDescribing
+export default TransactionDescribing;

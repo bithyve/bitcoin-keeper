@@ -15,7 +15,6 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
-import { AccountType } from 'src/config/utilities/Interface';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/components/AddWalletSheet';
 import ImportWalletSheet from 'src/components/ImportWalletSheet';

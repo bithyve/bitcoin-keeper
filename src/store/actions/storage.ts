@@ -1,4 +1,4 @@
-import { Wallet } from '../../config/utilities/Interface';
+import { Wallet } from '../../core/interfaces/Interface';
 
 export const UPDATE_WALLET = 'UPDATE_WALLET';
 export const SETUP_WALLET = 'SETUP_WALLET';
