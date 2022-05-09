@@ -681,7 +681,7 @@ export function* addNewAccount(accountType: AccountType, accountDetails: newAcco
   const wallet: Wallet = yield select(state => state.storage.wallet)
   const { walletId, primarySeed, accounts } = wallet
   const { name: accountName, description: accountDescription, is2FAEnabled, doneeName } = accountDetails
-
+  
   switch (accountType) {
     case AccountType.TEST_ACCOUNT:
       const testInstanceCount = recreationInstanceNumber !== undefined ? recreationInstanceNumber : (accounts[AccountType.TEST_ACCOUNT])?.length | 0
@@ -779,7 +779,7 @@ export function* addNewAccount(accountType: AccountType, accountDetails: newAcco
         accountName: accountName ? accountName : defaultAccountName,
         accountDescription: accountDescription ? accountDescription : defaultAccountDescription,
         primarySeed,
-        derivationPath: yield call(AccountUtilities.getDerivationPath, NetworkType.MAINNET, accountType, serviceInstanceCount, null),
+        derivationPath: yield call(AccountUtilities.getDerivationPath, NetworkType.MAINNET, accountType, serviceInstanceCount, null, purpose),
         networkType: config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       })
       if (accountType === AccountType.SWAN_ACCOUNT) serviceAccount.isUsable = false
@@ -803,6 +803,7 @@ export function* addNewAccount(accountType: AccountType, accountDetails: newAcco
       return lnAccount
 
     case AccountType.IMPORTED_ACCOUNT:
+    
       const importedInstanceCount = 0 // imported accounts always have instance number equal to zero(as they're imported using different seeds)
       const importedAccount: Account = yield call(generateAccount, {
         walletId,
