@@ -11,7 +11,7 @@ import {
   AccountType,
   Balances,
   TransactionDetails,
-} from '../../../../bitcoin/utilities/Interface'
+} from '../../../../core/interfaces/Interface'
 import SourceAccountKind from '../../enums/SourceAccountKind'
 import { ImageSourcePropType } from 'react-native'
 

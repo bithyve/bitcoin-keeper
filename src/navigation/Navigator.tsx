@@ -3,10 +3,10 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
-import AddWallet from '../screens/AddWallet/AddWalletScreen';
+import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
-import QRscanner from 'src/screens/QRscannerScreen';
-import LoginScreen from 'src/screens/LoginScreen';
+import QRscanner from 'src/screens/QRscannerScreen/QRScannerScreen';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 
 const defaultTheme = {

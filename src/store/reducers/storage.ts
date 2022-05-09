@@ -1,7 +1,7 @@
 import {
   UPDATE_WALLET,
 } from '../actions/storage'
-import { Wallet } from '../../bitcoin/utilities/Interface'
+import { Wallet } from '../../core/interfaces/Interface'
 
 const initialState: {
   wallet: Wallet;
