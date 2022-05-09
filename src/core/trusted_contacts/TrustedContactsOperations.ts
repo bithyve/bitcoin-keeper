@@ -13,10 +13,9 @@ import {
 } from '../interfaces/Interface'
 import crypto from 'crypto'
 import config from '../config'
-import { BH_AXIOS } from '../utilities/api'
 import { AxiosResponse } from 'axios'
 import idx from 'idx'
-const { HEXA_ID } = config
+const { HEXA_ID, RELAY_AXIOS } = config
 
 export default class TrustedContactsOperations {
   static cipherSpec: {
@@ -379,7 +378,7 @@ export default class TrustedContactsOperations {
       }
 
       if ( Object.keys( channelOutstreams ).length ) {
-        const res: AxiosResponse = await BH_AXIOS.post(
+        const res: AxiosResponse = await RELAY_AXIOS.post(
           'syncPermanentChannels',
           {
             HEXA_ID,
@@ -454,7 +453,7 @@ export default class TrustedContactsOperations {
          .digest( 'hex' )
        const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId( walletId )
 
-       const res: AxiosResponse = await BH_AXIOS.post( 'retrieveFromStream', {
+       const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveFromStream', {
          HEXA_ID,
          permanentChannelAddress,
          streamId,
@@ -527,7 +526,7 @@ export default class TrustedContactsOperations {
           .digest( 'hex' )
         const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId( walletId )
 
-        const res: AxiosResponse = await BH_AXIOS.post( 'retrieveFromStream', {
+        const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveFromStream', {
           HEXA_ID,
           permanentChannelAddress,
           streamId,
@@ -566,7 +565,7 @@ export default class TrustedContactsOperations {
          .update( channelKey )
          .digest( 'hex' )
 
-       const res: AxiosResponse = await BH_AXIOS.post( 'updateStream', {
+       const res: AxiosResponse = await RELAY_AXIOS.post( 'updateStream', {
          HEXA_ID,
          permanentChannelAddress,
          streamUpdates
@@ -598,7 +597,7 @@ export default class TrustedContactsOperations {
            .update( channelKey )
            .digest( 'hex' )
        )
-       const res: AxiosResponse = await BH_AXIOS.post( 'retrieveChannels', {
+       const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveChannels', {
          HEXA_ID,
          channelAddresses,
        } )

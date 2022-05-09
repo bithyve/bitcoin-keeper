@@ -14,6 +14,7 @@ import {
 import Config from 'react-native-config'
 import PersonalNode from '../common/data/models/PersonalNode'
 import _ from 'lodash'
+import axios, { AxiosInstance } from 'axios'
 
 export enum APP_STAGE {
   DEVELOPMENT = 'dev',
@@ -184,6 +185,8 @@ class HexaConfig {
   public RELAY: string;
   public SIGNING_SERVER: string;
   public APP_STAGE: string;
+  public RELAY_AXIOS: AxiosInstance
+  public SIGNING_AXIOS: AxiosInstance
 
   public SUB_PRIMARY_ACCOUNT: DerivativeAccount = {
     series: Config.BIT_SUB_PRIMARY_ACCOUNT_SERIES ? parseInt( Config.BIT_SUB_PRIMARY_ACCOUNT_SERIES.trim(), 10 ) : 1,
@@ -285,6 +288,16 @@ class HexaConfig {
       this.NETWORK = bitcoinJS.networks.testnet
       this.DEFAULT_GIFT_VALIDITY = 10 * 60 * 1000
     }
+
+    this.RELAY_AXIOS = axios.create( {
+      baseURL: this.RELAY,
+      timeout: this.REQUEST_TIMEOUT * 3,
+    } )
+    
+    this.SIGNING_AXIOS = axios.create( {
+      baseURL: this.SIGNING_SERVER,
+      timeout: this.REQUEST_TIMEOUT,
+    } )
   };
 
   public connectToPersonalNode = async ( personalNode: PersonalNode ) => {
