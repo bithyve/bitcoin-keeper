@@ -71,7 +71,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
         dispatch(setupWallet());
       }, 1000);
     }
-    Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
+    // Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
   }, [wallet, rehydrated]);
 
   useEffect(() => {
@@ -129,7 +129,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
           throw new Error('Invalid QR');
       }
     } catch (err) {
-      Alert.alert('Device Imported', 'The keys have been backed up from your device successfully!');
+      // Alert.alert('Device Imported', 'The keys have been backed up from your device successfully!');
     }
   };
 

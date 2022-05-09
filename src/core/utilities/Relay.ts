@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios'
 import config from '../config'
-import { Gift, GiftMetaData, INotification, NewWalletImage } from './Interface'
+import { Gift, GiftMetaData, INotification, NewWalletImage } from '../interfaces/Interface'
 import idx from 'idx'
 import crypto from 'crypto'
-import TrustedContactsOperations from './TrustedContactsOperations'
+import TrustedContactsOperations from '../trusted_contacts/TrustedContactsOperations'
 
 
 const { HEXA_ID } = config

@@ -4,36 +4,20 @@ import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 import bs58check from 'bs58check'
 import * as bitcoinJS from 'bitcoinjs-lib'
-import idx from 'idx'
-import _ from 'lodash'
-import config from '../../config'
-import { 
-  Transaction,
-   ScannedAddressKind,
-   MultiSigAccount,
-   Account, 
-   NetworkType, 
-   AccountType, 
-   DonationAccount,
-   ActiveAddresses, 
-   TransactionType,
-   DerivationPurpose, 
-   SUB_PRIMARY_ACCOUNT, DONATION_ACCOUNT
-} from '../Interface'
+import ECPairFactory, { ECPairInterface } from 'ecpair'
+import * as ecc from 'tiny-secp256k1'
+const ECPair = ECPairFactory( ecc )
 
-export const SATOSHIS_IN_BTC = 1e8
-const { REQUEST_TIMEOUT, RELAY, SIGNING_SERVER } = config
+import config from '../config'
+import _ from 'lodash'
+import { Transaction, ScannedAddressKind, Balances, MultiSigAccount, Account, NetworkType, AccountType, DonationAccount, ActiveAddresses, TransactionType, DerivationPurpose, DerivativeAccountTypes } from '../interfaces/Interface'
+import { BH_AXIOS, SIGNING_AXIOS } from '../utilities/api'
+import idx from 'idx'
+
+
+const { REQUEST_TIMEOUT } = config
 const accAxios: AxiosInstance = axios.create( {
   timeout: REQUEST_TIMEOUT * 3
-} )
-export const BH_AXIOS = axios.create( {
-  baseURL: RELAY,
-  timeout: REQUEST_TIMEOUT * 3,
-} )
-
-export const SIGNING_AXIOS: AxiosInstance = axios.create( {
-  baseURL: SIGNING_SERVER,
-  timeout: REQUEST_TIMEOUT,
 } )
 
 export default class AccountUtilities {
@@ -62,20 +46,20 @@ export default class AccountUtilities {
     else return bitcoinJS.networks.bitcoin
   }
 
-  static getDerivationPath = ( type: NetworkType, accountType: AccountType, instanceNumber: number, debug?: boolean, purpose: DerivationPurpose = DerivationPurpose.BIP49): string => {
+  static getDerivationPath = ( type: NetworkType, accountType: AccountType, instanceNumber: number, debug?: boolean ): string => {
     const { series, upperBound } = config.ACCOUNT_INSTANCES[ accountType ]
     if( !debug && instanceNumber > ( upperBound - 1 ) ) throw new Error( `Cannot create new instance of type ${accountType}, instace upper bound exceeds ` )
     const accountNumber = series + instanceNumber
 
-    if( type === NetworkType.TESTNET ) return `m/${purpose}'/1'/${accountNumber}'`
-    else return `m/${purpose}'/0'/${accountNumber}'`
+    if( type === NetworkType.TESTNET ) return `m/49'/1'/${accountNumber}'`
+    else return `m/49'/0'/${accountNumber}'`
   }
 
-  static getKeyPair = ( privateKey: string, network: bitcoinJS.Network ): bitcoinJS.ECPairInterface =>
-    bitcoinJS.ECPair.fromWIF( privateKey, network )
+  static getKeyPair = ( privateKey: string, network: bitcoinJS.Network ): ECPairInterface =>
+    ECPair.fromWIF( privateKey, network )
 
   static deriveAddressFromKeyPair = (
-    keyPair: bip32.BIP32Interface | bitcoinJS.ECPairInterface,
+    keyPair: bip32.BIP32Interface | ECPairInterface,
     network: bitcoinJS.Network,
     purpose: DerivationPurpose = DerivationPurpose.BIP49,
   ): string => {
@@ -144,7 +128,7 @@ export default class AccountUtilities {
     )
   };
 
-  static getP2SH = ( keyPair: bitcoinJS.ECPairInterface, network: bitcoinJS.Network ): bitcoinJS.Payment =>
+  static getP2SH = ( keyPair: bip32.BIP32Interface, network: bitcoinJS.Network ): bitcoinJS.Payment =>
     bitcoinJS.payments.p2sh( {
       redeem: bitcoinJS.payments.p2wpkh( {
         pubkey: keyPair.publicKey,
@@ -520,7 +504,7 @@ export default class AccountUtilities {
         if( config.ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN === config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN ) throw new Error( err.message ) // not using own-node
 
         if( !config.USE_ESPLORA_FALLBACK ){
-          console.log( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
+          // Toast( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
           throw new Error( err.message )
         }
         console.log( 'using Hexa node as fallback(fetch-balTx)' )
@@ -593,7 +577,7 @@ export default class AccountUtilities {
                     transactionType: TransactionType.SENT,
                     amount: tx.SentAmount,
                     accountType:
-                    accountType === SUB_PRIMARY_ACCOUNT
+                    accountType === DerivativeAccountTypes.SUB_PRIMARY_ACCOUNT
                       ? primaryAccType
                       : accountType,
                     primaryAccType,
@@ -615,7 +599,7 @@ export default class AccountUtilities {
                     transactionType: TransactionType.RECEIVED,
                     amount: tx.ReceivedAmount,
                     accountType:
-                    accountType === SUB_PRIMARY_ACCOUNT
+                    accountType === DerivativeAccountTypes.SUB_PRIMARY_ACCOUNT
                       ? primaryAccType
                       : accountType,
                     primaryAccType,
@@ -690,7 +674,10 @@ export default class AccountUtilities {
           addresses.forEach( address => {
             if( activeAddresses.external[ address ] ){
               activeAddressesWithNewTxs.external[ address ] = activeAddresses.external[ address ]
-              if( tx.transactionType === TransactionType.RECEIVED ) tx.sender = idx( activeAddresses.external[ address ], _ => _.assignee.senderInfo.name )
+              if( tx.transactionType === TransactionType.RECEIVED ){
+                tx.sender = idx( activeAddresses.external[ address ], _ => _.assignee.senderInfo.name );
+                (tx as any).senderId = idx( activeAddresses.external[ address ], _ => _.assignee.senderInfo.id )
+              }
               else if( tx.transactionType === TransactionType.SENT ) {
                 const recipientInfo = idx( activeAddresses.external[ address ], _ => _.assignee.recipientInfo )
                 if( recipientInfo ) tx.receivers =  recipientInfo[ tx.txid ]
@@ -734,7 +721,7 @@ export default class AccountUtilities {
       }
 
       if( usedFallBack )
-        console.log( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
+        // Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
       return {
         synchedAccounts
       }
@@ -877,7 +864,7 @@ export default class AccountUtilities {
               },
             )
           }
-          console.log( 'We could not connect to your own node.\nSent using the BitHyve node....' )
+          // Toast( 'We could not connect to your own node.\nSent using the BitHyve node....' )
           return {
             txid: res.data
           }
@@ -885,7 +872,7 @@ export default class AccountUtilities {
           throw new Error( 'Transaction broadcasting failed' )
         }
       } else {
-        console.log( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
+        // Toast( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
         throw new Error( 'Transaction broadcasting failed' )
       }
     }
@@ -899,6 +886,8 @@ export default class AccountUtilities {
     if ( network === bitcoinJS.networks.bitcoin ) {
       throw new Error( 'Invalid network: failed to fund via testnet' )
     }
+
+    const SATOSHIS_IN_BTC = 1e8
     const amount = 10000 / SATOSHIS_IN_BTC
     try {
       const res = await accAxios.post( `${config.RELAY}/testnetFaucet`, {
@@ -1012,7 +1001,7 @@ export default class AccountUtilities {
   static getSecondSignature = async (
     walletId: string,
     token: number,
-    partiallySignedTxHex: string,
+    serializedPSBT: string,
     childIndexArray: Array<{
       childIndex: number;
       inputIdentifier: {
@@ -1030,7 +1019,7 @@ export default class AccountUtilities {
         HEXA_ID: config.HEXA_ID,
         walletID: walletId,
         token,
-        txHex: partiallySignedTxHex,
+        serializedPSBT,
         childIndexArray,
       } )
     } catch ( err ) {
@@ -1158,7 +1147,7 @@ export default class AccountUtilities {
       res = await BH_AXIOS.post( 'fetchXpubInfo', {
         HEXA_ID: config.HEXA_ID,
         xpubId,
-        accountType: DONATION_ACCOUNT,
+        accountType: DerivativeAccountTypes.DONATION_ACCOUNT,
         accountDetails: {
           donationId
         },

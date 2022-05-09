@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid'
 import {
   Balances,
   TransactionDetails,
-} from '../../../../../bitcoin/utilities/Interface'
+} from '../../../../../core/interfaces/Interface'
 import AccountVisibility from '../../../enums/AccountVisibility'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
 import SubAccountKind from '../../../enums/SubAccountKind'

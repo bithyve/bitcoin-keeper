@@ -6,7 +6,7 @@ import {
   AccountType,
   Balances,
   TransactionDetails,
-} from '../../../../bitcoin/utilities/Interface'
+} from '../../../../core/interfaces/Interface'
 import SourceAccountKind from '../../enums/SourceAccountKind'
 
 interface SubAccountDescribing {
