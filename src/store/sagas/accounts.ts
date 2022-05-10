@@ -102,7 +102,7 @@ import ExternalServiceSubAccountInfo from '../../common/data/models/SubAccountIn
 import LightningSubAccountInfo from '../../common/data/models/SubAccountInfo/HexaSubAccounts/LightningSubAccountInfo'
 
 import _ from 'lodash'
-import Relay from '../../core/utilities/Relay'
+import Relay from '../../core/services/Relay'
 import AccountVisibility from '../../common/data/enums/AccountVisibility'
 import TrustedContactsOperations from '../../core/trusted_contacts/TrustedContactsOperations'
 import { updateWallet } from '../actions/storage'

@@ -1,17 +1,17 @@
-import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility, DerivationPurpose } from '../interfaces/Interface'
+import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility, DerivationPurpose, BIP85Config } from '../interfaces/Interface'
 import crypto from 'crypto'
 import AccountUtilities from './AccountUtilities'
+import * as bip39 from 'bip39'
+import BIP85 from './BIP85'
 
-export function generateAccount(
+export const generateAccount = async (
   {
     walletId,
     type,
     instanceNum,
     accountName,
     accountDescription,
-    primarySeed,
     primaryMnemonic,
-    derivationPath,
     networkType,
     node
   }: {
@@ -20,18 +20,25 @@ export function generateAccount(
     instanceNum: number,
     accountName: string,
     accountDescription: string,
-    primarySeed: string,
-    primaryMnemonic?: string,
-    derivationPath: string,
+    primaryMnemonic: string,
     networkType: NetworkType,
     node?: LNNode
   }
-): Account {
+): Promise<Account> => {
 
   const network = AccountUtilities.getNetworkByType( networkType )
-  const { xpriv, xpub } = AccountUtilities.generateExtendedKeyPairFromSeed( primarySeed, network, derivationPath )
 
-  const id = crypto.createHash( 'sha256' ).update( xpub ).digest( 'hex' )
+  // BIP85 derivation: primary mnemonic to bip85-child mnemonic
+  const bip85Config: BIP85Config = BIP85.generateBIP85Configuration(type, instanceNum)
+  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic)
+  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words)
+
+  const id = crypto.createHash( 'sha256' ).update( mnemonic ).digest( 'hex' )
+
+  // derive extended keys
+  const seed = bip39.mnemonicToSeedSync( mnemonic ).toString('hex')
+  const xDerivationPath = AccountUtilities.getDerivationPath(networkType)
+  const { xpriv, xpub } = AccountUtilities.generateExtendedKeyPairFromSeed( seed, network, xDerivationPath )
 
   const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
   const initialRecevingAddress = AccountUtilities.getAddressByIndex( xpub, false, 0, network, purpose )
@@ -43,7 +50,9 @@ export function generateAccount(
     type,
     instanceNum,
     networkType,
-    derivationPath,
+    mnemonic,
+    bip85Config,
+    xDerivationPath,
     xpub,
     xpriv,
     accountName,
@@ -74,20 +83,18 @@ export function generateAccount(
     },
   }
 
-  if(type === AccountType.IMPORTED_ACCOUNT ) account.primaryMnemonic = primaryMnemonic
   if( type === AccountType.LIGHTNING_ACCOUNT ) account.node = node
   return account
 }
 
-export function generateMultiSigAccount(
+export const generateMultiSigAccount = async (
   {
     walletId,
     type,
     instanceNum,
     accountName,
     accountDescription,
-    primarySeed,
-    derivationPath,
+    primaryMnemonic,
     secondaryXpub,
     bithyveXpub,
     networkType
@@ -97,17 +104,26 @@ export function generateMultiSigAccount(
     instanceNum: number,
     accountName: string,
     accountDescription: string,
-    primarySeed: string,
-    derivationPath: string,
+    primaryMnemonic: string,
     secondaryXpub?: string,
     bithyveXpub?: string,
     networkType: NetworkType,
   }
-): MultiSigAccount {
-  // Note: only primary-xpubs differs b/w different multi-sig account instance(secondary and bh-xpubs stay constant)
+): Promise<MultiSigAccount> => {
 
   const network = AccountUtilities.getNetworkByType( networkType )
-  const { xpriv: primaryXpriv, xpub: primaryXpub } = AccountUtilities.generateExtendedKeyPairFromSeed( primarySeed, network, derivationPath )
+
+  // BIP85 derivation: primary mnemonic to bip85-child mnemonic
+  const bip85Config: BIP85Config = BIP85.generateBIP85Configuration(type, instanceNum)
+  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic)
+  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words)
+
+  const id = crypto.createHash( 'sha256' ).update( mnemonic ).digest( 'hex' )
+
+  // derive extended keys
+  const seed = bip39.mnemonicToSeedSync( mnemonic ).toString('hex')
+  const xDerivationPath = AccountUtilities.getDerivationPath(networkType)
+  const { xpriv: primaryXpriv, xpub: primaryXpub } = AccountUtilities.generateExtendedKeyPairFromSeed( seed, network, xDerivationPath )
 
   const xpubs: {
     secondary: string,
@@ -122,8 +138,8 @@ export function generateMultiSigAccount(
   }
 
   let initialRecevingAddress = ''
-  const id = crypto.createHash( 'sha256' ).update( primaryXpub + xpubs.secondary + xpubs.bithyve ).digest( 'hex' )
   let isUsable = false
+  
   if( secondaryXpub ){
     initialRecevingAddress = AccountUtilities.createMultiSig( {
       primary: primaryXpub,
@@ -139,7 +155,9 @@ export function generateMultiSigAccount(
     type,
     instanceNum,
     networkType,
-    derivationPath,
+    mnemonic,
+    bip85Config,
+    xDerivationPath,
     is2FA: true,
     xpub: primaryXpub,
     xpriv: primaryXpriv,
@@ -176,7 +194,7 @@ export function generateMultiSigAccount(
   return account
 }
 
-export function generateDonationAccount(
+export const generateDonationAccount = async (
   {
     walletId,
     type,
@@ -186,8 +204,7 @@ export function generateDonationAccount(
     donationName,
     donationDescription,
     donee,
-    primarySeed,
-    derivationPath,
+    primaryMnemonic,
     is2FA,
     secondaryXpub,
     bithyveXpub,
@@ -201,41 +218,36 @@ export function generateDonationAccount(
     donationName: string,
     donationDescription: string,
     donee: string,
-    primarySeed: string,
-    derivationPath: string,
+    primaryMnemonic: string,
     is2FA?: boolean,
     secondaryXpub?: string,
     bithyveXpub?: string,
     networkType: NetworkType,
   }
-): DonationAccount {
+): Promise<DonationAccount> => {
 
   let baseAccount: Account | MultiSigAccount
-  if( is2FA ) baseAccount = generateMultiSigAccount( {
+  if( is2FA ) baseAccount = await generateMultiSigAccount( {
     walletId,
     type,
     instanceNum,
     accountName,
     accountDescription,
-    primarySeed,
-    derivationPath,
+    primaryMnemonic,
     secondaryXpub,
     bithyveXpub,
     networkType,
   } )
   else {
-    baseAccount = {
-      ...generateAccount( {
+    baseAccount = await generateAccount( {
         walletId,
         type,
         instanceNum,
         accountName,
         accountDescription,
-        primarySeed,
-        derivationPath,
+        primaryMnemonic,
         networkType,
-      } ),
-    }
+      } )
   }
 
   const donationAccount: DonationAccount = {

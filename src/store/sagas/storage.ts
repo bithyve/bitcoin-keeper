@@ -1,11 +1,11 @@
 
 import * as bip39 from 'bip39'
 import crypto from 'crypto'
-import { Wallet } from '../../core/interfaces/Interface'
 import DeviceInfo from 'react-native-device-info'
 import { SETUP_WALLET, updateWallet } from '../actions/storage'
 import { put } from 'redux-saga/effects'
 import { createWatcher } from '../utilities'
+import { Wallet } from 'src/core/interfaces/Interface'
 
 function* setupWalletWorker( { payload } ) {
     const { walletName, security }: { walletName: string, security: { questionId: string, question: string, answer: string } } = payload
