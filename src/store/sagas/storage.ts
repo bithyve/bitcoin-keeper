@@ -1,7 +1,7 @@
 
 import * as bip39 from 'bip39'
 import crypto from 'crypto'
-import { Wallet } from 'src/bitcoin/utilities/Interface'
+import { Wallet } from '../../core/interfaces/Interface'
 import DeviceInfo from 'react-native-device-info'
 import { SETUP_WALLET, updateWallet } from '../actions/storage'
 import { put } from 'redux-saga/effects'

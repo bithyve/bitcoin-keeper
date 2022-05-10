@@ -79,19 +79,19 @@ import {
   Wallet,
   LNNode,
   DerivationPurpose
-} from '../../bitcoin/utilities/Interface'
+} from '../../core/interfaces/Interface'
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces'
 import AccountShell from '../../common/data/models/AccountShell'
 import BitcoinUnit from '../../common/data/enums/BitcoinUnit'
 import ServiceAccountKind from '../../common/data/enums/ServiceAccountKind'
 import SyncStatus from '../../common/data/enums/SyncStatus'
-import config from '../../bitcoin/config'
+import config from '../../core/config'
 import { AccountsState } from '../reducers/accounts'
-import AccountOperations from '../../bitcoin/utilities/accounts/AccountOperations'
+import AccountOperations from '../../core/accounts/AccountOperations'
 import * as bitcoinJS from 'bitcoinjs-lib'
-import AccountUtilities from '../../bitcoin/utilities/accounts/AccountUtilities'
-import { generateAccount, generateDonationAccount, generateMultiSigAccount } from '../../bitcoin/utilities/accounts/AccountFactory'
-import { APP_STAGE } from '../../bitcoin/utilities/Interface'
+import AccountUtilities from '../../core/accounts/AccountUtilities'
+import { generateAccount, generateDonationAccount, generateMultiSigAccount } from '../../core/accounts/AccountFactory'
+import { APP_STAGE } from '../../core/config'
 import * as bip39 from 'bip39'
 import crypto from 'crypto'
 import TestSubAccountInfo from '../../common/data/models/SubAccountInfo/HexaSubAccounts/TestSubAccountInfo'
@@ -102,9 +102,9 @@ import ExternalServiceSubAccountInfo from '../../common/data/models/SubAccountIn
 import LightningSubAccountInfo from '../../common/data/models/SubAccountInfo/HexaSubAccounts/LightningSubAccountInfo'
 
 import _ from 'lodash'
-import Relay from '../../bitcoin/utilities/Relay'
+import Relay from '../../core/utilities/Relay'
 import AccountVisibility from '../../common/data/enums/AccountVisibility'
-import TrustedContactsOperations from '../../bitcoin/utilities/TrustedContactsOperations'
+import TrustedContactsOperations from '../../core/trusted_contacts/TrustedContactsOperations'
 import { updateWallet } from '../actions/storage'
 import FullyImportedWalletSubAccountInfo from 'src/common/data/models/SubAccountInfo/ImportedWalletSubAccounts/FullyImportedWalletSubAccountInfo'
 
@@ -681,7 +681,7 @@ export function* addNewAccount(accountType: AccountType, accountDetails: newAcco
   const wallet: Wallet = yield select(state => state.storage.wallet)
   const { walletId, primarySeed, accounts } = wallet
   const { name: accountName, description: accountDescription, is2FAEnabled, doneeName } = accountDetails
-
+  
   switch (accountType) {
     case AccountType.TEST_ACCOUNT:
       const testInstanceCount = recreationInstanceNumber !== undefined ? recreationInstanceNumber : (accounts[AccountType.TEST_ACCOUNT])?.length | 0
@@ -803,6 +803,7 @@ export function* addNewAccount(accountType: AccountType, accountDetails: newAcco
       return lnAccount
 
     case AccountType.IMPORTED_ACCOUNT:
+    
       const importedInstanceCount = 0 // imported accounts always have instance number equal to zero(as they're imported using different seeds)
       const importedAccount: Account = yield call(generateAccount, {
         walletId,

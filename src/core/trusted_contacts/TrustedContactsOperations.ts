@@ -10,20 +10,12 @@ import {
   PrimaryStreamData,
   TrustedContactRelationTypes,
   Trusted_Contacts,
-} from './Interface'
+} from '../interfaces/Interface'
 import crypto from 'crypto'
 import config from '../config'
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import idx from 'idx'
-
-
-const { HEXA_ID } = config
-const { REQUEST_TIMEOUT, RELAY, SIGNING_SERVER } = config
-export const BH_AXIOS = axios.create( {
-  baseURL: RELAY,
-  timeout: REQUEST_TIMEOUT * 3,
-} )
-
+const { HEXA_ID, RELAY_AXIOS } = config
 
 export default class TrustedContactsOperations {
   static cipherSpec: {
@@ -233,7 +225,8 @@ export default class TrustedContactsOperations {
   static cacheInstream = (
     contact: TrustedContact,
     channelKey: string,
-    instreamUpdates: StreamData
+    instreamUpdates: StreamData,
+    outStreamId: string,
   ) => {
     let encryptedInstream =
       contact.permanentChannel[ instreamUpdates.streamId ] || {
@@ -293,7 +286,11 @@ export default class TrustedContactsOperations {
           TrustedContactRelationTypes.KEEPER_WARD,
         ].includes( contact.relationType ) &&
         [ TrustedContactRelationTypes.CONTACT ].includes( incomingRelationshipType )
-      ) delete contact.contactsSecondaryChannelKey  // delete secondaryCH-key if you're no longer the keeper
+      ) {
+        delete contact.contactsSecondaryChannelKey  // delete secondaryCH-key if you're no longer the keeper
+        contact.relationType = incomingRelationshipType
+        contact.unencryptedPermanentChannel[ outStreamId ].primaryData.relationType = incomingRelationshipType
+      }
 
       if ( incomingRelationshipType === TrustedContactRelationTypes.WARD )
         contact.secondaryChannelKey = null // remove secondaryCH-key post keeper setup
@@ -325,6 +322,7 @@ export default class TrustedContactsOperations {
       }
       const channelOutstreams = {
       }
+      let outStreamId: string
 
       for ( let {
         channelKey,
@@ -335,8 +333,8 @@ export default class TrustedContactsOperations {
         contactsSecondaryChannelKey,
         metaSync,
       } of channelSyncDetails ) {
-
-        if ( !contact.isActive ) continue // skip non-active contacts
+        outStreamId = streamId
+        if ( !contact || ( contact && !contact.isActive ) ) continue // skip non-active contacts
         if( contactsSecondaryChannelKey ) contact.contactsSecondaryChannelKey = contactsSecondaryChannelKey // execution case: when a contact is upgraded to a keeper
         // auto-update last seen(if flags aren't already present)
         if ( !unEncryptedOutstreamUpdates || !idx( unEncryptedOutstreamUpdates, _ => _.metaData.flags ) ){
@@ -380,7 +378,7 @@ export default class TrustedContactsOperations {
       }
 
       if ( Object.keys( channelOutstreams ).length ) {
-        const res: AxiosResponse = await BH_AXIOS.post(
+        const res: AxiosResponse = await RELAY_AXIOS.post(
           'syncPermanentChannels',
           {
             HEXA_ID,
@@ -402,7 +400,7 @@ export default class TrustedContactsOperations {
             )
           if ( typeof isActive === 'boolean' )
             ( contact as TrustedContact ).isActive = isActive
-          if ( instream ) TrustedContactsOperations.cacheInstream( contact, channelKey, instream )
+          if ( instream ) TrustedContactsOperations.cacheInstream( contact, channelKey, instream, outStreamId )
         }
 
         // consolidate contact updates/creation
@@ -455,7 +453,7 @@ export default class TrustedContactsOperations {
          .digest( 'hex' )
        const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId( walletId )
 
-       const res: AxiosResponse = await BH_AXIOS.post( 'retrieveFromStream', {
+       const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveFromStream', {
          HEXA_ID,
          permanentChannelAddress,
          streamId,
@@ -528,7 +526,7 @@ export default class TrustedContactsOperations {
           .digest( 'hex' )
         const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId( walletId )
 
-        const res: AxiosResponse = await BH_AXIOS.post( 'retrieveFromStream', {
+        const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveFromStream', {
           HEXA_ID,
           permanentChannelAddress,
           streamId,
@@ -567,7 +565,7 @@ export default class TrustedContactsOperations {
          .update( channelKey )
          .digest( 'hex' )
 
-       const res: AxiosResponse = await BH_AXIOS.post( 'updateStream', {
+       const res: AxiosResponse = await RELAY_AXIOS.post( 'updateStream', {
          HEXA_ID,
          permanentChannelAddress,
          streamUpdates
@@ -599,7 +597,7 @@ export default class TrustedContactsOperations {
            .update( channelKey )
            .digest( 'hex' )
        )
-       const res: AxiosResponse = await BH_AXIOS.post( 'retrieveChannels', {
+       const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveChannels', {
          HEXA_ID,
          channelAddresses,
        } )
@@ -660,7 +658,10 @@ export default class TrustedContactsOperations {
            hasNewData: idx(
              unencryptedPermanentChannel,
              ( _ ) => _[ instreamId ].metaData.flags.newData
-           )
+           ),
+           timestamps: {
+             created: Date.now() 
+           }
          }
 
          restoredContacts[ channelKey ] = newContact

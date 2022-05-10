@@ -4,7 +4,7 @@ import {
   Balances,
   TransactionDetails,
   LNNode
-} from '../../../../../bitcoin/utilities/Interface'
+} from '../../../../../core/interfaces/Interface'
 import AccountVisibility from '../../../enums/AccountVisibility'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
 import SubAccountKind from '../../../enums/SubAccountKind'

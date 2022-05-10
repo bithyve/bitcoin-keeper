@@ -15,7 +15,6 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/components/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
-import { AccountType } from 'src/bitcoin/utilities/Interface';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/components/AddWalletSheet';
 import ImportWalletSheet from 'src/components/ImportWalletSheet';
@@ -29,6 +28,7 @@ import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
+import { AccountType } from 'src/core/interfaces/Interface';
 
 const AddWalletScreen = () => {
 

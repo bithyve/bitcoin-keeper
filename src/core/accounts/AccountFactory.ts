@@ -1,4 +1,4 @@
-import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility, DerivationPurpose } from '../Interface'
+import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility, DerivationPurpose } from '../interfaces/Interface'
 import crypto from 'crypto'
 import AccountUtilities from './AccountUtilities'
 
@@ -32,7 +32,8 @@ export function generateAccount(
   const { xpriv, xpub } = AccountUtilities.generateExtendedKeyPairFromSeed( primarySeed, network, derivationPath )
 
   const id = crypto.createHash( 'sha256' ).update( xpub ).digest( 'hex' )
-  const purpose = [AccountType.IMPORTED_ACCOUNT].includes(type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+
+  const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
   const initialRecevingAddress = AccountUtilities.getAddressByIndex( xpub, false, 0, network, purpose )
 
   const account: Account = {
@@ -75,7 +76,6 @@ export function generateAccount(
 
   if(type === AccountType.IMPORTED_ACCOUNT ) account.primaryMnemonic = primaryMnemonic
   if( type === AccountType.LIGHTNING_ACCOUNT ) account.node = node
-
   return account
 }
 
@@ -122,21 +122,12 @@ export function generateMultiSigAccount(
   }
 
   let initialRecevingAddress = ''
-
-  let id
-  if( type === AccountType.SAVINGS_ACCOUNT && instanceNum === 0 ){
-    const secondary = undefined
-    const bithyve = undefined
-    id = crypto.createHash( 'sha256' ).update( primaryXpub + secondary + bithyve ).digest( 'hex' ) // recreation consistency(id) for saving's account first instance
-  }
-  else id = crypto.createHash( 'sha256' ).update( primaryXpub + xpubs.secondary + xpubs.bithyve ).digest( 'hex' )
-
+  const id = crypto.createHash( 'sha256' ).update( primaryXpub + xpubs.secondary + xpubs.bithyve ).digest( 'hex' )
   let isUsable = false
   if( secondaryXpub ){
     initialRecevingAddress = AccountUtilities.createMultiSig( {
       primary: primaryXpub,
-      secondary: xpubs.secondary,
-      bithyve: xpubs.bithyve,
+      ...xpubs,
     }, 2, network, 0, false ).address
     isUsable = true
   }
