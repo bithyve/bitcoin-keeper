@@ -1,4 +1,4 @@
-import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility } from '../interfaces/Interface'
+import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility, DerivationPurpose } from '../interfaces/Interface'
 import crypto from 'crypto'
 import AccountUtilities from './AccountUtilities'
 
@@ -10,6 +10,7 @@ export function generateAccount(
     accountName,
     accountDescription,
     primarySeed,
+    primaryMnemonic,
     derivationPath,
     networkType,
     node
@@ -20,6 +21,7 @@ export function generateAccount(
     accountName: string,
     accountDescription: string,
     primarySeed: string,
+    primaryMnemonic?: string,
     derivationPath: string,
     networkType: NetworkType,
     node?: LNNode
@@ -30,7 +32,9 @@ export function generateAccount(
   const { xpriv, xpub } = AccountUtilities.generateExtendedKeyPairFromSeed( primarySeed, network, derivationPath )
 
   const id = crypto.createHash( 'sha256' ).update( xpub ).digest( 'hex' )
-  const initialRecevingAddress = AccountUtilities.getAddressByIndex( xpub, false, 0, network )
+
+  const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(type)? DerivationPurpose.BIP84: DerivationPurpose.BIP49
+  const initialRecevingAddress = AccountUtilities.getAddressByIndex( xpub, false, 0, network, purpose )
 
   const account: Account = {
     id,
@@ -69,10 +73,9 @@ export function generateAccount(
     importedAddresses: {
     },
   }
-  if( type === AccountType.LIGHTNING_ACCOUNT ) {
-    account.node = node
-  }
 
+  if(type === AccountType.IMPORTED_ACCOUNT ) account.primaryMnemonic = primaryMnemonic
+  if( type === AccountType.LIGHTNING_ACCOUNT ) account.node = node
   return account
 }
 

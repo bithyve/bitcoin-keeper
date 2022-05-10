@@ -11,11 +11,10 @@ const ECPair = ECPairFactory( ecc )
 import config from '../config'
 import _ from 'lodash'
 import { Transaction, ScannedAddressKind, Balances, MultiSigAccount, Account, NetworkType, AccountType, DonationAccount, ActiveAddresses, TransactionType, DerivationPurpose, DerivativeAccountTypes } from '../interfaces/Interface'
-import { BH_AXIOS, SIGNING_AXIOS } from '../utilities/api'
 import idx from 'idx'
 
 
-const { REQUEST_TIMEOUT } = config
+const { REQUEST_TIMEOUT, RELAY_AXIOS, SIGNING_AXIOS } = config
 const accAxios: AxiosInstance = axios.create( {
   timeout: REQUEST_TIMEOUT * 3
 } )
@@ -46,13 +45,13 @@ export default class AccountUtilities {
     else return bitcoinJS.networks.bitcoin
   }
 
-  static getDerivationPath = ( type: NetworkType, accountType: AccountType, instanceNumber: number, debug?: boolean ): string => {
+  static getDerivationPath = ( type: NetworkType, accountType: AccountType, instanceNumber: number, debug?: boolean, purpose: DerivationPurpose = DerivationPurpose.BIP49 ): string => {
     const { series, upperBound } = config.ACCOUNT_INSTANCES[ accountType ]
     if( !debug && instanceNumber > ( upperBound - 1 ) ) throw new Error( `Cannot create new instance of type ${accountType}, instace upper bound exceeds ` )
     const accountNumber = series + instanceNumber
 
-    if( type === NetworkType.TESTNET ) return `m/49'/1'/${accountNumber}'`
-    else return `m/49'/0'/${accountNumber}'`
+    if( type === NetworkType.TESTNET ) return `m/${purpose}'/1'/${accountNumber}'`
+    else return `m/${purpose}'/0'/${accountNumber}'`
   }
 
   static getKeyPair = ( privateKey: string, network: bitcoinJS.Network ): ECPairInterface =>
@@ -1048,7 +1047,7 @@ export default class AccountUtilities {
 
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'setupDonationAccount', {
+      res = await RELAY_AXIOS.post( 'setupDonationAccount', {
         HEXA_ID: config.HEXA_ID,
         donationId: account.id.slice( 0, 15 ),
         walletID: account.walletId,
@@ -1091,7 +1090,7 @@ export default class AccountUtilities {
 
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'updatePreferences', {
+      res = await RELAY_AXIOS.post( 'updatePreferences', {
         HEXA_ID: config.HEXA_ID,
         donationId: account.id.slice( 0, 15 ),
         walletID: account.walletId,
@@ -1144,7 +1143,7 @@ export default class AccountUtilities {
 
     let res: AxiosResponse
     try {
-      res = await BH_AXIOS.post( 'fetchXpubInfo', {
+      res = await RELAY_AXIOS.post( 'fetchXpubInfo', {
         HEXA_ID: config.HEXA_ID,
         xpubId,
         accountType: DerivativeAccountTypes.DONATION_ACCOUNT,
