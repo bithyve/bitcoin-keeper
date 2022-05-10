@@ -902,6 +902,12 @@ export enum AccountVisibility {
   ARCHIVED = 'ARCHIVED',
 }
 
+export interface BIP85Config {
+    index: number,                      
+    words: number,
+    language: string,
+    derivationPath: string,
+}
 export interface Account {
   id: string,                           // account identifier(derived from xpub)
   isUsable: boolean,                    // true if account is usable
@@ -909,8 +915,9 @@ export interface Account {
   type: AccountType,                    // type of account
   instanceNum: number,                  // instance number of the aforementioned type
   networkType: NetworkType,             // testnet/mainnet
-  derivationPath: string,               // derivation path of the extended keys belonging to this account
-  primaryMnemonic?: string,             // primary mnemonic for imported account
+  mnemonic: string,                     // mnemonic of the account
+  bip85Config: BIP85Config,             // bip85 configuration leading to the derivation path for the corresponding entropy
+  xDerivationPath: string,              // derivation path of the extended keys belonging to this account
   xpub: string | null,                  // account's xpub (primary for multi-sig accounts)
   xpriv: string | null,                 // account's xpriv (primary for multi-sig accounts)
   accountName: string,                  // name of the account
