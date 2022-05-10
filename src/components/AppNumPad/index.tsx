@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import CharButton from './CharButton';
-import DeleteIcon from 'src/assets/icons/delete.svg';
+import DeleteIcon from 'assets/images/delete.svg';
 
 const AppNumPad = ({ ok, clear, setValue, disable = false }) => {
   const numPadArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'ok', 0, 'clear'];

@@ -13,40 +13,56 @@ import SmallIconBitcoin from 'src/assets/icons/Accounts/icon_bitcoin_1.svg';
 import IconRecieve from 'src/assets/icons/Accounts/icon_recieve.svg';
 import IconSend from 'src/assets/icons/Accounts/icon_send.svg';
 
-
-import CheckingAccount from 'src/assets/images/regular_account_background.png';
+import CheckingAccount from 'assets/images/regular_account_background.png';
 
 const RenderTransaction = () => {
   return (
     <Box>
-      <Box flexDir={'row'} alignItems={'center'} justifyContent={'space-between'} paddingX={3} paddingY={3} >
+      <Box
+        flexDir={'row'}
+        alignItems={'center'}
+        justifyContent={'space-between'}
+        paddingX={3}
+        paddingY={3}
+      >
         <Box>
-          <Text color={'#006DB4'} fontSize={13}>Bought via FastBitcoin</Text>
-          <Text color={'#6C6C6C'} fontSize={11}>01/09/2019</Text>
+          <Text color={'#006DB4'} fontSize={13}>
+            Bought via FastBitcoin
+          </Text>
+          <Text color={'#6C6C6C'} fontSize={11}>
+            01/09/2019
+          </Text>
         </Box>
         <Box flexDir={'row'} alignItems={'center'}>
           <Box marginRight={2}>
             <SmallIconBitcoin />
           </Box>
           <Box>
-            <Text marginRight={3} fontSize={17} color={'#70C1B3'}>2,316,000</Text>
+            <Text marginRight={3} fontSize={17} color={'#70C1B3'}>
+              2,316,000
+            </Text>
           </Box>
           <IconArrow />
         </Box>
       </Box>
-      <Box marginTop={1} borderBottomWidth={0.75} borderBottomColor={'#6C6C6C'} width={'95%'} marginX={'auto'} />
+      <Box
+        marginTop={1}
+        borderBottomWidth={0.75}
+        borderBottomColor={'#6C6C6C'}
+        width={'95%'}
+        marginX={'auto'}
+      />
     </Box>
-  )
-}
+  );
+};
 const AccountDetailScreen = () => {
   return (
     <SafeAreaView>
       <StatusBarComponent />
       <Box marginX={3} marginY={5}>
-
         <Box marginX={3} flexDir={'row'} alignItems={'center'} justifyContent={'space-between'}>
           <IconBack />
-          <Text color={'#006DB4'} fontSize={'20'} fontFamily='body' fontWeight='200' >
+          <Text color={'#006DB4'} fontSize={'20'} fontFamily="body" fontWeight="200">
             Accounts
           </Text>
           <Toggler />
@@ -82,9 +98,14 @@ const AccountDetailScreen = () => {
                 <Text color={'#FFFFFF'} fontFamily={'body'} fontSize={21}>
                   400,000
                 </Text>
-                <Text marginX={'3'} color={'#FFFFFF'} fontFamily={'body'} fontSize={13}>sats</Text>
+                <Text marginX={'3'} color={'#FFFFFF'} fontFamily={'body'} fontSize={13}>
+                  sats
+                </Text>
               </Box>
-              <TouchableOpacity style={{ borderColor: '#FFFFFF', borderWidth: 1, borderRadius: 5 }} activeOpacity={0.5}>
+              <TouchableOpacity
+                style={{ borderColor: '#FFFFFF', borderWidth: 1, borderRadius: 5 }}
+                activeOpacity={0.5}
+              >
                 <Text color={'#FFFFFF'} fontFamily={'body'} fontSize={15} padding={'1'}>
                   Know More
                 </Text>
@@ -93,11 +114,31 @@ const AccountDetailScreen = () => {
           </Box>
         </ImageBackground>
 
-        <Box justifyContent={'space-between'} flexDir={'row'} marginX={3} marginY={8} marginRight={5}>
-          <Text color={'#6C6C6C'} fontSize={13} fontFamily={'body'} fontWeight={200} letterSpacing={0.2}>
+        <Box
+          justifyContent={'space-between'}
+          flexDir={'row'}
+          marginX={3}
+          marginY={8}
+          marginRight={5}
+        >
+          <Text
+            color={'#6C6C6C'}
+            fontSize={13}
+            fontFamily={'body'}
+            fontWeight={200}
+            letterSpacing={0.2}
+          >
             Today
           </Text>
-          <Text color={'#6C6C6C'} fontSize={13} fontFamily={'body'} fontWeight={200} fontStyle='italic' textDecorationLine={'underline'} letterSpacing={0.2}>
+          <Text
+            color={'#6C6C6C'}
+            fontSize={13}
+            fontFamily={'body'}
+            fontWeight={200}
+            fontStyle="italic"
+            textDecorationLine={'underline'}
+            letterSpacing={0.2}
+          >
             View More
           </Text>
         </Box>
@@ -111,24 +152,15 @@ const AccountDetailScreen = () => {
           <TouchableOpacity style={styles.buttonContainer}>
             <IconSend />
             <Box>
-              <Text style={styles.buttonText}>
-                Send
-              </Text>
-              <Text style={styles.subText}>
-                Tran Fee : 0.032 (sats)
-              </Text>
+              <Text style={styles.buttonText}>Send</Text>
+              <Text style={styles.subText}>Tran Fee : 0.032 (sats)</Text>
             </Box>
-
           </TouchableOpacity>
           <TouchableOpacity style={styles.buttonContainer}>
             <IconRecieve />
             <Box>
-              <Text style={styles.buttonText}>
-                Receive
-              </Text>
-              <Text style={styles.subText}>
-                Tran Fee : 0.032 (sats)
-              </Text>
+              <Text style={styles.buttonText}>Receive</Text>
+              <Text style={styles.subText}>Tran Fee : 0.032 (sats)</Text>
             </Box>
           </TouchableOpacity>
         </Box>
@@ -152,7 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: 70,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   buttonText: {
     marginLeft: 8,
@@ -164,7 +196,7 @@ const styles = StyleSheet.create({
     color: '#BCB6B6',
     fontSize: 9,
     marginLeft: 8,
-  }
+  },
 });
 
 export default AccountDetailScreen;

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import LockIcon from 'src/assets/icons/lock.svg';
+import LockIcon from 'assets/images/lock.svg';
 
 const LogoContainer = () => {
   return (
