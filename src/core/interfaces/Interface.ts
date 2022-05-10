@@ -6,6 +6,23 @@ export enum DerivationPurpose {
   BIP84 = 84
 }
 
+export enum BIP85Languages {
+  ENGLISH = "english",
+  JAPANESE = "japanese",
+  KOREAN = "korean",
+  SPANISH = "spanish",
+  CHINESE_SIMPLIFIED = "chinese_simplified",
+  CHINESE_TRADITIONAL = "chinese_traditional",
+  FRENCH = "french",
+  ITALIAN = "italian",
+  CZECH = "czech",
+}
+
+export enum BIP85Words {
+  TWELVE = 12,
+  TWENTY_FOUR = 24
+}
+
 export interface InputUTXOs {
   txId: string;
   vout: number;
@@ -180,39 +197,6 @@ export interface ShareUploadables {
   encryptedDynamicNonPMDD?: EncDynamicNonPMDD;
 }
 
-export interface DerivativeAccountElements {
-  xpub: string;
-  xpubId: string;
-  xpriv: string;
-  usedAddresses?: string[];
-  nextFreeAddressIndex?: number;
-  nextFreeChangeAddressIndex?: number;
-  receivingAddress?: string;
-  confirmedUTXOs?: {
-    txId: string;
-    vout: number;
-    value: number;
-    address: string;
-    status?: any;
-  }[];
-  unconfirmedUTXOs?: {
-    txId: string;
-    vout: number;
-    value: number;
-    address: string;
-    status?: any;
-  }[];
-  balances?: {
-    balance: number;
-    unconfirmedBalance: number;
-  };
-  transactions?: Transaction[];
-  txIdMap?: {[txid: string]: string[]};
-  lastBalTxSync?: number;
-  newTransactions?: Transaction[];
-  blindGeneration?: boolean // temporarily generated during blind refresh
-}
-
 export enum DerivativeAccountTypes {
   SUB_PRIMARY_ACCOUNT = 'SUB_PRIMARY_ACCOUNT',
   FAST_BITCOINS = 'FAST_BITCOINS',
@@ -221,130 +205,6 @@ export enum DerivativeAccountTypes {
   WYRE = 'WYRE',
   RAMP = 'RAMP',
   SWAN = 'SWAN'
-}
-
-// Base Dervative Account
-export interface DerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-
-    // TODO: Is this a count of some sort?
-    using: number;
-  };
-  [accounts: number]: DerivativeAccountElements;
-}
-
-export interface TrustedContactDerivativeAccountElements
-  extends DerivativeAccountElements {
-  channelKey: string;
-  contactDetails: ContactDetails,
-  xpubDetails: {
-    xpub?: string;
-    tpub?: string;
-    receivingAddress?: string;
-    usedAddresses?: string[];
-    nextFreeAddressIndex?: number;
-  };
-}
-
-// Trusted Contact Dervative Account (extension of Base Derivative Account)
-export interface TrustedContactDerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-    using: number;
-  };
-  [accounts: number]: TrustedContactDerivativeAccountElements;
-}
-
-export interface DonationDerivativeAccountElements
-  extends DerivativeAccountElements {
-  donee: string;
-  id: string;
-  subject: string;
-  description: string;
-  configuration: {
-    displayBalance: boolean;
-  };
-  disableAccount: boolean;
-}
-
-export interface DonationDerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-    using: number;
-  };
-  [accounts: number]: DonationDerivativeAccountElements;
-}
-
-export interface SubPrimaryDerivativeAccountElements
-  extends DerivativeAccountElements {
-  accountName: string;
-  accountDescription: string;
-}
-
-export interface SubPrimaryDerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-    using: number;
-  };
-  [accounts: number]: SubPrimaryDerivativeAccountElements;
-}
-
-export interface WyreDerivativeAccountElements
-  extends DerivativeAccountElements {
-  accountName: string;
-  accountDescription: string;
-}
-
-export interface WyreDerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-    using: number;
-  };
-  [accounts: number]: WyreDerivativeAccountElements;
-}
-
-export interface RampDerivativeAccountElements
-  extends DerivativeAccountElements {
-  accountName: string;
-  accountDescription: string;
-}
-
-export interface RampDerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-    using: number;
-  };
-  [accounts: number]: RampDerivativeAccountElements;
-}
-
-export interface SwanDerivativeAccountElements
-  extends DerivativeAccountElements {
-  accountName: string;
-  accountDescription: string;
-}
-
-export interface SwanDerivativeAccount {
-  series: number;
-  instance: {
-    max: number;
-    using: number;
-  };
-  [accounts: number]: SwanDerivativeAccountElements;
-}
-
-export interface DerivativeAccounts {
-  [accountType: string]:
-    | DerivativeAccount
-    | TrustedContactDerivativeAccount
-    | DonationDerivativeAccount
-    | SubPrimaryDerivativeAccount;
 }
 
 export enum notificationType {

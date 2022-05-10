@@ -3,7 +3,8 @@ import bs58 from "bs58"
 import bip39 from "bip39"
 import bip32 from "bip32"
 import crypto from "crypto"
-
+import { AccountType, BIP85Config, BIP85Languages, BIP85Words } from "../interfaces/Interface"
+import config from "../config"
 export default class BIP85 {
   private static hmacsha512 = (message): Buffer  => {
     const key = "bip-entropy-from-k"
@@ -122,4 +123,18 @@ export default class BIP85 {
       return res;
     },
   };
+  
+  public static generateBIP85Configuration = ( accountType: AccountType, instanceNumber: number, words: number = BIP85Words.TWELVE, language: string = BIP85Languages.ENGLISH ): BIP85Config => {
+    const { series, upperBound } = config.ACCOUNT_INSTANCES[ accountType ]
+    if( instanceNumber > ( upperBound - 1 ) ) throw new Error( `Cannot create new instance of type ${accountType}, exceeds instance upper bound` )
+    const index = series + instanceNumber
+
+      const bip85Config: BIP85Config = {
+      index,
+      words,
+      language,
+      derivationPath: `m/83696968'/39'/${BIP85.languageIdxOf(language)}'/${words}'/${index}'`
+    }
+    return bip85Config
+  }
 }

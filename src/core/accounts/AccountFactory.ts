@@ -29,7 +29,7 @@ export const generateAccount = async (
   const network = AccountUtilities.getNetworkByType( networkType )
 
   // BIP85 derivation: primary mnemonic to bip85-child mnemonic
-  const bip85Config: BIP85Config = BIP85.generateBIP85Configuration()
+  const bip85Config: BIP85Config = BIP85.generateBIP85Configuration(type, instanceNum)
   const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic)
   const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words)
 
@@ -114,7 +114,7 @@ export const generateMultiSigAccount = async (
   const network = AccountUtilities.getNetworkByType( networkType )
 
   // BIP85 derivation: primary mnemonic to bip85-child mnemonic
-  const bip85Config: BIP85Config = BIP85.generateBIP85Configuration()
+  const bip85Config: BIP85Config = BIP85.generateBIP85Configuration(type, instanceNum)
   const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic)
   const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words)
 
