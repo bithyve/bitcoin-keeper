@@ -1,7 +1,7 @@
+import { Wallet } from 'src/core/interfaces/Interface';
 import {
   UPDATE_WALLET,
 } from '../actions/storage'
-import { Wallet } from '../../core/interfaces/Interface'
 
 const initialState: {
   wallet: Wallet;

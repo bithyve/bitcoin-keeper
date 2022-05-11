@@ -11,12 +11,8 @@ import {
   ACCOUNT_SETTINGS_UPDATED,
   ACCOUNT_SETTINGS_UPDATE_FAILED,
   SUB_ACCOUNT_SETTINGS_UPDATE_COMPLETED,
-  REASSIGN_TRANSACTIONS,
   TRANSACTION_REASSIGNMENT_SUCCEEDED,
   TRANSACTION_REASSIGNMENT_FAILED,
-  TRANSACTION_REASSIGNMENT_COMPLETED,
-  MERGE_ACCOUNT_SHELLS,
-  ACCOUNT_SHELL_MERGE_COMPLETED,
   ACCOUNT_SHELL_MERGE_SUCCEEDED,
   ACCOUNT_SHELL_MERGE_FAILED,
   ACCOUNT_SHELLS_ORDER_UPDATED,
@@ -51,7 +47,7 @@ import {
 } from '../actions/accounts'
 import AccountShell from '../../common/data/models/AccountShell'
 import SyncStatus from '../../common/data/enums/SyncStatus'
-import { Account, Accounts, Gift } from '../../core/interfaces/Interface'
+import { Account, Accounts, Gift } from 'src/core/interfaces/Interface'
 import SourceAccountKind from '../../common/data/enums/SourceAccountKind'
 
 export type AccountsState = {
@@ -393,15 +389,6 @@ export default ( state: AccountsState = initialState, action ): AccountsState =>
           hasAccountSettingsUpdateFailed: false,
         }
 
-      case REASSIGN_TRANSACTIONS:
-        return {
-          ...state,
-          transactionReassignmentDestinationID: action.payload.destinationID,
-          isTransactionReassignmentInProgress: true,
-          hasTransactionReassignmentSucceeded: false,
-          hasTransactionReassignmentFailed: false,
-        }
-
       case TRANSACTION_REASSIGNMENT_SUCCEEDED:
         return {
           ...state,
@@ -418,25 +405,6 @@ export default ( state: AccountsState = initialState, action ): AccountsState =>
           hasTransactionReassignmentFailed: true,
         }
 
-      case TRANSACTION_REASSIGNMENT_COMPLETED:
-        return {
-          ...state,
-          transactionReassignmentDestinationID: null,
-          isTransactionReassignmentInProgress: false,
-          hasTransactionReassignmentSucceeded: false,
-          hasTransactionReassignmentFailed: false,
-        }
-
-      case MERGE_ACCOUNT_SHELLS:
-        return {
-          ...state,
-          accountShellMergeSource: action.payload.source,
-          accountShellMergeDestination: action.payload.destination,
-          isAccountShellMergeInProgress: true,
-          hasAccountShellMergeSucceeded: false,
-          hasAccountShellMergeFailed: false,
-        }
-
       case ACCOUNT_SHELL_MERGE_SUCCEEDED:
         return {
           ...state,
@@ -451,16 +419,6 @@ export default ( state: AccountsState = initialState, action ): AccountsState =>
           isAccountShellMergeInProgress: false,
           hasAccountShellMergeSucceeded: false,
           hasAccountShellMergeFailed: true,
-        }
-
-      case ACCOUNT_SHELL_MERGE_COMPLETED:
-        return {
-          ...state,
-          accountShellMergeSource: null,
-          accountShellMergeDestination: null,
-          isAccountShellMergeInProgress: false,
-          hasAccountShellMergeSucceeded: false,
-          hasAccountShellMergeFailed: false,
         }
 
       case ACCOUNT_SHELLS_ORDER_UPDATED:
