@@ -1,6 +1,4 @@
-import React, {
-  useCallback,
-} from 'react';
+import React, { useCallback } from 'react';
 
 import { View } from 'react-native';
 import { Text } from 'native-base';
@@ -17,8 +15,8 @@ import { importNewAccount } from 'src/store/actions/accounts';
 import { useDispatch } from 'react-redux';
 
 type Props = {
-  bottomSheetRef: any,
-  secureData: any
+  bottomSheetRef: any;
+  secureData: any;
 };
 
 const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
