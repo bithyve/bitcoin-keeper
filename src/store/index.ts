@@ -33,7 +33,6 @@ const rootSaga = function* () {
     // storage watchers
     setupWalletWatcher,
 
-    // account watchers
     // accounts watchers
     syncAccountsWatcher,
     testcoinsWatcher,

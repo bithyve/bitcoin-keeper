@@ -1,8 +1,9 @@
 import { v4 as uuid } from 'uuid'
 import {
+  AccountType,
   Balances,
   TransactionDetails,
-} from '../../../../../core/interfaces/Interface'
+} from 'src/core/interfaces/Interface'
 import AccountVisibility from '../../../enums/AccountVisibility'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
 import SubAccountKind from '../../../enums/SubAccountKind'
@@ -18,11 +19,13 @@ export default class WatchOnlyImportedWalletSubAccountInfo
 implements ImportedWalletSubAccountDescribing {
   id: string;
   xPub: string;
+  isUsable: boolean;
   accountShellID: string | null;
   instanceNumber: number;
 
   kind: SubAccountKind = SubAccountKind.WATCH_ONLY_IMPORTED_WALLET;
   sourceKind: SourceAccountKind;
+  type: AccountType = AccountType.IMPORTED_ACCOUNT
 
   balances: Balances;
 
@@ -42,6 +45,7 @@ implements ImportedWalletSubAccountDescribing {
   constructor( {
     id = uuid(),
     xPub = null,
+    isUsable,
     accountShellID = null,
     instanceNumber = null,
     defaultTitle = 'View Only Account',
@@ -56,6 +60,7 @@ implements ImportedWalletSubAccountDescribing {
   }: ConstructorProps ) {
     this.id = id
     this.xPub = xPub
+    this.isUsable = isUsable,
     this.accountShellID = accountShellID
     this.instanceNumber = instanceNumber
     this.defaultTitle = defaultTitle
