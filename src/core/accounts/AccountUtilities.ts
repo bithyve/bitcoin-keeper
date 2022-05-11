@@ -958,50 +958,49 @@ export default class AccountUtilities {
     }
   }
 
-  // TODO: Update resetTwoFA & generateSecondaryXpriv to use lastest derivation mechanism and bip-85 based account structures 
-  // static resetTwoFA = async (
-  //   walletID: string,
-  //   secondaryMnemonic: string,
-  //   secondaryXpub: string,
-  //   network: bitcoinJS.networks.Network
-  // ): Promise<{
-  //   secret: any;
-  // }> => {
-  //   const derivedSecondaryXpub = AccountUtilities.generateExtendedKey( secondaryMnemonic, false, network, AccountUtilities.getDerivationPath( NetworkType.MAINNET, AccountType.SAVINGS_ACCOUNT, 0 ) )
-  //   if ( derivedSecondaryXpub !== secondaryXpub ) throw new Error( 'Invaild secondary mnemonic' )
+  static resetTwoFA = async (
+    walletID: string,
+    secondaryMnemonic: string,
+    secondaryXpub: string,
+    network: bitcoinJS.networks.Network
+  ): Promise<{
+    secret: any;
+  }> => {
+    const derivedSecondaryXpub = AccountUtilities.generateExtendedKey( secondaryMnemonic, false, network, AccountUtilities.getDerivationPath( NetworkType.MAINNET, 0 ) )
+    if ( derivedSecondaryXpub !== secondaryXpub ) throw new Error( 'Invaild secondary mnemonic' )
 
-  //   let res: AxiosResponse
-  //   try {
-  //     res = await SIGNING_AXIOS.post( 'resetTwoFAv2', {
-  //       HEXA_ID: config.HEXA_ID,
-  //       walletID: walletID,
-  //     } )
-  //   } catch ( err ) {
-  //     if ( err.response ) throw new Error( err.response.data.err )
-  //     if ( err.code ) throw new Error( err.code )
-  //   }
-  //   const { secret } = res.data
-  //   return {
-  //     secret
-  //   }
-  // };
+    let res: AxiosResponse
+    try {
+      res = await SIGNING_AXIOS.post( 'resetTwoFAv2', {
+        HEXA_ID: config.HEXA_ID,
+        walletID: walletID,
+      } )
+    } catch ( err ) {
+      if ( err.response ) throw new Error( err.response.data.err )
+      if ( err.code ) throw new Error( err.code )
+    }
+    const { secret } = res.data
+    return {
+      secret
+    }
+  };
 
-  // static generateSecondaryXpriv = (
-  //   secondaryMnemonic: string,
-  //   secondaryXpub: string,
-  //   network: bitcoinJS.networks.Network
-  // ): {
-  //   secondaryXpriv: string
-  // } => {
-  //   const derivationPath = AccountUtilities.getDerivationPath( NetworkType.MAINNET, AccountType.SAVINGS_ACCOUNT, 0 )
-  //   const derivedSecondaryXpub = AccountUtilities.generateExtendedKey( secondaryMnemonic, false, network, derivationPath )
-  //   if ( derivedSecondaryXpub !== secondaryXpub ) throw new Error( 'Invaild secondary mnemonic' )
+  static generateSecondaryXpriv = (
+    secondaryMnemonic: string,
+    secondaryXpub: string,
+    network: bitcoinJS.networks.Network
+  ): {
+    secondaryXpriv: string
+  } => {
+    const derivationPath = AccountUtilities.getDerivationPath( NetworkType.MAINNET, 0 )
+    const derivedSecondaryXpub = AccountUtilities.generateExtendedKey( secondaryMnemonic, false, network, derivationPath )
+    if ( derivedSecondaryXpub !== secondaryXpub ) throw new Error( 'Invaild secondary mnemonic' )
 
-  //   const secondaryXpriv = AccountUtilities.generateExtendedKey( secondaryMnemonic, true, network, derivationPath )
-  //   return {
-  //     secondaryXpriv
-  //   }
-  // };
+    const secondaryXpriv = AccountUtilities.generateExtendedKey( secondaryMnemonic, true, network, derivationPath )
+    return {
+      secondaryXpriv
+    }
+  };
 
   static getSecondSignature = async (
     walletId: string,

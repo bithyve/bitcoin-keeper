@@ -5,7 +5,21 @@ import { composeWithDevTools } from '@redux-devtools/extension'
 import { persistStore, persistReducer } from 'redux-persist'
 import accountsReducer from './reducers/accounts'
 import storageReducer from './reducers/storage'
-import { addNewAccountShellsWatcher, importNewAccountWatcher, refreshAccountShellsWatcher, syncAccountsWatcher, loginWithHexaWatcher } from './sagas/accounts'
+import {
+  testcoinsWatcher,
+  syncAccountsWatcher,
+  generateSecondaryXprivWatcher,
+  resetTwoFAWatcher,
+  addNewAccountShellsWatcher,
+  importNewAccountWatcher,
+  refreshAccountShellsWatcher,
+  feeAndExchangeRatesWatcher,
+  autoSyncShellsWatcher,
+  validateTwoFAWatcher,
+  updateAccountSettingsWatcher,
+  restoreAccountShellsWatcher,
+} from './sagas/accounts'
+
 import { setupWalletWatcher } from './sagas/storage'
 import { reduxStorage  } from 'src/storage'
 
@@ -19,12 +33,19 @@ const rootSaga = function* () {
     // storage watchers
     setupWalletWatcher,
 
-    // account watchers
-    addNewAccountShellsWatcher,
+    // accounts watchers
     syncAccountsWatcher,
+    testcoinsWatcher,
+    generateSecondaryXprivWatcher,
+    resetTwoFAWatcher,
+    feeAndExchangeRatesWatcher,
     refreshAccountShellsWatcher,
+    addNewAccountShellsWatcher,
     importNewAccountWatcher,
-    loginWithHexaWatcher
+    restoreAccountShellsWatcher,
+    autoSyncShellsWatcher,
+    validateTwoFAWatcher,
+    updateAccountSettingsWatcher,
   ]
 
   yield all(

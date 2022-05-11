@@ -10,7 +10,7 @@ import {
   AccountType,
   Balances,
   TransactionDetails,
-} from '../../../../core/interfaces/Interface'
+} from 'src/core/interfaces/Interface'
 import SourceAccountKind from '../../enums/SourceAccountKind'
 
 type ConstructorProps = SubAccountDescribingConstructorProps & {
