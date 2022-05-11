@@ -14,7 +14,7 @@
     "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
     "androidStagingRelease": "ENVFILE=.env react-native run-android --variant=stagingRelease --appIdSuffix=staging",
     "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
-    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease",
+    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4",
