@@ -3,13 +3,18 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "chmod +x setup.sh && sh ./setup.sh",
-    "postinstall": "jetify"
+    "postinstall": "jetify",
+    "androidDevelopmentDebug": "ENVFILE=.env react-native run-android --variant=developmentDebug --appIdSuffix=development",
+    "androidDevelopmentRelease": "ENVFILE=.env react-native run-android --variant=developmentRelease --appIdSuffix=development",
+    "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
+    "androidStagingRelease": "ENVFILE=.env react-native run-android --variant=stagingRelease --appIdSuffix=staging",
+    "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
+    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease",
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4",
