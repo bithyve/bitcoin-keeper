@@ -1,16 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
-import {
-  DerivativeAccount,
-  DerivativeAccounts,
-  TrustedContactDerivativeAccount,
-  DonationDerivativeAccount,
-  SwanDerivativeAccount,
-  RampDerivativeAccount,
-  WyreDerivativeAccount,
-  AccountType,
-  DerivativeAccountTypes,
-} from './interfaces/Interface';
+import { AccountType } from './interfaces/Interface';
 import Config from 'react-native-config';
 import PersonalNode from '../common/data/models/PersonalNode';
 import _ from 'lodash';
@@ -263,114 +253,12 @@ class HexaConfig {
   public RELAY_AXIOS: AxiosInstance;
   public SIGNING_AXIOS: AxiosInstance;
 
-  public SUB_PRIMARY_ACCOUNT: DerivativeAccount = {
-    series: Config.BIT_SUB_PRIMARY_ACCOUNT_SERIES
-      ? parseInt(Config.BIT_SUB_PRIMARY_ACCOUNT_SERIES.trim(), 10)
-      : 1,
-    instance: {
-      max: Config.BIT_SUB_PRIMARY_ACCOUNT_INSTANCE_COUNT
-        ? parseInt(Config.BIT_SUB_PRIMARY_ACCOUNT_INSTANCE_COUNT.trim(), 10)
-        : 5,
-      using: 0,
-    },
-  };
-
-  public FAST_BITCOINS: DerivativeAccount = {
-    series: Config.BIT_FAST_BITCOINS_SERIES
-      ? parseInt(Config.BIT_FAST_BITCOINS_SERIES.trim(), 10)
-      : 11,
-    instance: {
-      max: Config.BIT_FAST_BITCOINS_INSTANCE_COUNT
-        ? parseInt(Config.BIT_FAST_BITCOINS_INSTANCE_COUNT.trim(), 10)
-        : 5,
-      using: 0,
-    },
-  };
-
-  public WYRE: WyreDerivativeAccount = {
-    series: Config.BIT_WYRE_SERIES ? parseInt(Config.BIT_WYRE_SERIES.trim(), 10) : 21,
-    instance: {
-      max: Config.BIT_WYRE_INSTANCE_COUNT ? parseInt(Config.BIT_WYRE_INSTANCE_COUNT.trim(), 10) : 5,
-      using: 0,
-    },
-  };
-
-  public RAMP: RampDerivativeAccount = {
-    series: Config.BIT_RAMP_SERIES ? parseInt(Config.BIT_RAMP_SERIES.trim(), 10) : 31,
-    instance: {
-      max: Config.BIT_RAMP_INSTANCE_COUNT ? parseInt(Config.BIT_RAMP_INSTANCE_COUNT.trim(), 10) : 5,
-      using: 0,
-    },
-  };
-
-  public SWAN: SwanDerivativeAccount = {
-    series: Config.BIT_SWAN_SERIES ? parseInt(Config.BIT_SWAN_SERIES.trim(), 10) : 41,
-    instance: {
-      max: Config.BIT_SWAN_INSTANCE_COUNT ? parseInt(Config.BIT_SWAN_INSTANCE_COUNT.trim(), 10) : 5,
-      using: 0,
-    },
-  };
-
-  public TRUSTED_CONTACTS: TrustedContactDerivativeAccount = {
-    // corresponds to trusted channels
-    series: Config.BIT_TRUSTED_CONTACTS_SERIES
-      ? parseInt(Config.BIT_TRUSTED_CONTACTS_SERIES.trim(), 10)
-      : 1001,
-    instance: {
-      max: Config.BIT_TRUSTED_CONTACTS_INSTANCE_COUNT
-        ? parseInt(Config.BIT_TRUSTED_CONTACTS_INSTANCE_COUNT.trim(), 10)
-        : 20,
-      using: 0,
-    },
-  };
-
-  public DONATION_ACCOUNT: DonationDerivativeAccount = {
-    series: Config.BIT_DONATION_ACCOUNT_SERIES
-      ? parseInt(Config.BIT_DONATION_ACCOUNT_SERIES.trim(), 10)
-      : 101,
-    instance: {
-      max: Config.BIT_DONATION_ACCOUNT_INSTANCE_COUNT
-        ? parseInt(Config.BIT_DONATION_ACCOUNT_INSTANCE_COUNT.trim(), 10)
-        : 5,
-      using: 0,
-    },
-  };
-
-  public DERIVATIVE_ACC: DerivativeAccounts = {
-    SUB_PRIMARY_ACCOUNT: this.SUB_PRIMARY_ACCOUNT,
-    FAST_BITCOINS: this.FAST_BITCOINS,
-    WYRE: this.WYRE,
-    RAMP: this.RAMP,
-    SWAN: this.SWAN,
-    TRUSTED_CONTACTS: this.TRUSTED_CONTACTS,
-    DONATION_ACCOUNT: this.DONATION_ACCOUNT,
-  };
-
-  public EJECTED_ACCOUNTS = [
-    DerivativeAccountTypes.SUB_PRIMARY_ACCOUNT,
-    DerivativeAccountTypes.DONATION_ACCOUNT,
-    DerivativeAccountTypes.WYRE,
-    DerivativeAccountTypes.RAMP,
-    DerivativeAccountTypes.SWAN,
-  ];
-
-  public DERIVATIVE_ACC_TO_SYNC = Object.keys(this.DERIVATIVE_ACC).filter(
-    (account) => !this.EJECTED_ACCOUNTS.includes(account as DerivativeAccountTypes)
-  );
-
   constructor(env: string) {
     this.ENVIRONMENT = env.trim() || 'MAIN';
     this.RELAY = this.BH_SERVERS.RELAY;
     this.SIGNING_SERVER = this.BH_SERVERS.SIGNING_SERVER;
-    this.HEALTH_STATUS.TIME_SLOTS.SHARE_SLOT1 = Config.BIT_SHARE_HEALTH_TIME_SLOT1
-      ? parseInt(Config.BIT_SHARE_HEALTH_TIME_SLOT1.trim(), 10)
-      : 20160;
-    this.HEALTH_STATUS.TIME_SLOTS.SHARE_SLOT2 = Config.BIT_SHARE_HEALTH_TIME_SLOT2
-      ? parseInt(Config.BIT_SHARE_HEALTH_TIME_SLOT2.trim(), 10)
-      : 40320;
-
     this.setNetwork();
-
+    ßß;
     const BIT_SERVER_MODE = Config.BIT_SERVER_MODE ? Config.BIT_SERVER_MODE.trim() : 'PROD';
     if (BIT_SERVER_MODE === 'LOCAL' || BIT_SERVER_MODE === 'DEV') {
       this.APP_STAGE = APP_STAGE.DEVELOPMENT;
