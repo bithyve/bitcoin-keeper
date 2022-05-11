@@ -127,8 +127,8 @@ def nativeArchitectures = project.getProperties().get("reactNativeDebugArchitect
 
 android {
     ndkVersion rootProject.ext.ndkVersion
-
     compileSdkVersion rootProject.ext.compileSdkVersion
+    flavorDimensions "default"
 
     defaultConfig {
         applicationId "io.hexawallet.keeper"
