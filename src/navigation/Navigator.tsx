@@ -1,14 +1,15 @@
-import React from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
-import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
-import TestingBottomsheet from 'src/screens/TestingBottomsheet';
-import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
-import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import BackupScreen from 'src/screens/BackupScreen';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+
 import AccountDetailScreen from 'src/screens/AccountDetailScreen';
+import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
+import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
+import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
+import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
+import React from 'react';
+import TestingBottomsheet from 'src/screens/TestingBottomsheet';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const defaultTheme = {
   ...DefaultTheme,
