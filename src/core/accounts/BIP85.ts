@@ -1,10 +1,11 @@
 import wif from "wif"
 import bs58 from "bs58"
-import bip39 from "bip39"
-import bip32 from "bip32"
+import * as bip39 from "bip39"
+import * as bip32 from "bip32"
 import crypto from "crypto"
 import { AccountType, BIP85Config, BIP85Languages, BIP85Words } from "../interfaces/Interface"
 import config from "../config"
+
 export default class BIP85 {
   private static hmacsha512 = (message): Buffer  => {
     const key = "bip-entropy-from-k"
