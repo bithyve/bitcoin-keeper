@@ -1019,7 +1019,7 @@ export default class AccountUtilities {
     let res: AxiosResponse
 
     try {
-      res = await SIGNING_AXIOS.post( 'secureHDTransaction', {
+      res = await SIGNING_AXIOS.post( 'securePSBTTransaction', {
         HEXA_ID: config.HEXA_ID,
         walletID: walletId,
         token,
