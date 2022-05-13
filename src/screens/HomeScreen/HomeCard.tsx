@@ -18,14 +18,14 @@ import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
 type Props = {
-  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
-  name: string,
-  description: string,
-  type: string,
-  balance: string,
-  isEnd?: boolean,
-  index?: number,
-  isImported: boolean,
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>;
+  name: string;
+  description: string;
+  type: string;
+  balance: string;
+  isEnd?: boolean;
+  index?: number;
+  isImported: boolean;
 };
 
 const HomeCard = ({
@@ -38,7 +38,6 @@ const HomeCard = ({
   index,
   isImported = true,
 }: Props) => {
-
   const navigation = useNavigation();
 
   return (
@@ -165,7 +164,7 @@ const styles = ScaledSheet.create({
     letterSpacing: '0.7@s',
     lineHeight: '12@s',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   hexaWalletContainer: {
     paddingHorizontal: wp(0.6),

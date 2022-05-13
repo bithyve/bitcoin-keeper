@@ -1,5 +1,5 @@
 import { Action } from 'redux'
-import { Account, Accounts, ContactInfo, DonationAccount, Gift, AccountVisibility } from '../../core/interfaces/Interface'
+import { Account, Accounts, ContactInfo, DonationAccount, Gift, AccountVisibility } from 'src/core/interfaces/Interface'
 import AccountShell from '../../common/data/models/AccountShell'
 import SubAccountDescribing from '../../common/data/models/SubAccountInfo/Interfaces'
 import { newAccountDetails, newAccountsInfo } from '../sagas/accounts'
@@ -25,7 +25,6 @@ export const REMOVE_TWO_FA = 'REMOVE_TWO_FA'
 export const VALIDATE_TWO_FA = 'VALIDATE_TWO_FA'
 export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE'
 export const SETUP_DONATION_ACCOUNT = 'SETUP_DONATION_ACCOUNT'
-export const UPDATE_DONATION_PREFERENCES = 'UPDATE_DONATION_PREFERENCES'
 export const ADD_NEW_ACCOUNT_SHELLS = 'ADD_NEW_ACCOUNT_SHELLS'
 export const IMPORT_NEW_ACCOUNT = 'IMPORT_NEW_ACCOUNT'
 export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA'
@@ -36,11 +35,6 @@ export const ADD_NEW_ACCOUNT_SHELL_COMPLETED =
 export const UPDATE_ACCOUNT_SETTINGS = 'UPDATE_ACCOUNT_SETTINGS'
 export const SUB_ACCOUNT_SETTINGS_UPDATE_COMPLETED =
   'SUB_ACCOUNT_SETTINGS_UPDATE_COMPLETED'
-export const REASSIGN_TRANSACTIONS = 'REASSIGN_TRANSACTIONS'
-export const TRANSACTION_REASSIGNMENT_COMPLETED =
-  'TRANSACTION_REASSIGNMENT_COMPLETED'
-export const MERGE_ACCOUNT_SHELLS = 'MERGE_ACCOUNT_SHELLS'
-export const ACCOUNT_SHELL_MERGE_COMPLETED = 'ACCOUNT_SHELL_MERGE_COMPLETED'
 export const ACCOUNT_SHELLS_ORDER_UPDATED = 'ACCOUNT_SHELLS_ORDER_UPDATED'
 export const ACCOUNT_SHELL_ORDERED_TO_FRONT = 'ACCOUNT_SHELL_ORDERED_TO_FRONT'
 export const RECOMPUTE_NET_BALANCE = 'RECOMPUTE_NET_BALANCE'
@@ -53,15 +47,10 @@ export const REMAP_ACCOUNT_SHELLS = 'REMAP_ACCOUNT_SHELLS'
 export const FETCH_RECEIVE_ADDRESS = 'FETCH_RECEIVE_ADDRESS'
 export const FETCH_RECEIVE_ADDRESS_SUCCEEDED = 'FETCH_RECEIVE_ADDRESS_SUCCEEDED'
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS'
-export const MARK_READ_TRANSACTION = 'MARK_READ_TRANSACTION'
 export const READ_TRANSACTION = 'READ_TRANSACTION'
-
-export const MARK_ACCOUNT_CHECKED = 'MARK_ACCOUNT_CHECKED'
 export const ACCOUNT_CHECKED = 'ACCOUNT_CHECKED'
-
 export const GET_ALL_ACCOUNTS_DATA = 'GET_ALL_ACCOUNTS_DATA'
 export const SET_ALL_ACCOUNTS_DATA = 'SET_ALL_ACCOUNTS_DATA'
-export const CREATE_SM_N_RESETTFA_OR_XPRIV = 'CREATE_SM_N_RESETTFA_OR_XPRIV'
 export const SET_SHOW_ALL_ACCOUNT = 'SET_SHOW_ALL_ACCOUNT'
 export const RESET_ACCOUNT_UPDATE_FLAG = 'RESET_ACCOUNT_UPDATE_FLAG'
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER'
@@ -103,25 +92,6 @@ export const readTxn = (accountShells: AccountShell[], accounts: Accounts) => {
   }
 }
 
-export const markAccountChecked = (shellId: string) => {
-  return {
-    type: MARK_ACCOUNT_CHECKED,
-    payload: {
-      shellId
-    },
-  }
-}
-
-export const markReadTx = (txIds: string[], shellId: string) => {
-  return {
-    type: MARK_READ_TRANSACTION,
-    payload: {
-      txIds,
-      shellId
-    },
-  }
-}
-
 export const fetchBalanceTx = (
   serviceType: string,
   options: {
@@ -138,7 +108,6 @@ export const fetchBalanceTx = (
     }
   }
 }
-
 
 export const syncAccounts = (
   accounts: Accounts,
@@ -312,30 +281,6 @@ export const setupDonationAccount = (
   }
 }
 
-export const updateDonationPreferences = (
-  donationAccount: DonationAccount,
-  preferences: {
-    disableAccount?: boolean;
-    configuration?: {
-      displayBalance: boolean;
-      displayIncomingTxs: boolean;
-      displayOutgoingTxs: boolean;
-    };
-    accountDetails?: {
-      donee: string;
-      subject: string;
-      description: string;
-    };
-  }
-) => {
-  return {
-    type: UPDATE_DONATION_PREFERENCES,
-    payload: {
-      donationAccount, preferences
-    },
-  }
-}
-
 export const remapAccountShells = (services) => {
   return {
     type: REMAP_ACCOUNT_SHELLS, payload: {
@@ -482,64 +427,6 @@ export const subAccountSettingsUpdateCompleted = (): UpdateSubAccountSettingsCom
     type: SUB_ACCOUNT_SETTINGS_UPDATE_COMPLETED
   }
 }
-
-export type ReassignTransactionsActionPayload = {
-  transactionIDs: string[];
-  sourceID: string;
-  destinationID: string;
-};
-
-export interface ReassignTransactionsAction extends Action {
-  type: typeof REASSIGN_TRANSACTIONS;
-  payload: ReassignTransactionsActionPayload;
-}
-
-export const reassignTransactions = (
-  payload: ReassignTransactionsActionPayload
-): ReassignTransactionsAction => {
-  return {
-    type: REASSIGN_TRANSACTIONS, payload
-  }
-}
-
-export interface TransactionReassignmentCompletionAction extends Action {
-  type: typeof TRANSACTION_REASSIGNMENT_COMPLETED;
-}
-
-export const transactionReassignmentCompleted = (): TransactionReassignmentCompletionAction => {
-  return {
-    type: TRANSACTION_REASSIGNMENT_COMPLETED
-  }
-}
-
-export type MergeAccountShellsActionPayload = {
-  source: AccountShell;
-  destination: AccountShell;
-};
-
-export interface MergeAccountShellsAction extends Action {
-  type: typeof MERGE_ACCOUNT_SHELLS;
-  payload: MergeAccountShellsActionPayload;
-}
-
-export const mergeAccountShells = (
-  payload: MergeAccountShellsActionPayload
-): MergeAccountShellsAction => {
-  return {
-    type: MERGE_ACCOUNT_SHELLS, payload
-  }
-}
-
-export interface AccountShellMergeCompletionAction extends Action {
-  type: typeof ACCOUNT_SHELL_MERGE_COMPLETED;
-}
-
-export const accountShellMergeCompleted = (): AccountShellMergeCompletionAction => {
-  return {
-    type: ACCOUNT_SHELL_MERGE_COMPLETED
-  }
-}
-
 export interface AccountShellsOrderUpdatedAction extends Action {
   type: typeof ACCOUNT_SHELLS_ORDER_UPDATED;
   payload: AccountShell[];
@@ -731,40 +618,6 @@ export const accountSettingsUpdated = () => {
   }
 }
 
-export const transactionReassignmentFailed = (
-  payload: ReassignTransactionsActionPayload & { error: Error }
-) => {
-  return {
-    type: TRANSACTION_REASSIGNMENT_FAILED,
-    payload,
-  }
-}
-
-export const transactionReassignmentSucceeded = (
-  payload: ReassignTransactionsActionPayload
-) => {
-  return {
-    type: TRANSACTION_REASSIGNMENT_SUCCEEDED, payload
-  }
-}
-
-export const accountShellMergeFailed = (
-  payload: MergeAccountShellsActionPayload & { error: Error }
-) => {
-  return {
-    type: ACCOUNT_SHELL_MERGE_FAILED,
-    payload,
-  }
-}
-
-export const accountShellMergeSucceeded = (
-  payload: MergeAccountShellsActionPayload
-) => {
-  return {
-    type: ACCOUNT_SHELL_MERGE_SUCCEEDED, payload
-  }
-}
-
 export const blindRefreshStarted = (refreshed) => {
   return {
     type: BLIND_REFRESH_STARTED, payload: {
@@ -797,17 +650,6 @@ export const fetchReceiveAddressSucceeded = (receiveAddress: string) => {
 export const clearReceiveAddress = () => {
   return {
     type: CLEAR_RECEIVE_ADDRESS,
-  }
-}
-
-export const getSMAndReSetTFAOrGenerateSXpriv = (qrdata, QRModalHeader, accountShell) => {
-  return {
-    type: CREATE_SM_N_RESETTFA_OR_XPRIV,
-    payload: {
-      qrdata,
-      QRModalHeader,
-      accountShell
-    },
   }
 }
 

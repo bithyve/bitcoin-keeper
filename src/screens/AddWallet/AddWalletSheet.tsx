@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
-import HexaBottomSheet from './BottomSheet';
+import HexaBottomSheet from '../../components/BottomSheet';
 
 const AddWalletSheet = ({
   addWalletSheetRef,
@@ -29,7 +29,6 @@ const AddWalletSheet = ({
       primaryCallback={addWallet}
       secondaryCallback={closeAddWalletSheet}
     >
-
       <BottomSheetTextInput
         placeholder="Wallet Name"
         placeholderTextColor={'#D8DBD5'}
@@ -48,9 +47,7 @@ const AddWalletSheet = ({
   );
 };
 
-
 const styles = ScaledSheet.create({
-
   inputField: {
     padding: 30,
     borderWidth: 0,

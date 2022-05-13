@@ -8,9 +8,10 @@ import {
 } from '../Interfaces'
 import { ImageSourcePropType } from 'react-native'
 import {
+  AccountType,
   Balances,
   TransactionDetails,
-} from '../../../../../core/interfaces/Interface'
+} from 'src/core/interfaces/Interface'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
 
 type ConstructorProps = SubAccountDescribingConstructorProps & {};
@@ -19,11 +20,13 @@ export default class TrustedContactsSubAccountInfo
 implements HexaSubAccountDescribing {
   id: string;
   xPub: string;
+  isUsable: boolean;
   accountShellID: string | null;
   instanceNumber: number;
 
   kind: SubAccountKind = SubAccountKind.TRUSTED_CONTACTS;
   sourceKind: SourceAccountKind = SourceAccountKind.REGULAR_ACCOUNT;
+  type: AccountType = AccountType.IMPORTED_ACCOUNT
 
   balances: Balances;
 
@@ -42,6 +45,7 @@ implements HexaSubAccountDescribing {
   constructor( {
     id = uuid(),
     xPub = null,
+    isUsable,
     accountShellID = null,
     instanceNumber = null,
     defaultTitle = 'Trusted Contacts',
@@ -59,6 +63,7 @@ implements HexaSubAccountDescribing {
   }: ConstructorProps ) {
     this.id = id
     this.xPub = xPub
+    this.isUsable = isUsable
     this.accountShellID = accountShellID
     this.instanceNumber = instanceNumber
     this.defaultTitle = defaultTitle

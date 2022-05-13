@@ -1,8 +1,7 @@
-
 import { VStack } from 'native-base';
-import React, { Component } from 'react'
-import HexaBottomSheet from './BottomSheet';
-import LoadingText from './LoadingText';
+import React, { Component } from 'react';
+import HexaBottomSheet from '../../components/BottomSheet';
+import LoadingText from '../../components/LoadingText';
 
 const CreateWalletSheet = ({ createWalletSheetRef, title, processMap }) => {
   return (

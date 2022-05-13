@@ -2,7 +2,7 @@ import SubAccountKind from '../../enums/SubAccountKind'
 import ServiceAccountKind from '../../enums/ServiceAccountKind'
 import TransactionConfirmationStatus from '../../enums/TransactionConfirmationStatus'
 import TransactionKind from '../../enums/TransactionKind'
-import { TransactionDetails } from '../../../../core/interfaces/Interface'
+import { TransactionDetails } from 'src/core/interfaces/Interface'
 
 export interface BaseTransactionDescribing {
   txID: string;

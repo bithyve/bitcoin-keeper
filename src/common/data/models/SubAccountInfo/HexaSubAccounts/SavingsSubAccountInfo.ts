@@ -3,7 +3,7 @@ import {
   AccountType,
   Balances,
   TransactionDetails,
-} from '../../../../../core/interfaces/Interface'
+} from 'src/core/interfaces/Interface'
 import AccountVisibility from '../../../enums/AccountVisibility'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
 import SubAccountKind from '../../../enums/SubAccountKind'

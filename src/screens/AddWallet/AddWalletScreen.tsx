@@ -12,13 +12,13 @@ import Fonts from 'src/common/Fonts';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import AccordionsComponent from 'src/components/AccordionsComponent';
+import AccordionsComponent from 'src/screens/AddWallet/AccordionsComponent';
 import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import SuccessSheet from 'src/components/SuccessSheet';
-import AddWalletSheet from 'src/components/AddWalletSheet';
+import AddWalletSheet from 'src/screens/AddWallet/AddWalletSheet';
 import ImportWalletSheet from 'src/components/ImportWalletSheet';
-import CreateWalletSheet from 'src/components/CreateWalletSheet';
+import CreateWalletSheet from 'src/screens/AddWallet/CreateWalletSheet';
 import { processMapCreate, processMapImport } from 'src/common/data/messages/mesages';
 
 import HardWare from 'src/assets/images/svgs/hardware.svg';
@@ -31,7 +31,6 @@ import TrustIcon from 'src/assets/images/svgs/trust.svg';
 import { AccountType } from 'src/core/interfaces/Interface';
 
 const AddWalletScreen = () => {
-
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
 
