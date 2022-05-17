@@ -8,8 +8,8 @@ import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
 import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
-import { initRealm } from 'src/storage/realm/realm';
 import makeStore from './src/store';
+import { AppRelamProvider } from 'src/storage/realm/AppRealmProvider';
 
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
@@ -21,13 +21,13 @@ export default function AppWrapper() {
   // Creates and holds an instance of the store so only children in the `Provider`'s
   // context can have access to it.
   const store = makeStore();
-  useEffect(() => {
-    initRealm(Buffer.from('encryptionKey'));
-  }, []);
+
   return (
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <AppRelamProvider>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </AppRelamProvider>
   );
 }
 
