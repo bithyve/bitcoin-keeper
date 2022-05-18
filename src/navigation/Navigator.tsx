@@ -7,7 +7,7 @@ import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import BackupScreen from 'src/screens/BackupScreen';
+import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import AccountDetailScreen from 'src/screens/AccountDetailScreen';
 
 const defaultTheme = {
@@ -23,7 +23,7 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Lock Screen" component={LoginScreen} />
+        {/* <Stack.Screen name="Lock Screen" component={LoginScreen} /> */}
         <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
