@@ -3,7 +3,7 @@ import {
   AccountType,
   Balances,
   TransactionDetails,
-  LNNode
+  LightningNode
 } from 'src/core/interfaces/Interface'
 import AccountVisibility from '../../../enums/AccountVisibility'
 import SourceAccountKind from '../../../enums/SourceAccountKind'
@@ -23,7 +23,7 @@ implements HexaSubAccountDescribing {
   xPub: string;
   accountShellID: string | null;
   instanceNumber: number;
-  node: LNNode;
+  node: LightningNode;
 
   kind: SubAccountKind = SubAccountKind.LIGHTNING_ACCOUNT;
   sourceKind: SourceAccountKind = SourceAccountKind.REGULAR_ACCOUNT;

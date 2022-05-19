@@ -49,7 +49,7 @@ import {
   MultiSigAccount,
   NetworkType,
   Wallet,
-  LNNode
+  LightningNode
 } from 'src/core/interfaces/Interface'
 import SubAccountDescribing from 'src/common/data/models/SubAccountInfo/Interfaces'
 import AccountShell from 'src/common/data/models/AccountShell'
@@ -90,7 +90,7 @@ export interface newAccountDetails {
   description?: string,
   is2FAEnabled?: boolean,
   doneeName?: string,
-  node?: LNNode
+  node?: LightningNode
 }
 export interface newAccountsInfo {
   accountType: AccountType,
@@ -1253,7 +1253,7 @@ export const autoSyncShellsWatcher = createWatcher(
 // function* syncLnAccountsWorker( { payload }: {payload: {
 //   accounts: Accounts }} ) {
 //   const { accounts } = payload
-//   const nodesToSync: LNNode [] = []
+//   const nodesToSync: LightningNode [] = []
 //   for( const account of Object.values( accounts ) ){
 //     nodesToSync.push( account.node )
 //   }

@@ -10,7 +10,7 @@ const ECPair = ECPairFactory( ecc )
 
 import config from '../config'
 import _ from 'lodash'
-import { Transaction, ScannedAddressKind, Balances, MultiSigAccount, Account, NetworkType, AccountType, DonationAccount, ActiveAddresses, TransactionType, DerivationPurpose, DerivativeAccountTypes } from '../interfaces/Interface'
+import { Transaction, ScannedAddressKind, Balances, MultiSigAccount, Account, NetworkType, AccountType, DonationAccount, ActiveAddresses, TransactionType, DerivationPurpose } from '../interfaces/Interface'
 import idx from 'idx'
 
 
@@ -581,9 +581,7 @@ export default class AccountUtilities {
                     transactionType: TransactionType.SENT,
                     amount: tx.SentAmount,
                     accountType:
-                    accountType === DerivativeAccountTypes.SUB_PRIMARY_ACCOUNT
-                      ? primaryAccType
-                      : accountType,
+                    accountType,
                     primaryAccType,
                     recipientAddresses: tx.RecipientAddresses,
                     blockTime: tx.Status.block_time? tx.Status.block_time: Date.now(),
@@ -603,9 +601,7 @@ export default class AccountUtilities {
                     transactionType: TransactionType.RECEIVED,
                     amount: tx.ReceivedAmount,
                     accountType:
-                    accountType === DerivativeAccountTypes.SUB_PRIMARY_ACCOUNT
-                      ? primaryAccType
-                      : accountType,
+                    accountType,
                     primaryAccType,
                     senderAddresses: tx.SenderAddresses,
                     blockTime: tx.Status.block_time? tx.Status.block_time: Date.now(),
@@ -1151,7 +1147,7 @@ export default class AccountUtilities {
       res = await RELAY_AXIOS.post( 'fetchXpubInfo', {
         HEXA_ID: config.HEXA_ID,
         xpubId,
-        accountType: DerivativeAccountTypes.DONATION_ACCOUNT,
+        accountType: "DONATION_ACCOUNT",
         accountDetails: {
           donationId
         },

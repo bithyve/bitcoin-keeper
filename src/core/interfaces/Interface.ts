@@ -172,121 +172,6 @@ export interface MetaShare {
   };
 }
 
-export interface EncDynamicNonPMDD {
-  updatedAt: number;
-  encryptedDynamicNonPMDD: string;
-}
-
-export interface SocialStaticNonPMDD {
-  secondaryXpub: string;
-  bhXpub: string;
-  shareIDs: string[];
-}
-
-export interface BuddyStaticNonPMDD {
-  secondaryMnemonic: string;
-  twoFASecret: string;
-  secondaryXpub: string;
-  bhXpub: string;
-  shareIDs: string[];
-}
-
-export interface ShareUploadables {
-  encryptedMetaShare: string;
-  messageId: string;
-  encryptedDynamicNonPMDD?: EncDynamicNonPMDD;
-}
-
-export enum DerivativeAccountTypes {
-  SUB_PRIMARY_ACCOUNT = 'SUB_PRIMARY_ACCOUNT',
-  FAST_BITCOINS = 'FAST_BITCOINS',
-  TRUSTED_CONTACTS = 'TRUSTED_CONTACTS',
-  DONATION_ACCOUNT = 'DONATION_ACCOUNT',
-  WYRE = 'WYRE',
-  RAMP = 'RAMP',
-  SWAN = 'SWAN'
-}
-
-export enum notificationType {
-  contact = 'contact',
-  approveKeeper = 'approveKeeper',
-  uploadSecondaryShare = 'uploadSecondaryShare',
-  reShare = 'reShare',
-  reShareResponse = 'reShareResponse',
-  smUploadedForPK = 'smUploadedForPK',
-  newFCM = 'newFCM',
-  newKeeperInfo = 'newKeeperInfo',
-  FNF_REQUEST = 'FNF_REQUEST',
-  FNF_TRANSACTION = 'FNF_TRANSACTION',
-  RELEASE = 'RELEASE',
-  FNF_REQUEST_ACCEPTED='FNF_REQUEST_ACCEPTED',
-  FNF_REQUEST_REJECTED='FNF_REQUEST_REJECTED',
-  FNF_KEEPER_REQUEST='FNF_KEEPER_REQUEST',
-  FNF_KEEPER_REQUEST_ACCEPTED='FNF_KEEPER_REQUEST_ACCEPTED',
-  FNF_KEEPER_REQUEST_REJECTED='FNF_KEEPER_REQUEST_REJECTED',
-  GIFT_ACCEPTED = 'GIFT_ACCEPTED',
-  GIFT_REJECTED = 'GIFT_REJECTED'
-}
-export enum notificationTag {
-  IMP = 'IMP',
-  notIMP = 'not-IMP',
-  mandatory = 'mandatory',
-  notMandatory = 'not-mandatory',
-} // IMP/notIMP for directed notifications & mandatory/notMandatory for release notifications
-export interface INotification {
-  notificationType: notificationType;
-  title: string;
-  body: string;
-  data: any;
-  tag: notificationTag;
-  status?: string;
-  date?: Date;
-} // corresponds to the notification schema
-
-// TRUSTED CONTACTS
-export interface EphemeralDataElements {
-  publicKey?: string;
-  walletID?: string;
-  FCM?: string;
-  DHInfo?: {
-    publicKey: string;
-    address?: string;
-  };
-  shareTransferDetails?: {
-    otp: string;
-    encryptedKey: string;
-  };
-  // paymentDetails?: {
-  //   trusted?: {
-  //     address?: string;
-  //     paymentURI?: string;
-  //   };
-  //   alternate?: {
-  //     address?: string;
-  //     paymentURI?: string;
-  //   };
-  // };
-  trustedAddress?: string;
-  trustedTestAddress?: string;
-  restoreOf?: string;
-}
-
-export interface EphemeralData {
-  publicKey: string;
-  data: EphemeralDataElements;
-}
-
-export interface EncryptedEphemeralData {
-  publicKey: string;
-  encryptedData: string; // encrypted EphemeralData
-  // add ons for optimisation
-  walletID?: string;
-  DHInfo?: {
-    publicKey: string;
-    address?: string;
-  };
-}
-
 export enum trustedChannelActions {
   downloadShare = 'downloadShare',
 }
@@ -423,7 +308,7 @@ export interface SecondaryStreamData {
 
 export interface BackupStreamData {
   primaryMnemonicShard?: MetaShare,
-  keeperInfo?: KeeperInfoInterface[],
+  keeperInfo?: any,
 }
 
 export interface UnecryptedStreamData {
@@ -497,103 +382,6 @@ export interface Trusted_Contacts {
   [channelKey: string]: TrustedContact
 }
 
-export interface NewWalletImage {
-  walletId: string;
-  name: string;
-  userName?: string,
-  accounts?: {
-    [accountId: string]: {
-      encryptedData: string
-    }
-  },
-  details2FA ?: string;
-  contacts?:string;
-  versionHistory?: string;
-  SM_share?: string,
-  gifts?:object;
-  version: string,
-}
-
-export interface EncryptedImage {
-  // Encrypted Wallet Image
-  DECENTRALIZED_BACKUP?: string;
-  SERVICES?: string;
-  ASYNC_DATA?: string;
-  STATE_DATA?: string;
-}
-
-export interface Keepers {
-  [shareId: string]: {
-    shareType?: string;
-    privateKey?: string;
-    publicKey?: string;
-    shareTransferDetails?: {
-      otp?: string;
-      encryptedKey?: string;
-    };
-    symmetricKey?: string;
-    secondaryKey?: string;
-    keeperPubKey?: string;
-    walletName?: string;
-    walletID?: string;
-    FCMs?: string[];
-    ephemeralChannel?: {
-      address: string;
-      initiatedAt?: number;
-      data?: EphemeralDataElements[];
-    };
-    trustedChannel?: {
-      address: string;
-      data?: TrustedData[];
-    };
-    keeperUUID?: string;
-    keeperFeatureList?: any[],
-    isPrimary?: Boolean
-  }
-}
-
-// TRUSTED Keeper
-export interface EphemeralDataElementsForKeeper {
-  publicKey?: string;
-  walletID?: string;
-  hexaID?: string;
-  FCM?: string;
-  DHInfo?: {
-    publicKey: string;
-    address?: string;
-  };
-  shareTransferDetails?: {
-    otp: string;
-    encryptedKey: string;
-  };
-  xPub? : any;
-  securityQuestion?: any;
-  featuresList?: any;
-  isPrimary?: boolean;
-}
-
-export interface EphemeralDataForKeeper {
-  publicKey: string;
-  data: EphemeralDataElementsForKeeper;
-}
-
-export interface LevelHealthInterface {
-  level?: number;
-  levelInfo: LevelInfo[];
-}
-
-export interface LevelInfo {
-  shareType?: string;
-  updatedAt?: number;
-  status?: string;
-  shareId: string;
-  reshareVersion?: number;
-  name?: string;
-  data?: any;
-  channelKey?: string;
-  walletId?: string
-}
-
 export enum ShareSplitScheme {
   OneOfOne = '1of1',
   TwoOfThree = '2of3',
@@ -609,27 +397,6 @@ export enum KeeperType {
   SECURITY_QUESTION = 'securityQuestion',
 }
 
-export interface KeeperInfoInterface {
-  shareId: string;
-  name: string;
-  type: KeeperType;
-  scheme: ShareSplitScheme;
-  currentLevel: number;
-  createdAt: number;
-  sharePosition: number;
-  data?: any;
-  channelKey?: string;
-}
-//VersionHistory
-export interface VersionHistory {
-  id: string;
-  version: string;
-  buildNumber: string;
-  versionName: string;
-  title: string;
-  date: Date;
-}
-
 export enum ScannedAddressKind {
   ADDRESS = 'address',
   PAYMENT_URI = 'paymentURI',
@@ -641,29 +408,6 @@ export interface AverageTxFees {
     feePerByte: number,
     estimatedBlocks: number,
   },
-}
-
-export interface LevelDataObj {
-  shareType: string
-  updatedAt: number
-  status: string
-  shareId: string
-  reshareVersion: number
-  name: string
-  data: any;
-  uuid: string
-}
-
-export interface LevelData {
-  levelName: string
-  status: string
-  keeper1ButtonText: string
-  keeper2ButtonText: string
-  keeper1: LevelDataObj,
-  keeper2: LevelDataObj,
-  note:string
-  info:string
-  id: number
 }
 
 export enum QRCodeTypes {
@@ -720,6 +464,12 @@ export enum NetworkType {
   MAINNET = 'MAINNET'
 }
 
+export interface TwoFADetails {
+    bithyveXpub?: string,
+    twoFAKey?: string,
+    twoFAValidated?: boolean,
+}
+
 export interface Wallet {
   walletId: string,
   walletName: string,
@@ -728,11 +478,7 @@ export interface Wallet {
   primaryMnemonic: string,
   primarySeed: string,
   secondaryXpub?: string,
-  details2FA? : {
-    bithyveXpub?: string,
-    twoFAKey?: string,
-    twoFAValidated?: boolean,
-  },
+  details2FA?: TwoFADetails,
   smShare?: string,
   accounts: {
     [accountType: string]: string[] // array of accountIds
@@ -740,7 +486,7 @@ export interface Wallet {
   version: string,
 }
 
-export interface LNNode {
+export interface LightningNode {
   host?: string,
   port?: string,
   url?: string,
@@ -816,7 +562,7 @@ export interface Account {
     isNew: boolean
     type: string;
   }[]
-  node?: LNNode
+  node?: LightningNode
 }
 export interface MultiSigAccount extends Account {
   is2FA: boolean,                       // is2FA enabled
@@ -879,13 +625,6 @@ export enum DeepLinkKind {
   CAMPAIGN = 'CAMPAIGN'
 }
 
-export enum ShortLinkDomain {
-  DEFAULT = 'https://app.hexawallet.io',
-  CONTACT = 'https://request.hexawallet.io',
-  GIFT = 'https://gift.hexawallet.io',
-  DONATION = 'https://donation.hexawallet.io',
-}
-
 export enum DeepLinkEncryptionType {
   DEFAULT = 'DEFAULT',
   NUMBER = 'NUM',
@@ -917,25 +656,6 @@ export enum GiftStatus {
   RECLAIMED = 'RECLAIMED',
   ASSOCIATED = 'ASSOCIATED',
   EXPIRED = 'EXPIRED',
-}
-
-export enum ShortLinkImage {
-  GIFT = 'https://hexawallet.io/wp-content/uploads/2019/07/bitcoingift.png',
-  FF = 'https://hexawallet.io/wp-content/uploads/2019/07/faf.png',
-  DONATION = 'https://hexawallet.io/images/donation.png',
-}
-
-export enum ShortLinkTitle {
-  GIFT = 'Bitcoin gift',
-  FF = 'Friends & Family request',
-  DONATION = 'Bitcoin donation',
-}
-
-export enum ShortLinkDescription {
-  GIFT = 'You\'ve received some sats from your contact! Open the link to accept the gift.',
-  FF = 'You\'ve received a request to be added as a contact. Accept and transact bitcoin more efficiently.',
-  DONATION = 'You can give sats as a donation with this link. Open the link to donate sats to the cause.',
-  KEEPER = 'You\'ve received a request to store a Recovery Key. Accept and help your contact backup their app.'
 }
 
 export interface Gift {
@@ -987,18 +707,5 @@ export interface GiftMetaData {
     walletId: string,
     FCM: string,
   }
-}
-
-export interface cloudDataInterface {
-  levelStatus?: number;
-  encryptedCloudDataJson?: string;
-  walletName?: string;
-  questionId?: string;
-  question?: string;
-  keeperData?: string;
-  bhXpub?: string;
-  shares?: any;
-  secondaryShare?: string;
-  seed?: string;
 }
 

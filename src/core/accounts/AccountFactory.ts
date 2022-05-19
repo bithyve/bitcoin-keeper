@@ -1,4 +1,4 @@
-import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LNNode, AccountVisibility, DerivationPurpose, BIP85Config } from '../interfaces/Interface'
+import { Account, AccountType, DonationAccount, MultiSigAccount, NetworkType, LightningNode, AccountVisibility, DerivationPurpose, BIP85Config } from '../interfaces/Interface'
 import crypto from 'crypto'
 import AccountUtilities from './AccountUtilities'
 import * as bip39 from 'bip39'
@@ -22,7 +22,7 @@ export const generateAccount = async (
     accountDescription: string,
     primaryMnemonic: string,
     networkType: NetworkType,
-    node?: LNNode
+    node?: LightningNode
   }
 ): Promise<Account> => {
 
