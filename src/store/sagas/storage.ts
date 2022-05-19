@@ -4,10 +4,10 @@ import DeviceInfo from 'react-native-device-info';
 import { SETUP_WALLET, updateWallet } from '../actions/storage';
 import { put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { Wallet } from 'src/core/interfaces/Interface';
 import { realmConfig, RealmContext } from 'src/storage/realm/AppRealmProvider';
 import Realm from 'realm';
 import { updateRealm } from 'src/storage/realm/dbManager';
+import { Wallet } from 'src/common/data/models/interfaces/Wallet';
 
 function* setupWalletWorker({ payload }) {
   const {

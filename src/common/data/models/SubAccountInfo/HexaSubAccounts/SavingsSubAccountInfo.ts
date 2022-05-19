@@ -1,17 +1,11 @@
-import { v4 as uuid } from 'uuid'
-import {
-  AccountType,
-  Balances,
-  TransactionDetails,
-} from 'src/core/interfaces/Interface'
-import AccountVisibility from '../../../enums/AccountVisibility'
-import SourceAccountKind from '../../../enums/SourceAccountKind'
-import SubAccountKind from '../../../enums/SubAccountKind'
-import UTXOCompatibilityGroup from '../../../enums/UTXOCompatibilityGroup'
-import {
-  HexaSubAccountDescribing,
-  SubAccountDescribingConstructorProps,
-} from '../Interfaces'
+import { v4 as uuid } from 'uuid';
+import { Balances, TransactionDetails } from 'src/core/accounts/interfaces/Interface';
+import AccountVisibility from '../../../enums/AccountVisibility';
+import SourceAccountKind from '../../../enums/SourceAccountKind';
+import SubAccountKind from '../../../enums/SubAccountKind';
+import UTXOCompatibilityGroup from '../../../enums/UTXOCompatibilityGroup';
+import { HexaSubAccountDescribing, SubAccountDescribingConstructorProps } from '../Interfaces';
+import { AccountType } from 'src/core/accounts/interfaces/enum';
 
 type ConstructorProps = SubAccountDescribingConstructorProps & {};
 
@@ -24,7 +18,7 @@ export default class SavingsSubAccountInfo implements HexaSubAccountDescribing {
 
   kind: SubAccountKind = SubAccountKind.SECURE_ACCOUNT;
   sourceKind: SourceAccountKind = SourceAccountKind.SECURE_ACCOUNT;
-  type: AccountType = AccountType.SAVINGS_ACCOUNT
+  type: AccountType = AccountType.SAVINGS_ACCOUNT;
 
   balances: Balances;
   visibility: AccountVisibility;
@@ -37,36 +31,35 @@ export default class SavingsSubAccountInfo implements HexaSubAccountDescribing {
   customDescription: string | null;
 
   transactions: TransactionDetails[];
-  utxoCompatibilityGroup: UTXOCompatibilityGroup =
-    UTXOCompatibilityGroup.MULTI_SIG_PUBLIC;
+  utxoCompatibilityGroup: UTXOCompatibilityGroup = UTXOCompatibilityGroup.MULTI_SIG_PUBLIC;
 
-  constructor( {
+  constructor({
     id = uuid(),
     xPub = null,
     isUsable,
     accountShellID = null,
     instanceNumber = null,
     defaultTitle = 'Savings Account',
-    defaultSubTitle= '2 of 3 MultiSig bitcoin wallet',
+    defaultSubTitle = '2 of 3 MultiSig bitcoin wallet',
     balances = {
-      confirmed: 0, unconfirmed: 0
+      confirmed: 0,
+      unconfirmed: 0,
     },
     customDisplayName = null,
     customDescription = null,
     visibility = AccountVisibility.DEFAULT,
     transactions = [],
-  }: ConstructorProps ) {
-    this.id = id
-    this.xPub = xPub
-    this.isUsable = isUsable,
-    this.accountShellID = accountShellID
-    this.instanceNumber = instanceNumber
-    this.defaultTitle = defaultTitle
-    this.defaultSubTitle = defaultSubTitle
-    this.balances = balances
-    this.customDisplayName = customDisplayName
-    this.customDescription = customDescription
-    this.visibility = visibility
-    this.transactions = transactions
+  }: ConstructorProps) {
+    this.id = id;
+    this.xPub = xPub;
+    (this.isUsable = isUsable), (this.accountShellID = accountShellID);
+    this.instanceNumber = instanceNumber;
+    this.defaultTitle = defaultTitle;
+    this.defaultSubTitle = defaultSubTitle;
+    this.balances = balances;
+    this.customDisplayName = customDisplayName;
+    this.customDescription = customDescription;
+    this.visibility = visibility;
+    this.transactions = transactions;
   }
 }

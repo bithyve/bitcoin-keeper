@@ -1,12 +1,12 @@
-import { v4 as uuidV4 } from 'uuid'
-import AccountVisibility from '../enums/AccountVisibility'
-import BitcoinUnit from '../enums/BitcoinUnit'
-import UTXOCompatibilityGroup from '../enums/UTXOCompatibilityGroup'
-import SubAccountDescribing from './SubAccountInfo/Interfaces'
-import { Satoshis } from '../typealiases/UnitAliases'
-import TransactionDescribing from './Transactions/Interfaces'
-import { Balances } from 'src/core/interfaces/Interface'
-import SyncStatus from '../enums/SyncStatus'
+import { v4 as uuidV4 } from 'uuid';
+import AccountVisibility from '../enums/AccountVisibility';
+import BitcoinUnit from '../enums/BitcoinUnit';
+import UTXOCompatibilityGroup from '../enums/UTXOCompatibilityGroup';
+import SubAccountDescribing from './SubAccountInfo/Interfaces';
+import { Satoshis } from '../typealiases/UnitAliases';
+import TransactionDescribing from './Transactions/Interfaces';
+import { Balances } from 'src/core/accounts/interfaces/Interface';
+import SyncStatus from '../enums/SyncStatus';
 
 type ConstructorProps = {
   displayOrder?: number | null;
@@ -41,88 +41,69 @@ export default class AccountShell {
   primarySubAccount: SubAccountDescribing;
   secondarySubAccounts: { [id: string]: SubAccountDescribing };
 
-
-  constructor( {
+  constructor({
     displayOrder = null,
     unit = BitcoinUnit.BTC,
     primarySubAccount,
-    secondarySubAccounts = {
-    },
-  }: ConstructorProps ) {
-    this.id = uuidV4()
+    secondarySubAccounts = {},
+  }: ConstructorProps) {
+    this.id = uuidV4();
 
-    this.primarySubAccount = primarySubAccount
-    this.primarySubAccount.accountShellID = this.id
+    this.primarySubAccount = primarySubAccount;
+    this.primarySubAccount.accountShellID = this.id;
 
-    this.secondarySubAccounts = secondarySubAccounts
+    this.secondarySubAccounts = secondarySubAccounts;
 
-    Object.values( this.secondarySubAccounts ).forEach(
-      ( s ) => ( s.accountShellID = this.id ),
-    )
+    Object.values(this.secondarySubAccounts).forEach((s) => (s.accountShellID = this.id));
 
-    this.displayOrder = displayOrder
-    this.unit = unit
-    this.syncStatus = SyncStatus.PENDING
+    this.displayOrder = displayOrder;
+    this.unit = unit;
+    this.syncStatus = SyncStatus.PENDING;
   }
 
-  static getUTXOCompatibilityGroup(
-    shell: AccountShell,
-  ): UTXOCompatibilityGroup {
-    return shell.primarySubAccount.utxoCompatibilityGroup
+  static getUTXOCompatibilityGroup(shell: AccountShell): UTXOCompatibilityGroup {
+    return shell.primarySubAccount.utxoCompatibilityGroup;
   }
 
-  static getSubAccounts( shell: AccountShell ): SubAccountDescribing[] {
-    return [
-      shell.primarySubAccount,
-      ...Object.values( shell.secondarySubAccounts ),
-    ]
+  static getSubAccounts(shell: AccountShell): SubAccountDescribing[] {
+    return [shell.primarySubAccount, ...Object.values(shell.secondarySubAccounts)];
   }
 
   /**
    * Total balance of all sub-accounts in Satoshis.
    */
-  static getTotalBalance = ( shell: AccountShell ): Satoshis => {
-    return AccountShell.getSubAccounts( shell ).reduce(
-      ( accumulated, current ) =>
-        accumulated +
-        ( current.balances.confirmed + current.balances.unconfirmed ),
-      0,
-    )
+  static getTotalBalance = (shell: AccountShell): Satoshis => {
+    return AccountShell.getSubAccounts(shell).reduce(
+      (accumulated, current) =>
+        accumulated + (current.balances.confirmed + current.balances.unconfirmed),
+      0
+    );
   };
 
   /**
    * Spendable balance of all sub-accounts in Satoshis.
    */
-  static getSpendableBalance = ( shell: AccountShell ): Satoshis => {
-    return AccountShell
-      .getSubAccounts( shell )
-      .reduce(
-        ( accumulated, current ) => accumulated + current.balances.confirmed,
-        0
-      )
+  static getSpendableBalance = (shell: AccountShell): Satoshis => {
+    return AccountShell.getSubAccounts(shell).reduce(
+      (accumulated, current) => accumulated + current.balances.confirmed,
+      0
+    );
   };
 
   /**
    * Transactions of all sub-accounts.
    */
-  static getAllTransactions = (
-    shell: AccountShell,
-  ): TransactionDescribing[] => {
-    return AccountShell
-      .getSubAccounts( shell )
-      .flatMap( subAccount => subAccount.transactions )
+  static getAllTransactions = (shell: AccountShell): TransactionDescribing[] => {
+    return AccountShell.getSubAccounts(shell).flatMap((subAccount) => subAccount.transactions);
   };
 
-  static getVisibility( shell: AccountShell ): AccountVisibility {
-    return shell.primarySubAccount.visibility
+  static getVisibility(shell: AccountShell): AccountVisibility {
+    return shell.primarySubAccount.visibility;
   }
 
-  static setPrimarySubAccount(
-    shell: AccountShell,
-    subAccount: SubAccountDescribing,
-  ) {
-    subAccount.accountShellID = shell.id
-    shell.primarySubAccount = subAccount
+  static setPrimarySubAccount(shell: AccountShell, subAccount: SubAccountDescribing) {
+    subAccount.accountShellID = shell.id;
+    shell.primarySubAccount = subAccount;
   }
 
   /**
@@ -134,32 +115,33 @@ export default class AccountShell {
     newbalance: Balances,
     newTransactions: TransactionDescribing[],
     accountDetails?: {
-      accountName?: string,
-      accountDescription?: string,
-      accountXpub?: string,
-      accountVisibility?: AccountVisibility,
-      hasNewTxn: boolean
+      accountName?: string;
+      accountDescription?: string;
+      accountXpub?: string;
+      accountVisibility?: AccountVisibility;
+      hasNewTxn: boolean;
     }
   ) {
-    shell.primarySubAccount.isUsable = isUsable
-    shell.primarySubAccount.balances = newbalance
-    shell.primarySubAccount.transactions = newTransactions
-    if( accountDetails ){
-      const { accountName, accountDescription, accountXpub, accountVisibility, hasNewTxn } = accountDetails
-      if( accountName ) shell.primarySubAccount.customDisplayName = accountName
-      if( accountDescription ) shell.primarySubAccount.customDescription = accountDescription
-      if( accountXpub ) shell.primarySubAccount.xPub = accountXpub
-      if( accountVisibility ) shell.primarySubAccount.visibility = accountVisibility
-      if( hasNewTxn ) shell.primarySubAccount.hasNewTxn = hasNewTxn
+    shell.primarySubAccount.isUsable = isUsable;
+    shell.primarySubAccount.balances = newbalance;
+    shell.primarySubAccount.transactions = newTransactions;
+    if (accountDetails) {
+      const { accountName, accountDescription, accountXpub, accountVisibility, hasNewTxn } =
+        accountDetails;
+      if (accountName) shell.primarySubAccount.customDisplayName = accountName;
+      if (accountDescription) shell.primarySubAccount.customDescription = accountDescription;
+      if (accountXpub) shell.primarySubAccount.xPub = accountXpub;
+      if (accountVisibility) shell.primarySubAccount.visibility = accountVisibility;
+      if (hasNewTxn) shell.primarySubAccount.hasNewTxn = hasNewTxn;
     }
   }
 
   static addSecondarySubAccount(
     shell: AccountShell,
     subAccId: string,
-    subAccount: SubAccountDescribing,
+    subAccount: SubAccountDescribing
   ) {
-    shell.secondarySubAccounts[ subAccId ] = subAccount
+    shell.secondarySubAccounts[subAccId] = subAccount;
   }
 
   /**
@@ -171,22 +153,23 @@ export default class AccountShell {
     newbalance: Balances,
     newTransactions: TransactionDescribing[],
     accountDetails?: {
-      accountXpub?: string,
-    }  ) {
-    let secondarySub = shell.secondarySubAccounts[ subAccId ]
-    if ( secondarySub ) {
+      accountXpub?: string;
+    }
+  ) {
+    let secondarySub = shell.secondarySubAccounts[subAccId];
+    if (secondarySub) {
       secondarySub = {
         ...secondarySub,
         balances: newbalance,
         transactions: newTransactions,
+      };
+
+      if (accountDetails) {
+        const { accountXpub } = accountDetails;
+        if (accountXpub) secondarySub.xPub = accountXpub;
       }
 
-      if( accountDetails ){
-        const { accountXpub } = accountDetails
-        if( accountXpub ) secondarySub.xPub = accountXpub
-      }
-
-      shell.secondarySubAccounts[ subAccId ] = secondarySub
+      shell.secondarySubAccounts[subAccId] = secondarySub;
     }
   }
 }

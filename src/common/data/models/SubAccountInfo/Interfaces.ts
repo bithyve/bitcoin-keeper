@@ -1,13 +1,10 @@
-import SubAccountKind from '../../enums/SubAccountKind'
-import ServiceAccountKind from '../../enums/ServiceAccountKind'
-import UTXOCompatibilityGroup from '../../enums/UTXOCompatibilityGroup'
-import AccountVisibility from '../../enums/AccountVisibility'
-import {
-  AccountType,
-  Balances,
-  TransactionDetails,
-} from 'src/core/interfaces/Interface'
-import SourceAccountKind from '../../enums/SourceAccountKind'
+import SubAccountKind from '../../enums/SubAccountKind';
+import ServiceAccountKind from '../../enums/ServiceAccountKind';
+import UTXOCompatibilityGroup from '../../enums/UTXOCompatibilityGroup';
+import AccountVisibility from '../../enums/AccountVisibility';
+import { Balances, TransactionDetails } from 'src/core/accounts/interfaces/Interface';
+import SourceAccountKind from '../../enums/SourceAccountKind';
+import { AccountType } from 'src/core/accounts/interfaces/enum';
 
 interface SubAccountDescribing {
   id: string;
@@ -27,7 +24,7 @@ interface SubAccountDescribing {
    */
   sourceKind: SourceAccountKind;
 
-   /**
+  /**
    * Backend account's type
    */
   type: AccountType;
@@ -45,7 +42,7 @@ interface SubAccountDescribing {
   /**
    * Default displayable sub title.
    */
-   defaultSubTitle: string;
+  defaultSubTitle: string;
 
   /**
    * A display name set by the user
@@ -73,22 +70,21 @@ interface SubAccountDescribing {
   // transactionIDs: string[];
   transactions: TransactionDetails[];
   // if new txn exists
-  hasNewTxn?: boolean
+  hasNewTxn?: boolean;
 }
 
-export type HexaSubAccountDescribing = SubAccountDescribing
+export type HexaSubAccountDescribing = SubAccountDescribing;
 
 export interface DonationSubAccountDescribing extends HexaSubAccountDescribing {
   doneeName: string;
   causeName: string;
 }
 
-export interface ExternalServiceSubAccountDescribing
-  extends SubAccountDescribing {
+export interface ExternalServiceSubAccountDescribing extends SubAccountDescribing {
   readonly serviceAccountKind: ServiceAccountKind;
 }
 
-export type ImportedWalletSubAccountDescribing = SubAccountDescribing
+export type ImportedWalletSubAccountDescribing = SubAccountDescribing;
 
 export type SubAccountDescribingConstructorProps = {
   id?: string;
@@ -110,4 +106,4 @@ export type SubAccountDescribingConstructorProps = {
   transactions?: TransactionDetails[];
 };
 
-export default SubAccountDescribing
+export default SubAccountDescribing;
