@@ -28,7 +28,7 @@ import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
-import { AccountType } from 'src/core/interfaces/Interface';
+import { AccountType } from 'src/core/accounts/interfaces/enum';
 
 const AddWalletScreen = () => {
   const dispatch = useDispatch();

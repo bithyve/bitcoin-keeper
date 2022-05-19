@@ -23,7 +23,7 @@ import LaptopTile from 'src/assets/images/svgs/laptop_tile.svg';
 import HardwareTile from 'src/assets/images/svgs/hardware_tile.svg';
 import ContactTile from 'src/assets/images/svgs/contacts_tile.svg';
 import KeyTile from 'src/assets/images/svgs/key_tile.svg';
-import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData'
+import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
 
 export const Data: BACKUP_KEYS[] = [
   {
@@ -103,7 +103,7 @@ export const HardwareData: BACKUP_KEYS[] = [
   },
 ];
 
-export const getIcon = (id): (id) => SVGElement => {
+export const getIcon = (id): ((id) => SVGElement) => {
   if (id == 1) {
     return CloudTile;
   } else if (id == 2) {

@@ -1,24 +1,21 @@
-import { v4 as uuid } from 'uuid'
-import AccountVisibility from '../../enums/AccountVisibility'
-import ServiceAccountKind from '../../enums/ServiceAccountKind'
-import SubAccountKind from '../../enums/SubAccountKind'
-import UTXOCompatibilityGroup from '../../enums/UTXOCompatibilityGroup'
+import { v4 as uuid } from 'uuid';
+import AccountVisibility from '../../enums/AccountVisibility';
+import ServiceAccountKind from '../../enums/ServiceAccountKind';
+import SubAccountKind from '../../enums/SubAccountKind';
+import UTXOCompatibilityGroup from '../../enums/UTXOCompatibilityGroup';
 import {
   ExternalServiceSubAccountDescribing,
   SubAccountDescribingConstructorProps,
-} from './Interfaces'
-import {
-  AccountType,
-  Balances,
-  TransactionDetails,
-} from 'src/core/interfaces/Interface'
-import SourceAccountKind from '../../enums/SourceAccountKind'
-import { ImageSourcePropType } from 'react-native'
+} from './Interfaces';
+import { Balances, TransactionDetails } from 'src/core/accounts/interfaces/Interface';
+import SourceAccountKind from '../../enums/SourceAccountKind';
+import { ImageSourcePropType } from 'react-native';
+import { AccountType } from 'src/core/accounts/interfaces/enum';
 
 type ConstructorProps = SubAccountDescribingConstructorProps & {
   defaultDescription?: string;
   serviceAccountKind: ServiceAccountKind;
-  type: AccountType
+  type: AccountType;
 };
 export default class ExternalServiceSubAccountInfo implements ExternalServiceSubAccountDescribing {
   id: string;
@@ -46,7 +43,7 @@ export default class ExternalServiceSubAccountInfo implements ExternalServiceSub
   transactions: TransactionDetails[];
   utxoCompatibilityGroup: UTXOCompatibilityGroup;
 
-  constructor( {
+  constructor({
     id = uuid(),
     xPub = null,
     isUsable,
@@ -57,7 +54,8 @@ export default class ExternalServiceSubAccountInfo implements ExternalServiceSub
     defaultDescription,
     serviceAccountKind,
     balances = {
-      confirmed: 0, unconfirmed: 0
+      confirmed: 0,
+      unconfirmed: 0,
     },
     customDisplayName = null,
     customDescription = null,
@@ -65,26 +63,26 @@ export default class ExternalServiceSubAccountInfo implements ExternalServiceSub
     visibility = AccountVisibility.DEFAULT,
     isTFAEnabled = false,
     utxoCompatibilityGroup = UTXOCompatibilityGroup.SINGLE_SIG_PUBLIC,
-  }: ConstructorProps ) {
-    this.id = id
-    this.xPub = xPub
-    this.isUsable = isUsable
-    this.accountShellID = accountShellID
-    this.instanceNumber = instanceNumber
-    this.type = type
-    this.defaultTitle = defaultTitle
-    this.defaultDescription = defaultDescription
-    this.serviceAccountKind = serviceAccountKind
-    this.balances = balances
-    this.customDisplayName = customDisplayName
-    this.customDescription = customDescription
-    this.isTFAEnabled = isTFAEnabled
+  }: ConstructorProps) {
+    this.id = id;
+    this.xPub = xPub;
+    this.isUsable = isUsable;
+    this.accountShellID = accountShellID;
+    this.instanceNumber = instanceNumber;
+    this.type = type;
+    this.defaultTitle = defaultTitle;
+    this.defaultDescription = defaultDescription;
+    this.serviceAccountKind = serviceAccountKind;
+    this.balances = balances;
+    this.customDisplayName = customDisplayName;
+    this.customDescription = customDescription;
+    this.isTFAEnabled = isTFAEnabled;
     this.sourceKind = isTFAEnabled
       ? SourceAccountKind.SECURE_ACCOUNT
-      : SourceAccountKind.REGULAR_ACCOUNT
-    this.visibility = visibility
-    this.transactions = transactions
-    this.utxoCompatibilityGroup = utxoCompatibilityGroup
+      : SourceAccountKind.REGULAR_ACCOUNT;
+    this.visibility = visibility;
+    this.transactions = transactions;
+    this.utxoCompatibilityGroup = utxoCompatibilityGroup;
   }
   avatarImageSource: ImageSourcePropType;
 }
