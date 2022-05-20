@@ -319,17 +319,17 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         if (!account) return shell;
 
         const accountDetails = {
-          accountName: account.accountName,
-          accountDescription: account.accountDescription,
-          accountXpub: account.xpub,
-          accountVisibility: account.accountVisibility,
-          hasNewTxn: account.hasNewTxn,
+          accountName: account.presentationData.accountName,
+          accountDescription: account.presentationData.accountDescription,
+          accountXpub: account.specs.xpub,
+          accountVisibility: account.presentationData.accountVisibility,
+          hasNewTxn: account.specs.hasNewTxn,
         };
         AccountShell.updatePrimarySubAccountDetails(
           shell,
           account.isUsable,
-          account.balances,
-          account.transactions,
+          account.specs.balances,
+          account.specs.transactions,
           accountDetails
         );
         return shell;
