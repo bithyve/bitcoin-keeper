@@ -5,26 +5,10 @@ import {
   SECONDARY_XPRIV_GENERATED,
   TWO_FA_RESETTED,
   AVERAGE_TX_FEE,
-  ADD_NEW_ACCOUNT_SHELLS,
   NEW_ACCOUNT_ADD_FAILED,
-  ADD_NEW_ACCOUNT_SHELL_COMPLETED,
   ACCOUNT_SETTINGS_UPDATED,
   ACCOUNT_SETTINGS_UPDATE_FAILED,
-  SUB_ACCOUNT_SETTINGS_UPDATE_COMPLETED,
-  TRANSACTION_REASSIGNMENT_SUCCEEDED,
-  TRANSACTION_REASSIGNMENT_FAILED,
-  ACCOUNT_SHELL_MERGE_SUCCEEDED,
-  ACCOUNT_SHELL_MERGE_FAILED,
-  ACCOUNT_SHELLS_ORDER_UPDATED,
-  ACCOUNT_SHELL_ORDERED_TO_FRONT,
-  ACCOUNT_SHELLS_REFRESH_STARTED,
-  ACCOUNT_SHELLS_REFRESH_COMPLETED,
-  CLEAR_ACCOUNT_SYNC_CACHE,
-  REMAP_ACCOUNT_SHELLS,
   TWO_FA_VALID,
-  BLIND_REFRESH_STARTED,
-  SET_ALL_ACCOUNTS_DATA,
-  FETCH_RECEIVE_ADDRESS_SUCCEEDED,
   CLEAR_RECEIVE_ADDRESS,
   GENERATE_SECONDARY_XPRIV,
   RESET_TWO_FA,
@@ -32,7 +16,6 @@ import {
   SET_SHOW_ALL_ACCOUNT,
   RESET_ACCOUNT_UPDATE_FLAG,
   RESET_TWO_FA_LOADER,
-  NEW_ACCOUNT_SHELLS_ADDED,
   UPDATE_ACCOUNT_SHELLS,
   UPDATE_ACCOUNTS,
   READ_TRANSACTION,
@@ -44,16 +27,15 @@ import {
   GIFT_ACCEPTED,
   GIFT_ADDED,
   GIFT_CREATION_STATUS,
+  ADD_NEW_ACCOUNTS,
+  NEW_ACCOUNT_ADDED,
 } from '../actions/accounts';
-import AccountShell from '../../common/data/models/AccountShell';
-import SyncStatus from '../../common/data/enums/SyncStatus';
 import { Account, Accounts, Gift } from 'src/core/accounts/interfaces/interface';
-import SourceAccountKind from '../../common/data/enums/SourceAccountKind';
+import { AccountType } from 'src/core/accounts/interfaces/enum';
 
 export type AccountsState = {
   accountsSynched: boolean;
   accounts: Accounts;
-  accountShells: AccountShell[];
   netBalance: number;
   exchangeRates?: any;
   averageTxFees: any;
@@ -72,9 +54,9 @@ export type AccountsState = {
   giftCreationStatus: boolean;
   acceptedGiftId: string;
   addedGift: string;
-  isGeneratingNewAccountShell: boolean;
-  hasNewAccountShellGenerationSucceeded: boolean;
-  hasNewAccountShellGenerationFailed: boolean;
+  isGeneratingNewAccount: boolean;
+  hasNewAccountsGenerationSucceeded: boolean;
+  hasNewAccountsGenerationFailed: boolean;
 
   isUpdatingAccountSettings: boolean;
   hasAccountSettingsUpdateSucceeded: boolean;
@@ -84,12 +66,6 @@ export type AccountsState = {
   hasTransactionReassignmentSucceeded: boolean;
   hasTransactionReassignmentFailed: boolean;
   transactionReassignmentDestinationID: string | null;
-
-  isAccountShellMergeInProgress: boolean;
-  hasAccountShellMergeSucceeded: boolean;
-  hasAccountShellMergeFailed: boolean;
-  accountShellMergeSource: AccountShell | null;
-  accountShellMergeDestination: AccountShell | null;
 
   refreshed: boolean;
   testCoinsReceived: boolean;
@@ -106,7 +82,6 @@ const initialState: AccountsState = {
 
   averageTxFees: null,
   accounts: {},
-  accountShells: [],
   netBalance: 0,
   twoFAHelpFlags: {
     xprivGenerated: null,
@@ -119,9 +94,9 @@ const initialState: AccountsState = {
   giftCreationStatus: null,
   acceptedGiftId: '',
   addedGift: '',
-  isGeneratingNewAccountShell: false,
-  hasNewAccountShellGenerationSucceeded: false,
-  hasNewAccountShellGenerationFailed: false,
+  isGeneratingNewAccount: false,
+  hasNewAccountsGenerationSucceeded: false,
+  hasNewAccountsGenerationFailed: false,
 
   isUpdatingAccountSettings: false,
   hasAccountSettingsUpdateSucceeded: false,
@@ -131,16 +106,6 @@ const initialState: AccountsState = {
   hasTransactionReassignmentSucceeded: false,
   hasTransactionReassignmentFailed: false,
   transactionReassignmentDestinationID: null,
-
-  isAccountShellMergeInProgress: false,
-  hasAccountShellMergeSucceeded: false,
-  hasAccountShellMergeFailed: false,
-  accountShellMergeSource: null,
-  accountShellMergeDestination: null,
-
-  // currentWyreSubAccount: null,
-  // currentRampSubAccount: null,
-  // currentSwanSubAccount: null,
 
   refreshed: false,
   testCoinsReceived: false,
@@ -226,42 +191,25 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         },
       };
 
-    // TODO: I don't think averageTxFees should be a wallet-wide concern.
     case AVERAGE_TX_FEE:
       return {
         ...state,
         averageTxFees: action.payload.averageTxFees,
       };
 
-    case ADD_NEW_ACCOUNT_SHELLS:
+    case ADD_NEW_ACCOUNTS:
       return {
         ...state,
-        isGeneratingNewAccountShell: true,
-        hasNewAccountShellGenerationSucceeded: false,
-        hasNewAccountShellGenerationFailed: false,
+        isGeneratingNewAccount: true,
+        hasNewAccountsGenerationSucceeded: false,
+        hasNewAccountsGenerationFailed: false,
       };
 
-    case NEW_ACCOUNT_SHELLS_ADDED:
-      const newAccountShells = [];
-      const existingAccountShells = state.accountShells;
-
-      for (const shellToAdd of action.payload.accountShells) {
-        let exists = false;
-        for (const existingShell of existingAccountShells) {
-          if (existingShell.id === shellToAdd.id) {
-            existingShell.primarySubAccount = shellToAdd.primarySubAccount;
-            exists = true;
-            break;
-          }
-        }
-        if (!exists) newAccountShells.push(shellToAdd);
-      }
-
+    case NEW_ACCOUNT_ADDED:
       return {
         ...state,
-        isGeneratingNewAccountShell: false,
-        hasNewAccountShellGenerationSucceeded: true,
-        accountShells: [...existingAccountShells, ...newAccountShells],
+        isGeneratingNewAccount: false,
+        hasNewAccountsGenerationSucceeded: true,
         accounts: {
           ...state.accounts,
           ...action.payload.accounts,
@@ -271,17 +219,9 @@ export default (state: AccountsState = initialState, action): AccountsState => {
     case NEW_ACCOUNT_ADD_FAILED:
       return {
         ...state,
-        isGeneratingNewAccountShell: false,
-        hasNewAccountShellGenerationSucceeded: false,
-        hasNewAccountShellGenerationFailed: true,
-      };
-
-    case ADD_NEW_ACCOUNT_SHELL_COMPLETED:
-      return {
-        ...state,
-        isGeneratingNewAccountShell: false,
-        hasNewAccountShellGenerationSucceeded: false,
-        hasNewAccountShellGenerationFailed: false,
+        isGeneratingNewAccount: false,
+        hasNewAccountsGenerationSucceeded: false,
+        hasNewAccountsGenerationFailed: true,
       };
 
     case UPDATE_ACCOUNTS:
@@ -294,61 +234,28 @@ export default (state: AccountsState = initialState, action): AccountsState => {
       };
 
     case READ_TRANSACTION: {
-      const { accountShells, accounts } = action.payload;
+      const { accounts } = action.payload;
       return {
         ...state,
-        accountShells: accountShells,
         accounts: accounts,
       };
     }
 
     case ACCOUNT_CHECKED: {
-      const { accountShells, accounts } = action.payload;
+      const { accounts } = action.payload;
       return {
         ...state,
-        accountShells: accountShells,
         accounts: accounts,
       };
     }
 
-    case UPDATE_ACCOUNT_SHELLS:
-      const accounts = action.payload.accounts;
-      const shells = state.accountShells;
-      shells.forEach((shell) => {
-        const account: Account = accounts[shell.primarySubAccount.id];
-        if (!account) return shell;
-
-        const accountDetails = {
-          accountName: account.presentationData.accountName,
-          accountDescription: account.presentationData.accountDescription,
-          accountXpub: account.specs.xpub,
-          accountVisibility: account.presentationData.accountVisibility,
-          hasNewTxn: account.specs.hasNewTxn,
-        };
-        AccountShell.updatePrimarySubAccountDetails(
-          shell,
-          account.isUsable,
-          account.specs.balances,
-          account.specs.transactions,
-          accountDetails
-        );
-        return shell;
-      });
-
-      return {
-        ...state,
-        accounts: {
-          ...state.accounts,
-          ...action.payload.accounts,
-        },
-        accountShells: shells,
-      };
-
     case RECOMPUTE_NET_BALANCE:
       let netBalance = 0;
-      state.accountShells.forEach((accountShell: AccountShell) => {
-        if (accountShell.primarySubAccount.sourceKind !== SourceAccountKind.TEST_ACCOUNT)
-          netBalance += AccountShell.getTotalBalance(accountShell);
+      Object.values(state.accounts).forEach((account: Account) => {
+        if (account.type !== AccountType.TEST_ACCOUNT) {
+          const balances = account.specs.balances;
+          netBalance = netBalance + (balances.confirmed + balances.unconfirmed);
+        }
       });
       return {
         ...state,
@@ -372,92 +279,29 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         hasAccountSettingsUpdateFailed: true,
       };
 
-    case SUB_ACCOUNT_SETTINGS_UPDATE_COMPLETED:
-      return {
-        ...state,
-        isUpdatingAccountSettings: false,
-        hasAccountSettingsUpdateSucceeded: false,
-        hasAccountSettingsUpdateFailed: false,
-      };
+    // case ACCOUNT_SHELLS_REFRESH_STARTED:
+    //   const shellsRefreshing: AccountShell[] = action.payload;
+    //   shellsRefreshing.forEach((refreshingShell) => {
+    //     state.accountShells.forEach((shell) => {
+    //       if (shell.id == refreshingShell.id) shell.syncStatus = SyncStatus.IN_PROGRESS;
+    //       else shell.syncStatus = SyncStatus.COMPLETED;
+    //     });
+    //   });
+    //   return {
+    //     ...state,
+    //   };
 
-    case TRANSACTION_REASSIGNMENT_SUCCEEDED:
-      return {
-        ...state,
-        isTransactionReassignmentInProgress: false,
-        hasTransactionReassignmentSucceeded: true,
-        hasTransactionReassignmentFailed: false,
-      };
-
-    case TRANSACTION_REASSIGNMENT_FAILED:
-      return {
-        ...state,
-        isTransactionReassignmentInProgress: false,
-        hasTransactionReassignmentSucceeded: false,
-        hasTransactionReassignmentFailed: true,
-      };
-
-    case ACCOUNT_SHELL_MERGE_SUCCEEDED:
-      return {
-        ...state,
-        isAccountShellMergeInProgress: false,
-        hasAccountShellMergeSucceeded: true,
-        hasAccountShellMergeFailed: false,
-      };
-
-    case ACCOUNT_SHELL_MERGE_FAILED:
-      return {
-        ...state,
-        isAccountShellMergeInProgress: false,
-        hasAccountShellMergeSucceeded: false,
-        hasAccountShellMergeFailed: true,
-      };
-
-    case ACCOUNT_SHELLS_ORDER_UPDATED:
-      return {
-        ...state,
-        accountShells: action.payload.map(updateDisplayOrderForSortedShell),
-      };
-
-    case ACCOUNT_SHELL_ORDERED_TO_FRONT:
-      const index = state.accountShells.findIndex((shell) => shell.id == action.payload.id);
-
-      const shellToMove = state.accountShells.splice(index);
-
-      return {
-        ...state,
-        accountShells: [...shellToMove, ...state.accountShells].map(
-          updateDisplayOrderForSortedShell
-        ),
-      };
-
-    case REMAP_ACCOUNT_SHELLS:
-      return {
-        ...state,
-      };
-
-    case ACCOUNT_SHELLS_REFRESH_STARTED:
-      const shellsRefreshing: AccountShell[] = action.payload;
-      shellsRefreshing.forEach((refreshingShell) => {
-        state.accountShells.forEach((shell) => {
-          if (shell.id == refreshingShell.id) shell.syncStatus = SyncStatus.IN_PROGRESS;
-          else shell.syncStatus = SyncStatus.COMPLETED;
-        });
-      });
-      return {
-        ...state,
-      };
-
-    case ACCOUNT_SHELLS_REFRESH_COMPLETED:
-      // Updating Account Sync State to shell data model
-      // This will be used to display sync icon on Home Screen
-      const shellsRefreshed: AccountShell[] = action.payload;
-      shellsRefreshed.forEach((refreshedShell) => {
-        state.accountShells.find((shell) => shell.id == refreshedShell.id).syncStatus =
-          SyncStatus.COMPLETED;
-      });
-      return {
-        ...state,
-      };
+    // case ACCOUNT_SHELLS_REFRESH_COMPLETED:
+    //   // Updating Account Sync State to shell data model
+    //   // This will be used to display sync icon on Home Screen
+    //   const shellsRefreshed: AccountShell[] = action.payload;
+    //   shellsRefreshed.forEach((refreshedShell) => {
+    //     state.accountShells.find((shell) => shell.id == refreshedShell.id).syncStatus =
+    //       SyncStatus.COMPLETED;
+    //   });
+    //   return {
+    //     ...state,
+    //   };
 
     // case CLEAR_ACCOUNT_SYNC_CACHE:
     //   // This will clear the sync state at the start of each login session
@@ -467,26 +311,6 @@ export default (state: AccountsState = initialState, action): AccountsState => {
     //   return {
     //     ...state,
     //   }
-
-    case BLIND_REFRESH_STARTED:
-      return {
-        ...state,
-        refreshed: action.payload.refreshed,
-      };
-
-    case SET_ALL_ACCOUNTS_DATA:
-      return {
-        ...state,
-        accounts: action.payload.accounts,
-        accountShells: [],
-      };
-
-    case FETCH_RECEIVE_ADDRESS_SUCCEEDED:
-      return {
-        ...state,
-        receiveAddress: action.payload.receiveAddress,
-        hasReceiveAddressSucceeded: true,
-      };
 
     case CLEAR_RECEIVE_ADDRESS:
       return {
@@ -569,12 +393,3 @@ export default (state: AccountsState = initialState, action): AccountsState => {
       return state;
   }
 };
-
-function updateDisplayOrderForSortedShell(
-  accountShell: AccountShell,
-  sortedIndex: number
-): AccountShell {
-  accountShell.displayOrder = sortedIndex + 1;
-
-  return accountShell;
-}
