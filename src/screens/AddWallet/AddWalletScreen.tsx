@@ -13,7 +13,7 @@ import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/screens/AddWallet/AccordionsComponent';
-import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
+import { addNewAccounts, importNewAccount } from 'src/store/actions/accounts';
 import { newAccountsInfo } from 'src/store/sagas/accounts';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/screens/AddWallet/AddWalletSheet';
@@ -51,14 +51,14 @@ const AddWalletScreen = () => {
     useBottomSheetUtils(importProcessWalletSheetRef);
 
   const addWallet = useCallback(() => {
-    const newAccountShellInfo: newAccountsInfo = {
+    const newAccountsInfo: newAccountsInfo = {
       accountType: AccountType.CHECKING_ACCOUNT,
       accountDetails: {
         name: accountName,
         description: accountDescription,
       },
     };
-    dispatch(addNewAccountShells([newAccountShellInfo]));
+    dispatch(addNewAccounts([newAccountsInfo]));
     setWalletDetails({
       name: accountName,
       description: accountDescription,
