@@ -75,7 +75,7 @@ export const generateAccount = async ({
     accountName,
     accountDescription,
     accountVisibility: AccountVisibility.DEFAULT,
-    isSynching: true,
+    isSynching: false,
   };
 
   const specs: AccountSpecs = {
@@ -187,7 +187,7 @@ export const generateMultiSigAccount = async ({
     accountName,
     accountDescription,
     accountVisibility: AccountVisibility.DEFAULT,
-    isSynching: true,
+    isSynching: false,
   };
 
   const specs: MultiSigAccountSpecs = {

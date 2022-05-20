@@ -33,6 +33,7 @@ import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import { loginWithHexa } from 'src/store/actions/accounts';
 import { setupWallet } from 'src/store/actions/storage';
 import { RealmContext } from 'src/storage/realm/AppRealmProvider';
+import { Accounts } from 'src/core/accounts/interfaces/interface';
 
 type Props = {
   route: any | undefined;
@@ -62,11 +63,8 @@ const HomeScreen = ({ navigation, route }: Props) => {
     },
   ]);
 
-  const allWallets: WALLET[] = [
-    ...defaultWallets,
-    ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
-    { isEnd: true },
-  ];
+  const accounts: Accounts = useSelector((state: RootStateOrAny) => state.accounts.accounts);
+  const allWallets = [...defaultWallets, ...Object.values(accounts), { isEnd: true }];
 
   useEffect(() => {
     if (!wallet && rehydrated) {
@@ -83,10 +81,10 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const allWallet = useQuery('Wallet');
 
   //To test live update of data
-  useEffect(() => {
-    console.log('walletFromRealm', allWallet[0]);
-    console.log('walletFromStore', wallet);
-  }, [allWallet]);
+  // useEffect(() => {
+  //   console.log('walletFromRealm', allWallet[0]);
+  //   console.log('walletFromStore', wallet);
+  // }, [allWallet]);
 
   useEffect(() => {
     if (route.params !== undefined) {
