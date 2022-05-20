@@ -35,9 +35,6 @@ import {
   accountsRefreshStarted,
   accountsRefreshCompleted,
 } from '../actions/accounts';
-import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
-import ServiceAccountKind from 'src/common/data/enums/ServiceAccountKind';
-import SyncStatus from 'src/common/data/enums/SyncStatus';
 import config, { APP_STAGE } from 'src/core/config';
 import { AccountsState } from 'src/store/reducers/accounts';
 import AccountOperations from 'src/core/accounts/AccountOperations';
@@ -90,13 +87,16 @@ export function getNextFreeAddress(
     account,
     requester
   );
+
   dispatch(
     updateAccounts({
       accounts: {
         [updatedAccount.id]: updatedAccount,
       },
     })
-  ).updateAccount((updatedAccount as Account).id, updatedAccount);
+  );
+  // dbManager.updateAccount((updatedAccount as Account).id, updatedAccount);
+
   return receivingAddress;
 }
 
