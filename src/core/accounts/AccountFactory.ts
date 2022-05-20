@@ -5,15 +5,19 @@ import BIP85 from './BIP85';
 import { AccountType, DerivationPurpose, NetworkType } from './interfaces/enum';
 import {
   Account,
+  AccountDerivationDetails,
+  AccountPresentationData,
+  AccountSpecs,
   BIP85Config,
   DonationAccount,
+  DonationAccountPresentationData,
   LightningNode,
   MultiSigAccount,
+  MultiSigAccountSpecs,
 } from './interfaces/interface';
 import AccountVisibility from 'src/common/data/enums/AccountVisibility';
 
 export const generateAccount = async ({
-  walletId,
   type,
   instanceNum,
   accountName,
@@ -22,7 +26,6 @@ export const generateAccount = async ({
   networkType,
   node,
 }: {
-  walletId: string;
   type: AccountType;
   instanceNum: number;
   accountName: string;
@@ -60,21 +63,24 @@ export const generateAccount = async ({
     purpose
   );
 
-  const account: Account = {
-    id,
-    isUsable: true,
-    walletId,
-    type,
-    instanceNum,
+  const derivationDetails: AccountDerivationDetails = {
     networkType,
+    instanceNum,
     mnemonic,
     bip85Config,
     xDerivationPath,
-    xpub,
-    xpriv,
+  };
+
+  const presentationData: AccountPresentationData = {
     accountName,
     accountDescription,
     accountVisibility: AccountVisibility.DEFAULT,
+    isSynching: true,
+  };
+
+  const specs: AccountSpecs = {
+    xpub,
+    xpriv,
     activeAddresses: {
       external: {},
       internal: {},
@@ -93,14 +99,21 @@ export const generateAccount = async ({
     txIdMap: {},
     transactionsNote: {},
     importedAddresses: {},
+    node: type === AccountType.LIGHTNING_ACCOUNT ? node : null,
   };
 
-  if (type === AccountType.LIGHTNING_ACCOUNT) account.node = node;
+  const account: Account = {
+    id,
+    type,
+    isUsable: true,
+    derivationDetails,
+    presentationData,
+    specs,
+  };
   return account;
 };
 
 export const generateMultiSigAccount = async ({
-  walletId,
   type,
   instanceNum,
   accountName,
@@ -110,7 +123,6 @@ export const generateMultiSigAccount = async ({
   bithyveXpub,
   networkType,
 }: {
-  walletId: string;
   type: AccountType;
   instanceNum: number;
   accountName: string;
@@ -163,24 +175,27 @@ export const generateMultiSigAccount = async ({
     isUsable = true;
   }
 
-  const account: MultiSigAccount = {
-    id,
-    isUsable,
-    walletId,
-    type,
-    instanceNum,
+  const derivationDetails: AccountDerivationDetails = {
     networkType,
+    instanceNum,
     mnemonic,
     bip85Config,
     xDerivationPath,
+  };
+
+  const presentationData: AccountPresentationData = {
+    accountName,
+    accountDescription,
+    accountVisibility: AccountVisibility.DEFAULT,
+    isSynching: true,
+  };
+
+  const specs: MultiSigAccountSpecs = {
     is2FA: true,
     xpub: primaryXpub,
     xpriv: primaryXpriv,
     xpubs,
     xprivs,
-    accountName,
-    accountDescription,
-    accountVisibility: AccountVisibility.DEFAULT,
     activeAddresses: {
       external: {},
       internal: {},
@@ -201,11 +216,19 @@ export const generateMultiSigAccount = async ({
     importedAddresses: {},
   };
 
-  return account;
+  const multiSigAccount: MultiSigAccount = {
+    id,
+    isUsable,
+    type,
+    derivationDetails,
+    presentationData,
+    specs,
+  };
+
+  return multiSigAccount;
 };
 
 export const generateDonationAccount = async ({
-  walletId,
   type,
   instanceNum,
   accountName,
@@ -219,7 +242,6 @@ export const generateDonationAccount = async ({
   bithyveXpub,
   networkType,
 }: {
-  walletId: string;
   type: AccountType;
   instanceNum: number;
   accountName: string;
@@ -234,9 +256,8 @@ export const generateDonationAccount = async ({
   networkType: NetworkType;
 }): Promise<DonationAccount> => {
   let baseAccount: Account | MultiSigAccount;
-  if (is2FA)
+  if (is2FA) {
     baseAccount = await generateMultiSigAccount({
-      walletId,
       type,
       instanceNum,
       accountName,
@@ -246,9 +267,8 @@ export const generateDonationAccount = async ({
       bithyveXpub,
       networkType,
     });
-  else {
+  } else {
     baseAccount = await generateAccount({
-      walletId,
       type,
       instanceNum,
       accountName,
@@ -258,8 +278,8 @@ export const generateDonationAccount = async ({
     });
   }
 
-  const donationAccount: DonationAccount = {
-    ...baseAccount,
+  const presentationData: DonationAccountPresentationData = {
+    ...baseAccount.presentationData,
     donationName,
     donationDescription,
     donee,
@@ -269,7 +289,11 @@ export const generateDonationAccount = async ({
       displayOutgoingTxs: true,
     },
     disableAccount: false,
-    is2FA,
+  };
+
+  const donationAccount: DonationAccount = {
+    ...baseAccount,
+    presentationData,
   };
 
   return donationAccount;
@@ -285,17 +309,17 @@ export const upgradeAccountToMultiSig = ({
   bithyveXpub: string;
 }): MultiSigAccount => {
   account.isUsable = true;
-  (account as MultiSigAccount).xpubs = {
+  (account as MultiSigAccount).specs.xpubs = {
     secondary: secondaryXpub,
     bithyve: bithyveXpub,
   };
-  (account as MultiSigAccount).is2FA = true;
-  (account as MultiSigAccount).xprivs = {};
+  (account as MultiSigAccount).specs.is2FA = true;
+  (account as MultiSigAccount).specs.xprivs = {};
 
-  const network = AccountUtilities.getNetworkByType(account.networkType);
-  account.receivingAddress = AccountUtilities.createMultiSig(
+  const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
+  account.specs.receivingAddress = AccountUtilities.createMultiSig(
     {
-      primary: account.xpub,
+      primary: account.specs.xpub,
       secondary: secondaryXpub,
       bithyve: bithyveXpub,
     },

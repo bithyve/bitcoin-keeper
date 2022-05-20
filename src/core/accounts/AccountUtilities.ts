@@ -202,7 +202,8 @@ export default class AccountUtilities {
   };
 
   static addressToPrivateKey = (address: string, account: Account): string => {
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv, networkType } = account;
+    const { networkType } = account.derivationDetails;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = account.specs;
     const network = AccountUtilities.getNetworkByType(networkType);
 
     const purpose =
@@ -227,8 +228,9 @@ export default class AccountUtilities {
         return AccountUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
     }
 
-    for (const importedAddress in account.importedAddresses) {
-      if (address === importedAddress) return account.importedAddresses[importedAddress].privateKey;
+    for (const importedAddress in account.specs.importedAddresses) {
+      if (address === importedAddress)
+        return account.specs.importedAddresses[importedAddress].privateKey;
     }
 
     throw new Error('Could not find private key for: ' + address);
@@ -288,20 +290,20 @@ export default class AccountUtilities {
   };
 
   static signingEssentialsForMultiSig = (account: MultiSigAccount, address: string) => {
-    const { networkType } = account;
+    const { networkType } = account.derivationDetails;
     const network = AccountUtilities.getNetworkByType(networkType);
 
     const closingExtIndex =
-      account.nextFreeAddressIndex +
+      account.specs.nextFreeAddressIndex +
       (account.type === AccountType.DONATION_ACCOUNT
         ? config.DONATION_GAP_LIMIT
         : config.GAP_LIMIT);
     for (let itr = 0; itr <= closingExtIndex; itr++) {
       const multiSig = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
@@ -312,14 +314,14 @@ export default class AccountUtilities {
         return {
           multiSig,
           primaryPriv: AccountUtilities.generateChildFromExtendedKey(
-            account.xpriv,
+            account.specs.xpriv,
             network,
             itr,
             false
           ),
-          secondaryPriv: account.xprivs.secondary
+          secondaryPriv: account.specs.xprivs.secondary
             ? AccountUtilities.generateChildFromExtendedKey(
-                account.xprivs.secondary,
+                account.specs.xprivs.secondary,
                 network,
                 itr,
                 false,
@@ -332,16 +334,16 @@ export default class AccountUtilities {
     }
 
     const closingIntIndex =
-      account.nextFreeChangeAddressIndex +
+      account.specs.nextFreeChangeAddressIndex +
       (account.type === AccountType.DONATION_ACCOUNT
         ? config.DONATION_GAP_LIMIT_INTERNAL
         : config.GAP_LIMIT);
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       const multiSig = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
@@ -352,14 +354,14 @@ export default class AccountUtilities {
         return {
           multiSig,
           primaryPriv: AccountUtilities.generateChildFromExtendedKey(
-            account.xpriv,
+            account.specs.xpriv,
             network,
             itr,
             true
           ),
-          secondaryPriv: account.xprivs.secondary
+          secondaryPriv: account.specs.xprivs.secondary
             ? AccountUtilities.generateChildFromExtendedKey(
-                account.xprivs.secondary,
+                account.specs.xprivs.secondary,
                 network,
                 itr,
                 true,
@@ -446,12 +448,12 @@ export default class AccountUtilities {
       if (!output.address) {
         let changeAddress: string;
 
-        if ((account as MultiSigAccount).is2FA)
+        if ((account as MultiSigAccount).specs.is2FA)
           changeAddress = AccountUtilities.createMultiSig(
             {
-              primary: account.xpub,
-              secondary: (account as MultiSigAccount).xpubs.secondary,
-              bithyve: (account as MultiSigAccount).xpubs.bithyve,
+              primary: account.specs.xpub,
+              secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+              bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
             },
             2,
             network,
@@ -460,7 +462,7 @@ export default class AccountUtilities {
           ).address;
         else
           changeAddress = AccountUtilities.getAddressByIndex(
-            account.xpub,
+            account.specs.xpub,
             true,
             nextFreeChangeAddressIndex,
             network,
@@ -1168,14 +1170,15 @@ export default class AccountUtilities {
 
   // donation-account specific utilities
   static setupDonationAccount = async (
-    account: DonationAccount
+    account: DonationAccount,
+    walletId: string
   ): Promise<{
     setupSuccessful: boolean;
   }> => {
-    const xpubs = [account.xpub];
-    if ((account as MultiSigAccount).is2FA) {
-      xpubs.push((account as MultiSigAccount).xpubs.secondary);
-      xpubs.push((account as MultiSigAccount).xpubs.bithyve);
+    const xpubs = [account.specs.xpub];
+    if ((account as MultiSigAccount).specs.is2FA) {
+      xpubs.push((account as MultiSigAccount).specs.xpubs.secondary);
+      xpubs.push((account as MultiSigAccount).specs.xpubs.bithyve);
     }
 
     let res: AxiosResponse;
@@ -1183,14 +1186,14 @@ export default class AccountUtilities {
       res = await RELAY_AXIOS.post('setupDonationAccount', {
         HEXA_ID: config.HEXA_ID,
         donationId: account.id.slice(0, 15),
-        walletID: account.walletId,
+        walletID: walletId,
         details: {
-          donee: account.donee,
-          subject: account.donationName,
-          description: account.donationDescription,
+          donee: account.presentationData.donee,
+          subject: account.presentationData.donationName,
+          description: account.presentationData.donationDescription,
           xpubId: account.id,
           xpubs,
-          configuration: account.configuration,
+          configuration: account.presentationData.configuration,
         },
       });
     } catch (err) {
@@ -1206,6 +1209,7 @@ export default class AccountUtilities {
 
   static updateDonationPreferences = async (
     account: DonationAccount,
+    walletId: string,
     preferences: {
       disableAccount?: boolean;
       configuration?: {
@@ -1225,7 +1229,7 @@ export default class AccountUtilities {
       res = await RELAY_AXIOS.post('updatePreferences', {
         HEXA_ID: config.HEXA_ID,
         donationId: account.id.slice(0, 15),
-        walletID: account.walletId,
+        walletID: walletId,
         preferences,
       });
     } catch (err) {
@@ -1237,17 +1241,18 @@ export default class AccountUtilities {
     if (updated) {
       if (
         preferences.disableAccount !== undefined &&
-        preferences.disableAccount !== account.disableAccount
+        preferences.disableAccount !== account.presentationData.disableAccount
       )
-        account.disableAccount = preferences.disableAccount;
+        account.presentationData.disableAccount = preferences.disableAccount;
 
-      if (preferences.configuration) account.configuration = preferences.configuration;
+      if (preferences.configuration)
+        account.presentationData.configuration = preferences.configuration;
 
       if (preferences.accountDetails) {
-        account.donationName = preferences.accountDetails.subject;
-        account.accountDescription = preferences.accountDetails.subject;
-        account.donationDescription = preferences.accountDetails.description;
-        account.donee = preferences.accountDetails.donee;
+        account.presentationData.donationName = preferences.accountDetails.subject;
+        account.presentationData.accountDescription = preferences.accountDetails.subject;
+        account.presentationData.donationDescription = preferences.accountDetails.description;
+        account.presentationData.donee = preferences.accountDetails.donee;
       }
     }
 

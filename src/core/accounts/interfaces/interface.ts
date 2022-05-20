@@ -68,6 +68,23 @@ export interface Transaction {
 
 export type TransactionDetails = Transaction;
 
+export interface TransactionMetaData {
+  receivers: { name: string; amount: number }[];
+  sender: string;
+  txid: string;
+  notes: string;
+  tags: string[];
+  amount: number;
+  accountType: string;
+  address: string;
+  isNew: boolean;
+  type: string;
+}
+
+export interface TransactionsNote {
+  [txId: string]: string;
+}
+
 export interface Balances {
   confirmed: number;
   unconfirmed: number;
@@ -86,6 +103,13 @@ export interface UTXO {
   value: number;
   address: string;
   status?: any;
+}
+
+export interface AccountImportedAddresses {
+  [address: string]: {
+    address: string;
+    privateKey: string;
+  };
 }
 
 export interface ActiveAddressAssignee {
@@ -137,21 +161,36 @@ export interface LightningNode {
   enableTor?: boolean;
 }
 
-export interface Account {
-  id: string; // account identifier(derived from xpub)
-  isUsable: boolean; // true if account is usable
-  walletId: string; // wallet's id
-  type: AccountType; // type of account
-  instanceNum: number; // instance number of the aforementioned type
+export interface AccountDerivationDetails {
   networkType: NetworkType; // testnet/mainnet
+  instanceNum: number; // instance number of this particular accountType
   mnemonic: string; // mnemonic of the account
   bip85Config: BIP85Config; // bip85 configuration leading to the derivation path for the corresponding entropy
   xDerivationPath: string; // derivation path of the extended keys belonging to this account
-  xpub: string | null; // account's xpub (primary for multi-sig accounts)
-  xpriv: string | null; // account's xpriv (primary for multi-sig accounts)
+}
+
+export interface AccountPresentationData {
   accountName: string; // name of the account
   accountDescription: string; // description of the account
   accountVisibility: AccountVisibility; // visibility of the account
+  isSynching: boolean; // sync status of the account
+}
+
+export interface DonationAccountPresentationData extends AccountPresentationData {
+  donee: string;
+  donationName: string;
+  donationDescription: string;
+  configuration: {
+    displayBalance: boolean;
+    displayIncomingTxs: boolean;
+    displayOutgoingTxs: boolean;
+  };
+  disableAccount: boolean;
+}
+
+export interface AccountSpecs {
+  xpub: string | null; // account's xpub (primary for multi-sig accounts)
+  xpriv: string | null; // account's xpriv (primary for multi-sig accounts)
   activeAddresses: ActiveAddresses; // addresses being actively used by this account
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
@@ -164,32 +203,13 @@ export interface Account {
   newTransactions?: Transaction[]; // new transactions arrived during the current sync
   txIdMap?: { [txid: string]: string[] }; // tx-mapping; tx insertion checker
   hasNewTxn?: boolean; // indicates new txns
-  transactionsNote: {
-    [txId: string]: string;
-  };
-  importedAddresses: {
-    // non-xpub/imported addresses
-    [address: string]: {
-      address: string;
-      privateKey: string;
-    };
-  };
-  transactionsMeta?: {
-    receivers: { name: string; amount: number }[];
-    sender: string;
-    txid: string;
-    notes: string;
-    tags: string[];
-    amount: number;
-    accountType: string;
-    address: string;
-    isNew: boolean;
-    type: string;
-  }[];
+  transactionsNote: TransactionsNote;
+  importedAddresses: AccountImportedAddresses;
+  transactionsMeta?: TransactionMetaData[];
   node?: LightningNode;
 }
 
-export interface MultiSigAccount extends Account {
+export interface MultiSigAccountSpecs extends AccountSpecs {
   is2FA: boolean; // is2FA enabled
   xpubs: {
     // additional xpubs for multi-sig
@@ -202,26 +222,22 @@ export interface MultiSigAccount extends Account {
   };
 }
 
+export interface Account {
+  id: string; // account identifier(derived from xpub)
+  type: AccountType; // type of account
+  isUsable: boolean; // true if account is usable
+  derivationDetails: AccountDerivationDetails;
+  presentationData: AccountPresentationData;
+  specs: AccountSpecs;
+}
+
+export interface MultiSigAccount extends Account {
+  specs: MultiSigAccountSpecs;
+}
+
 export interface DonationAccount extends Account {
-  donee: string;
-  donationName: string;
-  donationDescription: string;
-  configuration: {
-    displayBalance: boolean;
-    displayIncomingTxs: boolean;
-    displayOutgoingTxs: boolean;
-  };
-  disableAccount: boolean;
-  is2FA: boolean; // is2FA enabled
-  xpubs?: {
-    // additional xpubs for multi-sig
-    secondary: string;
-    bithyve: string;
-  };
-  xprivs?: {
-    // additional xpirvs for multi-sig
-    secondary?: string;
-  };
+  presentationData: DonationAccountPresentationData;
+  specs: AccountSpecs | MultiSigAccountSpecs;
 }
 
 export interface Accounts {

@@ -38,17 +38,17 @@ export default class AccountOperations {
     requester?: ActiveAddressAssignee
   ): { updatedAccount: Account | MultiSigAccount; receivingAddress: string } => {
     let receivingAddress;
-    const network = AccountUtilities.getNetworkByType(account.networkType);
-    if ((account as MultiSigAccount).is2FA)
+    const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
+    if ((account as MultiSigAccount).specs.is2FA)
       receivingAddress = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
-        account.nextFreeAddressIndex,
+        account.specs.nextFreeAddressIndex,
         false
       ).address;
     else {
@@ -58,16 +58,16 @@ export default class AccountOperations {
         ? DerivationPurpose.BIP84
         : DerivationPurpose.BIP49;
       receivingAddress = AccountUtilities.getAddressByIndex(
-        account.xpub,
+        account.specs.xpub,
         false,
-        account.nextFreeAddressIndex,
+        account.specs.nextFreeAddressIndex,
         network,
         purpose
       );
     }
 
-    account.activeAddresses.external[receivingAddress] = {
-      index: account.nextFreeAddressIndex,
+    account.specs.activeAddresses.external[receivingAddress] = {
+      index: account.specs.nextFreeAddressIndex,
       assignee: requester
         ? requester
         : {
@@ -75,8 +75,8 @@ export default class AccountOperations {
             id: account.id,
           },
     };
-    account.nextFreeAddressIndex++;
-    account.receivingAddress = receivingAddress;
+    account.specs.nextFreeAddressIndex++;
+    account.specs.receivingAddress = receivingAddress;
     return {
       updatedAccount: account,
       receivingAddress,
@@ -86,51 +86,51 @@ export default class AccountOperations {
   static syncGapLimit = async (account: Account | MultiSigAccount) => {
     let tryAgain = false;
     const hardGapLimit = 10;
-    const network = AccountUtilities.getNetworkByType(account.networkType);
+    const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
 
     const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(account.type)
       ? DerivationPurpose.BIP84
       : DerivationPurpose.BIP49;
     let externalAddress: string;
-    if ((account as MultiSigAccount).is2FA)
+    if ((account as MultiSigAccount).specs.is2FA)
       externalAddress = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
-        account.nextFreeAddressIndex + hardGapLimit - 1,
+        account.specs.nextFreeAddressIndex + hardGapLimit - 1,
         false
       ).address;
     else
       externalAddress = AccountUtilities.getAddressByIndex(
-        account.xpub,
+        account.specs.xpub,
         false,
-        account.nextFreeAddressIndex + hardGapLimit - 1,
+        account.specs.nextFreeAddressIndex + hardGapLimit - 1,
         network,
         purpose
       );
 
     let internalAddress: string;
-    if ((account as MultiSigAccount).is2FA)
+    if ((account as MultiSigAccount).specs.is2FA)
       internalAddress = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
-        account.nextFreeChangeAddressIndex + hardGapLimit - 1,
+        account.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
         true
       ).address;
     else
       internalAddress = AccountUtilities.getAddressByIndex(
-        account.xpub,
+        account.specs.xpub,
         true,
-        account.nextFreeChangeAddressIndex + hardGapLimit - 1,
+        account.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
         network,
         purpose
       );
@@ -141,12 +141,12 @@ export default class AccountOperations {
     );
 
     if (txCounts[externalAddress] > 0) {
-      account.nextFreeAddressIndex += hardGapLimit;
+      account.specs.nextFreeAddressIndex += hardGapLimit;
       tryAgain = true;
     }
 
     if (txCounts[internalAddress] > 0) {
-      account.nextFreeChangeAddressIndex += hardGapLimit;
+      account.specs.nextFreeChangeAddressIndex += hardGapLimit;
       tryAgain = true;
     }
 
@@ -161,12 +161,12 @@ export default class AccountOperations {
     address: string,
     requester: ActiveAddressAssignee
   ) => {
-    if (!account.importedAddresses) account.importedAddresses = {};
-    account.importedAddresses[address] = {
+    if (!account.specs.importedAddresses) account.specs.importedAddresses = {};
+    account.specs.importedAddresses[address] = {
       address,
       privateKey,
     };
-    account.activeAddresses.external[address] = {
+    account.specs.activeAddresses.external[address] = {
       index: -1,
       assignee: requester,
     };
@@ -226,14 +226,14 @@ export default class AccountOperations {
 
       const hardGapLimit = 5; // hard refresh gap limit
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
-      for (let itr = 0; itr < account.nextFreeAddressIndex + hardGapLimit; itr++) {
+      for (let itr = 0; itr < account.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
         let address: string;
-        if ((account as MultiSigAccount).is2FA)
+        if ((account as MultiSigAccount).specs.is2FA)
           address = AccountUtilities.createMultiSig(
             {
-              primary: account.xpub,
-              secondary: (account as MultiSigAccount).xpubs.secondary,
-              bithyve: (account as MultiSigAccount).xpubs.bithyve,
+              primary: account.specs.xpub,
+              secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+              bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
             },
             2,
             network,
@@ -241,27 +241,33 @@ export default class AccountOperations {
             false
           ).address;
         else
-          address = AccountUtilities.getAddressByIndex(account.xpub, false, itr, network, purpose);
+          address = AccountUtilities.getAddressByIndex(
+            account.specs.xpub,
+            false,
+            itr,
+            network,
+            purpose
+          );
         externalAddresses[address] = itr;
         ownedAddresses.push(address);
       }
 
       // include imported external addresses
-      if (!account.importedAddresses) account.importedAddresses = {};
-      Object.keys(account.importedAddresses).forEach((address) => {
+      if (!account.specs.importedAddresses) account.specs.importedAddresses = {};
+      Object.keys(account.specs.importedAddresses).forEach((address) => {
         externalAddresses[address] = -1;
         ownedAddresses.push(address);
       });
 
       const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
-      for (let itr = 0; itr < account.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
+      for (let itr = 0; itr < account.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
         let address: string;
-        if ((account as MultiSigAccount).is2FA)
+        if ((account as MultiSigAccount).specs.is2FA)
           address = AccountUtilities.createMultiSig(
             {
-              primary: account.xpub,
-              secondary: (account as MultiSigAccount).xpubs.secondary,
-              bithyve: (account as MultiSigAccount).xpubs.bithyve,
+              primary: account.specs.xpub,
+              secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+              bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
             },
             2,
             network,
@@ -269,7 +275,13 @@ export default class AccountOperations {
             true
           ).address;
         else
-          address = AccountUtilities.getAddressByIndex(account.xpub, true, itr, network, purpose);
+          address = AccountUtilities.getAddressByIndex(
+            account.specs.xpub,
+            true,
+            itr,
+            network,
+            purpose
+          );
         internalAddresses[address] = itr;
         ownedAddresses.push(address);
       }
@@ -277,9 +289,9 @@ export default class AccountOperations {
       // garner cached params for bal-tx sync
       const cachedUTXOs = hardRefresh
         ? []
-        : [...account.confirmedUTXOs, ...account.unconfirmedUTXOs];
-      const cachedTxIdMap = hardRefresh ? {} : account.txIdMap;
-      const cachedTxs = hardRefresh ? [] : account.transactions;
+        : [...account.specs.confirmedUTXOs, ...account.specs.unconfirmedUTXOs];
+      const cachedTxIdMap = hardRefresh ? {} : account.specs.txIdMap;
+      const cachedTxs = hardRefresh ? [] : account.specs.transactions;
 
       let shouldHardRefresh = hardRefresh;
       if (!shouldHardRefresh) {
@@ -288,18 +300,18 @@ export default class AccountOperations {
       }
 
       accountInstances[account.id] = {
-        activeAddresses: account.activeAddresses,
+        activeAddresses: account.specs.activeAddresses,
         externalAddresses,
         internalAddresses,
         ownedAddresses,
         cachedUTXOs,
         cachedTxs,
         cachedTxIdMap,
-        lastUsedAddressIndex: account.nextFreeAddressIndex - 1,
-        lastUsedChangeAddressIndex: account.nextFreeChangeAddressIndex - 1,
-        transactionsNote: account.transactionsNote,
+        lastUsedAddressIndex: account.specs.nextFreeAddressIndex - 1,
+        lastUsedChangeAddressIndex: account.specs.nextFreeChangeAddressIndex - 1,
+        transactionsNote: account.specs.transactionsNote,
         accountType: account.type,
-        accountName: account.accountName,
+        accountName: account.presentationData.accountName,
         hardRefresh: shouldHardRefresh,
       };
 
@@ -345,7 +357,7 @@ export default class AccountOperations {
         if (account.type === AccountType.TEST_ACCOUNT) {
           if (
             utxo.address ===
-            AccountUtilities.getAddressByIndex(account.xpub, false, 0, network, purpose)
+            AccountUtilities.getAddressByIndex(account.specs.xpub, false, 0, network, purpose)
           ) {
             confirmedUTXOs.push(utxo); // testnet-utxo from BH-testnet-faucet is treated as an spendable exception
             balances.confirmed += utxo.value;
@@ -368,31 +380,31 @@ export default class AccountOperations {
         }
       }
 
-      account.unconfirmedUTXOs = unconfirmedUTXOs;
-      account.confirmedUTXOs = confirmedUTXOs;
-      account.balances = balances;
-      account.nextFreeAddressIndex = nextFreeAddressIndex;
-      account.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
-      account.activeAddresses = activeAddresses;
-      account.hasNewTxn = hasNewTxn;
+      account.specs.unconfirmedUTXOs = unconfirmedUTXOs;
+      account.specs.confirmedUTXOs = confirmedUTXOs;
+      account.specs.balances = balances;
+      account.specs.nextFreeAddressIndex = nextFreeAddressIndex;
+      account.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
+      account.specs.activeAddresses = activeAddresses;
+      account.specs.hasNewTxn = hasNewTxn;
 
-      if ((account as MultiSigAccount).is2FA)
-        account.receivingAddress = AccountUtilities.createMultiSig(
+      if ((account as MultiSigAccount).specs.is2FA)
+        account.specs.receivingAddress = AccountUtilities.createMultiSig(
           {
-            primary: account.xpub,
-            secondary: (account as MultiSigAccount).xpubs.secondary,
-            bithyve: (account as MultiSigAccount).xpubs.bithyve,
+            primary: account.specs.xpub,
+            secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+            bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
           },
           2,
           network,
-          account.nextFreeAddressIndex,
+          account.specs.nextFreeAddressIndex,
           false
         ).address;
       else
-        account.receivingAddress = AccountUtilities.getAddressByIndex(
-          account.xpub,
+        account.specs.receivingAddress = AccountUtilities.getAddressByIndex(
+          account.specs.xpub,
           false,
-          account.nextFreeAddressIndex,
+          account.specs.nextFreeAddressIndex,
           network,
           purpose
         );
@@ -406,15 +418,15 @@ export default class AccountOperations {
       // }
       const { newTransactions, lastSynched } = AccountUtilities.setNewTransactions(
         transactions,
-        account.lastSynched
+        account.specs.lastSynched
       );
 
-      account.transactions = transactions;
-      account.txIdMap = txIdMap;
-      account.newTransactions = newTransactions;
-      account.lastSynched = lastSynched;
+      account.specs.transactions = transactions;
+      account.specs.txIdMap = txIdMap;
+      account.specs.newTransactions = newTransactions;
+      account.specs.lastSynched = lastSynched;
       activeAddressesWithNewTxsMap[account.id] = activeAddressesWithNewTxs;
-      account.hasNewTxn = hasNewTxn;
+      account.specs.hasNewTxn = hasNewTxn;
     }
     return {
       synchedAccounts: accounts,
@@ -440,19 +452,19 @@ export default class AccountOperations {
       itr++
     ) {
       let address;
-      if ((account as MultiSigAccount).is2FA)
+      if ((account as MultiSigAccount).specs.is2FA)
         address = AccountUtilities.createMultiSig(
           {
-            primary: account.xpub,
-            secondary: (account as MultiSigAccount).xpubs.secondary,
-            bithyve: (account as MultiSigAccount).xpubs.bithyve,
+            primary: account.specs.xpub,
+            secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+            bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
           },
           2,
           network,
           itr,
           true
         ).address;
-      else address = AccountUtilities.getAddressByIndex(account.xpub, true, itr, network);
+      else address = AccountUtilities.getAddressByIndex(account.specs.xpub, true, itr, network);
       internalAddresses.push(address);
     }
 
@@ -475,33 +487,33 @@ export default class AccountOperations {
 
     const { newTransactions, lastSynched } = AccountUtilities.setNewTransactions(
       transactions,
-      account.lastSynched
+      account.specs.lastSynched
     );
-    account.unconfirmedUTXOs = unconfirmedUTXOs;
-    account.confirmedUTXOs = confirmedUTXOs;
-    account.balances = balances;
-    account.nextFreeAddressIndex = nextFreeAddressIndex;
-    account.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
-    account.transactions = transactions;
-    account.newTransactions = newTransactions;
-    account.lastSynched = lastSynched;
-    if ((account as MultiSigAccount).is2FA)
-      account.receivingAddress = AccountUtilities.createMultiSig(
+    account.specs.unconfirmedUTXOs = unconfirmedUTXOs;
+    account.specs.confirmedUTXOs = confirmedUTXOs;
+    account.specs.balances = balances;
+    account.specs.nextFreeAddressIndex = nextFreeAddressIndex;
+    account.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
+    account.specs.transactions = transactions;
+    account.specs.newTransactions = newTransactions;
+    account.specs.lastSynched = lastSynched;
+    if ((account as MultiSigAccount).specs.is2FA)
+      account.specs.receivingAddress = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
-        account.nextFreeAddressIndex,
+        account.specs.nextFreeAddressIndex,
         false
       ).address;
     else
-      account.receivingAddress = AccountUtilities.getAddressByIndex(
-        account.xpub,
+      account.specs.receivingAddress = AccountUtilities.getAddressByIndex(
+        account.specs.xpub,
         false,
-        account.nextFreeAddressIndex,
+        account.specs.nextFreeAddressIndex,
         network
       );
 
@@ -521,10 +533,10 @@ export default class AccountOperations {
       name?: string;
     }[]
   ) => {
-    const network = AccountUtilities.getNetworkByType(account.networkType);
+    const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
 
-    const activeExternalAddresses = account.activeAddresses.external;
-    const activeInternalAddresses = account.activeAddresses.internal;
+    const activeExternalAddresses = account.specs.activeAddresses.external;
+    const activeInternalAddresses = account.specs.activeAddresses.internal;
 
     const recipientInfo = {
       [txid]: recipients.map((recipient) => {
@@ -542,14 +554,14 @@ export default class AccountOperations {
     for (const consumedUTXO of Object.values(consumedUTXOs)) {
       let found = false;
       // is out of bound external address?
-      for (let itr = 0; itr < account.nextFreeAddressIndex; itr++) {
+      for (let itr = 0; itr < account.specs.nextFreeAddressIndex; itr++) {
         let address: string;
-        if ((account as MultiSigAccount).is2FA)
+        if ((account as MultiSigAccount).specs.is2FA)
           address = AccountUtilities.createMultiSig(
             {
-              primary: account.xpub,
-              secondary: (account as MultiSigAccount).xpubs.secondary,
-              bithyve: (account as MultiSigAccount).xpubs.bithyve,
+              primary: account.specs.xpub,
+              secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+              bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
             },
             2,
             network,
@@ -557,7 +569,13 @@ export default class AccountOperations {
             false
           ).address;
         else
-          address = AccountUtilities.getAddressByIndex(account.xpub, false, itr, network, purpose);
+          address = AccountUtilities.getAddressByIndex(
+            account.specs.xpub,
+            false,
+            itr,
+            network,
+            purpose
+          );
 
         if (consumedUTXO.address === address) {
           if (!activeExternalAddresses[address])
@@ -593,14 +611,14 @@ export default class AccountOperations {
 
       // is out of bound internal address?
       if (!found)
-        for (let itr = 0; itr < account.nextFreeChangeAddressIndex; itr++) {
+        for (let itr = 0; itr < account.specs.nextFreeChangeAddressIndex; itr++) {
           let address: string;
-          if ((account as MultiSigAccount).is2FA)
+          if ((account as MultiSigAccount).specs.is2FA)
             address = AccountUtilities.createMultiSig(
               {
-                primary: account.xpub,
-                secondary: (account as MultiSigAccount).xpubs.secondary,
-                bithyve: (account as MultiSigAccount).xpubs.bithyve,
+                primary: account.specs.xpub,
+                secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+                bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
               },
               2,
               network,
@@ -608,7 +626,13 @@ export default class AccountOperations {
               true
             ).address;
           else
-            address = AccountUtilities.getAddressByIndex(account.xpub, true, itr, network, purpose);
+            address = AccountUtilities.getAddressByIndex(
+              account.specs.xpub,
+              true,
+              itr,
+              network,
+              purpose
+            );
 
           if (consumedUTXO.address === address) {
             if (!activeInternalAddresses[address])
@@ -646,35 +670,35 @@ export default class AccountOperations {
     // add internal address used for change utxo to activeAddresses.internal
     let changeAddress: string;
 
-    if ((account as MultiSigAccount).is2FA)
+    if ((account as MultiSigAccount).specs.is2FA)
       changeAddress = AccountUtilities.createMultiSig(
         {
-          primary: account.xpub,
-          secondary: (account as MultiSigAccount).xpubs.secondary,
-          bithyve: (account as MultiSigAccount).xpubs.bithyve,
+          primary: account.specs.xpub,
+          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
+          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
         },
         2,
         network,
-        account.nextFreeChangeAddressIndex,
+        account.specs.nextFreeChangeAddressIndex,
         true
       ).address;
     else
       changeAddress = AccountUtilities.getAddressByIndex(
-        account.xpub,
+        account.specs.xpub,
         true,
-        account.nextFreeChangeAddressIndex,
+        account.specs.nextFreeChangeAddressIndex,
         network,
         purpose
       );
 
     activeInternalAddresses[changeAddress] = {
-      index: account.nextFreeChangeAddressIndex,
+      index: account.specs.nextFreeChangeAddressIndex,
       assignee: {
         type: account.type,
         id: account.id,
       },
     };
-    account.nextFreeChangeAddressIndex++;
+    account.specs.nextFreeChangeAddressIndex++;
   };
 
   static removeConsumedUTXOs = (
@@ -696,11 +720,11 @@ export default class AccountOperations {
     // update primary utxo set and balance
     const updatedUTXOSet = [];
 
-    account.confirmedUTXOs.forEach((confirmedUTXO) => {
+    account.specs.confirmedUTXOs.forEach((confirmedUTXO) => {
       if (!consumedUTXOs[confirmedUTXO.txId]) updatedUTXOSet.push(confirmedUTXO);
     });
 
-    account.confirmedUTXOs = updatedUTXOSet;
+    account.specs.confirmedUTXOs = updatedUTXOSet;
     AccountOperations.updateActiveAddresses(account, consumedUTXOs, txid, recipients);
   };
 
@@ -710,7 +734,7 @@ export default class AccountOperations {
     feePerByte: number,
     network: bitcoinJS.networks.Network
   ): { fee: number } => {
-    const inputUTXOs = account.confirmedUTXOs;
+    const inputUTXOs = account.specs.confirmedUTXOs;
     let confirmedBalance = 0;
     inputUTXOs.forEach((utxo) => {
       confirmedBalance += utxo.value;
@@ -754,7 +778,7 @@ export default class AccountOperations {
         fee?: undefined;
         balance?: undefined;
       } => {
-    const inputUTXOs = account.confirmedUTXOs;
+    const inputUTXOs = account.specs.confirmedUTXOs;
     let confirmedBalance = 0;
     inputUTXOs.forEach((utxo) => {
       confirmedBalance += utxo.value;
@@ -838,7 +862,7 @@ export default class AccountOperations {
     }[],
     customTxFeePerByte: number
   ): TransactionPrerequisiteElements => {
-    const inputUTXOs = account.confirmedUTXOs;
+    const inputUTXOs = account.specs.confirmedUTXOs;
     console.log({
       inputUTXOs,
       outputUTXOs,
@@ -881,7 +905,7 @@ export default class AccountOperations {
         outputs = txPrerequisites[txnPriority].outputs;
       }
 
-      const network = AccountUtilities.getNetworkByType(account.networkType);
+      const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
 
       // console.log({ inputs, outputs });
       const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
@@ -914,7 +938,7 @@ export default class AccountOperations {
       const sortedOuts = await AccountUtilities.sortOutputs(
         account,
         outputs,
-        account.nextFreeChangeAddressIndex,
+        account.specs.nextFreeChangeAddressIndex,
         network
       );
 
@@ -950,11 +974,11 @@ export default class AccountOperations {
     try {
       let vin = 0;
       const childIndexArray = [];
-      const network = AccountUtilities.getNetworkByType(account.networkType);
+      const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
 
       for (const input of inputs) {
         let keyPair, redeemScript;
-        if ((account as MultiSigAccount).is2FA) {
+        if ((account as MultiSigAccount).specs.is2FA) {
           const { multiSig, primaryPriv, childIndex } =
             AccountUtilities.signingEssentialsForMultiSig(
               account as MultiSigAccount,
@@ -1001,9 +1025,9 @@ export default class AccountOperations {
   } => {
     let vin = 0;
 
-    if (!account.xprivs.secondary)
+    if (!account.specs.xprivs.secondary)
       throw new Error('Multi-sign transaction failed: secondary xpriv missing');
-    const network = AccountUtilities.getNetworkByType(account.networkType);
+    const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
 
     inputs.forEach((input) => {
       const { secondaryPriv } = AccountUtilities.signingEssentialsForMultiSig(
@@ -1080,6 +1104,7 @@ export default class AccountOperations {
 
   static transferST2 = async (
     account: Account | MultiSigAccount,
+    walletId: string,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
     network: bitcoinJS.networks.Network,
@@ -1115,24 +1140,24 @@ export default class AccountOperations {
     );
     let txHex;
 
-    if ((account as MultiSigAccount).is2FA) {
+    if ((account as MultiSigAccount).specs.is2FA) {
       if (token) {
         const serializedPSBT = PSBT.toBase64();
         const { signedTxHex } = await AccountUtilities.getSecondSignature(
-          account.walletId,
+          walletId,
           token,
           serializedPSBT,
           childIndexArray
         );
         txHex = signedTxHex;
-      } else if ((account as MultiSigAccount).xprivs.secondary) {
+      } else if ((account as MultiSigAccount).specs.xprivs.secondary) {
         const { signedPSBT } = AccountOperations.multiSignTransaction(
           account as MultiSigAccount,
           inputs,
           PSBT
         );
         txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-        delete (account as MultiSigAccount).xprivs.secondary;
+        delete (account as MultiSigAccount).specs.xprivs.secondary;
       } else throw new Error('Multi-sig transaction failed: token/secondary-key missing');
     } else {
       txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
@@ -1174,7 +1199,7 @@ export default class AccountOperations {
     txid: string;
     gifts: Gift[];
   }> => {
-    const network = AccountUtilities.getNetworkByType(account.networkType);
+    const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
     const txPriority = TxPriority.LOW;
 
     const recipients = [];
@@ -1262,6 +1287,7 @@ export default class AccountOperations {
 
     const { txid } = await AccountOperations.transferST2(
       account,
+      walletDetails.walletId,
       txPrerequisites,
       txPriority,
       network,
