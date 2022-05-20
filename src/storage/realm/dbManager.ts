@@ -3,7 +3,7 @@ import { realmConfig } from './AppRealmProvider';
 
 // DB Manager
 // UI will not talk to DB directly, sagas will do.
-// DB manager will made robust covering moost of the use cases
+// DB manager will made robust covering the use cases on the fly
 
 export const updateRealm = async (schema: string, object: any) => {
   const realm = await Realm.open(realmConfig);

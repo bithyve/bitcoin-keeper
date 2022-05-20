@@ -1,1 +1,1 @@
-export const USER_PREFERENCE = 'USER_PREFERENCE';
+export const UAI = 'UAI';
