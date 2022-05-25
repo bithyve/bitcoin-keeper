@@ -1,40 +1,39 @@
 import crypto from 'crypto';
-import AccountUtilities from './AccountUtilities';
+import WalletUtilities from './WalletUtilities';
 import * as bip39 from 'bip39';
 import BIP85 from './BIP85';
-import { AccountType, DerivationPurpose, NetworkType } from './interfaces/enum';
+import { WalletType, DerivationPurpose, NetworkType, WalletVisibility } from './interfaces/enum';
 import {
-  Account,
-  AccountDerivationDetails,
-  AccountPresentationData,
-  AccountSpecs,
+  Wallet,
+  WalletDerivationDetails,
+  WalletPresentationData,
+  WalletSpecs,
   BIP85Config,
-  DonationAccount,
-  DonationAccountPresentationData,
+  DonationWallet,
+  DonationWalletPresentationData,
   LightningNode,
-  MultiSigAccount,
-  MultiSigAccountSpecs,
+  MultiSigWallet,
+  MultiSigWalletSpecs,
 } from './interfaces/interface';
-import AccountVisibility from 'src/common/data/enums/AccountVisibility';
 
-export const generateAccount = async ({
+export const generateWallet = async ({
   type,
   instanceNum,
-  accountName,
-  accountDescription,
+  walletName,
+  walletDescription,
   primaryMnemonic,
   networkType,
   node,
 }: {
-  type: AccountType;
+  type: WalletType;
   instanceNum: number;
-  accountName: string;
-  accountDescription: string;
+  walletName: string;
+  walletDescription: string;
   primaryMnemonic: string;
   networkType: NetworkType;
   node?: LightningNode;
-}): Promise<Account> => {
-  const network = AccountUtilities.getNetworkByType(networkType);
+}): Promise<Wallet> => {
+  const network = WalletUtilities.getNetworkByType(networkType);
 
   // BIP85 derivation: primary mnemonic to bip85-child mnemonic
   const bip85Config: BIP85Config = BIP85.generateBIP85Configuration(type, instanceNum);
@@ -45,17 +44,17 @@ export const generateAccount = async ({
 
   // derive extended keys
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const xDerivationPath = AccountUtilities.getDerivationPath(networkType);
-  const { xpriv, xpub } = AccountUtilities.generateExtendedKeyPairFromSeed(
+  const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
+  const { xpriv, xpub } = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed,
     network,
     xDerivationPath
   );
 
-  const purpose = [AccountType.SWAN_ACCOUNT, AccountType.IMPORTED_ACCOUNT].includes(type)
+  const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(type)
     ? DerivationPurpose.BIP84
     : DerivationPurpose.BIP49;
-  const initialRecevingAddress = AccountUtilities.getAddressByIndex(
+  const initialRecevingAddress = WalletUtilities.getAddressByIndex(
     xpub,
     false,
     0,
@@ -63,7 +62,7 @@ export const generateAccount = async ({
     purpose
   );
 
-  const derivationDetails: AccountDerivationDetails = {
+  const derivationDetails: WalletDerivationDetails = {
     networkType,
     instanceNum,
     mnemonic,
@@ -71,14 +70,14 @@ export const generateAccount = async ({
     xDerivationPath,
   };
 
-  const presentationData: AccountPresentationData = {
-    accountName,
-    accountDescription,
-    accountVisibility: AccountVisibility.DEFAULT,
+  const presentationData: WalletPresentationData = {
+    walletName,
+    walletDescription,
+    walletVisibility: WalletVisibility.DEFAULT,
     isSynching: false,
   };
 
-  const specs: AccountSpecs = {
+  const specs: WalletSpecs = {
     xpub,
     xpriv,
     activeAddresses: {
@@ -99,10 +98,10 @@ export const generateAccount = async ({
     txIdMap: {},
     transactionsNote: {},
     importedAddresses: {},
-    node: type === AccountType.LIGHTNING_ACCOUNT ? node : null,
+    node: type === WalletType.LIGHTNING ? node : null,
   };
 
-  const account: Account = {
+  const wallet: Wallet = {
     id,
     type,
     isUsable: true,
@@ -110,29 +109,29 @@ export const generateAccount = async ({
     presentationData,
     specs,
   };
-  return account;
+  return wallet;
 };
 
-export const generateMultiSigAccount = async ({
+export const generateMultiSigWallet = async ({
   type,
   instanceNum,
-  accountName,
-  accountDescription,
+  walletName,
+  walletDescription,
   primaryMnemonic,
   secondaryXpub,
   bithyveXpub,
   networkType,
 }: {
-  type: AccountType;
+  type: WalletType;
   instanceNum: number;
-  accountName: string;
-  accountDescription: string;
+  walletName: string;
+  walletDescription: string;
   primaryMnemonic: string;
   secondaryXpub?: string;
   bithyveXpub?: string;
   networkType: NetworkType;
-}): Promise<MultiSigAccount> => {
-  const network = AccountUtilities.getNetworkByType(networkType);
+}): Promise<MultiSigWallet> => {
+  const network = WalletUtilities.getNetworkByType(networkType);
 
   // BIP85 derivation: primary mnemonic to bip85-child mnemonic
   const bip85Config: BIP85Config = BIP85.generateBIP85Configuration(type, instanceNum);
@@ -143,9 +142,9 @@ export const generateMultiSigAccount = async ({
 
   // derive extended keys
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const xDerivationPath = AccountUtilities.getDerivationPath(networkType);
+  const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
   const { xpriv: primaryXpriv, xpub: primaryXpub } =
-    AccountUtilities.generateExtendedKeyPairFromSeed(seed, network, xDerivationPath);
+    WalletUtilities.generateExtendedKeyPairFromSeed(seed, network, xDerivationPath);
 
   const xpubs: {
     secondary: string;
@@ -162,7 +161,7 @@ export const generateMultiSigAccount = async ({
   let isUsable = false;
 
   if (secondaryXpub) {
-    initialRecevingAddress = AccountUtilities.createMultiSig(
+    initialRecevingAddress = WalletUtilities.createMultiSig(
       {
         primary: primaryXpub,
         ...xpubs,
@@ -175,7 +174,7 @@ export const generateMultiSigAccount = async ({
     isUsable = true;
   }
 
-  const derivationDetails: AccountDerivationDetails = {
+  const derivationDetails: WalletDerivationDetails = {
     networkType,
     instanceNum,
     mnemonic,
@@ -183,14 +182,14 @@ export const generateMultiSigAccount = async ({
     xDerivationPath,
   };
 
-  const presentationData: AccountPresentationData = {
-    accountName,
-    accountDescription,
-    accountVisibility: AccountVisibility.DEFAULT,
+  const presentationData: WalletPresentationData = {
+    walletName,
+    walletDescription,
+    walletVisibility: WalletVisibility.DEFAULT,
     isSynching: false,
   };
 
-  const specs: MultiSigAccountSpecs = {
+  const specs: MultiSigWalletSpecs = {
     is2FA: true,
     xpub: primaryXpub,
     xpriv: primaryXpriv,
@@ -216,7 +215,7 @@ export const generateMultiSigAccount = async ({
     importedAddresses: {},
   };
 
-  const multiSigAccount: MultiSigAccount = {
+  const multiSigWallet: MultiSigWallet = {
     id,
     isUsable,
     type,
@@ -225,14 +224,14 @@ export const generateMultiSigAccount = async ({
     specs,
   };
 
-  return multiSigAccount;
+  return multiSigWallet;
 };
 
-export const generateDonationAccount = async ({
+export const generateDonationWallet = async ({
   type,
   instanceNum,
-  accountName,
-  accountDescription,
+  walletName,
+  walletDescription,
   donationName,
   donationDescription,
   donee,
@@ -242,10 +241,10 @@ export const generateDonationAccount = async ({
   bithyveXpub,
   networkType,
 }: {
-  type: AccountType;
+  type: WalletType;
   instanceNum: number;
-  accountName: string;
-  accountDescription: string;
+  walletName: string;
+  walletDescription: string;
   donationName: string;
   donationDescription: string;
   donee: string;
@@ -254,32 +253,32 @@ export const generateDonationAccount = async ({
   secondaryXpub?: string;
   bithyveXpub?: string;
   networkType: NetworkType;
-}): Promise<DonationAccount> => {
-  let baseAccount: Account | MultiSigAccount;
+}): Promise<DonationWallet> => {
+  let baseWallet: Wallet | MultiSigWallet;
   if (is2FA) {
-    baseAccount = await generateMultiSigAccount({
+    baseWallet = await generateMultiSigWallet({
       type,
       instanceNum,
-      accountName,
-      accountDescription,
+      walletName,
+      walletDescription,
       primaryMnemonic,
       secondaryXpub,
       bithyveXpub,
       networkType,
     });
   } else {
-    baseAccount = await generateAccount({
+    baseWallet = await generateWallet({
       type,
       instanceNum,
-      accountName,
-      accountDescription,
+      walletName,
+      walletDescription,
       primaryMnemonic,
       networkType,
     });
   }
 
-  const presentationData: DonationAccountPresentationData = {
-    ...baseAccount.presentationData,
+  const presentationData: DonationWalletPresentationData = {
+    ...baseWallet.presentationData,
     donationName,
     donationDescription,
     donee,
@@ -288,38 +287,38 @@ export const generateDonationAccount = async ({
       displayIncomingTxs: true,
       displayOutgoingTxs: true,
     },
-    disableAccount: false,
+    disableWallet: false,
   };
 
-  const donationAccount: DonationAccount = {
-    ...baseAccount,
+  const donationWallet: DonationWallet = {
+    ...baseWallet,
     presentationData,
   };
 
-  return donationAccount;
+  return donationWallet;
 };
 
-export const upgradeAccountToMultiSig = ({
-  account,
+export const upgradeWalletToMultiSig = ({
+  wallet,
   secondaryXpub,
   bithyveXpub,
 }: {
-  account: Account;
+  wallet: Wallet;
   secondaryXpub: string;
   bithyveXpub: string;
-}): MultiSigAccount => {
-  account.isUsable = true;
-  (account as MultiSigAccount).specs.xpubs = {
+}): MultiSigWallet => {
+  wallet.isUsable = true;
+  (wallet as MultiSigWallet).specs.xpubs = {
     secondary: secondaryXpub,
     bithyve: bithyveXpub,
   };
-  (account as MultiSigAccount).specs.is2FA = true;
-  (account as MultiSigAccount).specs.xprivs = {};
+  (wallet as MultiSigWallet).specs.is2FA = true;
+  (wallet as MultiSigWallet).specs.xprivs = {};
 
-  const network = AccountUtilities.getNetworkByType(account.derivationDetails.networkType);
-  account.specs.receivingAddress = AccountUtilities.createMultiSig(
+  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  wallet.specs.receivingAddress = WalletUtilities.createMultiSig(
     {
-      primary: account.specs.xpub,
+      primary: wallet.specs.xpub,
       secondary: secondaryXpub,
       bithyve: bithyveXpub,
     },
@@ -329,5 +328,5 @@ export const upgradeAccountToMultiSig = ({
     false
   ).address;
 
-  return account as MultiSigAccount;
+  return wallet as MultiSigWallet;
 };

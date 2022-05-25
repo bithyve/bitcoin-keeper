@@ -4,7 +4,7 @@ import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
 import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
-import { Account } from 'src/core/accounts/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
 
 export interface BACKUP_KEYS {
   id: string;
@@ -61,9 +61,9 @@ export const defaultBackupKeys: BACKUP_KEYS[] = [
   },
 ];
 
-export const accountData = (item) => {
-  const accountTitle = (item as Account)?.presentationData?.accountName;
-  if (accountTitle == 'Full Import') {
+export const walletData = (item) => {
+  const walletTitle = (item as Wallet)?.presentationData?.walletName;
+  if (walletTitle == 'Full Import') {
     return {
       Icon: BlueWalletIcon,
       type: 'Blue Wallet',
@@ -71,12 +71,12 @@ export const accountData = (item) => {
       description: 'Daily Spends',
       balance: 0,
     };
-  } else if (accountTitle == 'Checking Account') {
+  } else if (walletTitle == 'Checking Wallet') {
     return {
       Icon: SingleSigIcon,
       type: 'Single-sig',
-      name: item?.presentationData?.accountName,
-      description: item?.presentationData?.accountDescription,
+      name: item?.presentationData?.walletName,
+      description: item?.presentationData?.walletDescription,
       balance: 0,
     };
   } else {

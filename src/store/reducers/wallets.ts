@@ -1,25 +1,23 @@
 import {
   TESTCOINS_RECEIVED,
-  ACCOUNTS_SYNCHED,
+  WALLETS_SYNCHED,
   EXCHANGE_RATE_CALCULATED,
   SECONDARY_XPRIV_GENERATED,
   TWO_FA_RESETTED,
   AVERAGE_TX_FEE,
-  NEW_ACCOUNT_ADD_FAILED,
-  ACCOUNT_SETTINGS_UPDATED,
-  ACCOUNT_SETTINGS_UPDATE_FAILED,
+  NEW_WALLET_ADD_FAILED,
+  WALLET_SETTINGS_UPDATED,
+  WALLET_SETTINGS_UPDATE_FAILED,
   TWO_FA_VALID,
   CLEAR_RECEIVE_ADDRESS,
   GENERATE_SECONDARY_XPRIV,
   RESET_TWO_FA,
   VALIDATE_TWO_FA,
-  SET_SHOW_ALL_ACCOUNT,
-  RESET_ACCOUNT_UPDATE_FLAG,
+  RESET_WALLET_UPDATE_FLAG,
   RESET_TWO_FA_LOADER,
-  UPDATE_ACCOUNT_SHELLS,
-  UPDATE_ACCOUNTS,
+  UPDATE_WALLETS,
   READ_TRANSACTION,
-  ACCOUNT_CHECKED,
+  WALLET_CHECKED,
   RECOMPUTE_NET_BALANCE,
   UPDATE_GIFT,
   GENERATE_GIFTS,
@@ -27,15 +25,15 @@ import {
   GIFT_ACCEPTED,
   GIFT_ADDED,
   GIFT_CREATION_STATUS,
-  ADD_NEW_ACCOUNTS,
-  NEW_ACCOUNT_ADDED,
-} from '../actions/accounts';
-import { Account, Accounts, Gift } from 'src/core/accounts/interfaces/interface';
-import { AccountType } from 'src/core/accounts/interfaces/enum';
+  ADD_NEW_WALLETS,
+  NEW_WALLET_ADDED,
+} from '../actions/wallets';
+import { Wallet, Wallets, Gift } from 'src/core/wallets/interfaces/interface';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
 
-export type AccountsState = {
-  accountsSynched: boolean;
-  accounts: Accounts;
+export type WalletsState = {
+  walletsSynched: boolean;
+  wallets: Wallets;
   netBalance: number;
   exchangeRates?: any;
   averageTxFees: any;
@@ -54,13 +52,13 @@ export type AccountsState = {
   giftCreationStatus: boolean;
   acceptedGiftId: string;
   addedGift: string;
-  isGeneratingNewAccount: boolean;
-  hasNewAccountsGenerationSucceeded: boolean;
-  hasNewAccountsGenerationFailed: boolean;
+  isGeneratingNewWallet: boolean;
+  hasNewWalletsGenerationSucceeded: boolean;
+  hasNewWalletsGenerationFailed: boolean;
 
-  isUpdatingAccountSettings: boolean;
-  hasAccountSettingsUpdateSucceeded: boolean;
-  hasAccountSettingsUpdateFailed: boolean;
+  isUpdatingWalletSettings: boolean;
+  hasWalletSettingsUpdateSucceeded: boolean;
+  haswalletSettingsUpdateFailed: boolean;
 
   isTransactionReassignmentInProgress: boolean;
   hasTransactionReassignmentSucceeded: boolean;
@@ -72,16 +70,15 @@ export type AccountsState = {
 
   receiveAddress: string | null;
   hasReceiveAddressSucceeded: boolean | null;
-  showAllAccount: boolean | null;
   resetTwoFALoader: boolean;
 };
 
-const initialState: AccountsState = {
-  accountsSynched: false,
+const initialState: WalletsState = {
+  walletsSynched: false,
   exchangeRates: null,
 
   averageTxFees: null,
-  accounts: {},
+  wallets: {},
   netBalance: 0,
   twoFAHelpFlags: {
     xprivGenerated: null,
@@ -94,13 +91,13 @@ const initialState: AccountsState = {
   giftCreationStatus: null,
   acceptedGiftId: '',
   addedGift: '',
-  isGeneratingNewAccount: false,
-  hasNewAccountsGenerationSucceeded: false,
-  hasNewAccountsGenerationFailed: false,
+  isGeneratingNewWallet: false,
+  hasNewWalletsGenerationSucceeded: false,
+  hasNewWalletsGenerationFailed: false,
 
-  isUpdatingAccountSettings: false,
-  hasAccountSettingsUpdateSucceeded: false,
-  hasAccountSettingsUpdateFailed: false,
+  isUpdatingWalletSettings: false,
+  hasWalletSettingsUpdateSucceeded: false,
+  haswalletSettingsUpdateFailed: false,
 
   isTransactionReassignmentInProgress: false,
   hasTransactionReassignmentSucceeded: false,
@@ -112,11 +109,10 @@ const initialState: AccountsState = {
 
   receiveAddress: null,
   hasReceiveAddressSucceeded: false,
-  showAllAccount: false,
   resetTwoFALoader: false,
 };
 
-export default (state: AccountsState = initialState, action): AccountsState => {
+export default (state: WalletsState = initialState, action): WalletsState => {
   switch (action.type) {
     case TESTCOINS_RECEIVED:
       return {
@@ -124,10 +120,10 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         testCoinsReceived: true,
       };
 
-    case ACCOUNTS_SYNCHED:
+    case WALLETS_SYNCHED:
       return {
         ...state,
-        accountsSynched: action.payload.synched,
+        walletsSynched: action.payload.synched,
       };
 
     case EXCHANGE_RATE_CALCULATED:
@@ -197,63 +193,63 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         averageTxFees: action.payload.averageTxFees,
       };
 
-    case ADD_NEW_ACCOUNTS:
+    case ADD_NEW_WALLETS:
       return {
         ...state,
-        isGeneratingNewAccount: true,
-        hasNewAccountsGenerationSucceeded: false,
-        hasNewAccountsGenerationFailed: false,
+        isGeneratingNewWallet: true,
+        hasNewWalletsGenerationSucceeded: false,
+        hasNewWalletsGenerationFailed: false,
       };
 
-    case NEW_ACCOUNT_ADDED:
+    case NEW_WALLET_ADDED:
       return {
         ...state,
-        isGeneratingNewAccount: false,
-        hasNewAccountsGenerationSucceeded: true,
-        accounts: {
-          ...state.accounts,
-          ...action.payload.accounts,
+        isGeneratingNewWallet: false,
+        hasNewWalletsGenerationSucceeded: true,
+        wallets: {
+          ...state.wallets,
+          ...action.payload.wallets,
         },
       };
 
-    case NEW_ACCOUNT_ADD_FAILED:
+    case NEW_WALLET_ADD_FAILED:
       return {
         ...state,
-        isGeneratingNewAccount: false,
-        hasNewAccountsGenerationSucceeded: false,
-        hasNewAccountsGenerationFailed: true,
+        isGeneratingNewWallet: false,
+        hasNewWalletsGenerationSucceeded: false,
+        hasNewWalletsGenerationFailed: true,
       };
 
-    case UPDATE_ACCOUNTS:
+    case UPDATE_WALLETS:
       return {
         ...state,
-        accounts: {
-          ...state.accounts,
-          ...action.payload.accounts,
+        wallets: {
+          ...state.wallets,
+          ...action.payload.wallets,
         },
       };
 
     case READ_TRANSACTION: {
-      const { accounts } = action.payload;
+      const { wallets } = action.payload;
       return {
         ...state,
-        accounts: accounts,
+        wallets: wallets,
       };
     }
 
-    case ACCOUNT_CHECKED: {
-      const { accounts } = action.payload;
+    case WALLET_CHECKED: {
+      const { wallets } = action.payload;
       return {
         ...state,
-        accounts: accounts,
+        wallets: wallets,
       };
     }
 
     case RECOMPUTE_NET_BALANCE:
       let netBalance = 0;
-      Object.values(state.accounts).forEach((account: Account) => {
-        if (account.type !== AccountType.TEST_ACCOUNT) {
-          const balances = account.specs.balances;
+      Object.values(state.wallets).forEach((wallets: Wallet) => {
+        if (wallets.type !== WalletType.TEST) {
+          const balances = wallets.specs.balances;
           netBalance = netBalance + (balances.confirmed + balances.unconfirmed);
         }
       });
@@ -262,27 +258,27 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         netBalance,
       };
 
-    case ACCOUNT_SETTINGS_UPDATED:
-      // TODO: Implement Logic for updating the list of account payloads
+    case WALLET_SETTINGS_UPDATED:
+      // TODO: Implement Logic for updating the list of wallets payloads
       return {
         ...state,
-        isUpdatingAccountSettings: false,
-        hasAccountSettingsUpdateSucceeded: true,
-        hasAccountSettingsUpdateFailed: false,
+        isUpdatingWalletSettings: false,
+        hasWalletSettingsUpdateSucceeded: true,
+        haswalletSettingsUpdateFailed: false,
       };
 
-    case ACCOUNT_SETTINGS_UPDATE_FAILED:
+    case WALLET_SETTINGS_UPDATE_FAILED:
       return {
         ...state,
-        isUpdatingAccountSettings: false,
-        hasAccountSettingsUpdateSucceeded: false,
-        hasAccountSettingsUpdateFailed: true,
+        isUpdatingWalletSettings: false,
+        hasWalletSettingsUpdateSucceeded: false,
+        haswalletSettingsUpdateFailed: true,
       };
 
-    // case ACCOUNT_SHELLS_REFRESH_STARTED:
-    //   const shellsRefreshing: AccountShell[] = action.payload;
+    // case Wallet_SHELLS_REFRESH_STARTED:
+    //   const shellsRefreshing: WalletShell[] = action.payload;
     //   shellsRefreshing.forEach((refreshingShell) => {
-    //     state.accountShells.forEach((shell) => {
+    //     state.WalletShells.forEach((shell) => {
     //       if (shell.id == refreshingShell.id) shell.syncStatus = SyncStatus.IN_PROGRESS;
     //       else shell.syncStatus = SyncStatus.COMPLETED;
     //     });
@@ -291,22 +287,22 @@ export default (state: AccountsState = initialState, action): AccountsState => {
     //     ...state,
     //   };
 
-    // case ACCOUNT_SHELLS_REFRESH_COMPLETED:
-    //   // Updating Account Sync State to shell data model
+    // case Wallet_SHELLS_REFRESH_COMPLETED:
+    //   // Updating Wallet Sync State to shell data model
     //   // This will be used to display sync icon on Home Screen
-    //   const shellsRefreshed: AccountShell[] = action.payload;
+    //   const shellsRefreshed: WalletShell[] = action.payload;
     //   shellsRefreshed.forEach((refreshedShell) => {
-    //     state.accountShells.find((shell) => shell.id == refreshedShell.id).syncStatus =
+    //     state.WalletShells.find((shell) => shell.id == refreshedShell.id).syncStatus =
     //       SyncStatus.COMPLETED;
     //   });
     //   return {
     //     ...state,
     //   };
 
-    // case CLEAR_ACCOUNT_SYNC_CACHE:
+    // case CLEAR_WALLET_SYNC_CACHE:
     //   // This will clear the sync state at the start of each login session
     //   // This is required in order to ensure sync icon is shown again for each session
-    //   state.accountShells.map(
+    //   state.WalletShells.map(
     //     ( shell ) => shell.syncStatus = SyncStatus.PENDING )
     //   return {
     //     ...state,
@@ -319,18 +315,12 @@ export default (state: AccountsState = initialState, action): AccountsState => {
         hasReceiveAddressSucceeded: null,
       };
 
-    case SET_SHOW_ALL_ACCOUNT:
+    case RESET_WALLET_UPDATE_FLAG:
       return {
         ...state,
-        showAllAccount: action.payload.showAllAccount,
-      };
-
-    case RESET_ACCOUNT_UPDATE_FLAG:
-      return {
-        ...state,
-        isUpdatingAccountSettings: false,
-        hasAccountSettingsUpdateSucceeded: false,
-        hasAccountSettingsUpdateFailed: false,
+        isUpdatingWalletSettings: false,
+        hasWalletSettingsUpdateSucceeded: false,
+        haswalletSettingsUpdateFailed: false,
       };
 
     case RESET_TWO_FA_LOADER:
