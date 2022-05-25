@@ -4,18 +4,16 @@ export interface TwoFADetails {
   twoFAValidated?: boolean;
 }
 
-export interface Wallet {
-  walletId: string;
-  walletName: string;
+export interface KeeperApp {
+  appId: string;
+  appName: string;
   userName?: string;
-  security: { questionId: string; question: string; answer: string };
   primaryMnemonic: string;
   primarySeed: string;
   secondaryXpub?: string;
   details2FA?: TwoFADetails;
-  smShare?: string;
-  accounts: {
-    [accountType: string]: string[]; // array of accountIds
+  wallets: {
+    [walletType: string]: string[]; // array of walletIds
   };
   version: string;
 }

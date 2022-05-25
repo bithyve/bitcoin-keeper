@@ -1,6 +1,6 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 
-import AccountDetailScreen from 'src/screens/AccountDetailScreen';
+import WalletDetailScreen from 'src/screens/WalletDetailScreen';
 import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
@@ -31,7 +31,7 @@ const Navigator = () => {
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Test" component={TestingBottomsheet} />
-        <Stack.Screen name="AccountDetailScreen" component={AccountDetailScreen} />
+        <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

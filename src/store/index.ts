@@ -1,21 +1,21 @@
 import {
-  addNewAccountsWatcher,
-  autoAccountsSyncWatcher,
+  addNewWalletsWatcher,
+  autoWalletsSyncWatcher,
   feeAndExchangeRatesWatcher,
   generateSecondaryXprivWatcher,
-  importNewAccountWatcher,
-  refreshAccountsWatcher,
+  importNewWalletWatcher,
+  refreshWalletsWatcher,
   resetTwoFAWatcher,
-  syncAccountsWatcher,
+  syncWalletsWatcher,
   testcoinsWatcher,
-  updateAccountSettingsWatcher,
+  updateWalletSettingsWatcher,
   validateTwoFAWatcher,
-} from './sagas/accounts';
+} from './sagas/wallets';
 import { all, call, spawn } from 'redux-saga/effects';
 import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 
-import accountsReducer from './reducers/accounts';
+import walletsReducer from './reducers/wallets';
 import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
@@ -32,18 +32,18 @@ const rootSaga = function* () {
     // storage watchers
     setupWalletWatcher,
 
-    // accounts watchers
-    syncAccountsWatcher,
+    // wallet watchers
+    syncWalletsWatcher,
     testcoinsWatcher,
     generateSecondaryXprivWatcher,
     resetTwoFAWatcher,
     feeAndExchangeRatesWatcher,
-    refreshAccountsWatcher,
-    addNewAccountsWatcher,
-    importNewAccountWatcher,
-    autoAccountsSyncWatcher,
+    refreshWalletsWatcher,
+    addNewWalletsWatcher,
+    importNewWalletWatcher,
+    autoWalletsSyncWatcher,
     validateTwoFAWatcher,
-    updateAccountSettingsWatcher,
+    updateWalletSettingsWatcher,
   ];
 
   yield all(
@@ -64,7 +64,7 @@ const rootSaga = function* () {
 
 const rootReducer = combineReducers({
   storage: storageReducer,
-  accounts: accountsReducer,
+  wallet: walletsReducer,
 });
 
 export default function makeStore() {

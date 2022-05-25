@@ -2,7 +2,7 @@ import { Alert, FlatList, ImageBackground, TouchableOpacity } from 'react-native
 import {
   BACKUP_KEYS,
   WALLET,
-  accountData,
+  walletData,
   defaultBackupKeys,
   defaultWallets,
 } from 'src/common/data/defaultData/defaultData';
@@ -30,10 +30,10 @@ import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images
 import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
-import { loginWithHexa } from 'src/store/actions/accounts';
-import { setupWallet } from 'src/store/actions/storage';
+import { loginWithHexa } from 'src/store/actions/wallets';
+import { setupKeeperApp } from 'src/store/actions/storage';
 import { RealmContext } from 'src/storage/realm/AppRealmProvider';
-import { Accounts } from 'src/core/accounts/interfaces/interface';
+import { Wallets } from 'src/core/wallets/interfaces/interface';
 
 type Props = {
   route: any | undefined;
@@ -48,7 +48,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const { useQuery } = RealmContext;
 
   const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
-  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet); //read it from realm
+  const wallet = useSelector((state: RootStateOrAny) => state.storage.app); //read it from realm
 
   const [parsedQRData, setParsedQRData] = useState(null);
   const [inheritanceReady, setInheritance] = useState<boolean>(false);
@@ -63,14 +63,14 @@ const HomeScreen = ({ navigation, route }: Props) => {
     },
   ]);
 
-  const accounts: Accounts = useSelector((state: RootStateOrAny) => state.accounts.accounts);
-  const allWallets = [...defaultWallets, ...Object.values(accounts), { isEnd: true }];
+  const wallets: Wallets = useSelector((state: RootStateOrAny) => state.wallet.wallets);
+  const allWallets = [...defaultWallets, ...Object.values(wallets), { isEnd: true }];
 
   useEffect(() => {
     if (!wallet && rehydrated) {
       // await redux persist's rehydration
       setTimeout(() => {
-        dispatch(setupWallet());
+        dispatch(setupKeeperApp());
         // console.log('else', wallet);
       }, 1000); //realm a
     }
@@ -105,11 +105,11 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const renderWallets = ({ item, index }) => {
     return (
       <HomeCard
-        Icon={accountData(item).Icon}
-        type={accountData(item).type}
-        name={accountData(item).name}
-        description={accountData(item).description}
-        balance={accountData(item).balance}
+        Icon={walletData(item).Icon}
+        type={walletData(item).type}
+        name={walletData(item).name}
+        description={walletData(item).description}
+        balance={walletData(item).balance}
         isImported={item.isImported}
         isEnd={item?.isEnd}
         index={index}

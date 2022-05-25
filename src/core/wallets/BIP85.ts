@@ -4,7 +4,7 @@ import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import crypto from 'crypto';
 import config from '../config';
-import { AccountType, BIP85Languages, BIP85Words } from './interfaces/enum';
+import { WalletType, BIP85Languages, BIP85Words } from './interfaces/enum';
 import { BIP85Config } from './interfaces/interface';
 
 export default class BIP85 {
@@ -125,15 +125,15 @@ export default class BIP85 {
   };
 
   public static generateBIP85Configuration = (
-    accountType: AccountType,
+    walletType: WalletType,
     instanceNumber: number,
     words: number = BIP85Words.TWELVE,
     language: string = BIP85Languages.ENGLISH
   ): BIP85Config => {
-    const { series, upperBound } = config.ACCOUNT_INSTANCES[accountType];
+    const { series, upperBound } = config.WALLET_INSTANCES[walletType];
     if (instanceNumber > upperBound - 1)
       throw new Error(
-        `Cannot create new instance of type ${accountType}, exceeds instance upper bound`
+        `Cannot create new instance of type ${walletType}, exceeds instance upper bound`
       );
     const index = series + instanceNumber;
 

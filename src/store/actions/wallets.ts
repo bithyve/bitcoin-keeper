@@ -1,63 +1,59 @@
-import { AccountVisibility } from 'src/core/accounts/interfaces/enum';
-import { Account, Accounts, Gift } from 'src/core/accounts/interfaces/interface';
-import { newAccountDetails, newAccountsInfo } from '../sagas/accounts';
+import { WalletVisibility } from 'src/core/wallets/interfaces/enum';
+import { Wallet, Wallets, Gift, MultiSigWallet } from 'src/core/wallets/interfaces/interface';
+import { newWalletDetails, newWalletsInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
-export const SYNC_ACCOUNTS = 'SYNC_ACCOUNTS';
+export const SYNC_WALLETS = 'SYNC_WALLETS';
 export const GET_TESTCOINS = 'GET_TESTCOINS';
 export const ADD_TRANSFER_DETAILS = 'ADD_TRANSFER_DETAILS';
 export const REMOVE_TRANSFER_DETAILS = 'REMOVE_TRANSFER_DETAILS';
 export const CLEAR_TRANSFER = 'CLEAR_TRANSFER';
 export const ACCUMULATIVE_BAL_AND_TX = 'ACCUMULATIVE_BAL_AND_TX';
 export const FETCH_FEE_AND_EXCHANGE_RATES = 'FETCH_FEE_AND_EXCHANGE_RATES';
-export const CLEAR_ACCOUNT_SYNC_CACHE = 'CLEAR_ACCOUNT_SYNC_CACHE';
-export const AUTO_SYNC_ACCOUNTS = 'AUTO_SYNC_ACCOUNTS';
-export const SYNC_VIA_XPUB_AGENT = 'SYNC_VIA_XPUB_AGENT';
+export const CLEAR_WALLET_SYNC_CACHE = 'CLEAR_WALLET_SYNC_CACHE';
+export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
 export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
 export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
-export const FETCH_DERIVATIVE_ACC_BALANCE_TX = 'FETCH_DERIVATIVE_ACC_BALANCE_TX';
 export const REMOVE_TWO_FA = 'REMOVE_TWO_FA';
 export const VALIDATE_TWO_FA = 'VALIDATE_TWO_FA';
 export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
-export const SETUP_DONATION_ACCOUNT = 'SETUP_DONATION_ACCOUNT';
-export const ADD_NEW_ACCOUNTS = 'ADD_NEW_ACCOUNTS';
-export const IMPORT_NEW_ACCOUNT = 'IMPORT_NEW_ACCOUNT';
+export const SETUP_DONATION_WALLET = 'SETUP_DONATION_WALLET';
+export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
+export const IMPORT_NEW_WALLET = 'IMPORT_NEW_WALLET';
 export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA';
-export const UPDATE_ACCOUNT_SETTINGS = 'UPDATE_ACCOUNT_SETTINGS';
+export const UPDATE_WALLET_SETTINGS = 'UPDATE_WALLET_SETTINGS';
 export const RECOMPUTE_NET_BALANCE = 'RECOMPUTE_NET_BALANCE';
-export const REFRESH_ACCOUNTS = 'REFRESH_ACCOUNTS';
-export const ACCOUNTS_REFRESH_STARTED = 'ACCOUNTS_REFRESH_STARTED';
-export const ACCOUNTS_REFRESH_COMPLETED = 'ACCOUNTS_REFRESH_COMPLETED';
+export const REFRESH_WALLETS = 'REFRESH_WALLETS';
+export const WALLETS_REFRESH_STARTED = 'WALLETS_REFRESH_STARTED';
+export const WALLETS_REFRESH_COMPLETED = 'WALLETS_REFRESH_COMPLETED';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const READ_TRANSACTION = 'READ_TRANSACTION';
-export const ACCOUNT_CHECKED = 'ACCOUNT_CHECKED';
-export const SET_SHOW_ALL_ACCOUNT = 'SET_SHOW_ALL_ACCOUNT';
-export const RESET_ACCOUNT_UPDATE_FLAG = 'RESET_ACCOUNT_UPDATE_FLAG';
+export const WALLET_CHECKED = 'WALLET_CHECKED';
+export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
-
 export const GENERATE_GIFTS = 'GENERATE_GIFTS';
 
-export const syncAccounts = (
-  accounts: Accounts,
+export const syncWallets = (
+  wallets: Wallets,
   options: {
     hardRefresh?: boolean;
     blindRefresh?: boolean;
   } = {}
 ) => {
   return {
-    type: SYNC_ACCOUNTS,
+    type: SYNC_WALLETS,
     payload: {
-      accounts,
+      wallets,
       options,
     },
   };
 };
 
-export const getTestcoins = (testAccount: Account) => {
+export const getTestcoins = (testWallet: Wallet) => {
   return {
     type: GET_TESTCOINS,
-    payload: testAccount,
+    payload: testWallet,
   };
 };
 
@@ -97,32 +93,21 @@ export const accumulativeBalAndTx = () => {
   };
 };
 
-// To reset shell account sync status of all shells
-export const clearAccountSyncCache = () => {
+// To reset shell wallet sync status of all shells
+export const clearWalletSyncCache = () => {
   return {
-    type: CLEAR_ACCOUNT_SYNC_CACHE,
+    type: CLEAR_WALLET_SYNC_CACHE,
   };
 };
 
 // This is called once per login to automatically sync balances and
 // transactions of all shells
-export const autoSyncAccounts = (syncAll?: boolean, hardRefresh?: boolean) => {
+export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => {
   return {
-    type: AUTO_SYNC_ACCOUNTS,
+    type: AUTO_SYNC_WALLETS,
     payload: {
       syncAll,
       hardRefresh,
-    },
-  };
-};
-
-export const syncViaXpubAgent = (serviceType, derivativeAccountType, accountNumber) => {
-  return {
-    type: SYNC_VIA_XPUB_AGENT,
-    payload: {
-      serviceType,
-      derivativeAccountType,
-      accountNumber,
     },
   };
 };
@@ -142,11 +127,11 @@ export const fetchFeeAndExchangeRates = () => {
   };
 };
 
-export const generateSecondaryXpriv = (account: Account, secondaryMnemonic: string) => {
+export const generateSecondaryXpriv = (wallet: MultiSigWallet, secondaryMnemonic: string) => {
   return {
     type: GENERATE_SECONDARY_XPRIV,
     payload: {
-      account,
+      wallet,
       secondaryMnemonic,
     },
   };
@@ -167,25 +152,6 @@ export const runTest = () => {
   };
 };
 
-export const fetchDerivativeAccBalTx = (
-  serviceType: string,
-  accountType: string,
-  accountNumber?: number,
-  hardRefresh?: boolean,
-  blindRefresh?: boolean
-) => {
-  return {
-    type: FETCH_DERIVATIVE_ACC_BALANCE_TX,
-    payload: {
-      serviceType,
-      accountType,
-      accountNumber,
-      hardRefresh,
-      blindRefresh,
-    },
-  };
-};
-
 export const setAverageTxFee = (averageTxFees) => {
   return {
     type: AVERAGE_TX_FEE,
@@ -195,7 +161,7 @@ export const setAverageTxFee = (averageTxFees) => {
   };
 };
 
-export const setupDonationAccount = (
+export const setupDonationWallet = (
   serviceType: string,
   donee: string,
   subject: string,
@@ -203,17 +169,17 @@ export const setupDonationAccount = (
   configuration: {
     displayBalance: boolean;
   },
-  disableAccount?: boolean
+  disableWallet?: boolean
 ) => {
   return {
-    type: SETUP_DONATION_ACCOUNT,
+    type: SETUP_DONATION_WALLET,
     payload: {
       serviceType,
       donee,
       subject,
       description,
       configuration,
-      disableAccount,
+      disableWallet,
     },
   };
 };
@@ -224,73 +190,73 @@ export const recomputeNetBalance = () => {
   };
 };
 
-export const refreshAccounts = (
-  accounts: Account[],
-  options: { hardRefresh?: boolean; syncDonationAccount?: boolean }
+export const refreshWallets = (
+  wallets: Wallet[],
+  options: { hardRefresh?: boolean; syncDonationWallet?: boolean }
 ) => {
   return {
-    type: REFRESH_ACCOUNTS,
+    type: REFRESH_WALLETS,
     payload: {
-      accounts,
+      wallets,
       options,
     },
   };
 };
 
-export const accountsRefreshStarted = (payload: Account[]) => {
+export const walletsRefreshStarted = (payload: Wallet[]) => {
   return {
-    type: ACCOUNTS_REFRESH_STARTED,
+    type: WALLETS_REFRESH_STARTED,
     payload,
   };
 };
 
-export const accountsRefreshCompleted = (payload: Account[]) => {
+export const walletsRefreshCompleted = (payload: Wallet[]) => {
   return {
-    type: ACCOUNTS_REFRESH_COMPLETED,
+    type: WALLETS_REFRESH_COMPLETED,
     payload,
   };
 };
 
-export const addNewAccounts = (payload: newAccountsInfo[]) => {
+export const addNewWallets = (payload: newWalletsInfo[]) => {
   return {
-    type: ADD_NEW_ACCOUNTS,
+    type: ADD_NEW_WALLETS,
     payload,
   };
 };
 
-export const importNewAccount = (mnemonic: string, accountDetails?: newAccountDetails) => {
+export const importNewWallet = (mnemonic: string, walletDetails?: newWalletDetails) => {
   return {
-    type: IMPORT_NEW_ACCOUNT,
+    type: IMPORT_NEW_WALLET,
     payload: {
       mnemonic,
-      accountDetails,
+      walletDetails,
     },
   };
 };
 
-export const updateAccountSettings = (payload: {
-  account: Account;
+export const updateWalletSettings = (payload: {
+  wallet: Wallet;
   settings: {
-    accountName?: string;
-    accountDescription?: string;
-    visibility?: AccountVisibility;
+    walletName?: string;
+    walletDescription?: string;
+    visibility?: WalletVisibility;
   };
 }) => {
   return {
-    type: UPDATE_ACCOUNT_SETTINGS,
+    type: UPDATE_WALLET_SETTINGS,
     payload,
   };
 };
 
 export const generateGifts = ({
   amounts,
-  accountId,
+  walletId,
   includeFee,
   exclusiveGifts,
   validity,
 }: {
   amounts: number[];
-  accountId?: string;
+  walletId?: string;
   includeFee?: boolean;
   exclusiveGifts?: boolean;
   validity?: number;
@@ -298,7 +264,7 @@ export const generateGifts = ({
   return {
     type: GENERATE_GIFTS,
     payload: {
-      accountId,
+      walletId,
       amounts,
       includeFee,
       exclusiveGifts,
@@ -310,18 +276,17 @@ export const generateGifts = ({
 // types and action creators (saga): dispatched by saga workers
 export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
 export const TRANSACTIONS_FETCHED = 'TRANSACTIONS_FETCHED';
-export const ACCOUNTS_SYNCHED = 'ACCOUNTS_SYNCHED';
+export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
 export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SECONDARY_XPRIV_GENERATED = 'SECONDARY_XPRIV_GENERATED';
 export const TWO_FA_VALID = 'TWO_FA_VALID';
 export const TWO_FA_RESETTED = 'TWO_FA_RESETTED';
-export const SETTED_DONATION_ACC = 'SETTED_DONATION_ACC';
-export const UPDATE_ACCOUNTS = 'UPDATE_ACCOUNTS';
-export const UPDATE_ACCOUNT_SHELLS = 'UPDATE_ACCOUNT_SHELLS';
-export const NEW_ACCOUNT_ADDED = 'NEW_ACCOUNT_ADDED';
-export const NEW_ACCOUNT_ADD_FAILED = 'NEW_ACCOUNT_ADD_FAILED';
-export const ACCOUNT_SETTINGS_UPDATED = 'ACCOUNT_SETTINGS_UPDATED';
-export const ACCOUNT_SETTINGS_UPDATE_FAILED = 'ACCOUNT_SETTINGS_UPDATE_FAILED';
+export const SETTED_DONATION_WALLET = 'SETTED_DONATION_WALLET';
+export const UPDATE_WALLETS = 'UPDATE_WALLETS';
+export const NEW_WALLET_ADDED = 'NEW_WALLET_ADDED';
+export const NEW_WALLET_ADD_FAILED = 'NEW_WALLET_ADD_FAILED';
+export const WALLET_SETTINGS_UPDATED = 'WALLET_SETTINGS_UPDATED';
+export const WALLET_SETTINGS_UPDATE_FAILED = 'WALLET_SETTINGS_UPDATE_FAILED';
 export const UPDATE_GIFT = 'UPDATE_GIFT';
 export const GIFT_ACCEPTED = 'GIFT_ACCEPTED';
 export const GIFT_ADDED = 'GIFT_ADDED';
@@ -344,9 +309,9 @@ export const transactionsFetched = (serviceType, transactions) => {
   };
 };
 
-export const accountsSynched = (synched) => {
+export const walletsSynched = (synched) => {
   return {
-    type: ACCOUNTS_SYNCHED,
+    type: WALLETS_SYNCHED,
     payload: {
       synched,
     },
@@ -389,36 +354,36 @@ export const twoFAResetted = (resetted) => {
   };
 };
 
-export const newAccountsAdded = ({ accounts }: { accounts: Accounts }) => {
+export const newWalletsAdded = ({ wallets }: { wallets: Wallets }) => {
   return {
-    type: NEW_ACCOUNT_ADDED,
+    type: NEW_WALLET_ADDED,
     payload: {
-      accounts,
+      wallets,
     },
   };
 };
 
-export const updateAccounts = ({ accounts }: { accounts: Accounts }) => {
+export const updateWallets = ({ wallets }: { wallets: Wallets }) => {
   return {
-    type: UPDATE_ACCOUNTS,
+    type: UPDATE_WALLETS,
     payload: {
-      accounts,
+      wallets,
     },
   };
 };
 
-export const accountSettingsUpdateFailed = ({ error }: { error: Error }) => {
+export const walletSettingsUpdateFailed = ({ error }: { error: Error }) => {
   return {
-    type: ACCOUNT_SETTINGS_UPDATE_FAILED,
+    type: WALLET_SETTINGS_UPDATE_FAILED,
     payload: {
       error,
     },
   };
 };
 
-export const accountSettingsUpdated = () => {
+export const walletSettingsUpdated = () => {
   return {
-    type: ACCOUNT_SETTINGS_UPDATED,
+    type: WALLET_SETTINGS_UPDATED,
   };
 };
 
@@ -428,18 +393,9 @@ export const clearReceiveAddress = () => {
   };
 };
 
-export const setShowAllAccount = (showAllAccount) => {
+export const resetWalletUpdateFlag = () => {
   return {
-    type: SET_SHOW_ALL_ACCOUNT,
-    payload: {
-      showAllAccount,
-    },
-  };
-};
-
-export const resetAccountUpdateFlag = () => {
-  return {
-    type: RESET_ACCOUNT_UPDATE_FLAG,
+    type: RESET_WALLET_UPDATE_FLAG,
   };
 };
 
@@ -466,7 +422,7 @@ export const giftAccepted = (channelAddress) => {
     payload: channelAddress,
   };
 };
-export const giftAddedToAccount = (channelAddress) => {
+export const giftAddedToWallet = (channelAddress) => {
   return {
     type: GIFT_ADDED,
     payload: channelAddress,

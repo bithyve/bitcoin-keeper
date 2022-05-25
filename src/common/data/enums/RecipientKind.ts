@@ -1,7 +1,7 @@
 enum RecipientKind {
   CONTACT = 'CONTACT',
-  ACCOUNT_SHELL = 'ACCOUNT_SHELL',
+  WALLET = 'WALLET',
   ADDRESS = 'ADDRESS',
 }
 
-export default RecipientKind
+export default RecipientKind;

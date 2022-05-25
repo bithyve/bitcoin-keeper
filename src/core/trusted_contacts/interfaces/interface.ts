@@ -63,7 +63,7 @@ export interface PrimaryStreamData {
   FCM?: string;
   contactDetails?: ContactDetails;
   paymentAddresses?: {
-    [accountType: string]: string;
+    [walletType: string]: string;
   };
   giftDeepLink?: string;
 

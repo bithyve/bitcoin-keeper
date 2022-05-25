@@ -1,26 +1,22 @@
-import { Wallet } from 'src/common/data/models/interfaces/Wallet';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
-export const UPDATE_WALLET = 'UPDATE_WALLET';
-export const SETUP_WALLET = 'SETUP_WALLET';
+export const UPDATE_KEEPER_APP = 'UPDATE_KEEPER_APP';
+export const SETUP_KEEPER_APP = 'SETUP_KEEPER_APP';
 
-export const updateWallet = (wallet: Wallet) => {
+export const updateKeeperApp = (app: KeeperApp) => {
   return {
-    type: UPDATE_WALLET,
+    type: UPDATE_KEEPER_APP,
     payload: {
-      wallet,
+      app,
     },
   };
 };
 
-export const setupWallet = (
-  walletName?: string,
-  security?: { questionId: string; question: string; answer: string }
-) => {
+export const setupKeeperApp = (appName?: string) => {
   return {
-    type: SETUP_WALLET,
+    type: SETUP_KEEPER_APP,
     payload: {
-      walletName,
-      security,
+      appName,
     },
   };
 };
