@@ -299,7 +299,8 @@ export function* addNewWallet(
   importDetails?: { primaryMnemonic: string; primarySeed: string }
 ) {
   const app: KeeperApp = yield select((state) => state.storage.app);
-  const { appId, primaryMnemonic, wallets } = app;
+  const { appId, primaryMnemonic, walletShell } = app;
+  const { walletInstanceCount } = walletShell;
   const {
     name: walletName,
     description: walletDescription,
@@ -312,7 +313,7 @@ export function* addNewWallet(
       const testInstanceCount =
         recreationInstanceNumber !== undefined
           ? recreationInstanceNumber
-          : wallets[WalletType.TEST]?.length | 0;
+          : walletInstanceCount[WalletType.TEST]?.length | 0;
       const testWallet: Wallet = yield call(generateWallet, {
         type: WalletType.TEST,
         instanceNum: testInstanceCount,
@@ -327,7 +328,7 @@ export function* addNewWallet(
       const checkingInstanceCount =
         recreationInstanceNumber !== undefined
           ? recreationInstanceNumber
-          : wallets[WalletType.CHECKING]?.length | 0;
+          : walletInstanceCount[WalletType.CHECKING]?.length | 0;
       const checkingWallet: Wallet = yield call(generateWallet, {
         type: WalletType.CHECKING,
         instanceNum: checkingInstanceCount,
@@ -345,7 +346,7 @@ export function* addNewWallet(
       const savingsInstanceCount =
         recreationInstanceNumber !== undefined
           ? recreationInstanceNumber
-          : wallets[WalletType.SAVINGS]?.length | 0;
+          : walletInstanceCount[WalletType.SAVINGS]?.length | 0;
       const savingsWallet: MultiSigWallet = yield call(generateMultiSigWallet, {
         type: WalletType.SAVINGS,
         instanceNum: savingsInstanceCount,
@@ -367,7 +368,7 @@ export function* addNewWallet(
       const donationInstanceCount =
         recreationInstanceNumber !== undefined
           ? recreationInstanceNumber
-          : wallets[walletType]?.length | 0;
+          : walletInstanceCount[walletType]?.length | 0;
       const donationWallet: DonationWallet = yield call(generateDonationWallet, {
         type: walletType,
         instanceNum: donationInstanceCount,
@@ -409,7 +410,7 @@ export function* addNewWallet(
       const serviceInstanceCount =
         recreationInstanceNumber !== undefined
           ? recreationInstanceNumber
-          : wallets[walletType]?.length | 0;
+          : walletInstanceCount[walletType]?.length | 0;
       const serviceWallet: Wallet = yield call(generateWallet, {
         type: walletType,
         instanceNum: serviceInstanceCount,
@@ -428,7 +429,7 @@ export function* addNewWallet(
       const lnWalletCount =
         recreationInstanceNumber !== undefined
           ? recreationInstanceNumber
-          : wallets[walletType]?.length | 0;
+          : walletInstanceCount[walletType]?.length | 0;
       const lnWallet: Wallet = yield call(generateWallet, {
         type: walletType,
         instanceNum: lnWalletCount,
@@ -476,21 +477,24 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   }
 
   const app: KeeperApp = yield select((state) => state.storage.app);
-  let presentWallets = _.cloneDeep(app.wallets);
+  let presentWalletInstances = _.cloneDeep(app.walletShell.walletInstanceCount);
   Object.values(wallets as Wallets).forEach((wallet) => {
-    if (presentWallets[wallet.type]) {
-      if (!presentWallets[wallet.type].includes(wallet.id))
-        presentWallets[wallet.type].push(wallet.id);
+    if (presentWalletInstances[wallet.type]) {
+      if (!presentWalletInstances[wallet.type].includes(wallet.id))
+        presentWalletInstances[wallet.type].push(wallet.id);
     } else
-      presentWallets = {
-        ...presentWallets,
+      presentWalletInstances = {
+        ...presentWalletInstances,
         [wallet.type]: [wallet.id],
       };
   });
 
   const updatedApp: KeeperApp = {
     ...app,
-    wallets: presentWallets,
+    walletShell: {
+      ...app.walletShell,
+      walletInstanceCount: presentWalletInstances,
+    },
   };
   yield put(updateKeeperApp(updatedApp));
 
@@ -548,21 +552,24 @@ export function* importNewWalletWorker({
   }
 
   const app: KeeperApp = yield select((state) => state.storage.app);
-  let presentWallets = _.cloneDeep(app.wallets);
+  let presentWalletInstances = _.cloneDeep(app.walletShell.walletInstanceCount);
   Object.values(wallets as Wallets).forEach((wallet) => {
-    if (presentWallets[wallet.type]) {
-      if (!presentWallets[wallet.type].includes(wallet.id))
-        presentWallets[wallet.type].push(wallet.id);
+    if (presentWalletInstances[wallet.type]) {
+      if (!presentWalletInstances[wallet.type].includes(wallet.id))
+        presentWalletInstances[wallet.type].push(wallet.id);
     } else
-      presentWallets = {
-        ...presentWallets,
+      presentWalletInstances = {
+        ...presentWalletInstances,
         [wallet.type]: [wallet.id],
       };
   });
 
   const updatedApp: KeeperApp = {
     ...app,
-    wallets: presentWallets,
+    walletShell: {
+      ...app.walletShell,
+      walletInstanceCount: presentWalletInstances,
+    },
   };
   yield put(updateKeeperApp(updatedApp));
 

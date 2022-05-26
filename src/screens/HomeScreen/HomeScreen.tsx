@@ -78,13 +78,12 @@ const HomeScreen = ({ navigation, route }: Props) => {
   }, [wallet, rehydrated]);
 
   //Query the schema data needed
-  const allWallet = useQuery('Wallet');
+  // const app = useQuery('KeeperApp');
 
   //To test live update of data
   // useEffect(() => {
-  //   console.log('walletFromRealm', allWallet[0]);
-  //   console.log('walletFromStore', wallet);
-  // }, [allWallet]);
+  //   console.log(app);
+  // }, [app]);
 
   useEffect(() => {
     if (route.params !== undefined) {
