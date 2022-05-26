@@ -7,6 +7,7 @@ import {
   GiftType,
   NetworkType,
   TransactionType,
+  NodeType,
 } from './enum';
 
 export interface InputUTXOs {
@@ -146,6 +147,14 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
+export interface NodeConnect {
+  nodeId: string;
+  type: NodeType;
+  networkType: NetworkType;
+  config: {};
+  isActive: boolean;
+}
+
 export interface LightningNode {
   host?: string;
   port?: string;
@@ -159,6 +168,12 @@ export interface LightningNode {
   implementation?: string;
   certVerification?: boolean;
   enableTor?: boolean;
+}
+
+export interface TwoFADetails {
+  bithyveXpub?: string;
+  twoFAKey?: string;
+  twoFAValidated?: boolean;
 }
 
 export interface WalletDerivationDetails {
@@ -244,10 +259,18 @@ export interface Wallets {
   [walletId: string]: Wallet | MultiSigWallet | DonationWallet;
 }
 
+export interface TriggerPolicy {
+  policyId: string;
+  date: string;
+  specifications: {};
+  version: string;
+}
+
 export interface WalletShell {
   shellId: string;
   walletInstanceCount: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
   wallets: Wallets;
+  trigger?: TriggerPolicy;
 }
 
 export interface Vault {}
@@ -256,10 +279,26 @@ export interface Vaults {
   [vaultId: string]: Vault;
 }
 
+export interface InheritancePolicy {
+  policyId: string;
+  date: string;
+  heir: {
+    firstName: string;
+    lastName: string;
+    address: string;
+    email: string;
+  };
+  user: {
+    email: string;
+  };
+  version: string;
+}
+
 export interface VaultShell {
   shellId: string;
   vaultInstanceCount: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
   vaults: Vaults;
+  inheritance?: InheritancePolicy;
 }
 
 export interface Gift {

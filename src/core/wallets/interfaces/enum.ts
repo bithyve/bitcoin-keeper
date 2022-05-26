@@ -38,6 +38,11 @@ export enum NetworkType {
   MAINNET = 'MAINNET',
 }
 
+export enum NodeType {
+  ONCHAIN = 'ONCHAIN',
+  LIGHTNING = 'LIGHTNING',
+}
+
 export enum ActiveAddressAssigneeType {
   GIFT = 'GIFT',
 }
