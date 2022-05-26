@@ -244,6 +244,24 @@ export interface Wallets {
   [walletId: string]: Wallet | MultiSigWallet | DonationWallet;
 }
 
+export interface WalletShell {
+  shellId: string;
+  walletInstanceCount: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
+  wallets: Wallets;
+}
+
+export interface Vault {}
+
+export interface Vaults {
+  [vaultId: string]: Vault;
+}
+
+export interface VaultShell {
+  shellId: string;
+  vaultInstanceCount: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
+  vaults: Vaults;
+}
+
 export interface Gift {
   id: string;
   privateKey: string;

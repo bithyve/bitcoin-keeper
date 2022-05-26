@@ -1,3 +1,10 @@
+import { VaultShell, WalletShell } from 'src/core/wallets/interfaces/interface';
+import { AppTierLevel } from '../../enums/AppTierLevel';
+
+export interface UserTier {
+  level: AppTierLevel;
+}
+
 export interface TwoFADetails {
   bithyveXpub?: string;
   twoFAKey?: string;
@@ -7,13 +14,13 @@ export interface TwoFADetails {
 export interface KeeperApp {
   appId: string;
   appName: string;
-  userName?: string;
   primaryMnemonic: string;
   primarySeed: string;
-  secondaryXpub?: string;
-  details2FA?: TwoFADetails;
-  wallets: {
-    [walletType: string]: string[]; // array of walletIds
-  };
+  walletShell: WalletShell;
+  vaultShell: VaultShell;
+  details2FA: TwoFADetails;
+  nodeConnect: any;
+  uai: any;
+  userTier: UserTier;
   version: string;
 }
