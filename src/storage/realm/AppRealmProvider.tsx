@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRealmContext } from '@realm/react';
-import { SecuritySchema, WalletSchema, Details2faSchema, AccountShcema } from './schema/wallet';
+import { KeeperAppSchema } from './schema/app';
 
 export const realmConfig = {
-  schema: [WalletSchema, SecuritySchema, Details2faSchema, AccountShcema],
-  schemaVersion: 5,
+  schema: [KeeperAppSchema],
+  schemaVersion: 1,
 };
 
 export const RealmContext = createRealmContext(realmConfig);
