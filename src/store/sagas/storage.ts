@@ -38,8 +38,7 @@ function* setupWalletWorker({ payload }) {
   //Will be removed once Realm is integrated
   yield put(updateKeeperApp(app));
 
-  //Update Realm // TODO: Update Database Schema
-  // updateRealm('Wallet', app);
+  updateRealm('KeeperApp', app);
 }
 
 export const setupWalletWatcher = createWatcher(setupWalletWorker, SETUP_KEEPER_APP);
