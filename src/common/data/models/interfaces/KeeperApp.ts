@@ -16,10 +16,10 @@ export interface KeeperApp {
   primaryMnemonic: string;
   primarySeed: string;
   walletShell: WalletShell;
-  vaultShell: VaultShell;
-  details2FA: TwoFADetails;
-  nodeConnect: NodeConnect;
-  uai: any;
+  vaultShell?: VaultShell;
+  details2FA?: TwoFADetails;
+  nodeConnect?: NodeConnect;
+  uai?: any;
   userTier: UserTier;
   version: string;
 }
