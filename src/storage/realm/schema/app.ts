@@ -11,16 +11,74 @@ export const Details2FASchema: ObjectSchema = {
   },
 };
 
+export const WalletsShcema: ObjectSchema = {
+  name: 'Wallets',
+  embedded: true,
+  properties: {},
+};
+
+export const TriggerPolicySchema: ObjectSchema = {
+  name: 'TriggerPolicy',
+  embedded: true,
+  properties: {
+    policyId: 'string',
+    date: 'string',
+    specifications: '{}',
+    version: 'string',
+  },
+};
+
 export const WalletShellShcema: ObjectSchema = {
   name: 'WalletShell',
   embedded: true,
+  properties: {
+    shellId: 'string',
+    walletInstanceCount: '{}',
+    wallets: 'Wallets',
+    trigger: 'TriggerPolicy?',
+  },
+};
+
+export const VaultsShcema: ObjectSchema = {
+  name: 'Vaults',
+  embedded: true,
   properties: {},
+};
+
+export const InheritancePolicySchema: ObjectSchema = {
+  name: 'InheritancePolicy',
+  embedded: true,
+  properties: {
+    policyId: 'string',
+    date: 'string',
+    heir: {
+      type: '{}',
+      properties: {
+        firstName: 'string',
+        lastName: 'string',
+        address: 'string',
+        email: 'string',
+      },
+    },
+    user: {
+      type: '{}',
+      properties: {
+        email: 'string',
+      },
+    },
+    version: 'string',
+  },
 };
 
 export const VaultShellSchema: ObjectSchema = {
   name: 'VaultShell',
   embedded: true,
-  properties: {},
+  properties: {
+    shellId: 'string',
+    vaultInstanceCount: '{}',
+    vaults: 'Vaults',
+    inheritance: 'InheritancePolicy',
+  },
 };
 
 export const NodeConnectSchema: ObjectSchema = {
@@ -32,7 +90,9 @@ export const NodeConnectSchema: ObjectSchema = {
 export const UserTierSchema: ObjectSchema = {
   name: 'UserTier',
   embedded: true,
-  properties: {},
+  properties: {
+    level: 'string',
+  },
 };
 
 export const KeeperAppSchema: ObjectSchema = {
@@ -46,7 +106,7 @@ export const KeeperAppSchema: ObjectSchema = {
     vaultShell: 'VaultShell?',
     details2FA: 'Details2FA?',
     nodeConnect: 'NodeConnect?',
-    uai: 'any?',
+    uai: '{}?',
     userTier: 'UserTier',
     version: 'string',
   },
