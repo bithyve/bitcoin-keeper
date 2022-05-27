@@ -1,33 +1,44 @@
 import * as bip39 from 'bip39';
 import crypto from 'crypto';
-import { Wallet } from 'src/config/utilities/Interface';
 import DeviceInfo from 'react-native-device-info';
-import { SETUP_WALLET, updateWallet } from '../actions/storage';
+import { SETUP_KEEPER_APP, updateKeeperApp } from '../actions/storage';
 import { put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
+import { updateRealm } from 'src/storage/realm/dbManager';
+import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
+import { WalletShell } from 'src/core/wallets/interfaces/interface';
+import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 
 function* setupWalletWorker({ payload }) {
-  const {
-    walletName,
-    security,
-  }: { walletName: string; security: { questionId: string; question: string; answer: string } } =
-    payload;
+  const { appName }: { appName: string } = payload;
   const primaryMnemonic = bip39.generateMnemonic(256);
   const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-  const walletId = crypto.createHash('sha256').update(primarySeed).digest('hex');
+  const appId = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
-  const wallet: Wallet = {
-    walletId,
-    walletName,
-    userName: walletName,
-    security,
+  const walletShell: WalletShell = {
+    shellId: crypto.randomBytes(12).toString('hex'),
+    walletInstanceCount: {},
+    wallets: {},
+  };
+
+  const userTier: UserTier = {
+    level: AppTierLevel.ONE,
+  };
+
+  const app: KeeperApp = {
+    appId,
+    appName,
     primaryMnemonic,
     primarySeed: primarySeed.toString('hex'),
-    accounts: {},
+    walletShell,
+    userTier,
     version: DeviceInfo.getVersion(),
   };
 
-  yield put(updateWallet(wallet));
+  //Will be removed once Realm is integrated
+  yield put(updateKeeperApp(app));
+
+  updateRealm('KeeperApp', app);
 }
 
-export const setupWalletWatcher = createWatcher(setupWalletWorker, SETUP_WALLET);
+export const setupWalletWatcher = createWatcher(setupWalletWorker, SETUP_KEEPER_APP);

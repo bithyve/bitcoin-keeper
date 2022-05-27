@@ -1,9 +1,10 @@
-import BlockChainHomeIcon from '../../../../assets/images/blockchainHome.svg';
-import SingleSigIcon from '../../../../assets/images/single_sig.svg';
-import ColdCardIcon from '../../../../assets/images/coldcard_tile.svg';
-import LaptopIcon from '../../../../assets/images/laptop_tile.svg';
-import PdfIcon from '../../../../assets/images/pdf_tile.svg';
-import BlueWalletIcon from '../../../../assets/images/blue_wallet.svg';
+import BlockChainHomeIcon from 'assets/images/blockchainHome.svg';
+import SingleSigIcon from 'assets/images/single_sig.svg';
+import ColdCardIcon from 'assets/images/coldcard_tile.svg';
+import LaptopIcon from 'assets/images/laptop_tile.svg';
+import PdfIcon from 'assets/images/pdf_tile.svg';
+import BlueWalletIcon from 'assets/images/blue_wallet.svg';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
 
 export interface BACKUP_KEYS {
   id: string;
@@ -60,26 +61,23 @@ export const defaultBackupKeys: BACKUP_KEYS[] = [
   },
 ];
 
-export const accountData = (item) => {
-  const acctype = item?.primarySubAccount?.defaultTitle;
-  const totalBalance =
-    item?.primarySubAccount?.balances?.confirmed + item?.primarySubAccount?.balances?.unconfirmed;
-
-  if (acctype == 'Full Import') {
+export const walletData = (item) => {
+  const walletTitle = (item as Wallet)?.presentationData?.walletName;
+  if (walletTitle == 'Full Import') {
     return {
       Icon: BlueWalletIcon,
       type: 'Blue Wallet',
       name: 'Imported Wallet',
       description: 'Daily Spends',
-      balance: totalBalance,
+      balance: 0,
     };
-  } else if (acctype == 'Checking Account') {
+  } else if (walletTitle == 'Checking Wallet') {
     return {
       Icon: SingleSigIcon,
       type: 'Single-sig',
-      name: item?.primarySubAccount?.customDisplayName,
-      description: item?.primarySubAccount?.customDescription,
-      balance: totalBalance,
+      name: item?.presentationData?.walletName,
+      description: item?.presentationData?.walletDescription,
+      balance: 0,
     };
   } else {
     return {

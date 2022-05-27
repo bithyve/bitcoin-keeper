@@ -1,21 +1,21 @@
+import crypto from 'crypto';
+import config from '../config';
+import { AxiosResponse } from 'axios';
+import idx from 'idx';
 import {
-  Streams,
-  UnecryptedStreams,
-  UnecryptedStreamData,
-  StreamData,
-  TrustedContact,
-  ContactDetails,
-  SecondaryStreamData,
   BackupStreamData,
+  ContactDetails,
   PrimaryStreamData,
-  TrustedContactRelationTypes,
+  SecondaryStreamData,
+  StreamData,
+  Streams,
+  TrustedContact,
   Trusted_Contacts,
-} from '../interfaces/Interface'
-import crypto from 'crypto'
-import config from '../config'
-import { AxiosResponse } from 'axios'
-import idx from 'idx'
-const { HEXA_ID, RELAY_AXIOS } = config
+  UnecryptedStreamData,
+  UnecryptedStreams,
+} from './interfaces/interface';
+import { TrustedContactRelationTypes } from './interfaces/enum';
+const { HEXA_ID, RELAY_AXIOS } = config;
 
 export default class TrustedContactsOperations {
   static cipherSpec: {
@@ -25,89 +25,82 @@ export default class TrustedContactsOperations {
     keyLength: number;
   } = config.CIPHER_SPEC;
 
-   static getStreamId = ( walletId: string ): string =>
-     crypto.createHash( 'sha256' ).update( walletId ).digest( 'hex' ).slice( 0, 9 );
+  static getStreamId = (walletId: string): string =>
+    crypto.createHash('sha256').update(walletId).digest('hex').slice(0, 9);
 
-   static generateKey = ( length: number ): string => {
-     let result = ''
-     const characters =
-     '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz' // base-58
-     const charactersLength = characters.length
-     for ( let itr = 0; itr < length; itr++ ) {
-       result += characters.charAt( Math.floor( Math.random() * charactersLength ) )
-     }
-     return result
-   };
+  static generateKey = (length: number): string => {
+    let result = '';
+    const characters = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'; // base-58
+    const charactersLength = characters.length;
+    for (let itr = 0; itr < length; itr++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
 
-   static deriveStandardKey = ( psuedoKey: string ): string => {
-     let key = psuedoKey
-     const hash = crypto.createHash( 'sha512' )
-     key = hash.update( key ).digest( 'hex' )
-     return key.slice( key.length - TrustedContactsOperations.cipherSpec.keyLength )
-   };
+  static deriveStandardKey = (psuedoKey: string): string => {
+    let key = psuedoKey;
+    const hash = crypto.createHash('sha512');
+    key = hash.update(key).digest('hex');
+    return key.slice(key.length - TrustedContactsOperations.cipherSpec.keyLength);
+  };
 
-   static encryptViaPsuedoKey = ( plainText: string, psuedoKey: string ): string => {
-     const key = TrustedContactsOperations.deriveStandardKey( psuedoKey )
-     const cipher = crypto.createCipheriv(
-       TrustedContactsOperations.cipherSpec.algorithm,
-       key,
-       TrustedContactsOperations.cipherSpec.iv
-     )
-     let encrypted = cipher.update( plainText, 'utf8', 'hex' )
-     encrypted += cipher.final( 'hex' )
-     return encrypted
-   }
-
-   static decryptViaPsuedoKey = ( encryptedText: string, psuedoKey: string ): string => {
-     const key = TrustedContactsOperations.deriveStandardKey( psuedoKey )
-     const decipher = crypto.createDecipheriv(
-       TrustedContactsOperations.cipherSpec.algorithm,
-       key,
-       TrustedContactsOperations.cipherSpec.iv
-     )
-     let decrypted = decipher.update( encryptedText, 'hex', 'utf8' )
-     decrypted += decipher.final( 'utf8' )
-     return decrypted
-   }
-
-  static encryptData = ( key: string, dataPacket: any ) => {
-    key = key.slice(
-      key.length - TrustedContactsOperations.cipherSpec.keyLength
-    )
+  static encryptViaPsuedoKey = (plainText: string, psuedoKey: string): string => {
+    const key = TrustedContactsOperations.deriveStandardKey(psuedoKey);
     const cipher = crypto.createCipheriv(
       TrustedContactsOperations.cipherSpec.algorithm,
       key,
       TrustedContactsOperations.cipherSpec.iv
-    )
-    dataPacket.validator = config.HEXA_ID
-    let encrypted = cipher.update( JSON.stringify( dataPacket ), 'utf8', 'hex' )
-    encrypted += cipher.final( 'hex' )
-    return {
-      encryptedData: encrypted,
-    }
+    );
+    let encrypted = cipher.update(plainText, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
   };
 
-  static decryptData = ( key: string, encryptedDataPacket: string ) => {
-    key = key.slice(
-      key.length - TrustedContactsOperations.cipherSpec.keyLength
-    )
+  static decryptViaPsuedoKey = (encryptedText: string, psuedoKey: string): string => {
+    const key = TrustedContactsOperations.deriveStandardKey(psuedoKey);
     const decipher = crypto.createDecipheriv(
       TrustedContactsOperations.cipherSpec.algorithm,
       key,
       TrustedContactsOperations.cipherSpec.iv
-    )
-    let decrypted = decipher.update( encryptedDataPacket, 'hex', 'utf8' )
-    decrypted += decipher.final( 'utf8' )
+    );
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  };
 
-    const data = JSON.parse( decrypted )
-    if ( data.validator !== config.HEXA_ID )
-      throw new Error(
-        'Decryption failed, invalid validator for the following data packet'
-      )
+  static encryptData = (key: string, dataPacket: any) => {
+    key = key.slice(key.length - TrustedContactsOperations.cipherSpec.keyLength);
+    const cipher = crypto.createCipheriv(
+      TrustedContactsOperations.cipherSpec.algorithm,
+      key,
+      TrustedContactsOperations.cipherSpec.iv
+    );
+    dataPacket.validator = config.HEXA_ID;
+    let encrypted = cipher.update(JSON.stringify(dataPacket), 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return {
+      encryptedData: encrypted,
+    };
+  };
+
+  static decryptData = (key: string, encryptedDataPacket: string) => {
+    key = key.slice(key.length - TrustedContactsOperations.cipherSpec.keyLength);
+    const decipher = crypto.createDecipheriv(
+      TrustedContactsOperations.cipherSpec.algorithm,
+      key,
+      TrustedContactsOperations.cipherSpec.iv
+    );
+    let decrypted = decipher.update(encryptedDataPacket, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    const data = JSON.parse(decrypted);
+    if (data.validator !== config.HEXA_ID)
+      throw new Error('Decryption failed, invalid validator for the following data packet');
 
     return {
       data,
-    }
+    };
   };
 
   static cacheOutstream = (
@@ -117,188 +110,183 @@ export default class TrustedContactsOperations {
     secondaryChannelKey?: string
   ): StreamData => {
     const { streamId, primaryData, secondaryData, backupData, metaData } =
-      unencryptedOutstreamUpdates
-    let outstreamUpdates: StreamData
-    if ( !contact.permanentChannel ) {
+      unencryptedOutstreamUpdates;
+    let outstreamUpdates: StreamData;
+    if (!contact.permanentChannel) {
       // setup permanent channel and output stream
       const unencryptedOutStream: UnecryptedStreamData = {
         streamId,
         primaryData,
         metaData,
-      }
+      };
       contact.unencryptedPermanentChannel = {
-        [ streamId ]: unencryptedOutStream,
-      }
+        [streamId]: unencryptedOutStream,
+      };
 
       const primaryEncryptedData = primaryData
-        ? TrustedContactsOperations.encryptData( channelKey, primaryData ).encryptedData
-        : null
+        ? TrustedContactsOperations.encryptData(channelKey, primaryData).encryptedData
+        : null;
       const secondaryEncryptedData =
         secondaryData && secondaryChannelKey
-          ? TrustedContactsOperations.encryptData( secondaryChannelKey, secondaryData ).encryptedData
-          : null
+          ? TrustedContactsOperations.encryptData(secondaryChannelKey, secondaryData).encryptedData
+          : null;
       const encryptedBackupData = backupData
-        ? TrustedContactsOperations.encryptData( channelKey, backupData ).encryptedData
-        : null
+        ? TrustedContactsOperations.encryptData(channelKey, backupData).encryptedData
+        : null;
 
       const outstream: StreamData = {
         streamId,
         primaryEncryptedData,
         metaData: unencryptedOutStream.metaData,
-      }
+      };
       contact.permanentChannel = {
-        [ streamId ]: outstream,
-      }
+        [streamId]: outstream,
+      };
 
       outstreamUpdates = {
         ...outstream,
         secondaryEncryptedData,
         encryptedBackupData,
-      }
+      };
     } else {
       // update output stream
-      const unencryptedOutstream = (
-        contact.unencryptedPermanentChannel as UnecryptedStreams
-      )[ streamId ]
-      const outstream = ( contact.permanentChannel as Streams )[ streamId ]
+      const unencryptedOutstream = (contact.unencryptedPermanentChannel as UnecryptedStreams)[
+        streamId
+      ];
+      const outstream = (contact.permanentChannel as Streams)[streamId];
       outstreamUpdates = {
         streamId: unencryptedOutstream.streamId,
-      }
+      };
 
-      if ( primaryData ) {
-        if( primaryData.paymentAddresses ){
+      if (primaryData) {
+        if (primaryData.paymentAddresses) {
           primaryData.paymentAddresses = {
             ...unencryptedOutstream.primaryData.paymentAddresses,
-            ...primaryData.paymentAddresses
-          }
+            ...primaryData.paymentAddresses,
+          };
         }
         unencryptedOutstream.primaryData = {
           ...unencryptedOutstream.primaryData,
           ...primaryData,
-        }
+        };
         const primaryEncryptedData = TrustedContactsOperations.encryptData(
           channelKey,
           unencryptedOutstream.primaryData
-        ).encryptedData
-        outstream.primaryEncryptedData = primaryEncryptedData
-        outstreamUpdates.primaryEncryptedData = primaryEncryptedData
-        contact.relationType = idx( primaryData, ( _ ) => _.relationType )
+        ).encryptedData;
+        outstream.primaryEncryptedData = primaryEncryptedData;
+        outstreamUpdates.primaryEncryptedData = primaryEncryptedData;
+        contact.relationType = idx(primaryData, (_) => _.relationType);
       }
 
-      if ( secondaryData && secondaryChannelKey )
+      if (secondaryData && secondaryChannelKey)
         outstreamUpdates.secondaryEncryptedData = TrustedContactsOperations.encryptData(
           secondaryChannelKey,
           secondaryData
-        ).encryptedData
-      else if ( secondaryData === null )
-        outstreamUpdates.secondaryEncryptedData = null
-      if( secondaryChannelKey ) contact.secondaryChannelKey = secondaryChannelKey // execution case: when a contact is upgraded to a keeper
+        ).encryptedData;
+      else if (secondaryData === null) outstreamUpdates.secondaryEncryptedData = null;
+      if (secondaryChannelKey) contact.secondaryChannelKey = secondaryChannelKey; // execution case: when a contact is upgraded to a keeper
 
-      if ( backupData )
+      if (backupData)
         outstreamUpdates.encryptedBackupData = TrustedContactsOperations.encryptData(
           channelKey,
           backupData
-        ).encryptedData
-      else if ( backupData === null ) outstreamUpdates.encryptedBackupData = null
+        ).encryptedData;
+      else if (backupData === null) outstreamUpdates.encryptedBackupData = null;
 
-      if ( metaData ) {
-        const newFlags = idx( metaData, ( _ ) => _.flags ) || {
-        }
+      if (metaData) {
+        const newFlags = idx(metaData, (_) => _.flags) || {};
         const updatedFlags = {
           ...unencryptedOutstream.metaData.flags,
           ...newFlags,
-        }
+        };
 
         unencryptedOutstream.metaData = {
           ...unencryptedOutstream.metaData,
           ...metaData,
           flags: updatedFlags,
-        }
-        outstream.metaData = unencryptedOutstream.metaData
-        outstreamUpdates.metaData = unencryptedOutstream.metaData
-        if( updatedFlags.active !== undefined ) contact.isActive = updatedFlags.active
+        };
+        outstream.metaData = unencryptedOutstream.metaData;
+        outstreamUpdates.metaData = unencryptedOutstream.metaData;
+        if (updatedFlags.active !== undefined) contact.isActive = updatedFlags.active;
       }
     }
-    return outstreamUpdates
+    return outstreamUpdates;
   };
 
   static cacheInstream = (
     contact: TrustedContact,
     channelKey: string,
     instreamUpdates: StreamData,
-    outStreamId: string,
+    outStreamId: string
   ) => {
-    let encryptedInstream =
-      contact.permanentChannel[ instreamUpdates.streamId ] || {
-      }
-    let unencryptedInstream =
-      contact.unencryptedPermanentChannel[ instreamUpdates.streamId ] || {
-      }
+    let encryptedInstream = contact.permanentChannel[instreamUpdates.streamId] || {};
+    let unencryptedInstream = contact.unencryptedPermanentChannel[instreamUpdates.streamId] || {};
 
     encryptedInstream = {
       ...encryptedInstream,
       ...instreamUpdates,
-    }
+    };
 
     unencryptedInstream = {
       ...unencryptedInstream,
       streamId: instreamUpdates.streamId,
       primaryData: instreamUpdates.primaryEncryptedData
-        ? TrustedContactsOperations.decryptData(
-          channelKey,
-          instreamUpdates.primaryEncryptedData
-        ).data
-        : ( unencryptedInstream as UnecryptedStreamData ).primaryData,
+        ? TrustedContactsOperations.decryptData(channelKey, instreamUpdates.primaryEncryptedData)
+            .data
+        : (unencryptedInstream as UnecryptedStreamData).primaryData,
       metaData: instreamUpdates.metaData
         ? instreamUpdates.metaData
-        : ( unencryptedInstream as UnecryptedStreamData ).metaData,
-    }
+        : (unencryptedInstream as UnecryptedStreamData).metaData,
+    };
 
-    contact.permanentChannel[ instreamUpdates.streamId ] =
-      encryptedInstream as StreamData
-    contact.unencryptedPermanentChannel[ instreamUpdates.streamId ] =
+    contact.permanentChannel[instreamUpdates.streamId] = encryptedInstream as StreamData;
+    contact.unencryptedPermanentChannel[instreamUpdates.streamId] =
       unencryptedInstream as UnecryptedStreamData;
 
-    ( contact.streamId = ( unencryptedInstream as UnecryptedStreamData ).streamId ),
-    ( contact.isActive = idx(
-      ( unencryptedInstream as UnecryptedStreamData ).metaData,
-      ( _ ) => _.flags.active
-    ) )
+    (contact.streamId = (unencryptedInstream as UnecryptedStreamData).streamId),
+      (contact.isActive = idx(
+        (unencryptedInstream as UnecryptedStreamData).metaData,
+        (_) => _.flags.active
+      ));
     contact.hasNewData = idx(
-      ( unencryptedInstream as UnecryptedStreamData ).metaData,
-      ( _ ) => _.flags.newData
-    )
-    if ( !contact.walletID )
+      (unencryptedInstream as UnecryptedStreamData).metaData,
+      (_) => _.flags.newData
+    );
+    if (!contact.walletID)
       contact.walletID = idx(
-        ( unencryptedInstream as UnecryptedStreamData ).primaryData,
-        ( _ ) => _.walletID
-      )
+        (unencryptedInstream as UnecryptedStreamData).primaryData,
+        (_) => _.walletID
+      );
 
     const incomingRelationshipType = idx(
-      ( unencryptedInstream as UnecryptedStreamData ).primaryData,
-      ( _ ) => _.relationType
-    )
+      (unencryptedInstream as UnecryptedStreamData).primaryData,
+      (_) => _.relationType
+    );
 
-    if( incomingRelationshipType ){
+    if (incomingRelationshipType) {
       if (
-        [
-          TrustedContactRelationTypes.WARD,
-          TrustedContactRelationTypes.KEEPER_WARD,
-        ].includes( contact.relationType ) &&
-        [ TrustedContactRelationTypes.CONTACT ].includes( incomingRelationshipType )
+        [TrustedContactRelationTypes.WARD, TrustedContactRelationTypes.KEEPER_WARD].includes(
+          contact.relationType
+        ) &&
+        [TrustedContactRelationTypes.CONTACT].includes(incomingRelationshipType)
       ) {
-        delete contact.contactsSecondaryChannelKey  // delete secondaryCH-key if you're no longer the keeper
-        contact.relationType = incomingRelationshipType
-        contact.unencryptedPermanentChannel[ outStreamId ].primaryData.relationType = incomingRelationshipType
+        delete contact.contactsSecondaryChannelKey; // delete secondaryCH-key if you're no longer the keeper
+        contact.relationType = incomingRelationshipType;
+        contact.unencryptedPermanentChannel[outStreamId].primaryData.relationType =
+          incomingRelationshipType;
       }
 
-      if ( incomingRelationshipType === TrustedContactRelationTypes.WARD )
-        contact.secondaryChannelKey = null // remove secondaryCH-key post keeper setup
+      if (incomingRelationshipType === TrustedContactRelationTypes.WARD)
+        contact.secondaryChannelKey = null; // remove secondaryCH-key post keeper setup
 
-      if ( [ TrustedContactRelationTypes.KEEPER, TrustedContactRelationTypes.PRIMARY_KEEPER ].includes( incomingRelationshipType ) )
-        contact.relationType = TrustedContactRelationTypes.WARD
+      if (
+        [TrustedContactRelationTypes.KEEPER, TrustedContactRelationTypes.PRIMARY_KEEPER].includes(
+          incomingRelationshipType
+        )
+      )
+        contact.relationType = TrustedContactRelationTypes.WARD;
 
-      if( !contact.relationType ) contact.relationType = incomingRelationshipType
+      if (!contact.relationType) contact.relationType = incomingRelationshipType;
     }
   };
 
@@ -318,13 +306,11 @@ export default class TrustedContactsOperations {
     updatedContacts: Trusted_Contacts;
   }> => {
     try {
-      const channelMapping = {
-      }
-      const channelOutstreams = {
-      }
-      let outStreamId: string
+      const channelMapping = {};
+      const channelOutstreams = {};
+      let outStreamId: string;
 
-      for ( let {
+      for (let {
         channelKey,
         streamId,
         contact,
@@ -332,30 +318,35 @@ export default class TrustedContactsOperations {
         unEncryptedOutstreamUpdates,
         contactsSecondaryChannelKey,
         metaSync,
-      } of channelSyncDetails ) {
-        outStreamId = streamId
-        if ( !contact || ( contact && !contact.isActive ) ) continue // skip non-active contacts
-        if( contactsSecondaryChannelKey ) contact.contactsSecondaryChannelKey = contactsSecondaryChannelKey // execution case: when a contact is upgraded to a keeper
+      } of channelSyncDetails) {
+        outStreamId = streamId;
+        if (!contact || (contact && !contact.isActive)) continue; // skip non-active contacts
+        if (contactsSecondaryChannelKey)
+          contact.contactsSecondaryChannelKey = contactsSecondaryChannelKey; // execution case: when a contact is upgraded to a keeper
         // auto-update last seen(if flags aren't already present)
-        if ( !unEncryptedOutstreamUpdates || !idx( unEncryptedOutstreamUpdates, _ => _.metaData.flags ) ){
-          if( !unEncryptedOutstreamUpdates ) unEncryptedOutstreamUpdates = {
-            streamId,
-            metaData: {
-              flags: {
-                lastSeen: Date.now()
-              }
-            }
-          }
-          else if( !idx( unEncryptedOutstreamUpdates, _ => _.metaData.flags ) ) {
+        if (
+          !unEncryptedOutstreamUpdates ||
+          !idx(unEncryptedOutstreamUpdates, (_) => _.metaData.flags)
+        ) {
+          if (!unEncryptedOutstreamUpdates)
+            unEncryptedOutstreamUpdates = {
+              streamId,
+              metaData: {
+                flags: {
+                  lastSeen: Date.now(),
+                },
+              },
+            };
+          else if (!idx(unEncryptedOutstreamUpdates, (_) => _.metaData.flags)) {
             unEncryptedOutstreamUpdates = {
               ...unEncryptedOutstreamUpdates,
               metaData: {
                 ...unEncryptedOutstreamUpdates?.metaData,
                 flags: {
-                  lastSeen: Date.now()
-                }
-              }
-            }
+                  lastSeen: Date.now(),
+                },
+              },
+            };
           }
         }
 
@@ -364,73 +355,64 @@ export default class TrustedContactsOperations {
           channelKey,
           unEncryptedOutstreamUpdates,
           secondaryChannelKey
-        )
+        );
 
-        channelMapping[ contact.permanentChannelAddress ] = {
+        channelMapping[contact.permanentChannelAddress] = {
           contact,
           channelKey,
-        }
-        channelOutstreams[ contact.permanentChannelAddress ] = {
+        };
+        channelOutstreams[contact.permanentChannelAddress] = {
           streamId,
           metaSync,
           outstreamUpdates,
-        }
+        };
       }
 
-      if ( Object.keys( channelOutstreams ).length ) {
-        const res: AxiosResponse = await RELAY_AXIOS.post(
-          'syncPermanentChannels',
-          {
-            HEXA_ID,
-            channelOutstreams,
-          }
-        )
+      if (Object.keys(channelOutstreams).length) {
+        const res: AxiosResponse = await RELAY_AXIOS.post('syncPermanentChannels', {
+          HEXA_ID,
+          channelOutstreams,
+        });
 
-        const { channelInstreams } = res.data
-        for ( const permanentChannelAddress of Object.keys( channelInstreams ) ) {
-          const { updated, isActive, instream } =
-            channelInstreams[ permanentChannelAddress ]
-          const { contact, channelKey } =
-            channelMapping[ permanentChannelAddress ]
+        const { channelInstreams } = res.data;
+        for (const permanentChannelAddress of Object.keys(channelInstreams)) {
+          const { updated, isActive, instream } = channelInstreams[permanentChannelAddress];
+          const { contact, channelKey } = channelMapping[permanentChannelAddress];
 
-          if ( !updated )
-            console.log(
-              'Failed to update permanent channel: ',
-              permanentChannelAddress
-            )
-          if ( typeof isActive === 'boolean' )
-            ( contact as TrustedContact ).isActive = isActive
-          if ( instream ) TrustedContactsOperations.cacheInstream( contact, channelKey, instream, outStreamId )
+          if (!updated)
+            console.log('Failed to update permanent channel: ', permanentChannelAddress);
+          if (typeof isActive === 'boolean') (contact as TrustedContact).isActive = isActive;
+          if (instream)
+            TrustedContactsOperations.cacheInstream(contact, channelKey, instream, outStreamId);
         }
 
         // consolidate contact updates/creation
-        const updatedContacts = {
-        }
-        Object.keys( channelMapping ).forEach( ( permanentChannelAddress ) => {
-          const { contact, channelKey } =
-            channelMapping[ permanentChannelAddress ]
-          updatedContacts[ channelKey ] = contact
-        } )
+        const updatedContacts = {};
+        Object.keys(channelMapping).forEach((permanentChannelAddress) => {
+          const { contact, channelKey } = channelMapping[permanentChannelAddress];
+          updatedContacts[channelKey] = contact;
+        });
 
         return {
-          updated: true, updatedContacts
-        }
-      } else throw new Error( 'No channels to update' )
-    } catch ( err ) {
-      if ( err.response ) throw new Error( err.response.data.err )
-      if ( err.code ) throw new Error( err.code )
-      throw new Error( err.message )
+          updated: true,
+          updatedContacts,
+        };
+      } else throw new Error('No channels to update');
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+      throw new Error(err.message);
     }
   };
 
-   static retrieveFromStream = async ( {
-     walletId,
-     options,
-     secondaryChannelKey,
-     channelKey,
-     StreamId,
-     PermanentChannelAddress
-   }: {
+  static retrieveFromStream = async ({
+    walletId,
+    options,
+    secondaryChannelKey,
+    channelKey,
+    StreamId,
+    PermanentChannelAddress,
+  }: {
     walletId: string;
     options: {
       retrievePrimaryData?: boolean;
@@ -441,237 +423,220 @@ export default class TrustedContactsOperations {
     channelKey?: string;
     StreamId?: string;
     PermanentChannelAddress?: string;
-  } ): Promise<{
+  }): Promise<{
     primaryData?: PrimaryStreamData;
     backupData?: BackupStreamData;
     secondaryData?: SecondaryStreamData;
   }> => {
-     try {
-       const permanentChannelAddress = PermanentChannelAddress ? PermanentChannelAddress : crypto
-         .createHash( 'sha256' )
-         .update( channelKey )
-         .digest( 'hex' )
-       const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId( walletId )
+    try {
+      const permanentChannelAddress = PermanentChannelAddress
+        ? PermanentChannelAddress
+        : crypto.createHash('sha256').update(channelKey).digest('hex');
+      const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId(walletId);
 
-       const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveFromStream', {
-         HEXA_ID,
-         permanentChannelAddress,
-         streamId,
-         options,
-       } )
+      const res: AxiosResponse = await RELAY_AXIOS.post('retrieveFromStream', {
+        HEXA_ID,
+        permanentChannelAddress,
+        streamId,
+        options,
+      });
 
-       const streamData: {
+      const streamData: {
         primaryEncryptedData?: string;
         encryptedBackupData?: string;
         secondaryEncryptedData?: string;
-      } = res.data.streamData
+      } = res.data.streamData;
 
-       const unencryptedStreamData: {
+      const unencryptedStreamData: {
         primaryData?: PrimaryStreamData;
         backupData?: BackupStreamData;
         secondaryData?: SecondaryStreamData;
-      } = {
-      }
-       if ( options.retrievePrimaryData && streamData.primaryEncryptedData )
-         unencryptedStreamData.primaryData =
-          TrustedContactsOperations.decryptData(
-            channelKey,
-            streamData.primaryEncryptedData
-          ).data
-       if ( options.retrieveBackupData && streamData.encryptedBackupData )
-         unencryptedStreamData[ 'backupData' ] =
-          TrustedContactsOperations.decryptData(
-            channelKey,
-            streamData.encryptedBackupData
-          ).data
-       if (
-         options.retrieveSecondaryData &&
-        streamData.secondaryEncryptedData &&
-        secondaryChannelKey
-       )
-         unencryptedStreamData[ 'secondaryData' ] =
-          TrustedContactsOperations.decryptData(
-            secondaryChannelKey,
-            streamData.secondaryEncryptedData
-          ).data
+      } = {};
+      if (options.retrievePrimaryData && streamData.primaryEncryptedData)
+        unencryptedStreamData.primaryData = TrustedContactsOperations.decryptData(
+          channelKey,
+          streamData.primaryEncryptedData
+        ).data;
+      if (options.retrieveBackupData && streamData.encryptedBackupData)
+        unencryptedStreamData['backupData'] = TrustedContactsOperations.decryptData(
+          channelKey,
+          streamData.encryptedBackupData
+        ).data;
+      if (options.retrieveSecondaryData && streamData.secondaryEncryptedData && secondaryChannelKey)
+        unencryptedStreamData['secondaryData'] = TrustedContactsOperations.decryptData(
+          secondaryChannelKey,
+          streamData.secondaryEncryptedData
+        ).data;
 
-       return unencryptedStreamData
-     } catch ( err ) {
-       if ( err.response ) throw new Error( err.response.data.err )
-       if ( err.code ) throw new Error( err.code )
-       throw new Error( err.message )
-     }
-   };
+      return unencryptedStreamData;
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+      throw new Error(err.message);
+    }
+  };
 
-    static checkSecondaryUpdated = async ( {
-      walletId,
-      options,
-      channelKey,
-      StreamId,
-      PermanentChannelAddress
-    }: {
-      walletId: string;
-      options: {
-        retrieveSecondaryData?: boolean;
-      };
-      secondaryChannelKey?: string;
-      channelKey?: string;
-      StreamId?: string;
-      PermanentChannelAddress?: string;
-    } ) => {
-      try {
-        const permanentChannelAddress = PermanentChannelAddress ? PermanentChannelAddress : crypto
-          .createHash( 'sha256' )
-          .update( channelKey )
-          .digest( 'hex' )
-        const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId( walletId )
-
-        const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveFromStream', {
-          HEXA_ID,
-          permanentChannelAddress,
-          streamId,
-          options,
-        } )
-
-        const streamData: {
-          secondaryEncryptedData?: string;
-        } = res.data.streamData
-
-        if( streamData.secondaryEncryptedData ) return {
-          status: true
-        }
-        else return {
-          status: false
-        }
-      } catch ( err ) {
-        return {
-          status: false
-        }
-      }
+  static checkSecondaryUpdated = async ({
+    walletId,
+    options,
+    channelKey,
+    StreamId,
+    PermanentChannelAddress,
+  }: {
+    walletId: string;
+    options: {
+      retrieveSecondaryData?: boolean;
     };
+    secondaryChannelKey?: string;
+    channelKey?: string;
+    StreamId?: string;
+    PermanentChannelAddress?: string;
+  }) => {
+    try {
+      const permanentChannelAddress = PermanentChannelAddress
+        ? PermanentChannelAddress
+        : crypto.createHash('sha256').update(channelKey).digest('hex');
+      const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId(walletId);
 
-   static updateStream = async ( {
-     channelKey,
-     streamUpdates,
-   }: {
-   channelKey: string;
-   streamUpdates: StreamData,
-  } ): Promise<{
-   updated: boolean;
+      const res: AxiosResponse = await RELAY_AXIOS.post('retrieveFromStream', {
+        HEXA_ID,
+        permanentChannelAddress,
+        streamId,
+        options,
+      });
+
+      const streamData: {
+        secondaryEncryptedData?: string;
+      } = res.data.streamData;
+
+      if (streamData.secondaryEncryptedData)
+        return {
+          status: true,
+        };
+      else
+        return {
+          status: false,
+        };
+    } catch (err) {
+      return {
+        status: false,
+      };
+    }
+  };
+
+  static updateStream = async ({
+    channelKey,
+    streamUpdates,
+  }: {
+    channelKey: string;
+    streamUpdates: StreamData;
+  }): Promise<{
+    updated: boolean;
   }> => {
-     try {
-       const permanentChannelAddress = crypto
-         .createHash( 'sha256' )
-         .update( channelKey )
-         .digest( 'hex' )
+    try {
+      const permanentChannelAddress = crypto.createHash('sha256').update(channelKey).digest('hex');
 
-       const res: AxiosResponse = await RELAY_AXIOS.post( 'updateStream', {
-         HEXA_ID,
-         permanentChannelAddress,
-         streamUpdates
-       } )
+      const res: AxiosResponse = await RELAY_AXIOS.post('updateStream', {
+        HEXA_ID,
+        permanentChannelAddress,
+        streamUpdates,
+      });
 
-       const { updated } = res.data
-       return {
-         updated
-       }
-     } catch ( err ) {
-       if ( err.response ) throw new Error( err.response.data.err )
-       if ( err.code ) throw new Error( err.code )
-       throw new Error( err.message )
-     }
-   };
+      const { updated } = res.data;
+      return {
+        updated,
+      };
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+      throw new Error(err.message);
+    }
+  };
 
-   static restoreTrustedContacts = async ( {
-     walletId,
-     channelKeys,
-   }: {
+  static restoreTrustedContacts = async ({
+    walletId,
+    channelKeys,
+  }: {
     walletId: string;
     channelKeys: string[];
-    } ): Promise<Trusted_Contacts> => {
-     try {
+  }): Promise<Trusted_Contacts> => {
+    try {
+      const channelAddresses = channelKeys.map((channelKey) =>
+        crypto.createHash('sha256').update(channelKey).digest('hex')
+      );
+      const res: AxiosResponse = await RELAY_AXIOS.post('retrieveChannels', {
+        HEXA_ID,
+        channelAddresses,
+      });
 
-       const channelAddresses = channelKeys.map( ( channelKey ) =>
-         crypto
-           .createHash( 'sha256' )
-           .update( channelKey )
-           .digest( 'hex' )
-       )
-       const res: AxiosResponse = await RELAY_AXIOS.post( 'retrieveChannels', {
-         HEXA_ID,
-         channelAddresses,
-       } )
-
-       const permanentChannels: {
+      const permanentChannels: {
         [channelAddress: string]: Streams;
-        } = res.data.permanentChannels
-       if( !Object.keys( permanentChannels ).length ) throw new Error( 'Unable to recover trusted contacts: no permanent channels found' )
+      } = res.data.permanentChannels;
+      if (!Object.keys(permanentChannels).length)
+        throw new Error('Unable to recover trusted contacts: no permanent channels found');
 
-       const restoredContacts: Trusted_Contacts = {
-       }
-       const outstreamId = TrustedContactsOperations.getStreamId( walletId )
-       let instreamId: string
-       for ( const channelKey of channelKeys ) {
-         const permanentChannelAddress = crypto
-           .createHash( 'sha256' )
-           .update( channelKey )
-           .digest( 'hex' )
+      const restoredContacts: Trusted_Contacts = {};
+      const outstreamId = TrustedContactsOperations.getStreamId(walletId);
+      let instreamId: string;
+      for (const channelKey of channelKeys) {
+        const permanentChannelAddress = crypto
+          .createHash('sha256')
+          .update(channelKey)
+          .digest('hex');
 
-         const permanentChannel: Streams = permanentChannels[ permanentChannelAddress ]
-         const unencryptedPermanentChannel: UnecryptedStreams = {
-         }
-         for( const streamId of Object.keys( permanentChannel ) ) {
-           if( streamId !== outstreamId ) instreamId = streamId
+        const permanentChannel: Streams = permanentChannels[permanentChannelAddress];
+        const unencryptedPermanentChannel: UnecryptedStreams = {};
+        for (const streamId of Object.keys(permanentChannel)) {
+          if (streamId !== outstreamId) instreamId = streamId;
 
-           const stream: StreamData = permanentChannel[ streamId ]
-           unencryptedPermanentChannel[ streamId ] = {
-             streamId,
-             primaryData: TrustedContactsOperations.decryptData( channelKey, stream.primaryEncryptedData ).data,
-             secondaryData: stream.secondaryEncryptedData? TrustedContactsOperations.decryptData( channelKey, stream.secondaryEncryptedData ).data: null,
-             backupData: stream.encryptedBackupData? TrustedContactsOperations.decryptData( channelKey, stream.encryptedBackupData ).data: null,
-             metaData: stream.metaData
-           }
-         }
+          const stream: StreamData = permanentChannel[streamId];
+          unencryptedPermanentChannel[streamId] = {
+            streamId,
+            primaryData: TrustedContactsOperations.decryptData(
+              channelKey,
+              stream.primaryEncryptedData
+            ).data,
+            secondaryData: stream.secondaryEncryptedData
+              ? TrustedContactsOperations.decryptData(channelKey, stream.secondaryEncryptedData)
+                  .data
+              : null,
+            backupData: stream.encryptedBackupData
+              ? TrustedContactsOperations.decryptData(channelKey, stream.encryptedBackupData).data
+              : null,
+            metaData: stream.metaData,
+          };
+        }
 
-         const newContact: TrustedContact = {
-           contactDetails: idx(
-             unencryptedPermanentChannel,
-             ( _ ) => _[ outstreamId ].primaryData.contactDetails
-           ),
-           relationType: idx(
-             unencryptedPermanentChannel,
-             ( _ ) => _[ outstreamId ].primaryData.relationType
-           ),
-           channelKey: channelKey,
-           permanentChannelAddress,
-           permanentChannel,
-           unencryptedPermanentChannel,
-           walletID: idx(
-             unencryptedPermanentChannel,
-             ( _ ) => _[ instreamId ].primaryData.walletID
-           ),
-           streamId: instreamId,
-           isActive: idx(
-             unencryptedPermanentChannel,
-             ( _ ) => _[ instreamId ].metaData.flags.active
-           ),
-           hasNewData: idx(
-             unencryptedPermanentChannel,
-             ( _ ) => _[ instreamId ].metaData.flags.newData
-           ),
-           timestamps: {
-             created: Date.now() 
-           }
-         }
+        const newContact: TrustedContact = {
+          contactDetails: idx(
+            unencryptedPermanentChannel,
+            (_) => _[outstreamId].primaryData.contactDetails
+          ),
+          relationType: idx(
+            unencryptedPermanentChannel,
+            (_) => _[outstreamId].primaryData.relationType
+          ),
+          channelKey: channelKey,
+          permanentChannelAddress,
+          permanentChannel,
+          unencryptedPermanentChannel,
+          walletID: idx(unencryptedPermanentChannel, (_) => _[instreamId].primaryData.walletID),
+          streamId: instreamId,
+          isActive: idx(unencryptedPermanentChannel, (_) => _[instreamId].metaData.flags.active),
+          hasNewData: idx(unencryptedPermanentChannel, (_) => _[instreamId].metaData.flags.newData),
+          timestamps: {
+            created: Date.now(),
+          },
+        };
 
-         restoredContacts[ channelKey ] = newContact
-       }
+        restoredContacts[channelKey] = newContact;
+      }
 
-       return restoredContacts
-     } catch ( err ) {
-       if ( err.response ) throw new Error( err.response.data.err )
-       if ( err.code ) throw new Error( err.code )
-       throw new Error( err.message )
-     }
-   };
+      return restoredContacts;
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+      throw new Error(err.message);
+    }
+  };
 }

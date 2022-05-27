@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { AccountType } from './interfaces/Interface';
 import Config from 'react-native-config';
 import PersonalNode from '../common/data/models/PersonalNode';
 import _ from 'lodash';
 import axios, { AxiosInstance } from 'axios';
+import { WalletType } from './wallets/interfaces/enum';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'dev',
@@ -29,7 +29,7 @@ class HexaConfig {
   public WALLET_SLUG: string = Config.WALLET_SLUG ? Config.WALLET_SLUG.trim() : 'hexa';
   public FBTC_REGISTRATION_URL: string = Config.FBTC_REGISTRATION_URL
     ? Config.FBTC_REGISTRATION_URL.trim()
-    : 'https://fastbitcoins.com/create-account/hexa';
+    : 'https://fastbitcoins.com/create-wallet/hexa';
   public FBTC_URL: string = Config.FBTC_URL
     ? Config.FBTC_URL.trim()
     : 'https://wallet-api.fastbitcoins.com/v2/';
@@ -187,36 +187,36 @@ class HexaConfig {
     ? parseInt(Config.KP_REQUEST_EXPIRY.trim(), 10)
     : 86400000;
 
-  public ACCOUNT_INSTANCES = {
-    [AccountType.TEST_ACCOUNT]: {
+  public WALLET_INSTANCES = {
+    [WalletType.TEST]: {
       series: 0,
       upperBound: 1,
     },
-    [AccountType.CHECKING_ACCOUNT]: {
+    [WalletType.CHECKING]: {
       series: 0,
       upperBound: 10,
     },
-    [AccountType.IMPORTED_ACCOUNT]: {
+    [WalletType.IMPORTED]: {
       series: 0,
       upperBound: 10,
     },
-    [AccountType.SAVINGS_ACCOUNT]: {
+    [WalletType.SAVINGS]: {
       series: 10,
       upperBound: 10,
     },
-    [AccountType.DONATION_ACCOUNT]: {
+    [WalletType.DONATION]: {
       series: 20,
       upperBound: 10,
     },
-    [AccountType.SWAN_ACCOUNT]: {
+    [WalletType.SWAN]: {
       series: 30,
       upperBound: 10,
     },
-    [AccountType.DEPOSIT_ACCOUNT]: {
+    [WalletType.DEPOSIT]: {
       series: 40,
       upperBound: 10,
     },
-    [AccountType.LIGHTNING_ACCOUNT]: {
+    [WalletType.LIGHTNING]: {
       series: 50,
       upperBound: 1,
     },
@@ -258,7 +258,6 @@ class HexaConfig {
     this.RELAY = this.BH_SERVERS.RELAY;
     this.SIGNING_SERVER = this.BH_SERVERS.SIGNING_SERVER;
     this.setNetwork();
-    ßß;
     const BIT_SERVER_MODE = Config.BIT_SERVER_MODE ? Config.BIT_SERVER_MODE.trim() : 'PROD';
     if (BIT_SERVER_MODE === 'LOCAL' || BIT_SERVER_MODE === 'DEV') {
       this.APP_STAGE = APP_STAGE.DEVELOPMENT;

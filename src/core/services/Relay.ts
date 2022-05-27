@@ -1,12 +1,12 @@
-import axios, { AxiosResponse } from 'axios'
-import config from '../config'
-import { Gift, GiftMetaData, INotification, NewWalletImage } from '../interfaces/Interface'
-import idx from 'idx'
-import crypto from 'crypto'
-import TrustedContactsOperations from '../trusted_contacts/TrustedContactsOperations'
+import axios, { AxiosResponse } from 'axios';
+import config from '../config';
+import idx from 'idx';
+import crypto from 'crypto';
+import TrustedContactsOperations from '../trusted_contacts/TrustedContactsOperations';
+import { Gift, GiftMetaData } from '../wallets/interfaces/interface';
+import { INotification } from './interfaces/interface';
 
-
-const { HEXA_ID, RELAY_AXIOS } = config
+const { HEXA_ID, RELAY_AXIOS } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -18,21 +18,22 @@ export default class Relay {
       message: string;
     };
   }> => {
-    let res: AxiosResponse
+    let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('checkCompatibility', {
         HEXA_ID,
         method,
         version,
-      })
+      });
     } catch (err) {
-      if (err.response) console.log(err.response.data.err)
-      if (err.code) console.log(err.code)
+      if (err.response) console.log(err.response.data.err);
+      if (err.code) console.log(err.code);
     }
-    const { compatible, alternatives } = res.data
+    const { compatible, alternatives } = res.data;
     return {
-      compatible, alternatives
-    }
+      compatible,
+      alternatives,
+    };
   };
 
   public static fetchReleases = async (
@@ -40,107 +41,106 @@ export default class Relay {
   ): Promise<{
     releases: any[];
   }> => {
-    let res: AxiosResponse
+    let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('fetchReleases', {
         HEXA_ID,
         build,
-      })
+      });
     } catch (err) {
-      if (err.response) console.log(err.response.data.err)
-      if (err.code) console.log(err.code)
+      if (err.response) console.log(err.response.data.err);
+      if (err.code) console.log(err.code);
     }
-    const { releases = [] } = idx(res, (_) => _.data) || {
-    }
+    const { releases = [] } = idx(res, (_) => _.data) || {};
     return {
-      releases
-    }
+      releases,
+    };
   };
 
   public static updateFCMTokens = async (
-    walletID: string,
+    appId: string,
     FCMs: string[]
   ): Promise<{
     updated: boolean;
   }> => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateFCMTokens', {
           HEXA_ID,
-          walletID,
+          appId,
           FCMs,
-        })
+        });
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      return res.data
+      return res.data;
     } catch (err) {
-      throw new Error('Failed to fetch GetBittr Details')
+      throw new Error('Failed to fetch GetBittr Details');
     }
   };
 
   public static fetchNotifications = async (
-    walletID: string
+    appId: string
   ): Promise<{
     notifications: INotification[];
     DHInfos: [{ address: string; publicKey: string }];
   }> => {
-    let res: AxiosResponse
+    let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('fetchNotifications', {
         HEXA_ID,
-        walletID,
-      })
+        appId,
+      });
     } catch (err) {
       console.log({
-        err
-      })
-      if (err.response) throw new Error(err.response.data.err)
-      if (err.code) throw new Error(err.code)
+        err,
+      });
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
     }
 
-    const { notifications, DHInfos } = res.data
+    const { notifications, DHInfos } = res.data;
     return {
-      notifications, DHInfos
-    }
+      notifications,
+      DHInfos,
+    };
   };
 
   public static sendNotifications = async (
-    receivers: { walletId: string; FCMs?: string[] }[],
+    receivers: { appId: string; FCMs?: string[] }[],
     notification: INotification
   ): Promise<{
     sent: boolean;
   }> => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
 
-      if (!receivers.length)
-        throw new Error('Failed to deliver notification: receivers missing')
+      if (!receivers.length) throw new Error('Failed to deliver notification: receivers missing');
 
       try {
         res = await RELAY_AXIOS.post('sendNotifications', {
           HEXA_ID,
           receivers,
           notification,
-        })
+        });
         console.log('sendNotifications', {
-          res
-        })
+          res,
+        });
       } catch (err) {
         // console.log({ err });
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { sent } = res.data
-      if (!sent) throw new Error()
+      const { sent } = res.data;
+      if (!sent) throw new Error();
 
       return {
-        sent
-      }
+        sent,
+      };
     } catch (err) {
-      throw new Error('Failed to deliver notification')
+      throw new Error('Failed to deliver notification');
     }
   };
 
@@ -151,190 +151,183 @@ export default class Relay {
     added: boolean;
   }> => {
     try {
-
       if (!txNote || !txNote.txId || !txNote.note)
-        throw new Error('Failed to send donation note: txid|note missing')
+        throw new Error('Failed to send donation note: txid|note missing');
 
       const res: AxiosResponse = await RELAY_AXIOS.post('addDonationTxNote', {
         HEXA_ID,
         donationId,
         txNote,
-      })
+      });
 
-      const { added } = res.data
-      if (!added) throw new Error()
+      const { added } = res.data;
+      if (!added) throw new Error();
 
       return {
-        added
-      }
+        added,
+      };
     } catch (err) {
-      throw new Error('Failed to send donation note')
+      throw new Error('Failed to send donation note');
     }
   };
 
-  public static fetchFeeAndExchangeRates = async (currencyCode): Promise<{
+  public static fetchFeeAndExchangeRates = async (
+    currencyCode
+  ): Promise<{
     exchangeRates: any;
     averageTxFees: any;
   }> => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('fetchFeeAndExchangeRates', {
           HEXA_ID,
-          currencyCode
-        })
+          currencyCode,
+        });
       } catch (err) {
         // console.log({ err });
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { exchangeRates, averageTxFees } = res.data
+      const { exchangeRates, averageTxFees } = res.data;
 
       return {
-        exchangeRates, averageTxFees
-      }
+        exchangeRates,
+        averageTxFees,
+      };
     } catch (err) {
-      throw new Error('Failed fetch fee and exchange rates')
+      throw new Error('Failed fetch fee and exchange rates');
     }
   };
 
-
-  public static getCampaignGift = async (
-    campaignId: string,
-    walletID: string
-  ) => {
+  public static getCampaignGift = async (campaignId: string, appId: string) => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('claimCampaignGift', {
           HEXA_ID,
           campaignId: campaignId,
-          walletID,
-        })
-        return res.data
+          appId,
+        });
+        return res.data;
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
     } catch (err) {
-      throw new Error(err)
+      throw new Error(err);
     }
   };
 
   public static sendKeeperNotifications = async (
     receivers: string[],
-    notification: INotification,
+    notification: INotification
   ) => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       const obj = {
         HEXA_ID,
         receivers,
         notification,
-      }
+      };
       try {
         res = await RELAY_AXIOS.post('sendKeeperNotifications', {
           HEXA_ID,
           receivers,
           notification,
-        })
-        const { sent } = res.data
-        if (!sent) throw new Error()
+        });
+        const { sent } = res.data;
+        if (!sent) throw new Error();
         return {
-          sent
-        }
+          sent,
+        };
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
     } catch (err) {
-      throw new Error('Failed to deliver notification')
+      throw new Error('Failed to deliver notification');
     }
   };
 
-
   public static getMessages = async (
-    walletID: string,
+    appId: string,
     timeStamp: Date
   ): Promise<{
     messages: [];
   }> => {
-    let res: AxiosResponse
+    let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('getMessages', {
         HEXA_ID,
-        walletID,
-        timeStamp
-      })
+        appId,
+        timeStamp,
+      });
     } catch (err) {
       console.log({
-        err
-      })
-      if (err.response) throw new Error(err.response.data.err)
-      if (err.code) throw new Error(err.code)
+        err,
+      });
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
     }
 
-    const { messages } = res.data
+    const { messages } = res.data;
     return {
-      messages
-    }
+      messages,
+    };
   };
 
   public static updateMessageStatus = async (
-    walletID: string,
+    appId: string,
     data: []
   ): Promise<{
     updated: boolean;
   }> => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateMessages', {
           HEXA_ID,
-          walletID,
+          appId,
           data,
-        })
+        });
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { updated } = res.data
+      const { updated } = res.data;
       return {
-        updated
-      }
+        updated,
+      };
     } catch (err) {
-      throw new Error('Failed to fetch GetBittr Details')
+      throw new Error('Failed to fetch GetBittr Details');
     }
-  }
+  };
 
-  public static walletCheckIn = async (
-    currencyCode?: any,
+  public static appCheckIn = async (
+    currencyCode?: any
   ): Promise<{
     exchangeRates: { [currency: string]: number };
     averageTxFees: any;
   }> => {
-    const res = await RELAY_AXIOS.post('v2/walletCheckIn', {
+    const res = await RELAY_AXIOS.post('v2/appCheckIn', {
       HEXA_ID,
-      ...currencyCode && {
-        currencyCode
-      },
-    })
+      ...(currencyCode && {
+        currencyCode,
+      }),
+    });
 
-    const {
-      exchangeRates,
-      averageTxFees,
-    } = res.data
+    const { exchangeRates, averageTxFees } = res.data;
 
     return {
       exchangeRates,
       averageTxFees,
-    }
+    };
   };
 
-  public static updateWalletImage = async (
-    walletImage: NewWalletImage,
+  public static updateAppImage = async (
+    appImage: any
   ): Promise<{
-
     status: number;
     data: {
       updated: boolean;
@@ -343,51 +336,61 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateWalletImage', {
+      const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateAppImage', {
         HEXA_ID,
-        walletID: walletImage.walletId,
-        walletImage,
-      })
-      const { updated } = res.data
+        appId: appImage.appId,
+        appImage,
+      });
+      const { updated } = res.data;
       return {
         status: res.status,
-        data: updated
-      }
+        data: updated,
+      };
     } catch (err) {
-      throw new Error('Failed to update Wallet Image')
+      throw new Error('Failed to update App Image');
     }
   };
 
-  public static fetchWalletImage = async (walletId: string): Promise<{
-    walletImage: NewWalletImage;
+  public static fetchAppImage = async (
+    appId: string
+  ): Promise<{
+    appImage: any;
   }> => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
-        res = await RELAY_AXIOS.post('v2/fetchWalletImage', {
+        res = await RELAY_AXIOS.post('v2/fetchappImage', {
           HEXA_ID,
-          walletID: walletId,
-        })
+          appId: appId,
+        });
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { walletImage } = res.data
+      const { appImage } = res.data;
       return {
-        walletImage
-      }
+        appImage,
+      };
     } catch (err) {
-      throw new Error('Failed to fetch Wallet Image')
+      throw new Error('Failed to fetch App Image');
     }
   };
 
-  public static updateGiftChannel = async (encryptionKey: string, gift: Gift, metaData: GiftMetaData, previousChannelAddress?: string): Promise<{
+  public static updateGiftChannel = async (
+    encryptionKey: string,
+    gift: Gift,
+    metaData: GiftMetaData,
+    previousChannelAddress?: string
+  ): Promise<{
     updated: boolean;
   }> => {
     try {
-      if (!gift.channelAddress) throw new Error('channel address missing')
-      const encryptedGift = TrustedContactsOperations.encryptViaPsuedoKey(JSON.stringify(gift), encryptionKey)
-      let res: AxiosResponse
+      if (!gift.channelAddress) throw new Error('channel address missing');
+      const encryptedGift = TrustedContactsOperations.encryptViaPsuedoKey(
+        JSON.stringify(gift),
+        encryptionKey
+      );
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateGiftChannel', {
           HEXA_ID,
@@ -395,48 +398,52 @@ export default class Relay {
           encryptedGift,
           metaData,
           previousChannelAddress,
-        })
+        });
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { updated } = res.data
+      const { updated } = res.data;
       return {
         updated,
-      }
+      };
     } catch (err) {
-      throw new Error('Failed to update gift channel')
+      throw new Error('Failed to update gift channel');
     }
   };
 
-  public static fetchGiftChannel = async (channelAddress: string, decryptionKey: string): Promise<{
-    gift: Gift,
+  public static fetchGiftChannel = async (
+    channelAddress: string,
+    decryptionKey: string
+  ): Promise<{
+    gift: Gift;
     metaData: GiftMetaData;
   }> => {
     try {
-
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('fetchGiftChannel', {
           HEXA_ID,
           channelAddress,
-        })
+        });
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { encryptedGift, metaData } = res.data
+      const { encryptedGift, metaData } = res.data;
 
-      let gift: Gift
+      let gift: Gift;
       if (encryptedGift)
-        gift = JSON.parse(TrustedContactsOperations.decryptViaPsuedoKey(encryptedGift, decryptionKey))
+        gift = JSON.parse(
+          TrustedContactsOperations.decryptViaPsuedoKey(encryptedGift, decryptionKey)
+        );
 
       return {
         gift,
-        metaData
-      }
+        metaData,
+      };
     } catch (err) {
-      throw new Error('Failed to fetch gift channel')
+      throw new Error('Failed to fetch gift channel');
     }
   };
 
@@ -446,58 +453,58 @@ export default class Relay {
   ): Promise<{
     data: object;
   }> => {
-    let res: AxiosResponse
+    let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('scanAuthToken', {
         HEXA_ID,
         authToken,
-        xPub
-      })
-      return res.data
+        xPub,
+      });
+      return res.data;
     } catch (err) {
-      console.log(err)
-      return undefined
-
+      console.log(err);
+      return undefined;
     }
   };
 
-  public static syncGiftChannelsMetaData = async (
-    giftChannelsToSync: {
+  public static syncGiftChannelsMetaData = async (giftChannelsToSync: {
+    [channelAddress: string]: {
+      creator?: boolean;
+      metaDataUpdates?: GiftMetaData;
+    };
+  }): Promise<{
+    synchedGiftChannels: {
       [channelAddress: string]: {
-        creator?: boolean,
-        metaDataUpdates?: GiftMetaData,
-      }
-    }): Promise<{
-      synchedGiftChannels: {
-        [channelAddress: string]: {
-          metaData: GiftMetaData
-        }
-      }
-    }> => {
+        metaData: GiftMetaData;
+      };
+    };
+  }> => {
     try {
-      let res: AxiosResponse
+      let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('syncGiftChannelsMetaData', {
           HEXA_ID,
           giftChannelsToSync,
-        })
+        });
       } catch (err) {
-        if (err.response) throw new Error(err.response.data.err)
-        if (err.code) throw new Error(err.code)
+        if (err.response) throw new Error(err.response.data.err);
+        if (err.code) throw new Error(err.code);
       }
-      const { synchedGiftChannels }: {
+      const {
+        synchedGiftChannels,
+      }: {
         synchedGiftChannels: {
           [channelAddress: string]: {
-            metaData: GiftMetaData
-          }
-        }
-      } = res.data
+            metaData: GiftMetaData;
+          };
+        };
+      } = res.data;
 
       return {
-        synchedGiftChannels
-      }
+        synchedGiftChannels,
+      };
     } catch (err) {
-      throw new Error('Failed to sync gift channels meta-data')
+      throw new Error('Failed to sync gift channels meta-data');
     }
   };
 }

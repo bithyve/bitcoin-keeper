@@ -1,18 +1,18 @@
-import { UPDATE_WALLET } from '../actions/storage';
-import { Wallet } from '../../core/interfaces/Interface';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { UPDATE_KEEPER_APP } from '../actions/storage';
 
 const initialState: {
-  wallet: Wallet;
+  app: KeeperApp;
 } = {
-  wallet: null,
+  app: null,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case UPDATE_WALLET:
+    case UPDATE_KEEPER_APP:
       return {
         ...state,
-        wallet: action.payload.wallet,
+        app: action.payload.app,
       };
   }
   return state;
