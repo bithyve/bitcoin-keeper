@@ -128,17 +128,17 @@ export function* setup2FADetails(app: KeeperApp) {
   const { setupData } = yield call(WalletUtilities.setupTwoFA, app.appId);
   const bithyveXpub = setupData.bhXpub;
   const twoFAKey = setupData.secret;
-  const details2FA = {
+  const twoFADetails = {
     bithyveXpub,
     twoFAKey,
   };
   const updatedApp = {
     ...app,
-    details2FA,
+    twoFADetails,
   };
   yield put(updateKeeperApp(updatedApp));
   // yield call( dbManager.updateKeeperApp, {
-  //   details2FA
+  //   twoFADetails
   // } )
   return updatedApp;
 }
@@ -197,17 +197,17 @@ function* resetTwoFAWorker({ payload }: { payload: { secondaryMnemonic: string }
   );
 
   if (twoFAKey) {
-    const details2FA = {
-      ...app.details2FA,
+    const twoFADetails = {
+      ...app.twoFADetails,
       twoFAKey,
     };
     const updatedApp = {
       ...app,
-      details2FA,
+      twoFADetails,
     };
     yield put(updateKeeperApp(updatedApp));
     // yield call ( dbManager.updateKeeperApp, {
-    //   details2FA
+    //   twoFADetails
     // } )
     yield put(twoFAResetted(true));
   } else {
@@ -224,18 +224,18 @@ function* validateTwoFAWorker({ payload }: { payload: { token: number } }) {
   try {
     const { valid } = yield call(WalletUtilities.validateTwoFA, app.appId, token);
     if (valid) {
-      const details2FA = {
-        ...app.details2FA,
+      const twoFADetails = {
+        ...app.twoFADetails,
         twoFAValidated: true,
       };
       const updatedApp: KeeperApp = {
         ...app,
-        details2FA,
+        twoFADetails,
       };
       yield put(updateKeeperApp(updatedApp));
       yield put(twoFAValid(true));
       // yield call ( dbManager.updateKeeperApp, {
-      //   details2FA
+      //   twoFADetails
       // } )
       // yield put( updateWalletImageHealth( {
       //   update2fa: true
@@ -341,7 +341,7 @@ export function* addNewWallet(
       return checkingWallet;
 
     case WalletType.SAVINGS:
-      // if( !wallet.secondaryXpub && !wallet.details2FA ) throw new Error( 'Fail to create savings wallet; secondary-xpub/details2FA missing' )
+      // if( !wallet.secondaryXpub && !wallet.twoFADetails ) throw new Error( 'Fail to create savings wallet; secondary-xpub/twoFADetails missing' )
 
       const savingsInstanceCount =
         recreationInstanceNumber !== undefined
@@ -354,7 +354,7 @@ export function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'MultiSig Wallet',
         primaryMnemonic,
         secondaryXpub: app.secondaryXpub,
-        bithyveXpub: app.details2FA?.bithyveXpub,
+        bithyveXpub: app.twoFADetails?.bithyveXpub,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
@@ -362,8 +362,8 @@ export function* addNewWallet(
 
     case WalletType.DONATION:
       if (is2FAEnabled)
-        if (!app.secondaryXpub && !app.details2FA)
-          throw new Error('Fail to create savings wallet; secondary-xpub/details2FA missing');
+        if (!app.secondaryXpub && !app.twoFADetails)
+          throw new Error('Fail to create savings wallet; secondary-xpub/twoFADetails missing');
 
       const donationInstanceCount =
         recreationInstanceNumber !== undefined
@@ -380,7 +380,7 @@ export function* addNewWallet(
         primaryMnemonic,
         is2FA: is2FAEnabled,
         secondaryXpub: is2FAEnabled ? app.secondaryXpub : null,
-        bithyveXpub: is2FAEnabled ? app.details2FA?.bithyveXpub : null,
+        bithyveXpub: is2FAEnabled ? app.twoFADetails?.bithyveXpub : null,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });

@@ -17,7 +17,7 @@ export interface KeeperApp {
   primarySeed: string;
   walletShell: WalletShell;
   vaultShell?: VaultShell;
-  details2FA?: TwoFADetails;
+  twoFADetails?: TwoFADetails;
   nodeConnect?: NodeConnect;
   uai?: any;
   userTier: UserTier;

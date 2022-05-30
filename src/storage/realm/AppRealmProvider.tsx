@@ -1,17 +1,14 @@
 import React from 'react';
 import { createRealmContext } from '@realm/react';
-import {
-  KeeperAppSchema,
-  WalletShellShcema,
-  VaultShellSchema,
-  Details2FASchema,
-  NodeConnectSchema,
-  UserTierSchema,
-  WalletsShcema,
-  VaultsShcema,
-  TriggerPolicySchema,
-  InheritancePolicySchema,
-} from './schema/app';
+import { KeeperAppSchema } from './schema/app';
+import { WalletShellShcema, WalletsShcema } from './schema/wallets';
+import { TriggerPolicySchema } from './schema/triggerPolicy';
+import { VaultShellSchema, VaultsShcema } from './schema/vaults';
+import { InheritancePolicySchema } from './schema/inheritancePolicy';
+import { TwoFADetailsSchema } from './schema/twoFADetails';
+import { NodeConnectSchema } from './schema/nodeConnect';
+import { UserTierSchema } from './schema/userTier';
+import { UAISchema } from './schema/uai';
 
 export const realmConfig = {
   schema: [
@@ -22,9 +19,10 @@ export const realmConfig = {
     VaultShellSchema,
     VaultsShcema,
     InheritancePolicySchema,
-    Details2FASchema,
+    TwoFADetailsSchema,
     NodeConnectSchema,
     UserTierSchema,
+    UAISchema,
   ],
   schemaVersion: 1,
 };
