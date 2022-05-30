@@ -199,7 +199,6 @@ export default class WalletOperations {
           [txId: string]: string;
         };
         contactName?: string;
-        primaryWalletType?: string;
         walletName?: string;
         hardRefresh?: boolean;
       };

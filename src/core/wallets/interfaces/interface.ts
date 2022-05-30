@@ -50,7 +50,6 @@ export interface Transaction {
   transactionType?: TransactionType;
   amount: number;
   walletType: string;
-  primaryWalletType?: string;
   walletName?: string;
   contactName?: string;
   recipientAddresses?: string[];
@@ -89,13 +88,6 @@ export interface TransactionsNote {
 export interface Balances {
   confirmed: number;
   unconfirmed: number;
-}
-
-export interface Transactions {
-  totalTransactions: number;
-  confirmedTransactions: number;
-  unconfirmedTransactions: number;
-  transactionDetails: Array<Transaction>;
 }
 
 export interface UTXO {
