@@ -33,7 +33,7 @@ import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import { loginWithHexa } from 'src/store/actions/wallets';
 import { setupKeeperApp } from 'src/store/actions/storage';
 import { RealmContext } from 'src/storage/realm/AppRealmProvider';
-import { Wallets } from 'src/core/wallets/interfaces/interface';
+import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 
 type Props = {
   route: any | undefined;
@@ -63,8 +63,10 @@ const HomeScreen = ({ navigation, route }: Props) => {
     },
   ]);
 
-  const wallets: Wallets = useSelector((state: RootStateOrAny) => state.wallet.wallets);
-  const allWallets = [...defaultWallets, ...Object.values(wallets), { isEnd: true }];
+  const wallets: (Wallet | MultiSigWallet)[] = useSelector(
+    (state: RootStateOrAny) => state.wallet.wallets
+  );
+  const allWallets = [...defaultWallets, ...wallets, { isEnd: true }];
 
   useEffect(() => {
     if (!wallet && rehydrated) {

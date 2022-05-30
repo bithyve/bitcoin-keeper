@@ -49,7 +49,6 @@ import { updateKeeperApp } from 'src/store/actions/storage';
 import Relay from 'src/core/services/Relay';
 import {
   Wallet,
-  Wallets,
   ActiveAddressAssignee,
   DonationWallet,
   LightningNode,
@@ -89,9 +88,7 @@ export function getNextFreeAddress(
 
   dispatch(
     updateWallets({
-      wallets: {
-        [updatedWallet.id]: updatedWallet,
-      },
+      wallets: [updatedWallet],
     })
   );
   // dbManager.updateWallet((updatedWallet as Wallet).id, updatedWallet);
@@ -115,9 +112,7 @@ export function* getNextFreeAddressWorker(
   );
   yield put(
     updateWallets({
-      wallets: {
-        [updatedWallet.id]: updatedWallet,
-      },
+      wallets: [updatedWallet],
     })
   );
   // yield call( dbManager.updateWallet, ( updatedWallet as Wallet ).id, updatedWallet )
@@ -128,17 +123,17 @@ export function* setup2FADetails(app: KeeperApp) {
   const { setupData } = yield call(WalletUtilities.setupTwoFA, app.appId);
   const bithyveXpub = setupData.bhXpub;
   const twoFAKey = setupData.secret;
-  const details2FA = {
+  const twoFADetails = {
     bithyveXpub,
     twoFAKey,
   };
   const updatedApp = {
     ...app,
-    details2FA,
+    twoFADetails,
   };
   yield put(updateKeeperApp(updatedApp));
   // yield call( dbManager.updateKeeperApp, {
-  //   details2FA
+  //   twoFADetails
   // } )
   return updatedApp;
 }
@@ -166,9 +161,7 @@ function* generateSecondaryXprivWorker({
     (wallet.specs as MultiSigWalletSpecs).xprivs.secondary = secondaryXpriv;
     yield put(
       updateWallets({
-        wallets: {
-          [wallet.id]: wallet,
-        },
+        wallets: [wallet],
       })
     );
     // yield call( dbManager.updateWallet, wallet.id, wallet )
@@ -197,17 +190,17 @@ function* resetTwoFAWorker({ payload }: { payload: { secondaryMnemonic: string }
   );
 
   if (twoFAKey) {
-    const details2FA = {
-      ...app.details2FA,
+    const twoFADetails = {
+      ...app.twoFADetails,
       twoFAKey,
     };
     const updatedApp = {
       ...app,
-      details2FA,
+      twoFADetails,
     };
     yield put(updateKeeperApp(updatedApp));
     // yield call ( dbManager.updateKeeperApp, {
-    //   details2FA
+    //   twoFADetails
     // } )
     yield put(twoFAResetted(true));
   } else {
@@ -224,18 +217,18 @@ function* validateTwoFAWorker({ payload }: { payload: { token: number } }) {
   try {
     const { valid } = yield call(WalletUtilities.validateTwoFA, app.appId, token);
     if (valid) {
-      const details2FA = {
-        ...app.details2FA,
+      const twoFADetails = {
+        ...app.twoFADetails,
         twoFAValidated: true,
       };
       const updatedApp: KeeperApp = {
         ...app,
-        details2FA,
+        twoFADetails,
       };
       yield put(updateKeeperApp(updatedApp));
       yield put(twoFAValid(true));
       // yield call ( dbManager.updateKeeperApp, {
-      //   details2FA
+      //   twoFADetails
       // } )
       // yield put( updateWalletImageHealth( {
       //   update2fa: true
@@ -341,7 +334,7 @@ export function* addNewWallet(
       return checkingWallet;
 
     case WalletType.SAVINGS:
-      // if( !wallet.secondaryXpub && !wallet.details2FA ) throw new Error( 'Fail to create savings wallet; secondary-xpub/details2FA missing' )
+      // if( !wallet.secondaryXpub && !wallet.twoFADetails ) throw new Error( 'Fail to create savings wallet; secondary-xpub/twoFADetails missing' )
 
       const savingsInstanceCount =
         recreationInstanceNumber !== undefined
@@ -354,7 +347,7 @@ export function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'MultiSig Wallet',
         primaryMnemonic,
         secondaryXpub: app.secondaryXpub,
-        bithyveXpub: app.details2FA?.bithyveXpub,
+        bithyveXpub: app.twoFADetails?.bithyveXpub,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
@@ -362,8 +355,8 @@ export function* addNewWallet(
 
     case WalletType.DONATION:
       if (is2FAEnabled)
-        if (!app.secondaryXpub && !app.details2FA)
-          throw new Error('Fail to create savings wallet; secondary-xpub/details2FA missing');
+        if (!app.secondaryXpub && !app.twoFADetails)
+          throw new Error('Fail to create savings wallet; secondary-xpub/twoFADetails missing');
 
       const donationInstanceCount =
         recreationInstanceNumber !== undefined
@@ -380,7 +373,7 @@ export function* addNewWallet(
         primaryMnemonic,
         is2FA: is2FAEnabled,
         secondaryXpub: is2FAEnabled ? app.secondaryXpub : null,
-        bithyveXpub: is2FAEnabled ? app.details2FA?.bithyveXpub : null,
+        bithyveXpub: is2FAEnabled ? app.twoFADetails?.bithyveXpub : null,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
@@ -458,7 +451,7 @@ export function* addNewWallet(
 }
 
 export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: newWalletsInfo[] }) {
-  const wallets = {};
+  const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
   const walletIds = [];
   let testcoinsToWallet;
 
@@ -470,7 +463,7 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
       recreationInstanceNumber
     );
     walletIds.push(wallet.id);
-    wallets[wallet.id] = wallet;
+    wallets.push(wallet);
     // yield put( walletShellOrderedToFront( walletShell ) )
     if (wallet.type === WalletType.TEST && wallet.derivationDetails.instanceNum === 0)
       testcoinsToWallet = wallet;
@@ -478,7 +471,7 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
 
   const app: KeeperApp = yield select((state) => state.storage.app);
   let presentWalletInstances = _.cloneDeep(app.walletShell.walletInstanceCount);
-  Object.values(wallets as Wallets).forEach((wallet) => {
+  wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
     if (presentWalletInstances[wallet.type]) {
       if (!presentWalletInstances[wallet.type].includes(wallet.id))
         presentWalletInstances[wallet.type].push(wallet.id);
@@ -500,7 +493,7 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
 
   yield put(
     newWalletsAdded({
-      wallets,
+      wallets: wallets,
     })
   );
   // yield call( dbManager.createWallets, wallets )
@@ -525,7 +518,7 @@ export function* importNewWalletWorker({
     walletDetails?: newWalletDetails;
   };
 }) {
-  const wallets = {};
+  const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
   const walletIds = [];
   const newWalletsInfo: newWalletsInfo[] = [
     {
@@ -548,12 +541,12 @@ export function* importNewWalletWorker({
       importDetails
     );
     walletIds.push(wallet.id);
-    wallets[wallet.id] = wallet;
+    wallets.push(wallet);
   }
 
   const app: KeeperApp = yield select((state) => state.storage.app);
   let presentWalletInstances = _.cloneDeep(app.walletShell.walletInstanceCount);
-  Object.values(wallets as Wallets).forEach((wallet) => {
+  wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
     if (presentWalletInstances[wallet.type]) {
       if (!presentWalletInstances[wallet.type].includes(wallet.id))
         presentWalletInstances[wallet.type].push(wallet.id);
@@ -580,7 +573,7 @@ export function* importNewWalletWorker({
   );
 
   yield put(
-    refreshWallets(Object.values(wallets), {
+    refreshWallets(wallets, {
       hardRefresh: true,
     })
   );
@@ -618,9 +611,7 @@ function* updateWalletSettingsWorker({
 
     yield put(
       updateWallets({
-        wallets: {
-          [wallet.id]: wallet,
-        },
+        wallets: [wallet],
       })
     );
     // yield call( dbManager.updateWallet, wallet.id, wallet )
@@ -649,7 +640,7 @@ function* syncWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: Wallets;
+    wallets: (Wallet | MultiSigWallet | DonationWallet)[];
     options: {
       hardRefresh?: boolean;
       syncDonationWallet?: boolean;
@@ -657,13 +648,11 @@ function* syncWalletsWorker({
   };
 }) {
   const { wallets, options } = payload;
-  const network = WalletUtilities.getNetworkByType(
-    Object.values(wallets)[0].derivationDetails.networkType
-  );
+  const network = WalletUtilities.getNetworkByType(wallets[0].derivationDetails.networkType);
 
   if (options.syncDonationWallet) {
     // can only sync one donation instance at a time
-    const donationWallet = Object.values(wallets)[0] as DonationWallet;
+    const donationWallet = wallets[0] as DonationWallet;
 
     const { synchedWallet, txsFound } = yield call(
       WalletOperations.syncDonationWallet,
@@ -701,7 +690,7 @@ function* refreshWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: Wallet[];
+    wallets: (Wallet | MultiSigWallet | DonationWallet)[];
     options: { hardRefresh?: boolean; syncDonationWallet?: boolean };
   };
 }) {
@@ -709,9 +698,9 @@ function* refreshWalletsWorker({
   yield put(walletsRefreshStarted(payload.wallets));
 
   const walletIds = [];
-  const walletsToSync: Wallets = {};
+  const walletsToSync: (Wallet | MultiSigWallet | DonationWallet)[] = [];
   for (const wallet of payload.wallets) {
-    walletsToSync[wallet.id] = wallet;
+    walletsToSync.push(wallet);
   }
 
   const { synchedWallets, activeAddressesWithNewTxsMap } = yield call(syncWalletsWorker, {
@@ -760,14 +749,14 @@ function* autoWalletsSyncWorker({
   const { syncAll, hardRefresh } = payload;
 
   const walletState: WalletsState = yield select((state) => state.wallets);
-  const wallets: Wallets = walletState.wallets;
+  const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = walletState.wallets;
 
-  const walletsToSync: Wallet[] = [];
+  const walletsToSync: (Wallet | MultiSigWallet)[] = [];
   const testWalletsToSync: Wallet[] = []; // Note: should be synched separately due to network difference(testnet)
-  const donationWalletsToSync: Wallet[] = [];
+  const donationWalletsToSync: DonationWallet[] = [];
   const lnWalletsToSync: Wallet[] = [];
 
-  for (const wallet of Object.values(wallets)) {
+  for (const wallet of wallets) {
     if (syncAll || wallet.presentationData.walletVisibility === WalletVisibility.DEFAULT) {
       if (!wallet.isUsable) continue;
 
@@ -777,7 +766,7 @@ function* autoWalletsSyncWorker({
           break;
 
         case WalletType.DONATION:
-          donationWalletsToSync.push(wallet);
+          donationWalletsToSync.push(wallet as DonationWallet);
           break;
 
         case WalletType.LIGHTNING:
@@ -935,7 +924,7 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 // export function* generateGiftstWorker( { payload } : {payload: { amounts: number[], walletId?: string, includeFee?: boolean, exclusiveGifts?: boolean, validity?: number }} ) {
 //   const wallet: Wallet = yield select( ( state ) => state.storage.app )
 //   const walletsState: WalletsState = yield select( state => state.wallets )
-//   const wallets: Wallets = walletsState.wallets
+//   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = walletsState.wallets
 
 //   let walletId = payload.walletId
 //   if( !walletId ){
@@ -1047,7 +1036,7 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 // function* walletCheckWoker( { payload } ) {
 //   const { shellId } = payload
 //   const walletShells: WalletShell[] = yield select( ( state ) => state.wallets.walletShells )
-//   const wallets: Wallets = yield select( ( state ) => state.wallets.wallets )
+//   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = yield select( ( state ) => state.wallets.wallets )
 //   const shellToUpdate = walletShells.findIndex( s => s.id === shellId )
 //   walletShells[ shellToUpdate ].primarySubWallet.hasNewTxn = false
 //   const accId = walletShells[ shellToUpdate ].primarySubWallet.id
@@ -1065,7 +1054,7 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 //   const { shellId, txIds } = payload
 //   const walletShells: WalletShell[] = yield select( ( state ) => state.wallets.walletShells )
 //   const shellToUpdate = walletShells.findIndex( s => s.id === shellId )
-//   const wallets: Wallets = yield select( ( state ) => state.wallets.wallets )
+//   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = yield select( ( state ) => state.wallets.wallets )
 //   const accId = walletShells[ shellToUpdate ].primarySubWallet.id
 //   txIds.forEach( txId => {
 //     const shellTxIndex = walletShells[ shellToUpdate ].primarySubWallet.transactions.findIndex( tx => tx.txid === txId )
@@ -1092,9 +1081,9 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 //   const walletState: WalletsState = yield select(
 //     ( state ) => state.wallets
 //   )
-//   const wallets: Wallets = walletState.wallets
+//   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = walletState.wallets
 //   yield put( walletShellRefreshStarted( walletShells ) )
-//   const walletsToSync: Wallets = {
+//   const walletsToSync = {
 //   }
 //   for( const walletShell of walletShells ){
 //     walletsToSync[ walletShell.primarySubWallet.id ] = wallets[ walletShell.primarySubWallet.id ]
@@ -1112,14 +1101,14 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 // }
 
 // function* syncLnWalletsWorker( { payload }: {payload: {
-//   wallets: Wallets }} ) {
+//   wallets: (Wallet | MultiSigWallet | DonationWallet)[] }} ) {
 //   const { wallets } = payload
 //   const nodesToSync: LightningNode [] = []
-//   for( const wallet of Object.values( wallets ) ){
+//   for( const wallet of wallets){
 //     nodesToSync.push( wallet.node )
 //   }
 //   const res = yield call( RESTUtils.getNodeBalance, nodesToSync[ 0 ]  )
-//   for( const wallet of Object.values( wallets ) ){
+//   for( const wallet of wallets ){
 //     wallet.balances.confirmed = Number( res[ 0 ].total_balance ) + Number( res[ 1 ].balance )
 //   }
 //   return {

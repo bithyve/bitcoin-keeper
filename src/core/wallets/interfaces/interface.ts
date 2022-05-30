@@ -50,7 +50,6 @@ export interface Transaction {
   transactionType?: TransactionType;
   amount: number;
   walletType: string;
-  primaryWalletType?: string;
   walletName?: string;
   contactName?: string;
   recipientAddresses?: string[];
@@ -89,13 +88,6 @@ export interface TransactionsNote {
 export interface Balances {
   confirmed: number;
   unconfirmed: number;
-}
-
-export interface Transactions {
-  totalTransactions: number;
-  confirmedTransactions: number;
-  unconfirmedTransactions: number;
-  transactionDetails: Array<Transaction>;
 }
 
 export interface UTXO {
@@ -255,10 +247,6 @@ export interface DonationWallet extends Wallet {
   specs: WalletSpecs | MultiSigWalletSpecs;
 }
 
-export interface Wallets {
-  [walletId: string]: Wallet | MultiSigWallet | DonationWallet;
-}
-
 export interface TriggerPolicy {
   policyId: string;
   date: string;
@@ -269,15 +257,11 @@ export interface TriggerPolicy {
 export interface WalletShell {
   shellId: string;
   walletInstanceCount: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
-  wallets: Wallets;
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
   trigger?: TriggerPolicy;
 }
 
 export interface Vault {}
-
-export interface Vaults {
-  [vaultId: string]: Vault;
-}
 
 export interface InheritancePolicy {
   policyId: string;
@@ -297,7 +281,7 @@ export interface InheritancePolicy {
 export interface VaultShell {
   shellId: string;
   vaultInstanceCount: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
-  vaults: Vaults;
+  vaults: Vault[];
   inheritance?: InheritancePolicy;
 }
 
