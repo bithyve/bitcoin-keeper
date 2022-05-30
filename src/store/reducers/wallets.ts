@@ -28,12 +28,17 @@ import {
   ADD_NEW_WALLETS,
   NEW_WALLET_ADDED,
 } from '../actions/wallets';
-import { Wallet, Wallets, Gift } from 'src/core/wallets/interfaces/interface';
+import {
+  Wallet,
+  Gift,
+  MultiSigWallet,
+  DonationWallet,
+} from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 
 export type WalletsState = {
   walletsSynched: boolean;
-  wallets: Wallets;
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
   netBalance: number;
   exchangeRates?: any;
   averageTxFees: any;
@@ -78,7 +83,7 @@ const initialState: WalletsState = {
   exchangeRates: null,
 
   averageTxFees: null,
-  wallets: {},
+  wallets: [],
   netBalance: 0,
   twoFAHelpFlags: {
     xprivGenerated: null,
@@ -206,10 +211,7 @@ export default (state: WalletsState = initialState, action): WalletsState => {
         ...state,
         isGeneratingNewWallet: false,
         hasNewWalletsGenerationSucceeded: true,
-        wallets: {
-          ...state.wallets,
-          ...action.payload.wallets,
-        },
+        wallets: [...state.wallets, ...action.payload.wallets],
       };
 
     case NEW_WALLET_ADD_FAILED:
@@ -221,12 +223,17 @@ export default (state: WalletsState = initialState, action): WalletsState => {
       };
 
     case UPDATE_WALLETS:
+      const walletsToUpdate = action.payload.wallets;
+      const storedWallets = state.wallets;
+      walletsToUpdate.forEach((updatedWallet) => {
+        storedWallets.forEach((storedWallet) => {
+          if (updatedWallet.id === storedWallet.id) storedWallet = updatedWallet;
+        });
+      });
+
       return {
         ...state,
-        wallets: {
-          ...state.wallets,
-          ...action.payload.wallets,
-        },
+        wallets: [...storedWallets],
       };
 
     case READ_TRANSACTION: {
@@ -247,9 +254,9 @@ export default (state: WalletsState = initialState, action): WalletsState => {
 
     case RECOMPUTE_NET_BALANCE:
       let netBalance = 0;
-      Object.values(state.wallets).forEach((wallets: Wallet) => {
-        if (wallets.type !== WalletType.TEST) {
-          const balances = wallets.specs.balances;
+      state.wallets.forEach((wallet: Wallet) => {
+        if (wallet.type !== WalletType.TEST) {
+          const balances = wallet.specs.balances;
           netBalance = netBalance + (balances.confirmed + balances.unconfirmed);
         }
       });

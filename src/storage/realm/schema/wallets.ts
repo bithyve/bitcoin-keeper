@@ -1,18 +1,14 @@
 import { ObjectSchema } from 'realm';
 
-export const WalletsShcema: ObjectSchema = {
-  name: 'Wallets',
-  embedded: true,
-  properties: {},
-};
-
-export const WalletShellShcema: ObjectSchema = {
-  name: 'WalletShell',
+export const WalletSchema: ObjectSchema = {
+  name: 'Wallet',
   embedded: true,
   properties: {
-    shellId: 'string',
-    walletInstanceCount: '{}',
-    wallets: 'Wallets',
-    trigger: 'TriggerPolicy?',
+    id: 'string',
+    type: 'string',
+    isUsable: 'bool',
+    // derivationDetails: WalletDerivationDetails;
+    // presentationData: WalletPresentationData;
+    // specs: WalletSpecs;
   },
 };

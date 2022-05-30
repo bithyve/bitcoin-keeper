@@ -18,7 +18,7 @@ function* setupWalletWorker({ payload }) {
   const walletShell: WalletShell = {
     shellId: crypto.randomBytes(12).toString('hex'),
     walletInstanceCount: {},
-    wallets: {},
+    wallets: [],
   };
 
   const userTier: UserTier = {
