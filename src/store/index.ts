@@ -22,6 +22,7 @@ import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
 import { setupWalletWatcher } from './sagas/storage';
 import storageReducer from './reducers/storage';
+import { addUaiStackWatcher } from './sagas/uai';
 
 const config = {
   key: 'root',
@@ -32,6 +33,9 @@ const rootSaga = function* () {
   const sagas = [
     // storage watchers
     setupWalletWatcher,
+
+    // UAI watchers
+    addUaiStackWatcher,
 
     // accounts watchers
     syncAccountsWatcher,

@@ -4,11 +4,11 @@ export interface UAI {
   notificationId?: string;
   isActioned: boolean;
   timeStamp: Date;
-  actionType: ActionType;
+  uaiType: uaiType;
   prirority: number;
 }
 
-enum ActionType {
+export enum uaiType {
   DISPLAY_MESSAGE = 'DISPLAY_MESSAGE',
   NAVIGATE_TO_ADD_WALLET = 'NAVIGATE_TO_ADD_WALLET',
 }

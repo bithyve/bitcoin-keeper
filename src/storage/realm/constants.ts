@@ -1,1 +1,1 @@
-export const UAI = 'UAI';
+export const UAIModel = 'UAI';

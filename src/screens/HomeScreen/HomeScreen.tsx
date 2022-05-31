@@ -33,6 +33,10 @@ import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import { loginWithHexa } from 'src/store/actions/accounts';
 import { setupWallet } from 'src/store/actions/storage';
 import { RealmContext } from 'src/storage/realm/AppRealmProvider';
+import { UAIModel } from 'src/storage/realm/constants';
+import { addToUaiStack } from 'src/store/actions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 
 type Props = {
   route: any | undefined;
@@ -43,8 +47,9 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const secureHexaRef = useRef(null);
   const dispatch = useDispatch();
 
-  //Hooks to manage live update of UI
-  const { useQuery } = RealmContext;
+  const { uaiStack } = useUaiStack();
+
+  console.log(uaiStack?.length);
 
   const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
   const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet); //read it from realm
@@ -58,7 +63,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
       title: 'Add',
       subtitle: 'New Key',
       Icon: AddNewIcon,
-      onPress: () => navigation.navigate('Backup'),
+      onPress: () => dispatch(addToUaiStack('Cloud Back', false, uaiType.DISPLAY_MESSAGE, 10)),
     },
   ]);
 
@@ -73,20 +78,10 @@ const HomeScreen = ({ navigation, route }: Props) => {
       // await redux persist's rehydration
       setTimeout(() => {
         dispatch(setupWallet());
-        // console.log('else', wallet);
       }, 1000); //realm a
     }
     // Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
   }, [wallet, rehydrated]);
-
-  //Query the schema data needed
-  const allWallet = useQuery('Wallet');
-
-  //To test live update of data
-  useEffect(() => {
-    console.log('walletFromRealm', allWallet[0]);
-    console.log('walletFromStore', wallet);
-  }, [allWallet]);
 
   useEffect(() => {
     if (route.params !== undefined) {
