@@ -20,6 +20,8 @@ import {
   restoreAccountShellsWatcher,
 } from './sagas/accounts'
 
+import { updateFCMTokensWatcher } from './sagas/notifications'
+import notificationReducer from './reducers/notifications' 
 import { setupWalletWatcher } from './sagas/storage'
 import { reduxStorage  } from 'src/storage'
 
@@ -46,6 +48,7 @@ const rootSaga = function* () {
     autoSyncShellsWatcher,
     validateTwoFAWatcher,
     updateAccountSettingsWatcher,
+    updateFCMTokensWatcher,
   ]
 
   yield all(
@@ -67,6 +70,7 @@ const rootSaga = function* () {
 const rootReducer = combineReducers({
   storage: storageReducer,
   accounts: accountsReducer,
+  notifications: notificationReducer,
 })
 
 export default function makeStore() {

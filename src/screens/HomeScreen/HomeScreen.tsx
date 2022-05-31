@@ -32,6 +32,8 @@ import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import { loginWithHexa } from 'src/store/actions/accounts';
 import { setupWallet } from 'src/store/actions/storage';
+import { updateFCMTokens } from '../../store/actions/notifications';
+import messaging from '@react-native-firebase/messaging'
 
 type Props = {
   route: any | undefined;
@@ -65,6 +67,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
   ];
 
   useEffect(() => {
+    storeFCMToken();
     if (!wallet && rehydrated) {
       // await redux persist's rehydration
       setTimeout(() => {
@@ -73,6 +76,12 @@ const HomeScreen = ({ navigation, route }: Props) => {
     }
     // Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
   }, [wallet, rehydrated]);
+
+  async function storeFCMToken() {
+    const fcmToken = await messaging().getToken()
+    console.log(JSON.stringify(fcmToken))
+      dispatch(updateFCMTokens( [ fcmToken ] ))
+  }
 
   useEffect(() => {
     if (route.params !== undefined) {
