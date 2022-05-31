@@ -454,10 +454,10 @@ PODS:
     - React
   - RNDeviceInfo (8.5.1):
     - React-Core
-  - RNFBApp (14.9.4):
+  - RNFBApp (14.11.0):
     - Firebase/CoreOnly (= 8.15.0)
     - React-Core
-  - RNFBMessaging (14.10.1):
+  - RNFBMessaging (14.11.0):
     - Firebase/Messaging (= 8.15.0)
     - React-Core
     - RNFBApp
@@ -607,9 +607,9 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - fmt
+    - GCDWebServer
     - GoogleDataTransport
     - GoogleUtilities
-    - GCDWebServer
     - libevent
     - MMKV
     - MMKVCore
@@ -811,8 +811,8 @@ SPEC CHECKSUMS:
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
   RealmJS: 1974bf10182364d33d7b2beb3442344806888995
   RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
-  RNFBApp: bef4ec5a6d31a3da9bf285379d0c4857c6b7313e
-  RNFBMessaging: 8e23f32b01e9c90e68287b3c2537665377b9e3f1
+  RNFBApp: b1b5a80a676a07dea17e778bda7c1e8b69b2f5ec
+  RNFBMessaging: 3f327c8019ec2578b9da937ba6c01db48c81a457
   RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNReanimated: 190b6930d5d94832061278e1070bbe313e50c830

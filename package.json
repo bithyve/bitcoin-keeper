@@ -14,13 +14,7 @@
     "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
     "androidStagingRelease": "ENVFILE=.env react-native run-android --variant=stagingRelease --appIdSuffix=staging",
     "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
-    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease",
-    "clear": "rm -rf $TMPDIR/react-native-packager-cache-* && rm -rf $TMPDIR/metro-bundler-cache-*",
-    "clean:android": "cd android/; ./gradlew clean; cd ..;",
-    "clean:ios": "cd ios/ && rm -rf build/ Pods/ Podfile.lock && cd ..",
-    "clean:watchman": "watchman watch-del-all",
-    "clean:node": "rm -rf node_modules/ && yarn cache clean",
-    "deep-clean": "yarn clear && yarn clean:watchman && yarn clean:node && yarn clean:ios && yarn clean:android && yarn install"
+    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4",
