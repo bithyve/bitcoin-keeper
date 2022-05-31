@@ -207,7 +207,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
             Anant
           </Text>
         </View>
-        <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'100'}>
+        <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'200'}>
           Your stack is safe
         </Text>
       </ImageBackground>
