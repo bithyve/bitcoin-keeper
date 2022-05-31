@@ -10,6 +10,7 @@ import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AppSettings from 'src/screens/AppSettings/AppSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -32,6 +33,7 @@ const Navigator = () => {
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Test" component={TestingBottomsheet} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
+        <Stack.Screen name="AppSettings" component={AppSettings} />
       </Stack.Navigator>
     </NavigationContainer>
   );
