@@ -25,7 +25,6 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Backup" component={BackupScreen} />
@@ -34,6 +33,7 @@ const Navigator = () => {
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Test" component={TestingBottomsheet} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
+        <Stack.Screen name="NewHome" component={NewHomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
