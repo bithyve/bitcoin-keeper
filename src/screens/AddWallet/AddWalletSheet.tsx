@@ -12,10 +12,10 @@ const AddWalletSheet = ({
   closeAddWalletSheet,
   addWalletType,
   setAddWalletType,
-  accountName,
-  setAccountName,
-  accountDescription,
-  setAccountDescription,
+  walletName,
+  setWalletName,
+  walletDescription,
+  setWalletDescription,
   addWallet,
 }) => {
   return (
@@ -32,15 +32,15 @@ const AddWalletSheet = ({
       <BottomSheetTextInput
         placeholder="Wallet Name"
         placeholderTextColor={'#D8DBD5'}
-        value={accountName}
-        onChangeText={(value) => setAccountName(value)}
+        value={walletName}
+        onChangeText={(value) => setWalletName(value)}
         style={styles.inputField}
       />
       <BottomSheetTextInput
         placeholder="To easily remember wallets purpose"
         placeholderTextColor={'#D8DBD5'}
-        value={accountDescription}
-        onChangeText={(value) => setAccountDescription(value)}
+        value={walletDescription}
+        onChangeText={(value) => setWalletDescription(value)}
         style={styles.inputField}
       />
     </HexaBottomSheet>

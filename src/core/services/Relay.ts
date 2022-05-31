@@ -3,7 +3,7 @@ import config from '../config';
 import idx from 'idx';
 import crypto from 'crypto';
 import TrustedContactsOperations from '../trusted_contacts/TrustedContactsOperations';
-import { Gift, GiftMetaData } from '../accounts/interfaces/interface';
+import { Gift, GiftMetaData } from '../wallets/interfaces/interface';
 import { INotification } from './interfaces/interface';
 
 const { HEXA_ID, RELAY_AXIOS } = config;
@@ -58,7 +58,7 @@ export default class Relay {
   };
 
   public static updateFCMTokens = async (
-    walletID: string,
+    appId: string,
     FCMs: string[]
   ): Promise<{
     updated: boolean;
@@ -68,7 +68,7 @@ export default class Relay {
       try {
         res = await RELAY_AXIOS.post('updateFCMTokens', {
           HEXA_ID,
-          walletID,
+          appId,
           FCMs,
         });
       } catch (err) {
@@ -82,7 +82,7 @@ export default class Relay {
   };
 
   public static fetchNotifications = async (
-    walletID: string
+    appId: string
   ): Promise<{
     notifications: INotification[];
     DHInfos: [{ address: string; publicKey: string }];
@@ -91,7 +91,7 @@ export default class Relay {
     try {
       res = await RELAY_AXIOS.post('fetchNotifications', {
         HEXA_ID,
-        walletID,
+        appId,
       });
     } catch (err) {
       console.log({
@@ -109,7 +109,7 @@ export default class Relay {
   };
 
   public static sendNotifications = async (
-    receivers: { walletId: string; FCMs?: string[] }[],
+    receivers: { appId: string; FCMs?: string[] }[],
     notification: INotification
   ): Promise<{
     sent: boolean;
@@ -200,14 +200,14 @@ export default class Relay {
     }
   };
 
-  public static getCampaignGift = async (campaignId: string, walletID: string) => {
+  public static getCampaignGift = async (campaignId: string, appId: string) => {
     try {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('claimCampaignGift', {
           HEXA_ID,
           campaignId: campaignId,
-          walletID,
+          appId,
         });
         return res.data;
       } catch (err) {
@@ -251,7 +251,7 @@ export default class Relay {
   };
 
   public static getMessages = async (
-    walletID: string,
+    appId: string,
     timeStamp: Date
   ): Promise<{
     messages: [];
@@ -260,7 +260,7 @@ export default class Relay {
     try {
       res = await RELAY_AXIOS.post('getMessages', {
         HEXA_ID,
-        walletID,
+        appId,
         timeStamp,
       });
     } catch (err) {
@@ -278,7 +278,7 @@ export default class Relay {
   };
 
   public static updateMessageStatus = async (
-    walletID: string,
+    appId: string,
     data: []
   ): Promise<{
     updated: boolean;
@@ -288,7 +288,7 @@ export default class Relay {
       try {
         res = await RELAY_AXIOS.post('updateMessages', {
           HEXA_ID,
-          walletID,
+          appId,
           data,
         });
       } catch (err) {
@@ -304,13 +304,13 @@ export default class Relay {
     }
   };
 
-  public static walletCheckIn = async (
+  public static appCheckIn = async (
     currencyCode?: any
   ): Promise<{
     exchangeRates: { [currency: string]: number };
     averageTxFees: any;
   }> => {
-    const res = await RELAY_AXIOS.post('v2/walletCheckIn', {
+    const res = await RELAY_AXIOS.post('v2/appCheckIn', {
       HEXA_ID,
       ...(currencyCode && {
         currencyCode,
@@ -325,8 +325,8 @@ export default class Relay {
     };
   };
 
-  public static updateWalletImage = async (
-    walletImage: any
+  public static updateAppImage = async (
+    appImage: any
   ): Promise<{
     status: number;
     data: {
@@ -336,10 +336,10 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateWalletImage', {
+      const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateAppImage', {
         HEXA_ID,
-        walletID: walletImage.walletId,
-        walletImage,
+        appId: appImage.appId,
+        appImage,
       });
       const { updated } = res.data;
       return {
@@ -347,32 +347,32 @@ export default class Relay {
         data: updated,
       };
     } catch (err) {
-      throw new Error('Failed to update Wallet Image');
+      throw new Error('Failed to update App Image');
     }
   };
 
-  public static fetchWalletImage = async (
-    walletId: string
+  public static fetchAppImage = async (
+    appId: string
   ): Promise<{
-    walletImage: any;
+    appImage: any;
   }> => {
     try {
       let res: AxiosResponse;
       try {
-        res = await RELAY_AXIOS.post('v2/fetchWalletImage', {
+        res = await RELAY_AXIOS.post('v2/fetchappImage', {
           HEXA_ID,
-          walletID: walletId,
+          appId: appId,
         });
       } catch (err) {
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
-      const { walletImage } = res.data;
+      const { appImage } = res.data;
       return {
-        walletImage,
+        appImage,
       };
     } catch (err) {
-      throw new Error('Failed to fetch Wallet Image');
+      throw new Error('Failed to fetch App Image');
     }
   };
 

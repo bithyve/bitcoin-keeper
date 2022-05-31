@@ -11,12 +11,12 @@ const ECPair = ECPairFactory(ecc);
 import config from '../config';
 import _ from 'lodash';
 import idx from 'idx';
-import { AccountType, DerivationPurpose, NetworkType, TransactionType } from './interfaces/enum';
+import { WalletType, DerivationPurpose, NetworkType, TransactionType } from './interfaces/enum';
 import {
-  Account,
+  Wallet,
   ActiveAddresses,
-  DonationAccount,
-  MultiSigAccount,
+  DonationWallet,
+  MultiSigWallet,
   Transaction,
 } from './interfaces/interface';
 import { ScannedAddressKind } from '../trusted_contacts/interfaces/enum';
@@ -26,7 +26,7 @@ const accAxios: AxiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT * 3,
 });
 
-export default class AccountUtilities {
+export default class WalletUtilities {
   static networkType = (scannedStr: string): NetworkType => {
     scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
     let address = scannedStr;
@@ -51,22 +51,22 @@ export default class AccountUtilities {
     else return bitcoinJS.networks.bitcoin;
   };
 
-  // static getDerivationPath = ( type: NetworkType, accountType: AccountType, instanceNumber: number, debug?: boolean, purpose: DerivationPurpose = DerivationPurpose.BIP49 ): string => {
-  //   const { series, upperBound } = config.ACCOUNT_INSTANCES[ accountType ]
-  //   if( !debug && instanceNumber > ( upperBound - 1 ) ) throw new Error( `Cannot create new instance of type ${accountType}, instace upper bound exceeds ` )
-  //   const accountNumber = series + instanceNumber
+  // static getDerivationPath = ( type: NetworkType, walletType: WalletType, instanceNumber: number, debug?: boolean, purpose: DerivationPurpose = DerivationPurpose.BIP49 ): string => {
+  //   const { series, upperBound } = config.WALLET_INSTANCES[ walletType ]
+  //   if( !debug && instanceNumber > ( upperBound - 1 ) ) throw new Error( `Cannot create new instance of type ${walletType}, instace upper bound exceeds ` )
+  //   const walletNumber = series + instanceNumber
 
-  //   if( type === NetworkType.TESTNET ) return `m/${purpose}'/1'/${accountNumber}'`
-  //   else return `m/${purpose}'/0'/${accountNumber}'`
+  //   if( type === NetworkType.TESTNET ) return `m/${purpose}'/1'/${walletNumber}'`
+  //   else return `m/${purpose}'/0'/${walletNumber}'`
   // }
 
   static getDerivationPath = (
     type: NetworkType,
-    accountNumber: number = 0,
+    walletNumber: number = 0,
     purpose: DerivationPurpose = DerivationPurpose.BIP49
   ): string => {
-    if (type === NetworkType.TESTNET) return `m/${purpose}'/1'/${accountNumber}'`;
-    else return `m/${purpose}'/0'/${accountNumber}'`;
+    if (type === NetworkType.TESTNET) return `m/${purpose}'/1'/${walletNumber}'`;
+    else return `m/${purpose}'/0'/${walletNumber}'`;
   };
 
   static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
@@ -129,7 +129,7 @@ export default class AccountUtilities {
   ): string => {
     const node = bip32.fromBase58(xpub, network);
     const keyPair = node.derive(internal ? 1 : 0).derive(index);
-    return AccountUtilities.deriveAddressFromKeyPair(keyPair, network, purpose);
+    return WalletUtilities.deriveAddressFromKeyPair(keyPair, network, purpose);
   };
 
   static getP2SH = (keyPair: bip32.BIP32Interface, network: bitcoinJS.Network): bitcoinJS.Payment =>
@@ -201,36 +201,32 @@ export default class AccountUtilities {
     return bs58check.encode(data);
   };
 
-  static addressToPrivateKey = (address: string, account: Account): string => {
-    const { networkType } = account.derivationDetails;
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = account.specs;
-    const network = AccountUtilities.getNetworkByType(networkType);
+  static addressToPrivateKey = (address: string, wallet: Wallet): string => {
+    const { networkType } = wallet.derivationDetails;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
+    const network = WalletUtilities.getNetworkByType(networkType);
 
     const purpose =
-      account.type === AccountType.SWAN_ACCOUNT ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
+      wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
     const closingExtIndex =
       nextFreeAddressIndex +
-      (account.type === AccountType.DONATION_ACCOUNT
-        ? config.DONATION_GAP_LIMIT
-        : config.GAP_LIMIT);
+      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT : config.GAP_LIMIT);
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (AccountUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
-        return AccountUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
+        return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
     }
 
     const closingIntIndex =
       nextFreeChangeAddressIndex +
-      (account.type === AccountType.DONATION_ACCOUNT
-        ? config.DONATION_GAP_LIMIT_INTERNAL
-        : config.GAP_LIMIT);
+      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT_INTERNAL : config.GAP_LIMIT);
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (AccountUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
-        return AccountUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
+        return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
     }
 
-    for (const importedAddress in account.specs.importedAddresses) {
+    for (const importedAddress in wallet.specs.importedAddresses) {
       if (address === importedAddress)
-        return account.specs.importedAddresses[importedAddress].privateKey;
+        return wallet.specs.importedAddresses[importedAddress].privateKey;
     }
 
     throw new Error('Could not find private key for: ' + address);
@@ -254,7 +250,7 @@ export default class AccountUtilities {
     address: string;
   } => {
     const pubkeys = Object.keys(xpubs).map((xpubKey) => {
-      const childExtendedKey = AccountUtilities.generateChildFromExtendedKey(
+      const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
         xpubs[xpubKey],
         network,
         childIndex,
@@ -289,21 +285,19 @@ export default class AccountUtilities {
     };
   };
 
-  static signingEssentialsForMultiSig = (account: MultiSigAccount, address: string) => {
-    const { networkType } = account.derivationDetails;
-    const network = AccountUtilities.getNetworkByType(networkType);
+  static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
+    const { networkType } = wallet.derivationDetails;
+    const network = WalletUtilities.getNetworkByType(networkType);
 
     const closingExtIndex =
-      account.specs.nextFreeAddressIndex +
-      (account.type === AccountType.DONATION_ACCOUNT
-        ? config.DONATION_GAP_LIMIT
-        : config.GAP_LIMIT);
+      wallet.specs.nextFreeAddressIndex +
+      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT : config.GAP_LIMIT);
     for (let itr = 0; itr <= closingExtIndex; itr++) {
-      const multiSig = AccountUtilities.createMultiSig(
+      const multiSig = WalletUtilities.createMultiSig(
         {
-          primary: account.specs.xpub,
-          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
-          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
+          primary: wallet.specs.xpub,
+          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
+          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
         },
         2,
         network,
@@ -313,15 +307,15 @@ export default class AccountUtilities {
       if (multiSig.address === address) {
         return {
           multiSig,
-          primaryPriv: AccountUtilities.generateChildFromExtendedKey(
-            account.specs.xpriv,
+          primaryPriv: WalletUtilities.generateChildFromExtendedKey(
+            wallet.specs.xpriv,
             network,
             itr,
             false
           ),
-          secondaryPriv: account.specs.xprivs.secondary
-            ? AccountUtilities.generateChildFromExtendedKey(
-                account.specs.xprivs.secondary,
+          secondaryPriv: wallet.specs.xprivs.secondary
+            ? WalletUtilities.generateChildFromExtendedKey(
+                wallet.specs.xprivs.secondary,
                 network,
                 itr,
                 false,
@@ -334,16 +328,14 @@ export default class AccountUtilities {
     }
 
     const closingIntIndex =
-      account.specs.nextFreeChangeAddressIndex +
-      (account.type === AccountType.DONATION_ACCOUNT
-        ? config.DONATION_GAP_LIMIT_INTERNAL
-        : config.GAP_LIMIT);
+      wallet.specs.nextFreeChangeAddressIndex +
+      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT_INTERNAL : config.GAP_LIMIT);
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      const multiSig = AccountUtilities.createMultiSig(
+      const multiSig = WalletUtilities.createMultiSig(
         {
-          primary: account.specs.xpub,
-          secondary: (account as MultiSigAccount).specs.xpubs.secondary,
-          bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
+          primary: wallet.specs.xpub,
+          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
+          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
         },
         2,
         network,
@@ -353,15 +345,15 @@ export default class AccountUtilities {
       if (multiSig.address === address) {
         return {
           multiSig,
-          primaryPriv: AccountUtilities.generateChildFromExtendedKey(
-            account.specs.xpriv,
+          primaryPriv: WalletUtilities.generateChildFromExtendedKey(
+            wallet.specs.xpriv,
             network,
             itr,
             true
           ),
-          secondaryPriv: account.specs.xprivs.secondary
-            ? AccountUtilities.generateChildFromExtendedKey(
-                account.specs.xprivs.secondary,
+          secondaryPriv: wallet.specs.xprivs.secondary
+            ? WalletUtilities.generateChildFromExtendedKey(
+                wallet.specs.xprivs.secondary,
                 network,
                 itr,
                 true,
@@ -410,14 +402,14 @@ export default class AccountUtilities {
     network: bitcoinJS.Network
   ): { type: ScannedAddressKind | null } => {
     scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
-    if (AccountUtilities.isPaymentURI(scannedStr)) {
-      const { address } = AccountUtilities.decodePaymentURI(scannedStr);
-      if (AccountUtilities.isValidAddress(address, network)) {
+    if (WalletUtilities.isPaymentURI(scannedStr)) {
+      const { address } = WalletUtilities.decodePaymentURI(scannedStr);
+      if (WalletUtilities.isValidAddress(address, network)) {
         return {
           type: ScannedAddressKind.PAYMENT_URI,
         };
       }
-    } else if (AccountUtilities.isValidAddress(scannedStr, network)) {
+    } else if (WalletUtilities.isValidAddress(scannedStr, network)) {
       return {
         type: ScannedAddressKind.ADDRESS,
       };
@@ -429,7 +421,7 @@ export default class AccountUtilities {
   };
 
   static sortOutputs = async (
-    account: Account | MultiSigAccount,
+    wallet: Wallet | MultiSigWallet,
     outputs: Array<{
       address: string;
       value: number;
@@ -443,17 +435,17 @@ export default class AccountUtilities {
     }>
   > => {
     const purpose =
-      account.type === AccountType.SWAN_ACCOUNT ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
+      wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
     for (const output of outputs) {
       if (!output.address) {
         let changeAddress: string;
 
-        if ((account as MultiSigAccount).specs.is2FA)
-          changeAddress = AccountUtilities.createMultiSig(
+        if ((wallet as MultiSigWallet).specs.is2FA)
+          changeAddress = WalletUtilities.createMultiSig(
             {
-              primary: account.specs.xpub,
-              secondary: (account as MultiSigAccount).specs.xpubs.secondary,
-              bithyve: (account as MultiSigAccount).specs.xpubs.bithyve,
+              primary: wallet.specs.xpub,
+              secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
+              bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
             },
             2,
             network,
@@ -461,8 +453,8 @@ export default class AccountUtilities {
             true
           ).address;
         else
-          changeAddress = AccountUtilities.getAddressByIndex(
-            account.specs.xpub,
+          changeAddress = WalletUtilities.getAddressByIndex(
+            wallet.specs.xpub,
             true,
             nextFreeChangeAddressIndex,
             network,
@@ -487,8 +479,8 @@ export default class AccountUtilities {
     return outputs;
   };
 
-  static fetchBalanceTransactionsByAccounts = async (
-    accounts: {
+  static fetchBalanceTransactionsByWallets = async (
+    wallets: {
       [id: string]: {
         activeAddresses: ActiveAddresses;
         externalAddresses: { [address: string]: number }; // all external addresses(till nextFreeAddressIndex)
@@ -505,19 +497,18 @@ export default class AccountUtilities {
         cachedTxIdMap: { [txid: string]: string[] };
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
-        accountType: string;
+        walletType: string;
         transactionsNote: {
           [txId: string]: string;
         };
         contactName?: string;
-        primaryAccType?: string;
-        accountName?: string;
+        walletName?: string;
         hardRefresh?: boolean;
       };
     },
     network: bitcoinJS.Network
   ): Promise<{
-    synchedAccounts: {
+    synchedWallets: {
       [id: string]: {
         UTXOs: Array<{
           txId: string;
@@ -538,15 +529,15 @@ export default class AccountUtilities {
   }> => {
     let res: AxiosResponse;
     try {
-      const accountToAddressMapping = {};
-      const accountsTemp: {
-        [accountId: string]: {
+      const walletToAddressMapping = {};
+      const walletsTemp: {
+        [walletId: string]: {
           upToDateTxs?: Transaction[];
           txsToUpdate?: Transaction[];
           newTxs?: Transaction[];
         };
       } = {};
-      for (const accountId of Object.keys(accounts)) {
+      for (const walletId of Object.keys(wallets)) {
         const {
           activeAddresses,
           externalAddresses,
@@ -554,7 +545,7 @@ export default class AccountUtilities {
           ownedAddresses,
           cachedTxs,
           hardRefresh,
-        } = accounts[accountId];
+        } = wallets[walletId];
         const upToDateTxs: Transaction[] = [];
         const txsToUpdate: Transaction[] = [];
         const newTxs: Transaction[] = [];
@@ -565,7 +556,7 @@ export default class AccountUtilities {
           } else upToDateTxs.push(tx);
         });
 
-        accountsTemp[accountId] = {
+        walletsTemp[walletId] = {
           upToDateTxs,
           txsToUpdate,
           newTxs,
@@ -579,7 +570,7 @@ export default class AccountUtilities {
         );
         const ownedArray = ownedAddresses;
 
-        accountToAddressMapping[accountId] = {
+        walletToAddressMapping[walletId] = {
           External: externalArray,
           Internal: internalArray,
           Owned: ownedArray,
@@ -591,12 +582,12 @@ export default class AccountUtilities {
         if (network === bitcoinJS.networks.testnet) {
           res = await accAxios.post(
             config.ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
-            accountToAddressMapping
+            walletToAddressMapping
           );
         } else {
           res = await accAxios.post(
             config.ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
-            accountToAddressMapping
+            walletToAddressMapping
           );
         }
       } catch (err) {
@@ -616,32 +607,31 @@ export default class AccountUtilities {
         if (network === bitcoinJS.networks.testnet) {
           res = await accAxios.post(
             config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
-            accountToAddressMapping
+            walletToAddressMapping
           );
         } else {
           res = await accAxios.post(
             config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
-            accountToAddressMapping
+            walletToAddressMapping
           );
         }
       }
 
-      const accountToResponseMapping = res.data;
-      const synchedAccounts = {};
+      const walletToResponseMapping = res.data;
+      const synchedWallets = {};
 
-      for (const accountId of Object.keys(accountToResponseMapping)) {
+      for (const walletId of Object.keys(walletToResponseMapping)) {
         const {
           cachedUTXOs,
           externalAddresses,
           activeAddresses,
           internalAddresses,
           cachedTxIdMap,
-          accountType,
-          primaryAccType,
-          accountName,
+          walletType,
+          walletName,
           transactionsNote,
-        } = accounts[accountId];
-        const { Utxos, Txs } = accountToResponseMapping[accountId];
+        } = wallets[walletId];
+        const { Utxos, Txs } = walletToResponseMapping[walletId];
         const UTXOs = cachedUTXOs;
         // (re)categorise UTXOs
         if (Utxos)
@@ -670,8 +660,8 @@ export default class AccountUtilities {
         // process txs
         const addressesInfo = Txs;
         const txIdMap = cachedTxIdMap;
-        let { lastUsedAddressIndex, lastUsedChangeAddressIndex } = accounts[accountId];
-        const { upToDateTxs, txsToUpdate, newTxs } = accountsTemp[accountId];
+        let { lastUsedAddressIndex, lastUsedChangeAddressIndex } = wallets[walletId];
+        const { upToDateTxs, txsToUpdate, newTxs } = walletsTemp[walletId];
 
         if (addressesInfo)
           for (const addressInfo of addressesInfo) {
@@ -693,8 +683,7 @@ export default class AccountUtilities {
                       : new Date(Date.now()).toUTCString(),
                     transactionType: TransactionType.SENT,
                     amount: tx.SentAmount,
-                    accountType: accountType,
-                    primaryAccType,
+                    walletType: walletType,
                     recipientAddresses: tx.RecipientAddresses,
                     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                     address: addressInfo.Address,
@@ -712,8 +701,7 @@ export default class AccountUtilities {
                       : new Date(Date.now()).toUTCString(),
                     transactionType: TransactionType.RECEIVED,
                     amount: tx.ReceivedAmount,
-                    accountType: accountType,
-                    primaryAccType,
+                    walletType: walletType,
                     senderAddresses: tx.SenderAddresses,
                     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                     isNew: true,
@@ -732,9 +720,8 @@ export default class AccountUtilities {
                       : new Date(Date.now()).toUTCString(),
                     transactionType: tx.TransactionType,
                     amount: tx.Amount,
-                    accountType,
-                    primaryAccType,
-                    accountName: accountName ? accountName : accountType,
+                    walletType,
+                    walletName: walletName ? walletName : walletType,
                     recipientAddresses: tx.RecipientAddresses,
                     senderAddresses: tx.SenderAddresses,
                     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
@@ -831,7 +818,7 @@ export default class AccountUtilities {
           return tx2.blockTime - tx1.blockTime;
         });
 
-        synchedAccounts[accountId] = {
+        synchedWallets[walletId] = {
           UTXOs,
           txIdMap,
           transactions,
@@ -846,7 +833,7 @@ export default class AccountUtilities {
       if (usedFallBack)
         // Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
         return {
-          synchedAccounts,
+          synchedWallets,
         };
     } catch (err) {
       console.log({
@@ -990,7 +977,7 @@ export default class AccountUtilities {
     }
   };
 
-  // test-account specific utilities
+  // test-wallet specific utilities
   static getTestcoins = async (
     recipientAddress: string,
     network: bitcoinJS.networks.Network
@@ -1021,9 +1008,10 @@ export default class AccountUtilities {
     }
   };
 
-  // 2FA-account specific utilities
+  // 2FA-wallet specific utilities
+  // TODO: walletID <> appID switch
   static setupTwoFA = async (
-    walletID: string
+    appId: string
   ): Promise<{
     setupData: {
       secret: string;
@@ -1034,7 +1022,7 @@ export default class AccountUtilities {
     try {
       res = await SIGNING_AXIOS.post('setup2FA', {
         HEXA_ID: config.HEXA_ID,
-        walletID,
+        appId,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -1049,7 +1037,7 @@ export default class AccountUtilities {
   };
 
   static validateTwoFA = async (
-    walletID: string,
+    appId: string,
     token: number
   ): Promise<{
     valid: Boolean;
@@ -1058,7 +1046,7 @@ export default class AccountUtilities {
     try {
       res = await SIGNING_AXIOS.post('validate2FASetup', {
         HEXA_ID: config.HEXA_ID,
-        walletID,
+        appId,
         token,
       });
     } catch (err) {
@@ -1075,18 +1063,18 @@ export default class AccountUtilities {
   };
 
   static resetTwoFA = async (
-    walletID: string,
+    appId: string,
     secondaryMnemonic: string,
     secondaryXpub: string,
     network: bitcoinJS.networks.Network
   ): Promise<{
     secret: any;
   }> => {
-    const derivedSecondaryXpub = AccountUtilities.generateExtendedKey(
+    const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
       secondaryMnemonic,
       false,
       network,
-      AccountUtilities.getDerivationPath(NetworkType.MAINNET, 0)
+      WalletUtilities.getDerivationPath(NetworkType.MAINNET, 0)
     );
     if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
 
@@ -1094,7 +1082,7 @@ export default class AccountUtilities {
     try {
       res = await SIGNING_AXIOS.post('resetTwoFAv2', {
         HEXA_ID: config.HEXA_ID,
-        walletID: walletID,
+        appId: appId,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -1113,8 +1101,8 @@ export default class AccountUtilities {
   ): {
     secondaryXpriv: string;
   } => {
-    const derivationPath = AccountUtilities.getDerivationPath(NetworkType.MAINNET, 0);
-    const derivedSecondaryXpub = AccountUtilities.generateExtendedKey(
+    const derivationPath = WalletUtilities.getDerivationPath(NetworkType.MAINNET, 0);
+    const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
       secondaryMnemonic,
       false,
       network,
@@ -1122,7 +1110,7 @@ export default class AccountUtilities {
     );
     if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
 
-    const secondaryXpriv = AccountUtilities.generateExtendedKey(
+    const secondaryXpriv = WalletUtilities.generateExtendedKey(
       secondaryMnemonic,
       true,
       network,
@@ -1168,32 +1156,32 @@ export default class AccountUtilities {
     };
   };
 
-  // donation-account specific utilities
-  static setupDonationAccount = async (
-    account: DonationAccount,
+  // donation-wallet specific utilities
+  static setupDonationWallet = async (
+    wallet: DonationWallet,
     walletId: string
   ): Promise<{
     setupSuccessful: boolean;
   }> => {
-    const xpubs = [account.specs.xpub];
-    if ((account as MultiSigAccount).specs.is2FA) {
-      xpubs.push((account as MultiSigAccount).specs.xpubs.secondary);
-      xpubs.push((account as MultiSigAccount).specs.xpubs.bithyve);
+    const xpubs = [wallet.specs.xpub];
+    if ((wallet as MultiSigWallet).specs.is2FA) {
+      xpubs.push((wallet as MultiSigWallet).specs.xpubs.secondary);
+      xpubs.push((wallet as MultiSigWallet).specs.xpubs.bithyve);
     }
 
     let res: AxiosResponse;
     try {
-      res = await RELAY_AXIOS.post('setupDonationAccount', {
+      res = await RELAY_AXIOS.post('setupDonationWallet', {
         HEXA_ID: config.HEXA_ID,
-        donationId: account.id.slice(0, 15),
+        donationId: wallet.id.slice(0, 15),
         walletID: walletId,
         details: {
-          donee: account.presentationData.donee,
-          subject: account.presentationData.donationName,
-          description: account.presentationData.donationDescription,
-          xpubId: account.id,
+          donee: wallet.presentationData.donee,
+          subject: wallet.presentationData.donationName,
+          description: wallet.presentationData.donationDescription,
+          xpubId: wallet.id,
           xpubs,
-          configuration: account.presentationData.configuration,
+          configuration: wallet.presentationData.configuration,
         },
       });
     } catch (err) {
@@ -1208,27 +1196,27 @@ export default class AccountUtilities {
   };
 
   static updateDonationPreferences = async (
-    account: DonationAccount,
+    wallet: DonationWallet,
     walletId: string,
     preferences: {
-      disableAccount?: boolean;
+      disableWallet?: boolean;
       configuration?: {
         displayBalance: boolean;
         displayIncomingTxs: boolean;
         displayOutgoingTxs: boolean;
       };
-      accountDetails?: {
+      walletDetails?: {
         donee: string;
         subject: string;
         description: string;
       };
     }
-  ): Promise<{ updated: boolean; updatedAccount: DonationAccount }> => {
+  ): Promise<{ updated: boolean; updatedWallet: DonationWallet }> => {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('updatePreferences', {
         HEXA_ID: config.HEXA_ID,
-        donationId: account.id.slice(0, 15),
+        donationId: wallet.id.slice(0, 15),
         walletID: walletId,
         preferences,
       });
@@ -1240,25 +1228,25 @@ export default class AccountUtilities {
     const { updated } = res.data;
     if (updated) {
       if (
-        preferences.disableAccount !== undefined &&
-        preferences.disableAccount !== account.presentationData.disableAccount
+        preferences.disableWallet !== undefined &&
+        preferences.disableWallet !== wallet.presentationData.disableWallet
       )
-        account.presentationData.disableAccount = preferences.disableAccount;
+        wallet.presentationData.disableWallet = preferences.disableWallet;
 
       if (preferences.configuration)
-        account.presentationData.configuration = preferences.configuration;
+        wallet.presentationData.configuration = preferences.configuration;
 
-      if (preferences.accountDetails) {
-        account.presentationData.donationName = preferences.accountDetails.subject;
-        account.presentationData.accountDescription = preferences.accountDetails.subject;
-        account.presentationData.donationDescription = preferences.accountDetails.description;
-        account.presentationData.donee = preferences.accountDetails.donee;
+      if (preferences.walletDetails) {
+        wallet.presentationData.donationName = preferences.walletDetails.subject;
+        wallet.presentationData.walletDescription = preferences.walletDetails.subject;
+        wallet.presentationData.donationDescription = preferences.walletDetails.description;
+        wallet.presentationData.donee = preferences.walletDetails.donee;
       }
     }
 
     return {
       updated,
-      updatedAccount: account,
+      updatedWallet: wallet,
     };
   };
 
@@ -1279,15 +1267,15 @@ export default class AccountUtilities {
     balances: { confirmed: number; unconfirmed: number };
     transactions: Transaction[];
   }> => {
-    // syncs account via xpub-agent(relay)
+    // syncs wallet via xpub-agent(relay)
 
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('fetchXpubInfo', {
         HEXA_ID: config.HEXA_ID,
         xpubId,
-        accountType: 'DONATION_ACCOUNT',
-        accountDetails: {
+        walletType: 'DONATION',
+        walletDetails: {
           donationId,
         },
       });

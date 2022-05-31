@@ -9,7 +9,13 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "chmod +x setup.sh && sh ./setup.sh",
-    "postinstall": "jetify"
+    "postinstall": "jetify",
+    "clear": "rm -rf $TMPDIR/react-native-packager-cache-* && rm -rf $TMPDIR/metro-bundler-cache-*",
+    "clean:android": "cd android/; ./gradlew clean; cd ..;",
+    "clean:ios": "cd ios/ && rm -rf build/ Pods/ Podfile.lock && cd ..",
+    "clean:watchman": "watchman watch-del-all",
+    "clean:node": "rm -rf node_modules/ && yarn cache clean",
+    "deep-clean": "yarn clear && yarn clean:watchman && yarn clean:node && yarn clean:ios && yarn clean:android && yarn install"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4",

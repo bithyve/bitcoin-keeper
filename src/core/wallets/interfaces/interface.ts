@@ -1,12 +1,13 @@
 import {
-  AccountType,
-  AccountVisibility,
+  WalletType,
+  WalletVisibility,
   ActiveAddressAssigneeType,
   GiftStatus,
   GiftThemeId,
   GiftType,
   NetworkType,
   TransactionType,
+  NodeType,
 } from './enum';
 
 export interface InputUTXOs {
@@ -48,9 +49,8 @@ export interface Transaction {
   date?: string;
   transactionType?: TransactionType;
   amount: number;
-  accountType: string;
-  primaryAccType?: string;
-  accountName?: string;
+  walletType: string;
+  walletName?: string;
   contactName?: string;
   recipientAddresses?: string[];
   senderAddresses?: string[];
@@ -75,7 +75,7 @@ export interface TransactionMetaData {
   notes: string;
   tags: string[];
   amount: number;
-  accountType: string;
+  walletType: string;
   address: string;
   isNew: boolean;
   type: string;
@@ -90,13 +90,6 @@ export interface Balances {
   unconfirmed: number;
 }
 
-export interface Transactions {
-  totalTransactions: number;
-  confirmedTransactions: number;
-  unconfirmedTransactions: number;
-  transactionDetails: Array<Transaction>;
-}
-
 export interface UTXO {
   txId: string;
   vout: number;
@@ -105,7 +98,7 @@ export interface UTXO {
   status?: any;
 }
 
-export interface AccountImportedAddresses {
+export interface WalletImportedAddresses {
   [address: string]: {
     address: string;
     privateKey: string;
@@ -113,7 +106,7 @@ export interface AccountImportedAddresses {
 }
 
 export interface ActiveAddressAssignee {
-  type: AccountType | ActiveAddressAssigneeType;
+  type: WalletType | ActiveAddressAssigneeType;
   id?: string;
   senderInfo?: {
     id?: string;
@@ -146,12 +139,20 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
+export interface NodeConnect {
+  nodeId: string;
+  type: NodeType;
+  networkType: NetworkType;
+  config: {};
+  isActive: boolean;
+}
+
 export interface LightningNode {
   host?: string;
   port?: string;
   url?: string;
   lndhubUrl?: string;
-  existingAccount?: boolean;
+  existingWallet?: boolean;
   macaroonHex?: string;
   accessKey?: string;
   username?: string;
@@ -161,22 +162,28 @@ export interface LightningNode {
   enableTor?: boolean;
 }
 
-export interface AccountDerivationDetails {
+export interface TwoFADetails {
+  bithyveXpub?: string;
+  twoFAKey?: string;
+  twoFAValidated?: boolean;
+}
+
+export interface WalletDerivationDetails {
   networkType: NetworkType; // testnet/mainnet
-  instanceNum: number; // instance number of this particular accountType
-  mnemonic: string; // mnemonic of the account
+  instanceNum: number; // instance number of this particular walletType
+  mnemonic: string; // mnemonic of the wallet
   bip85Config: BIP85Config; // bip85 configuration leading to the derivation path for the corresponding entropy
-  xDerivationPath: string; // derivation path of the extended keys belonging to this account
+  xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
 }
 
-export interface AccountPresentationData {
-  accountName: string; // name of the account
-  accountDescription: string; // description of the account
-  accountVisibility: AccountVisibility; // visibility of the account
-  isSynching: boolean; // sync status of the account
+export interface WalletPresentationData {
+  walletName: string; // name of the wallet
+  walletDescription: string; // description of the wallet
+  walletVisibility: WalletVisibility; // visibility of the wallet
+  isSynching: boolean; // sync status of the wallet
 }
 
-export interface DonationAccountPresentationData extends AccountPresentationData {
+export interface DonationWalletPresentationData extends WalletPresentationData {
   donee: string;
   donationName: string;
   donationDescription: string;
@@ -185,31 +192,31 @@ export interface DonationAccountPresentationData extends AccountPresentationData
     displayIncomingTxs: boolean;
     displayOutgoingTxs: boolean;
   };
-  disableAccount: boolean;
+  disableWallet: boolean;
 }
 
-export interface AccountSpecs {
-  xpub: string | null; // account's xpub (primary for multi-sig accounts)
-  xpriv: string | null; // account's xpriv (primary for multi-sig accounts)
-  activeAddresses: ActiveAddresses; // addresses being actively used by this account
+export interface WalletSpecs {
+  xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
+  xpriv: string | null; // wallet's xpriv (primary for multi-sig wallets)
+  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
-  transactions: Transaction[]; // transactions belonging to this account
-  lastSynched: number; // account's last sync timestamp
+  transactions: Transaction[]; // transactions belonging to this wallet
+  lastSynched: number; // wallet's last sync timestamp
   newTransactions?: Transaction[]; // new transactions arrived during the current sync
   txIdMap?: { [txid: string]: string[] }; // tx-mapping; tx insertion checker
   hasNewTxn?: boolean; // indicates new txns
   transactionsNote: TransactionsNote;
-  importedAddresses: AccountImportedAddresses;
+  importedAddresses: WalletImportedAddresses;
   transactionsMeta?: TransactionMetaData[];
   node?: LightningNode;
 }
 
-export interface MultiSigAccountSpecs extends AccountSpecs {
+export interface MultiSigWalletSpecs extends WalletSpecs {
   is2FA: boolean; // is2FA enabled
   xpubs: {
     // additional xpubs for multi-sig
@@ -222,26 +229,60 @@ export interface MultiSigAccountSpecs extends AccountSpecs {
   };
 }
 
-export interface Account {
-  id: string; // account identifier(derived from xpub)
-  type: AccountType; // type of account
-  isUsable: boolean; // true if account is usable
-  derivationDetails: AccountDerivationDetails;
-  presentationData: AccountPresentationData;
-  specs: AccountSpecs;
+export interface Wallet {
+  id: string; // wallet identifier(derived from xpub)
+  type: WalletType; // type of wallet
+  isUsable: boolean; // true if wallet is usable
+  derivationDetails: WalletDerivationDetails;
+  presentationData: WalletPresentationData;
+  specs: WalletSpecs;
 }
 
-export interface MultiSigAccount extends Account {
-  specs: MultiSigAccountSpecs;
+export interface MultiSigWallet extends Wallet {
+  specs: MultiSigWalletSpecs;
 }
 
-export interface DonationAccount extends Account {
-  presentationData: DonationAccountPresentationData;
-  specs: AccountSpecs | MultiSigAccountSpecs;
+export interface DonationWallet extends Wallet {
+  presentationData: DonationWalletPresentationData;
+  specs: WalletSpecs | MultiSigWalletSpecs;
 }
 
-export interface Accounts {
-  [accountId: string]: Account | MultiSigAccount | DonationAccount;
+export interface TriggerPolicy {
+  policyId: string;
+  date: string;
+  specifications: {};
+  version: string;
+}
+
+export interface WalletShell {
+  shellId: string;
+  walletInstanceCount: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
+  trigger?: TriggerPolicy;
+}
+
+export interface Vault {}
+
+export interface InheritancePolicy {
+  policyId: string;
+  date: string;
+  heir: {
+    firstName: string;
+    lastName: string;
+    address: string;
+    email: string;
+  };
+  user: {
+    email: string;
+  };
+  version: string;
+}
+
+export interface VaultShell {
+  shellId: string;
+  vaultInstanceCount: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
+  vaults: Vault[];
+  inheritance?: InheritancePolicy;
 }
 
 export interface Gift {
@@ -263,15 +304,15 @@ export interface Gift {
   };
   validitySpan?: number;
   sender: {
+    appId: string;
     walletId: string;
-    accountId: string;
-    walletName: string;
+    appName: string;
     contactId?: string; // permanentAddress of the contact
   };
   receiver: {
+    appId?: string;
     walletId?: string;
-    accountId?: string;
-    walletName?: string;
+    appName?: string;
     contactId?: string; // permanentAddress of the contact
   };
   note?: string;

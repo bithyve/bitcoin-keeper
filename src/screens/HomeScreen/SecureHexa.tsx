@@ -11,7 +11,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
-import { importNewAccount } from 'src/store/actions/accounts';
+import { importNewWallet } from 'src/store/actions/wallets';
 import { useDispatch } from 'react-redux';
 
 type Props = {
@@ -29,10 +29,10 @@ const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
   const secureWithHexa = useCallback(() => {
     const mnemonic = secureData?.mnemonic;
     if (mnemonic) {
-      const accountDetails = {
+      const walletDetails = {
         name: secureData?.walletName,
       };
-      dispatch(importNewAccount(mnemonic, accountDetails));
+      dispatch(importNewWallet(mnemonic, walletDetails));
       bottomSheetRef.current.close();
     }
   }, [secureData]);
