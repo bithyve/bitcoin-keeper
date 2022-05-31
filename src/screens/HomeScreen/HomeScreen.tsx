@@ -2,7 +2,7 @@ import { Alert, FlatList, ImageBackground, TouchableOpacity } from 'react-native
 import {
   BACKUP_KEYS,
   WALLET,
-  accountData,
+  walletData,
   defaultBackupKeys,
   defaultWallets,
 } from 'src/common/data/defaultData/defaultData';
@@ -30,10 +30,12 @@ import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images
 import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
-import { loginWithHexa } from 'src/store/actions/accounts';
-import { setupWallet } from 'src/store/actions/storage';
 import { updateFCMTokens } from '../../store/actions/notifications';
 import messaging from '@react-native-firebase/messaging'
+import { loginWithHexa } from 'src/store/actions/wallets';
+import { setupKeeperApp } from 'src/store/actions/storage';
+import { RealmContext } from 'src/storage/realm/AppRealmProvider';
+import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 
 type Props = {
   route: any | undefined;
@@ -44,8 +46,11 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const secureHexaRef = useRef(null);
   const dispatch = useDispatch();
 
+  //Hooks to manage live update of UI
+  const { useQuery } = RealmContext;
+
   const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
-  const wallet = useSelector((state: RootStateOrAny) => state.storage.wallet);
+  const wallet = useSelector((state: RootStateOrAny) => state.storage.app); //read it from realm
 
   const [parsedQRData, setParsedQRData] = useState(null);
   const [inheritanceReady, setInheritance] = useState<boolean>(false);
@@ -60,19 +65,19 @@ const HomeScreen = ({ navigation, route }: Props) => {
     },
   ]);
 
-  const allWallets: WALLET[] = [
-    ...defaultWallets,
-    ...useSelector((state: RootStateOrAny) => state.accounts.accountShells),
-    { isEnd: true },
-  ];
+  const wallets: (Wallet | MultiSigWallet)[] = useSelector(
+    (state: RootStateOrAny) => state.wallet.wallets
+  );
+  const allWallets = [...defaultWallets, ...wallets, { isEnd: true }];
 
   useEffect(() => {
     storeFCMToken();
     if (!wallet && rehydrated) {
       // await redux persist's rehydration
       setTimeout(() => {
-        dispatch(setupWallet());
-      }, 1000);
+        dispatch(setupKeeperApp());
+        // console.log('else', wallet);
+      }, 1000); //realm a
     }
     // Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
   }, [wallet, rehydrated]);
@@ -82,6 +87,13 @@ const HomeScreen = ({ navigation, route }: Props) => {
     console.log(JSON.stringify(fcmToken))
       dispatch(updateFCMTokens( [ fcmToken ] ))
   }
+  //Query the schema data needed
+  // const app = useQuery('KeeperApp');
+
+  //To test live update of data
+  // useEffect(() => {
+  //   console.log(app);
+  // }, [app]);
 
   useEffect(() => {
     if (route.params !== undefined) {
@@ -102,11 +114,11 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const renderWallets = ({ item, index }) => {
     return (
       <HomeCard
-        Icon={accountData(item).Icon}
-        type={accountData(item).type}
-        name={accountData(item).name}
-        description={accountData(item).description}
-        balance={accountData(item).balance}
+        Icon={walletData(item).Icon}
+        type={walletData(item).type}
+        name={walletData(item).name}
+        description={walletData(item).description}
+        balance={walletData(item).balance}
         isImported={item.isImported}
         isEnd={item?.isEnd}
         index={index}

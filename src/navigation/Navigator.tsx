@@ -1,14 +1,15 @@
-import React from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+
+import WalletDetailScreen from 'src/screens/WalletDetailScreen';
 import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
-import TestingBottomsheet from 'src/screens/TestingBottomsheet';
-import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
-import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
-import AccountDetailScreen from 'src/screens/AccountDetailScreen';
+import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
+import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
+import React from 'react';
+import TestingBottomsheet from 'src/screens/TestingBottomsheet';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -30,7 +31,7 @@ const Navigator = () => {
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Test" component={TestingBottomsheet} />
-        <Stack.Screen name="AccountDetailScreen" component={AccountDetailScreen} />
+        <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

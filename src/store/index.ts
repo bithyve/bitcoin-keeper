@@ -1,86 +1,87 @@
-import { applyMiddleware, createStore, combineReducers } from 'redux'
-import createSagaMiddleware from 'redux-saga'
-import { call, all, spawn } from 'redux-saga/effects'
-import { composeWithDevTools } from '@redux-devtools/extension'
-import { persistStore, persistReducer } from 'redux-persist'
-import accountsReducer from './reducers/accounts'
-import storageReducer from './reducers/storage'
 import {
-  testcoinsWatcher,
-  syncAccountsWatcher,
-  generateSecondaryXprivWatcher,
-  resetTwoFAWatcher,
-  addNewAccountShellsWatcher,
-  importNewAccountWatcher,
-  refreshAccountShellsWatcher,
+  addNewWalletsWatcher,
+  autoWalletsSyncWatcher,
   feeAndExchangeRatesWatcher,
-  autoSyncShellsWatcher,
+  generateSecondaryXprivWatcher,
+  importNewWalletWatcher,
+  refreshWalletsWatcher,
+  resetTwoFAWatcher,
+  syncWalletsWatcher,
+  testcoinsWatcher,
+  updateWalletSettingsWatcher,
   validateTwoFAWatcher,
-  updateAccountSettingsWatcher,
-  restoreAccountShellsWatcher,
-} from './sagas/accounts'
-
+} from './sagas/wallets';
+import { all, call, spawn } from 'redux-saga/effects';
+import { applyMiddleware, combineReducers, createStore } from 'redux';
+import { persistReducer, persistStore } from 'redux-persist';
 import { updateFCMTokensWatcher } from './sagas/notifications'
+import walletsReducer from './reducers/wallets';
 import notificationReducer from './reducers/notifications' 
-import { setupWalletWatcher } from './sagas/storage'
-import { reduxStorage  } from 'src/storage'
+import { composeWithDevTools } from '@redux-devtools/extension';
+import createSagaMiddleware from 'redux-saga';
+import { reduxStorage } from 'src/storage';
+import { setupWalletWatcher } from './sagas/storage';
+import storageReducer from './reducers/storage';
 
 const config = {
   key: 'root',
   storage: reduxStorage,
-}
+};
 
 const rootSaga = function* () {
   const sagas = [
     // storage watchers
     setupWalletWatcher,
 
-    // accounts watchers
-    syncAccountsWatcher,
+    // wallet watchers
+    syncWalletsWatcher,
     testcoinsWatcher,
     generateSecondaryXprivWatcher,
     resetTwoFAWatcher,
     feeAndExchangeRatesWatcher,
-    refreshAccountShellsWatcher,
-    addNewAccountShellsWatcher,
-    importNewAccountWatcher,
-    restoreAccountShellsWatcher,
-    autoSyncShellsWatcher,
+    refreshWalletsWatcher,
+    addNewWalletsWatcher,
+    importNewWalletWatcher,
+    autoWalletsSyncWatcher,
     validateTwoFAWatcher,
-    updateAccountSettingsWatcher,
+    updateWalletSettingsWatcher,
     updateFCMTokensWatcher,
-  ]
+  ];
 
   yield all(
     sagas.map((saga) =>
       spawn(function* () {
         while (true) {
           try {
-            yield call(saga)
-            break
+            yield call(saga);
+            break;
           } catch (err) {
-            console.log(err)
+            console.log(err);
           }
         }
       })
     )
-  )
-}
+  );
+};
 
 const rootReducer = combineReducers({
   storage: storageReducer,
-  accounts: accountsReducer,
   notifications: notificationReducer,
-})
+  wallet: walletsReducer,
+});
+
 
 export default function makeStore() {
-  const sagaMiddleware = createSagaMiddleware()
-  const reducers = persistReducer(config, rootReducer)
-  const storeMiddleware = composeWithDevTools(
-    applyMiddleware(sagaMiddleware)
-  )
-  const store = createStore(reducers, storeMiddleware)
-  persistStore(store)
-  sagaMiddleware.run(rootSaga)
-  return store
+  const sagaMiddleware = createSagaMiddleware();
+  const reducers = persistReducer(config, rootReducer);
+  const middlewars = [sagaMiddleware];
+  if (__DEV__) {
+    const createDebugger = require('redux-flipper').default;
+    middlewars.push(createDebugger());
+  }
+  const storeMiddleware = composeWithDevTools(applyMiddleware(...middlewars));
+  const store = createStore(reducers, storeMiddleware);
+  persistStore(store);
+  sagaMiddleware.run(rootSaga);
+  return store;
 }

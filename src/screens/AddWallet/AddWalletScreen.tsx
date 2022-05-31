@@ -13,8 +13,8 @@ import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/screens/AddWallet/AccordionsComponent';
-import { addNewAccountShells, importNewAccount } from 'src/store/actions/accounts';
-import { newAccountsInfo } from 'src/store/sagas/accounts';
+import { addNewWallets, importNewWallet } from 'src/store/actions/wallets';
+import { newWalletsInfo } from 'src/store/sagas/wallets';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/screens/AddWallet/AddWalletSheet';
 import ImportWalletSheet from 'src/components/ImportWalletSheet';
@@ -28,7 +28,7 @@ import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
-import { AccountType } from 'src/core/interfaces/Interface';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
 
 const AddWalletScreen = () => {
   const dispatch = useDispatch();
@@ -42,8 +42,8 @@ const AddWalletScreen = () => {
   const importProcessWalletSheetRef = useRef<BottomSheet>(null);
 
   const [addWalletType, setAddWalletType] = useState('');
-  const [accountName, setAccountName] = useState('');
-  const [accountDescription, setAccountDescription] = useState('');
+  const [walletName, setWalletName] = useState('');
+  const [walletDescription, setWalletDescription] = useState('');
   const [importKey, setImportKey] = useState('');
   const [importWalletType, setImportWalletType] = useState('Blue Wallet');
   const [walletDetails, setWalletDetails] = useState({});
@@ -51,17 +51,17 @@ const AddWalletScreen = () => {
     useBottomSheetUtils(importProcessWalletSheetRef);
 
   const addWallet = useCallback(() => {
-    const newAccountShellInfo: newAccountsInfo = {
-      accountType: AccountType.CHECKING_ACCOUNT,
-      accountDetails: {
-        name: accountName,
-        description: accountDescription,
+    const newWalletsInfo: newWalletsInfo = {
+      walletType: WalletType.CHECKING,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
       },
     };
-    dispatch(addNewAccountShells([newAccountShellInfo]));
+    dispatch(addNewWallets([newWalletsInfo]));
     setWalletDetails({
-      name: accountName,
-      description: accountDescription,
+      name: walletName,
+      description: walletDescription,
     });
     closeAddWalletSheet();
     expandCreateWalletSheet();
@@ -69,15 +69,15 @@ const AddWalletScreen = () => {
       createWalletSheetRef?.current.close();
       expandSuccessSheet();
     }, 500 * 7);
-  }, [accountName, accountDescription]);
+  }, [walletName, walletDescription]);
 
   const importWallet = useCallback(() => {
     const mnemonic = importKey.trim();
     if (mnemonic) {
-      const accountDetails = {
+      const walletDetails = {
         name: importWalletType,
       };
-      dispatch(importNewAccount(mnemonic, accountDetails));
+      dispatch(importNewWallet(mnemonic, walletDetails));
       closeImportWalletSheet();
       openImportProcessWalletSheet();
       setTimeout(() => {
@@ -221,10 +221,10 @@ const AddWalletScreen = () => {
         closeAddWalletSheet={closeAddWalletSheet}
         addWalletType={addWalletType}
         setAddWalletType={setAddWalletType}
-        accountName={accountName}
-        setAccountName={setAccountName}
-        accountDescription={accountDescription}
-        setAccountDescription={setAccountDescription}
+        walletName={walletName}
+        setWalletName={setWalletName}
+        walletDescription={walletDescription}
+        setWalletDescription={setWalletDescription}
         addWallet={addWallet}
       />
       <CreateWalletSheet

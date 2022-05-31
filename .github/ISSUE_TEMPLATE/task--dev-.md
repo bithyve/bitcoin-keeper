@@ -2,7 +2,7 @@
 name: Task (Dev)
 about: 'Small chunk of the feature '
 title: ''
-labels: task-dev
+labels: ''
 assignees: ''
 
 ---
