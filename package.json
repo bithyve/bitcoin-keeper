@@ -75,6 +75,7 @@
     "react-native-tcp": "^4.0.0",
     "react-native-udp": "^4.1.5",
     "react-native-uuid": "^2.0.1",
+    "react-native-vector-icons": "^9.1.0",
     "react-redux": "^7.2.6",
     "readable-stream": "1.0.33",
     "realm": "^10.17.0",
