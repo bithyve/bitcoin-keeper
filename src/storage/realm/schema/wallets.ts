@@ -1,4 +1,5 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 const UTXO = {
   type: '{}',
@@ -75,7 +76,7 @@ const WalletSpecs = {
 };
 
 export const WalletSchema: ObjectSchema = {
-  name: 'Wallet',
+  name: RealmSchema.Wallet,
   embedded: true,
   properties: {
     id: 'string',

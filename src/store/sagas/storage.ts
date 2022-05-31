@@ -8,6 +8,7 @@ import { updateRealm } from 'src/storage/realm/dbManager';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
 import { WalletShell } from 'src/core/wallets/interfaces/interface';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
+import { RealmSchema } from 'src/storage/realm/schema/enum';
 
 function* setupWalletWorker({ payload }) {
   const { appName }: { appName: string } = payload;
@@ -38,7 +39,7 @@ function* setupWalletWorker({ payload }) {
   //Will be removed once Realm is integrated
   yield put(updateKeeperApp(app));
 
-  updateRealm('KeeperApp', app);
+  updateRealm(RealmSchema.KeeperApp, app);
 }
 
 export const setupWalletWatcher = createWatcher(setupWalletWorker, SETUP_KEEPER_APP);

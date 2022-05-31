@@ -1,7 +1,8 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 export const InheritancePolicySchema: ObjectSchema = {
-  name: 'InheritancePolicy',
+  name: RealmSchema.InheritancePolicy,
   embedded: true,
   properties: {
     policyId: 'string',

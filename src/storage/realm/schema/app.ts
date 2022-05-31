@@ -1,7 +1,8 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 export const KeeperAppSchema: ObjectSchema = {
-  name: 'KeeperApp',
+  name: RealmSchema.KeeperApp,
   properties: {
     appId: 'string',
     appName: 'string',
