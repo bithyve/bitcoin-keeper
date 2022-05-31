@@ -1,7 +1,8 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 export const TwoFADetailsSchema: ObjectSchema = {
-  name: 'TwoFADetails',
+  name: RealmSchema.TwoFADetails,
   embedded: true,
   properties: {
     bithyveXpub: 'string?',

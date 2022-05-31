@@ -1,7 +1,8 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 export const WalletShellShcema: ObjectSchema = {
-  name: 'WalletShell',
+  name: RealmSchema.WalletShell,
   embedded: true,
   properties: {
     shellId: 'string',
