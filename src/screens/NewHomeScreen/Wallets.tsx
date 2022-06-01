@@ -9,8 +9,10 @@ import Heading from './Heading';
 
 import DollarGreen from 'src/assets/images/svgs/icon_dollar_green.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_green.svg';
+import NavVault from 'src/assets/images/svgs/nav_vault.svg';
+
 import Wallet from './Wallet';
-const Wallets = () => {
+const Wallets = ({ animate }) => {
 
   const BtcToCurrency = () => {
     return (
@@ -106,11 +108,18 @@ const Wallets = () => {
       paddingX={2}
     >
       {/* {heading } */}
-      <Heading
-        title={'Wallets'}
-        subTitle={'Your daily spending and transactions'}
-        alignItems={'flex-end'}
-      />
+      <Box flexDirection={'row'} justifyContent={'space-between'} marginX={4}>
+        <Box height={92} marginLeft={-6} >
+          <TouchableOpacity onPress={animate}>
+            <NavVault />
+          </TouchableOpacity>
+        </Box>
+        <Heading
+          title={'Wallets'}
+          subTitle={'Your daily spending and transactions'}
+          alignItems={'flex-end'}
+        />
+      </Box>
       {/* {Wallets } */}
       <FlatList
         data={[1, 2, 3, 4]}

@@ -12,13 +12,15 @@ import Heading from './Heading';
 // icons and images
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Btc from 'src/assets/images/svgs/btcIcon.svg';
+import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
+
 // data
 import {
   BACKUP_KEYS,
   defaultBackupKeys,
 } from 'src/common/data/defaultData/defaultData';
 
-const Vaults = () => {
+const Vaults = ({ animate }) => {
   const [backupKeys, setBackupKeys] = useState<BACKUP_KEYS[]>([...defaultBackupKeys])
 
   const Header = ({ title, subTitle }) => {
@@ -49,7 +51,14 @@ const Vaults = () => {
     >
       {/* this is Vault card Heading*/}
 
-      <Heading title={'Vault'} subTitle={'Your super secure bitcoin'} />
+      <Box flexDirection={'row'} justifyContent={'space-between'}>
+        <Heading title={'Vault'} subTitle={'Your super secure bitcoin'} />
+        <Box height={92} marginRight={-8}>
+          <TouchableOpacity onPress={animate}>
+            <NavWallet />
+          </TouchableOpacity>
+        </Box>
+      </Box>
       {/* this is brown card */}
 
       <Box

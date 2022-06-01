@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="121.813" height="123.601" viewBox="20 0 121.813 123.601" >
+  <defs>
+    <radialGradient id="radial-gradient" cx="0.5" cy="0.5" r="0.5" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#b17f44"/>
+      <stop offset="1" stop-color="#6e4a35"/>
+    </radialGradient>
+    <filter id="Union_18" x="0" y="0" width="121.813" height="123.601" filterUnits="userSpaceOnUse">
+      <feOffset dx="10" dy="10" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#c3c0bc" flood-opacity="0.62"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="nav_vault" transform="translate(20 -230)">
+    <g transform="matrix(1, 0, 0, 1, -20, 230)" filter="url(#Union_18)">
+      <path id="Union_18-2" data-name="Union 18" d="M38.552,63.6v-.018a6,6,0,0,1-1.4-.2L11.36,56.468a6,6,0,0,1-4.243-4.243L.2,26.442a6,6,0,0,1,1.553-5.8L20.636,1.772A6,6,0,0,1,24.364.037V0H61.813V63.6Z" transform="translate(81.81 83.6) rotate(180)" fill="url(#radial-gradient)"/>
+    </g>
+    <g id="shield" transform="translate(14.907 269.361)">
+      <path id="Path" d="M1.276,3.687,10.945.12a1.932,1.932,0,0,1,1.339,0l9.668,3.567A1.937,1.937,0,0,1,23.209,5.5v5.354a14.156,14.156,0,0,1-11.3,14.255,1.864,1.864,0,0,1-.61,0A14.156,14.156,0,0,1,.005,10.856V5.5A1.937,1.937,0,0,1,1.276,3.687Z" transform="translate(0)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

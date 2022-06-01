@@ -16,6 +16,7 @@ import Vaults from './Vaults';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import Basic from 'src/assets/images/svgs/basic.svg';
 
 type Props = {
   navigation: any;
@@ -70,16 +71,6 @@ const NewHomeScreen = ({ navigation }: Props) => {
     ).start()
   }
 
-  const stopAnimation = () => {
-    setWalletPosition(
-      walletPosition  // this forces the left position to remain the same considering the `componentDidMount` method already happened
-    )
-  }
-
-  useEffect(() => {
-    true ? moveLeft() : moveRight()
-  }, [])
-
   return (
     <Box flex={1} backgroundColor={'light.greenText'}>
       <Box style={styles.headerContainer}>
@@ -88,7 +79,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
         </Pressable>
         <Box alignItems={'center'} flexDirection={'column'}>
           <Pressable marginY={2}>
-            <SettingIcon />
+            <Basic />
           </Pressable>
           <Text color={'light.textLight'} fontSize={RFValue(18)} fontFamily={'body'} fontWeight={'100'} marginY={'2'}>
             Your stack is safe
@@ -111,10 +102,10 @@ const NewHomeScreen = ({ navigation }: Props) => {
       </Box>
       <View style={{ flexDirection: 'row', width: '100%' }}>
         <Animated.View style={{ left: vaultPosition, width: '100%' }}>
-          <Vaults />
+          <Vaults animate={moveLeft} />
         </Animated.View>
         <Animated.View style={{ left: walletPosition, width: '100%' }}>
-          <Wallets />
+          <Wallets animate={moveRight} />
         </Animated.View>
       </View>
     </Box >
