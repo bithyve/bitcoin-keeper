@@ -256,9 +256,8 @@ export interface TriggerPolicy {
 
 export interface WalletShell {
   shellId: string;
-  walletInstanceCount: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
-  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
-  trigger?: TriggerPolicy;
+  walletInstances: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
+  triggerPolicyId?: string;
 }
 
 export interface Vault {}
@@ -280,9 +279,8 @@ export interface InheritancePolicy {
 
 export interface VaultShell {
   shellId: string;
-  vaultInstanceCount: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
-  vaults: Vault[];
-  inheritance?: InheritancePolicy;
+  vaultInstances: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
+  inheritancePolicyId?: string;
 }
 
 export interface Gift {

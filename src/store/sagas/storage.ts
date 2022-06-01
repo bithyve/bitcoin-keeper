@@ -2,13 +2,13 @@ import * as bip39 from 'bip39';
 import crypto from 'crypto';
 import DeviceInfo from 'react-native-device-info';
 import { SETUP_KEEPER_APP, updateKeeperApp } from '../actions/storage';
-import { put } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { updateRealm } from 'src/storage/realm/dbManager';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
 import { WalletShell } from 'src/core/wallets/interfaces/interface';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
-import { RealmSchema } from 'src/storage/realm/schema/enum';
+import { RealmSchema } from 'src/storage/realm/enum';
+import dbManager from 'src/storage/realm/dbManager';
 
 function* setupWalletWorker({ payload }) {
   const { appName }: { appName: string } = payload;
@@ -18,8 +18,7 @@ function* setupWalletWorker({ payload }) {
 
   const walletShell: WalletShell = {
     shellId: crypto.randomBytes(12).toString('hex'),
-    walletInstanceCount: {},
-    wallets: [],
+    walletInstances: {},
   };
 
   const userTier: UserTier = {
@@ -31,7 +30,10 @@ function* setupWalletWorker({ payload }) {
     appName,
     primaryMnemonic,
     primarySeed: primarySeed.toString('hex'),
-    walletShell,
+    walletShells: {
+      shells: [walletShell.shellId],
+      activeShell: walletShell.shellId,
+    },
     userTier,
     version: DeviceInfo.getVersion(),
   };
@@ -39,7 +41,9 @@ function* setupWalletWorker({ payload }) {
   //Will be removed once Realm is integrated
   yield put(updateKeeperApp(app));
 
-  updateRealm(RealmSchema.KeeperApp, app);
+  yield call(dbManager.initializeRealm, Buffer.from('random'));
+  yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+  yield call(dbManager.getObject, RealmSchema.KeeperApp);
 }
 
 export const setupWalletWatcher = createWatcher(setupWalletWorker, SETUP_KEEPER_APP);
