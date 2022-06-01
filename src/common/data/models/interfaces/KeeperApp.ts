@@ -12,11 +12,17 @@ export interface UserTier {
 
 export interface KeeperApp {
   appId: string;
-  appName: string;
+  appName?: string;
   primaryMnemonic: string;
   primarySeed: string;
-  walletShell: WalletShell;
-  vaultShell?: VaultShell;
+  walletShells?: {
+    shells: string[];
+    activeShell: string;
+  };
+  vaultShells?: {
+    shells: string[];
+    activeShell: string;
+  };
   twoFADetails?: TwoFADetails;
   nodeConnect?: NodeConnect;
   uai?: any;

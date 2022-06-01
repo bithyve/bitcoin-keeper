@@ -92,9 +92,6 @@ PODS:
     - FlipperKit/Core
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
-  - GCDWebServer (3.5.4):
-    - GCDWebServer/Core (= 3.5.4)
-  - GCDWebServer/Core (3.5.4)
   - glog (0.3.5)
   - libevent (2.1.12)
   - MMKV (1.2.13):
@@ -394,8 +391,7 @@ PODS:
     - React-jsi (= 0.67.4)
     - React-logger (= 0.67.4)
     - React-perflogger (= 0.67.4)
-  - RealmJS (10.17.0):
-    - GCDWebServer
+  - RealmJS (10.20.0-beta.5):
     - React
   - RNDeviceInfo (8.5.1):
     - React-Core
@@ -538,7 +534,6 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - fmt
-    - GCDWebServer
     - libevent
     - MMKV
     - MMKVCore
@@ -685,7 +680,6 @@ SPEC CHECKSUMS:
   Flipper-RSocket: d9d9ade67cbecf6ac10730304bf5607266dd2541
   FlipperKit: d8d346844eca5d9120c17d441a2f38596e8ed2b9
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   MMKV: aac95d817a100479445633f2b3ed8961b4ac5043
@@ -723,7 +717,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 3b52a7dced19cdb025b4f88ab26ceb2d85f30ba2
   React-runtimeexecutor: a9d3c82ddf7ffdad9fbe6a81c6d6f8c06385464d
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
-  RealmJS: 1974bf10182364d33d7b2beb3442344806888995
+  RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
   RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
   RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027

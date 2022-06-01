@@ -1,12 +1,21 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from '../enum';
 
 export const WalletShellShcema: ObjectSchema = {
-  name: 'WalletShell',
-  embedded: true,
+  name: RealmSchema.WalletShell,
   properties: {
     shellId: 'string',
-    walletInstanceCount: '{}',
-    wallets: 'Wallet[]',
-    trigger: 'TriggerPolicy?',
+    walletInstances: '{}',
+    triggerPolicyId: 'string?',
+  },
+  primaryKey: 'shellId',
+};
+
+export const WalletShellInstancesShcema: ObjectSchema = {
+  name: RealmSchema.WalletShellInstances,
+  embedded: true,
+  properties: {
+    shells: 'string[]',
+    activeShell: 'string',
   },
 };

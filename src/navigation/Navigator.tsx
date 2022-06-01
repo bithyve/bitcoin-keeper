@@ -6,6 +6,7 @@ import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
@@ -24,6 +25,7 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="Backup" component={BackupScreen} />

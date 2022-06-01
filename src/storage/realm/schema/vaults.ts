@@ -1,7 +1,7 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from '../enum';
 
 export const VaultShcema: ObjectSchema = {
-  name: 'Vault',
-  embedded: true,
+  name: RealmSchema.Vault,
   properties: {},
 };

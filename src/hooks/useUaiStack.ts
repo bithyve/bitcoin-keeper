@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RealmContext } from 'src/storage/realm/AppRealmProvider';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { UAIModel } from 'src/storage/realm/constants';
 
 const { useQuery } = RealmContext;
