@@ -11,6 +11,6 @@ export const realmConfig = {
 
 export const RealmContext = createRealmContext(realmConfig);
 
-export const RelamProvider = ({ children }) => {
+export const RealmProvider = ({ children }) => {
   return <RealmContext.RealmProvider>{children}</RealmContext.RealmProvider>;
 };

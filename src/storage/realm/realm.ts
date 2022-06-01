@@ -18,7 +18,7 @@ class RealmDatabase {
         path: 'keeper.realm',
         schema,
         schemaVersion: 1,
-        encryptionKey: key,
+        // encryptionKey: key,  // TODO: enable encryption key once realm provider issue is resolved
         migration: (oldRealm, newRealm) => {},
       };
       this.realm = await Realm.open(realmConfig);
@@ -60,11 +60,26 @@ class RealmDatabase {
    * @param  {any} object
    */
   public create = (schema: RealmSchema, object: any) => {
+    const realm = this.getDatabase();
     try {
-      const realm = this.getDatabase();
       this.writeTransaction(realm, () => {
         realm.create(schema, object);
       });
+      return true;
+    } catch (err) {
+      console.log({ err });
+      return false;
+    }
+  };
+
+  /**
+   * fetches objects corresponding to supplied schema
+   * @param  {RealmSchema} schema
+   */
+  public getObjects = (schema: RealmSchema) => {
+    const realm = this.getDatabase();
+    try {
+      return realm.objects(schema);
     } catch (err) {
       console.log({ err });
     }
@@ -75,8 +90,8 @@ class RealmDatabase {
    * @param  {} callback
    */
   public write = (callback) => {
+    const realm = this.getDatabase();
     try {
-      const realm = this.getDatabase();
       this.writeTransaction(realm, callback);
     } catch (err) {
       console.log({ err });
@@ -88,8 +103,8 @@ class RealmDatabase {
    * @param  {any} object
    */
   public delete = (object: any) => {
+    const realm = this.getDatabase();
     try {
-      const realm = this.getDatabase();
       this.writeTransaction(realm, () => {
         realm.delete(object);
       });
@@ -98,4 +113,5 @@ class RealmDatabase {
     }
   };
 }
+
 export default new RealmDatabase();

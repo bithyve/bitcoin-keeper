@@ -32,7 +32,7 @@ import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import { loginWithHexa } from 'src/store/actions/wallets';
 import { setupKeeperApp } from 'src/store/actions/storage';
-import { RealmContext } from 'src/storage/realm/AppRealmProvider';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 
 type Props = {
