@@ -397,6 +397,8 @@ PODS:
     - React-Core
   - RNGestureHandler (2.3.2):
     - React-Core
+  - RNLocalize (2.2.1):
+    - React-Core
   - RNOS (1.2.6):
     - React
   - RNReanimated (2.5.0):
@@ -514,6 +516,7 @@ DEPENDENCIES:
   - RealmJS (from `../node_modules/realm`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNOS (from `../node_modules/react-native-os`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -641,6 +644,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNOS:
     :path: "../node_modules/react-native-os"
   RNReanimated:
@@ -720,6 +725,7 @@ SPEC CHECKSUMS:
   RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
   RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
   RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
+  RNLocalize: cbcb55d0e19c78086ea4eea20e03fe8000bbbced
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNReanimated: 190b6930d5d94832061278e1070bbe313e50c830
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
@@ -730,4 +736,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: fa0049364665b2e392cbfb42be846253a9b12462
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.11.2
