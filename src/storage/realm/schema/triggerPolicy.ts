@@ -1,7 +1,8 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 export const TriggerPolicySchema: ObjectSchema = {
-  name: 'TriggerPolicy',
+  name: RealmSchema.TriggerPolicy,
   embedded: true,
   properties: {
     policyId: 'string',

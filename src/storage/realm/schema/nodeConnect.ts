@@ -1,7 +1,8 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from './enum';
 
 export const NodeConnectSchema: ObjectSchema = {
-  name: 'NodeConnect',
+  name: RealmSchema.NodeConnect,
   embedded: true,
   properties: {},
 };
