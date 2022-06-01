@@ -8,10 +8,12 @@ import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
+import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
+import SendScreen from 'src/screens/Send/SendScreen';
+
 import React from 'react';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -33,6 +35,8 @@ const Navigator = () => {
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Test" component={TestingBottomsheet} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
+        <Stack.Screen name="Send" component={SendScreen} />
+        <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
