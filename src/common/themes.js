@@ -28,11 +28,16 @@ export const customTheme = extendTheme({
       light: '#00836A',
       lightYellow: '#FDF7F0',
       white: '#FAFAFA',
+      white1: '#FFFFFF',
       lightBlack: '#041513',
       brown: '#D8A572',
       textBlack: '#092C27',
       greenText: '#073E39',
       lightBlue: '#62C5BF',
+      darkBackground: '#232523',
+      textLight: '#FAFCFC',
+      textDark: '#30292F',
+      yellow1: '#FAC48B'
     },
     dark: {
       black: '#000000',
