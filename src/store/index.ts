@@ -19,7 +19,7 @@ import walletsReducer from './reducers/wallets';
 import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
-import { setupWalletWatcher } from './sagas/storage';
+import { setupKeeperAppWatcher } from './sagas/storage';
 import storageReducer from './reducers/storage';
 
 const config = {
@@ -30,7 +30,7 @@ const config = {
 const rootSaga = function* () {
   const sagas = [
     // storage watchers
-    setupWalletWatcher,
+    setupKeeperAppWatcher,
 
     // wallet watchers
     syncWalletsWatcher,

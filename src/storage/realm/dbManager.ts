@@ -25,10 +25,9 @@ const createObject = (schema: RealmSchema, object: any) => {
  * generic :: fetches an object corresponding to provided schema
  * @param  {RealmSchema} schema
  */
-const getObject = async (schema: RealmSchema) => {
-  const ref = realm.getObjects(schema);
-  console.log({ ref });
-  return ref;
+const getObject = async (schema: RealmSchema, instance: number = 0) => {
+  const objects = realm.getObjects(schema);
+  return objects[instance];
 };
 
 const updateKeeperApp = async (updateProps: any) => {
