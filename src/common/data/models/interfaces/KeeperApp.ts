@@ -15,7 +15,7 @@ export interface KeeperApp {
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;
-  walletShells: {
+  walletShells?: {
     shells: string[];
     activeShell: string;
   };
