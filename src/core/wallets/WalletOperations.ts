@@ -11,7 +11,6 @@ import config from '../config';
 import idx from 'idx';
 import {
   Wallet,
-  Wallets,
   ActiveAddressAssignee,
   ActiveAddresses,
   AverageTxFees,
@@ -168,11 +167,11 @@ export default class WalletOperations {
   };
 
   static syncWallets = async (
-    wallets: Wallets,
+    wallets: (Wallet | MultiSigWallet | DonationWallet)[],
     network: bitcoinJS.networks.Network,
     hardRefresh?: boolean
   ): Promise<{
-    synchedWallets: Wallets;
+    synchedWallets: (Wallet | MultiSigWallet | DonationWallet)[];
     txsFound: Transaction[];
     activeAddressesWithNewTxsMap: {
       [walletId: string]: ActiveAddresses;
@@ -200,7 +199,6 @@ export default class WalletOperations {
           [txId: string]: string;
         };
         contactName?: string;
-        primaryWalletType?: string;
         walletName?: string;
         hardRefresh?: boolean;
       };
@@ -210,7 +208,7 @@ export default class WalletOperations {
         internalAddresses: { [address: string]: number };
       };
     } = {};
-    for (const wallet of Object.values(wallets)) {
+    for (const wallet of wallets) {
       const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
         ? DerivationPurpose.BIP84
         : DerivationPurpose.BIP49;
@@ -320,7 +318,7 @@ export default class WalletOperations {
 
     const txsFound: Transaction[] = [];
     const activeAddressesWithNewTxsMap: { [walletId: string]: ActiveAddresses } = {};
-    for (const wallet of Object.values(wallets)) {
+    for (const wallet of wallets) {
       const {
         UTXOs,
         transactions,

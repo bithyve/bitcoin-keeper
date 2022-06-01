@@ -502,7 +502,6 @@ export default class WalletUtilities {
           [txId: string]: string;
         };
         contactName?: string;
-        primaryWalletType?: string;
         walletName?: string;
         hardRefresh?: boolean;
       };
@@ -629,7 +628,6 @@ export default class WalletUtilities {
           internalAddresses,
           cachedTxIdMap,
           walletType,
-          primaryWalletType,
           walletName,
           transactionsNote,
         } = wallets[walletId];
@@ -686,7 +684,6 @@ export default class WalletUtilities {
                     transactionType: TransactionType.SENT,
                     amount: tx.SentAmount,
                     walletType: walletType,
-                    primaryWalletType,
                     recipientAddresses: tx.RecipientAddresses,
                     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                     address: addressInfo.Address,
@@ -705,7 +702,6 @@ export default class WalletUtilities {
                     transactionType: TransactionType.RECEIVED,
                     amount: tx.ReceivedAmount,
                     walletType: walletType,
-                    primaryWalletType,
                     senderAddresses: tx.SenderAddresses,
                     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                     isNew: true,
@@ -725,7 +721,6 @@ export default class WalletUtilities {
                     transactionType: tx.TransactionType,
                     amount: tx.Amount,
                     walletType,
-                    primaryWalletType,
                     walletName: walletName ? walletName : walletType,
                     recipientAddresses: tx.RecipientAddresses,
                     senderAddresses: tx.SenderAddresses,

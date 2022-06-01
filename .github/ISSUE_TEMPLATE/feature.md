@@ -18,3 +18,9 @@ A clear and concise description of the app
 Task Break Down
 -TASK 1
 -TASK 2
+
+ERD 
+
+Related Diagrams 
+
+Test Cases

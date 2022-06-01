@@ -1,5 +1,10 @@
 import { WalletVisibility } from 'src/core/wallets/interfaces/enum';
-import { Wallet, Wallets, Gift, MultiSigWallet } from 'src/core/wallets/interfaces/interface';
+import {
+  Wallet,
+  Gift,
+  MultiSigWallet,
+  DonationWallet,
+} from 'src/core/wallets/interfaces/interface';
 import { newWalletDetails, newWalletsInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -35,7 +40,7 @@ export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
 export const GENERATE_GIFTS = 'GENERATE_GIFTS';
 
 export const syncWallets = (
-  wallets: Wallets,
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[],
   options: {
     hardRefresh?: boolean;
     blindRefresh?: boolean;
@@ -191,7 +196,7 @@ export const recomputeNetBalance = () => {
 };
 
 export const refreshWallets = (
-  wallets: Wallet[],
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[],
   options: { hardRefresh?: boolean; syncDonationWallet?: boolean }
 ) => {
   return {
@@ -203,14 +208,14 @@ export const refreshWallets = (
   };
 };
 
-export const walletsRefreshStarted = (payload: Wallet[]) => {
+export const walletsRefreshStarted = (payload: (Wallet | MultiSigWallet | DonationWallet)[]) => {
   return {
     type: WALLETS_REFRESH_STARTED,
     payload,
   };
 };
 
-export const walletsRefreshCompleted = (payload: Wallet[]) => {
+export const walletsRefreshCompleted = (payload: (Wallet | MultiSigWallet | DonationWallet)[]) => {
   return {
     type: WALLETS_REFRESH_COMPLETED,
     payload,
@@ -354,7 +359,11 @@ export const twoFAResetted = (resetted) => {
   };
 };
 
-export const newWalletsAdded = ({ wallets }: { wallets: Wallets }) => {
+export const newWalletsAdded = ({
+  wallets,
+}: {
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
+}) => {
   return {
     type: NEW_WALLET_ADDED,
     payload: {
@@ -363,7 +372,11 @@ export const newWalletsAdded = ({ wallets }: { wallets: Wallets }) => {
   };
 };
 
-export const updateWallets = ({ wallets }: { wallets: Wallets }) => {
+export const updateWallets = ({
+  wallets,
+}: {
+  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
+}) => {
   return {
     type: UPDATE_WALLETS,
     payload: {

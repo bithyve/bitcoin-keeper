@@ -1,0 +1,15 @@
+export enum RealmSchema {
+  KeeperApp = 'KeeperApp',
+  Wallet = 'Wallet',
+  WalletShell = 'WalletShell',
+  WalletShellInstances = 'WalletShellInstances',
+  Vault = 'Vault',
+  VaultShell = 'VaultShell',
+  VaultShellInstances = 'VaultShellInstances',
+  InheritancePolicy = 'InheritancePolicy',
+  TriggerPolicy = 'TriggerPolicy',
+  TwoFADetails = 'TwoFADetails',
+  NodeConnect = 'NodeConnect',
+  UserTier = 'UserTier',
+  UAI = 'UAI',
+}

@@ -1,15 +1,53 @@
-import Realm from 'realm';
-import { realmConfig } from './AppRealmProvider';
+import { RealmSchema } from './enum';
+import realm from './realm';
 
-// DB Manager
-// UI will not talk to DB directly, sagas will do via database manager
-// DB manager will make robust covering moost of the use cases
+/**
+ * intializes realm
+ * @param  {ArrayBuffer|ArrayBufferView|Int8Array} key
+ * @returns Promise
+ */
+const initializeRealm = async (
+  key: ArrayBuffer | ArrayBufferView | Int8Array
+): Promise<boolean> => {
+  return await realm.initializeDatabase(key);
+};
 
-export const updateRealm = async (schema: string, object: any) => {
-  const realm = await Realm.open(realmConfig);
-  if (realm) {
-    realm.write(() => {
-      realm.create(schema, object);
-    });
+/**
+ * generic :: creates an object corresponding to provided schema
+ * @param  {RealmSchema} schema
+ * @param  {any} object
+ */
+const createObject = (schema: RealmSchema, object: any) => {
+  return realm.create(schema, object);
+};
+
+/**
+ * generic :: fetches an object corresponding to provided schema
+ * @param  {RealmSchema} schema
+ */
+const getObject = async (schema: RealmSchema, instance: number = 0) => {
+  const objects = realm.getObjects(schema);
+  return objects[instance];
+};
+
+const updateKeeperApp = async (updateProps: any) => {
+  try {
+    const keeperApp = getObject(RealmSchema.KeeperApp);
+    for (const [key, value] of Object.entries(updateProps)) {
+      realm.write(() => {
+        keeperApp[key] = value;
+      });
+    }
+    return true;
+  } catch (err) {
+    console.log({ err });
+    return false;
   }
+};
+
+export default {
+  initializeRealm,
+  createObject,
+  getObject,
+  updateKeeperApp,
 };
