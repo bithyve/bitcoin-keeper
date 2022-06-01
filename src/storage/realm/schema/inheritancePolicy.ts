@@ -3,7 +3,6 @@ import { RealmSchema } from '../enum';
 
 export const InheritancePolicySchema: ObjectSchema = {
   name: RealmSchema.InheritancePolicy,
-  embedded: true,
   properties: {
     policyId: 'string',
     date: 'string',

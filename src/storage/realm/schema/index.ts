@@ -7,16 +7,18 @@ import { TwoFADetailsSchema } from './twoFADetails';
 import { NodeConnectSchema } from './nodeConnect';
 import { UserTierSchema } from './userTier';
 import { UAISchema } from './uai';
-import { WalletShellShcema } from './walletShell';
-import { VaultShellSchema } from './vaultShell';
+import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
+import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 
 export default [
   KeeperAppSchema,
-  WalletShellShcema,
   WalletSchema,
+  WalletShellShcema,
+  WalletShellInstancesShcema,
   TriggerPolicySchema,
-  VaultShellSchema,
   VaultShcema,
+  VaultShellSchema,
+  VaultShellInstancesShcema,
   InheritancePolicySchema,
   TwoFADetailsSchema,
   NodeConnectSchema,

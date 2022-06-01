@@ -77,7 +77,6 @@ const WalletSpecs = {
 
 export const WalletSchema: ObjectSchema = {
   name: RealmSchema.Wallet,
-  embedded: true,
   properties: {
     id: 'string',
     type: 'string',

@@ -3,7 +3,6 @@ import { RealmSchema } from '../enum';
 
 export const TriggerPolicySchema: ObjectSchema = {
   name: RealmSchema.TriggerPolicy,
-  embedded: true,
   properties: {
     policyId: 'string',
     date: 'string',

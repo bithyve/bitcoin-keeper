@@ -27,6 +27,7 @@ const createObject = (schema: RealmSchema, object: any) => {
  */
 const getObject = async (schema: RealmSchema) => {
   const ref = realm.getObjects(schema);
+  console.log({ ref });
   return ref;
 };
 
