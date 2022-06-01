@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { RealmSchema } from './enum';
+import { RealmSchema } from '../enum';
 
 export const TwoFADetailsSchema: ObjectSchema = {
   name: RealmSchema.TwoFADetails,

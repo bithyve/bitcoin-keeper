@@ -6,6 +6,7 @@ import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import TestingBottomsheet from 'src/screens/TestingBottomsheet';
@@ -32,6 +33,7 @@ const Navigator = () => {
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="Test" component={TestingBottomsheet} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
+        <Stack.Screen name="NewHome" component={NewHomeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

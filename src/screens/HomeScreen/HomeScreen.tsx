@@ -34,7 +34,7 @@ import { updateFCMTokens } from '../../store/actions/notifications';
 import messaging from '@react-native-firebase/messaging'
 import { loginWithHexa } from 'src/store/actions/wallets';
 import { setupKeeperApp } from 'src/store/actions/storage';
-import { RealmContext } from 'src/storage/realm/AppRealmProvider';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 
 type Props = {
@@ -217,7 +217,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
             Anant
           </Text>
         </View>
-        <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'100'}>
+        <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'200'}>
           Your stack is safe
         </Text>
       </ImageBackground>
