@@ -20,7 +20,6 @@ import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
 import { setupKeeperAppWatcher } from './sagas/storage';
-import storageReducer from './reducers/storage';
 
 const config = {
   key: 'root',
@@ -63,7 +62,6 @@ const rootSaga = function* () {
 };
 
 const rootReducer = combineReducers({
-  storage: storageReducer,
   wallet: walletsReducer,
 });
 

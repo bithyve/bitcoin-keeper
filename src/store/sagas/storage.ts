@@ -2,10 +2,9 @@ import * as bip39 from 'bip39';
 import crypto from 'crypto';
 import DeviceInfo from 'react-native-device-info';
 import { SETUP_KEEPER_APP } from '../actions/storage';
-import { call, put } from 'redux-saga/effects';
+import { call } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
-import { WalletShell } from 'src/core/wallets/interfaces/interface';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
@@ -34,10 +33,9 @@ function* setupKeeperAppWorker({ payload }) {
     version: DeviceInfo.getVersion(),
   };
 
+  // TODO: realm init takes places during the logic flow, w/ appropriate AES key
   yield call(dbManager.initializeRealm, Buffer.from('random'));
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-  // const keeperApp: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
-  // yield call(dbManager.updateKeeperApp, { primarySeed: 'abcd' });
 }
 
 export const setupKeeperAppWatcher = createWatcher(setupKeeperAppWorker, SETUP_KEEPER_APP);
