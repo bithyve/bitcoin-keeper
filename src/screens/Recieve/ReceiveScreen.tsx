@@ -82,6 +82,7 @@ const ReceiveScreen = ({ }) => {
         <InfoBox
           title='Add amount'
           desciption='It would take some time for the sats to reflect in your account based on the network condition desciption'
+          width='65%'
         />
       </Box>
     </View>
