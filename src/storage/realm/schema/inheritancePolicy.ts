@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { RealmSchema } from './enum';
+import { RealmSchema } from '../enum';
 
 export const InheritancePolicySchema: ObjectSchema = {
   name: RealmSchema.InheritancePolicy,
@@ -24,4 +24,5 @@ export const InheritancePolicySchema: ObjectSchema = {
     },
     version: 'string',
   },
+  primaryKey: 'policyId',
 };

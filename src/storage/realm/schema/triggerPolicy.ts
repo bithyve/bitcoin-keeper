@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { RealmSchema } from './enum';
+import { RealmSchema } from '../enum';
 
 export const TriggerPolicySchema: ObjectSchema = {
   name: RealmSchema.TriggerPolicy,
@@ -10,4 +10,5 @@ export const TriggerPolicySchema: ObjectSchema = {
     specifications: '{}',
     version: 'string',
   },
+  primaryKey: 'policyId',
 };

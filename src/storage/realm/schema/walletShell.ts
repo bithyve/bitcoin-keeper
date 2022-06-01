@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { RealmSchema } from './enum';
+import { RealmSchema } from '../enum';
 
 export const WalletShellShcema: ObjectSchema = {
   name: RealmSchema.WalletShell,
@@ -10,4 +10,5 @@ export const WalletShellShcema: ObjectSchema = {
     wallets: 'Wallet[]',
     trigger: 'TriggerPolicy?',
   },
+  primaryKey: 'shellId',
 };

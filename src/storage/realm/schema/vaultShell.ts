@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { RealmSchema } from './enum';
+import { RealmSchema } from '../enum';
 
 export const VaultShellSchema: ObjectSchema = {
   name: RealmSchema.VaultShell,
@@ -10,4 +10,5 @@ export const VaultShellSchema: ObjectSchema = {
     vaults: 'Vault[]',
     inheritance: 'InheritancePolicy',
   },
+  primaryKey: 'shellId',
 };

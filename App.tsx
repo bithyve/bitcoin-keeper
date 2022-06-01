@@ -9,7 +9,7 @@ import Navigator from './src/navigation/Navigator';
 import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
 import makeStore from './src/store';
-import { AppRelamProvider } from 'src/storage/realm/AppRealmProvider';
+import { RelamProvider } from 'src/storage/realm/AppRealmProvider';
 
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
@@ -23,11 +23,11 @@ export default function AppWrapper() {
   const store = makeStore();
 
   return (
-    <AppRelamProvider>
+    <RelamProvider>
       <Provider store={store}>
         <App />
       </Provider>
-    </AppRelamProvider>
+    </RelamProvider>
   );
 }
 

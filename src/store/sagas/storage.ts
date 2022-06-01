@@ -8,7 +8,7 @@ import { updateRealm } from 'src/storage/realm/dbManager';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
 import { WalletShell } from 'src/core/wallets/interfaces/interface';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
-import { RealmSchema } from 'src/storage/realm/schema/enum';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 function* setupWalletWorker({ payload }) {
   const { appName }: { appName: string } = payload;

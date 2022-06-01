@@ -1,6 +1,6 @@
 import Realm from 'realm';
 import { realmConfig } from './AppRealmProvider';
-import { RealmSchema } from './schema/enum';
+import { RealmSchema } from './enum';
 
 // DB Manager
 // UI will not talk to DB directly, sagas will do via database manager
