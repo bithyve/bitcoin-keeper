@@ -49,12 +49,6 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const secureHexaRef = useRef(null);
   const dispatch = useDispatch();
 
-  // const { uaiStack } = useUaiStack();
-
-  // console.log(uaiStack?.length);
-
-  // const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
-  // const wallet = useSelector((state: RootStateOrAny) => state?.storage.app); //read it from realm
   const { useQuery } = RealmContext;
   const [app] = useQuery(RealmSchema.KeeperApp);
 
