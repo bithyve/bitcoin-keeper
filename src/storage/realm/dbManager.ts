@@ -25,17 +25,22 @@ const createObject = (schema: RealmSchema, object: any) => {
  * generic :: fetches an object corresponding to provided schema
  * @param  {RealmSchema} schema
  */
-const getObject = async (schema: RealmSchema, instance: number = 0) => {
-  const objects = realm.getObjects(schema);
+const getObject = (schema: RealmSchema, instance: number = 0) => {
+  const objects = realm.get(schema);
   return objects[instance];
 };
 
-const updateKeeperApp = async (updateProps: any) => {
+/**
+ * generic :: updates the object corresponding to provided schema w/ supplied props
+ * @param  {RealmSchema} schema
+ * @param  {any} updateProps
+ */
+const updateObject = (schema: RealmSchema, updateProps: any, instance?: number) => {
   try {
-    const keeperApp = getObject(RealmSchema.KeeperApp);
+    const object = getObject(schema, instance);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
-        keeperApp[key] = value;
+        object[key] = value;
       });
     }
     return true;
@@ -49,5 +54,5 @@ export default {
   initializeRealm,
   createObject,
   getObject,
-  updateKeeperApp,
+  updateObject,
 };

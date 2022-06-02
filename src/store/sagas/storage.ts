@@ -15,10 +15,10 @@ function* setupKeeperAppWorker({ payload }) {
   const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
   const appId = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
-  // const walletShell: WalletShell = {
-  //   shellId: crypto.randomBytes(12).toString('hex'),
-  //   walletInstances: {},
-  // };
+  const defaultWalletShell = {
+    shellId: crypto.randomBytes(12).toString('hex'),
+    walletInstances: {},
+  };
 
   const userTier: UserTier = {
     level: AppTierLevel.ONE,
@@ -29,6 +29,10 @@ function* setupKeeperAppWorker({ payload }) {
     appName,
     primaryMnemonic,
     primarySeed: primarySeed.toString('hex'),
+    walletShellInstances: {
+      shells: [defaultWalletShell.shellId],
+      activeShell: defaultWalletShell.shellId,
+    },
     userTier,
     version: DeviceInfo.getVersion(),
   };
@@ -36,6 +40,7 @@ function* setupKeeperAppWorker({ payload }) {
   // TODO: realm init takes places during the logic flow, w/ appropriate AES key
   yield call(dbManager.initializeRealm, Buffer.from('random'));
   yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+  yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 }
 
 export const setupKeeperAppWatcher = createWatcher(setupKeeperAppWorker, SETUP_KEEPER_APP);
