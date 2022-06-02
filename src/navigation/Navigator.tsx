@@ -30,7 +30,6 @@ const Navigator = () => {
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
-        <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
@@ -38,7 +37,6 @@ const Navigator = () => {
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
-        <Stack.Screen name="NewHome" component={NewHomeScreen} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
