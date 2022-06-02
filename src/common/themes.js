@@ -42,7 +42,7 @@ export const customTheme = extendTheme({
       recieverAddress: '#6C6C6C',
       textInputBackground: '#FCF6EF',
       ReceiveBackground: '#F7F2EC',
-      GreyText: '#4F5955'
+      GreyText: '#4F5955',
     },
     dark: {
       black: '#000000',
