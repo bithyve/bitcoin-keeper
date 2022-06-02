@@ -1,14 +1,117 @@
 import Realm from 'realm';
-import { UserPreferenceTable } from './UserPreferences';
+import { RealmSchema } from './enum';
+import schema from './schema';
 
-const schema = [UserPreferenceTable];
+class RealmDatabase {
+  private realm: Realm;
 
-export const initRealm = async (key: ArrayBuffer | ArrayBufferView | Int8Array) => {
-  await Realm.open({
-    path: 'keeper.realm',
-    schema,
-    schemaVersion: 1,
-    encryptionKey: key,
-    migration: (oldRealm, newRealm) => {},
-  });
-};
+  /**
+   * initializes/opens realm w/ appropriate configuration
+   * @param  {ArrayBuffer|ArrayBufferView|Int8Array} key
+   * @returns Promise
+   */
+  public initializeDatabase = async (
+    key: ArrayBuffer | ArrayBufferView | Int8Array
+  ): Promise<boolean> => {
+    try {
+      const realmConfig: Realm.Configuration = {
+        path: 'keeper.realm',
+        schema,
+        schemaVersion: 1,
+        // encryptionKey: key,  // TODO: enable encryption key once realm provider issue is resolved
+        migration: (oldRealm, newRealm) => {},
+      };
+      this.realm = await Realm.open(realmConfig);
+      return true;
+    } catch (err) {
+      console.log('failed to initialize the database');
+      return false;
+    }
+  };
+
+  /**
+   * fetches the current instance of the database
+   */
+  public getDatabase = (): Realm => {
+    if (this.realm) return this.realm;
+    else throw new Error('database not initialized');
+  };
+
+  /**
+   * function that modifies objects in a realm(aka write transaction)
+   * Write transactions let you create, modify, or delete Realm objects.
+   * It handles operations in a single, idempotent update. A write transaction is all or nothing
+   * @param  {} callback
+   */
+  public writeTransaction = (realm: Realm, callback) => {
+    return realm.write(callback);
+  };
+
+  /**
+   * close the database when done with a realm instance to avoid memory leaks.
+   */
+  public closeDatabase = () => {
+    if (this.realm) this.realm.close();
+  };
+
+  /**
+   * creates an object corresponding to the provided schema
+   * @param  {RealmSchema} schema
+   * @param  {any} object
+   */
+  public create = (schema: RealmSchema, object: any) => {
+    const realm = this.getDatabase();
+    try {
+      this.writeTransaction(realm, () => {
+        realm.create(schema, object);
+      });
+      return true;
+    } catch (err) {
+      console.log({ err });
+      return false;
+    }
+  };
+
+  /**
+   * fetches objects corresponding to supplied schema
+   * @param  {RealmSchema} schema
+   */
+  public getObjects = (schema: RealmSchema) => {
+    const realm = this.getDatabase();
+    try {
+      return realm.objects(schema);
+    } catch (err) {
+      console.log({ err });
+    }
+  };
+
+  /**
+   * generic write mechanism, modifies the database as per the callback
+   * @param  {} callback
+   */
+  public write = (callback) => {
+    const realm = this.getDatabase();
+    try {
+      this.writeTransaction(realm, callback);
+    } catch (err) {
+      console.log({ err });
+    }
+  };
+
+  /**
+   * removes the object from the database
+   * @param  {any} object
+   */
+  public delete = (object: any) => {
+    const realm = this.getDatabase();
+    try {
+      this.writeTransaction(realm, () => {
+        realm.delete(object);
+      });
+    } catch (err) {
+      console.log({ err });
+    }
+  };
+}
+
+export default new RealmDatabase();

@@ -1,12 +1,21 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from '../enum';
 
 export const VaultShellSchema: ObjectSchema = {
-  name: 'VaultShell',
-  embedded: true,
+  name: RealmSchema.VaultShell,
   properties: {
     shellId: 'string',
-    vaultInstanceCount: '{}',
-    vaults: 'Vault[]',
-    inheritance: 'InheritancePolicy',
+    vaultInstances: '{}',
+    inheritancePolicyId: 'string',
+  },
+  primaryKey: 'shellId',
+};
+
+export const VaultShellInstancesShcema: ObjectSchema = {
+  name: RealmSchema.VaultShellInstances,
+  embedded: true,
+  properties: {
+    shells: 'string[]',
+    activeShell: 'string',
   },
 };

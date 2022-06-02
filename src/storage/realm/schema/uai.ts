@@ -1,7 +1,7 @@
 import { ObjectSchema } from 'realm';
+import { RealmSchema } from '../enum';
 
 export const UAISchema: ObjectSchema = {
-  name: 'UAI',
-  embedded: true,
+  name: RealmSchema.UAI,
   properties: {},
 };
