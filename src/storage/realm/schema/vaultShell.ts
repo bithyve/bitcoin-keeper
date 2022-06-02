@@ -4,11 +4,11 @@ import { RealmSchema } from '../enum';
 export const VaultShellSchema: ObjectSchema = {
   name: RealmSchema.VaultShell,
   properties: {
-    shellId: 'string',
+    id: 'string',
     vaultInstances: '{}',
     inheritancePolicyId: 'string',
   },
-  primaryKey: 'shellId',
+  primaryKey: 'id',
 };
 
 export const VaultShellInstancesShcema: ObjectSchema = {

@@ -34,6 +34,9 @@ import { updateFCMTokens } from '../../store/actions/notifications';
 import messaging from '@react-native-firebase/messaging'
 import { loginWithHexa } from 'src/store/actions/wallets';
 import { setupKeeperApp } from 'src/store/actions/storage';
+import { addToUaiStack } from 'src/store/actions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -60,7 +63,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
       title: 'Add',
       subtitle: 'New Key',
       Icon: AddNewIcon,
-      onPress: () => navigation.navigate('Backup'),
+      onPress: () => dispatch(addToUaiStack('Cloud Back', false, uaiType.DISPLAY_MESSAGE, 10)),
     },
   ]);
 
