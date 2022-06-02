@@ -36,6 +36,8 @@ import { loginWithHexa } from 'src/store/actions/wallets';
 import { setupKeeperApp } from 'src/store/actions/storage';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
 type Props = {
   route: any | undefined;
@@ -46,11 +48,8 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const secureHexaRef = useRef(null);
   const dispatch = useDispatch();
 
-  //Hooks to manage live update of UI
   const { useQuery } = RealmContext;
-
-  const rehydrated = useSelector((state: RootStateOrAny) => state._persist.rehydrated);
-  const wallet = useSelector((state: RootStateOrAny) => state.storage.app); //read it from realm
+  const [app] = useQuery(RealmSchema.KeeperApp);
 
   const [parsedQRData, setParsedQRData] = useState(null);
   const [inheritanceReady, setInheritance] = useState<boolean>(false);
@@ -71,30 +70,17 @@ const HomeScreen = ({ navigation, route }: Props) => {
   const allWallets = [...defaultWallets, ...wallets, { isEnd: true }];
 
   useEffect(() => {
-    storeFCMToken();
-    if (!wallet && rehydrated) {
-      // await redux persist's rehydration
+    if (!app) {
       setTimeout(() => {
         dispatch(setupKeeperApp());
-        // console.log('else', wallet);
-      }, 1000); //realm a
+      }, 1000);
     }
-    // Alert.alert('Backedup successfully', `Alice’s Hexa Pay secured and backed up successfully`);
-  }, [wallet, rehydrated]);
+  }, [app])
 
   async function storeFCMToken() {
     const fcmToken = await messaging().getToken()
-    console.log(JSON.stringify(fcmToken))
-      dispatch(updateFCMTokens( [ fcmToken ] ))
+    dispatch(updateFCMTokens([fcmToken]))
   }
-  //Query the schema data needed
-  // const app = useQuery('KeeperApp');
-
-  //To test live update of data
-  // useEffect(() => {
-  //   console.log(app);
-  // }, [app]);
-
   useEffect(() => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {

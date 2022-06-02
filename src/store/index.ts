@@ -16,12 +16,11 @@ import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import { updateFCMTokensWatcher } from './sagas/notifications'
 import walletsReducer from './reducers/wallets';
-import notificationReducer from './reducers/notifications' 
+import notificationReducer from './reducers/notifications'
 import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
-import { setupWalletWatcher } from './sagas/storage';
-import storageReducer from './reducers/storage';
+import { setupKeeperAppWatcher } from './sagas/storage';
 
 const config = {
   key: 'root',
@@ -31,7 +30,7 @@ const config = {
 const rootSaga = function* () {
   const sagas = [
     // storage watchers
-    setupWalletWatcher,
+    setupKeeperAppWatcher,
 
     // wallet watchers
     syncWalletsWatcher,
@@ -65,7 +64,6 @@ const rootSaga = function* () {
 };
 
 const rootReducer = combineReducers({
-  storage: storageReducer,
   notifications: notificationReducer,
   wallet: walletsReducer,
 });

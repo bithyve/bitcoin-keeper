@@ -8,7 +8,7 @@ export const KeeperAppSchema: ObjectSchema = {
     appName: 'string?',
     primaryMnemonic: 'string',
     primarySeed: 'string',
-    walletShellInstances: RealmSchema.WalletShellInstances,
+    walletShellInstances: `${RealmSchema.VaultShellInstances}?`,
     vaultShellInstances: `${RealmSchema.VaultShellInstances}?`,
     twoFADetails: `${RealmSchema.TwoFADetails}?`,
     nodeConnect: `${RealmSchema.NodeConnect}?`,
