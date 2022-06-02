@@ -53,6 +53,7 @@ import {
   LightningNode,
   MultiSigWallet,
   MultiSigWalletSpecs,
+  WalletShell,
 } from 'src/core/wallets/interfaces/interface';
 import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/interfaces/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -69,7 +70,6 @@ export interface newWalletDetails {
 export interface newWalletsInfo {
   walletType: WalletType;
   walletDetails?: newWalletDetails;
-  recreationInstanceNumber?: number;
 }
 
 export function getNextFreeAddress(
@@ -133,7 +133,7 @@ export function* setup2FADetails(app: KeeperApp) {
     twoFADetails,
   };
 
-  yield call(dbManager.updateKeeperApp, { twoFADetails });
+  yield call(dbManager.updateObject, RealmSchema.KeeperApp, { twoFADetails });
   return updatedApp;
 }
 
@@ -194,7 +194,7 @@ function* resetTwoFAWorker({ payload }: { payload: { secondaryMnemonic: string }
       twoFAKey,
     };
 
-    yield call(dbManager.updateKeeperApp, { twoFADetails });
+    yield call(dbManager.updateObject, RealmSchema.KeeperApp, { twoFADetails });
     yield put(twoFAResetted(true));
   } else {
     yield put(twoFAResetted(false));
@@ -215,7 +215,7 @@ function* validateTwoFAWorker({ payload }: { payload: { token: number } }) {
         twoFAValidated: true,
       };
 
-      yield call(dbManager.updateKeeperApp, { twoFADetails });
+      yield call(dbManager.updateObject, RealmSchema.KeeperApp, { twoFADetails });
       yield put(twoFAValid(true));
     } else yield put(twoFAValid(false));
   } catch (error) {
@@ -272,11 +272,11 @@ export const testcoinsWatcher = createWatcher(testcoinsWorker, GET_TESTCOINS);
 export function* addNewWallet(
   walletType: WalletType,
   walletDetails: newWalletDetails,
-  recreationInstanceNumber?: number,
+  app: KeeperApp,
+  walletShell: WalletShell,
   importDetails?: { primaryMnemonic: string; primarySeed: string }
 ) {
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
-  const { appId, primaryMnemonic, walletShell } = app;
+  const { appId, primaryMnemonic } = app;
   const { walletInstances } = walletShell;
   const {
     name: walletName,
@@ -287,13 +287,11 @@ export function* addNewWallet(
 
   switch (walletType) {
     case WalletType.TEST:
-      const testInstanceCount =
-        recreationInstanceNumber !== undefined
-          ? recreationInstanceNumber
-          : walletInstances[WalletType.TEST]?.length | 0;
+      const testInstanceCount = walletInstances[WalletType.TEST] | 0;
       const testWallet: Wallet = yield call(generateWallet, {
         type: WalletType.TEST,
         instanceNum: testInstanceCount,
+        walletShellId: walletShell.shellId,
         walletName: walletName ? walletName : 'Test Wallet',
         walletDescription: 'Testnet Wallet',
         primaryMnemonic,
@@ -302,13 +300,11 @@ export function* addNewWallet(
       return testWallet;
 
     case WalletType.CHECKING:
-      const checkingInstanceCount =
-        recreationInstanceNumber !== undefined
-          ? recreationInstanceNumber
-          : walletInstances[WalletType.CHECKING]?.length | 0;
+      const checkingInstanceCount = walletInstances[WalletType.CHECKING] | 0;
       const checkingWallet: Wallet = yield call(generateWallet, {
         type: WalletType.CHECKING,
         instanceNum: checkingInstanceCount,
+        walletShellId: walletShell.shellId,
         walletName: walletName ? walletName : 'Checking Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         primaryMnemonic,
@@ -320,13 +316,11 @@ export function* addNewWallet(
     case WalletType.SAVINGS:
       // if( !wallet.secondaryXpub && !wallet.twoFADetails ) throw new Error( 'Fail to create savings wallet; secondary-xpub/twoFADetails missing' )
 
-      const savingsInstanceCount =
-        recreationInstanceNumber !== undefined
-          ? recreationInstanceNumber
-          : walletInstances[WalletType.SAVINGS]?.length | 0;
+      const savingsInstanceCount = walletInstances[WalletType.SAVINGS] | 0;
       const savingsWallet: MultiSigWallet = yield call(generateMultiSigWallet, {
         type: WalletType.SAVINGS,
         instanceNum: savingsInstanceCount,
+        walletShellId: walletShell.shellId,
         walletName: walletName ? walletName : 'Savings Wallet',
         walletDescription: walletDescription ? walletDescription : 'MultiSig Wallet',
         primaryMnemonic,
@@ -342,13 +336,11 @@ export function* addNewWallet(
         if (!app.secondaryXpub && !app.twoFADetails)
           throw new Error('Fail to create savings wallet; secondary-xpub/twoFADetails missing');
 
-      const donationInstanceCount =
-        recreationInstanceNumber !== undefined
-          ? recreationInstanceNumber
-          : walletInstances[walletType]?.length | 0;
+      const donationInstanceCount = walletInstances[walletType] | 0;
       const donationWallet: DonationWallet = yield call(generateDonationWallet, {
         type: walletType,
         instanceNum: donationInstanceCount,
+        walletShellId: walletShell.shellId,
         walletName: 'Donation Wallet',
         walletDescription: walletName ? walletName : 'Receive Donations',
         donationName: walletName,
@@ -384,13 +376,11 @@ export function* addNewWallet(
           break;
       }
 
-      const serviceInstanceCount =
-        recreationInstanceNumber !== undefined
-          ? recreationInstanceNumber
-          : walletInstances[walletType]?.length | 0;
+      const serviceInstanceCount = walletInstances[walletType] | 0;
       const serviceWallet: Wallet = yield call(generateWallet, {
         type: walletType,
         instanceNum: serviceInstanceCount,
+        walletShellId: walletShell.shellId,
         walletName: walletName ? walletName : defaultWalletName,
         walletDescription: walletDescription ? walletDescription : defaultWalletDescription,
         primaryMnemonic,
@@ -403,13 +393,11 @@ export function* addNewWallet(
 
     case WalletType.LIGHTNING:
       const { node } = walletDetails;
-      const lnWalletCount =
-        recreationInstanceNumber !== undefined
-          ? recreationInstanceNumber
-          : walletInstances[walletType]?.length | 0;
+      const lnWalletCount = walletInstances[walletType] | 0;
       const lnWallet: Wallet = yield call(generateWallet, {
         type: walletType,
         instanceNum: lnWalletCount,
+        walletShellId: walletShell.shellId,
         walletName: walletName ? walletName : defaultWalletName,
         walletDescription: walletDescription ? walletDescription : defaultWalletDescription,
         primaryMnemonic,
@@ -424,6 +412,7 @@ export function* addNewWallet(
       const importedWallet: Wallet = yield call(generateWallet, {
         type: WalletType.IMPORTED,
         instanceNum: importedInstanceCount,
+        walletShellId: walletShell.shellId,
         walletName: walletName ? walletName : 'Imported Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         primaryMnemonic: importDetails.primaryMnemonic,
@@ -439,47 +428,54 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   const walletIds = [];
   let testcoinsToWallet;
 
-  for (const { walletType, walletDetails, recreationInstanceNumber } of newWalletsInfo) {
+  // // TODO: remove after login flow is setup
+  // yield call(dbManager.initializeRealm, Buffer.from('random'));
+
+  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  // TODO: get walletShell by wsInstance's activeShell prop
+  // const { walletShellInstances } = app;
+  // const walletShell: WalletShell = yield call(
+  //   dbManager.getObject,
+  //   RealmSchema.WalletShellInstances,
+  //   walletShellInstances.activeShell
+  // );
+  const walletShell: WalletShell = yield call(dbManager.getObject, RealmSchema.WalletShell); // fetches the default wallet shell
+  for (const { walletType, walletDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
-      recreationInstanceNumber
+      app,
+      walletShell
     );
     walletIds.push(wallet.id);
     wallets.push(wallet);
-    // yield put( walletShellOrderedToFront( walletShell ) )
+
     if (wallet.type === WalletType.TEST && wallet.derivationDetails.instanceNum === 0)
       testcoinsToWallet = wallet;
   }
 
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
-  let presentWalletInstances = _.cloneDeep(app.walletShell.walletInstances);
+  let presentWalletInstances = walletShell.walletInstances;
+
   wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
-    if (presentWalletInstances[wallet.type]) {
-      if (!presentWalletInstances[wallet.type].includes(wallet.id))
-        presentWalletInstances[wallet.type].push(wallet.id);
-    } else
-      presentWalletInstances = {
-        ...presentWalletInstances,
-        [wallet.type]: [wallet.id],
-      };
+    if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
+    else presentWalletInstances = { [wallet.type]: 1 };
   });
 
-  const updatedApp: KeeperApp = {
-    ...app,
-    walletShell: {
-      ...app.walletShell,
-      walletInstances: presentWalletInstances,
-    },
-  };
-  yield call(dbManager.updateKeeperApp, updatedApp);
+  yield call(dbManager.updateObject, RealmSchema.WalletShell, {
+    walletInstances: presentWalletInstances,
+  });
+
+  // for (const wallet of wallets) {
+  //   yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+  // }
+
   yield put(
     newWalletsAdded({
       wallets: wallets,
     })
   );
-  // yield call( dbManager.createWallets, wallets )
+
   if (testcoinsToWallet) yield put(getTestcoins(testcoinsToWallet)); // pre-fill test-wallet w/ testcoins
 }
 
@@ -507,39 +503,46 @@ export function* importNewWalletWorker({
     primarySeed: bip39.mnemonicToSeedSync(payload.mnemonic).toString('hex'),
   };
 
-  for (const { walletType, walletDetails, recreationInstanceNumber } of newWalletsInfo) {
+  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  // TODO: get walletShell by wsInstance's activeShell prop
+  // const { walletShellInstances } = app;
+  // const walletShell: WalletShell = yield call(
+  //   dbManager.getObject,
+  //   RealmSchema.WalletShellInstances,
+  //   walletShellInstances.activeShell
+  // );
+  const walletShell: WalletShell = yield call(
+    dbManager.getObject,
+    RealmSchema.WalletShellInstances
+  ); // fetches the default wallet shell
+
+  for (const { walletType, walletDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
-      recreationInstanceNumber,
+      app,
+      walletShell,
       importDetails
     );
     walletIds.push(wallet.id);
     wallets.push(wallet);
   }
 
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
-  let presentWalletInstances = _.cloneDeep(app.walletShell.walletInstances);
+  let presentWalletInstances = _.cloneDeep(walletShell.walletInstances);
   wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
-    if (presentWalletInstances[wallet.type]) {
-      if (!presentWalletInstances[wallet.type].includes(wallet.id))
-        presentWalletInstances[wallet.type].push(wallet.id);
-    } else
-      presentWalletInstances = {
-        ...presentWalletInstances,
-        [wallet.type]: [wallet.id],
-      };
+    if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
+    else presentWalletInstances = { [wallet.type]: 1 };
   });
 
-  const updatedApp: KeeperApp = {
-    ...app,
-    walletShell: {
-      ...app.walletShell,
-      walletInstances: presentWalletInstances,
-    },
-  };
-  yield call(dbManager.updateKeeperApp, updatedApp);
+  yield call(dbManager.updateObject, RealmSchema.WalletShell, {
+    walletInstances: presentWalletInstances,
+  });
+
+  // for (const wallet of wallets) {
+  //   yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+  // }
+
   yield put(
     newWalletsAdded({
       wallets,
@@ -550,7 +553,6 @@ export function* importNewWalletWorker({
       hardRefresh: true,
     })
   );
-  // yield call( dbManager.createWallets, wallets )
 }
 
 export const importNewWalletWatcher = createWatcher(importNewWalletWorker, IMPORT_NEW_WALLET);
