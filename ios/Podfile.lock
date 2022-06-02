@@ -315,6 +315,8 @@ PODS:
   - react-native-mmkv (2.3.3):
     - MMKV (>= 1.2.13)
     - React-Core
+  - react-native-nfc-manager (3.13.3):
+    - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (4.2.1):
@@ -496,6 +498,7 @@ DEPENDENCIES:
   - react-native-flipper (from `../node_modules/react-native-flipper`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-udp (from `../node_modules/react-native-udp`)
@@ -605,6 +608,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-get-random-values"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-nfc-manager:
+    :path: "../node_modules/react-native-nfc-manager"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -702,6 +707,7 @@ SPEC CHECKSUMS:
   react-native-flipper: 1b78844db5b0de19bd64847c3b88cafc6cc119ba
   react-native-get-random-values: 30b3f74ca34e30e2e480de48e4add2706a40ac8f
   react-native-mmkv: 30297e5e2a65341b36a727c1c79b0aff0132b396
+  react-native-nfc-manager: 445de2abb7531bffcd697fdcd271b479ea53f34f
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 806f8370bf9fc9db90a3413aaa1aab0d2e22fdf3
   react-native-udp: 8864b1211857e9d8224ae5cbaf8580970fb99de1
