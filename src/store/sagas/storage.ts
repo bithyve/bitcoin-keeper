@@ -8,15 +8,15 @@ import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
+import { WalletShell } from 'src/core/wallets/interfaces/interface';
 
 function* setupKeeperAppWorker({ payload }) {
   const { appName }: { appName: string } = payload;
   const primaryMnemonic = bip39.generateMnemonic(256);
   const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-  const appId = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
-  const defaultWalletShell = {
-    shellId: crypto.randomBytes(12).toString('hex'),
+  const defaultWalletShell: WalletShell = {
+    id: crypto.randomBytes(12).toString('hex'),
     walletInstances: {},
   };
 
@@ -25,13 +25,13 @@ function* setupKeeperAppWorker({ payload }) {
   };
 
   const app: KeeperApp = {
-    appId,
+    id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
     appName,
     primaryMnemonic,
     primarySeed: primarySeed.toString('hex'),
     walletShellInstances: {
-      shells: [defaultWalletShell.shellId],
-      activeShell: defaultWalletShell.shellId,
+      shells: [defaultWalletShell.id],
+      activeShell: defaultWalletShell.id,
     },
     userTier,
     version: DeviceInfo.getVersion(),

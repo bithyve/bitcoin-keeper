@@ -4,10 +4,10 @@ import { RealmSchema } from '../enum';
 export const TriggerPolicySchema: ObjectSchema = {
   name: RealmSchema.TriggerPolicy,
   properties: {
-    policyId: 'string',
+    id: 'string',
     date: 'string',
     specifications: '{}',
     version: 'string',
   },
-  primaryKey: 'policyId',
+  primaryKey: 'id',
 };

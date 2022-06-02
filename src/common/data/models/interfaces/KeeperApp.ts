@@ -11,7 +11,7 @@ export interface UserTier {
 }
 
 export interface KeeperApp {
-  appId: string;
+  id: string;
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;

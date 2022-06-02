@@ -4,7 +4,7 @@ import { RealmSchema } from '../enum';
 export const KeeperAppSchema: ObjectSchema = {
   name: RealmSchema.KeeperApp,
   properties: {
-    appId: 'string',
+    id: 'string',
     appName: 'string?',
     primaryMnemonic: 'string',
     primarySeed: 'string',
@@ -16,5 +16,5 @@ export const KeeperAppSchema: ObjectSchema = {
     userTier: RealmSchema.UserTier,
     version: 'string',
   },
-  primaryKey: 'appId',
+  primaryKey: 'id',
 };

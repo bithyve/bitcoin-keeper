@@ -22,7 +22,7 @@ const createObject = (schema: RealmSchema, object: any) => {
 };
 
 /**
- * generic :: fetches an object corresponding to provided schema
+ * generic :: fetches an object corresponding to provided schema and the supplied instance num
  * @param  {RealmSchema} schema
  */
 const getObject = (schema: RealmSchema, instance: number = 0) => {
@@ -31,13 +31,24 @@ const getObject = (schema: RealmSchema, instance: number = 0) => {
 };
 
 /**
- * generic :: updates the object corresponding to provided schema w/ supplied props
+ * generic :: fetches an object corresponding to provided schema and the supplied id
  * @param  {RealmSchema} schema
+ * @param  {string} id
+ */
+const getObjectById = (schema: RealmSchema, id: string) => {
+  const objects = realm.get(schema);
+  return objects.filtered(`id == '${id}'`)[0];
+};
+
+/**
+ * generic :: updates the object, corresponding to provided schema and id, w/ supplied props
+ * @param  {RealmSchema} schema
+ * @param  {string} id
  * @param  {any} updateProps
  */
-const updateObject = (schema: RealmSchema, updateProps: any, instance?: number) => {
+const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => {
   try {
-    const object = getObject(schema, instance);
+    const object = getObjectById(schema, id);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
         object[key] = value;
@@ -54,5 +65,6 @@ export default {
   initializeRealm,
   createObject,
   getObject,
-  updateObject,
+  getObjectById,
+  updateObjectById,
 };

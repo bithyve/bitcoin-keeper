@@ -249,14 +249,14 @@ export interface DonationWallet extends Wallet {
 }
 
 export interface TriggerPolicy {
-  policyId: string;
+  id: string;
   date: string;
   specifications: {};
   version: string;
 }
 
 export interface WalletShell {
-  shellId: string;
+  id: string;
   walletInstances: { [walletType: string]: number }; // various wallet types mapped to corresponding number of instances
   triggerPolicyId?: string;
 }
@@ -264,7 +264,7 @@ export interface WalletShell {
 export interface Vault {}
 
 export interface InheritancePolicy {
-  policyId: string;
+  id: string;
   date: string;
   heir: {
     firstName: string;
@@ -279,7 +279,7 @@ export interface InheritancePolicy {
 }
 
 export interface VaultShell {
-  shellId: string;
+  id: string;
   vaultInstances: { [vaultType: string]: number }; // various vault types mapped to corresponding number of instances
   inheritancePolicyId?: string;
 }
