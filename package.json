@@ -31,7 +31,7 @@
     "bitcoinjs-lib": "^5.1.6",
     "browserify-zlib": "~0.1.4",
     "buffer": "^6.0.3",
-    "coinkite-tap-protocol-js": "git+ssh://git@github.com:bithyve/coinkite-tap-protocol-js.git#main",
+    "coinkite-tap-protocol-js": "git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#main",
     "coinselect": "^3.1.11",
     "console-browserify": "^1.1.0",
     "constants-browserify": "^1.0.0",
