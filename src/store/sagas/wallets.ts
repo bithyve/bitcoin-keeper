@@ -287,10 +287,9 @@ export function* addNewWallet(
 
   switch (walletType) {
     case WalletType.TEST:
-      const testInstanceCount = walletInstances[WalletType.TEST] | 0;
       const testWallet: Wallet = yield call(generateWallet, {
         type: WalletType.TEST,
-        instanceNum: testInstanceCount,
+        instanceNum: walletInstances[WalletType.TEST] | 0,
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Test Wallet',
         walletDescription: 'Testnet Wallet',
@@ -300,10 +299,9 @@ export function* addNewWallet(
       return testWallet;
 
     case WalletType.CHECKING:
-      const checkingInstanceCount = walletInstances[WalletType.CHECKING] | 0;
       const checkingWallet: Wallet = yield call(generateWallet, {
         type: WalletType.CHECKING,
-        instanceNum: checkingInstanceCount,
+        instanceNum: walletInstances[WalletType.CHECKING] | 0,
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Checking Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
@@ -316,10 +314,9 @@ export function* addNewWallet(
     case WalletType.SAVINGS:
       // if( !wallet.secondaryXpub && !wallet.twoFADetails ) throw new Error( 'Fail to create savings wallet; secondary-xpub/twoFADetails missing' )
 
-      const savingsInstanceCount = walletInstances[WalletType.SAVINGS] | 0;
       const savingsWallet: MultiSigWallet = yield call(generateMultiSigWallet, {
         type: WalletType.SAVINGS,
-        instanceNum: savingsInstanceCount,
+        instanceNum: walletInstances[WalletType.SAVINGS] | 0,
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Savings Wallet',
         walletDescription: walletDescription ? walletDescription : 'MultiSig Wallet',
@@ -336,10 +333,9 @@ export function* addNewWallet(
         if (!app.secondaryXpub && !app.twoFADetails)
           throw new Error('Fail to create savings wallet; secondary-xpub/twoFADetails missing');
 
-      const donationInstanceCount = walletInstances[walletType] | 0;
       const donationWallet: DonationWallet = yield call(generateDonationWallet, {
         type: walletType,
-        instanceNum: donationInstanceCount,
+        instanceNum: walletInstances[walletType] | 0,
         walletShellId: walletShell.id,
         walletName: 'Donation Wallet',
         walletDescription: walletName ? walletName : 'Receive Donations',
@@ -376,10 +372,9 @@ export function* addNewWallet(
           break;
       }
 
-      const serviceInstanceCount = walletInstances[walletType] | 0;
       const serviceWallet: Wallet = yield call(generateWallet, {
         type: walletType,
-        instanceNum: serviceInstanceCount,
+        instanceNum: walletInstances[walletType] | 0,
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : defaultWalletName,
         walletDescription: walletDescription ? walletDescription : defaultWalletDescription,
@@ -393,10 +388,9 @@ export function* addNewWallet(
 
     case WalletType.LIGHTNING:
       const { node } = walletDetails;
-      const lnWalletCount = walletInstances[walletType] | 0;
       const lnWallet: Wallet = yield call(generateWallet, {
         type: walletType,
-        instanceNum: lnWalletCount,
+        instanceNum: walletInstances[walletType] | 0,
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : defaultWalletName,
         walletDescription: walletDescription ? walletDescription : defaultWalletDescription,
@@ -408,10 +402,9 @@ export function* addNewWallet(
       return lnWallet;
 
     case WalletType.IMPORTED:
-      const importedInstanceCount = 0; // imported wallets always have instance number equal to zero(as they're imported using different seeds)
       const importedWallet: Wallet = yield call(generateWallet, {
         type: WalletType.IMPORTED,
-        instanceNum: importedInstanceCount,
+        instanceNum: 0, // imported wallets always have instance number equal to zero(as they're imported using different seeds)
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Imported Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
