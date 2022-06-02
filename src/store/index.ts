@@ -20,7 +20,7 @@ import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
 import { setupWalletWatcher } from './sagas/storage';
-import { addUaiStackWatcher } from './sagas/uai';
+import { addUaiStackWatcher, updateUaiStackWatcher } from './sagas/uai';
 // import { setupKeeperAppWatcher } from './sagas/storage';
 
 const config = {
@@ -35,7 +35,7 @@ const rootSaga = function* () {
 
     // UAI watchers
     addUaiStackWatcher,
-
+    updateUaiStackWatcher,
     // accounts watchers
     // syncAccountsWatcher,
     // wallet watchers

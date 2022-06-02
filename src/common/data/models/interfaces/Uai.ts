@@ -3,6 +3,9 @@ export interface UAI {
   title: string;
   notificationId?: string;
   isActioned: boolean;
+  isDisplay: boolean;
+  displayText?: string;
+  displayCount: number;
   timeStamp: Date;
   uaiType: uaiType;
   prirority: number;

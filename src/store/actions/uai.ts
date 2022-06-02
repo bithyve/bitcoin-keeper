@@ -1,25 +1,38 @@
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { v4 as uuidv4 } from 'uuid';
-export const ADD_TO_UAI_STACK = 'ADD_TO_STACK';
+export const ADD_TO_UAI_STACK = 'ADD_TO_UAI_STACK';
+export const UPADTE_UAI_STACK = 'UPADTE_UAI_STACK';
 
 export const addToUaiStack = (
   title: string,
-  isActioned: boolean,
+  isDisplay: boolean,
   uaiType: uaiType,
-  prirority: number
+  prirority: number,
+  displayText: string | null
 ) => {
   const uai = {
     id: uuidv4(),
     title,
-    isActioned,
+    isActioned: false,
+    isDisplay,
+    displayText,
+    displayCount: 0,
     timeStamp: new Date(),
     uaiType,
     prirority,
   };
-  console.log('asdf');
 
   return {
     type: ADD_TO_UAI_STACK,
+    payload: {
+      uai,
+    },
+  };
+};
+
+export const updateUaiStack = (uai: UAI) => {
+  return {
+    type: UPADTE_UAI_STACK,
     payload: {
       uai,
     },

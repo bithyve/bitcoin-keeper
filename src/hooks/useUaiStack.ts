@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
-import { UAIModel } from 'src/storage/realm/constants';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const { useQuery } = RealmContext;
 
 export const useUaiStack = () => {
   const [uaiStack, setuaiStack] = useState([]);
-  const UAIcollection = useQuery(UAIModel);
+  const UAIcollection = useQuery(RealmSchema.UAI);
 
   //TO-DO: fetch notifications and converto UAI
 
