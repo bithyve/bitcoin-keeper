@@ -19,6 +19,7 @@ import {
 export const generateWallet = async ({
   type,
   instanceNum,
+  walletShellId,
   walletName,
   walletDescription,
   primaryMnemonic,
@@ -27,6 +28,7 @@ export const generateWallet = async ({
 }: {
   type: WalletType;
   instanceNum: number;
+  walletShellId: string;
   walletName: string;
   walletDescription: string;
   primaryMnemonic: string;
@@ -104,6 +106,7 @@ export const generateWallet = async ({
   const wallet: Wallet = {
     id,
     type,
+    walletShellId,
     isUsable: true,
     derivationDetails,
     presentationData,
@@ -115,6 +118,7 @@ export const generateWallet = async ({
 export const generateMultiSigWallet = async ({
   type,
   instanceNum,
+  walletShellId,
   walletName,
   walletDescription,
   primaryMnemonic,
@@ -124,6 +128,7 @@ export const generateMultiSigWallet = async ({
 }: {
   type: WalletType;
   instanceNum: number;
+  walletShellId: string;
   walletName: string;
   walletDescription: string;
   primaryMnemonic: string;
@@ -218,6 +223,7 @@ export const generateMultiSigWallet = async ({
   const multiSigWallet: MultiSigWallet = {
     id,
     isUsable,
+    walletShellId,
     type,
     derivationDetails,
     presentationData,
@@ -230,6 +236,7 @@ export const generateMultiSigWallet = async ({
 export const generateDonationWallet = async ({
   type,
   instanceNum,
+  walletShellId,
   walletName,
   walletDescription,
   donationName,
@@ -243,6 +250,7 @@ export const generateDonationWallet = async ({
 }: {
   type: WalletType;
   instanceNum: number;
+  walletShellId: string;
   walletName: string;
   walletDescription: string;
   donationName: string;
@@ -259,6 +267,7 @@ export const generateDonationWallet = async ({
     baseWallet = await generateMultiSigWallet({
       type,
       instanceNum,
+      walletShellId,
       walletName,
       walletDescription,
       primaryMnemonic,
@@ -270,6 +279,7 @@ export const generateDonationWallet = async ({
     baseWallet = await generateWallet({
       type,
       instanceNum,
+      walletShellId,
       walletName,
       walletDescription,
       primaryMnemonic,
