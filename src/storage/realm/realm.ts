@@ -22,7 +22,6 @@ class RealmDatabase {
         migration: (oldRealm, newRealm) => {},
       };
       this.realm = await Realm.open(realmConfig);
-      console.log({ path: this.realm.path });
       return true;
     } catch (err) {
       console.log('failed to initialize the database');

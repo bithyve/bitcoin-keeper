@@ -432,14 +432,14 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   yield call(dbManager.initializeRealm, Buffer.from('random'));
 
   const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
-  console.log(JSON.stringify(app, null, 4));
+
   const { walletShellInstances } = app;
   const walletShell: WalletShell = yield call(
     dbManager.getObjectById,
     RealmSchema.WalletShell,
     walletShellInstances.activeShell
   );
-  console.log(JSON.stringify(walletShell, null, 4));
+
   for (const { walletType, walletDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
@@ -455,17 +455,17 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
       testcoinsToWallet = wallet;
   }
 
-  let presentWalletInstances = walletShell.walletInstances;
+  let presentWalletInstances = { ...walletShell.walletInstances };
 
   wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
-  console.log({ presentWalletInstances });
+
   yield call(dbManager.updateObjectById, RealmSchema.WalletShell, walletShell.id, {
     walletInstances: presentWalletInstances,
   });
-  console.log('done');
+
   // for (const wallet of wallets) {
   //   yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
   // }
@@ -523,8 +523,8 @@ export function* importNewWalletWorker({
     walletIds.push(wallet.id);
     wallets.push(wallet);
   }
-  console.log('here');
-  let presentWalletInstances = _.cloneDeep(walletShell.walletInstances);
+
+  let presentWalletInstances = { ...walletShell.walletInstances };
   wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
