@@ -6,5 +6,7 @@ const Colors = {
   secondaryBackgroundColor: 'rgb(236, 209, 182)',
   loginScreenBackground: 'rgb(47, 47, 47)',
   pinFiller: 'rgba(98, 197, 191, 1)',
+  textInputBackground: '#FCF6EF',
+  ReceiveBackground: '#F7F2EC'
 };
 export default Colors;

@@ -10,13 +10,13 @@ import { TouchableOpacity } from 'react-native';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
 
-const HeaderTitle = ({ title = '', subtitle = '', onPressHandler }) => {
+const HeaderTitle = ({ title = '', subtitle = '', onPressHandler, color = 'light.lightYellow' }) => {
   return (
-    <View background={'light.lightYellow'}>
+    <View background={color}>
       <TouchableOpacity onPress={onPressHandler} style={{ marginLeft: wp(2.5) }}>
         <BackButton />
       </TouchableOpacity>
-      <View style={{ marginTop: hp(2) }}>
+      <View style={{ marginTop: hp(1), marginLeft: wp(7) }}>
         <Text
           numberOfLines={1}
           style={styles.addWalletText}
