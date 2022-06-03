@@ -266,7 +266,7 @@ const CreatePin = ({ navigation }: any) => {
               )}
             </Box>
           </Box>
-          {attempts <= 1 && (
+          {attempts >= 1 && (
             <TouchableOpacity
               style={{
                 marginTop: '20%',

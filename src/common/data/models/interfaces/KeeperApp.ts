@@ -11,15 +11,15 @@ export interface UserTier {
 }
 
 export interface KeeperApp {
-  appId: string;
+  id: string;
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;
-  walletShells?: {
+  walletShellInstances: {
     shells: string[];
     activeShell: string;
   };
-  vaultShells?: {
+  vaultShellInstances?: {
     shells: string[];
     activeShell: string;
   };

@@ -63,7 +63,7 @@ class RealmDatabase {
     const realm = this.getDatabase();
     try {
       this.writeTransaction(realm, () => {
-        realm.create(schema, object);
+        realm.create(schema, object, Realm.UpdateMode.All);
       });
       return true;
     } catch (err) {
@@ -76,7 +76,7 @@ class RealmDatabase {
    * fetches objects corresponding to supplied schema
    * @param  {RealmSchema} schema
    */
-  public getObjects = (schema: RealmSchema) => {
+  public get = (schema: RealmSchema) => {
     const realm = this.getDatabase();
     try {
       return realm.objects(schema);

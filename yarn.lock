@@ -4496,9 +4496,9 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
 
-"coinkite-tap-protocol-js@git+ssh://git@github.com:bithyve/coinkite-tap-protocol-js.git#main":
+"coinkite-tap-protocol-js@git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#main":
   version "0.0.1"
-  resolved "git+ssh://git@github.com:bithyve/coinkite-tap-protocol-js.git#d748be86a35f9902e4d28831bd998960b64f13ec"
+  resolved "git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#d748be86a35f9902e4d28831bd998960b64f13ec"
   dependencies:
     "@ellipticoin/cbor" "^1.0.4"
     bech32 "^2.0.0"
@@ -11940,9 +11940,9 @@ uuid@^7.0.3:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.3.tgz#c5c9f2c8cf25dc0a372c4df1441c41f5bd0c680b"
   integrity sha512-DPSke0pXhTZgoF/d+WSt2QaKMCFSfx7QegxEWT+JOuHF5aWrKEn0G+ztjuJg/gG8/ItK+rbPCD/yNv8yyih6Cg==
 
-uuid@^8.3.0:
+uuid@^8.3.0, uuid@^8.3.2:
   version "8.3.2"
-  resolved "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@^2.0.3:
