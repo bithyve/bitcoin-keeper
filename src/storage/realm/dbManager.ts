@@ -22,20 +22,36 @@ const createObject = (schema: RealmSchema, object: any) => {
 };
 
 /**
- * generic :: fetches an object corresponding to provided schema
+ * generic :: fetches an object corresponding to provided schema and the supplied instance num
  * @param  {RealmSchema} schema
  */
-const getObject = async (schema: RealmSchema, instance: number = 0) => {
-  const objects = realm.getObjects(schema);
-  return objects[instance];
+const getObjectByIndex = (schema: RealmSchema, index: number = 0) => {
+  const objects = realm.get(schema);
+  return objects[index];
 };
 
-const updateKeeperApp = async (updateProps: any) => {
+/**
+ * generic :: fetches an object corresponding to provided schema and the supplied id
+ * @param  {RealmSchema} schema
+ * @param  {string} id
+ */
+const getObjectById = (schema: RealmSchema, id: string) => {
+  const objects = realm.get(schema);
+  return objects.filtered(`id == '${id}'`)[0];
+};
+
+/**
+ * generic :: updates the object, corresponding to provided schema and id, w/ supplied props
+ * @param  {RealmSchema} schema
+ * @param  {string} id
+ * @param  {any} updateProps
+ */
+const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => {
   try {
-    const keeperApp = getObject(RealmSchema.KeeperApp);
+    const object = getObjectById(schema, id);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
-        keeperApp[key] = value;
+        object[key] = value;
       });
     }
     return true;
@@ -48,6 +64,7 @@ const updateKeeperApp = async (updateProps: any) => {
 export default {
   initializeRealm,
   createObject,
-  getObject,
-  updateKeeperApp,
+  getObjectByIndex,
+  getObjectById,
+  updateObjectById,
 };

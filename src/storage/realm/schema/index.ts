@@ -1,4 +1,10 @@
 import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
+import {
+  WalletDerivationDetailsSchema,
+  WalletPresentationDataSchema,
+  WalletSchema,
+  WalletSpecsSchema,
+} from './wallets';
 import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
 
 import { InheritancePolicySchema } from './inheritancePolicy';
@@ -10,11 +16,13 @@ import { UAISchema } from './uai';
 import { UserTierSchema } from './userTier';
 import { VaultShcema } from './vaults';
 import { VaultSignerSchema } from './vaultSigner';
-import { WalletSchema } from './wallets';
 
 export default [
   KeeperAppSchema,
   WalletSchema,
+  WalletDerivationDetailsSchema,
+  WalletPresentationDataSchema,
+  WalletSpecsSchema,
   WalletShellShcema,
   WalletShellInstancesShcema,
   TriggerPolicySchema,

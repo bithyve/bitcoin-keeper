@@ -4,11 +4,11 @@ import { RealmSchema } from '../enum';
 export const WalletShellShcema: ObjectSchema = {
   name: RealmSchema.WalletShell,
   properties: {
-    shellId: 'string',
+    id: 'string',
     walletInstances: '{}',
     triggerPolicyId: 'string?',
   },
-  primaryKey: 'shellId',
+  primaryKey: 'id',
 };
 
 export const WalletShellInstancesShcema: ObjectSchema = {

@@ -30,8 +30,9 @@ const BIP85Config = {
   },
 };
 
-const WalletDerivationDetails = {
-  type: '{}',
+export const WalletDerivationDetailsSchema: ObjectSchema = {
+  name: RealmSchema.WalletDerivationDetails,
+  embedded: true,
   properties: {
     networkType: 'string',
     instanceNum: 'int',
@@ -41,8 +42,9 @@ const WalletDerivationDetails = {
   },
 };
 
-const WalletPresentationData = {
-  type: '{}',
+export const WalletPresentationDataSchema: ObjectSchema = {
+  name: RealmSchema.WalletPresentationData,
+  embedded: true,
   properties: {
     walletName: 'string',
     walletDescription: 'string',
@@ -51,27 +53,27 @@ const WalletPresentationData = {
   },
 };
 
-const WalletSpecs = {
-  type: '{}',
+export const WalletSpecsSchema: ObjectSchema = {
+  name: RealmSchema.WalletSpecs,
+  embedded: true,
   properties: {
     xpub: 'string',
     xpriv: 'string',
-    activeAddresses: '{}',
     receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
-    confirmedUTXOs: { type: 'list', objectType: UTXO },
-    unconfirmedUTXOs: { type: 'list', objectType: UTXO },
-    balances: Balances,
-    transactions: '{}',
-    lastSynched: 'int',
-    newTransactions: '{}?',
-    txIdMap: '{}?',
-    hasNewTxn: 'bool?',
+    // activeAddresses: '{}',
+    // confirmedUTXOs: { type: 'list', objectType: UTXO },
+    // unconfirmedUTXOs: { type: 'list', objectType: UTXO },
+    // balances: Balances,
+    // transactions: '{}',
+    // lastSynched: 'int',
+    // newTransactions: '{}?',
+    // txIdMap: '{}?',
+    // hasNewTxn: 'bool?',
     transactionsNote: '{}',
     importedAddresses: '{}',
-    transactionsMeta: '{}?',
-    node: '{}?',
+    // transactionsMeta?:'{}?';
   },
 };
 
@@ -80,10 +82,11 @@ export const WalletSchema: ObjectSchema = {
   properties: {
     id: 'string',
     type: 'string',
+    walletShellId: 'string',
     isUsable: 'bool',
-    derivationDetails: WalletDerivationDetails,
-    presentationData: WalletPresentationData,
-    specs: WalletSpecs,
+    derivationDetails: RealmSchema.WalletDerivationDetails,
+    presentationData: RealmSchema.WalletPresentationData,
+    specs: RealmSchema.WalletSpecs,
   },
   primaryKey: 'id',
 };

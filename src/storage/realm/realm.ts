@@ -14,6 +14,7 @@ class RealmDatabase {
     key: ArrayBuffer | ArrayBufferView | Int8Array
   ): Promise<boolean> => {
     try {
+      if (this.realm) return true; // database already initialized
       const realmConfig: Realm.Configuration = {
         path: 'keeper.realm',
         schema,
@@ -24,7 +25,7 @@ class RealmDatabase {
       this.realm = await Realm.open(realmConfig);
       return true;
     } catch (err) {
-      console.log('failed to initialize the database');
+      console.log('failed to initialize the database', { err });
       return false;
     }
   };
@@ -63,7 +64,7 @@ class RealmDatabase {
     const realm = this.getDatabase();
     try {
       this.writeTransaction(realm, () => {
-        realm.create(schema, object);
+        realm.create(schema, object, Realm.UpdateMode.All);
       });
       return true;
     } catch (err) {
@@ -76,7 +77,7 @@ class RealmDatabase {
    * fetches objects corresponding to supplied schema
    * @param  {RealmSchema} schema
    */
-  public getObjects = (schema: RealmSchema) => {
+  public get = (schema: RealmSchema) => {
     const realm = this.getDatabase();
     try {
       return realm.objects(schema);
