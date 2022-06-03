@@ -1,11 +1,17 @@
 import { Box, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Dimensions, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 
+import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
+import DevicesComponent from './DevicesComponent';
 import KeeperModal from 'src/components/KeeperModal';
 import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';
+
+const { useQuery } = RealmContext;
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +20,7 @@ const Vaults = ({ animate }) => {
   const open = () => setModalVisible(true);
   const close = () => setModalVisible(false);
   const navigation = useNavigation();
+  const Signers = useQuery(RealmSchema.VaultSigner);
   const Slider = () => {
     return (
       <TouchableOpacity onPress={animate} style={styles.slider}>
@@ -70,6 +77,91 @@ const Vaults = ({ animate }) => {
     );
   };
 
+  const renderBackupKeys = ({ item }) => {
+    return (
+      <DevicesComponent
+        title={item.signerName}
+        onPress={item.onPress}
+        Icon={() => <ColdCardIcon />}
+      />
+    );
+  };
+
+  const VaultState = () => {
+    return !Signers.length ? (
+      <>
+        <SetupState />
+        <KeeperModal
+          visible={visible}
+          close={close}
+          title="Setup Vault"
+          subTitle="Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna"
+          modalBackground={['#00836A', '#073E39']}
+          buttonBackground={['#FFFFFF', '#80A8A1']}
+          buttonText={'Add a signer'}
+          buttonTextColor={'#073E39'}
+          buttonCallback={addTapsigner}
+          textColor={'#FFF'}
+          Content={DummyContent}
+        />
+      </>
+    ) : (
+      <VStack>
+        <Text color={'#041513'} fontSize={22} fontFamily={'body'} fontWeight={'100'} paddingTop={5}>
+          {'Vault'}
+        </Text>
+        <Text
+          color={'#041513'}
+          fontSize={13}
+          fontFamily={'body'}
+          fontWeight={'100'}
+          paddingBottom={5}
+        >
+          {'Your super secure bitcoin'}
+        </Text>
+        <Box
+          width={width * 0.9}
+          height={width * 0.6}
+          bg={'#BBB'}
+          alignSelf={'center'}
+          borderRadius={10}
+          opacity={0.5}
+        />
+        <Text color={'#041513'} fontSize={14} fontFamily={'body'} fontWeight={'100'} paddingTop={5}>
+          {'My Signers'}
+        </Text>
+        <Text
+          color={'#041513'}
+          fontSize={12}
+          fontFamily={'body'}
+          fontWeight={'100'}
+          paddingBottom={5}
+        >
+          {'Used for securing funds'}
+        </Text>
+        <FlatList
+          data={Signers}
+          renderItem={renderBackupKeys}
+          keyExtractor={(item) => item?.id}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+        />
+        <Text color={'#041513'} fontSize={14} fontFamily={'body'} fontWeight={'100'} paddingTop={5}>
+          {'Inheritance'}
+        </Text>
+        <Text
+          color={'#041513'}
+          fontSize={12}
+          fontFamily={'body'}
+          fontWeight={'100'}
+          paddingBottom={5}
+        >
+          {'Set up inheritance to your sats'}
+        </Text>
+      </VStack>
+    );
+  };
+
   const addTapsigner = React.useCallback(() => {
     close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
@@ -83,20 +175,7 @@ const Vaults = ({ animate }) => {
       height={'100%'}
     >
       <Slider />
-      <SetupState />
-      <KeeperModal
-        visible={visible}
-        close={close}
-        title="Setup Vault"
-        subTitle="Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna"
-        modalBackground={['#00836A', '#073E39']}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={'Add a signer'}
-        buttonTextColor={'#073E39'}
-        buttonCallback={addTapsigner}
-        textColor={'#FFF'}
-        Content={DummyContent}
-      />
+      <VaultState />
     </Box>
   );
 };

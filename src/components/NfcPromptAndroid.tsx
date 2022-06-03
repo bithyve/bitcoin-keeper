@@ -43,7 +43,7 @@ function NfcPrompt({ visible }) {
               style={{ width: 120, height: 120, padding: 20 }}
               resizeMode="contain"
             />
-            <Text>{'Please tap NFC tags'}</Text>
+            <Text>{'Adding Tapsigner'}</Text>
           </View>
         </Animated.View>
         <Animated.View style={[styles.promptBg, bgAnimStyle]} />
