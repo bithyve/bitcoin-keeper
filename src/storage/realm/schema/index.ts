@@ -1,5 +1,10 @@
 import { KeeperAppSchema } from './app';
-import { WalletSchema } from './wallets';
+import {
+  WalletDerivationDetailsSchema,
+  WalletPresentationDataSchema,
+  WalletSchema,
+  WalletSpecsSchema,
+} from './wallets';
 import { TriggerPolicySchema } from './triggerPolicy';
 import { VaultShcema } from './vaults';
 import { InheritancePolicySchema } from './inheritancePolicy';
@@ -13,6 +18,9 @@ import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 export default [
   KeeperAppSchema,
   WalletSchema,
+  WalletDerivationDetailsSchema,
+  WalletPresentationDataSchema,
+  WalletSpecsSchema,
   WalletShellShcema,
   WalletShellInstancesShcema,
   TriggerPolicySchema,

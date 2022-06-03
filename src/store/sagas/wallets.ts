@@ -50,7 +50,6 @@ import {
   Wallet,
   ActiveAddressAssignee,
   DonationWallet,
-  LightningNode,
   MultiSigWallet,
   MultiSigWalletSpecs,
   WalletShell,
@@ -65,7 +64,6 @@ export interface newWalletDetails {
   description?: string;
   is2FAEnabled?: boolean;
   doneeName?: string;
-  node?: LightningNode;
 }
 export interface newWalletsInfo {
   walletType: WalletType;
@@ -143,7 +141,7 @@ function* generateSecondaryXprivWorker({
   payload: { wallet: MultiSigWallet; secondaryMnemonic: string };
 }) {
   const { secondaryMnemonic, wallet } = payload;
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const network =
     config.APP_STAGE === APP_STAGE.DEVELOPMENT
       ? bitcoinJS.networks.testnet
@@ -174,7 +172,7 @@ export const generateSecondaryXprivWatcher = createWatcher(
 );
 
 function* resetTwoFAWorker({ payload }: { payload: { secondaryMnemonic: string } }) {
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const { secondaryMnemonic } = payload;
   const network =
     config.APP_STAGE === APP_STAGE.DEVELOPMENT
@@ -205,7 +203,7 @@ function* resetTwoFAWorker({ payload }: { payload: { secondaryMnemonic: string }
 export const resetTwoFAWatcher = createWatcher(resetTwoFAWorker, RESET_TWO_FA);
 
 function* validateTwoFAWorker({ payload }: { payload: { token: number } }) {
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const { token } = payload;
   try {
     const { valid } = yield call(WalletUtilities.validateTwoFA, app.id, token);
@@ -387,7 +385,6 @@ export function* addNewWallet(
       return serviceWallet;
 
     case WalletType.LIGHTNING:
-      const { node } = walletDetails;
       const lnWallet: Wallet = yield call(generateWallet, {
         type: walletType,
         instanceNum: walletInstances[walletType] | 0,
@@ -397,7 +394,6 @@ export function* addNewWallet(
         primaryMnemonic,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
-        node,
       });
       return lnWallet;
 
@@ -424,7 +420,7 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   // TODO: remove after login flow is setup
   yield call(dbManager.initializeRealm, Buffer.from('random'));
 
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   const { walletShellInstances } = app;
   const walletShell: WalletShell = yield call(
@@ -459,15 +455,9 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
     walletInstances: presentWalletInstances,
   });
 
-  // for (const wallet of wallets) {
-  //   yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-  // }
-
-  yield put(
-    newWalletsAdded({
-      wallets: wallets,
-    })
-  );
+  for (const wallet of wallets) {
+    yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+  }
 
   if (testcoinsToWallet) yield put(getTestcoins(testcoinsToWallet)); // pre-fill test-wallet w/ testcoins
 }
@@ -496,7 +486,7 @@ export function* importNewWalletWorker({
     primarySeed: bip39.mnemonicToSeedSync(payload.mnemonic).toString('hex'),
   };
 
-  const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const { walletShellInstances } = app;
   const walletShell: WalletShell = yield call(
     dbManager.getObjectById,
@@ -527,15 +517,10 @@ export function* importNewWalletWorker({
     walletInstances: presentWalletInstances,
   });
 
-  // for (const wallet of wallets) {
-  //   yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-  // }
+  for (const wallet of wallets) {
+    yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+  }
 
-  yield put(
-    newWalletsAdded({
-      wallets,
-    })
-  );
   yield put(
     refreshWallets(wallets, {
       hardRefresh: true,
@@ -878,7 +863,7 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 // }
 
 // export function* generateGiftstWorker( { payload } : {payload: { amounts: number[], walletId?: string, includeFee?: boolean, exclusiveGifts?: boolean, validity?: number }} ) {
-//   const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+//   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 //   const walletsState: WalletsState = yield select( state => state.wallets )
 //   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = walletsState.wallets
 
@@ -943,7 +928,7 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 // function* updatePaymentAddressesToChannels( activeAddressesWithNewTxsMap: {
 //   [walletId: string]: ActiveAddresses
 // }, synchedWallets ){
-//   const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+//   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 //   const channelUpdates = []
 //   for( const walletId of Object.keys( activeAddressesWithNewTxsMap ) ){
 //     const newTxActiveAddresses: ActiveAddresses = activeAddressesWithNewTxsMap[ walletId ]
@@ -1075,7 +1060,7 @@ export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_
 // function* createSmNResetTFAOrXPrivWorker( { payload }: { payload: { qrdata: string, QRModalHeader: string, walletShell: WalletShell } } ) {
 //   try {
 //     const { qrdata, QRModalHeader, walletShell } = payload
-//     const app: KeeperApp = yield call(dbManager.getObject, RealmSchema.KeeperApp);
+//     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 //     const walletId = wallet.walletId
 //     const trustedContacts: Trusted_Contacts = yield select( ( state ) => state.trustedContacts.contacts )
 //     let secondaryMnemonic
