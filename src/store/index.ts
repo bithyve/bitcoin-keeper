@@ -14,8 +14,9 @@ import {
 import { all, call, spawn } from 'redux-saga/effects';
 import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
-
+import { updateFCMTokensWatcher } from './sagas/notifications'
 import walletsReducer from './reducers/wallets';
+import notificationReducer from './reducers/notifications'
 import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
@@ -51,6 +52,7 @@ const rootSaga = function* () {
     autoWalletsSyncWatcher,
     validateTwoFAWatcher,
     updateWalletSettingsWatcher,
+    updateFCMTokensWatcher,
   ];
 
   yield all(
@@ -70,8 +72,10 @@ const rootSaga = function* () {
 };
 
 const rootReducer = combineReducers({
+  notifications: notificationReducer,
   wallet: walletsReducer,
 });
+
 
 export default function makeStore() {
   const sagaMiddleware = createSagaMiddleware();

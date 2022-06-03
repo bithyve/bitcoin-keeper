@@ -30,6 +30,8 @@ import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images
 import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
+import { updateFCMTokens } from '../../store/actions/notifications';
+import messaging from '@react-native-firebase/messaging'
 import { loginWithHexa } from 'src/store/actions/wallets';
 import { setupKeeperApp } from 'src/store/actions/storage';
 import { addToUaiStack } from 'src/store/actions/uai';
@@ -76,8 +78,12 @@ const HomeScreen = ({ navigation, route }: Props) => {
         dispatch(setupKeeperApp());
       }, 1000);
     }
-  }, [app]);
+  }, [app])
 
+  async function storeFCMToken() {
+    const fcmToken = await messaging().getToken()
+    dispatch(updateFCMTokens([fcmToken]))
+  }
   useEffect(() => {
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
