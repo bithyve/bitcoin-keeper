@@ -3,22 +3,23 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "chmod +x setup.sh && sh ./setup.sh",
     "postinstall": "jetify",
-    "clear": "rm -rf $TMPDIR/react-native-packager-cache-* && rm -rf $TMPDIR/metro-bundler-cache-*",
-    "clean:android": "cd android/; ./gradlew clean; cd ..;",
-    "clean:ios": "cd ios/ && rm -rf build/ Pods/ Podfile.lock && cd ..",
-    "clean:watchman": "watchman watch-del-all",
-    "clean:node": "rm -rf node_modules/ && yarn cache clean",
-    "deep-clean": "yarn clear && yarn clean:watchman && yarn clean:node && yarn clean:ios && yarn clean:android && yarn install"
+    "androidDevelopmentDebug": "ENVFILE=.env react-native run-android --variant=developmentDebug --appIdSuffix=development",
+    "androidDevelopmentRelease": "ENVFILE=.env react-native run-android --variant=developmentRelease --appIdSuffix=development",
+    "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
+    "androidStagingRelease": "ENVFILE=.env react-native run-android --variant=stagingRelease --appIdSuffix=staging",
+    "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
+    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4",
+    "@react-native-firebase/app": "^14.9.3",
+    "@react-native-firebase/messaging": "^14.10.1",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "@realm/react": "^0.3.0",
@@ -39,8 +40,6 @@
     "domain-browser": "^1.1.1",
     "ecpair": "^2.0.1",
     "events": "^1.0.0",
-    "expo": ">=44.0.0-0 <45.0.0",
-    "expo-local-authentication": "~12.1.0",
     "https-browserify": "~0.0.0",
     "idx": "^2.5.6",
     "native-base": "^3.3.7",
@@ -59,6 +58,7 @@
     "react-native-get-random-values": "^1.7.2",
     "react-native-level-fs": "^3.0.0",
     "react-native-linear-gradient": "^2.5.6",
+    "react-native-localize": "^2.2.1",
     "react-native-mmkv": "^2.3.3",
     "react-native-nfc-manager": "^3.13.3",
     "react-native-os": "^1.0.1",
@@ -89,6 +89,7 @@
     "tty-browserify": "0.0.0",
     "url": "~0.10.1",
     "util": "~0.10.3",
+    "uuid": "^8.3.2",
     "vm-browserify": "0.0.4"
   },
   "devDependencies": {
@@ -184,12 +185,5 @@
     "tty": "tty-browserify",
     "vm": "vm-browserify",
     "tls": false
-  },
-  "expo": {
-    "autolinking": {
-      "exclude": [
-        "react-native-reanimated"
-      ]
-    }
   }
 }

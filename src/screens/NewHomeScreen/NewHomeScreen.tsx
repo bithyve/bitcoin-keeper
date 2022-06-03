@@ -17,6 +17,12 @@ import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { useUaiStack } from 'src/hooks/useUaiStack';
+import { useDispatch } from 'react-redux';
+import { addToUaiStack } from 'src/store/actions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import UaiDisplay from './UaiDisplay';
 
 type Props = {
   navigation: any;
@@ -25,51 +31,49 @@ const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }: Props) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
+  const dispatch = useDispatch();
+
+  const { uaiStack } = useUaiStack();
+
+  useEffect(() => {
+    //To test logic
+    const add = false;
+    if (add) {
+      dispatch(addToUaiStack('New Release', false, uaiType.DISPLAY_MESSAGE, 10, null));
+    }
+  }, []);
 
   const moveLeft = () => {
-    Animated.timing(
-      vaultPosition,
-      {
-        toValue: -width,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start();
+    Animated.timing(vaultPosition, {
+      toValue: -width,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
 
-    Animated.timing(
-      walletPosition,
-      {
-        toValue: -width,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start();
-
-  }
+    Animated.timing(walletPosition, {
+      toValue: -width,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
+  };
 
   const moveRight = () => {
-    Animated.timing(
-      vaultPosition,
-      {
-        toValue: 0,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start();
+    Animated.timing(vaultPosition, {
+      toValue: 0,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
 
-    Animated.timing(
-      walletPosition,
-      {
-        toValue: 0,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start()
-  }
+    Animated.timing(walletPosition, {
+      toValue: 0,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
+  };
 
   return (
     <Box flex={1} backgroundColor={'light.greenText'}>
@@ -81,22 +85,9 @@ const NewHomeScreen = ({ navigation }: Props) => {
           <Pressable marginY={2}>
             <Basic />
           </Pressable>
-          <Text color={'light.textLight'} fontSize={RFValue(18)} fontFamily={'body'} fontWeight={'100'} marginY={'2'}>
-            Your stack is safe
-          </Text>
-          <TouchableOpacity style={styles.button}>
-            <Text
-              color={'light.textDark'}
-              fontSize={RFValue(11)}
-              fontFamily={'body'}
-              fontWeight={'300'}
-              letterSpacing={0.88}
-            >
-              Upgrade
-            </Text>
-          </TouchableOpacity>
+          <UaiDisplay uaiStack={uaiStack} />
         </Box>
-        <Pressable >
+        <Pressable>
           <SettingIcon />
         </Pressable>
       </Box>
@@ -108,7 +99,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
           <Wallets animate={moveRight} />
         </Animated.View>
       </View>
-    </Box >
+    </Box>
   );
 };
 
@@ -129,7 +120,7 @@ const styles = ScaledSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAC48B'
+    backgroundColor: '#FAC48B',
   },
   flatlistContainer: {
     maxHeight: hp(30),
@@ -145,7 +136,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    padding: '3@s'
+    padding: '3@s',
   },
 
   hexaWalletText: {
@@ -190,8 +181,6 @@ const styles = ScaledSheet.create({
     lineHeight: '24@s',
     marginLeft: wp(1),
   },
-
-
 });
 
 export default NewHomeScreen;

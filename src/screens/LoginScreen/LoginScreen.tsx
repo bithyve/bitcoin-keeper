@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, Alert, Button, TextInput, Keyboard } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthCard from 'src/screens/LoginScreen/components/AuthCard/index';
 import LogoContainer from 'src/screens/LoginScreen/components/LogoContainer/LogoContanier';
@@ -17,12 +16,12 @@ const LoginScreen = ({ navigation }) => {
 
   const bioMetricAuthentication = async () => {
     try {
-      const results = await LocalAuthentication.authenticateAsync();
-      console.log(results);
-      if (results.success) {
-        setbiommetricStatus(authStatus.APPROVED);
-        setPasswordStatus(authStatus.IN_PROGRESS);
-      }
+      // const results = await LocalAuthentication.authenticateAsync();
+      // console.log(results);
+      // if (results.success) {
+      //   setbiommetricStatus(authStatus.APPROVED);
+      //   setPasswordStatus(authStatus.IN_PROGRESS);
+      // }
       // if (results.success) {
       //   setResult(AuthResults.SUCCESS);
       // } else if (results.error === 'unknown') {
@@ -34,7 +33,7 @@ const LoginScreen = ({ navigation }) => {
       // ) {
       //   setResult(AuthResults.CANCELLED);
       // }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const checkPin = () => {
@@ -45,7 +44,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (biommetricStatus !== authStatus.APPROVED) bioMetricAuthentication();
+    // if (biommetricStatus !== authStatus.APPROVED) bioMetricAuthentication();
   }, []);
 
   useEffect(() => {

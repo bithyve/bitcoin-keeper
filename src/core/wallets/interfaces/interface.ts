@@ -68,18 +68,18 @@ export interface Transaction {
 
 export type TransactionDetails = Transaction;
 
-export interface TransactionMetaData {
-  receivers: { name: string; amount: number }[];
-  sender: string;
-  txid: string;
-  notes: string;
-  tags: string[];
-  amount: number;
-  walletType: string;
-  address: string;
-  isNew: boolean;
-  type: string;
-}
+// export interface TransactionMetaData {
+//   receivers: { name: string; amount: number }[];
+//   sender: string;
+//   txid: string;
+//   notes: string;
+//   tags: string[];
+//   amount: number;
+//   walletType: string;
+//   address: string;
+//   isNew: boolean;
+//   type: string;
+// }
 
 export interface TransactionsNote {
   [txId: string]: string;
@@ -139,27 +139,27 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
+// export interface LightningNode {
+//   host?: string;
+//   port?: string;
+//   url?: string;
+//   lndhubUrl?: string;
+//   existingWallet?: boolean;
+//   macaroonHex?: string;
+//   accessKey?: string;
+//   username?: string;
+//   password?: string;
+//   implementation?: string;
+//   certVerification?: boolean;
+//   enableTor?: boolean;
+// }
+
 export interface NodeConnect {
   nodeId: string;
   type: NodeType;
   networkType: NetworkType;
   config: {};
   isActive: boolean;
-}
-
-export interface LightningNode {
-  host?: string;
-  port?: string;
-  url?: string;
-  lndhubUrl?: string;
-  existingWallet?: boolean;
-  macaroonHex?: string;
-  accessKey?: string;
-  username?: string;
-  password?: string;
-  implementation?: string;
-  certVerification?: boolean;
-  enableTor?: boolean;
 }
 
 export interface TwoFADetails {
@@ -198,10 +198,10 @@ export interface DonationWalletPresentationData extends WalletPresentationData {
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
   xpriv: string | null; // wallet's xpriv (primary for multi-sig wallets)
-  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -212,8 +212,7 @@ export interface WalletSpecs {
   hasNewTxn?: boolean; // indicates new txns
   transactionsNote: TransactionsNote;
   importedAddresses: WalletImportedAddresses;
-  transactionsMeta?: TransactionMetaData[];
-  node?: LightningNode;
+  // transactionsMeta?: TransactionMetaData[];
 }
 
 export interface MultiSigWalletSpecs extends WalletSpecs {
@@ -232,6 +231,7 @@ export interface MultiSigWalletSpecs extends WalletSpecs {
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
   type: WalletType; // type of wallet
+  walletShellId: string; // identifier of the wallet shell that the wallet belongs
   isUsable: boolean; // true if wallet is usable
   derivationDetails: WalletDerivationDetails;
   presentationData: WalletPresentationData;
@@ -248,22 +248,22 @@ export interface DonationWallet extends Wallet {
 }
 
 export interface TriggerPolicy {
-  policyId: string;
+  id: string;
   date: string;
   specifications: {};
   version: string;
 }
 
 export interface WalletShell {
-  shellId: string;
-  walletInstances: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
+  id: string;
+  walletInstances: { [walletType: string]: number }; // various wallet types mapped to corresponding number of instances
   triggerPolicyId?: string;
 }
 
 export interface Vault {}
 
 export interface InheritancePolicy {
-  policyId: string;
+  id: string;
   date: string;
   heir: {
     firstName: string;
@@ -278,8 +278,8 @@ export interface InheritancePolicy {
 }
 
 export interface VaultShell {
-  shellId: string;
-  vaultInstances: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
+  id: string;
+  vaultInstances: { [vaultType: string]: number }; // various vault types mapped to corresponding number of instances
   inheritancePolicyId?: string;
 }
 
