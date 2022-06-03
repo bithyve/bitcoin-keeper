@@ -80,6 +80,7 @@ export const WalletSchema: ObjectSchema = {
   properties: {
     id: 'string',
     type: 'string',
+    walletShellId: 'string',
     isUsable: 'bool',
     derivationDetails: WalletDerivationDetails,
     presentationData: WalletPresentationData,

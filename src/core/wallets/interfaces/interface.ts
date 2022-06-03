@@ -232,6 +232,7 @@ export interface MultiSigWalletSpecs extends WalletSpecs {
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
   type: WalletType; // type of wallet
+  walletShellId: string; // identifier of the wallet shell that the wallet belongs
   isUsable: boolean; // true if wallet is usable
   derivationDetails: WalletDerivationDetails;
   presentationData: WalletPresentationData;
@@ -248,22 +249,22 @@ export interface DonationWallet extends Wallet {
 }
 
 export interface TriggerPolicy {
-  policyId: string;
+  id: string;
   date: string;
   specifications: {};
   version: string;
 }
 
 export interface WalletShell {
-  shellId: string;
-  walletInstances: { [walletType: string]: string[] }; // various wallet types mapped to their correspondings instances id
+  id: string;
+  walletInstances: { [walletType: string]: number }; // various wallet types mapped to corresponding number of instances
   triggerPolicyId?: string;
 }
 
 export interface Vault {}
 
 export interface InheritancePolicy {
-  policyId: string;
+  id: string;
   date: string;
   heir: {
     firstName: string;
@@ -278,8 +279,8 @@ export interface InheritancePolicy {
 }
 
 export interface VaultShell {
-  shellId: string;
-  vaultInstances: { [vaultType: string]: string[] }; // various vault types mapped to their correspondings instances id
+  id: string;
+  vaultInstances: { [vaultType: string]: number }; // various vault types mapped to corresponding number of instances
   inheritancePolicyId?: string;
 }
 
