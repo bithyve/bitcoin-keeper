@@ -68,18 +68,18 @@ export interface Transaction {
 
 export type TransactionDetails = Transaction;
 
-export interface TransactionMetaData {
-  receivers: { name: string; amount: number }[];
-  sender: string;
-  txid: string;
-  notes: string;
-  tags: string[];
-  amount: number;
-  walletType: string;
-  address: string;
-  isNew: boolean;
-  type: string;
-}
+// export interface TransactionMetaData {
+//   receivers: { name: string; amount: number }[];
+//   sender: string;
+//   txid: string;
+//   notes: string;
+//   tags: string[];
+//   amount: number;
+//   walletType: string;
+//   address: string;
+//   isNew: boolean;
+//   type: string;
+// }
 
 export interface TransactionsNote {
   [txId: string]: string;
@@ -139,27 +139,27 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
+// export interface LightningNode {
+//   host?: string;
+//   port?: string;
+//   url?: string;
+//   lndhubUrl?: string;
+//   existingWallet?: boolean;
+//   macaroonHex?: string;
+//   accessKey?: string;
+//   username?: string;
+//   password?: string;
+//   implementation?: string;
+//   certVerification?: boolean;
+//   enableTor?: boolean;
+// }
+
 export interface NodeConnect {
   nodeId: string;
   type: NodeType;
   networkType: NetworkType;
   config: {};
   isActive: boolean;
-}
-
-export interface LightningNode {
-  host?: string;
-  port?: string;
-  url?: string;
-  lndhubUrl?: string;
-  existingWallet?: boolean;
-  macaroonHex?: string;
-  accessKey?: string;
-  username?: string;
-  password?: string;
-  implementation?: string;
-  certVerification?: boolean;
-  enableTor?: boolean;
 }
 
 export interface TwoFADetails {
@@ -198,10 +198,10 @@ export interface DonationWalletPresentationData extends WalletPresentationData {
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
   xpriv: string | null; // wallet's xpriv (primary for multi-sig wallets)
-  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -212,8 +212,7 @@ export interface WalletSpecs {
   hasNewTxn?: boolean; // indicates new txns
   transactionsNote: TransactionsNote;
   importedAddresses: WalletImportedAddresses;
-  transactionsMeta?: TransactionMetaData[];
-  node?: LightningNode;
+  // transactionsMeta?: TransactionMetaData[];
 }
 
 export interface MultiSigWalletSpecs extends WalletSpecs {

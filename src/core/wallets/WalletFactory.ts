@@ -11,7 +11,6 @@ import {
   BIP85Config,
   DonationWallet,
   DonationWalletPresentationData,
-  LightningNode,
   MultiSigWallet,
   MultiSigWalletSpecs,
 } from './interfaces/interface';
@@ -24,7 +23,6 @@ export const generateWallet = async ({
   walletDescription,
   primaryMnemonic,
   networkType,
-  node,
 }: {
   type: WalletType;
   instanceNum: number;
@@ -33,7 +31,6 @@ export const generateWallet = async ({
   walletDescription: string;
   primaryMnemonic: string;
   networkType: NetworkType;
-  node?: LightningNode;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
@@ -100,7 +97,6 @@ export const generateWallet = async ({
     txIdMap: {},
     transactionsNote: {},
     importedAddresses: {},
-    node: type === WalletType.LIGHTNING ? node : null,
   };
 
   const wallet: Wallet = {
