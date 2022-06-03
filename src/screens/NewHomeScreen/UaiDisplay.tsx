@@ -10,34 +10,57 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { useDispatch } from 'react-redux';
 import { updateUaiStack } from 'src/store/actions/uai';
 import { Modal } from 'native-base';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const UaiDisplay = ({ uaiStack }) => {
   const [uai, setUai] = useState({});
-  const [updateUai, setUpdateUai] = useState({});
-  const dispatch = useDispatch();
+  const [uaiExtraDetails, setUaiExtraDetails] = useState({});
   const [showModal, setShowModal] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const getUaiTypeDefinations = (type) => {
+    switch (type) {
+      case uaiType.RELEASE_MESSAGE:
+        return {
+          btnText: 'Upgrade',
+        };
+      case uaiType.ALERT:
+        return {
+          btnText: 'Confirm',
+        };
+      case uaiType.WARNING:
+        return {
+          btnText: 'Ok',
+        };
+      case uaiType.REMINDER: {
+        return {
+          btnText: 'Take Action',
+        };
+      }
+      default:
+        return {
+          btnText: 'Ok',
+        };
+    }
+  };
+
+  useEffect(() => {
+    setUaiExtraDetails(getUaiTypeDefinations(uai?.uaiType));
+  }, [uai]);
 
   useEffect(() => {
     console.log('update', uaiStack);
     setUai(uaiStack[0]);
   }, [uaiStack]);
 
-  //   const presshandler = () => {
-  //     dispatch(
-  //       updateUaiStack({
-  //         displayCount: 0,
-  //         displayText: null,
-  //         id: '53d6cf0c-06f0-4358-a3d3-5850e883ee3f',
-  //         isActioned: true,
-  //         isDisplay: false,
-  //         notificationId: null,
-  //         prirority: 10,
-  //         timeStamp: new Date(),
-  //         title: 'Cloud Back',
-  //         uaiType: 'DISPLAY_MESSAGE',
-  //       })
-  //     );
-  //   };
+  const presshandler = () => {
+    console.log('uai', uai);
+    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
+    updatedUai = { ...updatedUai, isActioned: true };
+    console.log('updatedUai', updatedUai);
+    dispatch(updateUaiStack(updatedUai));
+  };
 
   return (
     <>
@@ -50,7 +73,7 @@ const UaiDisplay = ({ uaiStack }) => {
       >
         {uai?.title}
       </Text>
-      <TouchableOpacity style={styles.button} onPress={() => setShowModal(true)}>
+      <TouchableOpacity style={styles.button} onPress={presshandler}>
         <Text
           color={'light.textDark'}
           fontSize={RFValue(11)}
@@ -58,7 +81,7 @@ const UaiDisplay = ({ uaiStack }) => {
           fontWeight={'300'}
           letterSpacing={0.88}
         >
-          Upgrade
+          {uaiExtraDetails?.btnText}
         </Text>
       </TouchableOpacity>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>

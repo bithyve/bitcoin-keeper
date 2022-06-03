@@ -24,7 +24,7 @@ class RealmDatabase {
       this.realm = await Realm.open(realmConfig);
       return true;
     } catch (err) {
-      console.log('failed to initialize the database');
+      console.log('failed to initialize the database', err);
       return false;
     }
   };

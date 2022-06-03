@@ -54,9 +54,10 @@ const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => 
         object[key] = value;
       });
     }
+    console.log(object, 'to db');
     return true;
   } catch (err) {
-    console.log({ err });
+    console.error({ err });
     return false;
   }
 };

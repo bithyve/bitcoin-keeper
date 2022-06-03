@@ -12,9 +12,7 @@ export const useUaiStack = () => {
 
   const uaiStackCreation = (UAIcollection) => {
     const filteredStack = UAIcollection.filter((uai) => uai.isActioned === false);
-    const sortedStack = filteredStack.sort((a, b) => a.prirority - b.prirority);
-    // console.log('collecx', UAIcollection);
-    // console.log('asdfasd', sortedStack);
+    const sortedStack = filteredStack.sort((a, b) => b.prirority - a.prirority);
     setuaiStack(sortedStack);
   };
 

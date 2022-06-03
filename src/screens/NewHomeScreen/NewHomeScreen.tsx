@@ -35,13 +35,9 @@ const NewHomeScreen = ({ navigation }: Props) => {
 
   const { uaiStack } = useUaiStack();
 
-  useEffect(() => {
-    //To test logic
-    const add = false;
-    if (add) {
-      dispatch(addToUaiStack('New Release', false, uaiType.DISPLAY_MESSAGE, 10, null));
-    }
-  }, []);
+  const addtoDb = () => {
+    dispatch(addToUaiStack('Request Accepted high', false, uaiType.ALERT, 50, null));
+  };
 
   const moveLeft = () => {
     Animated.timing(vaultPosition, {
@@ -78,14 +74,14 @@ const NewHomeScreen = ({ navigation }: Props) => {
   return (
     <Box flex={1} backgroundColor={'light.greenText'}>
       <Box style={styles.headerContainer}>
-        <Pressable>
+        <Pressable onPress={addtoDb}>
           <ScannerIcon />
         </Pressable>
         <Box alignItems={'center'} flexDirection={'column'}>
           <Pressable marginY={2}>
             <Basic />
           </Pressable>
-          <UaiDisplay uaiStack={uaiStack} />
+          {uaiStack.length > 0 ? <UaiDisplay uaiStack={uaiStack} /> : null}
         </Box>
         <Pressable>
           <SettingIcon />
