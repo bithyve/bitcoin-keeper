@@ -1,5 +1,5 @@
 import { Dimensions, Platform } from 'react-native';
-const windowHeight = Dimensions.get('window').height;
+export const windowHeight = Dimensions.get('window').height;
 
 export const getResponsiveHome = () => {
   if (windowHeight >= 850) {
@@ -43,4 +43,19 @@ export const getCardheight = () => {
   } else if (windowHeight >= 650) {
     return 1;
   }
+};
+
+export const getAccountCardHeight = () => {
+  if (windowHeight >= 850) {
+    return -90;
+  } else if (windowHeight >= 750) {
+    return -135;
+  } else if (windowHeight >= 650) {
+    return -150;
+  }
+};
+
+
+export const getTransactionPadding = () => {
+  return windowHeight * 0.047;
 };
