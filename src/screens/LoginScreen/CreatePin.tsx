@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, TouchableOpacity, StatusBar, TouchableHighlight } from 'react-native';
 import { Box, Text } from 'native-base';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -12,7 +11,6 @@ import { useDispatch, useSelector } from 'react-redux';
 // import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/setupAndAuth';
 import LinearGradient from 'react-native-linear-gradient';
 // import { LocalizationContext } from '../../common/content/LocContext';
-import KeyPadButton from '../../components/AppNumPad/KeyPadButton';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 
