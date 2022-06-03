@@ -12,9 +12,9 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		18788ED8284652050002EFFD /* (null) in Resources */ = {isa = PBXBuildFile; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
-		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		18BD1AA02834FA4100DB19E0 /* (null) in Resources */ = {isa = PBXBuildFile; };
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
 		2EE0712077A446F0A113BE41 /* RobotoCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */; };
 		618BF575613800A40D6C8CE9 /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BCDD5C1437A13E9ECFCAD0C /* libPods-hexa_keeper_dev.a */; };
@@ -26,16 +26,16 @@
 		F49B77E42848DF5200F9AFBD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		F49B77EA2848DF5200F9AFBD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		F49B77EA2848DF5200F9AFBD /* (null) in Resources */ = {isa = PBXBuildFile; };
 		F49B77EB2848DF5200F9AFBD /* RobotoCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */; };
 		F49B77EC2848DF5200F9AFBD /* RobotoCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */; };
 		F49B77ED2848DF5200F9AFBD /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
 		F49B77EE2848DF5200F9AFBD /* RobotoCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */; };
-		F49B77EF2848DF5200F9AFBD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		F49B77F02848DF5200F9AFBD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
+		F49B77EF2848DF5200F9AFBD /* (null) in Resources */ = {isa = PBXBuildFile; };
 		F49B77F12848DF5200F9AFBD /* RobotoCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0165F274E9EB4FC08B1A5F5F /* RobotoCondensed-LightItalic.ttf */; };
 		F49B77F22848DF5200F9AFBD /* RobotoCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 399257CB0DEE494B9A06CFFE /* RobotoCondensed-Regular.ttf */; };
 		F49B78052848E09C00F9AFBD /* hexa_keeper_dev-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F49B77FB2848DF5300F9AFBD /* hexa_keeper_dev-Info.plist */; };
+		F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */; };
 		FC2BB76F4FCB47F787279B0C /* RobotoCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +76,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F49B77FA2848DF5200F9AFBD /* hexa_keeper_dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper_dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F49B77FB2848DF5300F9AFBD /* hexa_keeper_dev-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "hexa_keeper_dev-Info.plist"; path = "/Users/shashankshinde/Workspace/hexa-keeper/ios/hexa_keeper_dev-Info.plist"; sourceTree = "<absolute>"; };
+		F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +126,7 @@
 		13B07FAE1A68108700A75B9A /* hexa_keeper */ = {
 			isa = PBXGroup;
 			children = (
+				F4F207E82849D1C6005E79DA /* GoogleServices */,
 				18B4D55E2847898D004AB91F /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -202,6 +204,22 @@
 				22A13862FEF1977EAE3339B6 /* Pods-hexa_keeper_dev.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		F4F207E82849D1C6005E79DA /* GoogleServices */ = {
+			isa = PBXGroup;
+			children = (
+				F4F207EC2849D1D5005E79DA /* dev */,
+			);
+			path = GoogleServices;
+			sourceTree = "<group>";
+		};
+		F4F207EC2849D1D5005E79DA /* dev */ = {
+			isa = PBXGroup;
+			children = (
+				F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */,
+			);
+			path = dev;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -322,12 +340,12 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */,
+				18BD1AA02834FA4100DB19E0 /* (null) in Resources */,
 				9819EF4D6004499582832416 /* RobotoCondensed-Bold.ttf in Resources */,
 				FC2BB76F4FCB47F787279B0C /* RobotoCondensed-BoldItalic.ttf in Resources */,
 				1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */,
 				2EE0712077A446F0A113BE41 /* RobotoCondensed-Light.ttf in Resources */,
-				18788ED8284652050002EFFD /* BuildFile in Resources */,
+				18788ED8284652050002EFFD /* (null) in Resources */,
 				18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */,
 				C3AFCD97B1C74642870953EA /* RobotoCondensed-LightItalic.ttf in Resources */,
 				0AF9AD0E7FED4BCEA686872C /* RobotoCondensed-Regular.ttf in Resources */,
@@ -338,16 +356,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4F207EE2849D20A005E79DA /* GoogleService-Info.plist in Resources */,
 				F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */,
 				F49B77E92848DF5200F9AFBD /* Images.xcassets in Resources */,
-				F49B77EA2848DF5200F9AFBD /* BuildFile in Resources */,
+				F49B77EA2848DF5200F9AFBD /* (null) in Resources */,
 				F49B77EB2848DF5200F9AFBD /* RobotoCondensed-Bold.ttf in Resources */,
 				F49B77EC2848DF5200F9AFBD /* RobotoCondensed-BoldItalic.ttf in Resources */,
 				F49B77ED2848DF5200F9AFBD /* RobotoCondensed-Italic.ttf in Resources */,
 				F49B77EE2848DF5200F9AFBD /* RobotoCondensed-Light.ttf in Resources */,
-				F49B77EF2848DF5200F9AFBD /* BuildFile in Resources */,
+				F49B77EF2848DF5200F9AFBD /* (null) in Resources */,
 				F49B78052848E09C00F9AFBD /* hexa_keeper_dev-Info.plist in Resources */,
-				F49B77F02848DF5200F9AFBD /* GoogleService-Info.plist in Resources */,
 				F49B77F12848DF5200F9AFBD /* RobotoCondensed-LightItalic.ttf in Resources */,
 				F49B77F22848DF5200F9AFBD /* RobotoCondensed-Regular.ttf in Resources */,
 			);
