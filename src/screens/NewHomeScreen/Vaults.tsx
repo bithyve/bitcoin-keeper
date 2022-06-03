@@ -1,144 +1,132 @@
+import { Box, Text, VStack } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Dimensions, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
-import { FlatList, TouchableOpacity } from 'react-native';
-import { Box, Text } from 'native-base';
-import {
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-// components
-import DevicesComponent from './DevicesComponent';
-import Heading from './Heading';
-// icons and images
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import Btc from 'src/assets/images/svgs/btcIcon.svg';
-import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
 
-// data
-import {
-  BACKUP_KEYS,
-  defaultBackupKeys,
-} from 'src/common/data/defaultData/defaultData';
+import KeeperModal from 'src/components/KeeperModal';
+import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
+import { ScaledSheet } from 'react-native-size-matters';
+
+const { width } = Dimensions.get('window');
 
 const Vaults = ({ animate }) => {
-  const [backupKeys, setBackupKeys] = useState<BACKUP_KEYS[]>([...defaultBackupKeys])
-
-  const Header = ({ title, subTitle }) => {
+  const [visible, setModalVisible] = useState(false);
+  const open = () => setModalVisible(true);
+  const close = () => setModalVisible(false);
+  const navigation = useNavigation();
+  const Slider = () => {
     return (
-      <Box marginY={2}>
-        <Text color={'light.lightBlack'} fontSize={14} fontFamily={'body'} fontWeight={200} letterSpacing={0.7}>
-          {title}
-        </Text>
-        <Text color={'light.lightBlack'} fontSize={12} fontFamily={'body'} fontWeight={100} letterSpacing={0.6}>
-          {subTitle}
-        </Text>
-      </Box>
-    )
-  }
-
-  const renderBackupKeys = ({ item }) => {
-    return <DevicesComponent title={item.title} onPress={item.onPress} Icon={item.Icon} />;
+      <TouchableOpacity onPress={animate} style={styles.slider}>
+        <NavWallet />
+      </TouchableOpacity>
+    );
   };
 
+  const SetupState = () => {
+    return (
+      <VStack alignItems={'center'} justifyContent={'space-evenly'} height={'60%'}>
+        <View style={styles.logo} />
+        <VStack alignItems={'center'}>
+          <Text
+            color={'light.lightBlack'}
+            fontSize={18}
+            fontFamily={'body'}
+            fontWeight={'200'}
+            letterSpacing={1.1}
+          >
+            {'Setup your Vault'}
+          </Text>
+          <Text
+            color={'light.lightBlack'}
+            fontSize={13}
+            fontFamily={'body'}
+            fontWeight={'100'}
+            letterSpacing={0.65}
+            textAlign={'center'}
+          >
+            {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+          </Text>
+        </VStack>
+        <TouchableOpacity style={styles.cta} onPress={open}>
+          <Text fontSize={14} fontFamily={'body'} fontWeight={'300'} letterSpacing={1}>
+            {'Setup Now'}
+          </Text>
+        </TouchableOpacity>
+      </VStack>
+    );
+  };
+
+  const DummyContent = () => {
+    return (
+      <View>
+        <View style={styles.dummy} />
+        <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
+          {'incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam'}
+        </Text>
+        <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
+          {'incididunt ut labore et dolore magna aliqua'}
+        </Text>
+      </View>
+    );
+  };
+
+  const addTapsigner = React.useCallback(() => {
+    close();
+    navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
+  }, []);
   return (
     <Box
       backgroundColor={'light.lightYellow'}
-      height={'100%'}
       borderLeftRadius={20}
       marginTop={10}
-      paddingY={6}
-      paddingX={8}
+      padding={'6'}
+      height={'100%'}
     >
-      {/* this is Vault card Heading*/}
-
-      <Box flexDirection={'row'} justifyContent={'space-between'}>
-        <Heading title={'Vault'} subTitle={'Your super secure bitcoin'} />
-        <Box height={92} marginRight={-8}>
-          <TouchableOpacity onPress={animate}>
-            <NavWallet />
-          </TouchableOpacity>
-        </Box>
-      </Box>
-      {/* this is brown card */}
-
-      <Box
-        width={'100%'}
-        height={220}
-        backgroundColor={'#B2844E'}
-        marginY={4}
-        borderRadius={10}
-        paddingX={5}
-        paddingY={8}
-      >
-        <SettingIcon />
-
-        <Box marginY={8}>
-          <Text color={'light.lightYellow'} fontSize={14} letterSpacing={0.7} fontFamily={'body'} fontWeight={200}>
-            Retirement
-          </Text>
-          <Text color={'light.white1'} fontSize={12} letterSpacing={0.6} fontFamily={'body'} fontWeight={100}>
-            Beach and sunshine baby!
-          </Text>
-        </Box>
-        <Text color={'light.white1'} fontSize={34} letterSpacing={1.7} fontFamily={'body'} fontWeight={200}>
-          <Box marginBottom={2} marginX={1}>
-            <Btc />
-          </Box>
-          0.000024
-        </Text>
-      </Box>
-
-      {/* these are my signers */}
-
-      <Box marginY={3}>
-        <Header title={'My Signers'} subTitle={'Used for securing funds'} />
-        <FlatList
-          data={backupKeys}
-          renderItem={renderBackupKeys}
-          keyExtractor={(item) => item?.id}
-          horizontal={true}
-          style={styles.flatlistContainer}
-          showsHorizontalScrollIndicator={false}
-        />
-      </Box>
-
-      {/* Inheritance section*/}
-
-      <Box marginY={3} flexDirection={'row'} justifyContent={'space-between'}>
-        <Header title={'Inheritance'} subTitle={'Set up inheritance to your sats'} />
-        <TouchableOpacity style={styles.button}>
-          <Text
-            color={'light.textDark'}
-            fontSize={RFValue(11)}
-            fontFamily={'body'}
-            fontWeight={'300'}
-            letterSpacing={0.88}
-          >
-            Setup
-          </Text>
-        </TouchableOpacity>
-      </Box>
+      <Slider />
+      <SetupState />
+      <KeeperModal
+        visible={visible}
+        close={close}
+        title="Setup Vault"
+        subTitle="Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna"
+        modalBackground={['#00836A', '#073E39']}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={'Add a signer'}
+        buttonTextColor={'#073E39'}
+        buttonCallback={addTapsigner}
+        textColor={'#FFF'}
+        Content={DummyContent}
+      />
     </Box>
-  )
-}
+  );
+};
 
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
+  slider: {
+    position: 'absolute',
+    zIndex: 1,
+    right: 0,
+    top: '3.7%',
   },
-  button: {
+  logo: {
+    height: width * 0.6,
+    width: width * 0.6,
+    borderRadius: width,
+    backgroundColor: '#BBB',
+  },
+  cta: {
+    padding: 10,
+    paddingHorizontal: 30,
     borderRadius: 10,
-    marginTop: hp(1),
-    width: 80,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FAC48B'
+    backgroundColor: '#FAC48B',
   },
-  flatlistContainer: {
-    maxHeight: hp(30),
+  dummy: {
+    height: 200,
+    width: '100%',
+    borderRadius: 20,
+    backgroundColor: '#092C27',
+    opacity: 0.15,
   },
-
 });
 
-export default Vaults 
+export default Vaults;
