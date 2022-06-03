@@ -75,6 +75,7 @@
 		E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Italic.ttf"; path = "../src/assets/fonts/RobotoCondensed-Italic.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F42D518A2849E2AA00235E3E /* hexa_keeper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = hexa_keeper.entitlements; path = hexa_keeper/hexa_keeper.entitlements; sourceTree = "<group>"; };
+		F42D5190284A0A9F00235E3E /* hexa_keeper_dev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = hexa_keeper_dev.entitlements; sourceTree = "<group>"; };
 		F49B77FA2848DF5200F9AFBD /* hexa_keeper_dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper_dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F95C0934E0D8E0E11A5AFF00 /* libPods-hexa_keeper_dev.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper_dev.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -173,6 +174,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				F42D5190284A0A9F00235E3E /* hexa_keeper_dev.entitlements */,
 				94561D5B2849FE1300CFDFB1 /* hexa_keeper_dev-Info.plist */,
 				13B07FAE1A68108700A75B9A /* hexa_keeper */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -857,6 +859,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
@@ -886,7 +889,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
 				CURRENT_PROJECT_VERSION = 8;
+				DEVELOPMENT_TEAM = Y5TCB759QL;
 				INFOPLIST_FILE = "hexa_keeper_dev-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
