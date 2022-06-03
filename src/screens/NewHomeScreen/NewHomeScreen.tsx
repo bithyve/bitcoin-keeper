@@ -27,49 +27,36 @@ const NewHomeScreen = ({ navigation }: Props) => {
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
 
   const moveLeft = () => {
-    Animated.timing(
-      vaultPosition,
-      {
-        toValue: -width,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start();
+    Animated.timing(vaultPosition, {
+      toValue: -width,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
 
-    Animated.timing(
-      walletPosition,
-      {
-        toValue: -width,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start();
-
-  }
+    Animated.timing(walletPosition, {
+      toValue: -width,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
+  };
 
   const moveRight = () => {
-    Animated.timing(
-      vaultPosition,
-      {
-        toValue: 0,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start();
+    Animated.timing(vaultPosition, {
+      toValue: 0,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
 
-    Animated.timing(
-      walletPosition,
-      {
-        toValue: 0,
-        duration: 800,
-        easing: Easing.sin,
-        useNativeDriver: false
-      }
-    ).start()
-  }
+    Animated.timing(walletPosition, {
+      toValue: 0,
+      duration: 800,
+      easing: Easing.sin,
+      useNativeDriver: false,
+    }).start();
+  };
 
   return (
     <Box flex={1} backgroundColor={'light.greenText'}>
@@ -81,7 +68,13 @@ const NewHomeScreen = ({ navigation }: Props) => {
           <Pressable marginY={2}>
             <Basic />
           </Pressable>
-          <Text color={'light.textLight'} fontSize={RFValue(18)} fontFamily={'body'} fontWeight={'100'} marginY={'2'}>
+          <Text
+            color={'light.textLight'}
+            fontSize={RFValue(18)}
+            fontFamily={'body'}
+            fontWeight={'100'}
+            marginY={'2'}
+          >
             Your stack is safe
           </Text>
           <TouchableOpacity style={styles.button}>
@@ -96,7 +89,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
             </Text>
           </TouchableOpacity>
         </Box>
-        <Pressable >
+        <Pressable onPress={() => navigation.navigate('AppSettings')}>
           <SettingIcon />
         </Pressable>
       </Box>
@@ -108,7 +101,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
           <Wallets animate={moveRight} />
         </Animated.View>
       </View>
-    </Box >
+    </Box>
   );
 };
 
@@ -129,7 +122,7 @@ const styles = ScaledSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAC48B'
+    backgroundColor: '#FAC48B',
   },
   flatlistContainer: {
     maxHeight: hp(30),
@@ -145,7 +138,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    padding: '3@s'
+    padding: '3@s',
   },
 
   hexaWalletText: {
@@ -190,8 +183,6 @@ const styles = ScaledSheet.create({
     lineHeight: '24@s',
     marginLeft: wp(1),
   },
-
-
 });
 
 export default NewHomeScreen;
