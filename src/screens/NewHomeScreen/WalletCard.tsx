@@ -9,7 +9,7 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // icons and images
-import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
+import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
