@@ -25,26 +25,44 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import UaiDisplay from './UaiDisplay';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
 
 const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
-  // const { useQuery } = RealmContext;
-  // const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
 
-  useEffect(() => {
-    //To test logic
-    const add = false;
-    if (add) {
-      dispatch(addToUaiStack('New Release', false, uaiType.DISPLAY_MESSAGE, 10, null));
-    }
-  }, []);
+  const addtoDb = () => {
+    dispatch(
+      addToUaiStack(
+        'A new version of the app is available',
+        true,
+        uaiType.RELEASE_MESSAGE,
+        90,
+        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+      )
+    );
+    dispatch(
+      addToUaiStack(
+        'Your Keeper request was rejected',
+        true,
+        uaiType.ALERT,
+        80,
+        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+      )
+    );
+    dispatch(
+      addToUaiStack(
+        'Wallet restore was attempted on another device',
+        true,
+        uaiType.ALERT,
+        80,
+        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+      )
+    );
+  };
 
   const moveLeft = () => {
     Animated.timing(walletPosition, {
@@ -81,14 +99,14 @@ const NewHomeScreen = ({ navigation }) => {
   return (
     <Box flex={1} backgroundColor={'light.greenText'}>
       <Box style={styles.headerContainer}>
-        <Pressable>
+        <Pressable onPress={addtoDb}>
           <ScannerIcon />
         </Pressable>
         <Box alignItems={'center'} flexDirection={'column'}>
           <Pressable marginY={2}>
             <Basic />
           </Pressable>
-          <UaiDisplay uaiStack={uaiStack} />
+          {uaiStack.length > 0 ? <UaiDisplay uaiStack={uaiStack} /> : null}
         </Box>
         <Pressable onPress={() => navigation.navigate('AppSettings')}>
           <SettingIcon />

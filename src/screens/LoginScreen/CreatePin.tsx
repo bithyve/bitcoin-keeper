@@ -6,12 +6,12 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/login';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DotView from 'src/components/DotView';
 
 export default function CreatePin(props: any) {
   const [passcode, setPasscode] = useState('');
@@ -122,42 +122,6 @@ export default function CreatePin(props: any) {
         </Box>
         <Box flex={1}>
           <Box>
-            {/* {oldPasscode !== '' && (
-              <Box
-                borderBottomWidth={1}
-                borderColor={'#E3E3E3'}
-                alignItems={'center'}
-                flexDirection={'row'}
-                pr={10}
-                pb={15}
-                pt={10}
-                ml={20}
-                mb={15}
-              >
-                <Box flexDirection={'row'} alignItems={'center'}>
-                  <TouchableOpacity
-                    onPress={() => props.navigation.goBack()}
-                    hitSlop={{
-                      top: 20,
-                      left: 20,
-                      bottom: 20,
-                      right: 20,
-                    }}
-                    style={{
-                      height: 30,
-                      width: 30,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <FontAwesome name="long-arrow-left" color={'#000'} size={17} />
-                  </TouchableOpacity>
-                  <Text color={'#006CB4'} fontSize={RFValue(25)} ml={20} mt={hp('10%')}>
-                    {'Manage Passcode'}
-                  </Text>
-                </Box>
-              </Box>
-            )} */}
-
             <Box>
               <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'#FFFFFF'}>
                 Welcome
@@ -185,16 +149,7 @@ export default function CreatePin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 1 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10),
-                            textAlignVertical: 'center',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -212,13 +167,7 @@ export default function CreatePin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 2 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 1 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -236,13 +185,7 @@ export default function CreatePin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 3 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 2 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -260,9 +203,7 @@ export default function CreatePin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 4 ? (
-                        <Text fontSize={RFValue(10, 812)}>
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 3 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -306,9 +247,7 @@ export default function CreatePin(props: any) {
                         lineHeight={18}
                       >
                         {confirmPasscode.length >= 1 ? (
-                          <Text fontSize={RFValue(10, 812)}>
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
@@ -339,13 +278,7 @@ export default function CreatePin(props: any) {
                         lineHeight={18}
                       >
                         {confirmPasscode.length >= 2 ? (
-                          <Text
-                            style={{
-                              fontSize: RFValue(10, 812),
-                            }}
-                          >
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 1 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
@@ -376,13 +309,7 @@ export default function CreatePin(props: any) {
                         lineHeight={18}
                       >
                         {confirmPasscode.length >= 3 ? (
-                          <Text
-                            style={{
-                              fontSize: RFValue(10, 812),
-                            }}
-                          >
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 2 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
@@ -413,9 +340,7 @@ export default function CreatePin(props: any) {
                         lineHeight={18}
                       >
                         {confirmPasscode.length >= 4 ? (
-                          <Text fontSize={RFValue(10, 812)}>
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 3 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
@@ -530,7 +455,6 @@ const styles = StyleSheet.create({
   },
   linearGradient: {
     flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
+    padding: 10,
   },
 });

@@ -6,13 +6,13 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 // import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/setupAndAuth';
 import LinearGradient from 'react-native-linear-gradient';
 // import { LocalizationContext } from '../../common/content/LocContext';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DotView from 'src/components/DotView';
 
 export default function ResetPin(props: any) {
   const [passcode, setPasscode] = useState('');
@@ -152,16 +152,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 1 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10),
-                            textAlignVertical: 'center',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -179,13 +170,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 2 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 1 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -203,13 +188,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 3 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 2 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -227,9 +206,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {passcode.length >= 4 ? (
-                        <Text fontSize={RFValue(10, 812)}>
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 3 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -269,9 +246,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {confirmPasscode.length >= 1 ? (
-                        <Text fontSize={RFValue(10, 812)}>
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -302,13 +277,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {confirmPasscode.length >= 2 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : confirmPasscode.length == 1 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -339,13 +308,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {confirmPasscode.length >= 3 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : confirmPasscode.length == 2 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
@@ -376,9 +339,7 @@ export default function ResetPin(props: any) {
                       lineHeight={18}
                     >
                       {confirmPasscode.length >= 4 ? (
-                        <Text fontSize={RFValue(10, 812)}>
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : confirmPasscode.length == 3 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}

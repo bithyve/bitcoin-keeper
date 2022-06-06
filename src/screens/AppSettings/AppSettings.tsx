@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
 import { SafeAreaView, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
@@ -10,10 +9,12 @@ import Note from 'src/components/Note/Note';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeLoginMethod } from '../../store/actions/login';
+import BackIcon from 'src/assets/icons/back.svg';
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [isBiometicSupported, setIsBiometicSupported] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useSelector((state) => state.settings);
   const dispatch = useDispatch();
 
@@ -50,6 +51,9 @@ const AppSettings = ({ navigation }) => {
       dispatch(changeLoginMethod(LoginMethod.PIN));
     }
   };
+  const changeThemeMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
     <SafeAreaView
@@ -58,10 +62,10 @@ const AppSettings = ({ navigation }) => {
         backgroundColor: '#F7F2EC',
       }}
     >
-      <StatusBar backgroundColor={'#2F2F2F'} barStyle="dark-content" />
+      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
       <Box mx={5} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name={'chevron-back-outline'} size={25} color={'#000'} />
+          <BackIcon />
         </TouchableOpacity>
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
@@ -88,7 +92,7 @@ const AppSettings = ({ navigation }) => {
               description={'Lorem ipsum dolor sit amet,'}
               my={2}
               bgColor={`${colorMode}.backgroundColor2`}
-              onSwitchToggle={(value: any) => onChangeLoginMethod()}
+              onSwitchToggle={() => onChangeLoginMethod()}
               value={loginMethod === LoginMethod.BIOMETRIC}
             />
           )}
@@ -98,8 +102,8 @@ const AppSettings = ({ navigation }) => {
             description={'Lorem ipsum dolor sit amet'}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
-            // onSwitchToggle={(value: any) => changeThemeMode()}
-            // value={themeMode === UiMode.DARK}
+            onSwitchToggle={() => changeThemeMode()}
+            value={darkMode}
           />
           <SettingsCard
             title={'Version History'}
@@ -107,7 +111,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => setVersionModalVisible(true)}
+            onPress={() => console.log('pressed')}
           />
           <SettingsCard
             title={'Language & Country'}
@@ -115,7 +119,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => navigation.navigate('LangaugeAndCurrency')}
+            onPress={() => console.log('pressed')}
           />
           <SettingsCard
             title={'Keeper Community Telegram Group'}
@@ -123,7 +127,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
-            // onPress={() => openLink('https://t.me/HexaWallet')}
+            onPress={() => console.log('pressed')}
           />
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>

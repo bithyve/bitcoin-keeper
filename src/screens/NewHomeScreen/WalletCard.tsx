@@ -9,19 +9,18 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // icons and images
-import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
-const WalletCard = () => {
+const WalletCard = ({ item }: { item }) => {
+  const { walletName, walletDescription } = item.presentationData;
+  //   const { balances } = item.specs;
   return (
     <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
       <View style={styles.cardHeader}>
-        <View
-          style={styles.hexaWalletContainer}
-          background={'light.lightBlue'}
-        >
+        {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
           <Text
             style={styles.hexaWalletText}
             color={'light.lightBlack'}
@@ -30,7 +29,7 @@ const WalletCard = () => {
           >
             External
           </Text>
-        </View>
+        </View> */}
       </View>
       <View style={styles.walletContainer}>
         <TouchableOpacity>
@@ -44,7 +43,7 @@ const WalletCard = () => {
             fontFamily={'body'}
             fontWeight={'200'}
           >
-            name
+            {walletName}
           </Text>
           <Text
             style={styles.fundsSubtitle}
@@ -52,7 +51,7 @@ const WalletCard = () => {
             fontFamily={'body'}
             fontWeight={'100'}
           >
-            description
+            {walletDescription}
           </Text>
         </View>
 
@@ -64,13 +63,13 @@ const WalletCard = () => {
             fontFamily={'body'}
             fontWeight={'200'}
           >
-            0.000024
+            {/* {balances.confirmed + balances.unconfirmed} */}0
           </Text>
         </View>
       </View>
     </ImageBackground>
-  )
-}
+  );
+};
 
 const styles = ScaledSheet.create({
   Container: {
