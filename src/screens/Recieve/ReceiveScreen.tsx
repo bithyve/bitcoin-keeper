@@ -2,7 +2,6 @@ import React from 'react';
 
 import {
   heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import { View, Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -22,7 +21,7 @@ import Colors from 'src/theme/Colors';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoBox from '../../components/InfoBox';
 
-const ReceiveScreen = ({ }) => {
+const ReceiveScreen = () => {
   const navigtaion = useNavigation();
 
   return (
