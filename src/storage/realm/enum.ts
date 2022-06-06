@@ -1,6 +1,9 @@
 export enum RealmSchema {
   KeeperApp = 'KeeperApp',
   Wallet = 'Wallet',
+  WalletDerivationDetails = 'WalletDerivationDetails',
+  WalletPresentationData = 'WalletPresentationData',
+  WalletSpecs = 'WalletSpecs',
   WalletShell = 'WalletShell',
   WalletShellInstances = 'WalletShellInstances',
   Vault = 'Vault',

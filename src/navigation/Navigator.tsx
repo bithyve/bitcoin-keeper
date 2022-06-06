@@ -12,11 +12,14 @@ import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import SendScreen from 'src/screens/Send/SendScreen';
+import AccountDetailScreen from 'src/screens/AccountDetailScreen/AccountDetailScreen';
 
 // import TestingScreen from 'src/screens/TestingScreen';
 import Login from '../screens/LoginScreen/Login';
-import WalletDetailScreen from 'src/screens/WalletDetailScreen';
+import WalletDetailScreen from 'src/screens/AddWallet/WalletDetailScreen';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
+
+import TestingScreen from 'src/screens/TestingScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -42,6 +45,7 @@ const Navigator = () => {
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
+        <Stack.Screen name="AccountDetailScreen" component={AccountDetailScreen} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}

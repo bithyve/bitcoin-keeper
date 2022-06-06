@@ -14,6 +14,7 @@ class RealmDatabase {
     key: ArrayBuffer | ArrayBufferView | Int8Array
   ): Promise<boolean> => {
     try {
+      if (this.realm) return true; // database already initialized
       const realmConfig: Realm.Configuration = {
         path: 'keeper.realm',
         schema,
@@ -24,7 +25,7 @@ class RealmDatabase {
       this.realm = await Realm.open(realmConfig);
       return true;
     } catch (err) {
-      console.log('failed to initialize the database');
+      console.log('failed to initialize the database', { err });
       return false;
     }
   };
