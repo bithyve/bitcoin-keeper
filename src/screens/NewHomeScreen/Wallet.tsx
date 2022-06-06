@@ -2,8 +2,8 @@ import React from 'react';
 import { ImageBackground, TouchableOpacity } from 'react-native';
 import { Text, View, Pressable } from 'native-base';
 import {
-	heightPercentageToDP as hp,
-	widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 // components
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -14,143 +14,140 @@ import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
-const Wallet = () => {
-	return (
-		<ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
-			<View style={styles.cardHeader}>
-				<View
-					style={styles.hexaWalletContainer}
-					background={'light.lightBlue'}
-				>
-					<Text
-						style={styles.hexaWalletText}
-						color={'light.lightBlack'}
-						fontFamily={'body'}
-						fontWeight={'300'}
-					>
-						External
-					</Text>
-				</View>
-			</View>
-			<View style={styles.walletContainer}>
-				<TouchableOpacity>
-					<BlueWalletIcon />
-				</TouchableOpacity>
+const Wallet = ({ item }: { item }) => {
+  const { walletName, walletDescription } = item.presentationData;
+  //   const { balances } = item.specs;
+  return (
+    <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
+      <View style={styles.cardHeader}>
+        {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
+          <Text
+            style={styles.hexaWalletText}
+            color={'light.lightBlack'}
+            fontFamily={'body'}
+            fontWeight={'300'}
+          >
+            External
+          </Text>
+        </View> */}
+      </View>
+      <View style={styles.walletContainer}>
+        <TouchableOpacity>
+          <BlueWalletIcon />
+        </TouchableOpacity>
 
-				<View style={styles.fundsContainer}>
-					<Text
-						style={styles.fundstitle}
-						color={'light.white'}
-						fontFamily={'body'}
-						fontWeight={'200'}
-					>
-						name
-					</Text>
-					<Text
-						style={styles.fundsSubtitle}
-						color={'light.white'}
-						fontFamily={'body'}
-						fontWeight={'100'}
-					>
-						description
-					</Text>
-				</View>
+        <View style={styles.fundsContainer}>
+          <Text
+            style={styles.fundstitle}
+            color={'light.white'}
+            fontFamily={'body'}
+            fontWeight={'200'}
+          >
+            {walletName}
+          </Text>
+          <Text
+            style={styles.fundsSubtitle}
+            color={'light.white'}
+            fontFamily={'body'}
+            fontWeight={'100'}
+          >
+            {walletDescription}
+          </Text>
+        </View>
 
-				<View style={styles.priceContainer}>
-					<BtcIcon />
-					<Text
-						style={styles.priceText}
-						color={'light.white'}
-						fontFamily={'body'}
-						fontWeight={'200'}
-					>
-						0.000024
-					</Text>
-				</View>
-			</View>
-		</ImageBackground>
-	)
-}
+        <View style={styles.priceContainer}>
+          <BtcIcon />
+          <Text
+            style={styles.priceText}
+            color={'light.white'}
+            fontFamily={'body'}
+            fontWeight={'200'}
+          >
+            {/* {balances.confirmed + balances.unconfirmed} */}0
+          </Text>
+        </View>
+      </View>
+    </ImageBackground>
+  );
+};
 
 const styles = ScaledSheet.create({
-	Container: {
-		flex: 1,
-	},
-	headerContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		paddingTop: hp(getResponsiveHome().padingTop),
-		paddingHorizontal: wp(10),
-	},
-	button: {
-		borderRadius: 10,
-		marginTop: hp(1),
-		width: 80,
-		height: 30,
-		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: '#FAC48B'
-	},
-	flatlistContainer: {
-		maxHeight: hp(30),
-	},
-	homeCard: {
-		width: wp(43),
-		height: hp(24),
-		marginTop: hp(2),
-		padding: '6@s',
-		marginLeft: wp(2),
-	},
-	cardHeader: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'flex-end',
-		padding: '3@s'
-	},
+  Container: {
+    flex: 1,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: hp(getResponsiveHome().padingTop),
+    paddingHorizontal: wp(10),
+  },
+  button: {
+    borderRadius: 10,
+    marginTop: hp(1),
+    width: 80,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAC48B',
+  },
+  flatlistContainer: {
+    maxHeight: hp(30),
+  },
+  homeCard: {
+    width: wp(43),
+    height: hp(24),
+    marginTop: hp(2),
+    padding: '6@s',
+    marginLeft: wp(2),
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '3@s',
+  },
 
-	hexaWalletText: {
-		fontSize: RFValue(8),
-		letterSpacing: '0.7@s',
-		lineHeight: '12@s',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	hexaWalletContainer: {
-		paddingHorizontal: wp(0.6),
-		height: hp(1.6),
-		borderRadius: '10@s',
-	},
+  hexaWalletText: {
+    fontSize: RFValue(8),
+    letterSpacing: '0.7@s',
+    lineHeight: '12@s',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hexaWalletContainer: {
+    paddingHorizontal: wp(0.6),
+    height: hp(1.6),
+    borderRadius: '10@s',
+  },
 
-	walletContainer: {
-		marginLeft: wp(1),
-	},
-	fundsContainer: {
-		marginTop: hp(2),
-		marginBottom: hp(3),
-		marginLeft: wp(2),
-	},
-	fundstitle: {
-		fontSize: RFValue(12),
-		letterSpacing: '0.5@s',
-		lineHeight: '16@s',
-	},
-	fundsSubtitle: {
-		fontSize: RFValue(10),
-		letterSpacing: '0.5@s',
-		lineHeight: '12@s',
-	},
-	priceContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		marginTop: hp(1),
-	},
-	priceText: {
-		fontSize: RFValue(24),
-		letterSpacing: '0.5@s',
-		lineHeight: '24@s',
-		marginLeft: wp(1),
-	},
-
-
+  walletContainer: {
+    marginLeft: wp(1),
+  },
+  fundsContainer: {
+    marginTop: hp(2),
+    marginBottom: hp(3),
+    marginLeft: wp(2),
+  },
+  fundstitle: {
+    fontSize: RFValue(12),
+    letterSpacing: '0.5@s',
+    lineHeight: '16@s',
+  },
+  fundsSubtitle: {
+    fontSize: RFValue(10),
+    letterSpacing: '0.5@s',
+    lineHeight: '12@s',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(1),
+  },
+  priceText: {
+    fontSize: RFValue(24),
+    letterSpacing: '0.5@s',
+    lineHeight: '24@s',
+    marginLeft: wp(1),
+  },
 });
 export default Wallet;
