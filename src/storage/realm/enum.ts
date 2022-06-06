@@ -8,6 +8,7 @@ export enum RealmSchema {
   WalletShellInstances = 'WalletShellInstances',
   Vault = 'Vault',
   VaultShell = 'VaultShell',
+  VaultSigner = 'VaultSigner',
   VaultShellInstances = 'VaultShellInstances',
   InheritancePolicy = 'InheritancePolicy',
   TriggerPolicy = 'TriggerPolicy',

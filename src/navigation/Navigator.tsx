@@ -2,6 +2,7 @@ import React from 'react';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import AddTapsigner from 'src/screens/NewHomeScreen/AddTapsigner';
 import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
@@ -21,6 +22,7 @@ import CreatePin from 'src/screens/LoginScreen/CreatePin';
 
 import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -40,7 +42,8 @@ const Navigator = () => {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="ResetPin" component={ResetPin} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
-        {/* <Stack.Screen name="Lock Screen" component={LoginScreen} /> */}
+        <Stack.Screen name="AddTapsigner" component={AddTapsigner} />
+        <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
