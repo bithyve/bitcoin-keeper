@@ -3,7 +3,7 @@ import { StyleSheet, View, SafeAreaView, ImageBackground, TouchableOpacity } fro
 import { Box, Text } from 'native-base';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import IconBack from 'src/assets/icons/Wallets/IconBack.svg';
+// import IconBack from 'src/assets/icons/Wallets/IconBack.svg';
 import Toggler from 'src/assets/icons/Wallets/switchbase.svg';
 import IconChecking from 'src/assets/icons/Wallets/icon_checking.svg';
 import IconSetting from 'src/assets/icons/Wallets/icon_settings.svg';
@@ -61,7 +61,7 @@ const WalletDetailScreen = () => {
       <StatusBarComponent />
       <Box marginX={3} marginY={5}>
         <Box marginX={3} flexDir={'row'} alignItems={'center'} justifyContent={'space-between'}>
-          <IconBack />
+          {/* <IconBack /> */}
           <Text color={'#006DB4'} fontSize={'20'} fontFamily="body" fontWeight="200">
             Wallets
           </Text>
