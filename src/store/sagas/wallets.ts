@@ -48,11 +48,11 @@ import {
 import Relay from 'src/core/services/Relay';
 import {
   Wallet,
-  ActiveAddressAssignee,
   DonationWallet,
   MultiSigWallet,
   MultiSigWalletSpecs,
   WalletShell,
+  ActiveAddressAssignee,
 } from 'src/core/wallets/interfaces/interface';
 import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/interfaces/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -416,9 +416,6 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
   const walletIds = [];
   let testcoinsToWallet;
-
-  // TODO: remove after login flow is setup
-  yield call(dbManager.initializeRealm, Buffer.from('random'));
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
