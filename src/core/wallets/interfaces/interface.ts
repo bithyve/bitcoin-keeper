@@ -106,31 +106,31 @@ export interface WalletImportedAddresses {
   };
 }
 
-// export interface ActiveAddressAssignee {
-//   type: WalletType | ActiveAddressAssigneeType;
-//   id?: string;
-//   senderInfo?: {
-//     id?: string;
-//     name: string;
-//   };
-//   recipientInfo?: {
-//     [txid: string]: { id?: string; name: string; amount: number }[];
-//   };
-// }
+export interface ActiveAddressAssignee {
+  type: WalletType | ActiveAddressAssigneeType;
+  id?: string;
+  senderInfo?: {
+    id?: string;
+    name: string;
+  };
+  recipientInfo?: {
+    [txid: string]: { id?: string; name: string; amount: number }[];
+  };
+}
 
 export interface ActiveAddresses {
   external: {
     [address: string]: {
       index: number;
       // assignee: ActiveAddressAssignee; // incompatible w/ realm(collection inside mixed object)
-      assignee: string;
+      assignee?: string;
     };
   };
   internal: {
     [address: string]: {
       index: number;
       // assignee: ActiveAddressAssignee;
-      assignee: string;
+      assignee?: string;
     };
   };
 }

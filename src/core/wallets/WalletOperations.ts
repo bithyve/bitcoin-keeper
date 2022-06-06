@@ -38,6 +38,7 @@ export default class WalletOperations {
     wallet: Wallet | MultiSigWallet,
     requester?: ActiveAddressAssignee
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
+    // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
     if ((wallet as MultiSigWallet).specs.is2FA)
@@ -67,12 +68,12 @@ export default class WalletOperations {
 
     wallet.specs.activeAddresses.external[receivingAddress] = {
       index: wallet.specs.nextFreeAddressIndex,
-      assignee: requester
-        ? requester
-        : {
-            type: wallet.type,
-            id: wallet.id,
-          },
+      // assignee: requester
+      //   ? requester
+      //   : {
+      //       type: wallet.type,
+      //       id: wallet.id,
+      //     },
     };
     wallet.specs.nextFreeAddressIndex++;
     wallet.specs.receivingAddress = receivingAddress;
@@ -164,7 +165,7 @@ export default class WalletOperations {
     };
     wallet.specs.activeAddresses.external[address] = {
       index: -1,
-      assignee: requester,
+      // assignee: requester,
     };
   };
 
@@ -579,28 +580,28 @@ export default class WalletOperations {
           if (!activeExternalAddresses[address])
             activeExternalAddresses[address] = {
               index: itr,
-              assignee: {
-                type: wallet.type,
-                id: wallet.id,
-                recipientInfo,
-              },
+              // assignee: {
+              //   type: wallet.type,
+              //   id: wallet.id,
+              //   recipientInfo,
+              // },
             };
           // include out of bound ext address
           else
             activeExternalAddresses[address] = {
               ...activeExternalAddresses[address],
-              assignee: {
-                ...activeExternalAddresses[address].assignee,
-                recipientInfo: idx(
-                  activeExternalAddresses[address],
-                  (_) => _.assignee.recipientInfo
-                )
-                  ? {
-                      ...activeExternalAddresses[address].assignee.recipientInfo,
-                      ...recipientInfo,
-                    }
-                  : recipientInfo,
-              },
+              // assignee: {
+              //   ...activeExternalAddresses[address].assignee,
+              //   recipientInfo: idx(
+              //     activeExternalAddresses[address],
+              //     (_) => _.assignee.recipientInfo
+              //   )
+              //     ? {
+              //         ...activeExternalAddresses[address].assignee.recipientInfo,
+              //         ...recipientInfo,
+              //       }
+              //     : recipientInfo,
+              // },
             };
           found = true;
           break;
@@ -636,28 +637,28 @@ export default class WalletOperations {
             if (!activeInternalAddresses[address])
               activeInternalAddresses[address] = {
                 index: itr,
-                assignee: {
-                  type: wallet.type,
-                  id: wallet.id,
-                  recipientInfo,
-                },
+                // assignee: {
+                //   type: wallet.type,
+                //   id: wallet.id,
+                //   recipientInfo,
+                // },
               };
             // include out of bound(soft-refresh range) int address
             else
               activeInternalAddresses[address] = {
                 ...activeInternalAddresses[address],
-                assignee: {
-                  ...activeInternalAddresses[address].assignee,
-                  recipientInfo: idx(
-                    activeInternalAddresses[address],
-                    (_) => _.assignee.recipientInfo
-                  )
-                    ? {
-                        ...activeInternalAddresses[address].assignee.recipientInfo,
-                        ...recipientInfo,
-                      }
-                    : recipientInfo,
-                },
+                // assignee: {
+                //   ...activeInternalAddresses[address].assignee,
+                //   recipientInfo: idx(
+                //     activeInternalAddresses[address],
+                //     (_) => _.assignee.recipientInfo
+                //   )
+                //     ? {
+                //         ...activeInternalAddresses[address].assignee.recipientInfo,
+                //         ...recipientInfo,
+                //       }
+                //     : recipientInfo,
+                // },
               };
             found = true;
             break;
@@ -691,10 +692,10 @@ export default class WalletOperations {
 
     activeInternalAddresses[changeAddress] = {
       index: wallet.specs.nextFreeChangeAddressIndex,
-      assignee: {
-        type: wallet.type,
-        id: wallet.id,
-      },
+      // assignee: {
+      //   type: wallet.type,
+      //   id: wallet.id,
+      // },
     };
     wallet.specs.nextFreeChangeAddressIndex++;
   };

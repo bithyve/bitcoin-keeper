@@ -15,30 +15,14 @@ import {
   VALIDATE_TWO_FA,
   RESET_WALLET_UPDATE_FLAG,
   RESET_TWO_FA_LOADER,
-  UPDATE_WALLETS,
-  READ_TRANSACTION,
-  WALLET_CHECKED,
   RECOMPUTE_NET_BALANCE,
-  UPDATE_GIFT,
-  GENERATE_GIFTS,
-  SET_GIFTS,
-  GIFT_ACCEPTED,
-  GIFT_ADDED,
-  GIFT_CREATION_STATUS,
   ADD_NEW_WALLETS,
-  NEW_WALLET_ADDED,
 } from '../actions/wallets';
-import {
-  Wallet,
-  Gift,
-  MultiSigWallet,
-  DonationWallet,
-} from 'src/core/wallets/interfaces/interface';
+import { Wallet, MultiSigWallet, DonationWallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 
 export type WalletsState = {
   walletsSynched: boolean;
-  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
   netBalance: number;
   exchangeRates?: any;
   averageTxFees: any;
@@ -47,16 +31,7 @@ export type WalletsState = {
     twoFAValid: boolean | null;
     twoFAResetted: boolean | null;
   };
-  gifts: {
-    [id: string]: Gift;
-  };
-  exclusiveGiftCodes: {
-    [exclusiveGiftCode: string]: boolean;
-  };
-  selectedGiftId: string;
-  giftCreationStatus: boolean;
-  acceptedGiftId: string;
-  addedGift: string;
+
   isGeneratingNewWallet: boolean;
   hasNewWalletsGenerationSucceeded: boolean;
   hasNewWalletsGenerationFailed: boolean;
@@ -65,16 +40,7 @@ export type WalletsState = {
   hasWalletSettingsUpdateSucceeded: boolean;
   haswalletSettingsUpdateFailed: boolean;
 
-  isTransactionReassignmentInProgress: boolean;
-  hasTransactionReassignmentSucceeded: boolean;
-  hasTransactionReassignmentFailed: boolean;
-  transactionReassignmentDestinationID: string | null;
-
-  refreshed: boolean;
   testCoinsReceived: boolean;
-
-  receiveAddress: string | null;
-  hasReceiveAddressSucceeded: boolean | null;
   resetTwoFALoader: boolean;
 };
 
@@ -83,19 +49,12 @@ const initialState: WalletsState = {
   exchangeRates: null,
 
   averageTxFees: null,
-  wallets: [],
   netBalance: 0,
   twoFAHelpFlags: {
     xprivGenerated: null,
     twoFAValid: null,
     twoFAResetted: null,
   },
-  gifts: {},
-  exclusiveGiftCodes: {},
-  selectedGiftId: null,
-  giftCreationStatus: null,
-  acceptedGiftId: '',
-  addedGift: '',
   isGeneratingNewWallet: false,
   hasNewWalletsGenerationSucceeded: false,
   hasNewWalletsGenerationFailed: false,
@@ -104,16 +63,7 @@ const initialState: WalletsState = {
   hasWalletSettingsUpdateSucceeded: false,
   haswalletSettingsUpdateFailed: false,
 
-  isTransactionReassignmentInProgress: false,
-  hasTransactionReassignmentSucceeded: false,
-  hasTransactionReassignmentFailed: false,
-  transactionReassignmentDestinationID: null,
-
-  refreshed: false,
   testCoinsReceived: false,
-
-  receiveAddress: null,
-  hasReceiveAddressSucceeded: false,
   resetTwoFALoader: false,
 };
 
@@ -206,14 +156,6 @@ export default (state: WalletsState = initialState, action): WalletsState => {
         hasNewWalletsGenerationFailed: false,
       };
 
-    case NEW_WALLET_ADDED:
-      return {
-        ...state,
-        isGeneratingNewWallet: false,
-        hasNewWalletsGenerationSucceeded: true,
-        wallets: [...state.wallets, ...action.payload.wallets],
-      };
-
     case NEW_WALLET_ADD_FAILED:
       return {
         ...state,
@@ -222,39 +164,9 @@ export default (state: WalletsState = initialState, action): WalletsState => {
         hasNewWalletsGenerationFailed: true,
       };
 
-    case UPDATE_WALLETS:
-      const walletsToUpdate = action.payload.wallets;
-      const storedWallets = state.wallets;
-      walletsToUpdate.forEach((updatedWallet) => {
-        storedWallets.forEach((storedWallet) => {
-          if (updatedWallet.id === storedWallet.id) storedWallet = updatedWallet;
-        });
-      });
-
-      return {
-        ...state,
-        wallets: [...storedWallets],
-      };
-
-    case READ_TRANSACTION: {
-      const { wallets } = action.payload;
-      return {
-        ...state,
-        wallets: wallets,
-      };
-    }
-
-    case WALLET_CHECKED: {
-      const { wallets } = action.payload;
-      return {
-        ...state,
-        wallets: wallets,
-      };
-    }
-
     case RECOMPUTE_NET_BALANCE:
       let netBalance = 0;
-      state.wallets.forEach((wallet: Wallet) => {
+      action.payload.wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
         if (wallet.type !== WalletType.TEST) {
           const balances = wallet.specs.balances;
           netBalance = netBalance + (balances.confirmed + balances.unconfirmed);
@@ -315,13 +227,6 @@ export default (state: WalletsState = initialState, action): WalletsState => {
     //     ...state,
     //   }
 
-    case CLEAR_RECEIVE_ADDRESS:
-      return {
-        ...state,
-        receiveAddress: null,
-        hasReceiveAddressSucceeded: null,
-      };
-
     case RESET_WALLET_UPDATE_FLAG:
       return {
         ...state,
@@ -334,56 +239,6 @@ export default (state: WalletsState = initialState, action): WalletsState => {
       return {
         ...state,
         resetTwoFALoader: action.payload.flag,
-      };
-
-    case GENERATE_GIFTS:
-      return {
-        ...state,
-        selectedGiftId: null,
-        giftCreationStatus: null,
-      };
-
-    case GIFT_CREATION_STATUS:
-      return {
-        ...state,
-        giftCreationStatus: action.payload.flag,
-      };
-
-    case UPDATE_GIFT:
-      const gift: Gift = action.payload.gift;
-      const exclusiveGiftCodes = state.exclusiveGiftCodes
-        ? {
-            ...state.exclusiveGiftCodes,
-          }
-        : {};
-      if (gift.exclusiveGiftCode) exclusiveGiftCodes[gift.exclusiveGiftCode] = true;
-
-      return {
-        ...state,
-        gifts: {
-          ...state.gifts,
-          [gift.id]: gift,
-        },
-        exclusiveGiftCodes,
-        selectedGiftId: gift.id,
-      };
-
-    case GIFT_ACCEPTED:
-      return {
-        ...state,
-        acceptedGiftId: action.payload,
-      };
-
-    case GIFT_ADDED:
-      return {
-        ...state,
-        addedGift: action.payload,
-      };
-
-    case SET_GIFTS:
-      return {
-        ...state,
-        gifts: action.payload.gifts,
       };
 
     default:
