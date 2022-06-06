@@ -92,7 +92,7 @@ const AppSettings = ({ navigation }) => {
               description={'Lorem ipsum dolor sit amet,'}
               my={2}
               bgColor={`${colorMode}.backgroundColor2`}
-              onSwitchToggle={(value: any) => onChangeLoginMethod()}
+              onSwitchToggle={() => onChangeLoginMethod()}
               value={loginMethod === LoginMethod.BIOMETRIC}
             />
           )}
@@ -102,7 +102,7 @@ const AppSettings = ({ navigation }) => {
             description={'Lorem ipsum dolor sit amet'}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
-            onSwitchToggle={(value: any) => changeThemeMode()}
+            onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
           />
           <SettingsCard
