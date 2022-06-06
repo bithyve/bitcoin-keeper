@@ -1,17 +1,18 @@
-import React from 'react';
-import { View, Text } from 'native-base';
-import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
+import { Text, View } from 'native-base';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 
+import { RFValue } from 'react-native-responsive-fontsize';
+import React from 'react';
+import { ScaledSheet } from 'react-native-size-matters';
+import { TouchableOpacity } from 'react-native';
+
 type Props = {
-  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
-  title: string,
-  onPress: () => void
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>;
+  title: string;
+  onPress: () => void;
 };
 
 const DevicesComponent = ({ title, onPress, Icon }: Props) => {
