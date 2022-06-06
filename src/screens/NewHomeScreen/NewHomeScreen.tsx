@@ -11,8 +11,8 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 // components
-import Wallets from './Wallets';
-import Vaults from './Vaults';
+import WalletTab from './WalletTab';
+import VaultTab from './VaultTab';
 
 // icons and images
 import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
@@ -96,10 +96,10 @@ const NewHomeScreen = ({ navigation }) => {
       </Box>
       <View style={{ flexDirection: 'row', width: '100%' }}>
         <Animated.View style={{ left: walletPosition, width: '100%' }}>
-          <Wallets animate={moveLeft} />
+          <WalletTab animate={moveLeft} />
         </Animated.View>
         <Animated.View style={{ left: vaultPosition, width: '100%' }}>
-          <Vaults animate={moveRight} />
+          <VaultTab animate={moveRight} />
         </Animated.View>
       </View>
     </Box>
