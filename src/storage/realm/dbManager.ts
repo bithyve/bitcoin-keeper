@@ -25,9 +25,9 @@ const createObject = (schema: RealmSchema, object: any) => {
  * generic :: fetches an object corresponding to provided schema and the supplied instance num
  * @param  {RealmSchema} schema
  */
-const getObject = (schema: RealmSchema, instance: number = 0) => {
+const getObjectByIndex = (schema: RealmSchema, index: number = 0) => {
   const objects = realm.get(schema);
-  return objects[instance];
+  return objects[index];
 };
 
 /**
@@ -65,7 +65,7 @@ const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => 
 export default {
   initializeRealm,
   createObject,
-  getObject,
+  getObjectByIndex,
   getObjectById,
   updateObjectById,
 };

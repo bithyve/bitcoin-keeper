@@ -10,12 +10,14 @@ import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
 import makeStore from './src/store';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
-
+import { LocalizationProvider } from './src/common/content/LocContext'
 //https://github.com/software-mansion/react-native-gesture-handler/issues/1831
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
   /[Require cycle]*/,
+  'Warning: ...', /.+/s
 ]);
+
 
 export default function AppWrapper() {
   // Creates and holds an instance of the store so only children in the `Provider`'s
@@ -43,7 +45,9 @@ const App = () => {
       <BottomSheetModalProvider>
         <NativeBaseProvider theme={customTheme}>
           <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
-          <Navigator />
+          <LocalizationProvider>
+            <Navigator />
+          </LocalizationProvider>
         </NativeBaseProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

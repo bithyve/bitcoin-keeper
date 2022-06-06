@@ -43,6 +43,9 @@ export const customTheme = extendTheme({
       textInputBackground: '#FCF6EF',
       ReceiveBackground: '#F7F2EC',
       GreyText: '#4F5955',
+      KnowMoreButton: '#045647',
+      dateText: '#50756E',
+      Border: '#005545'
     },
     dark: {
       black: '#000000',

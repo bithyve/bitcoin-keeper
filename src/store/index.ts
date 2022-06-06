@@ -14,24 +14,37 @@ import {
 import { all, call, spawn } from 'redux-saga/effects';
 import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
-
+import { updateFCMTokensWatcher } from './sagas/notifications'
 import walletsReducer from './reducers/wallets';
+import notificationReducer from './reducers/notifications'
+import loginReducer from './reducers/login'
+import settingsReducer from './reducers/settings'
+import storageReducer from './reducers/storage'
 import { composeWithDevTools } from '@redux-devtools/extension';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
 // import { setupWalletWatcher } from './sagas/storage';
 import { addUaiStackWatcher, updateUaiStackWatcher } from './sagas/uai';
+import {
+  credentialStorageWatcher,
+  changeAuthCredWatcher,
+  changeLoginMethodWatcher,
+  credentialsAuthWatcher
+} from './sagas/login';
+import { setupKeeperAppWatcher } from './sagas/storage';
 // import { setupKeeperAppWatcher } from './sagas/storage';
 
 const config = {
   key: 'root',
   storage: reduxStorage,
+  blacklist: ['login'],
+  version: 1,
 };
 
 const rootSaga = function* () {
   const sagas = [
     // storage watchers
-    // setupKeeperAppWatcher,
+    setupKeeperAppWatcher,
 
     // UAI watchers
     addUaiStackWatcher,
@@ -50,6 +63,11 @@ const rootSaga = function* () {
     autoWalletsSyncWatcher,
     validateTwoFAWatcher,
     updateWalletSettingsWatcher,
+    updateFCMTokensWatcher,
+    credentialStorageWatcher,
+    changeAuthCredWatcher,
+    changeLoginMethodWatcher,
+    credentialsAuthWatcher
   ];
 
   yield all(
@@ -69,8 +87,13 @@ const rootSaga = function* () {
 };
 
 const rootReducer = combineReducers({
+  notifications: notificationReducer,
   wallet: walletsReducer,
+  login: loginReducer,
+  storage: storageReducer,
+  settings: settingsReducer
 });
+
 
 export default function makeStore() {
   const sagaMiddleware = createSagaMiddleware();

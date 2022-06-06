@@ -1,37 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Animated, View, Easing, Dimensions } from 'react-native';
-import { Box, Text, Pressable } from 'native-base';
+import { Animated, Dimensions, Easing, View } from 'react-native';
+import { Box, Pressable, Text } from 'native-base';
+import React, { useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+
+import Basic from 'src/assets/images/svgs/basic.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-
-// components
-import Wallets from './Wallets';
-import Vaults from './Vaults';
-
-// icons and images
-import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
-import { useUaiStack } from 'src/hooks/useUaiStack';
-import { useDispatch } from 'react-redux';
+import Vaults from './Vaults';
+// components
+import Wallets from './Wallets';
 import { addToUaiStack } from 'src/store/actions/uai';
+// icons and images
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useDispatch } from 'react-redux';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 import UaiDisplay from './UaiDisplay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { setupKeeperApp } from 'src/store/actions/storage';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 
-type Props = {
-  navigation: any;
-};
 const width = Dimensions.get('window').width;
-const NewHomeScreen = ({ navigation }: Props) => {
+const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
+  const { useQuery } = RealmContext;
+  const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
 
@@ -64,6 +63,13 @@ const NewHomeScreen = ({ navigation }: Props) => {
       )
     );
   };
+  useEffect(() => {
+    if (!app) {
+      setTimeout(() => {
+        dispatch(setupKeeperApp());
+      }, 1000);
+    }
+  }, [app]);
 
   const moveLeft = () => {
     Animated.timing(vaultPosition, {
@@ -109,7 +115,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
           </Pressable>
           {uaiStack.length > 0 ? <UaiDisplay uaiStack={uaiStack} /> : null}
         </Box>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('AppSettings')}>
           <SettingIcon />
         </Pressable>
       </Box>
@@ -132,7 +138,7 @@ const styles = ScaledSheet.create({
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: hp(getResponsiveHome().padingTop),
+    paddingTop: '10%',
     paddingHorizontal: wp(10),
   },
   button: {
