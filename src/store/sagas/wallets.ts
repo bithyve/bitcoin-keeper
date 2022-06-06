@@ -451,6 +451,9 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   });
 
   for (const wallet of wallets) {
+    // TODO: reintroduce wallet specs once its in sync w/ the database
+    delete wallet.specs;
+
     yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
   }
 

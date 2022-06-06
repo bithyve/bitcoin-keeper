@@ -13,8 +13,13 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import Wallet from './Wallet';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 
 const Wallets = ({ animate }) => {
+  const { useQuery } = RealmContext;
+  const wallets = useQuery(RealmSchema.Wallet);
+
   const BtcToCurrency = () => {
     return (
       <Box
@@ -145,7 +150,7 @@ const Wallets = ({ animate }) => {
         </Box>
         {/* {Wallets } */}
         <FlatList
-          data={[1, 2, 3, 4]}
+          data={wallets}
           renderItem={Wallet}
           horizontal={true}
           style={styles.flatlistContainer}

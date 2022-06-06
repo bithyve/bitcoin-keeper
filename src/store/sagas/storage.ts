@@ -9,6 +9,9 @@ import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { WalletShell } from 'src/core/wallets/interfaces/interface';
+import { addNewWallets } from '../actions/wallets';
+import { newWalletsInfo } from './wallets';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -39,6 +42,16 @@ function* setupKeeperAppWorker({ payload }) {
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
+
+    // create default wallet
+    const defaultWallet: newWalletsInfo = {
+      walletType: WalletType.CHECKING,
+      walletDetails: {
+        name: 'Default Checking',
+      },
+    };
+    yield put(addNewWallets([defaultWallet]));
+
     yield put(setAppId(id));
   } catch (error) {
     console.log({ error });
