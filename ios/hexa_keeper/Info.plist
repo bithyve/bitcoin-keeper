@@ -42,7 +42,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to use FaceID</string>
+	<string>Allow $(PRODUCT_NAME) requires FaceID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>UIAppFonts</key>
@@ -53,6 +53,22 @@
 		<string>RobotoCondensed-Light.ttf</string>
 		<string>RobotoCondensed-LightItalic.ttf</string>
 		<string>RobotoCondensed-Regular.ttf</string>
+		<string>AntDesign.ttf</string>
+		<string>Entypo.ttf</string>
+		<string>EvilIcons.ttf</string>
+		<string>Feather.ttf</string>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
+		<string>Fontisto.ttf</string>
+		<string>Foundation.ttf</string>
+		<string>Ionicons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>Octicons.ttf</string>
+		<string>SimpleLineIcons.ttf</string>
+		<string>Zocial.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

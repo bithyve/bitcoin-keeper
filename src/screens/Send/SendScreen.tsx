@@ -17,7 +17,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import Colors from 'src/theme/Colors';
 import InfoBox from 'src/components/InfoBox';
 
-const SendScreen = ({ }) => {
+const SendScreen = () => {
   const cameraRef = useRef<RNCamera>();
   const navigtaion = useNavigation();
 

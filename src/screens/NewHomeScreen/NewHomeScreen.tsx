@@ -11,7 +11,6 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import UaiDisplay from './UaiDisplay';
 import Vaults from './Vaults';
 // components
 import Wallets from './Wallets';
@@ -20,14 +19,28 @@ import { addToUaiStack } from 'src/store/actions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import UaiDisplay from './UaiDisplay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { setupKeeperApp } from 'src/store/actions/storage';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 
 const width = Dimensions.get('window').width;
-const NewHomeScreen = () => {
+const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
+  const { useQuery } = RealmContext;
+  const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
+
+  useEffect(() => {
+    if (!app) {
+      setTimeout(() => {
+        dispatch(setupKeeperApp());
+      }, 1000);
+    }
+  }, [app]);
 
   useEffect(() => {
     //To test logic
@@ -81,7 +94,7 @@ const NewHomeScreen = () => {
           </Pressable>
           <UaiDisplay uaiStack={uaiStack} />
         </Box>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('AppSettings')}>
           <SettingIcon />
         </Pressable>
       </Box>

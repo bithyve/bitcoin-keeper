@@ -19,9 +19,10 @@
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
 		2EE0712077A446F0A113BE41 /* RobotoCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 072D5B51C9E5412188F5F708 /* RobotoCondensed-Light.ttf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		94561D5C2849FE1400CFDFB1 /* hexa_keeper_dev-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 94561D5B2849FE1300CFDFB1 /* hexa_keeper_dev-Info.plist */; };
 		9819EF4D6004499582832416 /* RobotoCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */; };
 		C3AFCD97B1C74642870953EA /* RobotoCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0165F274E9EB4FC08B1A5F5F /* RobotoCondensed-LightItalic.ttf */; };
+		DD343474170E3C1C4ECA7CF3 /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F95C0934E0D8E0E11A5AFF00 /* libPods-hexa_keeper_dev.a */; };
+		F42D52AF284A3D2600235E3E /* hexa_keeper_dev-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F42D52AE284A3D2600235E3E /* hexa_keeper_dev-Info.plist */; };
 		F49B77E32848DF5200F9AFBD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		F49B77E42848DF5200F9AFBD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		F49B77E82848DF5200F9AFBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -70,12 +71,14 @@
 		4CF8AD973412457498BBED89 /* RobotoCondensed-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Bold.ttf"; path = "../src/assets/fonts/RobotoCondensed-Bold.ttf"; sourceTree = "<group>"; };
 		66D87152631A4BA28BFF1B44 /* RobotoCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/RobotoCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = hexa_keeper/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		94561D5B2849FE1300CFDFB1 /* hexa_keeper_dev-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "hexa_keeper_dev-Info.plist"; path = "../../../../Desktop/hexa_keeper_dev-Info.plist"; sourceTree = "<group>"; };
-		99C0E1C53E76D73E312E240F /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		963098292117A613BE816F5E /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
+		9DA348982913821BF9AEB3D4 /* libPods-hexa_keeper.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-hexa_keeper.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2173999684D873A196AC184 /* Pods-hexa_keeper_dev.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper_dev.debug.xcconfig"; path = "Target Support Files/Pods-hexa_keeper_dev/Pods-hexa_keeper_dev.debug.xcconfig"; sourceTree = "<group>"; };
 		E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "RobotoCondensed-Italic.ttf"; path = "../src/assets/fonts/RobotoCondensed-Italic.ttf"; sourceTree = "<group>"; };
 		E76F035E0A510CEABBB2C29F /* Pods-hexa_keeper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hexa_keeper.release.xcconfig"; path = "Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F42D518A2849E2AA00235E3E /* hexa_keeper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = hexa_keeper.entitlements; path = hexa_keeper/hexa_keeper.entitlements; sourceTree = "<group>"; };
+		F42D52AE284A3D2600235E3E /* hexa_keeper_dev-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "hexa_keeper_dev-Info.plist"; sourceTree = "<group>"; };
 		F49B77FA2848DF5200F9AFBD /* hexa_keeper_dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hexa_keeper_dev.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -173,7 +176,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				94561D5B2849FE1300CFDFB1 /* hexa_keeper_dev-Info.plist */,
 				13B07FAE1A68108700A75B9A /* hexa_keeper */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* hexa_keeperTests */,
@@ -181,6 +183,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E233CBF5F47BEE60B243DCF8 /* Pods */,
 				81DE8301CA3743D287378279 /* Resources */,
+				F4FF2141284DD01B0074DFE7 /* Recovered References */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -222,6 +225,14 @@
 				F4F207ED2849D20A005E79DA /* GoogleService-Info.plist */,
 			);
 			path = dev;
+			sourceTree = "<group>";
+		};
+		F4FF2141284DD01B0074DFE7 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				F42D52AE284A3D2600235E3E /* hexa_keeper_dev-Info.plist */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -366,10 +377,10 @@
 				F49B77EC2848DF5200F9AFBD /* RobotoCondensed-BoldItalic.ttf in Resources */,
 				F49B77ED2848DF5200F9AFBD /* RobotoCondensed-Italic.ttf in Resources */,
 				F49B77EE2848DF5200F9AFBD /* RobotoCondensed-Light.ttf in Resources */,
-				F49B77EF2848DF5200F9AFBD /* BuildFile in Resources */,
+				F42D52AF284A3D2600235E3E /* hexa_keeper_dev-Info.plist in Resources */,
+				F49B77EF2848DF5200F9AFBD /* (null) in Resources */,
 				F49B77F12848DF5200F9AFBD /* RobotoCondensed-LightItalic.ttf in Resources */,
 				F49B77F22848DF5200F9AFBD /* RobotoCondensed-Regular.ttf in Resources */,
-				94561D5C2849FE1400CFDFB1 /* hexa_keeper_dev-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -677,7 +688,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = hexa_keeper/Info.plist;
@@ -707,7 +718,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				INFOPLIST_FILE = hexa_keeper/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -857,7 +868,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "hexa_keeper_dev-Info.plist";
@@ -886,7 +898,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 8;
+				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
+				CURRENT_PROJECT_VERSION = 9;
+				DEVELOPMENT_TEAM = Y5TCB759QL;
 				INFOPLIST_FILE = "hexa_keeper_dev-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
