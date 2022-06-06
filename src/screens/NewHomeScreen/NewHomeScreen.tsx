@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Animated, View, Easing, Dimensions } from 'react-native';
-import { Box, Text, Pressable } from 'native-base';
+import { Animated, Dimensions, Easing, View } from 'react-native';
+import { Box, Pressable, Text } from 'native-base';
+import React, { useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+
+import Basic from 'src/assets/images/svgs/basic.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
@@ -16,22 +18,23 @@ import Vaults from './Vaults';
 import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
-import { useUaiStack } from 'src/hooks/useUaiStack';
-import { useDispatch } from 'react-redux';
+// components
 import { addToUaiStack } from 'src/store/actions/uai';
+// icons and images
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useDispatch } from 'react-redux';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 import UaiDisplay from './UaiDisplay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
 
-type Props = {
-  navigation: any;
-};
 const width = Dimensions.get('window').width;
-const NewHomeScreen = ({ navigation }: Props) => {
+const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
+  // const { useQuery } = RealmContext;
+  // const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
 
@@ -87,7 +90,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
           </Pressable>
           <UaiDisplay uaiStack={uaiStack} />
         </Box>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('AppSettings')}>
           <SettingIcon />
         </Pressable>
       </Box>

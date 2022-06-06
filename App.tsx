@@ -15,6 +15,7 @@ import { LocalizationProvider } from './src/common/content/LocContext'
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
   /[Require cycle]*/,
+  'Warning: ...', /.+/s
 ]);
 
 
@@ -44,9 +45,9 @@ const App = () => {
       <BottomSheetModalProvider>
         <NativeBaseProvider theme={customTheme}>
           <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
-            <LocalizationProvider>
-              <Navigator />
-            </LocalizationProvider>
+          <LocalizationProvider>
+            <Navigator />
+          </LocalizationProvider>
         </NativeBaseProvider>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

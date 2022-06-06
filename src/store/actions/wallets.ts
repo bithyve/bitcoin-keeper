@@ -33,11 +33,8 @@ export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const WALLETS_REFRESH_STARTED = 'WALLETS_REFRESH_STARTED';
 export const WALLETS_REFRESH_COMPLETED = 'WALLETS_REFRESH_COMPLETED';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
-export const READ_TRANSACTION = 'READ_TRANSACTION';
-export const WALLET_CHECKED = 'WALLET_CHECKED';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
-export const GENERATE_GIFTS = 'GENERATE_GIFTS';
 
 export const syncWallets = (
   wallets: (Wallet | MultiSigWallet | DonationWallet)[],
@@ -189,9 +186,12 @@ export const setupDonationWallet = (
   };
 };
 
-export const recomputeNetBalance = () => {
+export const recomputeNetBalance = (wallets: (Wallet | MultiSigWallet | DonationWallet)[]) => {
   return {
     type: RECOMPUTE_NET_BALANCE,
+    payload: {
+      wallets,
+    },
   };
 };
 
@@ -253,31 +253,6 @@ export const updateWalletSettings = (payload: {
   };
 };
 
-export const generateGifts = ({
-  amounts,
-  walletId,
-  includeFee,
-  exclusiveGifts,
-  validity,
-}: {
-  amounts: number[];
-  walletId?: string;
-  includeFee?: boolean;
-  exclusiveGifts?: boolean;
-  validity?: number;
-}) => {
-  return {
-    type: GENERATE_GIFTS,
-    payload: {
-      walletId,
-      amounts,
-      includeFee,
-      exclusiveGifts,
-      validity,
-    },
-  };
-};
-
 // types and action creators (saga): dispatched by saga workers
 export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
 export const TRANSACTIONS_FETCHED = 'TRANSACTIONS_FETCHED';
@@ -287,16 +262,9 @@ export const SECONDARY_XPRIV_GENERATED = 'SECONDARY_XPRIV_GENERATED';
 export const TWO_FA_VALID = 'TWO_FA_VALID';
 export const TWO_FA_RESETTED = 'TWO_FA_RESETTED';
 export const SETTED_DONATION_WALLET = 'SETTED_DONATION_WALLET';
-export const UPDATE_WALLETS = 'UPDATE_WALLETS';
-export const NEW_WALLET_ADDED = 'NEW_WALLET_ADDED';
 export const NEW_WALLET_ADD_FAILED = 'NEW_WALLET_ADD_FAILED';
 export const WALLET_SETTINGS_UPDATED = 'WALLET_SETTINGS_UPDATED';
 export const WALLET_SETTINGS_UPDATE_FAILED = 'WALLET_SETTINGS_UPDATE_FAILED';
-export const UPDATE_GIFT = 'UPDATE_GIFT';
-export const GIFT_ACCEPTED = 'GIFT_ACCEPTED';
-export const GIFT_ADDED = 'GIFT_ADDED';
-export const SET_GIFTS = 'SET_GIFTS';
-export const GIFT_CREATION_STATUS = 'GIFT_CREATION_STATUS';
 
 export const testcoinsReceived = () => {
   return {
@@ -359,32 +327,6 @@ export const twoFAResetted = (resetted) => {
   };
 };
 
-export const newWalletsAdded = ({
-  wallets,
-}: {
-  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
-}) => {
-  return {
-    type: NEW_WALLET_ADDED,
-    payload: {
-      wallets,
-    },
-  };
-};
-
-export const updateWallets = ({
-  wallets,
-}: {
-  wallets: (Wallet | MultiSigWallet | DonationWallet)[];
-}) => {
-  return {
-    type: UPDATE_WALLETS,
-    payload: {
-      wallets,
-    },
-  };
-};
-
 export const walletSettingsUpdateFailed = ({ error }: { error: Error }) => {
   return {
     type: WALLET_SETTINGS_UPDATE_FAILED,
@@ -415,45 +357,6 @@ export const resetWalletUpdateFlag = () => {
 export const setResetTwoFALoader = (flag) => {
   return {
     type: RESET_TWO_FA_LOADER,
-    payload: {
-      flag,
-    },
-  };
-};
-
-export const updateGift = (gift: Gift) => {
-  return {
-    type: UPDATE_GIFT,
-    payload: {
-      gift,
-    },
-  };
-};
-export const giftAccepted = (channelAddress) => {
-  return {
-    type: GIFT_ACCEPTED,
-    payload: channelAddress,
-  };
-};
-export const giftAddedToWallet = (channelAddress) => {
-  return {
-    type: GIFT_ADDED,
-    payload: channelAddress,
-  };
-};
-
-export const setGifts = (gifts: { [id: string]: Gift }) => {
-  return {
-    type: SET_GIFTS,
-    payload: {
-      gifts,
-    },
-  };
-};
-
-export const giftCreationSuccess = (flag) => {
-  return {
-    type: GIFT_CREATION_STATUS,
     payload: {
       flag,
     },

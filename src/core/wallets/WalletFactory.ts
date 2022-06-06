@@ -83,6 +83,7 @@ export const generateWallet = async ({
       external: {},
       internal: {},
     },
+    importedAddresses: {},
     receivingAddress: initialRecevingAddress,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
@@ -94,9 +95,9 @@ export const generateWallet = async ({
     },
     transactions: [],
     lastSynched: 0,
-    txIdMap: {},
+    txIdCache: {},
+    transactionMapping: [],
     transactionsNote: {},
-    importedAddresses: {},
   };
 
   const wallet: Wallet = {
@@ -200,6 +201,7 @@ export const generateMultiSigWallet = async ({
       external: {},
       internal: {},
     },
+    importedAddresses: {},
     receivingAddress: initialRecevingAddress,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
@@ -211,9 +213,9 @@ export const generateMultiSigWallet = async ({
     },
     transactions: [],
     lastSynched: 0,
-    txIdMap: {},
+    txIdCache: {},
+    transactionMapping: [],
     transactionsNote: {},
-    importedAddresses: {},
   };
 
   const multiSigWallet: MultiSigWallet = {

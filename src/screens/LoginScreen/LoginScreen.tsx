@@ -6,6 +6,7 @@ import LogoContainer from 'src/screens/LoginScreen/components/LogoContainer/Logo
 import { authStatus } from './constants';
 import AppNumPad from 'src/components/AppNumPad';
 import AppPinInput from 'src/components/AppPinInput';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const userPin = '959027';
 const LoginScreen = ({ navigation }) => {
@@ -59,14 +60,16 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <LogoContainer />
+      <TouchableOpacity onPress={() => navigation.navigate('AppSettings')}>
+        <LogoContainer />
+      </TouchableOpacity>
       <View style={styles.content}>
         <View style={styles.authContatiner}>
-          <AuthCard type={'Face Id'} status={biommetricStatus} />
-          <AuthCard type={'Password'} status={passwordStatus} />
+          {/* <AuthCard type={'Face Id'} status={biommetricStatus} />
+          <AuthCard type={'Password'} status={passwordStatus} /> */}
+          <AppPinInput value={pin} maxLength={6} />
         </View>
         <View style={styles.pinContainer}>
-          <AppPinInput value={pin} maxLength={6} />
           <AppNumPad clear ok setValue={setPin} disable={numPadDisable} />
         </View>
       </View>
@@ -77,7 +80,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#2F2F2F', height: '100%' },
   content: { justifyContent: 'space-between', flex: 1 },
-  authContatiner: { flexDirection: 'column' },
+  authContatiner: { flexDirection: 'column', marginTop: '30%' },
   pinContainer: { margin: 30 },
 });
 
