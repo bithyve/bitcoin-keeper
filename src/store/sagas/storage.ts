@@ -13,7 +13,7 @@ import { WalletShell } from 'src/core/wallets/interfaces/interface';
 function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName }: { appName: string } = payload;
-    const primaryMnemonic = bip39.generateMnemonic(256);
+    const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
     const defaultWalletShell: WalletShell = {
