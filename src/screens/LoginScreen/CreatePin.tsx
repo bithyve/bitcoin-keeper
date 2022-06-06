@@ -8,9 +8,8 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
-// import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/setupAndAuth';
+import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/login';
 import LinearGradient from 'react-native-linear-gradient';
-// import { LocalizationContext } from '../../common/content/LocContext';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 
@@ -20,14 +19,9 @@ export default function CreatePin(props: any) {
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { oldPasscode } = props.route.params || {};
-  const [ErrorBottomSheet, setErrorBottomSheet] = useState(React.createRef());
-  const [errorMessage, setErrorMessage] = useState('');
-  const [errorMessageHeader, setErrorMessageHeader] = useState('');
-  // const isPinChangedFailed = useSelector((state) => state.setupAndAuth.pinChangedFailed);
+  const dispatch = useDispatch();
+  const { credsChanged } = useSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-  // const { translations } = useContext(LocalizationContext);
-  // const strings = translations['login'];
-  // const common = translations['common'];
 
   function onPressNumber(text: any) {
     let tmpPasscode = passcode;
@@ -88,23 +82,20 @@ export default function CreatePin(props: any) {
     }
   }, [passcode, confirmPasscode]);
 
-  const dispatch = useDispatch();
-  // const { credsChanged } = useSelector((state) => state.setupAndAuth);
-
-  // useEffect(() => {
-  //   if (credsChanged == 'changed') {
-  //     setIsDisabled(false);
-  //     if (oldPasscode === '') {
-  //       dispatch(switchCredsChanged());
-  //       props.navigation.goBack();
-  //       if (props.navigation.state.params.onPasscodeReset) {
-  //         props.navigation.state.params.onPasscodeReset();
-  //       }
-  //     } else {
-  //       props.navigation.navigate('PasscodeChangeSuccessPage');
-  //     }
-  //   }
-  // }, [credsChanged]);
+  useEffect(() => {
+    if (credsChanged == 'changed') {
+      setIsDisabled(false);
+      if (oldPasscode === '') {
+        dispatch(switchCredsChanged());
+        props.navigation.goBack();
+        if (props.navigation.state.params.onPasscodeReset) {
+          props.navigation.state.params.onPasscodeReset();
+        }
+      } else {
+        props.navigation.navigate('PasscodeChangeSuccessPage');
+      }
+    }
+  }, [credsChanged]);
 
   // if (isPinChangedFailed) {
   //   setTimeout(() => {
@@ -209,8 +200,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -233,8 +224,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -257,8 +248,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -277,8 +268,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                 </Box>
@@ -299,13 +290,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 0
                           ? styles.textBoxActive
                           : {
-                              ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
-                            },
+                            ...styles.textBoxStyles,
+                            //   borderColor:
+                            //       passcode != confirmPasscode &&
+                            //       confirmPasscode.length == 4
+                            //         ? Colors.red
+                            //         : Colors.borderColor,
+                          },
                       ]}
                     >
                       <Text
@@ -323,8 +314,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                          ''
-                        )}
+                              ''
+                            )}
                       </Text>
                     </Box>
                     <Box
@@ -332,13 +323,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 1
                           ? styles.textBoxActive
                           : {
-                              ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
-                            },
+                            ...styles.textBoxStyles,
+                            //   borderColor:
+                            //       passcode != confirmPasscode &&
+                            //       confirmPasscode.length == 4
+                            //         ? Colors.red
+                            //         : Colors.borderColor,
+                          },
                       ]}
                     >
                       <Text
@@ -360,8 +351,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                          ''
-                        )}
+                              ''
+                            )}
                       </Text>
                     </Box>
                     <Box
@@ -369,13 +360,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 2
                           ? styles.textBoxActive
                           : {
-                              ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
-                            },
+                            ...styles.textBoxStyles,
+                            //   borderColor:
+                            //       passcode != confirmPasscode &&
+                            //       confirmPasscode.length == 4
+                            //         ? Colors.red
+                            //         : Colors.borderColor,
+                          },
                       ]}
                     >
                       <Text
@@ -397,8 +388,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                          ''
-                        )}
+                              ''
+                            )}
                       </Text>
                     </Box>
                     <Box
@@ -406,13 +397,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 3
                           ? styles.textBoxActive
                           : {
-                              ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
-                            },
+                            ...styles.textBoxStyles,
+                            //   borderColor:
+                            //       passcode != confirmPasscode &&
+                            //       confirmPasscode.length == 4
+                            //         ? Colors.red
+                            //         : Colors.borderColor,
+                          },
                       ]}
                     >
                       <Text
@@ -430,8 +421,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                          ''
-                        )}
+                              ''
+                            )}
                       </Text>
                     </Box>
                   </Box>
@@ -450,12 +441,13 @@ export default function CreatePin(props: any) {
                 </Box>
                 <Box alignSelf={'flex-end'} mr={5}>
                   <CustomButton
+                    disabled={isDisabled}
                     onPress={() => {
-                      // dispatch(storeCreds(passcode));
+                      dispatch(storeCreds(passcode));
                       setTimeout(() => {
                         setIsDisabled(true);
                       }, 2);
-                      props.navigation.replace('Login');
+                      props.navigation.replace('NewHome');
                     }}
                     value={'Proceed'}
                   />
@@ -464,18 +456,6 @@ export default function CreatePin(props: any) {
             ) : null}
           </Box>
           <KeyPadView onPressNumber={onPressNumber} />
-          {/* <BottomSheet
-        enabledInnerScrolling={true}
-        ref={ErrorBottomSheet}
-        snapPoints={[
-          -50,
-          Platform.OS == 'ios' && DeviceInfo.hasNotch()
-            ? hp( '35%' )
-            : hp( '40%' ),
-          ]}
-          renderContent={renderErrorModalContent}
-          renderHeader={renderErrorModalHeader}
-        /> */}
         </Box>
       </Box>
     </LinearGradient>

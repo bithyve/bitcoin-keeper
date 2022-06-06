@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -7,84 +7,54 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-// import messaging from '@react-native-firebase/messaging'
 import LinearGradient from 'react-native-linear-gradient';
-// import { LocalizationContext } from '../../common/content/LocContext'
-// import { credsAuth } from '../../store/actions/setupAndAuth'
-// import { autoSyncShells } from '../../store/actions/accounts'
+import { credsAuth } from '../../store/actions/login'
 import { useDispatch, useSelector } from 'react-redux';
-// import { setFCMToken } from '../../store/actions/preferences'
-// import { updateFCMTokens } from '../../store/actions/notifications'
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import FogotPassword from './components/FogotPassword';
-// import { LoginMethod } from '../../bitcoin/utilities/Interface'
-// import ReactNativeBiometrics from 'react-native-biometrics'
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import ReactNativeBiometrics from 'react-native-biometrics'
 
 const CreatePin = ({ navigation }: any) => {
-  // const { translations } = useContext( LocalizationContext )
-  // const strings = translations[ 'login' ]
-  // const common = translations[ 'common' ]
   const dispatch = useDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
   const [isDisabledProceed, setIsDisabledProceed] = useState(false);
-
   const [forgotVisible, setForgotVisible] = useState(false);
-
+  const loginMethod = useSelector((state) => state.settings.loginMethod)
+  const appId = useSelector((state) => state.storage.appId)
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
-  // const { isAuthenticated, authenticationFailed, canLogin, failedLogin } = useSelector(
-  //   ( state ) => state.setupAndAuth,
-  // )
-  // const { walletExists, loginMethod, wallet } = useSelector( ( state ) => state.storage )
-  // const existingFCMToken = useSelector(
-  //   ( state ) => state.preferences.fcmTokenValue,
-  // )
+  const { isAuthenticated, authenticationFailed, canLogin, failedLogin } = useSelector(
+    (state) => state.login,
+  )
 
-  // useEffect(() => {
-  //   biometricAuth()
-  // }, [])
+  useEffect(() => {
+    biometricAuth()
+  }, [])
 
-  // const biometricAuth = async () => {
-  //   if(loginMethod === LoginMethod.BIOMETRIC){
-  //     try {
-  //       const {success, signature} = await ReactNativeBiometrics.createSignature({
-  //         promptMessage: 'Authenticate',
-  //         payload: wallet.walletId,
-  //         cancelButtonText: 'Use PIN'
-  //       })
-  //       if(success){
-  //         dispatch( credsAuth( signature, LoginMethod.BIOMETRIC ) )
-  //       }
+  const biometricAuth = async () => {
+    if (loginMethod === LoginMethod.BIOMETRIC) {
+      try {
+        const { success, signature } = await ReactNativeBiometrics.createSignature({
+          promptMessage: 'Authenticate',
+          payload: appId,
+          cancelButtonText: 'Use PIN'
+        })
+        if (success) {
+          dispatch(credsAuth(signature, LoginMethod.BIOMETRIC))
+        }
 
-  //     } catch ( error ) {
-  //       //
-  //       console.log(error)
-  //     }
-  //   }
-  // }
-
-  // useEffect( ()=>{
-  //   if( walletExists ) {
-  //     storeFCMToken()
-  //   }
-  // } )
-
-  // const storeFCMToken = async () => {
-  //   try {
-  //     const fcmToken = await messaging().getToken()
-  //     if ( !existingFCMToken || existingFCMToken != fcmToken ) {
-  //       dispatch( setFCMToken( fcmToken ) )
-  //       dispatch( updateFCMTokens( [ fcmToken ] ) )
-  //     }
-  //   } catch ( error ) {
-  //     //
-  //   }
-  // }
+      } catch (error) {
+        //
+        console.log(error)
+      }
+    }
+  }
 
   const onPressNumber = (text: any) => {
     let tmpPasscode = passcode;
@@ -100,31 +70,26 @@ const CreatePin = ({ navigation }: any) => {
     }
   };
 
-  // useEffect( () => {
-  //   if ( authenticationFailed && passcode ) {
-  //     setLoginError( true )
-  //     setErrMessage(strings.Incorrect)
-  //     setPasscode( '' )
-  //     setAttempts( attempts + 1 )
-  //   } else {
-  //     setLoginError( false )
-  //   }
-  // }, [ authenticationFailed ] )
+  useEffect(() => {
+    if (authenticationFailed && passcode) {
+      setLoginError(true)
+      setErrMessage('Incorrect password')
+      setPasscode('')
+      setAttempts(attempts + 1)
+    } else {
+      setLoginError(false)
+    }
+  }, [authenticationFailed])
 
-  // useEffect( () => {
-  //   if ( isAuthenticated ) {
-  //     if( !walletExists ) {
-  //       navigation.replace( 'WalletInitialization' )
-  //       } else {
-  //         dispatch( autoSyncShells(true) )
-  //         navigation.replace( 'Home' )
-  //     }
-  //   }
-  // }, [ isAuthenticated, walletExists ] )
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.replace('NewHome')
+    }
+  }, [isAuthenticated])
 
-  // const attemptLogin = ( passcode: any ) => {
-  //   dispatch( credsAuth( passcode, LoginMethod.PIN ) )
-  // }
+  const attemptLogin = (passcode: string) => {
+    dispatch(credsAuth(passcode, LoginMethod.PIN))
+  }
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -178,8 +143,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -195,8 +160,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 1 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -212,8 +177,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 2 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -229,8 +194,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 3 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                 </Box>
@@ -253,12 +218,12 @@ const CreatePin = ({ navigation }: any) => {
                 <Box>
                   <CustomButton
                     onPress={() => {
-                      navigation.navigate('NewHome');
-                      setLoginError(false);
+                      setLoginError(false)
                       setTimeout(() => {
-                        setIsDisabledProceed(true);
-                        setElevation(0);
-                      }, 2);
+                        setIsDisabledProceed(true)
+                        setElevation(0)
+                      }, 2)
+                      attemptLogin(passcode)
                     }}
                     value={'Proceed'}
                   />

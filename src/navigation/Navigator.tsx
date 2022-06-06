@@ -13,10 +13,10 @@ import AppSettings from 'src/screens/AppSettings/AppSettings';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import SendScreen from 'src/screens/Send/SendScreen';
 import AccountDetailScreen from 'src/screens/AccountDetailScreen/AccountDetailScreen';
+import SplashScreen from 'src/screens/Splash/SplashScreen';
 
 // import TestingScreen from 'src/screens/TestingScreen';
 import Login from '../screens/LoginScreen/Login';
-import WalletDetailScreen from 'src/screens/AddWallet/WalletDetailScreen';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 
 import TestingScreen from 'src/screens/TestingScreen';
@@ -35,7 +35,8 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Lock Screen" component={CreatePin} />
+        <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="CreatePin" component={CreatePin} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="ResetPin" component={ResetPin} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
@@ -45,7 +46,6 @@ const Navigator = () => {
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
-        <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AccountDetailScreen" component={AccountDetailScreen} />
         <Stack.Screen name="Send" component={SendScreen} />

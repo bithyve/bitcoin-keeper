@@ -7,6 +7,7 @@ const CustomButton = (props: any) => {
   return (
     <TouchableHighlight
       style={styles.button}
+      disabled={props.disabled}
       underlayColor={'none'}
       onPress={() => {
         props.onPress();
