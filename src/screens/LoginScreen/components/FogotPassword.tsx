@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text, Input } from 'native-base';
 
-import Icon from 'react-native-vector-icons/Ionicons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -22,7 +21,9 @@ const FogotPassword = (props) => {
           justifyContent={'center'}
           alignSelf={'flex-end'}
         >
-          <Icon name={'close-outline'} size={25} color={'#FFF'} />
+          <Text fontSize={18} color={'#FFF'}>
+            X
+          </Text>
         </Box>
       </TouchableOpacity>
       <Text fontSize={RFValue(19)}>Forgot your passcode?</Text>
