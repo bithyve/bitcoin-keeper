@@ -67,12 +67,22 @@ const FogotPassword = (props) => {
         </Box>
       )}
       <Box alignSelf={'flex-end'}>
-        <CustomGreenButton
-          onPress={() => {
-            setClickStatus('next');
-          }}
-          value={'Proceed'}
-        />
+        {clickStatus !== 'next' ? (
+          <CustomGreenButton
+            onPress={() => {
+              setClickStatus('next');
+            }}
+            value={'Proceed'}
+          />
+        ) : (
+          <CustomGreenButton
+            onPress={() => {
+              props.closeBottomSheet();
+              props.onNavigate();
+            }}
+            value={'Proceed'}
+          />
+        )}
       </Box>
     </Box>
   );
