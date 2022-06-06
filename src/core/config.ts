@@ -70,11 +70,11 @@ class HexaConfig {
     iv: Buffer;
     keyLength: number;
   } = {
-    algorithm: Config.BIT_CIPHER_ALGORITHM ? Config.BIT_CIPHER_ALGORITHM.trim() : 'aes-192-cbc',
-    salt: Config.BIT_CIPHER_SALT ? Config.BIT_CIPHER_SALT.trim() : 'bithyeSalt',
-    keyLength: Config.BIT_CIPHER_KEYLENGTH ? parseInt(Config.BIT_CIPHER_KEYLENGTH.trim(), 10) : 24,
-    iv: Buffer.alloc(16, 0),
-  };
+      algorithm: Config.BIT_CIPHER_ALGORITHM ? Config.BIT_CIPHER_ALGORITHM.trim() : 'aes-192-cbc',
+      salt: Config.BIT_CIPHER_SALT ? Config.BIT_CIPHER_SALT.trim() : 'bithyeSalt',
+      keyLength: Config.BIT_CIPHER_KEYLENGTH ? parseInt(Config.BIT_CIPHER_KEYLENGTH.trim(), 10) : 24,
+      iv: Buffer.alloc(16, 0),
+    };
   public KEY_STRETCH_ITERATIONS = Config.BIT_KEY_STRETCH_ITERATIONS
     ? parseInt(Config.BIT_KEY_STRETCH_ITERATIONS.trim(), 10)
     : 10000;
@@ -136,7 +136,7 @@ class HexaConfig {
     : 'dfe56bf7922efec670a5a860995561da8d82c801ca14be4f194b440c5d741259';
   public ENC_KEY_STORAGE_IDENTIFIER: string = Config.ENC_KEY_STORAGE_IDENTIFIER
     ? Config.ENC_KEY_STORAGE_IDENTIFIER.trim()
-    : 'HEXA-KEY';
+    : 'KEEPER-KEY';
   public SSS_METASHARE_SPLITS: number = Config.BIT_SSS_METASHARE_SPLITS
     ? parseInt(Config.BIT_SSS_METASHARE_SPLITS.trim(), 10)
     : 8;

@@ -23,6 +23,8 @@ import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/actions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import UaiDisplay from './UaiDisplay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { setupKeeperApp } from 'src/store/actions/storage';
 
 type Props = {
   navigation: any;
@@ -32,8 +34,18 @@ const NewHomeScreen = ({ navigation }: Props) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
+  const { useQuery } = RealmContext;
+  const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
+
+  useEffect(() => {
+    if (!app) {
+      setTimeout(() => {
+        dispatch(setupKeeperApp());
+      }, 1000);
+    }
+  }, [app])
 
   useEffect(() => {
     //To test logic
@@ -87,7 +99,7 @@ const NewHomeScreen = ({ navigation }: Props) => {
           </Pressable>
           <UaiDisplay uaiStack={uaiStack} />
         </Box>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('AppSettings')}>
           <SettingIcon />
         </Pressable>
       </Box>
