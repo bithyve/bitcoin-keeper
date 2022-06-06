@@ -15,7 +15,7 @@ import WalletTab from './WalletTab';
 import VaultTab from './VaultTab';
 
 // icons and images
-import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 // components
