@@ -13,7 +13,7 @@ import Wallets from './Wallets';
 import Vaults from './Vaults';
 
 // icons and images
-import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
+import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
@@ -44,14 +44,14 @@ const NewHomeScreen = ({ navigation }: Props) => {
   }, []);
 
   const moveLeft = () => {
-    Animated.timing(vaultPosition, {
+    Animated.timing(walletPosition, {
       toValue: -width,
       duration: 800,
       easing: Easing.sin,
       useNativeDriver: false,
     }).start();
 
-    Animated.timing(walletPosition, {
+    Animated.timing(vaultPosition, {
       toValue: -width,
       duration: 800,
       easing: Easing.sin,
@@ -60,14 +60,14 @@ const NewHomeScreen = ({ navigation }: Props) => {
   };
 
   const moveRight = () => {
-    Animated.timing(vaultPosition, {
+    Animated.timing(walletPosition, {
       toValue: 0,
       duration: 800,
       easing: Easing.sin,
       useNativeDriver: false,
     }).start();
 
-    Animated.timing(walletPosition, {
+    Animated.timing(vaultPosition, {
       toValue: 0,
       duration: 800,
       easing: Easing.sin,
@@ -92,11 +92,11 @@ const NewHomeScreen = ({ navigation }: Props) => {
         </Pressable>
       </Box>
       <View style={{ flexDirection: 'row', width: '100%' }}>
-        <Animated.View style={{ left: vaultPosition, width: '100%' }}>
-          <Vaults animate={moveLeft} />
-        </Animated.View>
         <Animated.View style={{ left: walletPosition, width: '100%' }}>
-          <Wallets animate={moveRight} />
+          <Wallets animate={moveLeft} />
+        </Animated.View>
+        <Animated.View style={{ left: vaultPosition, width: '100%' }}>
+          <Vaults animate={moveRight} />
         </Animated.View>
       </View>
     </Box>
@@ -110,7 +110,7 @@ const styles = ScaledSheet.create({
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: hp(getResponsiveHome().padingTop),
+    paddingTop: hp(windowHeight * 0.009),
     paddingHorizontal: wp(10),
   },
   button: {
