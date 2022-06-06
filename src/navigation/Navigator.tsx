@@ -14,20 +14,14 @@ import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import SendScreen from 'src/screens/Send/SendScreen';
 import AccountDetailScreen from 'src/screens/AccountDetailScreen/AccountDetailScreen';
 
-<<<<<<< HEAD
 // import TestingScreen from 'src/screens/TestingScreen';
-=======
->>>>>>> a9e7bbdb90f7d60e405e6dee835c98abf4e843d8
 import Login from '../screens/LoginScreen/Login';
 import WalletDetailScreen from 'src/screens/AddWallet/WalletDetailScreen';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 
-<<<<<<< HEAD
 import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 
-=======
->>>>>>> a9e7bbdb90f7d60e405e6dee835c98abf4e843d8
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
