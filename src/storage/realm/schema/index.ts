@@ -1,5 +1,9 @@
 import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 import {
+  ActiveAddressesSchema,
+  TransactionSchema,
+  TransactionToAddressMappingSchema,
+  UTXOSchema,
   WalletDerivationDetailsSchema,
   WalletPresentationDataSchema,
   WalletSchema,
@@ -22,6 +26,10 @@ export default [
   WalletSchema,
   WalletDerivationDetailsSchema,
   WalletPresentationDataSchema,
+  ActiveAddressesSchema,
+  UTXOSchema,
+  TransactionSchema,
+  TransactionToAddressMappingSchema,
   WalletSpecsSchema,
   WalletShellShcema,
   WalletShellInstancesShcema,

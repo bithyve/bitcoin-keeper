@@ -22,6 +22,8 @@ import {
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
+  UTXO,
+  TransactionToAddressMapping,
 } from './interfaces/interface';
 import {
   WalletType,
@@ -191,7 +193,8 @@ export default class WalletOperations {
           status?: any;
         }>;
         cachedTxs: Transaction[];
-        cachedTxIdMap: { [txid: string]: string[] };
+        txIdCache: { [txid: string]: boolean };
+        cachedTransactionMapping: TransactionToAddressMapping[];
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
         walletType: string;
@@ -278,11 +281,14 @@ export default class WalletOperations {
       }
 
       // garner cached params for bal-tx sync
-      const cachedUTXOs = hardRefresh
+      const cachedUTXOs: UTXO[] = hardRefresh
         ? []
         : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
-      const cachedTxIdMap = hardRefresh ? {} : wallet.specs.txIdMap;
-      const cachedTxs = hardRefresh ? [] : wallet.specs.transactions;
+      const txIdCache = hardRefresh ? {} : wallet.specs.txIdCache;
+      const cachedTransactionMapping: TransactionToAddressMapping[] = hardRefresh
+        ? []
+        : wallet.specs.transactionMapping;
+      const cachedTxs: Transaction[] = hardRefresh ? [] : wallet.specs.transactions;
 
       let shouldHardRefresh = hardRefresh;
       if (!shouldHardRefresh) {
@@ -297,7 +303,8 @@ export default class WalletOperations {
         ownedAddresses,
         cachedUTXOs,
         cachedTxs,
-        cachedTxIdMap,
+        txIdCache,
+        cachedTransactionMapping,
         lastUsedAddressIndex: wallet.specs.nextFreeAddressIndex - 1,
         lastUsedChangeAddressIndex: wallet.specs.nextFreeChangeAddressIndex - 1,
         transactionsNote: wallet.specs.transactionsNote,
@@ -322,7 +329,8 @@ export default class WalletOperations {
       const {
         UTXOs,
         transactions,
-        txIdMap,
+        txIdCache,
+        transactionMapping,
         nextFreeAddressIndex,
         nextFreeChangeAddressIndex,
         activeAddresses,
@@ -400,8 +408,8 @@ export default class WalletOperations {
 
       // find tx delta(missing txs): hard vs soft refresh
       // if( hardRefresh ){
-      //   if( wallet.txIdMap && txIdMap ){
-      //     const deltaTxs = WalletUtilities.findTxDelta( wallet.txIdMap, txIdMap, transactions )
+      //   if( wallet.transactionMapping && transactionMapping ){
+      //     const deltaTxs = WalletUtilities.findTxDelta( wallet.transactionMapping, transactionMapping, transactions )
       //     if( deltaTxs.length ) txsFound.push( ...deltaTxs )
       //   } else txsFound.push( ...transactions )
       // }
@@ -411,7 +419,8 @@ export default class WalletOperations {
       );
 
       wallet.specs.transactions = transactions;
-      wallet.specs.txIdMap = txIdMap;
+      wallet.specs.txIdCache = txIdCache;
+      wallet.specs.transactionMapping = transactionMapping;
       wallet.specs.newTransactions = newTransactions;
       wallet.specs.lastSynched = lastSynched;
       activeAddressesWithNewTxsMap[wallet.id] = activeAddressesWithNewTxs;
