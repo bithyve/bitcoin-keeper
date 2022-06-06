@@ -21,7 +21,6 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import UaiDisplay from './UaiDisplay';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { setupKeeperApp } from 'src/store/actions/storage';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 
 const width = Dimensions.get('window').width;
@@ -29,8 +28,8 @@ const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
-  const { useQuery } = RealmContext;
-  const [app] = useQuery(RealmSchema.KeeperApp);
+  // const { useQuery } = RealmContext;
+  // const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
 
@@ -63,13 +62,6 @@ const NewHomeScreen = ({ navigation }) => {
       )
     );
   };
-  useEffect(() => {
-    if (!app) {
-      setTimeout(() => {
-        dispatch(setupKeeperApp());
-      }, 1000);
-    }
-  }, [app]);
 
   const moveLeft = () => {
     Animated.timing(vaultPosition, {

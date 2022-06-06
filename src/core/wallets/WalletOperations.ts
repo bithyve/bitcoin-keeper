@@ -22,6 +22,8 @@ import {
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
+  UTXO,
+  TransactionToAddressMapping,
 } from './interfaces/interface';
 import {
   WalletType,
@@ -36,6 +38,7 @@ export default class WalletOperations {
     wallet: Wallet | MultiSigWallet,
     requester?: ActiveAddressAssignee
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
+    // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
     if ((wallet as MultiSigWallet).specs.is2FA)
@@ -65,12 +68,12 @@ export default class WalletOperations {
 
     wallet.specs.activeAddresses.external[receivingAddress] = {
       index: wallet.specs.nextFreeAddressIndex,
-      assignee: requester
-        ? requester
-        : {
-            type: wallet.type,
-            id: wallet.id,
-          },
+      // assignee: requester
+      //   ? requester
+      //   : {
+      //       type: wallet.type,
+      //       id: wallet.id,
+      //     },
     };
     wallet.specs.nextFreeAddressIndex++;
     wallet.specs.receivingAddress = receivingAddress;
@@ -162,7 +165,7 @@ export default class WalletOperations {
     };
     wallet.specs.activeAddresses.external[address] = {
       index: -1,
-      assignee: requester,
+      // assignee: requester,
     };
   };
 
@@ -191,7 +194,8 @@ export default class WalletOperations {
           status?: any;
         }>;
         cachedTxs: Transaction[];
-        cachedTxIdMap: { [txid: string]: string[] };
+        txIdCache: { [txid: string]: boolean };
+        cachedTransactionMapping: TransactionToAddressMapping[];
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
         walletType: string;
@@ -278,11 +282,14 @@ export default class WalletOperations {
       }
 
       // garner cached params for bal-tx sync
-      const cachedUTXOs = hardRefresh
+      const cachedUTXOs: UTXO[] = hardRefresh
         ? []
         : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
-      const cachedTxIdMap = hardRefresh ? {} : wallet.specs.txIdMap;
-      const cachedTxs = hardRefresh ? [] : wallet.specs.transactions;
+      const txIdCache = hardRefresh ? {} : wallet.specs.txIdCache;
+      const cachedTransactionMapping: TransactionToAddressMapping[] = hardRefresh
+        ? []
+        : wallet.specs.transactionMapping;
+      const cachedTxs: Transaction[] = hardRefresh ? [] : wallet.specs.transactions;
 
       let shouldHardRefresh = hardRefresh;
       if (!shouldHardRefresh) {
@@ -297,7 +304,8 @@ export default class WalletOperations {
         ownedAddresses,
         cachedUTXOs,
         cachedTxs,
-        cachedTxIdMap,
+        txIdCache,
+        cachedTransactionMapping,
         lastUsedAddressIndex: wallet.specs.nextFreeAddressIndex - 1,
         lastUsedChangeAddressIndex: wallet.specs.nextFreeChangeAddressIndex - 1,
         transactionsNote: wallet.specs.transactionsNote,
@@ -322,7 +330,8 @@ export default class WalletOperations {
       const {
         UTXOs,
         transactions,
-        txIdMap,
+        txIdCache,
+        transactionMapping,
         nextFreeAddressIndex,
         nextFreeChangeAddressIndex,
         activeAddresses,
@@ -400,8 +409,8 @@ export default class WalletOperations {
 
       // find tx delta(missing txs): hard vs soft refresh
       // if( hardRefresh ){
-      //   if( wallet.txIdMap && txIdMap ){
-      //     const deltaTxs = WalletUtilities.findTxDelta( wallet.txIdMap, txIdMap, transactions )
+      //   if( wallet.transactionMapping && transactionMapping ){
+      //     const deltaTxs = WalletUtilities.findTxDelta( wallet.transactionMapping, transactionMapping, transactions )
       //     if( deltaTxs.length ) txsFound.push( ...deltaTxs )
       //   } else txsFound.push( ...transactions )
       // }
@@ -411,7 +420,8 @@ export default class WalletOperations {
       );
 
       wallet.specs.transactions = transactions;
-      wallet.specs.txIdMap = txIdMap;
+      wallet.specs.txIdCache = txIdCache;
+      wallet.specs.transactionMapping = transactionMapping;
       wallet.specs.newTransactions = newTransactions;
       wallet.specs.lastSynched = lastSynched;
       activeAddressesWithNewTxsMap[wallet.id] = activeAddressesWithNewTxs;
@@ -570,28 +580,28 @@ export default class WalletOperations {
           if (!activeExternalAddresses[address])
             activeExternalAddresses[address] = {
               index: itr,
-              assignee: {
-                type: wallet.type,
-                id: wallet.id,
-                recipientInfo,
-              },
+              // assignee: {
+              //   type: wallet.type,
+              //   id: wallet.id,
+              //   recipientInfo,
+              // },
             };
           // include out of bound ext address
           else
             activeExternalAddresses[address] = {
               ...activeExternalAddresses[address],
-              assignee: {
-                ...activeExternalAddresses[address].assignee,
-                recipientInfo: idx(
-                  activeExternalAddresses[address],
-                  (_) => _.assignee.recipientInfo
-                )
-                  ? {
-                      ...activeExternalAddresses[address].assignee.recipientInfo,
-                      ...recipientInfo,
-                    }
-                  : recipientInfo,
-              },
+              // assignee: {
+              //   ...activeExternalAddresses[address].assignee,
+              //   recipientInfo: idx(
+              //     activeExternalAddresses[address],
+              //     (_) => _.assignee.recipientInfo
+              //   )
+              //     ? {
+              //         ...activeExternalAddresses[address].assignee.recipientInfo,
+              //         ...recipientInfo,
+              //       }
+              //     : recipientInfo,
+              // },
             };
           found = true;
           break;
@@ -627,28 +637,28 @@ export default class WalletOperations {
             if (!activeInternalAddresses[address])
               activeInternalAddresses[address] = {
                 index: itr,
-                assignee: {
-                  type: wallet.type,
-                  id: wallet.id,
-                  recipientInfo,
-                },
+                // assignee: {
+                //   type: wallet.type,
+                //   id: wallet.id,
+                //   recipientInfo,
+                // },
               };
             // include out of bound(soft-refresh range) int address
             else
               activeInternalAddresses[address] = {
                 ...activeInternalAddresses[address],
-                assignee: {
-                  ...activeInternalAddresses[address].assignee,
-                  recipientInfo: idx(
-                    activeInternalAddresses[address],
-                    (_) => _.assignee.recipientInfo
-                  )
-                    ? {
-                        ...activeInternalAddresses[address].assignee.recipientInfo,
-                        ...recipientInfo,
-                      }
-                    : recipientInfo,
-                },
+                // assignee: {
+                //   ...activeInternalAddresses[address].assignee,
+                //   recipientInfo: idx(
+                //     activeInternalAddresses[address],
+                //     (_) => _.assignee.recipientInfo
+                //   )
+                //     ? {
+                //         ...activeInternalAddresses[address].assignee.recipientInfo,
+                //         ...recipientInfo,
+                //       }
+                //     : recipientInfo,
+                // },
               };
             found = true;
             break;
@@ -682,10 +692,10 @@ export default class WalletOperations {
 
     activeInternalAddresses[changeAddress] = {
       index: wallet.specs.nextFreeChangeAddressIndex,
-      assignee: {
-        type: wallet.type,
-        id: wallet.id,
-      },
+      // assignee: {
+      //   type: wallet.type,
+      //   id: wallet.id,
+      // },
     };
     wallet.specs.nextFreeChangeAddressIndex++;
   };

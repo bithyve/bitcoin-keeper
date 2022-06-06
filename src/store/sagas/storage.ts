@@ -13,7 +13,7 @@ import { WalletShell } from 'src/core/wallets/interfaces/interface';
 function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName }: { appName: string } = payload;
-    const primaryMnemonic = bip39.generateMnemonic(256);
+    const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
     const defaultWalletShell: WalletShell = {
@@ -24,7 +24,7 @@ function* setupKeeperAppWorker({ payload }) {
     const userTier: UserTier = {
       level: AppTierLevel.ONE,
     };
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex')
+    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const app: KeeperApp = {
       id,
       appName,
@@ -39,10 +39,9 @@ function* setupKeeperAppWorker({ payload }) {
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
-    yield put(setAppId(id))
-    console.log('appId', id)
+    yield put(setAppId(id));
   } catch (error) {
-    console.log('setupKeeperApp error', error)
+    console.log({ error });
   }
 }
 
