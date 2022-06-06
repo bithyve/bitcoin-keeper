@@ -294,6 +294,7 @@ const CreatePin = ({ navigation }: any) => {
             closeBottomSheet={() => {
               setForgotVisible(false);
             }}
+            onNavigate={() => navigation.navigate('ResetPin')}
           />
         </ModalContainer>
       </Box>

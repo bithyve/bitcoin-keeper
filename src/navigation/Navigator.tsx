@@ -14,9 +14,13 @@ import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import SendScreen from 'src/screens/Send/SendScreen';
 import AccountDetailScreen from 'src/screens/AccountDetailScreen/AccountDetailScreen';
 
+// import TestingScreen from 'src/screens/TestingScreen';
 import Login from '../screens/LoginScreen/Login';
 import WalletDetailScreen from 'src/screens/AddWallet/WalletDetailScreen';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
+
+import TestingScreen from 'src/screens/TestingScreen';
+import ResetPin from 'src/screens/LoginScreen/ResetPin';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -33,6 +37,7 @@ const Navigator = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Lock Screen" component={CreatePin} />
         <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="ResetPin" component={ResetPin} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
         {/* <Stack.Screen name="Lock Screen" component={LoginScreen} /> */}
         <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
