@@ -7,7 +7,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import KeyPadButton from './KeyPadButton';
 
 export interface Props {
-  onPressNumber: any;
+  onPressNumber;
+  disabled?;
 }
 const KeyPadView: React.FC<Props> = ({ onPressNumber, disabled = false }: Props) => {
   return (

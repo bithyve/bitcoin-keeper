@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, Text, Pressable, Image, useColorMode } from 'native-base';
+import { Box, Text, Pressable, useColorMode } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import LinkIcon from 'src/assets/icons/link.svg';
 
-const SettingsCard = (props: any) => {
+const SettingsCard = (props) => {
   const { colorMode } = useColorMode();
   return (
     <Pressable onPress={() => props.onPress()}>

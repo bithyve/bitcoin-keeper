@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, TouchableOpacity, StatusBar, TouchableHighlight } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, StatusBar } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
   widthPercentageToDP as wp,
@@ -200,8 +200,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -224,8 +224,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -248,8 +248,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -268,8 +268,8 @@ export default function CreatePin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Text>
                   </Box>
                 </Box>
@@ -290,13 +290,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 0
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                              //   borderColor:
+                              //       passcode != confirmPasscode &&
+                              //       confirmPasscode.length == 4
+                              //         ? Colors.red
+                              //         : Colors.borderColor,
+                            },
                       ]}
                     >
                       <Text
@@ -314,8 +314,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Text>
                     </Box>
                     <Box
@@ -323,13 +323,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 1
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                              //   borderColor:
+                              //       passcode != confirmPasscode &&
+                              //       confirmPasscode.length == 4
+                              //         ? Colors.red
+                              //         : Colors.borderColor,
+                            },
                       ]}
                     >
                       <Text
@@ -351,8 +351,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Text>
                     </Box>
                     <Box
@@ -360,13 +360,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 2
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                              //   borderColor:
+                              //       passcode != confirmPasscode &&
+                              //       confirmPasscode.length == 4
+                              //         ? Colors.red
+                              //         : Colors.borderColor,
+                            },
                       ]}
                     >
                       <Text
@@ -388,8 +388,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Text>
                     </Box>
                     <Box
@@ -397,13 +397,13 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 3
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                              //   borderColor:
+                              //       passcode != confirmPasscode &&
+                              //       confirmPasscode.length == 4
+                              //         ? Colors.red
+                              //         : Colors.borderColor,
+                            },
                       ]}
                     >
                       <Text
@@ -421,8 +421,8 @@ export default function CreatePin(props: any) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Text>
                     </Box>
                   </Box>
