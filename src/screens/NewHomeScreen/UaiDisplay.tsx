@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { Text } from 'native-base';
+import { Button, Text } from 'native-base';
 import { TouchableOpacity, View } from 'react-native';
 import {
   heightPercentageToDP as hp,
@@ -14,7 +14,7 @@ import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const UaiDisplay = ({ uaiStack }) => {
   const [uai, setUai] = useState({});
-  const [uaiExtraDetails, setUaiExtraDetails] = useState({});
+  const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
 
   const dispatch = useDispatch();
@@ -24,29 +24,58 @@ const UaiDisplay = ({ uaiStack }) => {
       case uaiType.RELEASE_MESSAGE:
         return {
           btnText: 'Upgrade',
+          modalDetails: {
+            heading: 'Update application',
+            btnText: 'Upgrade',
+          },
+          cta: () => {
+            uaiSetActionFalse();
+            setShowModal(false);
+          },
         };
       case uaiType.ALERT:
         return {
-          btnText: 'Confirm',
+          btnText: 'Details',
+          modalDetails: {
+            heading: 'Details',
+            btnText: 'Okay',
+          },
+          cta: () => {
+            uaiSetActionFalse();
+            setShowModal(false);
+          },
         };
-      case uaiType.WARNING:
-        return {
-          btnText: 'Ok',
-        };
-      case uaiType.REMINDER: {
-        return {
-          btnText: 'Take Action',
-        };
-      }
-      default:
-        return {
-          btnText: 'Ok',
-        };
+      // case uaiType.WARNING:
+      //   return {
+      //     btnText: 'Ok',
+      //     cta: () => {
+      //       setShowModal(true);
+      //     },
+      //     primaryCallback: () => {
+      //       uaiSetActionFalse();
+      //       setShowModal(false);
+      //     },
+      //   };
+      // case uaiType.REMINDER: {
+      //   return {
+      //     btnText: 'Take Action',
+      //     cta: () => {
+      //       setShowModal(true);
+      //     },
+      //   };
+      // }
+      // default:
+      //   return {
+      //     btnText: 'Ok',
+      //     cta: () => {
+      //       setShowModal(true);
+      //     },
+      //   };
     }
   };
 
   useEffect(() => {
-    setUaiExtraDetails(getUaiTypeDefinations(uai?.uaiType));
+    setUaiConfig(getUaiTypeDefinations(uai?.uaiType));
   }, [uai]);
 
   useEffect(() => {
@@ -54,12 +83,19 @@ const UaiDisplay = ({ uaiStack }) => {
     setUai(uaiStack[0]);
   }, [uaiStack]);
 
-  const presshandler = () => {
+  const uaiSetActionFalse = () => {
     console.log('uai', uai);
     let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
     updatedUai = { ...updatedUai, isActioned: true };
-    console.log('updatedUai', updatedUai);
     dispatch(updateUaiStack(updatedUai));
+  };
+
+  const pressHandler = () => {
+    if (uai?.isDisplay) {
+      setShowModal(true);
+    } else {
+      uaiSetActionFalse();
+    }
   };
 
   return (
@@ -73,7 +109,7 @@ const UaiDisplay = ({ uaiStack }) => {
       >
         {uai?.title}
       </Text>
-      <TouchableOpacity style={styles.button} onPress={presshandler}>
+      <TouchableOpacity style={styles.button} onPress={pressHandler}>
         <Text
           color={'light.textDark'}
           fontSize={RFValue(11)}
@@ -81,17 +117,32 @@ const UaiDisplay = ({ uaiStack }) => {
           fontWeight={'300'}
           letterSpacing={0.88}
         >
-          {uaiExtraDetails?.btnText}
+          {uaiConfig?.btnText}
         </Text>
       </TouchableOpacity>
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <Modal.Content maxWidth="400px">
           <Modal.CloseButton />
-          <Modal.Header>Contact Us</Modal.Header>
-          <Modal.Body>
-            <Text>asdf</Text>
-          </Modal.Body>
-          <Modal.Footer></Modal.Footer>
+          <Modal.Header>{uaiConfig?.modalDetails?.heading}</Modal.Header>
+          {uai?.displayText ? (
+            <Modal.Body>
+              <Text>{uai?.displayText}</Text>
+            </Modal.Body>
+          ) : null}
+
+          <Modal.Footer>
+            <Button.Group space={2}>
+              <Button
+                variant="ghost"
+                colorScheme="blueGray"
+                onPress={() => {
+                  uaiConfig?.cta();
+                }}
+              >
+                {uaiConfig?.modalDetails?.btnText}
+              </Button>
+            </Button.Group>
+          </Modal.Footer>
         </Modal.Content>
       </Modal>
     </>
