@@ -68,16 +68,12 @@ const ModalContainer = ({
       <KeyboardAwareScrollView
         scrollEnabled={false}
         contentContainerStyle={{
-          // flex: 1,
-
           backgroundColor: background,
           flex: 1,
           flexDirection: 'column',
           justifyContent: 'flex-end',
-          // alignItems: 'center',
           paddingBottom: Platform.OS === 'ios' ? hp('6%') : 2,
           paddingHorizontal: wp('2%'),
-          // borderRadius: 20
         }}
         resetScrollToCoords={{
           x: 0,
@@ -100,7 +96,6 @@ const ModalContainer = ({
                 width: '100%',
                 borderRadius: wp('4%'),
                 overflow: 'hidden',
-                // marginBottom: hp( 0.5 )
               }}
             >
               {children}

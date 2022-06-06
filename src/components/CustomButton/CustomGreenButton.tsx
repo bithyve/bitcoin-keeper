@@ -3,7 +3,7 @@ import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
-const CustomGreenButton = (props: any) => {
+const CustomGreenButton = (props) => {
   return (
     <TouchableHighlight
       style={styles.button}

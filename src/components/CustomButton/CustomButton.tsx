@@ -3,7 +3,7 @@ import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
-const CustomButton = (props: any) => {
+const CustomButton = (props) => {
   return (
     <TouchableHighlight
       style={styles.button}

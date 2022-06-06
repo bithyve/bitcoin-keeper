@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 
-const Note = (props: any) => {
+const Note = (props) => {
   const { colorMode } = useColorMode();
 
   return (
