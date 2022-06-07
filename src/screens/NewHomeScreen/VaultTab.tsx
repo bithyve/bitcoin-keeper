@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions, FlatList, TouchableOpacity, View, ImageBackground } from 'react-native';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Box, Text, VStack, ScrollView } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
