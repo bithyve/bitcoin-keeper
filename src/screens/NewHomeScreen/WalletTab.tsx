@@ -129,7 +129,7 @@ const WalletTab = ({ animate }) => {
     );
   };
 
-  const RenderWalletCard = ({ item }) => {
+  const RenderWalletCard = ({ item }: { item: any }) => {
     return (
       <WalletCard
         item={item}
