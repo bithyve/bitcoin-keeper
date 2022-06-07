@@ -30,6 +30,7 @@ import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
   credentialsAuthWatcher,
+  resetPinCredWatcher
 } from './sagas/login';
 import { setupKeeperAppWatcher } from './sagas/storage';
 
@@ -67,6 +68,7 @@ const rootSaga = function* () {
     changeAuthCredWatcher,
     changeLoginMethodWatcher,
     credentialsAuthWatcher,
+    resetPinCredWatcher
   ];
 
   yield all(

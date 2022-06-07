@@ -1,5 +1,9 @@
 export const SETUP_KEEPER_APP = 'SETUP_KEEPER_APP';
 export const SET_APP_ID = 'SET_APP_ID';
+export const SET_PIN_RESET_CREDS = 'SET_PIN_RESET_CREDS';
+export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
+export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
+export const KEY_FETCHED = 'KEY_FETCHED';
 
 export const setupKeeperApp = (appName?: string) => {
   return {
@@ -18,3 +22,36 @@ export const setAppId = (appId?: string) => {
     },
   };
 };
+
+export const setPinResetCreds = (hash: string, index: number) => {
+  return {
+    type: SET_PIN_RESET_CREDS,
+    payload: {
+      hash, index
+    },
+  };
+};
+
+export const increasePinFailAttempts = () => {
+  return {
+    type: INCREASE_PIN_FAIL_ATTEMTS,
+    payload: {
+    },
+  };
+};
+
+export const resetPinFailAttempts = () => {
+  return {
+    type: RESET_PIN_FAIL_ATTEMTS,
+    payload: {
+    },
+  };
+};
+
+export const keyFetched = (key) => {
+  return {
+    type: KEY_FETCHED, payload: {
+      key
+    }
+  }
+}

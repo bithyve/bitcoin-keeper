@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -8,6 +8,7 @@ import {
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
 import { credsAuth } from '../../store/actions/login';
+import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/actions/storage';
 import { useDispatch, useSelector } from 'react-redux';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
@@ -16,6 +17,8 @@ import FogotPassword from './components/FogotPassword';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
+
+const TIMEOUT = 40
 
 const CreatePin = ({ navigation }: any) => {
   const dispatch = useDispatch();
@@ -26,15 +29,68 @@ const CreatePin = ({ navigation }: any) => {
   const [isDisabledProceed, setIsDisabledProceed] = useState(false);
   const [forgotVisible, setForgotVisible] = useState(false);
   const loginMethod = useSelector((state) => state.settings.loginMethod);
-  const appId = useSelector((state) => state.storage.appId);
+  const { appId, failedAttempts, lastLoginFailedAt } = useSelector((state) => state.storage);
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
-  const { isAuthenticated, authenticationFailed, canLogin, failedLogin } = useSelector(
+  const [timeout, setTimeout] = useState(0)
+  const [timer, setTimer] = useState(null)
+  const [canLogin, setCanLogin] = useState(false)
+
+  const { isAuthenticated, authenticationFailed, failedLogin } = useSelector(
     (state) => state.login
   );
 
   useEffect(() => {
-    biometricAuth();
+    if (failedAttempts >= 1) {
+      const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
+      const waitingTime = TIMEOUT * failedAttempts;
+      if (retryTime > waitingTime) {
+        setCanLogin(true)
+        return
+      } else {
+        if (!timer) {
+          setTimeout(waitingTime - retryTime)
+          setCanLogin(false)
+          return
+        } else if (timeout !== 0) {
+          setCanLogin(false)
+          return
+        }
+      }
+    }
+    setCanLogin(true)
+  }, [failedAttempts, lastLoginFailedAt, timer])
+
+  useEffect(() => {
+    if (timeout) {
+      const interval = setInterval(() => {
+        const timeLeft = timeout - 1
+        setTimeout(timeout - 1)
+        if (timeLeft <= 0) {
+          setLoginError(false)
+          setErrMessage('')
+          setTimer(null)
+        } else {
+          setLoginError(true)
+          setErrMessage(`Please try after ${Number(timeout - 1)} secs`)
+        }
+      }, 1000);
+      console.log('interval', interval)
+      setTimer(interval)
+      return () => {
+        clearInterval(interval);
+      }
+    }
+  }, [timeout]);
+
+  function startTimer(time) {
+
+  }
+
+  useEffect(() => {
+    if (canLogin) {
+      biometricAuth();
+    }
   }, []);
 
   const biometricAuth = async () => {
@@ -70,6 +126,13 @@ const CreatePin = ({ navigation }: any) => {
   };
 
   useEffect(() => {
+    if (attempts > 3) {
+      setAttempts(1)
+      dispatch(increasePinFailAttempts())
+    }
+  }, [attempts])
+
+  useEffect(() => {
     if (authenticationFailed && passcode) {
       setLoginError(true);
       setErrMessage('Incorrect password');
@@ -89,6 +152,13 @@ const CreatePin = ({ navigation }: any) => {
   const attemptLogin = (passcode: string) => {
     dispatch(credsAuth(passcode, LoginMethod.PIN));
   };
+
+  const onPinChange = () => {
+    setLoginError(false);
+    setErrMessage('');
+    setAttempts(0)
+    dispatch(resetPinFailAttempts())
+  }
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -135,8 +205,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -146,8 +216,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 1 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -157,8 +227,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 2 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -168,8 +238,8 @@ const CreatePin = ({ navigation }: any) => {
                       ) : passcode.length == 3 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
+                            ''
+                          )}
                     </Text>
                   </Box>
                 </Box>
@@ -223,7 +293,7 @@ const CreatePin = ({ navigation }: any) => {
             </TouchableOpacity>
           )}
           {/* keyboardview start */}
-          <KeyPadView onPressNumber={onPressNumber} />
+          <KeyPadView disabled={!canLogin} onPressNumber={onPressNumber} />
         </Box>
         {/* forgot modal */}
         <ModalContainer
@@ -233,10 +303,16 @@ const CreatePin = ({ navigation }: any) => {
           }}
         >
           <FogotPassword
+            type="seed"
             closeBottomSheet={() => {
               setForgotVisible(false);
             }}
-            onNavigate={() => navigation.navigate('ResetPin')}
+            onVerify={() => {
+              setForgotVisible(false);
+              navigation.navigate('ResetPin', {
+                onPinChange,
+              })
+            }}
           />
         </ModalContainer>
       </Box>
