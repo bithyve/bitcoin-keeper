@@ -678,66 +678,66 @@ export default class WalletUtilities {
                   addresses: new Set([addressInfo.Address]),
                 });
 
-                if (tx.transactionType === 'Self') {
-                  const outgoingTx: Transaction = {
-                    txid: tx.txid,
-                    confirmations: tx.NumberofConfirmations,
-                    status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                    fee: tx.fee,
-                    date: tx.Status.block_time
-                      ? new Date(tx.Status.block_time * 1000).toUTCString()
-                      : new Date(Date.now()).toUTCString(),
-                    transactionType: TransactionType.SENT,
-                    amount: tx.SentAmount,
-                    walletType: walletType,
-                    recipientAddresses: tx.RecipientAddresses,
-                    blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
-                    address: addressInfo.Address,
-                    isNew: true,
-                    notes: transactionsNote[tx.txid],
-                  };
+                // if (tx.transactionType === 'Self') {
+                //   const outgoingTx: Transaction = {
+                //     txid: tx.txid,
+                //     confirmations: tx.NumberofConfirmations,
+                //     status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
+                //     fee: tx.fee,
+                //     date: tx.Status.block_time
+                //       ? new Date(tx.Status.block_time * 1000).toUTCString()
+                //       : new Date(Date.now()).toUTCString(),
+                //     transactionType: TransactionType.SENT,
+                //     amount: tx.SentAmount,
+                //     walletType: walletType,
+                //     recipientAddresses: tx.RecipientAddresses,
+                //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
+                //     address: addressInfo.Address,
+                //     isNew: true,
+                //     notes: transactionsNote[tx.txid],
+                //   };
 
-                  const incomingTx: Transaction = {
-                    txid: tx.txid,
-                    confirmations: tx.NumberofConfirmations,
-                    status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                    fee: tx.fee,
-                    date: tx.Status.block_time
-                      ? new Date(tx.Status.block_time * 1000).toUTCString()
-                      : new Date(Date.now()).toUTCString(),
-                    transactionType: TransactionType.RECEIVED,
-                    amount: tx.ReceivedAmount,
-                    walletType: walletType,
-                    senderAddresses: tx.SenderAddresses,
-                    blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
-                    isNew: true,
-                    notes: transactionsNote[tx.txid],
-                  };
+                //   const incomingTx: Transaction = {
+                //     txid: tx.txid,
+                //     confirmations: tx.NumberofConfirmations,
+                //     status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
+                //     fee: tx.fee,
+                //     date: tx.Status.block_time
+                //       ? new Date(tx.Status.block_time * 1000).toUTCString()
+                //       : new Date(Date.now()).toUTCString(),
+                //     transactionType: TransactionType.RECEIVED,
+                //     amount: tx.ReceivedAmount,
+                //     walletType: walletType,
+                //     senderAddresses: tx.SenderAddresses,
+                //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
+                //     isNew: true,
+                //     notes: transactionsNote[tx.txid],
+                //   };
 
-                  newTxs.push(...[outgoingTx, incomingTx]);
-                } else {
-                  const transaction: Transaction = {
-                    txid: tx.txid,
-                    confirmations: tx.NumberofConfirmations,
-                    status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                    fee: tx.fee,
-                    date: tx.Status.block_time
-                      ? new Date(tx.Status.block_time * 1000).toUTCString()
-                      : new Date(Date.now()).toUTCString(),
-                    transactionType: tx.TransactionType,
-                    amount: tx.Amount,
-                    walletType,
-                    walletName: walletName ? walletName : walletType,
-                    recipientAddresses: tx.RecipientAddresses,
-                    senderAddresses: tx.SenderAddresses,
-                    blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
-                    address: addressInfo.Address,
-                    isNew: true,
-                    notes: transactionsNote[tx.txid],
-                  };
+                //   newTxs.push(...[outgoingTx, incomingTx]);
+                // } else {}
 
-                  newTxs.push(transaction);
-                }
+                const transaction: Transaction = {
+                  txid: tx.txid,
+                  confirmations: tx.NumberofConfirmations,
+                  status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
+                  fee: tx.fee,
+                  date: tx.Status.block_time
+                    ? new Date(tx.Status.block_time * 1000).toUTCString()
+                    : new Date(Date.now()).toUTCString(),
+                  transactionType: tx.TransactionType,
+                  amount: tx.Amount,
+                  walletType,
+                  walletName: walletName ? walletName : walletType,
+                  recipientAddresses: tx.RecipientAddresses,
+                  senderAddresses: tx.SenderAddresses,
+                  blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
+                  address: addressInfo.Address,
+                  isNew: true,
+                  notes: transactionsNote[tx.txid],
+                };
+
+                newTxs.push(transaction);
               } else {
                 for (const map of transactionMapping) {
                   if (map.txid === tx.txId) {
