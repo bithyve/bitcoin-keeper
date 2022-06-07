@@ -17,7 +17,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 
-const CreatePin = ({ navigation }: any) => {
+const CreatePin = ({ navigation }) => {
   const dispatch = useDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -55,7 +55,7 @@ const CreatePin = ({ navigation }: any) => {
     }
   };
 
-  const onPressNumber = (text: any) => {
+  const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
       if (text != 'x') {
@@ -82,7 +82,7 @@ const CreatePin = ({ navigation }: any) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.replace('NewHome');
+      navigation.navigate('NewHome');
     }
   }, [isAuthenticated]);
 
@@ -123,13 +123,7 @@ const CreatePin = ({ navigation }: any) => {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      style={[
-                        passcode.length == 0 && passcodeFlag == true
-                          ? styles.textFocused
-                          : styles.textStyles,
-                      ]}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
                         <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
@@ -137,10 +131,16 @@ const CreatePin = ({ navigation }: any) => {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 1 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 1 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 2 ? (
                         <DotView />
                       ) : passcode.length == 1 ? (
@@ -148,10 +148,16 @@ const CreatePin = ({ navigation }: any) => {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 2 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 2 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 3 ? (
                         <DotView />
                       ) : passcode.length == 2 ? (
@@ -159,10 +165,16 @@ const CreatePin = ({ navigation }: any) => {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 3 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 3 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 4 ? (
                         <DotView />
                       ) : passcode.length == 3 ? (
@@ -170,7 +182,7 @@ const CreatePin = ({ navigation }: any) => {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
