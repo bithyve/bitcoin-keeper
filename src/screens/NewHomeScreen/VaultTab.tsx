@@ -8,6 +8,8 @@ import {
 } from 'react-native-responsive-screen';
 
 import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import Btc from 'src/assets/images/svgs/btcIcon.svg';
 import DevicesComponent from './DevicesComponent';
 import KeeperModal from 'src/components/KeeperModal';
 import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
@@ -129,9 +131,24 @@ const VaultTab = ({ animate }) => {
             alignSelf={'center'}
             borderRadius={10}
             marginTop={5}
-          // opacity={0.5}
+            padding={5}
           >
+            <SettingIcon />
 
+            <Box marginY={8}>
+              <Text color={'light.lightYellow'} fontSize={14} letterSpacing={0.7} fontFamily={'body'} fontWeight={200}>
+                Retirement
+              </Text>
+              <Text color={'light.white1'} fontSize={12} letterSpacing={0.6} fontFamily={'body'} fontWeight={100}>
+                Beach and sunshine baby!
+              </Text>
+            </Box>
+            <Text color={'light.white1'} fontSize={34} letterSpacing={1.7} fontFamily={'body'} fontWeight={200}>
+              <Box marginBottom={2} marginX={1}>
+                <Btc />
+              </Box>
+              0.000024
+            </Text>
           </Box>
 
           <Box marginTop={3}>
