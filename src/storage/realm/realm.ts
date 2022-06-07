@@ -18,7 +18,7 @@ class RealmDatabase {
       const realmConfig: Realm.Configuration = {
         path: 'keeper.realm',
         schema,
-        schemaVersion: 2,
+        schemaVersion: 6,
         // encryptionKey: key,  // TODO: enable encryption key once realm provider issue is resolved
         migration: (oldRealm, newRealm) => {},
       };

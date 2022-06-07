@@ -132,7 +132,6 @@ const VaultTab = ({ animate }) => {
             borderRadius={10}
             marginTop={5}
             padding={5}
-          // opacity={0.5}
           >
             <SettingIcon />
 
