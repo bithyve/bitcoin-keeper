@@ -27,8 +27,12 @@ const KeeperModal = (props) => {
           colors={modalBackground}
           style={styles.container}
         >
-          <Modal.CloseButton style={styles.close} size={6} />
-          <Modal.Header alignSelf={'flex-start'} borderBottomWidth={0}>
+          <Modal.CloseButton style={styles.close} size={8} />
+          <Modal.Header
+            alignSelf={'flex-start'}
+            borderBottomWidth={0}
+            backgroundColor={'transparent'}
+          >
             <Text
               style={styles.title}
               fontFamily={'body'}
