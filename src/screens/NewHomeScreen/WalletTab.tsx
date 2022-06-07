@@ -145,7 +145,11 @@ const WalletTab = ({ animate }) => {
       marginTop={10}
     >
       {/* {heading } */}
-      <ScrollView marginBottom={300} showsVerticalScrollIndicator={false} scrollEnabled={windowHeight < 780} >
+      <ScrollView
+        marginBottom={windowHeight / 3.75}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={windowHeight < 780}
+      >
         <Box padding={5}>
           <TouchableOpacity
             onPress={animate}

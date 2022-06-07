@@ -1,7 +1,11 @@
+import React, { useState } from 'react';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Box, Text, VStack, ScrollView } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import DevicesComponent from './DevicesComponent';
@@ -11,6 +15,7 @@ import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import Heading from './Heading';
 
 const { useQuery } = RealmContext;
 
@@ -107,40 +112,50 @@ const VaultTab = ({ animate }) => {
         />
       </>
     ) : (
-      <ScrollView marginBottom={300} showsVerticalScrollIndicator={false} scrollEnabled={windowHeight < 780} >
+      <ScrollView
+        marginBottom={windowHeight / 3.75}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={windowHeight < 780}
+      >
         <VStack>
-          <Text color={'#041513'} fontSize={22} fontFamily={'body'} fontWeight={'100'} paddingTop={5}>
-            {'Vault'}
-          </Text>
-          <Text
-            color={'#041513'}
-            fontSize={13}
-            fontFamily={'body'}
-            fontWeight={'100'}
-            paddingBottom={5}
-          >
-            {'Your super secure bitcoin'}
-          </Text>
+          <Heading
+            title={'Vault'}
+            subTitle={'Your super secure bitcoin'}
+          />
           <Box
-            width={width * 0.9}
-            height={width * 0.6}
-            bg={'#BBB'}
+            width={width * 0.87}
+            height={width * 0.55}
+            bg={'light.vaultCard'}
             alignSelf={'center'}
             borderRadius={10}
-            opacity={0.5}
-          />
-          <Text color={'#041513'} fontSize={14} fontFamily={'body'} fontWeight={'100'} paddingTop={5}>
-            {'My Signers'}
-          </Text>
-          <Text
-            color={'#041513'}
-            fontSize={12}
-            fontFamily={'body'}
-            fontWeight={'100'}
-            paddingBottom={5}
+            marginTop={5}
+          // opacity={0.5}
           >
-            {'Used for securing funds'}
-          </Text>
+
+          </Box>
+
+          <Box marginTop={3}>
+            <Text
+              color={'light.lightBlack'}
+              letterSpacing={1.12}
+              fontSize={14}
+              fontFamily={'body'}
+              fontWeight={'200'}
+              paddingTop={5}>
+              {'My Signers'}
+            </Text>
+            <Text
+              color={'light.lightBlack'}
+              fontSize={12}
+              fontFamily={'body'}
+              fontWeight={'100'}
+              paddingBottom={5}
+              letterSpacing={0.6}
+            >
+              {'Used for securing funds'}
+            </Text>
+          </Box>
+
           <FlatList
             data={Signers}
             renderItem={renderBackupKeys}
@@ -148,18 +163,41 @@ const VaultTab = ({ animate }) => {
             horizontal={true}
             showsHorizontalScrollIndicator={false}
           />
-          <Text color={'#041513'} fontSize={14} fontFamily={'body'} fontWeight={'100'} paddingTop={5}>
-            {'Inheritance'}
-          </Text>
-          <Text
-            color={'#041513'}
-            fontSize={12}
-            fontFamily={'body'}
-            fontWeight={'100'}
-            paddingBottom={5}
-          >
-            {'Set up inheritance to your sats'}
-          </Text>
+          <Box flexDirection={'row'} marginY={3} justifyContent={'space-between'}>
+            <Box >
+              <Text
+                color={'light.lightBlack'}
+                letterSpacing={1.12}
+                fontSize={14}
+                fontFamily={'body'}
+                fontWeight={'200'}
+              >
+                {'Inheritance'}
+              </Text>
+              <Text
+                color={'light.lightBlack'}
+                fontSize={12}
+                fontFamily={'body'}
+                fontWeight={'100'}
+                paddingBottom={5}
+              >
+                {'Set up inheritance to your sats'}
+              </Text>
+            </Box>
+            <Box justifyContent={'center'}>
+              <TouchableOpacity style={styles.button}>
+                <Text
+                  color={'light.textDark'}
+                  fontSize={11}
+                  fontFamily={'body'}
+                  fontWeight={'300'}
+                  letterSpacing={0.88}
+                >
+                  {'Setup'}
+                </Text>
+              </TouchableOpacity>
+            </Box>
+          </Box>
         </VStack>
       </ScrollView>
     );
@@ -208,6 +246,21 @@ const styles = ScaledSheet.create({
     borderRadius: 20,
     backgroundColor: '#092C27',
     opacity: 0.15,
+  },
+  backgroundImage: {
+    width: wp('100%'),
+    height: hp('100%'),
+    backgroundColor: 'red',
+    borderRadius: 10,
+  },
+  button: {
+    borderRadius: 10,
+    marginTop: hp(1),
+    width: 80,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAC48B',
   },
 });
 
