@@ -1,0 +1,471 @@
+import React, { useState, useEffect } from 'react';
+
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScaledSheet } from 'react-native-size-matters';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
+import BackIcon from 'src/assets/icons/back.svg';
+import CountryCard from 'src/components/SettingComponent/CountryCard';
+import Note from 'src/components/Note/Note';
+import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import Colors from 'src/theme/Colors';
+import Fonts from 'src/common/Fonts';
+import FiatCurrencies from 'src/common/FiatCurrencies';
+import CountryCode from 'src/common/CountryCode';
+import IconArrow from 'src/assets/icons/Wallets/icon_arrow.svg';
+import { useDispatch, useSelector } from 'react-redux'
+
+const styles = StyleSheet.create( {
+    container: {
+      flexGrow: 1,
+      paddingHorizontal:  wp( '5%' ),
+      backgroundColor: Colors.background,
+    },
+    textHeading: {
+      fontFamily: Fonts.FiraSansRegular,
+      fontSize: RFValue( 24 ),
+      color: Colors.blue,
+      marginBottom: wp( '5%' ),
+      marginTop: wp( '10%' ),
+    },
+    textTitle: {
+      fontFamily: Fonts.FiraSansRegular,
+      fontSize: RFValue( 15 ),
+      color: Colors.blue,
+    },
+    textSubtitle: {
+      fontFamily: Fonts.FiraSansRegular,
+      fontSize: RFValue( 12 ),
+      color: Colors.textColorGrey,
+    },
+    row: {
+      flexDirection: 'row',
+      marginBottom: wp( '2%' ),
+      marginTop: wp( '8%' ),
+    },
+    containerItem: {
+      marginHorizontal: wp( '5%' ),
+    },
+    btn:{
+      flexDirection: 'row',
+      height: wp( '13%' ),
+    //   borderRadius: 10,
+    //   borderWidth: 1,
+    //   borderColor: Colors.borderColor,
+    },
+    textCurrency: {
+      fontFamily: Fonts.FiraSansMedium,
+      fontSize: RFValue( 18 ),
+      color: Colors.textColorGrey,
+    },
+    icArrow: {
+      marginLeft: wp( '3%' ),
+      marginRight: wp( '3%' ),
+      alignSelf: 'center',
+    },
+    textValue: {
+      fontFamily: Fonts.FiraSansRegular,
+      fontSize: RFValue( 13 ),
+      color: Colors.textColorGrey,
+      marginLeft: wp( '3%' ),
+    },
+    textHelpUs: {
+      fontFamily: Fonts.FiraSansRegular,
+      fontSize: RFValue( 16 ),
+      color: Colors.blue,
+      marginLeft: wp( '3%' ),
+    },
+    textHelpUsSub: {
+      fontFamily: Fonts.FiraSansRegular,
+      fontSize: RFValue( 13 ),
+      color: Colors.textColorGrey,
+      marginLeft: wp( '3%' ),
+      marginTop: wp( '1%' ),
+    },
+    mainText :{
+        color: '#00715B',
+      },
+    subText : {
+        color : '#4F5955'
+    }
+  } )
+
+const ChangeLanguage = ({ route }) => {
+  const [ currencyList ] = useState( FiatCurrencies )
+  const [ countryList ] = useState( CountryCode )
+  const navigation = useNavigation();
+  const { colorMode } = useColorMode();
+  const [satsMode, setSatsMode] = useState(false);
+  const [ isVisible, setIsVisible ] = useState( false )
+  //const [ showCurrencies, setShowCurrencies ] = useState( false )
+  const [ showLanguages, setShowLanguages ] = useState( false )
+  const [ currency, setCurrency ] = useState( {
+    code: 'USD',
+    symbol: '$',
+  } )
+  const [ country, setCountry ] = useState( {
+    code: 'IN',
+    name: 'India',
+  } )
+  const [ isDisabled, setIsDisabled ] = useState( true )
+  const dispatch = useDispatch()
+
+  const changeThemeMode = () => {
+    setSatsMode(!satsMode);
+  };
+
+  const Menu = ( { label, value, onPress, arrow } ) => {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        style={styles.btn}
+      >
+        <View
+          style={{
+            height: wp( '13%' ),
+            width: wp( '15%' ),
+            // backgroundColor: Colors.borderColor,
+            borderTopLeftRadius: 10,
+            borderBottomLeftRadius: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Text
+            style={styles.textCurrency}
+          >
+            {label}
+          </Text>
+        </View>
+        <View
+          style={{
+            flex: 1, justifyContent: 'center', height: wp( '13%' )
+          }}
+        >
+          <Text
+            style={styles.textValue}
+          >
+            {value}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: '#F7F2EC',
+      }}
+    >
+      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
+      <Box mx={5} my={10}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackIcon />
+        </TouchableOpacity>
+      </Box>
+        <Box flex={1}>
+        <ScrollView
+          overScrollMode="never"
+          bounces={false}
+          flex={1}
+          pb={20}
+          flexDirection ={'column'}
+          showsVerticalScrollIndicator={false}
+          py={3}
+        >
+        <Box w={'60%'} marginLeft={'10%'}>
+          <Text fontSize={RFValue(16)} style = {styles.mainText}>Language & Country</Text>
+          <Text fontSize={RFValue(12)} style = {styles.subText}>Lorem ipsum dolor sit amet </Text>
+        </Box>
+        <CountryCard
+            title={'Sats Mode'}
+            description={'Lorem ipsum dolor sit amet'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            onSwitchToggle={() => changeThemeMode()}
+            value={satsMode}
+          />
+          <CountryCard
+            title={'Country Settings'}
+            description={'Choose Keeper access location'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => console.log('pressed')}
+          />
+        <Menu
+          onPress={()=> {
+            setIsVisible( !isVisible )
+            setIsDisabled( false )
+            setShowLanguages( false )
+          }}
+          arrow={isVisible}
+          label={country ? country.code : '+91'}
+          value={country ? country.name : CurrencyCode}
+        />
+         <View style={{
+          position: 'relative',
+        }}>
+          {isVisible && (
+            <View
+              style={{
+                marginTop: wp( '3%' ),
+                // borderRadius: 10,
+                overflow: 'hidden',
+              }}
+            >
+              <ScrollView>
+                {countryList.map( ( item ) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCountry( item )
+                        setIsVisible( false )
+                        dispatch( setCurrencyCode( item.code ) )
+                      }}
+                      style={{
+                        flexDirection: 'row', height: wp( '13%' )
+                      }}
+                    >
+                      <View
+                        style={{
+                          height: wp( '13%' ),
+                          width: wp( '15%' ),
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: Fonts.FiraSansMedium,
+                            fontSize: RFValue( 12 ),
+                            color: Colors.textColorGrey,
+                          }}
+                        >
+                          {item.code}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          height: wp( '13%' ),
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: Fonts.FiraSansRegular,
+                            fontSize: RFValue( 12 ),
+                            color: Colors.textColorGrey,
+                            marginLeft: wp( '3%' ),
+                          }}
+                        >
+                          {item.name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                } )}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+        <IconArrow />
+          <CountryCard
+            title={'Alternate Currency'}
+            description={'Select your local currency'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => console.log('pressed')}
+          />
+          <Menu
+          onPress={()=> {
+            setIsVisible( !isVisible )
+            setIsDisabled( false )
+            setShowLanguages( false )
+          }}
+          arrow={isVisible}
+          label={currency ? currency.symbol : '$'}
+          value={currency ? currency.code : CurrencyCode}
+        />
+         <View style={{
+          position: 'relative',
+        }}>
+          {isVisible && (
+            <View
+              style={{
+                marginTop: wp( '3%' ),
+                overflow: 'hidden',
+              }}
+            >
+              <ScrollView>
+                {countryList.map( ( item ) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCurrency( item )
+                        setIsVisible( false )
+                        dispatch( setCurrencyCode( item.code ) )
+                      }}
+                      style={{
+                        flexDirection: 'row', height: wp( '13%' )
+                      }}
+                    >
+                      <View
+                        style={{
+                          height: wp( '13%' ),
+                          width: wp( '15%' ),
+                          backgroundColor: Colors.white,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          borderBottomWidth: 1,
+                          borderBottomColor: Colors.borderColor,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: Fonts.FiraSansMedium,
+                            fontSize: RFValue( 12 ),
+                            color: Colors.textColorGrey,
+                          }}
+                        >
+                          {item.dial_code}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          height: wp( '13%' ),
+                          borderBottomWidth: 1,
+                          borderBottomColor: Colors.borderColor,
+                          backgroundColor: Colors.white,
+
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: Fonts.FiraSansRegular,
+                            fontSize: RFValue( 12 ),
+                            color: Colors.textColorGrey,
+                            marginLeft: wp( '3%' ),
+                          }}
+                        >
+                          {item.name}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                } )}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+          <CountryCard
+            title={'Language Settings'}
+            description={'Choose your language preference'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => console.log('pressed')}
+          />
+          <Menu
+          onPress={()=> {
+            setIsVisible( !isVisible )
+            setIsDisabled( false )
+            setShowLanguages( false )
+          }}
+          arrow={isVisible}
+          label={currency ? currency.symbol : '$'}
+          value={currency ? currency.code : CurrencyCode}
+        />
+         <View style={{
+          position: 'relative',
+        }}>
+          {isVisible && (
+            <View
+              style={{
+                marginTop: wp( '3%' ),
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: Colors.borderColor,
+                overflow: 'hidden',
+              }}
+            >
+              <ScrollView>
+                {currencyList.map( ( item ) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setCurrency( item )
+                        setIsVisible( false )
+                        dispatch( setCurrencyCode( item.code ) )
+                      }}
+                      style={{
+                        flexDirection: 'row', height: wp( '13%' )
+                      }}
+                    >
+                      <View
+                        style={{
+                          height: wp( '13%' ),
+                          width: wp( '15%' ),
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: Fonts.FiraSansMedium,
+                            fontSize: RFValue( 12 ),
+                            color: Colors.textColorGrey,
+                          }}
+                        >
+                          {item.symbol}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          height: wp( '13%' ),
+
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontFamily: Fonts.FiraSansRegular,
+                            fontSize: RFValue( 12 ),
+                            color: Colors.textColorGrey,
+                            marginLeft: wp( '3%' ),
+                          }}
+                        >
+                          {item.code}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )
+                } )}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+          </ScrollView>
+          <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
+          <Note
+            title={'Help us translate'}
+            subtitle={
+              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
+            }
+          />
+        </Box>
+          </Box>
+    </SafeAreaView>
+  );
+};
+
+export default ChangeLanguage;
