@@ -145,12 +145,7 @@ export default function ResetPin(props: any) {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
                         <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
@@ -160,15 +155,10 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 2 ? (
                         <DotView />
                       ) : passcode.length == 1 ? (
@@ -178,15 +168,10 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 3 ? (
                         <DotView />
                       ) : passcode.length == 2 ? (
@@ -196,15 +181,10 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 4 ? (
                         <DotView />
                       ) : passcode.length == 3 ? (
@@ -214,7 +194,7 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -231,20 +211,10 @@ export default function ResetPin(props: any) {
                         ? styles.textBoxActive
                         : {
                             ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
                           },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 1 ? (
                         <DotView />
                       ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
@@ -254,7 +224,7 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box
                     style={[
@@ -262,20 +232,10 @@ export default function ResetPin(props: any) {
                         ? styles.textBoxActive
                         : {
                             ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
                           },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 2 ? (
                         <DotView />
                       ) : confirmPasscode.length == 1 ? (
@@ -285,7 +245,7 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box
                     style={[
@@ -293,20 +253,10 @@ export default function ResetPin(props: any) {
                         ? styles.textBoxActive
                         : {
                             ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
                           },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 3 ? (
                         <DotView />
                       ) : confirmPasscode.length == 2 ? (
@@ -316,7 +266,7 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box
                     style={[
@@ -324,20 +274,10 @@ export default function ResetPin(props: any) {
                         ? styles.textBoxActive
                         : {
                             ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
                           },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 4 ? (
                         <DotView />
                       ) : confirmPasscode.length == 3 ? (
@@ -347,7 +287,7 @@ export default function ResetPin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                 </Box>
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
