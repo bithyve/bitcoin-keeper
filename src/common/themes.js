@@ -45,7 +45,8 @@ export const customTheme = extendTheme({
       GreyText: '#4F5955',
       KnowMoreButton: '#045647',
       dateText: '#50756E',
-      Border: '#005545'
+      Border: '#005545',
+      vaultCard: '#B2844E'
     },
     dark: {
       black: '#000000',

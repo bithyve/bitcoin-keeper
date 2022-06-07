@@ -53,7 +53,7 @@ const Transaction = () => {
     </Box>
   )
 }
-const AccountDetailScreen = () => (
+const WalletDetailScreen = () => (
   <Box>
     <ImageBackground
       source={BaseCardWallet}
@@ -183,4 +183,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AccountDetailScreen;
+export default WalletDetailScreen;

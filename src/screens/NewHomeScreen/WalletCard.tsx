@@ -9,12 +9,12 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // icons and images
-import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
+import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
-const Wallet = ({ item }: { item }) => {
+const WalletCard = ({ item }: { item }) => {
   const { walletName, walletDescription } = item.presentationData;
   //   const { balances } = item.specs;
   return (
@@ -88,14 +88,14 @@ const styles = ScaledSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAC48B',
+    backgroundColor: '#FAC48B'
   },
   flatlistContainer: {
     maxHeight: hp(30),
   },
   homeCard: {
-    width: wp(43),
-    height: hp(24),
+    width: wp(37),
+    height: hp(windowHeight >= 850 ? 24 : windowHeight >= 750 ? 26 : 28),
     marginTop: hp(2),
     padding: '6@s',
     marginLeft: wp(2),
@@ -104,7 +104,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    padding: '3@s',
+    padding: '3@s'
   },
 
   hexaWalletText: {
@@ -149,5 +149,7 @@ const styles = ScaledSheet.create({
     lineHeight: '24@s',
     marginLeft: wp(1),
   },
+
+
 });
-export default Wallet;
+export default WalletCard;

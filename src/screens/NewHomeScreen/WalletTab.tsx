@@ -1,4 +1,4 @@
-import { Box, Text } from 'native-base';
+import { Box, Text, ScrollView } from 'native-base';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import {
   heightPercentageToDP as hp,
@@ -12,11 +12,12 @@ import NavVault from 'src/assets/images/svgs/nav_vault.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
-import Wallet from './Wallet';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import WalletCard from './WalletCard';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 
-const Wallets = ({ animate }) => {
+const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
   const wallets = useQuery(RealmSchema.Wallet);
 
@@ -134,40 +135,42 @@ const Wallets = ({ animate }) => {
       marginTop={10}
     >
       {/* {heading } */}
-      <Box padding={5}>
-        <TouchableOpacity
-          onPress={animate}
-          style={{ position: 'absolute', left: 0, top: 32, zIndex: 1 }}
-        >
-          <NavVault />
-        </TouchableOpacity>
-        <Box alignItems={'flex-end'}>
-          <Heading
-            title={'Wallets'}
-            subTitle={'Your daily spending and transactions'}
-            alignItems={'flex-end'}
+      <ScrollView marginBottom={300} showsVerticalScrollIndicator={false} scrollEnabled={windowHeight < 780} >
+        <Box padding={5}>
+          <TouchableOpacity
+            onPress={animate}
+            style={{ position: 'absolute', left: 0, top: 32, zIndex: 1 }}
+          >
+            <NavVault />
+          </TouchableOpacity>
+          <Box alignItems={'flex-end'}>
+            <Heading
+              title={'Wallets'}
+              subTitle={'Your daily spending and transactions'}
+              alignItems={'flex-end'}
+            />
+          </Box>
+          {/* {Wallets } */}
+          <FlatList
+            data={wallets}
+            renderItem={WalletCard}
+            horizontal={true}
+            style={styles.flatlistContainer}
+            showsHorizontalScrollIndicator={false}
           />
+          {/* {collective ballance } */}
+          <CollectiveBallance />
+          {/* {BTc to Usd Today } */}
+          <BtcToCurrency />
         </Box>
-        {/* {Wallets } */}
-        <FlatList
-          data={wallets}
-          renderItem={Wallet}
-          horizontal={true}
-          style={styles.flatlistContainer}
-          showsHorizontalScrollIndicator={false}
-        />
-        {/* {collective ballance } */}
-        <CollectiveBallance />
-        {/* {BTc to Usd Today } */}
-        <BtcToCurrency />
-      </Box>
+      </ScrollView>
     </Box>
   );
 };
 
 const styles = ScaledSheet.create({
   flatlistContainer: {
-    maxHeight: hp(30),
+    maxHeight: hp(33),
     paddingTop: 20,
   },
   priceContainer: {
@@ -192,4 +195,4 @@ const styles = ScaledSheet.create({
   },
 });
 
-export default Wallets;
+export default WalletTab;
