@@ -10,6 +10,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeLoginMethod } from '../../store/actions/login';
 import BackIcon from 'src/assets/icons/back.svg';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -74,7 +75,7 @@ const AppSettings = ({ navigation }) => {
           <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
-          <Text>Switch</Text>
+          <CurrencyTypeSwitch />
         </Box>
       </Box>
       <Box flex={1}>

@@ -13,7 +13,7 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 
-export default function CreatePin(props: any) {
+export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -23,7 +23,7 @@ export default function CreatePin(props: any) {
   const { credsChanged } = useSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
 
-  function onPressNumber(text: any) {
+  function onPressNumber(text) {
     let tmpPasscode = passcode;
     let tmpConfirmPasscode = confirmPasscode;
     if (passcodeFlag) {
@@ -142,12 +142,7 @@ export default function CreatePin(props: any) {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
                         <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
@@ -157,15 +152,10 @@ export default function CreatePin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 2 ? (
                         <DotView />
                       ) : passcode.length == 1 ? (
@@ -175,15 +165,10 @@ export default function CreatePin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 3 ? (
                         <DotView />
                       ) : passcode.length == 2 ? (
@@ -193,15 +178,10 @@ export default function CreatePin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box color={'#000'} fontSize={RFValue(13)} textAlign={'center'} lineHeight={18}>
                       {passcode.length >= 4 ? (
                         <DotView />
                       ) : passcode.length == 3 ? (
@@ -211,7 +191,7 @@ export default function CreatePin(props: any) {
                       ) : (
                         ''
                       )}
-                    </Text>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -232,20 +212,10 @@ export default function CreatePin(props: any) {
                           ? styles.textBoxActive
                           : {
                               ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
                             },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 1 ? (
                           <DotView />
                         ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
@@ -255,7 +225,7 @@ export default function CreatePin(props: any) {
                         ) : (
                           ''
                         )}
-                      </Text>
+                      </Box>
                     </Box>
                     <Box
                       style={[
@@ -263,20 +233,10 @@ export default function CreatePin(props: any) {
                           ? styles.textBoxActive
                           : {
                               ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
                             },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 2 ? (
                           <DotView />
                         ) : confirmPasscode.length == 1 ? (
@@ -286,7 +246,7 @@ export default function CreatePin(props: any) {
                         ) : (
                           ''
                         )}
-                      </Text>
+                      </Box>
                     </Box>
                     <Box
                       style={[
@@ -302,12 +262,7 @@ export default function CreatePin(props: any) {
                             },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 3 ? (
                           <DotView />
                         ) : confirmPasscode.length == 2 ? (
@@ -317,7 +272,7 @@ export default function CreatePin(props: any) {
                         ) : (
                           ''
                         )}
-                      </Text>
+                      </Box>
                     </Box>
                     <Box
                       style={[
@@ -325,20 +280,10 @@ export default function CreatePin(props: any) {
                           ? styles.textBoxActive
                           : {
                               ...styles.textBoxStyles,
-                              //   borderColor:
-                              //       passcode != confirmPasscode &&
-                              //       confirmPasscode.length == 4
-                              //         ? Colors.red
-                              //         : Colors.borderColor,
                             },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 4 ? (
                           <DotView />
                         ) : confirmPasscode.length == 3 ? (
@@ -348,7 +293,7 @@ export default function CreatePin(props: any) {
                         ) : (
                           ''
                         )}
-                      </Text>
+                      </Box>
                     </Box>
                   </Box>
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
@@ -372,7 +317,7 @@ export default function CreatePin(props: any) {
                       setTimeout(() => {
                         setIsDisabled(true);
                       }, 2);
-                      props.navigation.replace('NewHome');
+                      props.navigation.navigate('NewHome');
                     }}
                     value={'Proceed'}
                   />
