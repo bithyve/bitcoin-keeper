@@ -13,7 +13,7 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 
-export default function CreatePin(props: any) {
+export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -23,7 +23,7 @@ export default function CreatePin(props: any) {
   const { credsChanged } = useSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
 
-  function onPressNumber(text: any) {
+  function onPressNumber(text) {
     let tmpPasscode = passcode;
     let tmpConfirmPasscode = confirmPasscode;
     if (passcodeFlag) {

@@ -17,7 +17,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 
-const CreatePin = ({ navigation }: any) => {
+const CreatePin = ({ navigation }) => {
   const dispatch = useDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -55,7 +55,7 @@ const CreatePin = ({ navigation }: any) => {
     }
   };
 
-  const onPressNumber = (text: any) => {
+  const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
       if (text != 'x') {
