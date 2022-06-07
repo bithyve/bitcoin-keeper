@@ -14,13 +14,15 @@ import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 
-const WalletCard = ({ item }: { item }) => {
+const WalletCard = ({ item, navigation }: { item, navigation }) => {
   const { walletName, walletDescription } = item.presentationData;
+
   //   const { balances } = item.specs;
   return (
-    <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
-      <View style={styles.cardHeader}>
-        {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
+    <TouchableOpacity onPress={() => navigation.navigate('WalletDetailScreen')}>
+      <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
+        <View style={styles.cardHeader}>
+          {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
           <Text
             style={styles.hexaWalletText}
             color={'light.lightBlack'}
@@ -30,44 +32,45 @@ const WalletCard = ({ item }: { item }) => {
             External
           </Text>
         </View> */}
-      </View>
-      <View style={styles.walletContainer}>
-        <TouchableOpacity>
-          <BlueWalletIcon />
-        </TouchableOpacity>
-
-        <View style={styles.fundsContainer}>
-          <Text
-            style={styles.fundstitle}
-            color={'light.white'}
-            fontFamily={'body'}
-            fontWeight={'200'}
-          >
-            {walletName}
-          </Text>
-          <Text
-            style={styles.fundsSubtitle}
-            color={'light.white'}
-            fontFamily={'body'}
-            fontWeight={'100'}
-          >
-            {walletDescription}
-          </Text>
         </View>
+        <View style={styles.walletContainer}>
+          <TouchableOpacity>
+            <BlueWalletIcon />
+          </TouchableOpacity>
 
-        <View style={styles.priceContainer}>
-          <BtcIcon />
-          <Text
-            style={styles.priceText}
-            color={'light.white'}
-            fontFamily={'body'}
-            fontWeight={'200'}
-          >
-            {/* {balances.confirmed + balances.unconfirmed} */}0
-          </Text>
+          <View style={styles.fundsContainer}>
+            <Text
+              style={styles.fundstitle}
+              color={'light.white'}
+              fontFamily={'body'}
+              fontWeight={'200'}
+            >
+              {walletName}
+            </Text>
+            <Text
+              style={styles.fundsSubtitle}
+              color={'light.white'}
+              fontFamily={'body'}
+              fontWeight={'100'}
+            >
+              {walletDescription}
+            </Text>
+          </View>
+
+          <View style={styles.priceContainer}>
+            <BtcIcon />
+            <Text
+              style={styles.priceText}
+              color={'light.white'}
+              fontFamily={'body'}
+              fontWeight={'200'}
+            >
+              {/* {balances.confirmed + balances.unconfirmed} */}0
+            </Text>
+          </View>
         </View>
-      </View>
-    </ImageBackground>
+      </ImageBackground>
+    </TouchableOpacity>
   );
 };
 
