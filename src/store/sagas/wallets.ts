@@ -265,7 +265,7 @@ function* testcoinsWorker({ payload: testWallet }: { payload: Wallet }) {
 
 export const testcoinsWatcher = createWatcher(testcoinsWorker, GET_TESTCOINS);
 
-export function* addNewWallet(
+function* addNewWallet(
   walletType: WalletType,
   walletDetails: newWalletDetails,
   app: KeeperApp,
@@ -451,9 +451,6 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   });
 
   for (const wallet of wallets) {
-    // TODO: reintroduce wallet specs once its in sync w/ the database
-    delete wallet.specs;
-
     yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
   }
 

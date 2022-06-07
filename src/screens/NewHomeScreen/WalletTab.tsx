@@ -16,9 +16,11 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletCard from './WalletCard';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { useNavigation } from '@react-navigation/native';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
+  const navigation = useNavigation()
   const wallets = useQuery(RealmSchema.Wallet);
 
   const BtcToCurrency = () => {
@@ -127,6 +129,14 @@ const WalletTab = ({ animate }) => {
     );
   };
 
+  const RenderWalletCard = ({ item }: { item }) => {
+    return (
+      <WalletCard
+        item={item}
+        navigation={navigation}
+      />
+    )
+  }
   return (
     <Box
       backgroundColor={'light.lightYellow'}
@@ -135,7 +145,11 @@ const WalletTab = ({ animate }) => {
       marginTop={10}
     >
       {/* {heading } */}
-      <ScrollView marginBottom={300} showsVerticalScrollIndicator={false} scrollEnabled={windowHeight < 780} >
+      <ScrollView
+        marginBottom={windowHeight / 3.75}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={windowHeight < 780}
+      >
         <Box padding={5}>
           <TouchableOpacity
             onPress={animate}
@@ -153,7 +167,9 @@ const WalletTab = ({ animate }) => {
           {/* {Wallets } */}
           <FlatList
             data={wallets}
-            renderItem={WalletCard}
+            renderItem={RenderWalletCard}
+            keyExtractor={item => item}
+            extraData={navigation}
             horizontal={true}
             style={styles.flatlistContainer}
             showsHorizontalScrollIndicator={false}
