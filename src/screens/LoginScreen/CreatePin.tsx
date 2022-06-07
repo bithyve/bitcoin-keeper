@@ -317,7 +317,7 @@ export default function CreatePin(props) {
                       setTimeout(() => {
                         setIsDisabled(true);
                       }, 2);
-                      props.navigation.replace('NewHome');
+                      props.navigation.navigate('NewHome');
                     }}
                     value={'Proceed'}
                   />
