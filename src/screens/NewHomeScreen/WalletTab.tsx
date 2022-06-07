@@ -164,7 +164,7 @@ const WalletTab = ({ animate }) => {
           <FlatList
             data={wallets}
             renderItem={RenderWalletCard}
-            keyExtractor={item => item?.presentationData?.walletName}
+            keyExtractor={item => item}
             extraData={navigation}
             horizontal={true}
             style={styles.flatlistContainer}
