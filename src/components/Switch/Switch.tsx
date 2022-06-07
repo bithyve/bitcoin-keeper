@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 

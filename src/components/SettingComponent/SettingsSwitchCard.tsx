@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import Switch from '../../components/Switch/Switch';
 
-const SettingsSwitchCard = (props: any) => {
+const SettingsSwitchCard = (props) => {
   const { colorMode } = useColorMode();
 
   return (

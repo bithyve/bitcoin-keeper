@@ -9,11 +9,14 @@ import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { WalletShell } from 'src/core/wallets/interfaces/interface';
+import { addNewWallets } from '../actions/wallets';
+import { newWalletsInfo } from './wallets';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName }: { appName: string } = payload;
-    const primaryMnemonic = bip39.generateMnemonic(256);
+    const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
     const defaultWalletShell: WalletShell = {
@@ -24,7 +27,7 @@ function* setupKeeperAppWorker({ payload }) {
     const userTier: UserTier = {
       level: AppTierLevel.ONE,
     };
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex')
+    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const app: KeeperApp = {
       id,
       appName,
@@ -39,10 +42,19 @@ function* setupKeeperAppWorker({ payload }) {
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
-    yield put(setAppId(id))
-    console.log('appId', id)
+
+    // create default wallet
+    const defaultWallet: newWalletsInfo = {
+      walletType: WalletType.CHECKING,
+      walletDetails: {
+        name: 'Default Checking',
+      },
+    };
+    yield put(addNewWallets([defaultWallet]));
+
+    yield put(setAppId(id));
   } catch (error) {
-    console.log('setupKeeperApp error', error)
+    console.log({ error });
   }
 }
 

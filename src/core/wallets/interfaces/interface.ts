@@ -41,6 +41,11 @@ export interface TransactionPrerequisite {
   [txnPriority: string]: TransactionPrerequisiteElements;
 }
 
+export interface TransactionToAddressMapping {
+  txid: string;
+  addresses: Set<string>;
+}
+
 export interface Transaction {
   txid: string;
   status?: string;
@@ -58,9 +63,9 @@ export interface Transaction {
   message?: string;
   address?: string;
   type?: string;
-  sender?: string;
-  senderId?: string;
-  receivers?: { id?: string; name: string; amount: number }[];
+  // sender?: string;
+  // senderId?: string;
+  // receivers?: { id?: string; name: string; amount: number }[];
   tags?: string[];
   notes?: string;
   isNew?: boolean;
@@ -80,10 +85,6 @@ export type TransactionDetails = Transaction;
 //   isNew: boolean;
 //   type: string;
 // }
-
-export interface TransactionsNote {
-  [txId: string]: string;
-}
 
 export interface Balances {
   confirmed: number;
@@ -121,13 +122,15 @@ export interface ActiveAddresses {
   external: {
     [address: string]: {
       index: number;
-      assignee: ActiveAddressAssignee;
+      // assignee: ActiveAddressAssignee; // incompatible w/ realm(collection inside mixed object)
+      assignee?: string;
     };
   };
   internal: {
     [address: string]: {
       index: number;
-      assignee: ActiveAddressAssignee;
+      // assignee: ActiveAddressAssignee;
+      assignee?: string;
     };
   };
 }
@@ -202,16 +205,19 @@ export interface WalletSpecs {
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
+  importedAddresses: WalletImportedAddresses;
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
   transactions: Transaction[]; // transactions belonging to this wallet
-  lastSynched: number; // wallet's last sync timestamp
   newTransactions?: Transaction[]; // new transactions arrived during the current sync
-  txIdMap?: { [txid: string]: string[] }; // tx-mapping; tx insertion checker
+  lastSynched: number; // wallet's last sync timestamp
   hasNewTxn?: boolean; // indicates new txns
-  transactionsNote: TransactionsNote;
-  importedAddresses: WalletImportedAddresses;
+  txIdCache: { [txid: string]: boolean };
+  transactionMapping: TransactionToAddressMapping[];
+  transactionsNote: {
+    [txId: string]: string;
+  };
   // transactionsMeta?: TransactionMetaData[];
 }
 

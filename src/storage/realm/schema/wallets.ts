@@ -1,17 +1,6 @@
 import { ObjectSchema } from 'realm';
 import { RealmSchema } from '../enum';
 
-const UTXO = {
-  type: '{}',
-  properties: {
-    txId: 'string',
-    vout: 'int',
-    value: 'int',
-    address: 'string',
-    status: 'string?',
-  },
-};
-
 const Balances = {
   type: '{}',
   properties: {
@@ -27,6 +16,72 @@ const BIP85Config = {
     words: 'int',
     language: 'string',
     derivationPath: 'string',
+  },
+};
+
+export const ActiveAddressesSchema: ObjectSchema = {
+  name: RealmSchema.ActiveAddresses,
+  embedded: true,
+  properties: {
+    external: '{}',
+    internal: '{}',
+  },
+};
+
+export const UTXOSchema: ObjectSchema = {
+  name: RealmSchema.UTXO,
+  embedded: true,
+  properties: {
+    txId: 'string',
+    vout: 'int',
+    value: 'int',
+    address: 'string',
+    status: 'string?',
+  },
+};
+
+export const TransactionSchema: ObjectSchema = {
+  name: RealmSchema.Transaction,
+  embedded: true,
+  properties: {
+    txid: 'string',
+    status: 'string?',
+    confirmations: 'int?',
+    fee: 'string?',
+    date: 'string?',
+    transactionType: 'string?',
+    amount: 'int',
+    walletType: 'string',
+    walletName: 'string?',
+    contactName: 'string?',
+    recipientAddresses: 'string[]',
+    senderAddresses: 'string[]',
+    blockTime: 'int?',
+    message: 'string?',
+    address: 'string?',
+    type: 'string?',
+    // sender: 'string',
+    // senderId: 'string',
+    // receivers: {
+    //   type: 'list',
+    //   properties: {
+    //     id: 'string?',
+    //     name: 'string',
+    //     amount: 'number',
+    //   },
+    // },
+    tags: 'string[]',
+    notes: 'string?',
+    isNew: 'bool?',
+  },
+};
+
+export const TransactionToAddressMappingSchema: ObjectSchema = {
+  name: RealmSchema.TransactionToAddressMapping,
+  embedded: true,
+  properties: {
+    txId: 'string',
+    addresses: 'string<>',
   },
 };
 
@@ -62,18 +117,18 @@ export const WalletSpecsSchema: ObjectSchema = {
     receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
-    // activeAddresses: '{}',
-    // confirmedUTXOs: { type: 'list', objectType: UTXO },
-    // unconfirmedUTXOs: { type: 'list', objectType: UTXO },
-    // balances: Balances,
-    // transactions: '{}',
-    // lastSynched: 'int',
-    // newTransactions: '{}?',
-    // txIdMap: '{}?',
-    // hasNewTxn: 'bool?',
-    transactionsNote: '{}',
+    activeAddresses: RealmSchema.ActiveAddresses,
     importedAddresses: '{}',
-    // transactionsMeta?:'{}?';
+    confirmedUTXOs: `${RealmSchema.UTXO}[]`,
+    unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
+    balances: Balances,
+    transactions: `${RealmSchema.Transaction}[]`,
+    newTransactions: `${RealmSchema.Transaction}[]`,
+    lastSynched: 'int',
+    hasNewTxn: 'bool?',
+    txIdCache: '{}',
+    transactionMapping: `${RealmSchema.TransactionToAddressMapping}[]`,
+    transactionsNote: '{}',
   },
 };
 

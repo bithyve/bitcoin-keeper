@@ -1,55 +1,60 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
 import { SafeAreaView, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import ReactNativeBiometrics from 'react-native-biometrics'
+import ReactNativeBiometrics from 'react-native-biometrics';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Note from 'src/components/Note/Note';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { useDispatch, useSelector } from 'react-redux'
-import { changeLoginMethod } from '../../store/actions/login'
+import { useDispatch, useSelector } from 'react-redux';
+import { changeLoginMethod } from '../../store/actions/login';
+import BackIcon from 'src/assets/icons/back.svg';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 
-const AppSettings = ({ navigation }: any) => {
+const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [isBiometicSupported, setIsBiometicSupported] = useState(false);
-  const { loginMethod, }: { loginMethod: LoginMethod, } = useSelector((state) => state.settings)
-  const dispatch = useDispatch()
+  const [darkMode, setDarkMode] = useState(false);
+  const { loginMethod }: { loginMethod: LoginMethod } = useSelector((state) => state.settings);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    init()
-  }, [])
+    init();
+  }, []);
 
   const init = async () => {
     try {
-      const { available, biometryType } = await ReactNativeBiometrics.isSensorAvailable()
+      const { available, biometryType } = await ReactNativeBiometrics.isSensorAvailable();
       if (available) {
-        setIsBiometicSupported(true)
+        setIsBiometicSupported(true);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const onChangeLoginMethod = async () => {
     if (loginMethod === LoginMethod.PIN) {
       const { keysExist } = await ReactNativeBiometrics.biometricKeysExist();
       if (keysExist) {
-        await ReactNativeBiometrics.createKeys()
+        await ReactNativeBiometrics.createKeys();
       }
       const { publicKey } = await ReactNativeBiometrics.createKeys();
-      const { success } = await ReactNativeBiometrics.simplePrompt({ promptMessage: 'Confirm your identity' })
+      const { success } = await ReactNativeBiometrics.simplePrompt({
+        promptMessage: 'Confirm your identity',
+      });
       if (success) {
-        dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey))
+        dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
       } else {
-
       }
     } else {
-      dispatch(changeLoginMethod(LoginMethod.PIN))
+      dispatch(changeLoginMethod(LoginMethod.PIN));
     }
-  }
-
+  };
+  const changeThemeMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
     <SafeAreaView
@@ -58,10 +63,10 @@ const AppSettings = ({ navigation }: any) => {
         backgroundColor: '#F7F2EC',
       }}
     >
-      <StatusBar backgroundColor={'#2F2F2F'} barStyle="dark-content" />
+      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
       <Box mx={5} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name={'chevron-back-outline'} size={25} color={'#000'} />
+          <BackIcon />
         </TouchableOpacity>
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
@@ -70,7 +75,7 @@ const AppSettings = ({ navigation }: any) => {
           <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
-          <Text>Switch</Text>
+          <CurrencyTypeSwitch />
         </Box>
       </Box>
       <Box flex={1}>
@@ -82,26 +87,24 @@ const AppSettings = ({ navigation }: any) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
-          {
-            isBiometicSupported && (
-              <SettingsSwitchCard
-                title={'Use Biometrics'}
-                description={'Lorem ipsum dolor sit amet,'}
-                my={2}
-                bgColor={`${colorMode}.backgroundColor2`}
-                onSwitchToggle={(value: any) => onChangeLoginMethod()}
-                value={loginMethod === LoginMethod.BIOMETRIC}
-              />
-            )
-          }
+          {isBiometicSupported && (
+            <SettingsSwitchCard
+              title={'Use Biometrics'}
+              description={'Lorem ipsum dolor sit amet,'}
+              my={2}
+              bgColor={`${colorMode}.backgroundColor2`}
+              onSwitchToggle={() => onChangeLoginMethod()}
+              value={loginMethod === LoginMethod.BIOMETRIC}
+            />
+          )}
 
           <SettingsSwitchCard
             title={'Dark Mode'}
             description={'Lorem ipsum dolor sit amet'}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
-          // onSwitchToggle={(value: any) => changeThemeMode()}
-          // value={themeMode === UiMode.DARK}
+            onSwitchToggle={() => changeThemeMode()}
+            value={darkMode}
           />
           <SettingsCard
             title={'Version History'}
@@ -109,7 +112,7 @@ const AppSettings = ({ navigation }: any) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => setVersionModalVisible(true)}
+            onPress={() => console.log('pressed')}
           />
           <SettingsCard
             title={'Language & Country'}
@@ -117,7 +120,7 @@ const AppSettings = ({ navigation }: any) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => navigation.navigate('LangaugeAndCurrency')}
+            onPress={() => console.log('pressed')}
           />
           <SettingsCard
             title={'Keeper Community Telegram Group'}
@@ -125,7 +128,7 @@ const AppSettings = ({ navigation }: any) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
-          // onPress={() => openLink('https://t.me/HexaWallet')}
+            onPress={() => console.log('pressed')}
           />
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>

@@ -3,11 +3,12 @@ import { StyleSheet, TouchableHighlight } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import KeyPadButton from './KeyPadButton';
+import DeleteIcon from 'src/assets/icons/delete.svg';
 
 export interface Props {
-  onPressNumber: any;
+  onPressNumber;
+  disabled?;
 }
 const KeyPadView: React.FC<Props> = ({ onPressNumber, disabled = false }: Props) => {
   return (
@@ -51,9 +52,7 @@ const KeyPadView: React.FC<Props> = ({ onPressNumber, disabled = false }: Props)
           underlayColor="#dcdcdc"
           style={styles.keyPadElementTouchable}
         >
-          <Text color={'#F4F4F4'} fontSize={RFValue(25)} fontStyle={'normal'}>
-            <Ionicons name="ios-backspace" size={30} color={'#F4F4F4'} />
-          </Text>
+          <DeleteIcon />
         </TouchableHighlight>
       </Box>
     </Box>

@@ -2,22 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import { credsAuth } from '../../store/actions/login'
+import { credsAuth } from '../../store/actions/login';
 import { useDispatch, useSelector } from 'react-redux';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import FogotPassword from './components/FogotPassword';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import ReactNativeBiometrics from 'react-native-biometrics'
+import ReactNativeBiometrics from 'react-native-biometrics';
+import DotView from 'src/components/DotView';
 
-const CreatePin = ({ navigation }: any) => {
+const CreatePin = ({ navigation }) => {
   const dispatch = useDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -25,17 +25,17 @@ const CreatePin = ({ navigation }: any) => {
   const [passcodeFlag] = useState(true);
   const [isDisabledProceed, setIsDisabledProceed] = useState(false);
   const [forgotVisible, setForgotVisible] = useState(false);
-  const loginMethod = useSelector((state) => state.settings.loginMethod)
-  const appId = useSelector((state) => state.storage.appId)
+  const loginMethod = useSelector((state) => state.settings.loginMethod);
+  const appId = useSelector((state) => state.storage.appId);
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
   const { isAuthenticated, authenticationFailed, canLogin, failedLogin } = useSelector(
-    (state) => state.login,
-  )
+    (state) => state.login
+  );
 
   useEffect(() => {
-    biometricAuth()
-  }, [])
+    biometricAuth();
+  }, []);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
@@ -43,20 +43,19 @@ const CreatePin = ({ navigation }: any) => {
         const { success, signature } = await ReactNativeBiometrics.createSignature({
           promptMessage: 'Authenticate',
           payload: appId,
-          cancelButtonText: 'Use PIN'
-        })
+          cancelButtonText: 'Use PIN',
+        });
         if (success) {
-          dispatch(credsAuth(signature, LoginMethod.BIOMETRIC))
+          dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
         }
-
       } catch (error) {
         //
-        console.log(error)
+        console.log(error);
       }
     }
-  }
+  };
 
-  const onPressNumber = (text: any) => {
+  const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
       if (text != 'x') {
@@ -72,24 +71,24 @@ const CreatePin = ({ navigation }: any) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
-      setLoginError(true)
-      setErrMessage('Incorrect password')
-      setPasscode('')
-      setAttempts(attempts + 1)
+      setLoginError(true);
+      setErrMessage('Incorrect password');
+      setPasscode('');
+      setAttempts(attempts + 1);
     } else {
-      setLoginError(false)
+      setLoginError(false);
     }
-  }, [authenticationFailed])
+  }, [authenticationFailed]);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.replace('NewHome')
+      navigation.navigate('NewHome');
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated]);
 
   const attemptLogin = (passcode: string) => {
-    dispatch(credsAuth(passcode, LoginMethod.PIN))
-  }
+    dispatch(credsAuth(passcode, LoginMethod.PIN));
+  };
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -97,7 +96,7 @@ const CreatePin = ({ navigation }: any) => {
         <StatusBar />
         <Box flex={1}>
           <Box>
-            <Text ml={5} color={'#FFF'} fontSize={RFValue(16)} mt={hp('10%')} fontWeight={'bold'}>
+            <Text ml={5} color={'#FFF'} fontSize={RFValue(22)} mt={hp('10%')} fontWeight={'bold'}>
               {'Welcome Back,'}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
@@ -124,79 +123,66 @@ const CreatePin = ({ navigation }: any) => {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      style={[
-                        passcode.length == 0 && passcodeFlag == true
-                          ? styles.textFocused
-                          : styles.textStyles,
-                      ]}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
-                        <Text
-                          fontSize={RFValue(10)}
-                          textAlignVertical={'center'}
-                          justifyContent={'center'}
-                          alignItems={'center'}
-                        >
-                          <FontAwesome size={10} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 1 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 1 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 2 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10),
-                          }}
-                        >
-                          <FontAwesome size={10} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 1 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 2 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 2 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 3 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10),
-                          }}
-                        >
-                          <FontAwesome size={10} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 2 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 3 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 3 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 4 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10),
-                          }}
-                        >
-                          <FontAwesome size={10} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 3 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -207,7 +193,7 @@ const CreatePin = ({ navigation }: any) => {
                 fontSize={RFValue(12)}
                 fontStyle={'italic'}
                 textAlign={'right'}
-                py={20}
+                mr={20}
               >
                 {errMessage}
               </Text>
@@ -218,12 +204,12 @@ const CreatePin = ({ navigation }: any) => {
                 <Box>
                   <CustomButton
                     onPress={() => {
-                      setLoginError(false)
+                      setLoginError(false);
                       setTimeout(() => {
-                        setIsDisabledProceed(true)
-                        setElevation(0)
-                      }, 2)
-                      attemptLogin(passcode)
+                        setIsDisabledProceed(true);
+                        setElevation(0);
+                      }, 2);
+                      attemptLogin(passcode);
                     }}
                     value={'Proceed'}
                   />
@@ -234,15 +220,18 @@ const CreatePin = ({ navigation }: any) => {
           {attempts >= 1 && (
             <TouchableOpacity
               style={{
-                marginTop: '20%',
+                flex: 0.8,
+                justifyContent: 'flex-end',
                 elevation: Elevation,
-                marginHorizontal: 20,
+                margin: 20,
               }}
               onPress={() => {
                 setForgotVisible(true);
               }}
             >
-              <Text color={'white'}>{'Forgot Passcode?'}</Text>
+              <Text color={'white'} fontWeight={'bold'} fontSize={RFValue(14)}>
+                {'Forgot Passcode?'}
+              </Text>
             </TouchableOpacity>
           )}
           {/* keyboardview start */}
@@ -275,7 +264,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FCFCFC',
+    backgroundColor: '#FDF7F0',
   },
   textBoxActive: {
     height: wp('13%'),
@@ -290,7 +279,7 @@ const styles = StyleSheet.create({
     },
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FDF7F0',
   },
   textStyles: {
     color: '#000000',
@@ -311,6 +300,7 @@ const styles = StyleSheet.create({
   },
   linearGradient: {
     flex: 1,
+    padding: 10,
   },
 });
 

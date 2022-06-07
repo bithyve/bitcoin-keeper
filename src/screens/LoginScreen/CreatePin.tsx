@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, TouchableOpacity, StatusBar, TouchableHighlight } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, StatusBar } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/login';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DotView from 'src/components/DotView';
 
-export default function CreatePin(props: any) {
+export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -23,7 +23,7 @@ export default function CreatePin(props: any) {
   const { credsChanged } = useSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
 
-  function onPressNumber(text: any) {
+  function onPressNumber(text) {
     let tmpPasscode = passcode;
     let tmpConfirmPasscode = confirmPasscode;
     if (passcodeFlag) {
@@ -122,42 +122,6 @@ export default function CreatePin(props: any) {
         </Box>
         <Box flex={1}>
           <Box>
-            {/* {oldPasscode !== '' && (
-              <Box
-                borderBottomWidth={1}
-                borderColor={'#E3E3E3'}
-                alignItems={'center'}
-                flexDirection={'row'}
-                pr={10}
-                pb={15}
-                pt={10}
-                ml={20}
-                mb={15}
-              >
-                <Box flexDirection={'row'} alignItems={'center'}>
-                  <TouchableOpacity
-                    onPress={() => props.navigation.goBack()}
-                    hitSlop={{
-                      top: 20,
-                      left: 20,
-                      bottom: 20,
-                      right: 20,
-                    }}
-                    style={{
-                      height: 30,
-                      width: 30,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <FontAwesome name="long-arrow-left" color={'#000'} size={17} />
-                  </TouchableOpacity>
-                  <Text color={'#006CB4'} fontSize={RFValue(25)} ml={20} mt={hp('10%')}>
-                    {'Manage Passcode'}
-                  </Text>
-                </Box>
-              </Box>
-            )} */}
-
             <Box>
               <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'#FFFFFF'}>
                 Welcome
@@ -178,99 +142,56 @@ export default function CreatePin(props: any) {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10),
-                            textAlignVertical: 'center',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 2 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 1 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 3 ? (
-                        <Text
-                          style={{
-                            fontSize: RFValue(10, 812),
-                          }}
-                        >
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 2 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box color={'#000'} fontSize={RFValue(13)} textAlign={'center'} lineHeight={18}>
                       {passcode.length >= 4 ? (
-                        <Text fontSize={RFValue(10, 812)}>
-                          <FontAwesome size={8} name={'circle'} color={'#000'} />
-                        </Text>
+                        <DotView />
                       ) : passcode.length == 3 ? (
                         <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
-                    </Text>
+                        ''
+                      )}
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -290,140 +211,89 @@ export default function CreatePin(props: any) {
                         confirmPasscode.length == 0
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                            },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 1 ? (
-                          <Text fontSize={RFValue(10, 812)}>
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
-                      </Text>
+                          ''
+                        )}
+                      </Box>
                     </Box>
                     <Box
                       style={[
                         confirmPasscode.length == 1
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                            },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 2 ? (
-                          <Text
-                            style={{
-                              fontSize: RFValue(10, 812),
-                            }}
-                          >
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 1 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
-                      </Text>
+                          ''
+                        )}
+                      </Box>
                     </Box>
                     <Box
                       style={[
                         confirmPasscode.length == 2
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                              //   borderColor:
+                              //       passcode != confirmPasscode &&
+                              //       confirmPasscode.length == 4
+                              //         ? Colors.red
+                              //         : Colors.borderColor,
+                            },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 3 ? (
-                          <Text
-                            style={{
-                              fontSize: RFValue(10, 812),
-                            }}
-                          >
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 2 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
-                      </Text>
+                          ''
+                        )}
+                      </Box>
                     </Box>
                     <Box
                       style={[
                         confirmPasscode.length == 3
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                            },
                       ]}
                     >
-                      <Text
-                        color={'#000'}
-                        fontSize={RFValue(13)}
-                        textAlign={'center'}
-                        lineHeight={18}
-                      >
+                      <Box>
                         {confirmPasscode.length >= 4 ? (
-                          <Text fontSize={RFValue(10, 812)}>
-                            <FontAwesome size={8} name={'circle'} color={'#000'} />
-                          </Text>
+                          <DotView />
                         ) : confirmPasscode.length == 3 ? (
                           <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
-                      </Text>
+                          ''
+                        )}
+                      </Box>
                     </Box>
                   </Box>
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
@@ -447,7 +317,7 @@ export default function CreatePin(props: any) {
                       setTimeout(() => {
                         setIsDisabled(true);
                       }, 2);
-                      props.navigation.replace('NewHome');
+                      props.navigation.navigate('NewHome');
                     }}
                     value={'Proceed'}
                   />
@@ -530,7 +400,6 @@ const styles = StyleSheet.create({
   },
   linearGradient: {
     flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
+    padding: 10,
   },
 });

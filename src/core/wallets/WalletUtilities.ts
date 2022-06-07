@@ -18,6 +18,7 @@ import {
   DonationWallet,
   MultiSigWallet,
   Transaction,
+  TransactionToAddressMapping,
 } from './interfaces/interface';
 import { ScannedAddressKind } from '../trusted_contacts/interfaces/enum';
 
@@ -494,7 +495,8 @@ export default class WalletUtilities {
           status?: any;
         }>;
         cachedTxs: Transaction[];
-        cachedTxIdMap: { [txid: string]: string[] };
+        txIdCache: { [txid: string]: boolean };
+        cachedTransactionMapping: TransactionToAddressMapping[];
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
         walletType: string;
@@ -517,7 +519,8 @@ export default class WalletUtilities {
           address: string;
           status?: any;
         }>;
-        txIdMap: { [txid: string]: string[] };
+        txIdCache: { [txid: string]: boolean };
+        transactionMapping: TransactionToAddressMapping[];
         transactions: Transaction[];
         nextFreeAddressIndex: number;
         nextFreeChangeAddressIndex: number;
@@ -626,7 +629,8 @@ export default class WalletUtilities {
           externalAddresses,
           activeAddresses,
           internalAddresses,
-          cachedTxIdMap,
+          txIdCache,
+          cachedTransactionMapping,
           walletType,
           walletName,
           transactionsNote,
@@ -659,82 +663,89 @@ export default class WalletUtilities {
 
         // process txs
         const addressesInfo = Txs;
-        const txIdMap = cachedTxIdMap;
+        const transactionMapping = cachedTransactionMapping;
         let { lastUsedAddressIndex, lastUsedChangeAddressIndex } = wallets[walletId];
         const { upToDateTxs, txsToUpdate, newTxs } = walletsTemp[walletId];
 
         if (addressesInfo)
           for (const addressInfo of addressesInfo) {
-            if (addressInfo.TotalTransactions === 0) continue;
-
             addressInfo.Transactions.forEach((tx) => {
-              if (!txIdMap[tx.txid]) {
+              if (!txIdCache[tx.txid]) {
                 // check for duplicate tx (fetched against sending and  then again for change address)
-                txIdMap[tx.txid] = [addressInfo.Address];
+                txIdCache[tx.txid] = true;
+                transactionMapping.push({
+                  txid: tx.txid,
+                  addresses: new Set([addressInfo.Address]),
+                });
 
-                if (tx.transactionType === 'Self') {
-                  const outgoingTx: Transaction = {
-                    txid: tx.txid,
-                    confirmations: tx.NumberofConfirmations,
-                    status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                    fee: tx.fee,
-                    date: tx.Status.block_time
-                      ? new Date(tx.Status.block_time * 1000).toUTCString()
-                      : new Date(Date.now()).toUTCString(),
-                    transactionType: TransactionType.SENT,
-                    amount: tx.SentAmount,
-                    walletType: walletType,
-                    recipientAddresses: tx.RecipientAddresses,
-                    blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
-                    address: addressInfo.Address,
-                    isNew: true,
-                    notes: transactionsNote[tx.txid],
-                  };
+                // if (tx.transactionType === 'Self') {
+                //   const outgoingTx: Transaction = {
+                //     txid: tx.txid,
+                //     confirmations: tx.NumberofConfirmations,
+                //     status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
+                //     fee: tx.fee,
+                //     date: tx.Status.block_time
+                //       ? new Date(tx.Status.block_time * 1000).toUTCString()
+                //       : new Date(Date.now()).toUTCString(),
+                //     transactionType: TransactionType.SENT,
+                //     amount: tx.SentAmount,
+                //     walletType: walletType,
+                //     recipientAddresses: tx.RecipientAddresses,
+                //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
+                //     address: addressInfo.Address,
+                //     isNew: true,
+                //     notes: transactionsNote[tx.txid],
+                //   };
 
-                  const incomingTx: Transaction = {
-                    txid: tx.txid,
-                    confirmations: tx.NumberofConfirmations,
-                    status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                    fee: tx.fee,
-                    date: tx.Status.block_time
-                      ? new Date(tx.Status.block_time * 1000).toUTCString()
-                      : new Date(Date.now()).toUTCString(),
-                    transactionType: TransactionType.RECEIVED,
-                    amount: tx.ReceivedAmount,
-                    walletType: walletType,
-                    senderAddresses: tx.SenderAddresses,
-                    blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
-                    isNew: true,
-                    notes: transactionsNote[tx.txid],
-                  };
+                //   const incomingTx: Transaction = {
+                //     txid: tx.txid,
+                //     confirmations: tx.NumberofConfirmations,
+                //     status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
+                //     fee: tx.fee,
+                //     date: tx.Status.block_time
+                //       ? new Date(tx.Status.block_time * 1000).toUTCString()
+                //       : new Date(Date.now()).toUTCString(),
+                //     transactionType: TransactionType.RECEIVED,
+                //     amount: tx.ReceivedAmount,
+                //     walletType: walletType,
+                //     senderAddresses: tx.SenderAddresses,
+                //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
+                //     isNew: true,
+                //     notes: transactionsNote[tx.txid],
+                //   };
 
-                  newTxs.push(...[outgoingTx, incomingTx]);
-                } else {
-                  const transaction: Transaction = {
-                    txid: tx.txid,
-                    confirmations: tx.NumberofConfirmations,
-                    status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                    fee: tx.fee,
-                    date: tx.Status.block_time
-                      ? new Date(tx.Status.block_time * 1000).toUTCString()
-                      : new Date(Date.now()).toUTCString(),
-                    transactionType: tx.TransactionType,
-                    amount: tx.Amount,
-                    walletType,
-                    walletName: walletName ? walletName : walletType,
-                    recipientAddresses: tx.RecipientAddresses,
-                    senderAddresses: tx.SenderAddresses,
-                    blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
-                    address: addressInfo.Address,
-                    isNew: true,
-                    notes: transactionsNote[tx.txid],
-                  };
+                //   newTxs.push(...[outgoingTx, incomingTx]);
+                // } else {}
 
-                  newTxs.push(transaction);
-                }
+                const transaction: Transaction = {
+                  txid: tx.txid,
+                  confirmations: tx.NumberofConfirmations,
+                  status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
+                  fee: tx.fee,
+                  date: tx.Status.block_time
+                    ? new Date(tx.Status.block_time * 1000).toUTCString()
+                    : new Date(Date.now()).toUTCString(),
+                  transactionType: tx.TransactionType,
+                  amount: tx.Amount,
+                  walletType,
+                  walletName: walletName ? walletName : walletType,
+                  recipientAddresses: tx.RecipientAddresses,
+                  senderAddresses: tx.SenderAddresses,
+                  blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
+                  address: addressInfo.Address,
+                  isNew: true,
+                  notes: transactionsNote[tx.txid],
+                };
+
+                newTxs.push(transaction);
               } else {
-                if (!txIdMap[tx.txid].includes(addressInfo.Address))
-                  txIdMap[tx.txid].push(addressInfo.Address);
+                for (const map of transactionMapping) {
+                  if (map.txid === tx.txId) {
+                    map.addresses.add(addressInfo.Address);
+                    break;
+                  }
+                }
+
                 txsToUpdate.forEach((txToUpdate) => {
                   if (txToUpdate.txid === tx.txid)
                     txToUpdate.confirmations = tx.NumberofConfirmations;
@@ -763,49 +774,67 @@ export default class WalletUtilities {
           internal: {},
         };
 
-        newTxs.forEach((tx) => {
-          const addresses = txIdMap[tx.txid];
-          addresses.forEach((address) => {
-            if (activeAddresses.external[address]) {
-              activeAddressesWithNewTxs.external[address] = activeAddresses.external[address];
-              if (tx.transactionType === TransactionType.RECEIVED) {
-                tx.sender = idx(
-                  activeAddresses.external[address],
-                  (_) => _.assignee.senderInfo.name
-                );
-                (tx as any).senderId = idx(
-                  activeAddresses.external[address],
-                  (_) => _.assignee.senderInfo.id
-                );
-              } else if (tx.transactionType === TransactionType.SENT) {
-                const recipientInfo = idx(
-                  activeAddresses.external[address],
-                  (_) => _.assignee.recipientInfo
-                );
-                if (recipientInfo) tx.receivers = recipientInfo[tx.txid];
-              }
-            } else if (activeAddresses.internal[address]) {
-              activeAddressesWithNewTxs.internal[address] = activeAddresses.internal[address];
-              if (tx.transactionType === TransactionType.RECEIVED)
-                tx.sender = idx(
-                  activeAddresses.internal[address],
-                  (_) => _.assignee.senderInfo.name
-                );
-              else if (tx.transactionType === TransactionType.SENT) {
-                const recipientInfo = idx(
-                  activeAddresses.internal[address],
-                  (_) => _.assignee.recipientInfo
-                );
-                if (recipientInfo) tx.receivers = recipientInfo[tx.txid];
-              }
-            }
-          });
-        });
+        // receiver and sender's info mapping(from active address list) halted; not compatible w/ realm
+        // newTxs.forEach((tx) => {
+        //   let addresses: Set<string>;
+
+        //   // TODO: find a better way to reduce complexity(currently: quadratic)
+        //   for (const map of transactionMapping) {
+        //     if (map.txid === tx.txid) {
+        //       addresses = map.addresses;
+        //       break;
+        //     }
+        //   }
+
+        //   addresses.forEach((address) => {
+        //     if (activeAddresses.external[address]) {
+        //       activeAddressesWithNewTxs.external[address] = activeAddresses.external[address];
+        //       if (tx.transactionType === TransactionType.RECEIVED) {
+        //         tx.sender = idx(
+        //           activeAddresses.external[address],
+        //           (_) => _.assignee.senderInfo.name
+        //         );
+        //         (tx as any).senderId = idx(
+        //           activeAddresses.external[address],
+        //           (_) => _.assignee.senderInfo.id
+        //         );
+        //       } else if (tx.transactionType === TransactionType.SENT) {
+        //         const recipientInfo = idx(
+        //           activeAddresses.external[address],
+        //           (_) => _.assignee.recipientInfo
+        //         );
+        //         if (recipientInfo) tx.receivers = recipientInfo[tx.txid];
+        //       }
+        //     } else if (activeAddresses.internal[address]) {
+        //       activeAddressesWithNewTxs.internal[address] = activeAddresses.internal[address];
+        //       if (tx.transactionType === TransactionType.RECEIVED)
+        //         tx.sender = idx(
+        //           activeAddresses.internal[address],
+        //           (_) => _.assignee.senderInfo.name
+        //         );
+        //       else if (tx.transactionType === TransactionType.SENT) {
+        //         const recipientInfo = idx(
+        //           activeAddresses.internal[address],
+        //           (_) => _.assignee.recipientInfo
+        //         );
+        //         if (recipientInfo) tx.receivers = recipientInfo[tx.txid];
+        //       }
+        //     }
+        //   });
+        // });
 
         // pop addresses from the activeAddresses if tx-conf > 6
         txsToUpdate.forEach((tx) => {
           if (tx.confirmations > 6) {
-            const addresses = txIdMap[tx.txid];
+            let addresses;
+            // TODO: find a better way to reduce complexity(currently: quadratic)
+            for (const map of transactionMapping) {
+              if (map.txid === tx.txid) {
+                addresses = map.addresses;
+                break;
+              }
+            }
+
             addresses.forEach((address) => {
               if (activeAddresses.external[address]) delete activeAddresses.external[address];
               else if (activeAddresses.internal[address]) delete activeAddresses.internal[address];
@@ -820,7 +849,7 @@ export default class WalletUtilities {
 
         synchedWallets[walletId] = {
           UTXOs,
-          txIdMap,
+          transactionMapping,
           transactions,
           nextFreeAddressIndex: lastUsedAddressIndex + 1,
           nextFreeChangeAddressIndex: lastUsedChangeAddressIndex + 1,

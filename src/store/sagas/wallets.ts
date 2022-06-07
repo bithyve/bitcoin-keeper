@@ -20,7 +20,6 @@ import {
   UPDATE_WALLET_SETTINGS,
   walletSettingsUpdated,
   walletSettingsUpdateFailed,
-  updateWallets,
   setResetTwoFALoader,
   recomputeNetBalance,
   updateGift,
@@ -31,7 +30,6 @@ import {
   REFRESH_WALLETS,
   AUTO_SYNC_WALLETS,
   ADD_NEW_WALLETS,
-  newWalletsAdded,
   walletsRefreshStarted,
   walletsRefreshCompleted,
 } from '../actions/wallets';
@@ -48,11 +46,11 @@ import {
 import Relay from 'src/core/services/Relay';
 import {
   Wallet,
-  ActiveAddressAssignee,
   DonationWallet,
   MultiSigWallet,
   MultiSigWalletSpecs,
   WalletShell,
+  ActiveAddressAssignee,
 } from 'src/core/wallets/interfaces/interface';
 import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/interfaces/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -85,11 +83,11 @@ export function getNextFreeAddress(
     requester
   );
 
-  dispatch(
-    updateWallets({
-      wallets: [updatedWallet],
-    })
-  );
+  // dispatch(
+  //   updateWallets({
+  //     wallets: [updatedWallet],
+  //   })
+  // );
   // dbManager.updateWallet((updatedWallet as Wallet).id, updatedWallet);
 
   return receivingAddress;
@@ -109,11 +107,11 @@ export function* getNextFreeAddressWorker(
     wallet,
     requester
   );
-  yield put(
-    updateWallets({
-      wallets: [updatedWallet],
-    })
-  );
+  // yield put(
+  //   updateWallets({
+  //     wallets: [updatedWallet],
+  //   })
+  // );
   // yield call( dbManager.updateWallet, ( updatedWallet as Wallet ).id, updatedWallet )
   return receivingAddress;
 }
@@ -156,11 +154,11 @@ function* generateSecondaryXprivWorker({
 
   if (secondaryXpriv) {
     (wallet.specs as MultiSigWalletSpecs).xprivs.secondary = secondaryXpriv;
-    yield put(
-      updateWallets({
-        wallets: [wallet],
-      })
-    );
+    // yield put(
+    //   updateWallets({
+    //     wallets: [wallet],
+    //   })
+    // );
     // yield call( dbManager.updateWallet, wallet.id, wallet )
     yield put(secondaryXprivGenerated(true));
   } else yield put(secondaryXprivGenerated(false));
@@ -267,7 +265,7 @@ function* testcoinsWorker({ payload: testWallet }: { payload: Wallet }) {
 
 export const testcoinsWatcher = createWatcher(testcoinsWorker, GET_TESTCOINS);
 
-export function* addNewWallet(
+function* addNewWallet(
   walletType: WalletType,
   walletDetails: newWalletDetails,
   app: KeeperApp,
@@ -417,9 +415,6 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   const walletIds = [];
   let testcoinsToWallet;
 
-  // TODO: remove after login flow is setup
-  yield call(dbManager.initializeRealm, Buffer.from('random'));
-
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   const { walletShellInstances } = app;
@@ -550,11 +545,11 @@ function* updateWalletSettingsWorker({
     if (walletDescription) wallet.presentationData.walletDescription = walletDescription;
     if (visibility) wallet.presentationData.walletVisibility = visibility;
 
-    yield put(
-      updateWallets({
-        wallets: [wallet],
-      })
-    );
+    // yield put(
+    //   updateWallets({
+    //     wallets: [wallet],
+    //   })
+    // );
     // yield call( dbManager.updateWallet, wallet.id, wallet )
     // yield put( updateWalletImageHealth( {
     //   updateWallets: true,
@@ -651,15 +646,15 @@ function* refreshWalletsWorker({
     },
   });
 
-  yield put(
-    updateWallets({
-      wallets: synchedWallets,
-    })
-  );
+  // yield put(
+  //   updateWallets({
+  //     wallets: synchedWallets,
+  //   })
+  // );
   yield put(walletsRefreshCompleted(payload.wallets));
 
   let computeNetBalance = false;
-  for (const [key, synchedWallet] of Object.entries(synchedWallets)) {
+  for (const synchedWallet of synchedWallets) {
     // yield call( dbManager.updateWallet, ( synchedWallet as Wallet ).id, synchedWallet )
     if ((synchedWallet as Wallet).specs.hasNewTxn) {
       walletIds.push((synchedWallet as Wallet).id);
@@ -674,7 +669,8 @@ function* refreshWalletsWorker({
     // } ) )
   }
 
-  if (computeNetBalance) yield put(recomputeNetBalance());
+  // TODO: pass in all wallets(instead of synched) to recompute
+  if (computeNetBalance) yield put(recomputeNetBalance(synchedWallets));
 
   // update F&F channels if any new txs found on an assigned address
   // if( Object.keys( activeAddressesWithNewTxsMap ).length )  yield call( updatePaymentAddressesToChannels, activeAddressesWithNewTxsMap, synchedWallets )
