@@ -13,13 +13,13 @@ import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/
 import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
 
-const WalletCard = ({ item, navigation }: { item, navigation }) => {
+const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
   const { walletName, walletDescription } = item.presentationData;
-
-  //   const { balances } = item.specs;
+  const { balances } = item.specs;
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('WalletDetailScreen')}>
+    <TouchableOpacity onPress={() => navigation.navigate('WalletDetailScreen', { wallet: item })}>
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
         <View style={styles.cardHeader}>
           {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
@@ -65,7 +65,7 @@ const WalletCard = ({ item, navigation }: { item, navigation }) => {
               fontFamily={'body'}
               fontWeight={'200'}
             >
-              {/* {balances.confirmed + balances.unconfirmed} */}0
+              {balances.confirmed + balances.unconfirmed}
             </Text>
           </View>
         </View>
@@ -91,7 +91,7 @@ const styles = ScaledSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FAC48B'
+    backgroundColor: '#FAC48B',
   },
   flatlistContainer: {
     maxHeight: hp(30),
@@ -107,7 +107,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    padding: '3@s'
+    padding: '3@s',
   },
 
   hexaWalletText: {
@@ -152,7 +152,5 @@ const styles = ScaledSheet.create({
     lineHeight: '24@s',
     marginLeft: wp(1),
   },
-
-
 });
 export default WalletCard;
