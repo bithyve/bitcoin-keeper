@@ -7,17 +7,17 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Note from 'src/components/Note/Note';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { useDispatch, useSelector } from 'react-redux';
-import { changeLoginMethod } from '../../store/actions/login';
+import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import { useAppSelector, useAppDispatch } from '../../store/hooks'
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [isBiometicSupported, setIsBiometicSupported] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const { loginMethod }: { loginMethod: LoginMethod } = useSelector((state) => state.settings);
-  const dispatch = useDispatch();
+  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     init();

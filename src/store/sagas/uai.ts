@@ -1,6 +1,6 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { ADD_TO_UAI_STACK, UPADTE_UAI_STACK } from '../actions/uai';
+import { ADD_TO_UAI_STACK, UPADTE_UAI_STACK } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
 import { call } from 'redux-saga/effects';
 

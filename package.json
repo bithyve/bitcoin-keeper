@@ -24,6 +24,7 @@
     "@react-navigation/native-stack": "^6.5.0",
     "@realm/react": "^0.3.0",
     "@redux-devtools/extension": "^3.2.2",
+    "@reduxjs/toolkit": "^1.8.2",
     "@tradle/react-native-http": "^2.0.0",
     "assert": "^1.1.1",
     "axios": "^0.26.1",

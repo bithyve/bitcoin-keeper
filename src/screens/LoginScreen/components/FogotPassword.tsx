@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Box, Text, Input, } from 'native-base';
-import { useSelector } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import * as Cipher from '../../../common/encryption';
+import { useAppSelector } from 'src/store/hooks';
 
 const FogotPassword = (props) => {
   const [passwordText, setPasswordText] = useState('');
-  const { resetCred } = useSelector((state) => state.storage);
+  const { resetCred } = useAppSelector((state) => state.storage);
   const [invalid, setInvalid] = useState(false)
 
   const getSeedIndexText = (seedNumber) => {
