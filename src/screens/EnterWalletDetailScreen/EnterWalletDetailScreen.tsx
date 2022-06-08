@@ -52,9 +52,9 @@ const EnterWalletDetailScreen = () => {
         <View marginY={20}>
           <Buttons
             secondaryText={'Cancle'}
-            secondaryCallback={() => { }}
+            secondaryCallback={() => { console.log('Cancle') }}
             primaryText={'Create'}
-            primaryCallback={() => { }}
+            primaryCallback={() => { console.log('Create') }}
           />
         </View>
       </View>
