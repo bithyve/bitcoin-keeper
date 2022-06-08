@@ -7,7 +7,7 @@ const CountryCard = (props) => {
 
   return (
     <Box
-      bg={props.bgColor ? props.bgColor : `${colorMode}.white`}
+      bg={`${colorMode}.white`}
       flexDirection={'row'}
       justifyContent={'space-evenly'}
       mx={7}

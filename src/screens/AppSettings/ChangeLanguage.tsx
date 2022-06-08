@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
+import { useNavigation } from '@react-navigation/native';
+import { Box, Text, ScrollView, StatusBar, useColorMode } from 'native-base';
 import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import Note from 'src/components/Note/Note';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import IconArrow from 'src/assets/icons/Wallets/icon_arrow.svg';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const styles = StyleSheet.create( {
     container: {
@@ -85,7 +84,7 @@ const styles = StyleSheet.create( {
     }
   } )
 
-const ChangeLanguage = ({ route }) => {
+const ChangeLanguage = () => {
   const [ currencyList ] = useState( FiatCurrencies )
   const [ countryList ] = useState( CountryCode )
   const [ languageList ] = useState( CountryCode )
@@ -110,10 +109,10 @@ const ChangeLanguage = ({ route }) => {
     setSatsMode(!satsMode);
   };
 
-  const Menu = ( { label, value, onPress, arrow } ) => {
+  const Menu = ( { label, value } ) => {
     return (
       <TouchableOpacity
-        onPress={onPress}
+        // onPress={onPress}
         style={styles.btn}
       >
         <View

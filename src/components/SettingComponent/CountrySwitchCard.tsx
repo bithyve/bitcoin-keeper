@@ -1,14 +1,11 @@
 import React from 'react';
-import { Box, Text, Pressable, useColorMode } from 'native-base';
-import LinkIcon from 'src/assets/icons/link.svg';
-import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import { Box, Text, useColorMode } from 'native-base';
 
 const CountrySwitchCard = (props) => {
   const { colorMode } = useColorMode();
   return (
-    <Pressable onPress={() => props.onPress()}>
       <Box
-        bg={props.bgColor ? props.bgColor : `${colorMode}.backgroundColor2`}
+        bg={`${colorMode}.backgroundColor2`}
         flexDirection={'row'}
         justifyContent={'space-evenly'}
         mx={7}
@@ -25,7 +22,6 @@ const CountrySwitchCard = (props) => {
           </Text>
         </Box>
       </Box>
-    </Pressable>
   );
 };
 
