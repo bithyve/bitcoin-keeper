@@ -16,7 +16,7 @@ const CountryCard = (props) => {
       {...props}
     >
       <Box flex={0.8}>
-        <Text color={'#00715B'} fontFamily={'body'} fontWeight={'bold'} fontSize={14}>
+        <Text color={'#00715B'} fontFamily={'body'} fontWeight={'bold'} fontSize={16}>
           {props.title}
         </Text>
         <Text color={'#4F5955'} fontFamily={'body'} fontSize={12}>

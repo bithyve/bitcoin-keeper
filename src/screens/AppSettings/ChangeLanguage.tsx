@@ -8,6 +8,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
 import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
+import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import Note from 'src/components/Note/Note';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
@@ -15,30 +16,26 @@ import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import IconArrow from 'src/assets/icons/Wallets/icon_arrow.svg';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 
 const styles = StyleSheet.create( {
     container: {
       flexGrow: 1,
       paddingHorizontal:  wp( '5%' ),
-      backgroundColor: Colors.background,
     },
     textHeading: {
       fontFamily: Fonts.FiraSansRegular,
       fontSize: RFValue( 24 ),
-      color: Colors.blue,
       marginBottom: wp( '5%' ),
       marginTop: wp( '10%' ),
     },
     textTitle: {
       fontFamily: Fonts.FiraSansRegular,
       fontSize: RFValue( 15 ),
-      color: Colors.blue,
     },
     textSubtitle: {
       fontFamily: Fonts.FiraSansRegular,
       fontSize: RFValue( 12 ),
-      color: Colors.textColorGrey,
     },
     row: {
       flexDirection: 'row',
@@ -58,7 +55,6 @@ const styles = StyleSheet.create( {
     textCurrency: {
       fontFamily: Fonts.FiraSansMedium,
       fontSize: RFValue( 18 ),
-      color: Colors.textColorGrey,
     },
     icArrow: {
       marginLeft: wp( '3%' ),
@@ -68,19 +64,16 @@ const styles = StyleSheet.create( {
     textValue: {
       fontFamily: Fonts.FiraSansRegular,
       fontSize: RFValue( 13 ),
-      color: Colors.textColorGrey,
       marginLeft: wp( '3%' ),
     },
     textHelpUs: {
       fontFamily: Fonts.FiraSansRegular,
       fontSize: RFValue( 16 ),
-      color: Colors.blue,
       marginLeft: wp( '3%' ),
     },
     textHelpUsSub: {
       fontFamily: Fonts.FiraSansRegular,
       fontSize: RFValue( 13 ),
-      color: Colors.textColorGrey,
       marginLeft: wp( '3%' ),
       marginTop: wp( '1%' ),
     },
@@ -95,6 +88,7 @@ const styles = StyleSheet.create( {
 const ChangeLanguage = ({ route }) => {
   const [ currencyList ] = useState( FiatCurrencies )
   const [ countryList ] = useState( CountryCode )
+  const [ languageList ] = useState( CountryCode )
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const [satsMode, setSatsMode] = useState(false);
@@ -131,6 +125,7 @@ const ChangeLanguage = ({ route }) => {
             borderBottomLeftRadius: 10,
             justifyContent: 'center',
             alignItems: 'center',
+            marginLeft: 28,
           }}
         >
           <Text
@@ -183,13 +178,13 @@ const ChangeLanguage = ({ route }) => {
         </Box>
         <CountryCard
             title={'Sats Mode'}
-            description={'Lorem ipsum dolor sit amet'}
+            description={'View your balances in sats'}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={satsMode}
           />
-          <CountryCard
+          <CountrySwitchCard
             title={'Country Settings'}
             description={'Choose Keeper access location'}
             my={2}
@@ -205,10 +200,11 @@ const ChangeLanguage = ({ route }) => {
           }}
           arrow={isVisible}
           label={country ? country.code : '+91'}
-          value={country ? country.name : CurrencyCode}
+          value={country ? country.name : 'India'}
         />
          <View style={{
           position: 'relative',
+          marginLeft: 20,
         }}>
           {isVisible && (
             <View
@@ -225,7 +221,6 @@ const ChangeLanguage = ({ route }) => {
                       onPress={() => {
                         setCountry( item )
                         setIsVisible( false )
-                        dispatch( setCurrencyCode( item.code ) )
                       }}
                       style={{
                         flexDirection: 'row', height: wp( '13%' )
@@ -243,7 +238,6 @@ const ChangeLanguage = ({ route }) => {
                           style={{
                             fontFamily: Fonts.FiraSansMedium,
                             fontSize: RFValue( 12 ),
-                            color: Colors.textColorGrey,
                           }}
                         >
                           {item.code}
@@ -260,7 +254,6 @@ const ChangeLanguage = ({ route }) => {
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
                             fontSize: RFValue( 12 ),
-                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
@@ -275,7 +268,7 @@ const ChangeLanguage = ({ route }) => {
           )}
         </View>
         <IconArrow />
-          <CountryCard
+          <CountrySwitchCard
             title={'Alternate Currency'}
             description={'Select your local currency'}
             my={2}
@@ -291,10 +284,11 @@ const ChangeLanguage = ({ route }) => {
           }}
           arrow={isVisible}
           label={currency ? currency.symbol : '$'}
-          value={currency ? currency.code : CurrencyCode}
+          value={currency ? currency.code : '+91'}
         />
          <View style={{
           position: 'relative',
+          marginLeft: 20,
         }}>
           {isVisible && (
             <View
@@ -304,13 +298,12 @@ const ChangeLanguage = ({ route }) => {
               }}
             >
               <ScrollView>
-                {countryList.map( ( item ) => {
+                {languageList.map( ( item ) => {
                   return (
                     <TouchableOpacity
                       onPress={() => {
                         setCurrency( item )
                         setIsVisible( false )
-                        dispatch( setCurrencyCode( item.code ) )
                       }}
                       style={{
                         flexDirection: 'row', height: wp( '13%' )
@@ -324,14 +317,12 @@ const ChangeLanguage = ({ route }) => {
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderBottomWidth: 1,
-                          borderBottomColor: Colors.borderColor,
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansMedium,
                             fontSize: RFValue( 12 ),
-                            color: Colors.textColorGrey,
                           }}
                         >
                           {item.dial_code}
@@ -343,7 +334,6 @@ const ChangeLanguage = ({ route }) => {
                           justifyContent: 'center',
                           height: wp( '13%' ),
                           borderBottomWidth: 1,
-                          borderBottomColor: Colors.borderColor,
                           backgroundColor: Colors.white,
 
                         }}
@@ -352,7 +342,6 @@ const ChangeLanguage = ({ route }) => {
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
                             fontSize: RFValue( 12 ),
-                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
@@ -366,7 +355,7 @@ const ChangeLanguage = ({ route }) => {
             </View>
           )}
         </View>
-          <CountryCard
+          <CountrySwitchCard
             title={'Language Settings'}
             description={'Choose your language preference'}
             my={2}
@@ -382,10 +371,11 @@ const ChangeLanguage = ({ route }) => {
           }}
           arrow={isVisible}
           label={currency ? currency.symbol : '$'}
-          value={currency ? currency.code : CurrencyCode}
+          value={currency ? currency.code : '+91'}
         />
          <View style={{
           position: 'relative',
+          marginLeft: 20,
         }}>
           {isVisible && (
             <View
@@ -393,7 +383,6 @@ const ChangeLanguage = ({ route }) => {
                 marginTop: wp( '3%' ),
                 borderRadius: 10,
                 borderWidth: 1,
-                borderColor: Colors.borderColor,
                 overflow: 'hidden',
               }}
             >
@@ -404,7 +393,6 @@ const ChangeLanguage = ({ route }) => {
                       onPress={() => {
                         setCurrency( item )
                         setIsVisible( false )
-                        dispatch( setCurrencyCode( item.code ) )
                       }}
                       style={{
                         flexDirection: 'row', height: wp( '13%' )
@@ -422,7 +410,6 @@ const ChangeLanguage = ({ route }) => {
                           style={{
                             fontFamily: Fonts.FiraSansMedium,
                             fontSize: RFValue( 12 ),
-                            color: Colors.textColorGrey,
                           }}
                         >
                           {item.symbol}
@@ -440,7 +427,6 @@ const ChangeLanguage = ({ route }) => {
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
                             fontSize: RFValue( 12 ),
-                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
