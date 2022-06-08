@@ -26,14 +26,12 @@ const CreatePin = ({ navigation }) => {
   const [loginError, setLoginError] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
-  const [isDisabledProceed, setIsDisabledProceed] = useState(false);
   const [forgotVisible, setForgotVisible] = useState(false);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
-  const [timer, setTimer] = useState(null)
   const [canLogin, setCanLogin] = useState(false)
   const { isAuthenticated, authenticationFailed } = useAppSelector(
     (state) => state.login
@@ -64,7 +62,7 @@ const CreatePin = ({ navigation }) => {
       }
     }
     setCanLogin(true)
-  }, [failedAttempts, lastLoginFailedAt, timer])
+  }, [failedAttempts, lastLoginFailedAt])
 
   // useEffect(() => {
   //   if (timeout) {
@@ -277,7 +275,6 @@ const CreatePin = ({ navigation }) => {
                   <CustomButton
                     onPress={() => {
                       setLoginError(false);
-                      setIsDisabledProceed(true);
                       setElevation(0);
                       attemptLogin(passcode);
                     }}

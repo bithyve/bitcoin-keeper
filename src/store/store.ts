@@ -29,7 +29,7 @@ const persistConfig = {
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
-let sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware()
 const middlewars = [sagaMiddleware]
 
 if (__DEV__) {

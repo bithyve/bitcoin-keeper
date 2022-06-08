@@ -1,19 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: {
-  hasCreds: Boolean;
-  isAuthenticated: Boolean;
-  authenticationFailed: Boolean;
-  walletSetupCompleted: Boolean;
-  walletSetupFailed: Boolean;
-  reLogin: Boolean;
+  hasCreds: boolean;
+  isAuthenticated: boolean;
+  authenticationFailed: boolean;
+  walletSetupCompleted: boolean;
+  walletSetupFailed: boolean;
+  reLogin: boolean;
   loading: {
-    initializing: Boolean;
-    storingCreds: Boolean;
-    authenticating: Boolean;
+    initializing: boolean;
+    storingCreds: boolean;
+    authenticating: boolean;
   };
   credsChanged: string;
-  pinChangedFailed: Boolean;
+  pinChangedFailed: boolean;
   initializeRecoveryCompleted: boolean;
 } = {
   hasCreds: false,
