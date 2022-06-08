@@ -145,7 +145,7 @@ const CreatePin = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.navigate('NewHome');
+      navigation.replace('NewHome');
     }
   }, [isAuthenticated]);
 
