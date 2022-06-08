@@ -30,7 +30,15 @@ import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images
 import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
-import { updateFCMTokens } from '../../store/actions/notifications';
+import {
+  updateFCMTokens,
+  notificationsUpdated,
+  setupNotificationList,
+  updateNotificationList,
+  updateMessageStatusInApp,
+  updateMessageStatus,
+  getMessages,
+} from '../../store/actions/notifications';
 import messaging from '@react-native-firebase/messaging';
 import { loginWithHexa } from 'src/store/actions/wallets';
 import { addToUaiStack } from 'src/store/actions/uai';
@@ -41,6 +49,7 @@ import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 type Props = {
   route: any | undefined;
   navigation: any;
+  getMessages: any;
 };
 
 const HomeScreen = ({ navigation, route }: Props) => {
@@ -70,6 +79,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
     dispatch(updateFCMTokens([fcmToken]));
   }
   useEffect(() => {
+    getMessages();
     if (route.params !== undefined) {
       setBackupKeys((prev) => {
         if (route.params?.id) {

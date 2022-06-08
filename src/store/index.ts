@@ -14,7 +14,13 @@ import {
 import { all, call, spawn } from 'redux-saga/effects';
 import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
-import { updateFCMTokensWatcher } from './sagas/notifications';
+import {
+  updateFCMTokensWatcher,
+  fetchNotificationsWatcher,
+  getMessageWatcher,
+  updateMessageStatusWatcher,
+  updateMessageStatusInAppWatcher
+} from './sagas/notifications'
 import walletsReducer from './reducers/wallets';
 import notificationReducer from './reducers/notifications';
 import loginReducer from './reducers/login';
@@ -63,6 +69,10 @@ const rootSaga = function* () {
     validateTwoFAWatcher,
     updateWalletSettingsWatcher,
     updateFCMTokensWatcher,
+    fetchNotificationsWatcher,
+    getMessageWatcher,
+    updateMessageStatusWatcher,
+    updateMessageStatusInAppWatcher,
     credentialStorageWatcher,
     changeAuthCredWatcher,
     changeLoginMethodWatcher,
