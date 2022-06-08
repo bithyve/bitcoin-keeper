@@ -244,7 +244,13 @@ const WalletDetailScreen = ({ route }) => {
 
         <Box flexDirection={'row'} marginY={4} justifyContent={'space-evenly'}>
           <IconRecieve />
-          <IconRecieve />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Receive', { wallet });
+            }}
+          >
+            <IconRecieve />
+          </TouchableOpacity>
           <IconRecieve />
         </Box>
       </Box>
