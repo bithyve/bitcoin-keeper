@@ -19,7 +19,7 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 // components
-import { addToUaiStack } from 'src/store/actions/uai';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
 // icons and images
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';

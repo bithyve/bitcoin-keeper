@@ -7,7 +7,7 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Note from 'src/components/Note/Note';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { changeLoginMethod } from '../../store/actions/login';
+import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { useAppSelector, useAppDispatch } from '../../store/hooks'

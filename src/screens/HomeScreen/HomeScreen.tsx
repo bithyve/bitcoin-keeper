@@ -30,10 +30,10 @@ import SuccessIcon from 'src/assets/images/checkboxfilled.svg';
 // icons and images
 import backgroundImage from 'src/assets/images/background.png';
 import { getResponsiveHome } from 'src/common/data/responsiveness/responsive';
-import { updateFCMTokens } from '../../store/actions/notifications';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import messaging from '@react-native-firebase/messaging';
-import { loginWithHexa } from 'src/store/actions/wallets';
-import { addToUaiStack } from 'src/store/actions/uai';
+import { loginWithHexa } from 'src/store/sagaActions/wallets';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';

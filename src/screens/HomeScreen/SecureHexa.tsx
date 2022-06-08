@@ -11,7 +11,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
-import { importNewWallet } from 'src/store/actions/wallets';
+import { importNewWallet } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 
 type Props = {

@@ -7,7 +7,7 @@ import {
   CHANGE_AUTH_CRED,
   RESET_PIN,
   CHANGE_LOGIN_METHOD,
-} from '../actions/login';
+} from '../sagaActions/login';
 import { setLoginMethod } from '../reducers/settings'
 import {
   credsAuthenticated,
@@ -24,7 +24,7 @@ import {
   resetPinFailAttempts,
   setKey
 } from '../reducers/storage';
-import { setupKeeperApp } from '../actions/storage';
+import { setupKeeperApp } from '../sagaActions/storage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store'

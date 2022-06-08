@@ -32,7 +32,7 @@ import {
   ADD_NEW_WALLETS,
   walletsRefreshStarted,
   walletsRefreshCompleted,
-} from '../actions/wallets';
+} from '../sagaActions/wallets';
 import config, { APP_STAGE } from 'src/core/config';
 import { WalletsState } from 'src/store/reducers/wallets';
 import WalletOperations from 'src/core/wallets/WalletOperations';

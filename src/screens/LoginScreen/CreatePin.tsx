@@ -6,7 +6,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { storeCreds, switchCredsChanged } from '../../store/actions/login';
+import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Wallet, MultiSigWallet, DonationWallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { newWalletsInfo } from '../sagas/wallets';
-import { ADD_NEW_WALLETS } from '../actions/wallets'
+import { ADD_NEW_WALLETS } from '../sagaActions/wallets'
 
 export type WalletsState = {
   walletsSynched: boolean;

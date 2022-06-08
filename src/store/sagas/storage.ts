@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import crypto from 'crypto';
 import DeviceInfo from 'react-native-device-info';
-import { SETUP_KEEPER_APP } from '../actions/storage';
+import { SETUP_KEEPER_APP } from '../sagaActions/storage';
 import { setAppId } from '../reducers/storage';
 import { call, put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
@@ -10,7 +10,7 @@ import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { WalletShell } from 'src/core/wallets/interfaces/interface';
-import { addNewWallets } from '../actions/wallets';
+import { addNewWallets } from '../sagaActions/wallets';
 import { newWalletsInfo } from './wallets';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 

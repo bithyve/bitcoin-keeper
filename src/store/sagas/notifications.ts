@@ -6,7 +6,7 @@ import {
   GET_MESSAGES,
   UPDATE_MESSAGES_STATUS_INAPP,
   UPDATE_MESSAGES_STATUS
-} from '../actions/notifications'
+} from '../sagaActions/notifications'
 import {
   notificationsFetched,
   fetchNotificationStarted,

@@ -7,8 +7,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import { credsAuth } from '../../store/actions/login';
-import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/actions/storage';
+import { credsAuth } from '../../store/sagaActions/login';
+import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/sagaActions/storage';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
