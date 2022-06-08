@@ -27,7 +27,7 @@ const storageSlice = createSlice({
     setAppId: (state, action: PayloadAction<string>) => {
       state.appId = action.payload
     },
-    increasePinFailAttemts: (state) => {
+    increasePinFailAttempts: (state) => {
       state.failedAttempts = state.failedAttempts + 1
       state.lastLoginFailedAt = Date.now()
     },
@@ -49,7 +49,7 @@ const storageSlice = createSlice({
 
 export const {
   setAppId,
-  increasePinFailAttemts,
+  increasePinFailAttempts,
   setPinResetCreds,
   resetPinFailAttempts,
   setKey
