@@ -1,10 +1,4 @@
-import {
-  SET_APP_ID,
-  SET_PIN_RESET_CREDS,
-  RESET_PIN_FAIL_ATTEMTS,
-  INCREASE_PIN_FAIL_ATTEMTS,
-  KEY_FETCHED
-} from '../actions/storage'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: {
   appId: string;
@@ -26,39 +20,39 @@ const initialState: {
   key: ''
 }
 
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case SET_APP_ID:
-      return {
-        ...state,
-        appId: action.payload.appId,
+const storageSlice = createSlice({
+  name: 'storage',
+  initialState,
+  reducers: {
+    setAppId: (state, action: PayloadAction<string>) => {
+      state.appId = action.payload
+    },
+    increasePinFailAttemts: (state) => {
+      state.failedAttempts = state.failedAttempts + 1
+      state.lastLoginFailedAt = Date.now()
+    },
+    setPinResetCreds: (state, action: PayloadAction<{ hash: string, index: number }>) => {
+      state.resetCred = {
+        hash: action.payload.hash,
+        index: action.payload.index
       }
-    case SET_PIN_RESET_CREDS:
-      return {
-        ...state,
-        resetCred: {
-          hash: action.payload.hash,
-          index: action.payload.index
-        }
-      }
-    case INCREASE_PIN_FAIL_ATTEMTS:
-      return {
-        ...state,
-        failedAttempts: state.failedAttempts + 1,
-        lastLoginFailedAt: Date.now()
-      }
-    case RESET_PIN_FAIL_ATTEMTS:
-      return {
-        ...state,
-        failedAttempts: 0,
-        lastLoginFailedAt: null
-      }
-    case KEY_FETCHED:
-      return {
-        ...state,
-        key: action.payload.key,
-      }
+    },
+    resetPinFailAttempts: (state) => {
+      state.failedAttempts = 0
+      state.lastLoginFailedAt = null
+    },
+    setKey: (state, action: PayloadAction<string>) => {
+      state.key = action.payload
+    }
   }
+})
 
-  return state
-}
+export const {
+  setAppId,
+  increasePinFailAttemts,
+  setPinResetCreds,
+  resetPinFailAttempts,
+  setKey
+} = storageSlice.actions
+
+export default storageSlice.reducer

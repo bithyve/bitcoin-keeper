@@ -1,7 +1,8 @@
 import * as bip39 from 'bip39';
 import crypto from 'crypto';
 import DeviceInfo from 'react-native-device-info';
-import { SETUP_KEEPER_APP, setAppId } from '../actions/storage';
+import { SETUP_KEEPER_APP } from '../actions/storage';
+import { setAppId } from '../reducers/storage';
 import { call, put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';

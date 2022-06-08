@@ -4,32 +4,34 @@ import * as SecureStore from '../../storage/secure-store';
 import {
   CREDS_AUTH,
   STORE_CREDS,
-  credsStored,
-  credsAuthenticated,
-  switchSetupLoader,
-  switchReLogin,
   CHANGE_AUTH_CRED,
   RESET_PIN,
-  credsChanged,
-  pinChangedFailed,
   CHANGE_LOGIN_METHOD,
-  setLoginMethod,
 } from '../actions/login';
+import { setLoginMethod } from '../reducers/settings'
+import {
+  credsAuthenticated,
+  credsChanged,
+  setCredStored,
+  pinChangedFailed,
+  setupLoading,
+} from '../reducers/login'
 import dbManager from '../../storage/realm/dbManager';
 import * as Cipher from '../../common/encryption';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import {
-  setupKeeperApp,
   setPinResetCreds,
   resetPinFailAttempts,
-  keyFetched
-} from '../actions/storage';
+  setKey
+} from '../reducers/storage';
+import { setupKeeperApp } from '../actions/storage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { RootState } from '../store'
 
 function* credentialsStorageWorker({ payload }) {
   try {
-    yield put(switchSetupLoader('storingCreds'));
+    yield put(setupLoading('storingCreds'));
     const hash = yield call(Cipher.hash, payload.passcode);
     const AES_KEY = yield call(Cipher.generateKey);
     const encryptedKey = yield call(Cipher.encrypt, AES_KEY, hash);
@@ -43,9 +45,9 @@ function* credentialsStorageWorker({ payload }) {
 
     // setup the application
     yield put(setupKeeperApp());
-    yield put(keyFetched(AES_KEY))
+    yield put(setKey(hash))
 
-    yield put(credsStored());
+    yield put(setCredStored());
   } catch (error) {
     console.log(error);
   }
@@ -57,7 +59,7 @@ function* credentialsAuthWorker({ payload }) {
   let key;
   try {
     const { method } = payload;
-    yield put(switchSetupLoader('authenticating'));
+    yield put(setupLoading('authenticating'));
     if (method === LoginMethod.PIN) {
       const hash = yield call(Cipher.hash, payload.passcode);
       const encryptedKey = yield call(SecureStore.fetch, hash);
@@ -66,7 +68,7 @@ function* credentialsAuthWorker({ payload }) {
       yield call(dbManager.initializeRealm, uint8array);
       yield call(generateSeedHash)
     } else if (method === LoginMethod.BIOMETRIC) {
-      const appId = yield select((state) => state.storage.appId);
+      const appId = yield select((state: RootState) => state.storage.appId);
       const { encryptedKey, hash, success } = yield call(
         SecureStore.verifyBiometricAuth,
         payload.passcode,
@@ -82,17 +84,19 @@ function* credentialsAuthWorker({ payload }) {
       }
     }
   } catch (err) {
-    if (payload.reLogin) yield put(switchReLogin(false));
+    if (payload.reLogin) {
+      // yield put(switchReLogin(false));
+    }
     else yield put(credsAuthenticated(false));
     return;
   }
   if (!key) throw new Error('Key is missing');
 
   if (payload.reLogin) {
-    yield put(switchReLogin(true));
+    // yield put(switchReLogin(true));
   } else {
     yield put(credsAuthenticated(true));
-    yield put(keyFetched(key))
+    yield put(setKey(key))
     // check if the app has been upgraded
   }
 }
@@ -116,7 +120,7 @@ function* changeAuthCredWorker({ payload }) {
 function* resetPinWorker({ payload }) {
   const { newPasscode } = payload;
   try {
-    const key = yield select((state) => state.storage.key)
+    const key = yield select((state: RootState) => state.storage.key)
     // setup new pin
     const newHash = yield call(Cipher.hash, newPasscode)
     const encryptedKey = yield call(Cipher.encrypt, key, newHash)
@@ -142,8 +146,7 @@ function* generateSeedHash() {
     const words = primaryMnemonic.split(' ')
     const random = Math.floor(Math.random() * words.length)
     const hash = yield call(Cipher.hash, words[random])
-    console.log(words[random])
-    yield put(setPinResetCreds(hash, random))
+    yield put(setPinResetCreds({ hash, index: random }))
     yield put(resetPinFailAttempts())
   } catch (error) {
     console.log('generateSeedHash error', error)

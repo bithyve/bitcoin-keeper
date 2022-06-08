@@ -1,25 +1,8 @@
-import {
-  TESTCOINS_RECEIVED,
-  WALLETS_SYNCHED,
-  EXCHANGE_RATE_CALCULATED,
-  SECONDARY_XPRIV_GENERATED,
-  TWO_FA_RESETTED,
-  AVERAGE_TX_FEE,
-  NEW_WALLET_ADD_FAILED,
-  WALLET_SETTINGS_UPDATED,
-  WALLET_SETTINGS_UPDATE_FAILED,
-  TWO_FA_VALID,
-  CLEAR_RECEIVE_ADDRESS,
-  GENERATE_SECONDARY_XPRIV,
-  RESET_TWO_FA,
-  VALIDATE_TWO_FA,
-  RESET_WALLET_UPDATE_FLAG,
-  RESET_TWO_FA_LOADER,
-  RECOMPUTE_NET_BALANCE,
-  ADD_NEW_WALLETS,
-} from '../actions/wallets';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Wallet, MultiSigWallet, DonationWallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { newWalletsInfo } from '../sagas/wallets';
+import { ADD_NEW_WALLETS } from '../actions/wallets'
 
 export type WalletsState = {
   walletsSynched: boolean;
@@ -67,6 +50,31 @@ const initialState: WalletsState = {
   resetTwoFALoader: false,
 };
 
+const walletSlice = createSlice({
+  name: 'wallet',
+  initialState,
+  reducers: {
+    testcoinsReceived: (state) => {
+      state.testCoinsReceived = true
+    },
+    walletsSynched: (state, action: PayloadAction<boolean>) => {
+      state.walletsSynched = action.payload
+    }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(ADD_NEW_WALLETS, state => {
+      state.isGeneratingNewWallet = true
+      state.hasNewWalletsGenerationSucceeded = false
+      state.hasNewWalletsGenerationFailed = false
+    });
+  }
+})
+
+export const { testcoinsReceived, walletsSynched } = walletSlice.actions
+
+export default walletSlice.reducer
+
+/*
 export default (state: WalletsState = initialState, action): WalletsState => {
   switch (action.type) {
     case TESTCOINS_RECEIVED:
@@ -245,3 +253,4 @@ export default (state: WalletsState = initialState, action): WalletsState => {
       return state;
   }
 };
+*/

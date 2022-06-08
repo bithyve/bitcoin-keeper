@@ -6,22 +6,21 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useDispatch, useSelector } from 'react-redux';
-import { storeCreds, resetPin } from '../../store/actions/login';
+import { resetPin } from '../../store/actions/login';
 import LinearGradient from 'react-native-linear-gradient';
-// import { LocalizationContext } from '../../common/content/LocContext';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 export default function ResetPin(props) {
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
-  const isPinChangedFailed = useSelector((state) => state.login.pinChangedFailed);
-  const dispatch = useDispatch();
-  const { credsChanged } = useSelector((state) => state.login);
+  const isPinChangedFailed = useAppSelector((state) => state.login.pinChangedFailed);
+  const dispatch = useAppDispatch();
+  const { credsChanged } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
   const oldPasscode = props.route.params.oldPin || ''
 
