@@ -120,7 +120,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => console.log('pressed')}
+            onPress={() => navigation.navigate('ChangeLanguage')}
           />
           <SettingsCard
             title={'Keeper Community Telegram Group'}
