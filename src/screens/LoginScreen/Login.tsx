@@ -8,7 +8,7 @@ import {
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
 import { credsAuth } from '../../store/sagaActions/login';
-import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/sagaActions/storage';
+import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -18,7 +18,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-const TIMEOUT = 40
+const TIMEOUT = 60
 
 const CreatePin = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -47,6 +47,12 @@ const CreatePin = ({ navigation }) => {
         setCanLogin(true)
         return
       } else {
+        setTimeout(() => {
+          setLoginError(true)
+          setErrMessage(`Please try after sometime`)
+          setCanLogin(false)
+        }, 100);
+        return
         // if (!timer) {
         //   setTimeout(waitingTime - retryTime)
         //   setCanLogin(false)
@@ -80,10 +86,6 @@ const CreatePin = ({ navigation }) => {
   //     }
   //   }
   // }, [timeout]);
-
-  function startTimer(time) {
-
-  }
 
   useEffect(() => {
     biometricAuth();
@@ -126,7 +128,7 @@ const CreatePin = ({ navigation }) => {
   };
 
   useEffect(() => {
-    if (attempts > 3) {
+    if (attempts >= 3) {
       setAttempts(1)
       dispatch(increasePinFailAttempts())
     }
