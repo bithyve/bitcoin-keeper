@@ -35,8 +35,7 @@ import {
 } from './interfaces/enum';
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
-    wallet: Wallet | MultiSigWallet,
-    requester?: ActiveAddressAssignee
+    wallet: Wallet | MultiSigWallet
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
