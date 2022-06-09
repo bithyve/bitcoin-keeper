@@ -4,7 +4,7 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { Image, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity, Clipboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 
@@ -72,6 +72,8 @@ const ReceiveScreen = ({ route }) => {
             fontWeight={300}
             fontSize={12}
             letterSpacing={1.08}
+            width={'100%'}
+            noOfLines={1}
           >
             {receivingAddress}
           </Text>
@@ -79,26 +81,33 @@ const ReceiveScreen = ({ route }) => {
       </Box>
       {/* {Input Field} */}
       <Box
-        flexDirection={'row'}
-        marginY={hp(3)}
-        width={'100%'}
-        justifyContent={'center'}
         alignItems={'center'}
+        borderBottomLeftRadius={10}
+        borderTopLeftRadius={10}
       >
-        <Text>{receivingAddress}</Text>
-        <TouchableOpacity activeOpacity={0.4}>
-          <Box
-            backgroundColor={'light.yellow1'}
-            padding={3}
-            borderTopRightRadius={10}
-            borderBottomRightRadius={10}
-          >
-            <CopyIcon />
-          </Box>
-        </TouchableOpacity>
+        <Box
+          flexDirection={'row'}
+          marginY={hp(3)}
+          width={'80%'}
+          alignItems={'center'}
+          justifyContent={'space-between'}
+          backgroundColor={'light.textInputBackground'}
+        >
+          <Text width={'80%'} marginLeft={4} noOfLines={1}>{receivingAddress}</Text>
+          <TouchableOpacity activeOpacity={0.4} onPress={() => { Clipboard.setString(receivingAddress) }}>
+            <Box
+              backgroundColor={'light.copyBackground'}
+              padding={3}
+              borderTopRightRadius={10}
+              borderBottomRightRadius={10}
+            >
+              <CopyIcon />
+            </Box>
+          </TouchableOpacity>
+        </Box>
       </Box>
       {/* {Add amount component} */}
-      <TouchableOpacity activeOpacity={0.5} onPress={() => { navigtaion.navigate('AddAmount', { wallet }) }}>
+      <TouchableOpacity activeOpacity={0.5} style={{ marginTop: '7%' }} onPress={() => { navigtaion.navigate('AddAmount', { wallet }) }}>
         <Box
           flexDirection={'row'}
           height={70}
@@ -107,7 +116,6 @@ const ReceiveScreen = ({ route }) => {
           alignItems={'center'}
           paddingX={3}
           marginX={3}
-          marginTop={'7%'}
           backgroundColor={'light.lightYellow'}
         >
           <Box flexDirection={'row'}>
@@ -164,7 +172,7 @@ const styles = ScaledSheet.create({
   },
   textBox: {
     width: '80%',
-    backgroundColor: Colors?.textInputBackground,
+    // backgroundColor: Colors?.textInputBackground,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
