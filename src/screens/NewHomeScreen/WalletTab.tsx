@@ -10,17 +10,17 @@ import DollarGreen from 'src/assets/images/svgs/icon_dollar_green.svg';
 import Heading from './Heading';
 import NavVault from 'src/assets/images/svgs/nav_vault.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import React from 'react';
+import React, { useContext } from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletCard from './WalletCard';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { useNavigation } from '@react-navigation/native';
 
 const WalletTab = ({ animate }) => {
-  const { useQuery } = RealmContext;
-  const navigation = useNavigation()
+  const { useQuery } = useContext(RealmWrapperContext);
+  const navigation = useNavigation();
   const wallets = useQuery(RealmSchema.Wallet);
 
   const BtcToCurrency = () => {
@@ -130,13 +130,8 @@ const WalletTab = ({ animate }) => {
   };
 
   const RenderWalletCard = ({ item }: { item }) => {
-    return (
-      <WalletCard
-        item={item}
-        navigation={navigation}
-      />
-    )
-  }
+    return <WalletCard item={item} navigation={navigation} />;
+  };
   return (
     <Box
       backgroundColor={'light.lightYellow'}
@@ -168,7 +163,7 @@ const WalletTab = ({ animate }) => {
           <FlatList
             data={wallets}
             renderItem={RenderWalletCard}
-            keyExtractor={item => item}
+            keyExtractor={(item) => item}
             extraData={navigation}
             horizontal={true}
             style={styles.flatlistContainer}

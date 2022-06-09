@@ -4,8 +4,8 @@ import { Text, VStack } from 'native-base';
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import { CommonActions } from '@react-navigation/native';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import React, { useContext } from 'react';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -122,7 +122,7 @@ const AddTapsigner = ({ navigation }) => {
   const [cvc, setCVC] = React.useState('');
   const [status, setStatus] = React.useState();
   const card = React.useRef(new CKTapCard()).current;
-  const { useRealm } = RealmContext;
+  const { useRealm } = useContext(RealmWrapperContext);
   const realm = useRealm();
   const withModal = (callback) => {
     return Platform.select({

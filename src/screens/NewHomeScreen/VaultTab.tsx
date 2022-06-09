@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Box, Text, VStack, ScrollView } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -13,13 +13,11 @@ import Btc from 'src/assets/images/svgs/btcIcon.svg';
 import DevicesComponent from './DevicesComponent';
 import KeeperModal from 'src/components/KeeperModal';
 import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Heading from './Heading';
-
-const { useQuery } = RealmContext;
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +26,7 @@ const VaultTab = ({ animate }) => {
   const open = () => setModalVisible(true);
   const close = () => setModalVisible(false);
   const navigation = useNavigation();
+  const { useQuery } = useContext(RealmWrapperContext);
   const Signers = useQuery(RealmSchema.VaultSigner);
   const Slider = () => {
     return (
@@ -120,10 +119,7 @@ const VaultTab = ({ animate }) => {
         scrollEnabled={windowHeight < 780}
       >
         <VStack>
-          <Heading
-            title={'Vault'}
-            subTitle={'Your super secure bitcoin'}
-          />
+          <Heading title={'Vault'} subTitle={'Your super secure bitcoin'} />
           <Box
             width={width * 0.87}
             height={width * 0.55}
@@ -136,14 +132,32 @@ const VaultTab = ({ animate }) => {
             <SettingIcon />
 
             <Box marginY={8}>
-              <Text color={'light.lightYellow'} fontSize={14} letterSpacing={0.7} fontFamily={'body'} fontWeight={200}>
+              <Text
+                color={'light.lightYellow'}
+                fontSize={14}
+                letterSpacing={0.7}
+                fontFamily={'body'}
+                fontWeight={200}
+              >
                 Retirement
               </Text>
-              <Text color={'light.white1'} fontSize={12} letterSpacing={0.6} fontFamily={'body'} fontWeight={100}>
+              <Text
+                color={'light.white1'}
+                fontSize={12}
+                letterSpacing={0.6}
+                fontFamily={'body'}
+                fontWeight={100}
+              >
                 Beach and sunshine baby!
               </Text>
             </Box>
-            <Text color={'light.white1'} fontSize={34} letterSpacing={1.7} fontFamily={'body'} fontWeight={200}>
+            <Text
+              color={'light.white1'}
+              fontSize={34}
+              letterSpacing={1.7}
+              fontFamily={'body'}
+              fontWeight={200}
+            >
               <Box marginBottom={2} marginX={1}>
                 <Btc />
               </Box>
@@ -158,7 +172,8 @@ const VaultTab = ({ animate }) => {
               fontSize={14}
               fontFamily={'body'}
               fontWeight={'200'}
-              paddingTop={5}>
+              paddingTop={5}
+            >
               {'My Signers'}
             </Text>
             <Text
@@ -181,7 +196,7 @@ const VaultTab = ({ animate }) => {
             showsHorizontalScrollIndicator={false}
           />
           <Box flexDirection={'row'} marginY={3} justifyContent={'space-between'}>
-            <Box >
+            <Box>
               <Text
                 color={'light.lightBlack'}
                 letterSpacing={1.12}

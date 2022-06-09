@@ -1,6 +1,6 @@
 import { Animated, Dimensions, Easing, View } from 'react-native';
 import { Box, Pressable, Text } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -25,14 +25,17 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import UaiDisplay from './UaiDisplay';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 
 const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
-
+  // const { isKeyAvailable } = useContext(RealmWrapperContext);
   const { uaiStack } = useUaiStack();
+
+  // console.log('from provider', isKeyAvailable);
 
   const addtoDb = () => {
     dispatch(

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import React, { useEffect, useState, useContext } from 'react';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 
-const { useQuery } = RealmContext;
-
 export const useUaiStack = () => {
+  const { useQuery } = useContext(RealmWrapperContext);
   const [uaiStack, setuaiStack] = useState([]);
   const UAIcollection = useQuery(RealmSchema.UAI);
 
