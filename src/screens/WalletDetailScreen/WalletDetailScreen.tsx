@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import { Box, Text, Pressable } from 'native-base';
 import {
@@ -23,6 +23,8 @@ import {
 import BaseCardWallet from 'src/assets/images/basecard_wallet.png';
 import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   return (
@@ -84,6 +86,11 @@ const WalletDetailScreen = ({ route }) => {
   const { walletName, walletDescription } = wallet.presentationData;
   const { balances, transactions } = wallet.specs;
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(refreshWallets([wallet], {}));
+  }, []);
 
   return (
     <Box>

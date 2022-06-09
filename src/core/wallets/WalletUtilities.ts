@@ -861,11 +861,10 @@ export default class WalletUtilities {
         };
       }
 
-      if (usedFallBack)
-        // Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
-        return {
-          synchedWallets,
-        };
+      // if (usedFallBack) Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
+      return {
+        synchedWallets,
+      };
     } catch (err) {
       console.log({
         err,
