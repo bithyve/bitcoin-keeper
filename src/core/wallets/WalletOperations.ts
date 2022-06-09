@@ -565,9 +565,9 @@ export default class WalletOperations {
           );
 
         if (consumedUTXO.address === address) {
-          if (!activeExternalAddresses[address]) activeExternalAddresses[address] = itr;
           // include out of bound ext address
-          else activeExternalAddresses[address] = activeExternalAddresses[address];
+          if (activeExternalAddresses[address] === undefined)
+            activeExternalAddresses[address] = itr;
           found = true;
           break;
         }
@@ -599,9 +599,9 @@ export default class WalletOperations {
             );
 
           if (consumedUTXO.address === address) {
-            if (!activeInternalAddresses[address]) activeInternalAddresses[address] = itr;
             // include out of bound(soft-refresh range) int address
-            else activeInternalAddresses[address] = activeInternalAddresses[address];
+            if (activeInternalAddresses[address] === undefined)
+              activeInternalAddresses[address] = itr;
             found = true;
             break;
           }
