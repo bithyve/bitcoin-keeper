@@ -3,7 +3,7 @@ import React from 'react';
 import CharButton from './CharButton';
 import DeleteIcon from 'src/assets/icons/delete.svg';
 
-const AppNumPad = ({ ok, clear, setValue, disable = false }) => {
+const AppNumPad = ({ ok, clear, setValue, disable = false, color = '#FDF7F0' }) => {
   const numPadArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'ok', 0, 'clear'];
 
   const onCharInput = (char) => {
@@ -22,11 +22,11 @@ const AppNumPad = ({ ok, clear, setValue, disable = false }) => {
     <View style={styles.numPadContainer}>
       {numPadArr.map((char) => {
         if ((char === 'ok') & ok) {
-          return <CharButton key={char} char={'Need Help'} />;
+          return <CharButton key={char} char={'Need Help'} color={color} />;
         } else if (char === 'clear' && clear) {
-          return <CharButton Icon={<DeleteIcon />} pressHandler={onClear} key={char} />;
+          return <CharButton Icon={<DeleteIcon />} pressHandler={onClear} key={char} color={color} />;
         } else if (typeof char === 'number') {
-          return <CharButton char={char} pressHandler={onCharInput} key={char} />;
+          return <CharButton char={char} pressHandler={onCharInput} key={char} color={color} />;
         } else return <CharButton char={' '} key={char} />;
       })}
     </View>
