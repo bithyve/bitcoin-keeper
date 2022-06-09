@@ -2,7 +2,7 @@
 name: Bug report
 about: 'Report a bug '
 title: ''
-labels: bug
+labels: "Status: to-do \U0001F4CB, Type: bug\U0001F41B"
 assignees: ''
 
 ---
