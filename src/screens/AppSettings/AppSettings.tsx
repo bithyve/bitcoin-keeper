@@ -70,7 +70,7 @@ const AppSettings = ({ navigation }) => {
         </TouchableOpacity>
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-        <Box w={'60%'}>
+        <Box w={'57%'}>
           <Text fontSize={RFValue(20)}>Settings</Text>
           <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
         </Box>

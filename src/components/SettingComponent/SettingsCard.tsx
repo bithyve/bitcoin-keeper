@@ -20,7 +20,7 @@ const SettingsCard = (props) => {
           <Text color={'#041513'} fontWeight={'bold'} fontSize={14}>
             {props.title}
           </Text>
-          <Text color={'#4F5955'} fontFamily={'body'} fontSize={11}>
+          <Text color={'#4F5955'} fontFamily={'body'} fontSize={12}>
             {props.description}
           </Text>
         </Box>

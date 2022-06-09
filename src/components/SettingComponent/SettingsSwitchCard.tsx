@@ -16,10 +16,10 @@ const SettingsSwitchCard = (props) => {
       {...props}
     >
       <Box flex={0.8}>
-        <Text color={`${colorMode}.gray1`} fontFamily={'body'} fontWeight={'bold'} fontSize={13}>
+        <Text color={'light.lightBlack'} fontFamily={'body'} fontWeight={'bold'} fontSize={14}>
           {props.title}
         </Text>
-        <Text color={`${colorMode}.gray2`} fontFamily={'body'} fontSize={11}>
+        <Text color={'light.GreyText'} fontFamily={'body'} fontSize={12}>
           {props.description}
         </Text>
       </Box>
