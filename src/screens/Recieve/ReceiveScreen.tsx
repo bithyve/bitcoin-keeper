@@ -25,17 +25,24 @@ import WalletUtilities from 'src/core/wallets/WalletUtilities';
 
 const ReceiveScreen = ({ route }) => {
   const navigtaion = useNavigation();
-  const wallet: Wallet = route.params.wallet;
+  const dispatch = useDispatch();
+
+  const wallet: Wallet = route?.params?.wallet;
+  const amt = route?.params?.amount;
+
   const [receivingAddress, setReceivingAddress] = useState(null);
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(amt ? amt : '');
   const [paymentURI, setPaymentURI] = useState(null);
 
-  const dispatch = useDispatch();
 
   useEffect(() => {
     // const receivingAddress = getNextFreeAddress(dispatch, wallet);
     setReceivingAddress(wallet.specs.receivingAddress);
   }, []);
+
+  useEffect(() => {
+    setAmount(amt ? amt : '');
+  }, [amt]);
 
   useEffect(() => {
     if (amount) {
@@ -92,42 +99,44 @@ const ReceiveScreen = ({ route }) => {
         </TouchableOpacity>
       </Box>
       {/* {Add amount component} */}
-      <Box
-        flexDirection={'row'}
-        height={70}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        paddingX={3}
-        marginX={3}
-        marginTop={'7%'}
-        backgroundColor={'light.lightYellow'}
-      >
-        <Box flexDirection={'row'}>
-          <BtcGreen />
-          <Box flexDirection={'column'} marginLeft={5}>
-            <Text
-              color={'light.lightBlack'}
-              fontWeight={200}
-              fontFamily={'body'}
-              fontSize={14}
-              letterSpacing={1.12}
-            >
-              Add amount
-            </Text>
-            <Text
-              color={'light.GreyText'}
-              fontWeight={200}
-              fontFamily={'body'}
-              fontSize={12}
-              letterSpacing={0.6}
-            >
-              Lorem ipsum dolor sit amet, con
-            </Text>
+      <TouchableOpacity activeOpacity={0.5} onPress={() => { navigtaion.navigate('AddAmount', { wallet }) }}>
+        <Box
+          flexDirection={'row'}
+          height={70}
+          borderRadius={10}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          paddingX={3}
+          marginX={3}
+          marginTop={'7%'}
+          backgroundColor={'light.lightYellow'}
+        >
+          <Box flexDirection={'row'}>
+            <BtcGreen />
+            <Box flexDirection={'column'} marginLeft={5}>
+              <Text
+                color={'light.lightBlack'}
+                fontWeight={200}
+                fontFamily={'body'}
+                fontSize={14}
+                letterSpacing={1.12}
+              >
+                Add amount
+              </Text>
+              <Text
+                color={'light.GreyText'}
+                fontWeight={200}
+                fontFamily={'body'}
+                fontSize={12}
+                letterSpacing={0.6}
+              >
+                Lorem ipsum dolor sit amet, con
+              </Text>
+            </Box>
           </Box>
+          <ArrowIcon />
         </Box>
-        <ArrowIcon />
-      </Box>
+      </TouchableOpacity>
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={10} marginX={5}>
         <InfoBox

@@ -20,6 +20,7 @@ import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import Login from '../screens/LoginScreen/Login';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
+import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 
 import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
@@ -55,6 +56,7 @@ const Navigator = () => {
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
+        <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>

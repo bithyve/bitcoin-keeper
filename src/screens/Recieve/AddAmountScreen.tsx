@@ -11,14 +11,15 @@ import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg'
 
-const AddAmountScreen = () => {
+const AddAmountScreen = ({ route }) => {
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
-
+  const wallet: Wallet = route?.params?.wallet;
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -59,7 +60,7 @@ const AddAmountScreen = () => {
             secondaryText={'Cancle'}
             secondaryCallback={() => { console.log('Cancle') }}
             primaryText={'Add'}
-            primaryCallback={() => { console.log('Add') }}
+            primaryCallback={() => { navigtaion.navigate('Receive', { amount, wallet }) }}
           />
         </View>
 
