@@ -30,8 +30,6 @@ export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA';
 export const UPDATE_WALLET_SETTINGS = 'UPDATE_WALLET_SETTINGS';
 export const RECOMPUTE_NET_BALANCE = 'RECOMPUTE_NET_BALANCE';
 export const REFRESH_WALLETS = 'REFRESH_WALLETS';
-export const WALLETS_REFRESH_STARTED = 'WALLETS_REFRESH_STARTED';
-export const WALLETS_REFRESH_COMPLETED = 'WALLETS_REFRESH_COMPLETED';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
@@ -197,7 +195,7 @@ export const recomputeNetBalance = (wallets: (Wallet | MultiSigWallet | Donation
 
 export const refreshWallets = (
   wallets: (Wallet | MultiSigWallet | DonationWallet)[],
-  options: { hardRefresh?: boolean; syncDonationWallet?: boolean }
+  options: { hardRefresh?: boolean }
 ) => {
   return {
     type: REFRESH_WALLETS,
@@ -205,20 +203,6 @@ export const refreshWallets = (
       wallets,
       options,
     },
-  };
-};
-
-export const walletsRefreshStarted = (payload: (Wallet | MultiSigWallet | DonationWallet)[]) => {
-  return {
-    type: WALLETS_REFRESH_STARTED,
-    payload,
-  };
-};
-
-export const walletsRefreshCompleted = (payload: (Wallet | MultiSigWallet | DonationWallet)[]) => {
-  return {
-    type: WALLETS_REFRESH_COMPLETED,
-    payload,
   };
 };
 
