@@ -333,8 +333,8 @@ PODS:
   - React-jsinspector (0.67.4)
   - React-logger (0.67.4):
     - glog
-  - react-native-biometrics (2.1.4):
-    - React
+  - react-native-biometrics (2.2.0):
+    - React-Core
   - react-native-camera (4.2.1):
     - React-Core
     - react-native-camera/RCT (= 4.2.1)
@@ -748,7 +748,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: cbdf37cebdc4f5d8b3d0bf5ccaa6147fd9de9f3d
   React-jsinspector: f4775ea9118cbe1f72b834f0f842baa7a99508d8
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
-  react-native-biometrics: 9d3306e5d29c3bc4e6a3c912d759a94e76a2f683
+  react-native-biometrics: 3b95f2eb074d537d3a8b05d853c17778f6685c4a
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
   react-native-flipper: 1b78844db5b0de19bd64847c3b88cafc6cc119ba
@@ -787,4 +787,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: ee40ab551ae3643a47981a5d7195539475569325
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3

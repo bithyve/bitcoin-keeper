@@ -20,7 +20,7 @@ import {
 import dbManager from '../../storage/realm/dbManager';
 import * as Cipher from '../../common/encryption';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { setPinResetCreds, resetPinFailAttempts } from '../reducers/storage';
+import { setPinResetCreds, resetPinFailAttempts, setPinHash } from '../reducers/storage';
 import { setupKeeperApp } from '../sagaActions/storage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -42,6 +42,7 @@ function* credentialsStorageWorker({ payload }) {
 
     // setup the application
     yield put(setupKeeperApp());
+    yield put(setPinHash(hash));
 
     yield put(setCredStored());
   } catch (error) {
@@ -64,6 +65,7 @@ function* credentialsAuthWorker({ payload }) {
       const uint8array = yield call(Cipher.stringToArrayBuffer, key);
       yield call(dbManager.initializeRealm, uint8array);
       yield call(generateSeedHash);
+      yield put(setPinHash(hash));
     } else if (method === LoginMethod.BIOMETRIC) {
       const appId = yield select((state: RootState) => state.storage.appId);
       const { encryptedKey, hash, success } = yield call(
@@ -76,6 +78,7 @@ function* credentialsAuthWorker({ payload }) {
         const uint8array = yield call(Cipher.stringToArrayBuffer, key);
         yield call(dbManager.initializeRealm, uint8array);
         yield call(generateSeedHash);
+        yield put(setPinHash(hash));
       } else {
         put(credsAuthenticated(false));
       }
@@ -116,16 +119,20 @@ function* changeAuthCredWorker({ payload }) {
 function* resetPinWorker({ payload }) {
   const { newPasscode } = payload;
   try {
-    const key = yield select((state: RootState) => state.storage.key);
+    const hash = yield select((state: RootState) => state.storage.pinHash);
+    const encryptedKey = yield call(SecureStore.fetch, hash);
+    const key = yield call(Cipher.decrypt, encryptedKey, hash);
+
     // setup new pin
     const newHash = yield call(Cipher.hash, newPasscode);
-    const encryptedKey = yield call(Cipher.encrypt, key, newHash);
+    const newencryptedKey = yield call(Cipher.encrypt, key, newHash);
 
     //store the AES key against the hash
-    if (!(yield call(SecureStore.store, newHash, encryptedKey))) {
+    if (!(yield call(SecureStore.store, newHash, newencryptedKey))) {
       throw new Error('Unable to access secure store');
     }
     yield put(credsChanged('changed'));
+    yield put(setPinHash(newHash));
   } catch (err) {
     console.log({
       err,

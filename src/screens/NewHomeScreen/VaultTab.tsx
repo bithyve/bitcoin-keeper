@@ -1,23 +1,23 @@
-import React, { useContext, useState } from 'react';
-import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
-import { Box, Text, VStack, ScrollView } from 'native-base';
+import { Box, ScrollView, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
+import React, { useState, useContext } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 
-import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Btc from 'src/assets/images/svgs/btcIcon.svg';
+import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import DevicesComponent from './DevicesComponent';
+import Heading from './Heading';
 import KeeperModal from 'src/components/KeeperModal';
 import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
-import Heading from './Heading';
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +28,7 @@ const VaultTab = ({ animate }) => {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const Signers = useQuery(RealmSchema.VaultSigner);
+
   const Slider = () => {
     return (
       <TouchableOpacity onPress={animate} style={styles.slider}>
@@ -95,7 +96,7 @@ const VaultTab = ({ animate }) => {
   };
 
   const VaultState = () => {
-    return false ? (
+    return !Signers.length ? (
       <>
         <SetupState />
         <KeeperModal

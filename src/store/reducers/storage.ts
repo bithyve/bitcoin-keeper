@@ -8,7 +8,7 @@ const initialState: {
   };
   failedAttempts: number;
   lastLoginFailedAt: number;
-  key: string;
+  pinHash: string;
 } = {
   appId: '',
   resetCred: {
@@ -17,6 +17,7 @@ const initialState: {
   },
   failedAttempts: 0,
   lastLoginFailedAt: null,
+  pinHash: '',
 };
 
 const storageSlice = createSlice({
@@ -40,10 +41,18 @@ const storageSlice = createSlice({
       state.failedAttempts = 0;
       state.lastLoginFailedAt = null;
     },
+    setPinHash: (state, action: PayloadAction<string>) => {
+      state.pinHash = action.payload;
+    },
   },
 });
 
-export const { setAppId, increasePinFailAttempts, setPinResetCreds, resetPinFailAttempts } =
-  storageSlice.actions;
+export const {
+  setAppId,
+  increasePinFailAttempts,
+  setPinResetCreds,
+  resetPinFailAttempts,
+  setPinHash,
+} = storageSlice.actions;
 
 export default storageSlice.reducer;
