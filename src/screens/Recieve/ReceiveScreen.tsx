@@ -4,24 +4,23 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { Image } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import InfoBox from '../../components/InfoBox';
+
+import WalletUtilities from 'src/core/wallets/WalletUtilities';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { getNextFreeAddress } from 'src/store/sagas/wallets';
+import Colors from 'src/theme/Colors';
+
 import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
-
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
-
-import Colors from 'src/theme/Colors';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import InfoBox from '../../components/InfoBox';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
-import { getNextFreeAddress } from 'src/store/sagas/wallets';
-import { useDispatch } from 'react-redux';
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
 
 const ReceiveScreen = ({ route }) => {
   const navigtaion = useNavigation();
@@ -36,8 +35,8 @@ const ReceiveScreen = ({ route }) => {
 
 
   useEffect(() => {
-    // const receivingAddress = getNextFreeAddress(dispatch, wallet);
-    setReceivingAddress(wallet.specs.receivingAddress);
+    const receivingAddress = getNextFreeAddress(wallet);
+    setReceivingAddress(receivingAddress);
   }, []);
 
   useEffect(() => {
