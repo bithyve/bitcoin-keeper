@@ -120,18 +120,10 @@ export interface ActiveAddressAssignee {
 
 export interface ActiveAddresses {
   external: {
-    [address: string]: {
-      index: number;
-      // assignee: ActiveAddressAssignee; // incompatible w/ realm(collection inside mixed object)
-      assignee?: string;
-    };
+    [address: string]: number; // active address to index mapping
   };
   internal: {
-    [address: string]: {
-      index: number;
-      // assignee: ActiveAddressAssignee;
-      assignee?: string;
-    };
+    [address: string]: number; // active address to index mapping
   };
 }
 

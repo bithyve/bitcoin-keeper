@@ -836,8 +836,10 @@ export default class WalletUtilities {
             }
 
             addresses.forEach((address) => {
-              if (activeAddresses.external[address]) delete activeAddresses.external[address];
-              else if (activeAddresses.internal[address]) delete activeAddresses.internal[address];
+              if (activeAddresses.external[address] !== undefined)
+                delete activeAddresses.external[address];
+              else if (activeAddresses.internal[address] !== undefined)
+                delete activeAddresses.internal[address];
             });
           }
         });
