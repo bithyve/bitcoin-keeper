@@ -9,27 +9,28 @@ import {
 import Basic from 'src/assets/images/svgs/basic.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
+
+// components
+import WalletTab from './WalletTab';
+import VaultTab from './VaultTab';
+
+// icons and images
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import Vaults from './Vaults';
 // components
-import Wallets from './Wallets';
-import { addToUaiStack } from 'src/store/actions/uai';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
 // icons and images
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import UaiDisplay from './UaiDisplay';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
 
 const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
   const dispatch = useDispatch();
-  // const { useQuery } = RealmContext;
-  // const [app] = useQuery(RealmSchema.KeeperApp);
 
   const { uaiStack } = useUaiStack();
 
@@ -64,14 +65,14 @@ const NewHomeScreen = ({ navigation }) => {
   };
 
   const moveLeft = () => {
-    Animated.timing(vaultPosition, {
+    Animated.timing(walletPosition, {
       toValue: -width,
       duration: 800,
       easing: Easing.sin,
       useNativeDriver: false,
     }).start();
 
-    Animated.timing(walletPosition, {
+    Animated.timing(vaultPosition, {
       toValue: -width,
       duration: 800,
       easing: Easing.sin,
@@ -80,14 +81,14 @@ const NewHomeScreen = ({ navigation }) => {
   };
 
   const moveRight = () => {
-    Animated.timing(vaultPosition, {
+    Animated.timing(walletPosition, {
       toValue: 0,
       duration: 800,
       easing: Easing.sin,
       useNativeDriver: false,
     }).start();
 
-    Animated.timing(walletPosition, {
+    Animated.timing(vaultPosition, {
       toValue: 0,
       duration: 800,
       easing: Easing.sin,
@@ -112,11 +113,11 @@ const NewHomeScreen = ({ navigation }) => {
         </Pressable>
       </Box>
       <View style={{ flexDirection: 'row', width: '100%' }}>
-        <Animated.View style={{ left: vaultPosition, width: '100%' }}>
-          <Vaults animate={moveLeft} />
-        </Animated.View>
         <Animated.View style={{ left: walletPosition, width: '100%' }}>
-          <Wallets animate={moveRight} />
+          <WalletTab animate={moveLeft} />
+        </Animated.View>
+        <Animated.View style={{ left: vaultPosition, width: '100%' }}>
+          <VaultTab animate={moveRight} />
         </Animated.View>
       </View>
     </Box>
@@ -130,7 +131,7 @@ const styles = ScaledSheet.create({
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: '10%',
+    paddingTop: hp(windowHeight * 0.009),
     paddingHorizontal: wp(10),
   },
   button: {

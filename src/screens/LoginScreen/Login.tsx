@@ -7,8 +7,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import { credsAuth } from '../../store/actions/login';
-import { useDispatch, useSelector } from 'react-redux';
+import { credsAuth } from '../../store/sagaActions/login';
+import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -16,38 +16,94 @@ import FogotPassword from './components/FogotPassword';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-const CreatePin = ({ navigation }: any) => {
-  const dispatch = useDispatch();
+const TIMEOUT = 60
+
+const CreatePin = ({ navigation }) => {
+  const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
-  const [isDisabledProceed, setIsDisabledProceed] = useState(false);
   const [forgotVisible, setForgotVisible] = useState(false);
-  const loginMethod = useSelector((state) => state.settings.loginMethod);
-  const appId = useSelector((state) => state.storage.appId);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
-  const { isAuthenticated, authenticationFailed, canLogin, failedLogin } = useSelector(
+  // const [timeout, setTimeout] = useState(0)
+  const [canLogin, setCanLogin] = useState(false)
+  const { isAuthenticated, authenticationFailed } = useAppSelector(
     (state) => state.login
   );
 
   useEffect(() => {
+    if (failedAttempts >= 1) {
+      const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
+      const waitingTime = TIMEOUT * failedAttempts;
+      if (retryTime > waitingTime) {
+        setCanLogin(true)
+        return
+      } else {
+        setTimeout(() => {
+          setLoginError(true)
+          setErrMessage(`Please try after sometime`)
+          setCanLogin(false)
+        }, 100);
+        return
+        // if (!timer) {
+        //   setTimeout(waitingTime - retryTime)
+        //   setCanLogin(false)
+        //   return
+        // } else if (timeout !== 0) {
+        //   setCanLogin(false)
+        //   return
+        // }
+      }
+    }
+    setCanLogin(true)
+  }, [failedAttempts, lastLoginFailedAt])
+
+  // useEffect(() => {
+  //   if (timeout) {
+  //     const interval = setInterval(() => {
+  //       const timeLeft = timeout - 1
+  //       setTimeout(timeout - 1)
+  //       if (timeLeft <= 0) {
+  //         setLoginError(false)
+  //         setErrMessage('')
+  //         setTimer(null)
+  //       } else {
+  //         setLoginError(true)
+  //         setErrMessage(`Please try after ${Number(timeout - 1)} secs`)
+  //       }
+  //     }, 1000);
+  //     setTimer(interval)
+  //     return () => {
+  //       clearInterval(interval);
+  //     }
+  //   }
+  // }, [timeout]);
+
+  useEffect(() => {
     biometricAuth();
-  }, []);
+  }, [canLogin]);
 
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
-        const { success, signature } = await ReactNativeBiometrics.createSignature({
-          promptMessage: 'Authenticate',
-          payload: appId,
-          cancelButtonText: 'Use PIN',
-        });
-        if (success) {
-          dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
-        }
+        setTimeout(async () => {
+          if (canLogin) {
+            const { success, signature } = await ReactNativeBiometrics.createSignature({
+              promptMessage: 'Authenticate',
+              payload: appId,
+              cancelButtonText: 'Use PIN',
+            });
+            if (success) {
+              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+            }
+          }
+        }, 200);
       } catch (error) {
         //
         console.log(error);
@@ -55,7 +111,7 @@ const CreatePin = ({ navigation }: any) => {
     }
   };
 
-  const onPressNumber = (text: any) => {
+  const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
       if (text != 'x') {
@@ -68,6 +124,13 @@ const CreatePin = ({ navigation }: any) => {
       setLoginError(false);
     }
   };
+
+  useEffect(() => {
+    if (attempts >= 3) {
+      setAttempts(1)
+      dispatch(increasePinFailAttempts())
+    }
+  }, [attempts])
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -89,6 +152,13 @@ const CreatePin = ({ navigation }: any) => {
   const attemptLogin = (passcode: string) => {
     dispatch(credsAuth(passcode, LoginMethod.PIN));
   };
+
+  const onPinChange = () => {
+    setLoginError(false);
+    setErrMessage('');
+    setAttempts(0)
+    dispatch(resetPinFailAttempts())
+  }
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -123,54 +193,66 @@ const CreatePin = ({ navigation }: any) => {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      style={[
-                        passcode.length == 0 && passcodeFlag == true
-                          ? styles.textFocused
-                          : styles.textStyles,
-                      ]}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
                         <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 1 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 1 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 2 ? (
                         <DotView />
                       ) : passcode.length == 1 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 2 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 2 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 3 ? (
                         <DotView />
                       ) : passcode.length == 2 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
-                  <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text style={[passcode.length == 3 ? styles.textFocused : styles.textStyles]}>
+                  <Box
+                    style={[
+                      passcode.length == 3 && passcodeFlag == true
+                        ? styles.textBoxActive
+                        : styles.textBoxStyles,
+                    ]}
+                  >
+                    <Box>
                       {passcode.length >= 4 ? (
                         <DotView />
                       ) : passcode.length == 3 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -193,10 +275,7 @@ const CreatePin = ({ navigation }: any) => {
                   <CustomButton
                     onPress={() => {
                       setLoginError(false);
-                      setTimeout(() => {
-                        setIsDisabledProceed(true);
-                        setElevation(0);
-                      }, 2);
+                      setElevation(0);
                       attemptLogin(passcode);
                     }}
                     value={'Proceed'}
@@ -223,7 +302,7 @@ const CreatePin = ({ navigation }: any) => {
             </TouchableOpacity>
           )}
           {/* keyboardview start */}
-          <KeyPadView onPressNumber={onPressNumber} />
+          <KeyPadView disabled={!canLogin} onPressNumber={onPressNumber} />
         </Box>
         {/* forgot modal */}
         <ModalContainer
@@ -233,10 +312,16 @@ const CreatePin = ({ navigation }: any) => {
           }}
         >
           <FogotPassword
+            type="seed"
             closeBottomSheet={() => {
               setForgotVisible(false);
             }}
-            onNavigate={() => navigation.navigate('ResetPin')}
+            onVerify={() => {
+              setForgotVisible(false);
+              navigation.navigate('ResetPin', {
+                onPinChange,
+              })
+            }}
           />
         </ModalContainer>
       </Box>

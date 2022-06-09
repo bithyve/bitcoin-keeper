@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Note from 'src/components/Note/Note';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { useDispatch, useSelector } from 'react-redux';
-import { changeLoginMethod } from '../../store/actions/login';
+import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [isBiometicSupported, setIsBiometicSupported] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const { loginMethod }: { loginMethod: LoginMethod } = useSelector((state) => state.settings);
-  const dispatch = useDispatch();
+  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     init();
@@ -55,6 +58,16 @@ const AppSettings = ({ navigation }) => {
     setDarkMode(!darkMode);
   };
 
+  const showSeed = () => {
+    try {
+      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0)
+      console.log()
+      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'))
+    } catch (error) {
+      //
+    }
+  }
+
   return (
     <SafeAreaView
       style={{
@@ -74,7 +87,7 @@ const AppSettings = ({ navigation }) => {
           <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
-          <Text>Switch</Text>
+          <CurrencyTypeSwitch />
         </Box>
       </Box>
       <Box flex={1}>
@@ -119,7 +132,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => console.log('pressed')}
+            onPress={() => navigation.navigate('ChangeLanguage')}
           />
           <SettingsCard
             title={'Keeper Community Telegram Group'}
@@ -129,6 +142,11 @@ const AppSettings = ({ navigation }) => {
             icon={true}
             onPress={() => console.log('pressed')}
           />
+          <Pressable onPress={() => showSeed()}>
+            <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              View Seed
+              </Text>
+          </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note

@@ -1,6 +1,6 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import LoginMethod from 'src/common/data/enums/LoginMethod'
 import ThemeMode from 'src/common/data/enums/ThemeMode'
-import { SET_LOGIN_METHOD } from '../actions/settings'
 
 const initialState: {
   loginMethod: LoginMethod,
@@ -10,14 +10,19 @@ const initialState: {
   themeMode: ThemeMode.LIGHT
 }
 
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case SET_LOGIN_METHOD:
-      return {
-        ...state,
-        loginMethod: action.payload.method,
-      }
+const settingsSlice = createSlice({
+  name: 'settings',
+  initialState,
+  reducers: {
+    setLoginMethod: (state, action: PayloadAction<LoginMethod>) => {
+      state.loginMethod = action.payload
+    },
+    setThemeMode: (state, action: PayloadAction<ThemeMode>) => {
+      state.themeMode = action.payload
+    }
   }
+})
 
-  return state
-}
+export const { setLoginMethod, setThemeMode } = settingsSlice.actions
+
+export default settingsSlice.reducer

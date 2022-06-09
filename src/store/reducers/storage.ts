@@ -1,19 +1,58 @@
-import { SET_APP_ID } from '../actions/storage'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: {
   appId: string;
+  resetCred: {
+    hash: string,
+    index: number
+  },
+  failedAttempts: number,
+  lastLoginFailedAt: number,
+  pinHash: string
 } = {
   appId: '',
+  resetCred: {
+    hash: '',
+    index: null
+  },
+  failedAttempts: 0,
+  lastLoginFailedAt: null,
+  pinHash: ''
 }
 
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case SET_APP_ID:
-      return {
-        ...state,
-        appId: action.payload.appId,
+const storageSlice = createSlice({
+  name: 'storage',
+  initialState,
+  reducers: {
+    setAppId: (state, action: PayloadAction<string>) => {
+      state.appId = action.payload
+    },
+    increasePinFailAttempts: (state) => {
+      state.failedAttempts = state.failedAttempts + 1
+      state.lastLoginFailedAt = Date.now()
+    },
+    setPinResetCreds: (state, action: PayloadAction<{ hash: string, index: number }>) => {
+      state.resetCred = {
+        hash: action.payload.hash,
+        index: action.payload.index
       }
+    },
+    resetPinFailAttempts: (state) => {
+      state.failedAttempts = 0
+      state.lastLoginFailedAt = null
+    },
+    setPinHash: (state, action: PayloadAction<string>) => {
+      state.pinHash = action.payload
+    }
   }
+})
 
-  return state
-}
+export const {
+  setAppId,
+  increasePinFailAttempts,
+  setPinResetCreds,
+  resetPinFailAttempts,
+  setPinHash
+} = storageSlice.actions
+
+export default storageSlice.reducer

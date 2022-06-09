@@ -8,6 +8,7 @@ const CustomGreenButton = (props) => {
     <TouchableHighlight
       style={styles.button}
       underlayColor={'none'}
+      disabled={props.disabled}
       onPress={() => {
         props.onPress();
       }}

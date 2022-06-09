@@ -13,7 +13,7 @@ import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/screens/AddWallet/AccordionsComponent';
-import { addNewWallets, importNewWallet } from 'src/store/actions/wallets';
+import { addNewWallets, importNewWallet } from 'src/store/sagaActions/wallets';
 import { newWalletsInfo } from 'src/store/sagas/wallets';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/screens/AddWallet/AddWalletSheet';

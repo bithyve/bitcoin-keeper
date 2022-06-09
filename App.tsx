@@ -1,6 +1,6 @@
 import { Platform, StatusBar, UIManager } from 'react-native';
-import React, { useEffect } from 'react';
-
+import React from 'react';
+import { PersistGate } from 'redux-persist/integration/react';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { LogBox } from 'react-native';
@@ -8,30 +8,16 @@ import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
 import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
-import makeStore from './src/store';
+import { store, persistor } from './src/store/store';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import { LocalizationProvider } from './src/common/content/LocContext'
-//https://github.com/software-mansion/react-native-gesture-handler/issues/1831
+
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
   /[Require cycle]*/,
   'Warning: ...', /.+/s
 ]);
 
-
-export default function AppWrapper() {
-  // Creates and holds an instance of the store so only children in the `Provider`'s
-  // context can have access to it.
-  const store = makeStore();
-
-  return (
-    <RealmProvider>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </RealmProvider>
-  );
-}
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -53,3 +39,16 @@ const App = () => {
     </GestureHandlerRootView>
   );
 };
+
+export default function AppWrapper() {
+
+  return (
+    <RealmProvider>
+      <PersistGate persistor={persistor} loading={null}>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </PersistGate>
+    </RealmProvider>
+  );
+}

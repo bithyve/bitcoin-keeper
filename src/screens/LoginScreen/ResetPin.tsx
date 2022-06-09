@@ -1,32 +1,30 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, TouchableOpacity, StatusBar, TouchableHighlight } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, StatusBar } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useDispatch, useSelector } from 'react-redux';
-// import { pinChangedFailed, storeCreds, switchCredsChanged } from '../../store/actions/setupAndAuth';
+import { resetPin } from '../../store/sagaActions/login';
 import LinearGradient from 'react-native-linear-gradient';
-// import { LocalizationContext } from '../../common/content/LocContext';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-export default function ResetPin(props: any) {
+export default function ResetPin(props) {
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
-
-  // const isPinChangedFailed = useSelector((state) => state.setupAndAuth.pinChangedFailed);
+  const isPinChangedFailed = useAppSelector((state) => state.login.pinChangedFailed);
+  const dispatch = useAppDispatch();
+  const { credsChanged } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-  // const { translations } = useContext(LocalizationContext);
-  // const strings = translations['login'];
-  // const common = translations['common'];
+  const oldPasscode = props.route.params.oldPin || ''
 
-  function onPressNumber(text: any) {
+  function onPressNumber(text) {
     let tmpPasscode = passcode;
     let tmpConfirmPasscode = confirmPasscode;
     if (passcodeFlag) {
@@ -85,32 +83,22 @@ export default function ResetPin(props: any) {
     }
   }, [passcode, confirmPasscode]);
 
-  const dispatch = useDispatch();
-  // const { credsChanged } = useSelector((state) => state.setupAndAuth);
+  useEffect(() => {
+    if (credsChanged == 'changed') {
+      setIsDisabled(false);
+      if (oldPasscode === '') {
+        if (props.route.params.onPinChange) {
+          props.route.params.onPinChange()
+        }
+        props.navigation.goBack();
+      }
+    }
+  }, [credsChanged]);
 
-  // useEffect(() => {
-  //   if (credsChanged == 'changed') {
-  //     setIsDisabled(false);
-  //     if (oldPasscode === '') {
-  //       dispatch(switchCredsChanged());
-  //       props.navigation.goBack();
-  //       if (props.navigation.state.params.onPasscodeReset) {
-  //         props.navigation.state.params.onPasscodeReset();
-  //       }
-  //     } else {
-  //       props.navigation.navigate('PasscodeChangeSuccessPage');
-  //     }
-  //   }
-  // }, [credsChanged]);
-
-  // if (isPinChangedFailed) {
-  //   setTimeout(() => {
-  //     setErrorMessageHeader('Passcode change error');
-  //     setErrorMessage('There was some error while changing the Passcode, please try again');
-  //   }, 2);
-  //   (ErrorBottomSheet as any).current.snapTo(1);
-  //   dispatch(pinChangedFailed(null));
-  // }
+  useEffect(() => {
+    if (isPinChangedFailed) {
+    }
+  }, [isPinChangedFailed])
 
   useEffect(() => {
     if (passcode == confirmPasscode) {
@@ -145,12 +133,7 @@ export default function ResetPin(props: any) {
                         : styles.textBoxStyles,
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 1 ? (
                         <DotView />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
@@ -158,17 +141,12 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 2 ? (
                         <DotView />
                       ) : passcode.length == 1 ? (
@@ -176,17 +154,12 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 3 ? (
                         <DotView />
                       ) : passcode.length == 2 ? (
@@ -194,17 +167,12 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {passcode.length >= 4 ? (
                         <DotView />
                       ) : passcode.length == 3 ? (
@@ -212,9 +180,9 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -230,21 +198,11 @@ export default function ResetPin(props: any) {
                       confirmPasscode.length == 0
                         ? styles.textBoxActive
                         : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                          ...styles.textBoxStyles,
+                        },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 1 ? (
                         <DotView />
                       ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
@@ -252,30 +210,20 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                   <Box
                     style={[
                       confirmPasscode.length == 1
                         ? styles.textBoxActive
                         : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                          ...styles.textBoxStyles,
+                        },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 2 ? (
                         <DotView />
                       ) : confirmPasscode.length == 1 ? (
@@ -283,30 +231,20 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                   <Box
                     style={[
                       confirmPasscode.length == 2
                         ? styles.textBoxActive
                         : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                          ...styles.textBoxStyles,
+                        },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 3 ? (
                         <DotView />
                       ) : confirmPasscode.length == 2 ? (
@@ -314,30 +252,20 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                   <Box
                     style={[
                       confirmPasscode.length == 3
                         ? styles.textBoxActive
                         : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                          ...styles.textBoxStyles,
+                        },
                     ]}
                   >
-                    <Text
-                      color={'#000'}
-                      fontSize={RFValue(13)}
-                      textAlign={'center'}
-                      lineHeight={18}
-                    >
+                    <Box>
                       {confirmPasscode.length >= 4 ? (
                         <DotView />
                       ) : confirmPasscode.length == 3 ? (
@@ -345,9 +273,9 @@ export default function ResetPin(props: any) {
                           {'|'}
                         </Text>
                       ) : (
-                        ''
-                      )}
-                    </Text>
+                            ''
+                          )}
+                    </Box>
                   </Box>
                 </Box>
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
@@ -366,11 +294,7 @@ export default function ResetPin(props: any) {
               <Box alignSelf={'flex-end'} mr={5}>
                 <CustomButton
                   onPress={() => {
-                    // dispatch(storeCreds(passcode));
-                    setTimeout(() => {
-                      setIsDisabled(true);
-                    }, 2);
-                    props.navigation.replace('Login');
+                    dispatch(resetPin(passcode));
                   }}
                   value={'Proceed'}
                 />

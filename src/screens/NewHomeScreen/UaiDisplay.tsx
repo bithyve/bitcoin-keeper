@@ -8,7 +8,7 @@ import {
 } from 'react-native-responsive-screen';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useDispatch } from 'react-redux';
-import { updateUaiStack } from 'src/store/actions/uai';
+import { updateUaiStack } from 'src/store/sagaActions/uai';
 import { Modal } from 'native-base';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 
