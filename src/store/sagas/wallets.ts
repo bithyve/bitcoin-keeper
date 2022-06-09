@@ -22,9 +22,6 @@ import {
   walletSettingsUpdateFailed,
   setResetTwoFALoader,
   recomputeNetBalance,
-  updateGift,
-  GENERATE_GIFTS,
-  giftCreationSuccess,
   IMPORT_NEW_WALLET,
   refreshWallets,
   REFRESH_WALLETS,
@@ -68,51 +65,27 @@ export interface newWalletsInfo {
   walletDetails?: newWalletDetails;
 }
 
-export function getNextFreeAddress(
-  dispatch: any,
-  wallet: Wallet | MultiSigWallet,
-  requester?: ActiveAddressAssignee
-) {
+export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
-
   if (!wallet.isUsable) return '';
-  if (wallet.type === WalletType.DONATION) return wallet.specs.receivingAddress;
-
-  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(
-    wallet,
-    requester
-  );
-
-  // dispatch(
-  //   updateWallets({
-  //     wallets: [updatedWallet],
-  //   })
-  // );
-  // dbManager.updateWallet((updatedWallet as Wallet).id, updatedWallet);
-
+  // convert realm object(immutable out of realm.write transaction) to javascript object
+  wallet = (wallet as unknown as Realm.Object).toJSON();
+  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 
-export function* getNextFreeAddressWorker(
-  wallet: Wallet | MultiSigWallet,
-  requester?: ActiveAddressAssignee
-) {
+export function* getNextFreeAddressWorker(wallet: Wallet | MultiSigWallet) {
   // to be used by sagas(w/o dispatch)
-
   if (!wallet.isUsable) return '';
-  if (wallet.type === WalletType.DONATION) return wallet.specs.receivingAddress;
+  // convert realm object(immutable out of realm.write transaction) to javascript object
+  wallet = (wallet as unknown as Realm.Object).toJSON();
 
   const { updatedWallet, receivingAddress } = yield call(
     WalletOperations.getNextFreeExternalAddress,
-    wallet,
-    requester
+    wallet
   );
-  // yield put(
-  //   updateWallets({
-  //     wallets: [updatedWallet],
-  //   })
-  // );
-  // yield call( dbManager.updateWallet, ( updatedWallet as Wallet ).id, updatedWallet )
+  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 

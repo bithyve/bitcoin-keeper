@@ -20,7 +20,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoBox from '../../components/InfoBox';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { getNextFreeAddress } from 'src/store/sagas/wallets';
-import { useDispatch } from 'react-redux';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
 
 const ReceiveScreen = ({ route }) => {
@@ -30,11 +29,9 @@ const ReceiveScreen = ({ route }) => {
   const [amount, setAmount] = useState('');
   const [paymentURI, setPaymentURI] = useState(null);
 
-  const dispatch = useDispatch();
-
   useEffect(() => {
-    // const receivingAddress = getNextFreeAddress(dispatch, wallet);
-    setReceivingAddress(wallet.specs.receivingAddress);
+    const receivingAddress = getNextFreeAddress(wallet);
+    setReceivingAddress(receivingAddress);
   }, []);
 
   useEffect(() => {
