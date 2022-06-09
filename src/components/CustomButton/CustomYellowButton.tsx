@@ -3,7 +3,7 @@ import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
-const CustomButton = (props) => {
+const CustomYellowButton = (props) => {
   return (
     <TouchableHighlight
       style={styles.button}
@@ -28,10 +28,10 @@ const CustomButton = (props) => {
           x: 1,
           y: 0.0,
         }}
-        colors={['#00836A', '#FFFFFF']}
+        colors={['#E3BE96', '#E3BE96']}
         style={styles.linearGradient}
       >
-        <Text color={'#073E39'} fontSize={12} fontWeight={'bold'}>
+        <Text color={'#30292F'} fontSize={12} fontWeight={'bold'}>
           {props.value}
         </Text>
       </LinearGradient>
@@ -56,4 +56,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomButton;
+export default CustomYellowButton;

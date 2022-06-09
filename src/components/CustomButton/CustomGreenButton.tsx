@@ -47,26 +47,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnText: {
-    color: '#F4F4F4',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
   linearGradient: {
     width: 120,
     height: 50,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  shadowProp: {
-    shadowColor: '#073E3926',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
   },
 });
 
