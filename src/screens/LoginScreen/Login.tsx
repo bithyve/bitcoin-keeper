@@ -18,7 +18,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-const TIMEOUT = 60
+const TIMEOUT = 60;
 
 const CreatePin = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -32,25 +32,23 @@ const CreatePin = ({ navigation }) => {
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
-  const [canLogin, setCanLogin] = useState(false)
-  const { isAuthenticated, authenticationFailed } = useAppSelector(
-    (state) => state.login
-  );
+  const [canLogin, setCanLogin] = useState(false);
+  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
       const waitingTime = TIMEOUT * failedAttempts;
       if (retryTime > waitingTime) {
-        setCanLogin(true)
-        return
+        setCanLogin(true);
+        return;
       } else {
         setTimeout(() => {
-          setLoginError(true)
-          setErrMessage(`Please try after sometime`)
-          setCanLogin(false)
+          setLoginError(true);
+          setErrMessage(`Please try after sometime`);
+          setCanLogin(false);
         }, 100);
-        return
+        return;
         // if (!timer) {
         //   setTimeout(waitingTime - retryTime)
         //   setCanLogin(false)
@@ -61,8 +59,8 @@ const CreatePin = ({ navigation }) => {
         // }
       }
     }
-    setCanLogin(true)
-  }, [failedAttempts, lastLoginFailedAt])
+    setCanLogin(true);
+  }, [failedAttempts, lastLoginFailedAt]);
 
   // useEffect(() => {
   //   if (timeout) {
@@ -127,10 +125,10 @@ const CreatePin = ({ navigation }) => {
 
   useEffect(() => {
     if (attempts >= 3) {
-      setAttempts(1)
-      dispatch(increasePinFailAttempts())
+      setAttempts(1);
+      dispatch(increasePinFailAttempts());
     }
-  }, [attempts])
+  }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -156,9 +154,9 @@ const CreatePin = ({ navigation }) => {
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    setAttempts(0)
-    dispatch(resetPinFailAttempts())
-  }
+    setAttempts(0);
+    dispatch(resetPinFailAttempts());
+  };
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -195,12 +193,12 @@ const CreatePin = ({ navigation }) => {
                   >
                     <Box>
                       {passcode.length >= 1 ? (
-                        <DotView />
+                        <DotView height={3} width={3} />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
@@ -212,12 +210,12 @@ const CreatePin = ({ navigation }) => {
                   >
                     <Box>
                       {passcode.length >= 2 ? (
-                        <DotView />
+                        <DotView height={3} width={3} />
                       ) : passcode.length == 1 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
@@ -229,12 +227,12 @@ const CreatePin = ({ navigation }) => {
                   >
                     <Box>
                       {passcode.length >= 3 ? (
-                        <DotView />
+                        <DotView height={3} width={3} />
                       ) : passcode.length == 2 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
@@ -246,12 +244,12 @@ const CreatePin = ({ navigation }) => {
                   >
                     <Box>
                       {passcode.length >= 4 ? (
-                        <DotView />
+                        <DotView height={3} width={3} />
                       ) : passcode.length == 3 ? (
                         <Text style={styles.passcodeTextInputText}>{'|'}</Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -320,7 +318,7 @@ const CreatePin = ({ navigation }) => {
               setForgotVisible(false);
               navigation.navigate('ResetPin', {
                 onPinChange,
-              })
+              });
             }}
           />
         </ModalContainer>
