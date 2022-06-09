@@ -10,7 +10,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -129,6 +129,14 @@ const AppSettings = ({ navigation }) => {
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
             onPress={() => console.log('pressed')}
+          />
+          <SettingsCard
+            title={'Choose Plan'}
+            description={'Lorem ipsum dolor sit amet'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('ChoosePlan')}
           />
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>

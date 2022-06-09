@@ -5,7 +5,7 @@ const Note = (props) => {
   const { colorMode } = useColorMode();
 
   return (
-    <Box bg={`${colorMode}.offWhite`} mx={7} p={3}>
+    <Box bg={`${colorMode}.offWhite`} mx={5} p={3}>
       <Box opacity={1}>
         <Text fontSize={14} fontFamily={'body'} color={`${colorMode}.red1`}>
           {props.title}
