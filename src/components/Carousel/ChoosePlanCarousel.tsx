@@ -37,7 +37,7 @@ const ChoosePlanCarousel = () => {
     // carasualRef.snapCallback(index, planData);
     // carasualRef.onSnapToItem(index, planData);
   };
-  const _renderItem = (item) => {
+  const _renderItem = ({ item }) => {
     return (
       <LinearGradient
         colors={['#00836A', '#073E39']}
@@ -64,7 +64,7 @@ const ChoosePlanCarousel = () => {
             {item.subTitle}
           </Text>
           <Text fontSize={RFValue(24)} color={'light.textLight'}>
-            {'$'} {item.amount}
+            $ {item.amount}
           </Text>
           <Text fontSize={RFValue(10)} color={'light.textLight'}>
             / month
