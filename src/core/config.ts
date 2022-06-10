@@ -28,7 +28,7 @@ const DEFAULT_CONFIG = {
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
   AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   CIPHER_SPEC_ALGO: 'aes-192-cbc',
-  CIPHER_SPEC_SALT: 'test-salt',
+  CIPHER_SPEC_SALT: 'e44dac4a355',
 };
 
 class Configuration {
