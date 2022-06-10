@@ -163,7 +163,7 @@ const AddTapsigner = ({ navigation }) => {
       setStatus(tapsigner);
     } catch (e) {
       console.log(e);
-      setStatus({ error: JSON.stringify(e) });
+      setStatus(e);
     }
   };
 
@@ -187,6 +187,7 @@ const AddTapsigner = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text>{JSON.stringify(status)}</Text>
       <CardStatus status={status} checkStatus={checkStatus} />
       <Setup status={status} cvc={cvc} setCVC={setCVC} setup={setup} associate={associate} />
       <NfcPrompt visible={visible} />
