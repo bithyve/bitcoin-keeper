@@ -123,10 +123,10 @@ export default function CreatePin(props) {
         <Box flex={1}>
           <Box>
             <Box>
-              <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'#FFFFFF'}>
+              <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'light.white'}>
                 Welcome
               </Text>
-              <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5}>
+              <Text color={'light.white'} fontSize={RFValue(12)} ml={5}>
                 {'Enter New '}{' '}
                 <Text fontWeight={'bold'} fontStyle={'italic'}>
                   {'Passcode'}
@@ -146,7 +146,11 @@ export default function CreatePin(props) {
                       {passcode.length >= 1 ? (
                         <DotView height={3} width={3} />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                        <Text
+                          color={'light.greenText'}
+                          fontWeight={'bold'}
+                          fontSize={RFValue(13, 812)}
+                        >
                           {'|'}
                         </Text>
                       ) : (
@@ -159,7 +163,11 @@ export default function CreatePin(props) {
                       {passcode.length >= 2 ? (
                         <DotView height={3} width={3} />
                       ) : passcode.length == 1 ? (
-                        <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                        <Text
+                          color={'light.greenText'}
+                          fontWeight={'bold'}
+                          fontSize={RFValue(13, 812)}
+                        >
                           {'|'}
                         </Text>
                       ) : (
@@ -172,7 +180,11 @@ export default function CreatePin(props) {
                       {passcode.length >= 3 ? (
                         <DotView height={3} width={3} />
                       ) : passcode.length == 2 ? (
-                        <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                        <Text
+                          color={'light.greenText'}
+                          fontWeight={'bold'}
+                          fontSize={RFValue(13, 812)}
+                        >
                           {'|'}
                         </Text>
                       ) : (
@@ -185,7 +197,11 @@ export default function CreatePin(props) {
                       {passcode.length >= 4 ? (
                         <DotView height={3} width={3} />
                       ) : passcode.length == 3 ? (
-                        <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                        <Text
+                          color={'light.greenText'}
+                          fontWeight={'bold'}
+                          fontSize={RFValue(13, 812)}
+                        >
                           {'|'}
                         </Text>
                       ) : (
@@ -198,7 +214,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length == 4 ? (
               <Box>
-                <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5}>
+                <Text color={'light.white'} fontSize={RFValue(12)} ml={5}>
                   {'Re Enter'}{' '}
                   <Text fontWeight={'bold'} fontStyle={'italic'}>
                     {'Passcode'}
@@ -219,7 +235,11 @@ export default function CreatePin(props) {
                         {confirmPasscode.length >= 1 ? (
                           <DotView height={3} width={3} />
                         ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
-                          <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                          <Text
+                            color={'light.greenText'}
+                            fontWeight={'bold'}
+                            fontSize={RFValue(13, 812)}
+                          >
                             {'|'}
                           </Text>
                         ) : (
@@ -240,7 +260,11 @@ export default function CreatePin(props) {
                         {confirmPasscode.length >= 2 ? (
                           <DotView height={3} width={3} />
                         ) : confirmPasscode.length == 1 ? (
-                          <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                          <Text
+                            color={'light.greenText'}
+                            fontWeight={'bold'}
+                            fontSize={RFValue(13, 812)}
+                          >
                             {'|'}
                           </Text>
                         ) : (
@@ -266,7 +290,11 @@ export default function CreatePin(props) {
                         {confirmPasscode.length >= 3 ? (
                           <DotView height={3} width={3} />
                         ) : confirmPasscode.length == 2 ? (
-                          <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                          <Text
+                            color={'light.greenText'}
+                            fontWeight={'bold'}
+                            fontSize={RFValue(13, 812)}
+                          >
                             {'|'}
                           </Text>
                         ) : (
@@ -287,7 +315,11 @@ export default function CreatePin(props) {
                         {confirmPasscode.length >= 4 ? (
                           <DotView height={3} width={3} />
                         ) : confirmPasscode.length == 3 ? (
-                          <Text color={'#006CB4'} fontWeight={'bold'} fontSize={RFValue(13, 812)}>
+                          <Text
+                            color={'light.greenText'}
+                            fontWeight={'bold'}
+                            fontSize={RFValue(13, 812)}
+                          >
                             {'|'}
                           </Text>
                         ) : (
@@ -298,7 +330,7 @@ export default function CreatePin(props) {
                   </Box>
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                     <Text
-                      color={'white'}
+                      color={'light.white'}
                       fontSize={RFValue(13)}
                       fontWeight={'500'}
                       width={wp('72%')}
