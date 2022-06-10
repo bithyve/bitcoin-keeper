@@ -21,9 +21,9 @@ import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 
-const ReceiveScreen = ({ route }) => {
+const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const wallet: Wallet = route?.params?.wallet;
   const amt: string = route?.params?.amount;
