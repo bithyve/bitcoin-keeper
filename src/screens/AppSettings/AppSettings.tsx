@@ -82,7 +82,7 @@ const AppSettings = ({ navigation }) => {
         </TouchableOpacity>
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-        <Box w={'57%'}>
+        <Box w={'59%'}>
           <Text fontSize={RFValue(20)}>Settings</Text>
           <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
         </Box>
@@ -109,7 +109,6 @@ const AppSettings = ({ navigation }) => {
               value={loginMethod === LoginMethod.BIOMETRIC}
             />
           )}
-
           <SettingsSwitchCard
             title={'Dark Mode'}
             description={'Lorem ipsum dolor sit amet'}
@@ -171,26 +170,26 @@ const AppSettings = ({ navigation }) => {
             mx={7}
             borderRadius={8}
             p={2}
-            bg={'#EFEFEF'}
+            bg={'light.lightYellow'}
           >
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
                 FAQ’s
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+            <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
                 Terms and Conditions
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+            <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
                 Privacy Policy
               </Text>
             </Pressable>

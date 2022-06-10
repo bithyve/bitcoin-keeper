@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Box } from 'native-base';
+
 import LinearGradient from 'react-native-linear-gradient';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
 import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
-
-// import CurrencyKind from '../../common/data/enums/CurrencyKind';
-// import { currencyKindSet } from '../../store/actions/preferences';
-// import useCurrencyKind from '../../utils/hooks/state-selectors/UseCurrencyKind';
-// import useAccountsState from '../../utils/hooks/state-selectors/accounts/UseAccountsState';
-// import useCurrencyCode from '../../utils/hooks/state-selectors/UseCurrencyCode';
-// import { useDispatch } from 'react-redux';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,26 +23,25 @@ const styles = StyleSheet.create({
 });
 
 const CurrencyTypeSwitch = () => {
-  const [prefersBitcoin, setPrefersBitcoin] = useState(false);
-  const currencyCode = 'INR';
-  // const dispatch = useDispatch()
-  // const currencyKind: CurrencyKind = useCurrencyKind()
-  // const currencyCode = useCurrencyCode()
-  // const prefersBitcoin = useMemo( () => {
-  //   if ( !currencyKind ) return true
-  //   return currencyKind === CurrencyKind.BITCOIN
-  // }, [ currencyKind ] )
-  // const { exchangeRates } = useAccountsState()
+  const { currencyKind } = useAppSelector((state) => state.settings);
+  const dispatch = useAppDispatch();
 
-  function changeType() {
-    setPrefersBitcoin(!prefersBitcoin);
-    // dispatch( currencyKindSet(
-    //     prefersBitcoin ? CurrencyKind.FIAT : CurrencyKind.BITCOIN
-    //   ) )
-  }
+  const changeType = () => {
+    if (currencyKind == CurrencyKind.BITCOIN) {
+      dispatch(setCurrencyKind(CurrencyKind.FIAT));
+    } else {
+      dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+    }
+  };
+  const prefersBitcoin = useMemo(() => {
+    if (currencyKind === CurrencyKind.BITCOIN) {
+      return true;
+    }
+    return false;
+  }, [currencyKind]);
 
   return (
-    <TouchableOpacity disabled={true} activeOpacity={0.6} onPress={() => changeType()}>
+    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()}>
       <LinearGradient
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -68,7 +65,11 @@ const CurrencyTypeSwitch = () => {
             justifyContent={'center'}
             alignItems={'center'}
           >
-            <IconDoller />
+            <FontAwesome
+              name={'dollar'}
+              size={16}
+              color={prefersBitcoin ? 'lightgray' : '#00836A'}
+            />
           </Box>
           <Box
             height={8}
@@ -81,7 +82,11 @@ const CurrencyTypeSwitch = () => {
             justifyContent={'center'}
             alignItems={'center'}
           >
-            <IconBitcoin />
+            <FontAwesome
+              name={'bitcoin'}
+              size={16}
+              color={prefersBitcoin ? '#00836A' : 'lightgray'}
+            />
           </Box>
         </Box>
       </LinearGradient>
