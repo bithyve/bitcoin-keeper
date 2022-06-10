@@ -15,7 +15,7 @@ import {
   UnecryptedStreams,
 } from './interfaces/interface';
 import { TrustedContactRelationTypes } from './interfaces/enum';
-const { HEXA_ID, RELAY_AXIOS } = config;
+const { AUTH_ID, RELAY_AXIOS } = config;
 
 export default class TrustedContactsOperations {
   static cipherSpec: {
@@ -76,7 +76,7 @@ export default class TrustedContactsOperations {
       key,
       TrustedContactsOperations.cipherSpec.iv
     );
-    dataPacket.validator = config.HEXA_ID;
+    dataPacket.validator = config.AUTH_ID;
     let encrypted = cipher.update(JSON.stringify(dataPacket), 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return {
@@ -95,7 +95,7 @@ export default class TrustedContactsOperations {
     decrypted += decipher.final('utf8');
 
     const data = JSON.parse(decrypted);
-    if (data.validator !== config.HEXA_ID)
+    if (data.validator !== config.AUTH_ID)
       throw new Error('Decryption failed, invalid validator for the following data packet');
 
     return {
@@ -370,7 +370,7 @@ export default class TrustedContactsOperations {
 
       if (Object.keys(channelOutstreams).length) {
         const res: AxiosResponse = await RELAY_AXIOS.post('syncPermanentChannels', {
-          HEXA_ID,
+          AUTH_ID,
           channelOutstreams,
         });
 
@@ -435,7 +435,7 @@ export default class TrustedContactsOperations {
       const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId(walletId);
 
       const res: AxiosResponse = await RELAY_AXIOS.post('retrieveFromStream', {
-        HEXA_ID,
+        AUTH_ID,
         permanentChannelAddress,
         streamId,
         options,
@@ -499,7 +499,7 @@ export default class TrustedContactsOperations {
       const streamId = StreamId ? StreamId : TrustedContactsOperations.getStreamId(walletId);
 
       const res: AxiosResponse = await RELAY_AXIOS.post('retrieveFromStream', {
-        HEXA_ID,
+        AUTH_ID,
         permanentChannelAddress,
         streamId,
         options,
@@ -537,7 +537,7 @@ export default class TrustedContactsOperations {
       const permanentChannelAddress = crypto.createHash('sha256').update(channelKey).digest('hex');
 
       const res: AxiosResponse = await RELAY_AXIOS.post('updateStream', {
-        HEXA_ID,
+        AUTH_ID,
         permanentChannelAddress,
         streamUpdates,
       });
@@ -565,7 +565,7 @@ export default class TrustedContactsOperations {
         crypto.createHash('sha256').update(channelKey).digest('hex')
       );
       const res: AxiosResponse = await RELAY_AXIOS.post('retrieveChannels', {
-        HEXA_ID,
+        AUTH_ID,
         channelAddresses,
       });
 
