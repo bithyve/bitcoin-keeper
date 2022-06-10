@@ -127,11 +127,14 @@ export default function ResetPin(props) {
               <Box>
                 <Box flexDirection={'row'} mt={hp('4.5%')} mb={hp('4.5%')}>
                   <Box
-                    style={[
-                      passcode.length == 0 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {passcode.length >= 1 ? (
@@ -149,7 +152,16 @@ export default function ResetPin(props) {
                       )}
                     </Box>
                   </Box>
-                  <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
+                  <Box
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
+                  >
                     <Box>
                       {passcode.length >= 2 ? (
                         <DotView height={3} width={3} />
@@ -166,7 +178,16 @@ export default function ResetPin(props) {
                       )}
                     </Box>
                   </Box>
-                  <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
+                  <Box
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
+                  >
                     <Box>
                       {passcode.length >= 3 ? (
                         <DotView height={3} width={3} />
@@ -183,7 +204,16 @@ export default function ResetPin(props) {
                       )}
                     </Box>
                   </Box>
-                  <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
+                  <Box
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
+                  >
                     <Box>
                       {passcode.length >= 4 ? (
                         <DotView height={3} width={3} />
@@ -210,13 +240,14 @@ export default function ResetPin(props) {
               <Box mb={10}>
                 <Box flexDirection={'row'} mt={hp('1.5%')}>
                   <Box
-                    style={[
-                      confirmPasscode.length == 0
-                        ? styles.textBoxActive
-                        : {
-                            ...styles.textBoxStyles,
-                          },
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {confirmPasscode.length >= 1 ? (
@@ -235,13 +266,14 @@ export default function ResetPin(props) {
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      confirmPasscode.length == 1
-                        ? styles.textBoxActive
-                        : {
-                            ...styles.textBoxStyles,
-                          },
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {confirmPasscode.length >= 2 ? (
@@ -260,13 +292,14 @@ export default function ResetPin(props) {
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      confirmPasscode.length == 2
-                        ? styles.textBoxActive
-                        : {
-                            ...styles.textBoxStyles,
-                          },
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {confirmPasscode.length >= 3 ? (
@@ -285,13 +318,14 @@ export default function ResetPin(props) {
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      confirmPasscode.length == 3
-                        ? styles.textBoxActive
-                        : {
-                            ...styles.textBoxStyles,
-                          },
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {confirmPasscode.length >= 4 ? (

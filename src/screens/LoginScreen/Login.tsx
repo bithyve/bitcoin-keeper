@@ -191,11 +191,14 @@ const CreatePin = ({ navigation }) => {
                   width={'auto'}
                 >
                   <Box
-                    style={[
-                      passcode.length == 0 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {passcode.length >= 1 ? (
@@ -210,11 +213,14 @@ const CreatePin = ({ navigation }) => {
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 1 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {passcode.length >= 2 ? (
@@ -229,11 +235,14 @@ const CreatePin = ({ navigation }) => {
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 2 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {passcode.length >= 3 ? (
@@ -248,11 +257,14 @@ const CreatePin = ({ navigation }) => {
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 3 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    bg={'#FDF7F0'}
+                    opacity={0.7}
                   >
                     <Box>
                       {passcode.length >= 4 ? (
