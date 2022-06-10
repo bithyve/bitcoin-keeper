@@ -19,7 +19,7 @@ const ChoosePlan = (props) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={5} my={10}>
+      <Box mx={7} my={10}>
         <TouchableOpacity onPress={() => props.navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
@@ -33,9 +33,9 @@ const ChoosePlan = (props) => {
             Lorem ipsum dolor sit amet{' '}
           </Text>
         </Box>
-        <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
+        {/* <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
-        </Box>
+        </Box> */}
       </Box>
       <ChoosePlanCarousel />
       <Box mx={10} my={5}>

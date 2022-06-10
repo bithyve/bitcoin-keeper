@@ -12,27 +12,31 @@ const planData = [
     title: 'Pro',
     subTitle: 'Lorem ipsum dolor sit amet,',
     amount: '5',
+    upgrade: false,
   },
   {
     id: 2,
     title: 'Basic',
     subTitle: 'Lorem ipsum dolor sit amet,',
     amount: '0',
+    upgrade: true,
   },
   {
     id: 3,
     title: 'Elite',
     subTitle: 'Lorem ipsum dolor sit amet,',
     amount: '10',
+    upgrade: false,
   },
 ];
-const _onSnapToItem = (index) => {
-  console.log('index', index);
-  // this.props.snapCallback(index, this.state.customData);
-};
 
 const ChoosePlanCarousel = (props) => {
   let carasualRef = useRef<Carousel<FlatList>>(null);
+  const _onSnapToItem = (index) => {
+    console.log('index', index);
+    // carasualRef.snapCallback(index, planData);
+    carasualRef.onSnapToItem(index, planData);
+  };
   const _renderItem = ({ item, index }) => {
     return (
       <LinearGradient
@@ -43,7 +47,7 @@ const ChoosePlanCarousel = (props) => {
           borderRadius: 20,
         }}
       >
-        <Box p={3} alignItems={'center'} justifyContent={'center'}>
+        <Box py={3} alignItems={'center'} justifyContent={'center'}>
           <Box
             h={20}
             w={20}
@@ -65,9 +69,11 @@ const ChoosePlanCarousel = (props) => {
           <Text fontSize={RFValue(10)} color={'light.textLight'}>
             / month
           </Text>
-          <Box mt={5}>
-            <CustomYellowButton value={'Upgrade'} />
-          </Box>
+          {item.upgrade ? (
+            <Box mt={5}>
+              <CustomYellowButton value={'Upgrade'} />
+            </Box>
+          ) : null}
         </Box>
       </LinearGradient>
     );
