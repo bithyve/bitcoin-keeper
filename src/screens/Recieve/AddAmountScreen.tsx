@@ -16,7 +16,7 @@ import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg'
 
-const AddAmountScreen = ({ route }) => {
+const AddAmountScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
@@ -64,7 +64,7 @@ const AddAmountScreen = ({ route }) => {
           />
         </View>
 
-        <AppNumPad setValue={setAmount} ok={() => { }} clear={() => setAmount('')} color={'#073E39'} />
+        <AppNumPad setValue={setAmount} ok={() => { console.log('ok') }} clear={() => setAmount('')} color={'#073E39'} />
       </View>
     </View>
   );
