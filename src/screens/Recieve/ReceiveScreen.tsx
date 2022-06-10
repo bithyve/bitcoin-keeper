@@ -15,7 +15,6 @@ import InfoBox from '../../components/InfoBox';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { getNextFreeAddress } from 'src/store/sagas/wallets';
-import Colors from 'src/theme/Colors';
 
 import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
@@ -27,7 +26,7 @@ const ReceiveScreen = ({ route }) => {
   const dispatch = useDispatch();
 
   const wallet: Wallet = route?.params?.wallet;
-  const amt = route?.params?.amount;
+  const amt: string = route?.params?.amount;
 
   const [receivingAddress, setReceivingAddress] = useState(null);
   const [amount, setAmount] = useState(amt ? amt : '');

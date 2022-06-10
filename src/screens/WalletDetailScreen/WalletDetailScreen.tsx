@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, ImageBackground, TouchableOpacity, RefreshControl } from 'react-native';
 import { Box, Text, Pressable } from 'native-base';
 import {
@@ -9,7 +9,7 @@ import {
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
 import IconRecieve from 'src/assets/images/svgs/transaction_income.svg';
-import IconSent from 'src/assets/images/svgs/transaction_sent.svg';
+// import IconSent from 'src/assets/images/svgs/transaction_sent.svg';
 import Recieve from 'src/assets/images/svgs/recieve.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import More from 'src/assets/images/svgs/more.svg';
