@@ -30,14 +30,14 @@ const planData = [
   },
 ];
 
-const ChoosePlanCarousel = (props) => {
-  let carasualRef = useRef<Carousel<FlatList>>(null);
+const ChoosePlanCarousel = () => {
+  const carasualRef = useRef<Carousel<FlatList>>(null);
   const _onSnapToItem = (index) => {
-    console.log('index', index);
+    // console.log('index', index);
     // carasualRef.snapCallback(index, planData);
-    carasualRef.onSnapToItem(index, planData);
+    // carasualRef.onSnapToItem(index, planData);
   };
-  const _renderItem = ({ item, index }) => {
+  const _renderItem = (item) => {
     return (
       <LinearGradient
         colors={['#00836A', '#073E39']}
@@ -64,7 +64,7 @@ const ChoosePlanCarousel = (props) => {
             {item.subTitle}
           </Text>
           <Text fontSize={RFValue(24)} color={'light.textLight'}>
-            $ {item.amount}
+            {'$'} {item.amount}
           </Text>
           <Text fontSize={RFValue(10)} color={'light.textLight'}>
             / month
