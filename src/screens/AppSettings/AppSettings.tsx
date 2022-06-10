@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
@@ -11,6 +11,8 @@ import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -54,6 +56,16 @@ const AppSettings = ({ navigation }) => {
   };
   const changeThemeMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  const showSeed = () => {
+    try {
+      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0);
+      console.log();
+      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'));
+    } catch (error) {
+      //
+    }
   };
 
   return (
@@ -138,6 +150,11 @@ const AppSettings = ({ navigation }) => {
             icon={false}
             onPress={() => navigation.navigate('ChoosePlan')}
           />
+          <Pressable onPress={() => showSeed()}>
+            <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              View Seed
+            </Text>
+          </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note

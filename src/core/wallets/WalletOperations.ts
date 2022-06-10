@@ -35,8 +35,7 @@ import {
 } from './interfaces/enum';
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
-    wallet: Wallet | MultiSigWallet,
-    requester?: ActiveAddressAssignee
+    wallet: Wallet | MultiSigWallet
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
@@ -66,15 +65,7 @@ export default class WalletOperations {
       );
     }
 
-    wallet.specs.activeAddresses.external[receivingAddress] = {
-      index: wallet.specs.nextFreeAddressIndex,
-      // assignee: requester
-      //   ? requester
-      //   : {
-      //       type: wallet.type,
-      //       id: wallet.id,
-      //     },
-    };
+    wallet.specs.activeAddresses.external[receivingAddress] = wallet.specs.nextFreeAddressIndex;
     wallet.specs.nextFreeAddressIndex++;
     wallet.specs.receivingAddress = receivingAddress;
     return {
@@ -163,10 +154,7 @@ export default class WalletOperations {
       address,
       privateKey,
     };
-    wallet.specs.activeAddresses.external[address] = {
-      index: -1,
-      // assignee: requester,
-    };
+    wallet.specs.activeAddresses.external[address] = -1;
   };
 
   static syncWallets = async (
@@ -577,32 +565,9 @@ export default class WalletOperations {
           );
 
         if (consumedUTXO.address === address) {
-          if (!activeExternalAddresses[address])
-            activeExternalAddresses[address] = {
-              index: itr,
-              // assignee: {
-              //   type: wallet.type,
-              //   id: wallet.id,
-              //   recipientInfo,
-              // },
-            };
           // include out of bound ext address
-          else
-            activeExternalAddresses[address] = {
-              ...activeExternalAddresses[address],
-              // assignee: {
-              //   ...activeExternalAddresses[address].assignee,
-              //   recipientInfo: idx(
-              //     activeExternalAddresses[address],
-              //     (_) => _.assignee.recipientInfo
-              //   )
-              //     ? {
-              //         ...activeExternalAddresses[address].assignee.recipientInfo,
-              //         ...recipientInfo,
-              //       }
-              //     : recipientInfo,
-              // },
-            };
+          if (activeExternalAddresses[address] === undefined)
+            activeExternalAddresses[address] = itr;
           found = true;
           break;
         }
@@ -634,32 +599,9 @@ export default class WalletOperations {
             );
 
           if (consumedUTXO.address === address) {
-            if (!activeInternalAddresses[address])
-              activeInternalAddresses[address] = {
-                index: itr,
-                // assignee: {
-                //   type: wallet.type,
-                //   id: wallet.id,
-                //   recipientInfo,
-                // },
-              };
             // include out of bound(soft-refresh range) int address
-            else
-              activeInternalAddresses[address] = {
-                ...activeInternalAddresses[address],
-                // assignee: {
-                //   ...activeInternalAddresses[address].assignee,
-                //   recipientInfo: idx(
-                //     activeInternalAddresses[address],
-                //     (_) => _.assignee.recipientInfo
-                //   )
-                //     ? {
-                //         ...activeInternalAddresses[address].assignee.recipientInfo,
-                //         ...recipientInfo,
-                //       }
-                //     : recipientInfo,
-                // },
-              };
+            if (activeInternalAddresses[address] === undefined)
+              activeInternalAddresses[address] = itr;
             found = true;
             break;
           }
@@ -690,13 +632,7 @@ export default class WalletOperations {
         purpose
       );
 
-    activeInternalAddresses[changeAddress] = {
-      index: wallet.specs.nextFreeChangeAddressIndex,
-      // assignee: {
-      //   type: wallet.type,
-      //   id: wallet.id,
-      // },
-    };
+    activeInternalAddresses[changeAddress] = wallet.specs.nextFreeChangeAddressIndex;
     wallet.specs.nextFreeChangeAddressIndex++;
   };
 
