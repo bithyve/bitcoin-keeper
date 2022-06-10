@@ -209,17 +209,13 @@ export default class WalletUtilities {
 
     const purpose =
       wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
-    const closingExtIndex =
-      nextFreeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT : config.GAP_LIMIT);
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
         return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
     }
 
-    const closingIntIndex =
-      nextFreeChangeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT_INTERNAL : config.GAP_LIMIT);
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
         return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
@@ -290,9 +286,7 @@ export default class WalletUtilities {
     const { networkType } = wallet.derivationDetails;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const closingExtIndex =
-      wallet.specs.nextFreeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT : config.GAP_LIMIT);
+    const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingExtIndex; itr++) {
       const multiSig = WalletUtilities.createMultiSig(
         {
@@ -328,9 +322,7 @@ export default class WalletUtilities {
       }
     }
 
-    const closingIntIndex =
-      wallet.specs.nextFreeChangeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT_INTERNAL : config.GAP_LIMIT);
+    const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       const multiSig = WalletUtilities.createMultiSig(
         {
@@ -1023,7 +1015,7 @@ export default class WalletUtilities {
     const amount = 10000 / SATOSHIS_IN_BTC;
     try {
       const res = await accAxios.post(`${config.RELAY}/testnetFaucet`, {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         recipientAddress,
         amount,
       });
@@ -1051,7 +1043,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await SIGNING_AXIOS.post('setup2FA', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         appId,
       });
     } catch (err) {
@@ -1075,7 +1067,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await SIGNING_AXIOS.post('validate2FASetup', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         appId,
         token,
       });
@@ -1111,7 +1103,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await SIGNING_AXIOS.post('resetTwoFAv2', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         appId: appId,
       });
     } catch (err) {
@@ -1169,7 +1161,7 @@ export default class WalletUtilities {
 
     try {
       res = await SIGNING_AXIOS.post('securePSBTTransaction', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         walletID: walletId,
         token,
         serializedPSBT,
@@ -1202,7 +1194,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('setupDonationWallet', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         donationId: wallet.id.slice(0, 15),
         walletID: walletId,
         details: {
@@ -1245,7 +1237,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('updatePreferences', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         donationId: wallet.id.slice(0, 15),
         walletID: walletId,
         preferences,
@@ -1302,7 +1294,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('fetchXpubInfo', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         xpubId,
         walletType: 'DONATION',
         walletDetails: {

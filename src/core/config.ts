@@ -1,191 +1,51 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
-import Config from 'react-native-config';
+import config from 'react-native-config';
 import PersonalNode from '../common/data/models/PersonalNode';
 import _ from 'lodash';
 import axios, { AxiosInstance } from 'axios';
 import { WalletType } from './wallets/interfaces/enum';
 
 export enum APP_STAGE {
-  DEVELOPMENT = 'dev',
-  STAGING = 'sta',
-  PRODUCTION = 'app',
+  DEVELOPMENT = 'DEVELOPMENT',
+  STAGING = 'STAGING',
+  PRODUCTION = 'PRODUCTION',
 }
 
-class HexaConfig {
-  //RAMP details
-  public RAMP_BASE_URL: string = Config.RAMP_BASE_URL
-    ? Config.RAMP_BASE_URL.trim()
-    : 'https://buy.ramp.network/';
-  public RAMP_REFERRAL_CODE: string = Config.RAMP_REFERRAL_CODE
-    ? Config.RAMP_REFERRAL_CODE.trim()
-    : 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr';
-  //SWAN details
-  public SWAN_CLIENT_ID: string = Config.SWAN_CLIENT_ID || 'hexa';
-  public SWAN_BASE_URL: string = Config.SWAN_BASE_URL || 'https://api.swanbitcoin.com';
-  public SWAN_URL_PREFIX: string = Config.SWAN_URL_PREFIX || '/apps/v20210824/';
-  public SWAN_REDIRECT_URL: string =
-    Config.SWAN_REDIRECT_URL || 'https%3A%2F%2Fhexa.bithyve.com%2FdeepLink%2Fdev%2Fswan%2F';
-  public WALLET_SLUG: string = Config.WALLET_SLUG ? Config.WALLET_SLUG.trim() : 'hexa';
-  public FBTC_REGISTRATION_URL: string = Config.FBTC_REGISTRATION_URL
-    ? Config.FBTC_REGISTRATION_URL.trim()
-    : 'https://fastbitcoins.com/create-wallet/hexa';
-  public FBTC_URL: string = Config.FBTC_URL
-    ? Config.FBTC_URL.trim()
-    : 'https://wallet-api.fastbitcoins.com/v2/';
-  public TESTNET_BASE_URL: string = Config.BIT_TESTNET_BASE_URL
-    ? Config.BIT_TESTNET_BASE_URL.trim()
-    : 'https://test-wrapper.bithyve.com';
-  public MAINNET_BASE_URL: string = Config.BIT_MAINNET_BASE_URL
-    ? Config.BIT_MAINNET_BASE_URL.trim()
-    : 'https://api.bithyve.com';
-  public VERSION: string = Config.VERSION ? Config.VERSION.trim() : '';
-  public ENVIRONMENT: string;
-  public NETWORK: bitcoinJS.Network;
-  public SECURE_WALLET_XPUB_PATH: string = Config.BIT_SECURE_WALLET_XPUB_PATH
-    ? Config.BIT_SECURE_WALLET_XPUB_PATH.trim()
-    : '2147483651/2147483649/';
-  public SECURE_DERIVATION_BRANCH: string = Config.BIT_SECURE_DERIVATION_BRANCH
-    ? Config.BIT_SECURE_DERIVATION_BRANCH.trim()
-    : '1';
-  public SSS_OTP_LENGTH: string = Config.BIT_SSS_OTP_LENGTH
-    ? Config.BIT_SSS_OTP_LENGTH.trim()
-    : '6';
-  public REQUEST_TIMEOUT: number = Config.BIT_REQUEST_TIMEOUT
-    ? parseInt(Config.BIT_REQUEST_TIMEOUT.trim(), 10)
-    : 15000;
-  public GAP_LIMIT: number = Config.BIT_GAP_LIMIT ? parseInt(Config.BIT_GAP_LIMIT.trim(), 10) : 5;
-  public DONATION_GAP_LIMIT = Config.BIT_DONATION_GAP_LIMIT
-    ? parseInt(Config.BIT_DONATION_GAP_LIMIT.trim(), 10)
-    : 50;
-  public DONATION_GAP_LIMIT_INTERNAL = Config.DONATION_GAP_LIMIT_INTERNAL
-    ? parseInt(Config.DONATION_GAP_LIMIT_INTERNAL.trim(), 10)
-    : 20;
-  public DEFAULT_GIFT_VALIDITY = 7 * 24 * 60 * 60 * 1000; // a week for prod and staging app (10 mins for dev app; initialized at constructor)
+export enum BITCOIN_NETWORK {
+  TESTNET = 'TESTNET',
+  MAINNET = 'MAINNET',
+}
 
-  public DERIVATIVE_GAP_LIMIT = 5;
-  public CIPHER_SPEC: {
-    algorithm: string;
-    salt: string;
-    iv: Buffer;
-    keyLength: number;
-  } = {
-      algorithm: Config.BIT_CIPHER_ALGORITHM ? Config.BIT_CIPHER_ALGORITHM.trim() : 'aes-192-cbc',
-      salt: Config.BIT_CIPHER_SALT ? Config.BIT_CIPHER_SALT.trim() : 'bithyeSalt',
-      keyLength: Config.BIT_CIPHER_KEYLENGTH ? parseInt(Config.BIT_CIPHER_KEYLENGTH.trim(), 10) : 24,
-      iv: Buffer.alloc(16, 0),
-    };
-  public KEY_STRETCH_ITERATIONS = Config.BIT_KEY_STRETCH_ITERATIONS
-    ? parseInt(Config.BIT_KEY_STRETCH_ITERATIONS.trim(), 10)
-    : 10000;
+// defaults to development environment
+const DEFAULT_CONFIG = {
+  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
+  APP_STAGE: APP_STAGE.DEVELOPMENT,
+  TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
+  MAINNET_WRAPPER: 'https://api.bithyve.com',
+  RELAY: 'https://dev-relay.bithyve.com/',
+  SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
+  ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
+  AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
+  CIPHER_SPEC_ALGO: 'aes-192-cbc',
+  CIPHER_SPEC_SALT: 'test-salt',
+};
 
-  public LAST_SEEN_ACTIVE_DURATION: number = Config.BIT_LAST_SEEN_ACTIVE_DURATION
-    ? parseInt(Config.BIT_LAST_SEEN_ACTIVE_DURATION.trim(), 10)
-    : 21600;
-  public LAST_SEEN_AWAY_DURATION: number = Config.BIT_LAST_SEEN_AWAY_DURATION
-    ? parseInt(Config.BIT_LAST_SEEN_AWAY_DURATION.trim(), 10)
-    : 64800;
-  public BH_SERVERS = {
-    RELAY: Config.BIT_API_URLS_RELAY
-      ? Config.BIT_API_URLS_RELAY.trim()
-      : 'https://relay.bithyve.com/',
-    SIGNING_SERVER: Config.BIT_API_URLS_SIGNING_SERVER
-      ? Config.BIT_API_URLS_SIGNING_SERVER.trim()
-      : 'http://sign.bithyve.com/',
-  };
-  public BSI = {
-    INIT_INDEX: Config.BIT_BSI_INIT_INDEX ? parseInt(Config.BIT_BSI_INIT_INDEX.trim(), 10) : 100,
-    MAXUSEDINDEX: Config.BIT_BSI_MAXUSEDINDEX
-      ? parseInt(Config.BIT_BSI_MAXUSEDINDEX.trim(), 10)
-      : 0,
-    MINUNUSEDINDEX: Config.BIT_BSI_MINUNUSEDINDEX
-      ? parseInt(Config.BIT_BSI_MINUNUSEDINDEX.trim(), 10)
-      : 1000000,
-    DEPTH: {
-      INIT: Config.BIT_BSI_DEPTH_INIT ? parseInt(Config.BIT_BSI_DEPTH_INIT.trim(), 10) : 0,
-      LIMIT: Config.BIT_BSI_DEPTH_LIMIT ? parseInt(Config.BIT_BSI_DEPTH_LIMIT.trim(), 10) : 20,
-    },
-  };
-  public SSS_TOTAL: number = Config.BIT_SSS_TOTAL ? parseInt(Config.BIT_SSS_TOTAL.trim(), 10) : 5;
-  public SSS_THRESHOLD: number = Config.BIT_SSS_THRESHOLD
-    ? parseInt(Config.BIT_SSS_THRESHOLD.trim(), 10)
-    : 3;
-  public SSS_LEVEL1_TOTAL: number = Config.BIT_SSS_LEVEL1_TOTAL
-    ? parseInt(Config.BIT_SSS_LEVEL1_TOTAL.trim(), 10)
-    : 3;
-  public SSS_LEVEL1_THRESHOLD: number = Config.BIT_SSS_LEVEL1_THRESHOLD
-    ? parseInt(Config.BIT_SSS_LEVEL1_THRESHOLD.trim(), 10)
-    : 2;
-  public SSS_LEVEL2_TOTAL: number = Config.BIT_SSS_LEVEL2_TOTAL
-    ? parseInt(Config.BIT_SSS_LEVEL2_TOTAL.trim(), 10)
-    : 5;
-  public SSS_LEVEL2_THRESHOLD: number = Config.BIT_SSS_LEVEL2_THRESHOLD
-    ? parseInt(Config.BIT_SSS_LEVEL2_THRESHOLD.trim(), 10)
-    : 3;
-  public MSG_ID_LENGTH: number = Config.BIT_MSG_ID_LENGTH
-    ? parseInt(Config.BIT_MSG_ID_LENGTH.trim(), 10)
-    : 12;
-  public CHUNK_SIZE: number = Config.BIT_CHUNK_SIZE
-    ? parseInt(Config.BIT_CHUNK_SIZE.trim(), 10)
-    : 3;
-  public CHECKSUM_ITR: number = Config.BIT_CHECKSUM_ITR
-    ? parseInt(Config.BIT_CHECKSUM_ITR.trim(), 10)
-    : 2;
-  public HEXA_ID: string = Config.BIT_HEXA_ID
-    ? Config.BIT_HEXA_ID.trim()
-    : 'dfe56bf7922efec670a5a860995561da8d82c801ca14be4f194b440c5d741259';
-  public ENC_KEY_STORAGE_IDENTIFIER: string = Config.ENC_KEY_STORAGE_IDENTIFIER
-    ? Config.ENC_KEY_STORAGE_IDENTIFIER.trim()
-    : 'KEEPER-KEY';
-  public SSS_METASHARE_SPLITS: number = Config.BIT_SSS_METASHARE_SPLITS
-    ? parseInt(Config.BIT_SSS_METASHARE_SPLITS.trim(), 10)
-    : 8;
-  public STATUS = {
-    SUCCESS: Config.BIT_SUCCESS_STATUS_CODE
-      ? parseInt(Config.BIT_SUCCESS_STATUS_CODE.trim(), 10)
-      : 200,
-    ERROR: Config.BIT_ERROR_STATUS_CODE ? parseInt(Config.BIT_ERROR_STATUS_CODE.trim(), 10) : 400,
-  };
-
-  public HEALTH_STATUS = {
-    HEXA_HEALTH: {
-      STAGE1: Config.BIT_HEXA_HEALTH_STAGE1 ? Config.BIT_HEXA_HEALTH_STAGE1.trim() : 0,
-      STAGE2: Config.BIT_HEXA_HEALTH_STAGE2 ? Config.BIT_HEXA_HEALTH_STAGE2.trim() : 20,
-      STAGE3: Config.BIT_HEXA_HEALTH_STAGE3 ? Config.BIT_HEXA_HEALTH_STAGE3.trim() : 50,
-      STAGE4: Config.BIT_HEXA_HEALTH_STAGE4 ? Config.BIT_HEXA_HEALTH_STAGE4.trim() : 75,
-      STAGE5: Config.BIT_HEXA_HEALTH_STAGE5 ? Config.BIT_HEXA_HEALTH_STAGE5.trim() : 100,
-    },
-
-    ENTITY_HEALTH: {
-      STAGE1: Config.BIT_ENTITY_HEALTH_STAGE1 ? Config.BIT_ENTITY_HEALTH_STAGE1.trim() : 'Ugly',
-      STAGE2: Config.BIT_ENTITY_HEALTH_STAGE2 ? Config.BIT_ENTITY_HEALTH_STAGE2.trim() : 'Bad',
-      STAGE3: Config.BIT_ENTITY_HEALTH_STAGE3 ? Config.BIT_ENTITY_HEALTH_STAGE3.trim() : 'Good',
-    },
-
-    TIME_SLOTS: {
-      // 2 weeks in minutes: 20160
-      SHARE_SLOT1: Config.BIT_SHARE_HEALTH_TIME_SLOT1
-        ? parseInt(Config.BIT_SHARE_HEALTH_TIME_SLOT1.trim(), 10)
-        : 20160,
-
-      //4 weeks in minutes: 40320
-      SHARE_SLOT2: Config.BIT_SHARE_HEALTH_TIME_SLOT2
-        ? parseInt(Config.BIT_SHARE_HEALTH_TIME_SLOT2.trim(), 10)
-        : 40320,
-    },
-  };
-  public NOTIFICATION_HOUR = Config.NOTIFICATION_HOUR
-    ? parseInt(Config.NOTIFICATION_HOUR.trim(), 10)
-    : 336;
-  public LEGACY_TC_REQUEST_EXPIRY = Config.BIT_LEGACY_TC_REQUEST_EXPIRY
-    ? parseInt(Config.BIT_LEGACY_TC_REQUEST_EXPIRY.trim(), 10)
-    : 1200000;
-  public TC_REQUEST_EXPIRY = Config.BIT_TC_REQUEST_EXPIRY
-    ? parseInt(Config.BIT_TC_REQUEST_EXPIRY.trim(), 10)
-    : 86400000;
-  public KP_REQUEST_EXPIRY = Config.KP_REQUEST_EXPIRY
-    ? parseInt(Config.KP_REQUEST_EXPIRY.trim(), 10)
-    : 86400000;
+class Configuration {
+  public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER
+    ? config.TESTNET_WRAPPER.trim()
+    : DEFAULT_CONFIG.TESTNET_WRAPPER;
+  public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER
+    ? config.MAINNET_WRAPPER.trim()
+    : DEFAULT_CONFIG.MAINNET_WRAPPER;
+  public RELAY = config.RELAY ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
+  public SIGNING_SERVER = config.SIGNING_SERVER
+    ? config.SIGNING_SERVER.trim()
+    : DEFAULT_CONFIG.SIGNING_SERVER;
+  public AUTH_ID: string = config.AUTH_ID ? config.AUTH_ID.trim() : DEFAULT_CONFIG.AUTH_ID;
+  public ENC_KEY_STORAGE_IDENTIFIER: string = config.ENC_KEY_STORAGE_IDENTIFIER
+    ? config.ENC_KEY_STORAGE_IDENTIFIER.trim()
+    : DEFAULT_CONFIG.ENC_KEY_STORAGE_IDENTIFIER;
 
   public WALLET_INSTANCES = {
     [WalletType.TEST]: {
@@ -222,71 +82,66 @@ class HexaConfig {
     },
   };
 
+  public CIPHER_SPEC: {
+    algorithm: string;
+    salt: string;
+    iv: Buffer;
+    keyLength: number;
+  } = {
+    algorithm: DEFAULT_CONFIG.CIPHER_SPEC_ALGO,
+    salt: config.CIPHER_SPEC_SALT
+      ? config.CIPHER_SPEC_SALT.trim()
+      : DEFAULT_CONFIG.CIPHER_SPEC_SALT,
+    keyLength: 24,
+    iv: Buffer.alloc(16, 0),
+  };
+
+  public REQUEST_TIMEOUT: number = 15000;
+  public GAP_LIMIT: number = 5;
+  public RELAY_AXIOS: AxiosInstance = axios.create({
+    baseURL: this.RELAY,
+    timeout: this.REQUEST_TIMEOUT * 3,
+  });
+  public SIGNING_AXIOS: AxiosInstance = axios.create({
+    baseURL: this.SIGNING_SERVER,
+    timeout: this.REQUEST_TIMEOUT,
+  });
+
+  public NETWORK: bitcoinJS.Network;
+  public APP_STAGE: string;
+
+  constructor(env: BITCOIN_NETWORK) {
+    this.NETWORK =
+      env.trim() === BITCOIN_NETWORK.MAINNET
+        ? bitcoinJS.networks.bitcoin
+        : bitcoinJS.networks.testnet;
+    this.APP_STAGE = config.ENVIRONMENT ? config.ENVIRONMENT.trim() : DEFAULT_CONFIG.APP_STAGE;
+  }
+
   public BITHYVE_ESPLORA_API_ENDPOINTS = {
     TESTNET: {
-      MULTIBALANCE: this.TESTNET_BASE_URL + '/balances',
-      MULTIUTXO: this.TESTNET_BASE_URL + '/utxos',
-      MULTITXN: this.TESTNET_BASE_URL + '/data',
-      MULTIBALANCETXN: this.TESTNET_BASE_URL + '/baltxs',
-      NEWMULTIUTXOTXN: this.TESTNET_BASE_URL + '/nutxotxs',
-      TXN_FEE: this.TESTNET_BASE_URL + '/fee-estimates',
-      TXNDETAILS: this.TESTNET_BASE_URL + '/tx',
-      BROADCAST_TX: this.TESTNET_BASE_URL + '/tx',
+      MULTIBALANCE: this.TESTNET_WRAPPER + '/balances',
+      MULTIUTXO: this.TESTNET_WRAPPER + '/utxos',
+      MULTITXN: this.TESTNET_WRAPPER + '/data',
+      MULTIBALANCETXN: this.TESTNET_WRAPPER + '/baltxs',
+      NEWMULTIUTXOTXN: this.TESTNET_WRAPPER + '/nutxotxs',
+      TXN_FEE: this.TESTNET_WRAPPER + '/fee-estimates',
+      TXNDETAILS: this.TESTNET_WRAPPER + '/tx',
+      BROADCAST_TX: this.TESTNET_WRAPPER + '/tx',
     },
     MAINNET: {
-      MULTIBALANCE: this.MAINNET_BASE_URL + '/balances',
-      MULTIUTXO: this.MAINNET_BASE_URL + '/utxos',
-      MULTITXN: this.MAINNET_BASE_URL + '/data',
-      MULTIBALANCETXN: this.MAINNET_BASE_URL + '/baltxs',
-      NEWMULTIUTXOTXN: this.MAINNET_BASE_URL + '/nutxotxs',
-      TXN_FEE: this.MAINNET_BASE_URL + '/fee-estimates',
-      TXNDETAILS: this.MAINNET_BASE_URL + '/tx',
-      BROADCAST_TX: this.MAINNET_BASE_URL + '/tx',
+      MULTIBALANCE: this.MAINNET_WRAPPER + '/balances',
+      MULTIUTXO: this.MAINNET_WRAPPER + '/utxos',
+      MULTITXN: this.MAINNET_WRAPPER + '/data',
+      MULTIBALANCETXN: this.MAINNET_WRAPPER + '/baltxs',
+      NEWMULTIUTXOTXN: this.MAINNET_WRAPPER + '/nutxotxs',
+      TXN_FEE: this.MAINNET_WRAPPER + '/fee-estimates',
+      TXNDETAILS: this.MAINNET_WRAPPER + '/tx',
+      BROADCAST_TX: this.MAINNET_WRAPPER + '/tx',
     },
   };
   public ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS); // current API-endpoints being used
   public USE_ESPLORA_FALLBACK = false; // BITHYVE_ESPLORA_API_ENDPOINT acts as the fallback(when true)
-
-  public RELAY: string;
-  public SIGNING_SERVER: string;
-  public APP_STAGE: string;
-  public RELAY_AXIOS: AxiosInstance;
-  public SIGNING_AXIOS: AxiosInstance;
-
-  constructor(env: string) {
-    this.ENVIRONMENT = env.trim() || 'MAIN';
-    this.RELAY = this.BH_SERVERS.RELAY;
-    this.SIGNING_SERVER = this.BH_SERVERS.SIGNING_SERVER;
-    this.setNetwork();
-
-    const BIT_SERVER_MODE = Config.BIT_SERVER_MODE ? Config.BIT_SERVER_MODE.trim() : 'PROD';
-    if (BIT_SERVER_MODE === 'LOCAL' || BIT_SERVER_MODE === 'DEV') {
-      this.APP_STAGE = APP_STAGE.DEVELOPMENT;
-    } else if (BIT_SERVER_MODE === 'STA') {
-      this.APP_STAGE = APP_STAGE.STAGING;
-    } else {
-      this.APP_STAGE = APP_STAGE.PRODUCTION;
-    }
-  }
-
-  public setNetwork = (): void => {
-    if (this.ENVIRONMENT === 'MAIN') {
-      this.NETWORK = bitcoinJS.networks.bitcoin;
-    } else {
-      this.NETWORK = bitcoinJS.networks.testnet;
-      this.DEFAULT_GIFT_VALIDITY = 10 * 60 * 1000;
-    }
-
-    this.RELAY_AXIOS = axios.create({
-      baseURL: this.RELAY,
-      timeout: this.REQUEST_TIMEOUT * 3,
-    });
-
-    this.SIGNING_AXIOS = axios.create({
-      baseURL: this.SIGNING_SERVER,
-      timeout: this.REQUEST_TIMEOUT,
-    });
-  };
 
   public connectToPersonalNode = async (personalNode: PersonalNode) => {
     const personalNodeURL = personalNode.urlPath;
@@ -303,7 +158,7 @@ class HexaConfig {
         BROADCAST_TX: personalNodeURL + '/tx',
       };
 
-      if (this.ENVIRONMENT === 'MAIN')
+      if (this.NETWORK === bitcoinJS.networks.bitcoin)
         this.ESPLORA_API_ENDPOINTS = {
           ...this.ESPLORA_API_ENDPOINTS,
           MAINNET: personalNodeEPs,
@@ -324,4 +179,6 @@ class HexaConfig {
   };
 }
 
-export default new HexaConfig(Config.BIT_ENVIRONMENT || 'MAIN');
+export default new Configuration(
+  (config.BITCOIN_NETWORK as BITCOIN_NETWORK) || DEFAULT_CONFIG.BITCOIN_NETWORK
+);
