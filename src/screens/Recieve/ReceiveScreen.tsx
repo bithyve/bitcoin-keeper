@@ -54,9 +54,12 @@ const ReceiveScreen = ({ route }: { route }) => {
         onPressHandler={() => navigtaion.goBack()}
         color={'light.ReceiveBackground'}
       />
-      {/* {QR component} */}
       <Box marginTop={hp(10)} alignItems={'center'} alignSelf={'center'} width={204}>
-        <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={200} />
+        <QRCode
+          value={paymentURI || receivingAddress || 'address'}
+          logoBackgroundColor="transparent"
+          size={200}
+        />
         <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
           <Text
             textAlign={'center'}
@@ -68,7 +71,7 @@ const ReceiveScreen = ({ route }: { route }) => {
             width={'100%'}
             noOfLines={1}
           >
-            {paymentURI ? paymentURI : receivingAddress}
+            {paymentURI || receivingAddress}
           </Text>
         </Box>
       </Box>
@@ -83,12 +86,12 @@ const ReceiveScreen = ({ route }: { route }) => {
           backgroundColor={'light.textInputBackground'}
         >
           <Text width={'80%'} marginLeft={4} noOfLines={1}>
-            {paymentURI ? paymentURI : receivingAddress}
+            {paymentURI || receivingAddress}
           </Text>
           <TouchableOpacity
             activeOpacity={0.4}
             onPress={() => {
-              Clipboard.setString(paymentURI ? paymentURI : receivingAddress);
+              Clipboard.setString(paymentURI || receivingAddress);
             }}
           >
             <Box
