@@ -8,10 +8,10 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
-const ExportSeedScreen = ({ }) => {
+const ExportSeedScreen = () => {
   const navigtaion = useNavigation();
 
-  const SeedCard = ({ item }) => {
+  const SeedCard = ({ item }: { item }) => {
     return (
       <Box
         backgroundColor={'light.lightYellow'}
