@@ -17,10 +17,10 @@ import { Wallet } from 'src/core/wallets/interfaces/interface';
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 
 const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
-  if (item?.presentationData && item?.specs) {
-    var { walletName, walletDescription } = item?.presentationData;
-    var { balances } = item?.specs;
-  }
+  const walletName = item?.presentationData?.walletName;
+  const walletDescription = item?.presentationData?.walletName;
+  const balances = item?.specs?.balances;
+
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('WalletDetailScreen', { walletId: item.id })}
