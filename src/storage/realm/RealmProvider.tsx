@@ -4,13 +4,11 @@ import schema from './schema';
 import { useAppSelector } from 'src/store/hooks';
 import * as Cipher from 'src/common/encryption';
 
-export const realmConfig = (key) => {
-  return {
-    path: 'keeper.realm',
-    schema,
-    schemaVersion: 6,
-    encryptionKey: key,
-  };
+export const realmConfig = {
+  path: 'keeper.realm',
+  schema,
+  schemaVersion: 7,
+  // encryptionKey: key,
 };
 export const RealmWrapperContext = createContext();
 

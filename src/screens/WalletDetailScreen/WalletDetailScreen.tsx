@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, ImageBackground, TouchableOpacity, RefreshControl } from 'react-native';
 import { Box, Text, Pressable } from 'native-base';
 import {
   heightPercentageToDP as hp,
@@ -8,11 +8,18 @@ import {
 // icons, images and functions
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/icons/Wallets/icon_recieve.svg';
+import IconRecieve from 'src/assets/images/svgs/transaction_income.svg';
+// import IconSent from 'src/assets/images/svgs/transaction_sent.svg';
+import Recieve from 'src/assets/images/svgs/recieve.svg';
+import Send from 'src/assets/images/svgs/send.svg';
+import More from 'src/assets/images/svgs/more.svg';
+
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Icon from 'src/assets/images/svgs/seedsigner.svg';
 import Btc from 'src/assets/images/svgs/btc.svg';
+import WalletIcon from 'src/assets/images/svgs/wallet.svg';
+
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import BtcSmall from 'src/assets/images/svgs/btc_small.svg';
 import {
@@ -23,6 +30,12 @@ import {
 import BaseCardWallet from 'src/assets/images/basecard_wallet.png';
 import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { FlatList } from 'react-native-gesture-handler';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   return (
@@ -34,13 +47,13 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
       alignItems={'center'}
       marginY={windowHeight >= 850 ? '3%' : '2.4%'}
     >
-      <Box flexDirection={'row'} alignItems={'center'}>
+      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
         <IconRecieve />
-        <Box flexDirection={'column'} marginLeft={3}>
+        <Box flexDirection={'column'} marginLeft={1.5}>
           <Text
-            color={'light.textBlack'}
+            color={'light.GreyText'}
             marginX={1}
-            fontSize={12}
+            fontSize={13}
             fontWeight={200}
             letterSpacing={0.6}
           >
@@ -49,9 +62,11 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
           <Text
             color={'light.dateText'}
             marginX={1}
-            fontSize={10}
+            fontSize={11}
             fontWeight={100}
             letterSpacing={0.5}
+            opacity={0.82}
+            marginY={windowHeight >= 850 ? '3%' : '2.4%'}
           >
             {transaction.date}
           </Text>
@@ -80,10 +95,26 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
 };
 
 const WalletDetailScreen = ({ route }) => {
-  const wallet: Wallet = route.params.wallet;
+  const { useObject } = RealmContext;
+  const wallet: Wallet = getJSONFromRealmObject(
+    useObject(RealmSchema.Wallet, route.params.walletId)
+  );
+
   const { walletName, walletDescription } = wallet.presentationData;
   const { balances, transactions } = wallet.specs;
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const [pullRefresh, setPullRefresh] = useState(false);
+
+  const pullDownRefresh = () => {
+    setPullRefresh(true);
+    dispatch(refreshWallets([wallet], {}));
+    setPullRefresh(false);
+  };
+  const renderTransactionElement = ({ item }) => {
+    return <TransactionElement transaction={item} />;
+  };
 
   return (
     <Box>
@@ -106,12 +137,12 @@ const WalletDetailScreen = ({ route }) => {
           borderRadius={10}
           justifyContent={'space-between'}
           alignItems={'center'}
-          paddingX={3}
+          paddingX={2}
           marginX={5}
           marginTop={'4%'}
         >
           <Box flexDirection={'row'} alignItems={'center'}>
-            <Icon />
+            <WalletIcon />
             <Box flexDirection={'column'} marginLeft={2}>
               <Text
                 color={'light.textLight'}
@@ -144,7 +175,7 @@ const WalletDetailScreen = ({ route }) => {
               color={'light.textLight'}
               marginX={1}
               fontSize={12}
-              fontWeight={100}
+              fontWeight={200}
               letterSpacing={0.6}
             >
               Know More
@@ -181,7 +212,7 @@ const WalletDetailScreen = ({ route }) => {
               color={'light.textLight'}
               marginX={1}
               fontSize={12}
-              fontWeight={100}
+              fontWeight={200}
               letterSpacing={0.24}
             >
               Available to spend
@@ -205,13 +236,12 @@ const WalletDetailScreen = ({ route }) => {
       <Box
         marginTop={getAccountCardHeight()}
         paddingX={7}
-        paddingY={getTransactionPadding()}
         height={'100%'}
         width={'100%'}
         backgroundColor={'light.ReceiveBackground'}
         borderRadius={20}
       >
-        <Box flexDirection={'row'} justifyContent={'space-between'}>
+        <Box flexDirection={'row'} justifyContent={'space-between'} marginTop={5}>
           <Text
             color={'light.textBlack'}
             marginX={1}
@@ -235,23 +265,65 @@ const WalletDetailScreen = ({ route }) => {
           </Box>
         </Box>
 
-        <Box marginTop={5}>
+        {/* <Box marginTop={5}>
           {transactions.forEach((tx) => (
             <TransactionElement transaction={tx} />
           ))}
+        </Box> */}
+        <Box
+          flex={windowHeight >= 850 ? '0.45' : windowHeight >= 750 ? '0.4' : '0.42'}
+          marginTop={13}
+        >
+          <FlatList
+            refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
+            data={transactions}
+            renderItem={renderTransactionElement}
+            keyExtractor={(item) => item}
+            showsVerticalScrollIndicator={false}
+          />
         </Box>
-        <Box borderWidth={0.5} borderColor={'light.GreyText'} borderRadius={20} marginTop={'5'} />
+        <Box
+          borderWidth={0.5}
+          borderColor={'light.GreyText'}
+          borderRadius={20}
+          opacity={0.2}
+          marginTop={2}
+        />
 
-        <Box flexDirection={'row'} marginY={4} justifyContent={'space-evenly'}>
-          <IconRecieve />
+        <Box flexDirection={'row'} marginTop={2} justifyContent={'space-between'} marginX={10}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Send', { wallet });
+            }}
+            style={styles.IconText}
+          >
+            <Send />
+            <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+              Send
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               navigation.navigate('Receive', { wallet });
             }}
+            style={styles.IconText}
           >
-            <IconRecieve />
+            <Recieve />
+            <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+              Recieve
+            </Text>
           </TouchableOpacity>
-          <IconRecieve />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Receive', { wallet });
+            }}
+            style={styles.IconText}
+          >
+            <More />
+            <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+              More
+            </Text>
+          </TouchableOpacity>
         </Box>
       </Box>
     </Box>
@@ -268,7 +340,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingTop: hp(16),
-    paddingHorizontal: wp(10),
+    paddingHorizontal: wp(7),
+  },
+  IconText: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

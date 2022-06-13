@@ -2,13 +2,13 @@
 name: Feature
 about: Feature of the app
 title: ''
-labels: feature
+labels: "Type: feature \U0001F39B️"
 assignees: ''
 
 ---
 
 Feature Description
-A clear and concise description of the app
+A clear and concise description of the feature
 
 *Requirements
 -Designs
@@ -19,8 +19,8 @@ Task Break Down
 -TASK 1
 -TASK 2
 
-ERD 
+**ERD 
 
-Related Diagrams 
+**Related Diagrams 
 
-Test Cases
+**Test Cases

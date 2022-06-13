@@ -22,16 +22,11 @@ import {
   walletSettingsUpdateFailed,
   setResetTwoFALoader,
   recomputeNetBalance,
-  updateGift,
-  GENERATE_GIFTS,
-  giftCreationSuccess,
   IMPORT_NEW_WALLET,
   refreshWallets,
   REFRESH_WALLETS,
   AUTO_SYNC_WALLETS,
   ADD_NEW_WALLETS,
-  walletsRefreshStarted,
-  walletsRefreshCompleted,
 } from '../sagaActions/wallets';
 import config, { APP_STAGE } from 'src/core/config';
 import { WalletsState } from 'src/store/reducers/wallets';
@@ -68,51 +63,24 @@ export interface newWalletsInfo {
   walletDetails?: newWalletDetails;
 }
 
-export function getNextFreeAddress(
-  dispatch: any,
-  wallet: Wallet | MultiSigWallet,
-  requester?: ActiveAddressAssignee
-) {
+export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
-
   if (!wallet.isUsable) return '';
-  if (wallet.type === WalletType.DONATION) return wallet.specs.receivingAddress;
 
-  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(
-    wallet,
-    requester
-  );
-
-  // dispatch(
-  //   updateWallets({
-  //     wallets: [updatedWallet],
-  //   })
-  // );
-  // dbManager.updateWallet((updatedWallet as Wallet).id, updatedWallet);
-
+  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 
-export function* getNextFreeAddressWorker(
-  wallet: Wallet | MultiSigWallet,
-  requester?: ActiveAddressAssignee
-) {
+export function* getNextFreeAddressWorker(wallet: Wallet | MultiSigWallet) {
   // to be used by sagas(w/o dispatch)
-
   if (!wallet.isUsable) return '';
-  if (wallet.type === WalletType.DONATION) return wallet.specs.receivingAddress;
 
   const { updatedWallet, receivingAddress } = yield call(
     WalletOperations.getNextFreeExternalAddress,
-    wallet,
-    requester
+    wallet
   );
-  // yield put(
-  //   updateWallets({
-  //     wallets: [updatedWallet],
-  //   })
-  // );
-  // yield call( dbManager.updateWallet, ( updatedWallet as Wallet ).id, updatedWallet )
+  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 
@@ -579,45 +547,23 @@ function* syncWalletsWorker({
     wallets: (Wallet | MultiSigWallet | DonationWallet)[];
     options: {
       hardRefresh?: boolean;
-      syncDonationWallet?: boolean;
     };
   };
 }) {
   const { wallets, options } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].derivationDetails.networkType);
+  const { synchedWallets, txsFound, activeAddressesWithNewTxsMap } = yield call(
+    WalletOperations.syncWallets,
+    wallets,
+    network,
+    options.hardRefresh
+  );
 
-  if (options.syncDonationWallet) {
-    // can only sync one donation instance at a time
-    const donationWallet = wallets[0] as DonationWallet;
-
-    const { synchedWallet, txsFound } = yield call(
-      WalletOperations.syncDonationWallet,
-      donationWallet,
-      network
-    );
-
-    const synchedWallets = {
-      [synchedWallet.id]: synchedWallet,
-    };
-    return {
-      synchedWallets,
-      txsFound,
-      activeAddressesWithNewTxsMap: {},
-    };
-  } else {
-    const { synchedWallets, txsFound, activeAddressesWithNewTxsMap } = yield call(
-      WalletOperations.syncWallets,
-      wallets,
-      network,
-      options.hardRefresh
-    );
-
-    return {
-      synchedWallets,
-      txsFound,
-      activeAddressesWithNewTxsMap,
-    };
-  }
+  return {
+    synchedWallets,
+    txsFound,
+    activeAddressesWithNewTxsMap,
+  };
 }
 
 export const syncWalletsWatcher = createWatcher(syncWalletsWorker, SYNC_WALLETS);
@@ -627,49 +573,28 @@ function* refreshWalletsWorker({
 }: {
   payload: {
     wallets: (Wallet | MultiSigWallet | DonationWallet)[];
-    options: { hardRefresh?: boolean; syncDonationWallet?: boolean };
+    options: { hardRefresh?: boolean };
   };
 }) {
-  const options: { hardRefresh?: boolean; syncDonationWallet?: boolean } = payload.options;
-  yield put(walletsRefreshStarted(payload.wallets));
-
-  const walletIds = [];
-  const walletsToSync: (Wallet | MultiSigWallet | DonationWallet)[] = [];
-  for (const wallet of payload.wallets) {
-    walletsToSync.push(wallet);
-  }
-
+  const { wallets } = payload;
+  const options: { hardRefresh?: boolean } = payload.options;
   const { synchedWallets, activeAddressesWithNewTxsMap } = yield call(syncWalletsWorker, {
     payload: {
-      wallets: walletsToSync,
+      wallets,
       options,
     },
   });
 
-  // yield put(
-  //   updateWallets({
-  //     wallets: synchedWallets,
-  //   })
-  // );
-  yield put(walletsRefreshCompleted(payload.wallets));
-
   let computeNetBalance = false;
   for (const synchedWallet of synchedWallets) {
-    // yield call( dbManager.updateWallet, ( synchedWallet as Wallet ).id, synchedWallet )
-    if ((synchedWallet as Wallet).specs.hasNewTxn) {
-      walletIds.push((synchedWallet as Wallet).id);
-      computeNetBalance = true;
-    }
-  }
-  if (walletIds.length > 0) {
-    // TODO: Re-enable wallet image updates across all relevant sagas(the ones cotaining: updateWalletImageHealth)
-    // yield put( updateWalletImageHealth( {
-    //   updateWallets: true,
-    //   walletIds: walletIds
-    // } ) )
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
+      specs: synchedWallet.specs,
+    });
+
+    if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
   }
 
-  // TODO: pass in all wallets(instead of synched) to recompute
+  // TODO: pass in all wallets(instead of only synched ones) to recompute
   if (computeNetBalance) yield put(recomputeNetBalance(synchedWallets));
 
   // update F&F channels if any new txs found on an assigned address

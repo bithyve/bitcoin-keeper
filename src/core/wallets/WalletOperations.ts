@@ -35,8 +35,7 @@ import {
 } from './interfaces/enum';
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
-    wallet: Wallet | MultiSigWallet,
-    requester?: ActiveAddressAssignee
+    wallet: Wallet | MultiSigWallet
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
@@ -66,15 +65,7 @@ export default class WalletOperations {
       );
     }
 
-    wallet.specs.activeAddresses.external[receivingAddress] = {
-      index: wallet.specs.nextFreeAddressIndex,
-      // assignee: requester
-      //   ? requester
-      //   : {
-      //       type: wallet.type,
-      //       id: wallet.id,
-      //     },
-    };
+    wallet.specs.activeAddresses.external[receivingAddress] = wallet.specs.nextFreeAddressIndex;
     wallet.specs.nextFreeAddressIndex++;
     wallet.specs.receivingAddress = receivingAddress;
     return {
@@ -163,10 +154,7 @@ export default class WalletOperations {
       address,
       privateKey,
     };
-    wallet.specs.activeAddresses.external[address] = {
-      index: -1,
-      // assignee: requester,
-    };
+    wallet.specs.activeAddresses.external[address] = -1;
   };
 
   static syncWallets = async (
@@ -434,93 +422,6 @@ export default class WalletOperations {
     };
   };
 
-  static syncDonationWallet = async (
-    wallet: DonationWallet,
-    network: bitcoinJS.networks.Network
-  ): Promise<{
-    synchedWallet: Wallet;
-  }> => {
-    const xpubId = wallet.id;
-    const donationId = wallet.id.slice(0, 15);
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, utxos, balances, transactions } =
-      await WalletUtilities.syncViaXpubAgent(xpubId, donationId);
-    const internalAddresses = [];
-    for (
-      let itr = 0;
-      itr < nextFreeChangeAddressIndex + config.DONATION_GAP_LIMIT_INTERNAL;
-      itr++
-    ) {
-      let address;
-      if ((wallet as MultiSigWallet).specs.is2FA)
-        address = WalletUtilities.createMultiSig(
-          {
-            primary: wallet.specs.xpub,
-            secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-            bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-          },
-          2,
-          network,
-          itr,
-          true
-        ).address;
-      else address = WalletUtilities.getAddressByIndex(wallet.specs.xpub, true, itr, network);
-      internalAddresses.push(address);
-    }
-
-    const confirmedUTXOs = [];
-    const unconfirmedUTXOs = [];
-    for (const utxo of utxos) {
-      if (utxo.status) {
-        if (utxo.status.confirmed) confirmedUTXOs.push(utxo);
-        else {
-          if (internalAddresses.includes(utxo.address)) {
-            // defaulting utxo's on the change branch to confirmed
-            confirmedUTXOs.push(utxo);
-          } else unconfirmedUTXOs.push(utxo);
-        }
-      } else {
-        // utxo's from fallback won't contain status var (defaulting them as confirmed)
-        confirmedUTXOs.push(utxo);
-      }
-    }
-
-    const { newTransactions, lastSynched } = WalletUtilities.setNewTransactions(
-      transactions,
-      wallet.specs.lastSynched
-    );
-    wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
-    wallet.specs.confirmedUTXOs = confirmedUTXOs;
-    wallet.specs.balances = balances;
-    wallet.specs.nextFreeAddressIndex = nextFreeAddressIndex;
-    wallet.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
-    wallet.specs.transactions = transactions;
-    wallet.specs.newTransactions = newTransactions;
-    wallet.specs.lastSynched = lastSynched;
-    if ((wallet as MultiSigWallet).specs.is2FA)
-      wallet.specs.receivingAddress = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
-        network,
-        wallet.specs.nextFreeAddressIndex,
-        false
-      ).address;
-    else
-      wallet.specs.receivingAddress = WalletUtilities.getAddressByIndex(
-        wallet.specs.xpub,
-        false,
-        wallet.specs.nextFreeAddressIndex,
-        network
-      );
-
-    return {
-      synchedWallet: wallet,
-    };
-  };
-
   static updateActiveAddresses = (
     wallet: Wallet,
     consumedUTXOs: { [txid: string]: InputUTXOs },
@@ -577,32 +478,9 @@ export default class WalletOperations {
           );
 
         if (consumedUTXO.address === address) {
-          if (!activeExternalAddresses[address])
-            activeExternalAddresses[address] = {
-              index: itr,
-              // assignee: {
-              //   type: wallet.type,
-              //   id: wallet.id,
-              //   recipientInfo,
-              // },
-            };
           // include out of bound ext address
-          else
-            activeExternalAddresses[address] = {
-              ...activeExternalAddresses[address],
-              // assignee: {
-              //   ...activeExternalAddresses[address].assignee,
-              //   recipientInfo: idx(
-              //     activeExternalAddresses[address],
-              //     (_) => _.assignee.recipientInfo
-              //   )
-              //     ? {
-              //         ...activeExternalAddresses[address].assignee.recipientInfo,
-              //         ...recipientInfo,
-              //       }
-              //     : recipientInfo,
-              // },
-            };
+          if (activeExternalAddresses[address] === undefined)
+            activeExternalAddresses[address] = itr;
           found = true;
           break;
         }
@@ -634,32 +512,9 @@ export default class WalletOperations {
             );
 
           if (consumedUTXO.address === address) {
-            if (!activeInternalAddresses[address])
-              activeInternalAddresses[address] = {
-                index: itr,
-                // assignee: {
-                //   type: wallet.type,
-                //   id: wallet.id,
-                //   recipientInfo,
-                // },
-              };
             // include out of bound(soft-refresh range) int address
-            else
-              activeInternalAddresses[address] = {
-                ...activeInternalAddresses[address],
-                // assignee: {
-                //   ...activeInternalAddresses[address].assignee,
-                //   recipientInfo: idx(
-                //     activeInternalAddresses[address],
-                //     (_) => _.assignee.recipientInfo
-                //   )
-                //     ? {
-                //         ...activeInternalAddresses[address].assignee.recipientInfo,
-                //         ...recipientInfo,
-                //       }
-                //     : recipientInfo,
-                // },
-              };
+            if (activeInternalAddresses[address] === undefined)
+              activeInternalAddresses[address] = itr;
             found = true;
             break;
           }
@@ -690,13 +545,7 @@ export default class WalletOperations {
         purpose
       );
 
-    activeInternalAddresses[changeAddress] = {
-      index: wallet.specs.nextFreeChangeAddressIndex,
-      // assignee: {
-      //   type: wallet.type,
-      //   id: wallet.id,
-      // },
-    };
+    activeInternalAddresses[changeAddress] = wallet.specs.nextFreeChangeAddressIndex;
     wallet.specs.nextFreeChangeAddressIndex++;
   };
 
@@ -1170,122 +1019,6 @@ export default class WalletOperations {
     } else throw new Error('Failed to broadcast transaction, txid missing');
     return {
       txid,
-    };
-  };
-
-  static generateGifts = async (
-    appDetails: {
-      appId: string;
-      appName: string;
-    },
-    wallet: Wallet | MultiSigWallet,
-    amounts: number[],
-    averageTxFees: AverageTxFees,
-    includeFee?: boolean,
-    exclusiveGifts?: boolean,
-    validity: number = config.DEFAULT_GIFT_VALIDITY
-  ): Promise<{
-    txid: string;
-    gifts: Gift[];
-  }> => {
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
-    const txPriority = TxPriority.LOW;
-
-    const recipients = [];
-    const gifts: Gift[] = [];
-    let exclusiveGiftCode;
-    if (exclusiveGifts) exclusiveGiftCode = appDetails.appId.slice(0, 5) + '-' + Date.now();
-
-    amounts.forEach((amount) => {
-      const keyPair = ECPair.makeRandom({
-        network: network,
-      });
-
-      const privateKey = keyPair.toWIF();
-      const address = WalletUtilities.deriveAddressFromKeyPair(keyPair, network);
-
-      recipients.push({
-        address,
-        amount,
-        name: 'Gift',
-      });
-
-      const id = crypto.createHash('sha256').update(privateKey).digest('hex');
-      const createdGift: Gift = {
-        id,
-        privateKey,
-        address,
-        amount,
-        type: GiftType.SENT,
-        status: GiftStatus.CREATED,
-        themeId: GiftThemeId.ONE,
-        timestamps: {
-          created: Date.now(),
-        },
-        validitySpan: validity,
-        sender: {
-          appId: appDetails.appId,
-          appName: appDetails.appName,
-          walletId: wallet.id,
-        },
-        receiver: {},
-        exclusiveGiftCode,
-      };
-
-      gifts.push(createdGift);
-    });
-
-    const { txPrerequisites } = await WalletOperations.transferST1(
-      wallet,
-      recipients,
-      averageTxFees
-    );
-    let feeDeductedFromAddress: string;
-    const priorityBasedTxPrerequisites = txPrerequisites[txPriority];
-
-    if (includeFee) {
-      priorityBasedTxPrerequisites.outputs.forEach((output) => {
-        if (!output.address) {
-          // adding back fee to the change address
-          output.value += priorityBasedTxPrerequisites.fee;
-        } else {
-          // deducting fee from the gift(or one of the gifts)
-          if (!feeDeductedFromAddress) {
-            output.value -= priorityBasedTxPrerequisites.fee;
-            if (output.value <= 0)
-              throw new Error(
-                'Failed to generate gifts, inclusion fee is greater than gift amount'
-              );
-            feeDeductedFromAddress = output.address;
-          }
-        }
-      });
-    }
-
-    if (feeDeductedFromAddress) {
-      recipients.forEach((recipient) => {
-        if (recipient.address === feeDeductedFromAddress)
-          recipient.amount -= priorityBasedTxPrerequisites.fee;
-      });
-
-      gifts.forEach((gift) => {
-        if (gift.address === feeDeductedFromAddress)
-          gift.amount -= priorityBasedTxPrerequisites.fee;
-      });
-    }
-
-    const { txid } = await WalletOperations.transferST2(
-      wallet,
-      appDetails.appId,
-      txPrerequisites,
-      txPriority,
-      network,
-      recipients
-    );
-
-    return {
-      txid,
-      gifts,
     };
   };
 }

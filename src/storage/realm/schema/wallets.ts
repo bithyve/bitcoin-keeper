@@ -28,6 +28,16 @@ export const ActiveAddressesSchema: ObjectSchema = {
   },
 };
 
+const UTXOStatus = {
+  type: '{}',
+  properties: {
+    confirmed: 'bool',
+    block_height: 'int?',
+    block_hash: 'string?',
+    block_time: 'int?',
+  },
+};
+
 export const UTXOSchema: ObjectSchema = {
   name: RealmSchema.UTXO,
   embedded: true,
@@ -36,7 +46,7 @@ export const UTXOSchema: ObjectSchema = {
     vout: 'int',
     value: 'int',
     address: 'string',
-    status: 'string?',
+    status: UTXOStatus,
   },
 };
 
@@ -47,7 +57,7 @@ export const TransactionSchema: ObjectSchema = {
     txid: 'string',
     status: 'string?',
     confirmations: 'int?',
-    fee: 'string?',
+    fee: 'int?',
     date: 'string?',
     transactionType: 'string?',
     amount: 'int',
@@ -80,8 +90,8 @@ export const TransactionToAddressMappingSchema: ObjectSchema = {
   name: RealmSchema.TransactionToAddressMapping,
   embedded: true,
   properties: {
-    txId: 'string',
-    addresses: 'string<>',
+    txid: 'string',
+    addresses: 'string[]',
   },
 };
 

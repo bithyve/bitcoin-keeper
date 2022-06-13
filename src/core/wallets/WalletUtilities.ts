@@ -209,17 +209,13 @@ export default class WalletUtilities {
 
     const purpose =
       wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
-    const closingExtIndex =
-      nextFreeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT : config.GAP_LIMIT);
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
         return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
     }
 
-    const closingIntIndex =
-      nextFreeChangeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT_INTERNAL : config.GAP_LIMIT);
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
         return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
@@ -290,9 +286,7 @@ export default class WalletUtilities {
     const { networkType } = wallet.derivationDetails;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const closingExtIndex =
-      wallet.specs.nextFreeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT : config.GAP_LIMIT);
+    const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingExtIndex; itr++) {
       const multiSig = WalletUtilities.createMultiSig(
         {
@@ -328,9 +322,7 @@ export default class WalletUtilities {
       }
     }
 
-    const closingIntIndex =
-      wallet.specs.nextFreeChangeAddressIndex +
-      (wallet.type === WalletType.DONATION ? config.DONATION_GAP_LIMIT_INTERNAL : config.GAP_LIMIT);
+    const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       const multiSig = WalletUtilities.createMultiSig(
         {
@@ -675,7 +667,7 @@ export default class WalletUtilities {
                 txIdCache[tx.txid] = true;
                 transactionMapping.push({
                   txid: tx.txid,
-                  addresses: new Set([addressInfo.Address]),
+                  addresses: [addressInfo.Address],
                 });
 
                 // if (tx.transactionType === 'Self') {
@@ -729,8 +721,8 @@ export default class WalletUtilities {
                   amount: tx.Amount,
                   walletType,
                   walletName: walletName ? walletName : walletType,
-                  recipientAddresses: tx.RecipientAddresses,
-                  senderAddresses: tx.SenderAddresses,
+                  recipientAddresses: tx.RecipientAddresses ? tx.RecipientAddresses : [],
+                  senderAddresses: tx.SenderAddresses ? tx.SenderAddresses : [],
                   blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
                   address: addressInfo.Address,
                   isNew: true,
@@ -739,9 +731,11 @@ export default class WalletUtilities {
 
                 newTxs.push(transaction);
               } else {
+                // TODO: resolve the quadratic complexity(introduced due to data storage restrictions by Realm)
                 for (const map of transactionMapping) {
                   if (map.txid === tx.txId) {
-                    map.addresses.add(addressInfo.Address);
+                    if (!map.addresses.includes(addressInfo.Address))
+                      map.addresses.push(addressInfo.Address);
                     break;
                   }
                 }
@@ -836,8 +830,10 @@ export default class WalletUtilities {
             }
 
             addresses.forEach((address) => {
-              if (activeAddresses.external[address]) delete activeAddresses.external[address];
-              else if (activeAddresses.internal[address]) delete activeAddresses.internal[address];
+              if (activeAddresses.external[address] !== undefined)
+                delete activeAddresses.external[address];
+              else if (activeAddresses.internal[address] !== undefined)
+                delete activeAddresses.internal[address];
             });
           }
         });
@@ -849,6 +845,7 @@ export default class WalletUtilities {
 
         synchedWallets[walletId] = {
           UTXOs,
+          txIdCache,
           transactionMapping,
           transactions,
           nextFreeAddressIndex: lastUsedAddressIndex + 1,
@@ -859,11 +856,10 @@ export default class WalletUtilities {
         };
       }
 
-      if (usedFallBack)
-        // Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
-        return {
-          synchedWallets,
-        };
+      // if (usedFallBack) Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
+      return {
+        synchedWallets,
+      };
     } catch (err) {
       console.log({
         err,
@@ -1022,7 +1018,7 @@ export default class WalletUtilities {
     const amount = 10000 / SATOSHIS_IN_BTC;
     try {
       const res = await accAxios.post(`${config.RELAY}/testnetFaucet`, {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         recipientAddress,
         amount,
       });
@@ -1050,7 +1046,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await SIGNING_AXIOS.post('setup2FA', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         appId,
       });
     } catch (err) {
@@ -1074,7 +1070,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await SIGNING_AXIOS.post('validate2FASetup', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         appId,
         token,
       });
@@ -1110,7 +1106,7 @@ export default class WalletUtilities {
     let res: AxiosResponse;
     try {
       res = await SIGNING_AXIOS.post('resetTwoFAv2', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         appId: appId,
       });
     } catch (err) {
@@ -1168,7 +1164,7 @@ export default class WalletUtilities {
 
     try {
       res = await SIGNING_AXIOS.post('securePSBTTransaction', {
-        HEXA_ID: config.HEXA_ID,
+        AUTH_ID: config.AUTH_ID,
         walletID: walletId,
         token,
         serializedPSBT,
@@ -1182,156 +1178,6 @@ export default class WalletUtilities {
     const signedTxHex = res.data.txHex;
     return {
       signedTxHex,
-    };
-  };
-
-  // donation-wallet specific utilities
-  static setupDonationWallet = async (
-    wallet: DonationWallet,
-    walletId: string
-  ): Promise<{
-    setupSuccessful: boolean;
-  }> => {
-    const xpubs = [wallet.specs.xpub];
-    if ((wallet as MultiSigWallet).specs.is2FA) {
-      xpubs.push((wallet as MultiSigWallet).specs.xpubs.secondary);
-      xpubs.push((wallet as MultiSigWallet).specs.xpubs.bithyve);
-    }
-
-    let res: AxiosResponse;
-    try {
-      res = await RELAY_AXIOS.post('setupDonationWallet', {
-        HEXA_ID: config.HEXA_ID,
-        donationId: wallet.id.slice(0, 15),
-        walletID: walletId,
-        details: {
-          donee: wallet.presentationData.donee,
-          subject: wallet.presentationData.donationName,
-          description: wallet.presentationData.donationDescription,
-          xpubId: wallet.id,
-          xpubs,
-          configuration: wallet.presentationData.configuration,
-        },
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { setupSuccessful } = res.data;
-    return {
-      setupSuccessful,
-    };
-  };
-
-  static updateDonationPreferences = async (
-    wallet: DonationWallet,
-    walletId: string,
-    preferences: {
-      disableWallet?: boolean;
-      configuration?: {
-        displayBalance: boolean;
-        displayIncomingTxs: boolean;
-        displayOutgoingTxs: boolean;
-      };
-      walletDetails?: {
-        donee: string;
-        subject: string;
-        description: string;
-      };
-    }
-  ): Promise<{ updated: boolean; updatedWallet: DonationWallet }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RELAY_AXIOS.post('updatePreferences', {
-        HEXA_ID: config.HEXA_ID,
-        donationId: wallet.id.slice(0, 15),
-        walletID: walletId,
-        preferences,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { updated } = res.data;
-    if (updated) {
-      if (
-        preferences.disableWallet !== undefined &&
-        preferences.disableWallet !== wallet.presentationData.disableWallet
-      )
-        wallet.presentationData.disableWallet = preferences.disableWallet;
-
-      if (preferences.configuration)
-        wallet.presentationData.configuration = preferences.configuration;
-
-      if (preferences.walletDetails) {
-        wallet.presentationData.donationName = preferences.walletDetails.subject;
-        wallet.presentationData.walletDescription = preferences.walletDetails.subject;
-        wallet.presentationData.donationDescription = preferences.walletDetails.description;
-        wallet.presentationData.donee = preferences.walletDetails.donee;
-      }
-    }
-
-    return {
-      updated,
-      updatedWallet: wallet,
-    };
-  };
-
-  static syncViaXpubAgent = async (
-    xpubId: string,
-    donationId: string
-  ): Promise<{
-    usedAddresses: string[];
-    nextFreeAddressIndex: number;
-    nextFreeChangeAddressIndex: number;
-    utxos: Array<{
-      txId: string;
-      vout: number;
-      value: number;
-      address: string;
-      status?: any;
-    }>;
-    balances: { confirmed: number; unconfirmed: number };
-    transactions: Transaction[];
-  }> => {
-    // syncs wallet via xpub-agent(relay)
-
-    let res: AxiosResponse;
-    try {
-      res = await RELAY_AXIOS.post('fetchXpubInfo', {
-        HEXA_ID: config.HEXA_ID,
-        xpubId,
-        walletType: 'DONATION',
-        walletDetails: {
-          donationId,
-        },
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const {
-      usedAddresses,
-      nextFreeAddressIndex,
-      nextFreeChangeAddressIndex,
-      utxos,
-      balances,
-      transactions,
-    } = res.data;
-
-    return {
-      usedAddresses,
-      nextFreeAddressIndex,
-      nextFreeChangeAddressIndex,
-      utxos,
-      balances: {
-        confirmed: balances.balance,
-        unconfirmed: balances.unconfirmedBalance,
-      },
-      transactions: transactions.transactionDetails,
     };
   };
 }

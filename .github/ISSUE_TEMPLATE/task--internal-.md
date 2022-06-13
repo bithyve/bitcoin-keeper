@@ -1,8 +1,8 @@
 ---
-name: Task (Dev)
+name: Task (Internal)
 about: 'Small chunk of the feature '
 title: ''
-labels: "Type: dev\U0001F9D1‍\U0001F4BB"
+labels: "Status: to-do \U0001F4CB, Type: dev\U0001F9D1‍\U0001F4BB"
 assignees: ''
 
 ---

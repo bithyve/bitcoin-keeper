@@ -17,11 +17,13 @@ import WalletCard from './WalletCard';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { useNavigation } from '@react-navigation/native';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const navigation = useNavigation();
-  const wallets = useQuery(RealmSchema.Wallet);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
 
   const BtcToCurrency = () => {
     return (
@@ -129,9 +131,10 @@ const WalletTab = ({ animate }) => {
     );
   };
 
-  const RenderWalletCard = ({ item }: { item }) => {
+  const RenderWalletCard = ({ item }: { item: Wallet }) => {
     return <WalletCard item={item} navigation={navigation} />;
   };
+
   return (
     <Box
       backgroundColor={'light.lightYellow'}
@@ -161,9 +164,9 @@ const WalletTab = ({ animate }) => {
           </Box>
           {/* {Wallets } */}
           <FlatList
-            data={wallets}
+            data={[...wallets, { isEnd: true }]}
             renderItem={RenderWalletCard}
-            keyExtractor={(item) => item}
+            keyExtractor={(item) => item?.id}
             extraData={navigation}
             horizontal={true}
             style={styles.flatlistContainer}
