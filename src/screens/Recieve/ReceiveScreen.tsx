@@ -4,35 +4,43 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { Image } from 'react-native';
+import { Image, TouchableOpacity, Clipboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+// import { useDispatch } from 'react-redux';
 
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import InfoBox from '../../components/InfoBox';
+
+import WalletUtilities from 'src/core/wallets/WalletUtilities';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { getNextFreeAddress } from 'src/store/sagas/wallets';
+
 import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
-
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 
-import Colors from 'src/theme/Colors';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import InfoBox from '../../components/InfoBox';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
-import { getNextFreeAddress } from 'src/store/sagas/wallets';
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
-
-const ReceiveScreen = ({ route }) => {
+const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
-  const wallet: Wallet = route.params.wallet;
+  // const dispatch = useDispatch();
+
+  const wallet: Wallet = route?.params?.wallet;
+  const amt: string = route?.params?.amount;
+
   const [receivingAddress, setReceivingAddress] = useState(null);
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(amt ? amt : '');
   const [paymentURI, setPaymentURI] = useState(null);
+
 
   useEffect(() => {
     const receivingAddress = getNextFreeAddress(wallet);
     setReceivingAddress(receivingAddress);
   }, []);
+
+  useEffect(() => {
+    setAmount(amt ? amt : '');
+  }, [amt]);
 
   useEffect(() => {
     if (amount) {
@@ -63,6 +71,8 @@ const ReceiveScreen = ({ route }) => {
             fontWeight={300}
             fontSize={12}
             letterSpacing={1.08}
+            width={'100%'}
+            noOfLines={1}
           >
             {receivingAddress}
           </Text>
@@ -70,61 +80,69 @@ const ReceiveScreen = ({ route }) => {
       </Box>
       {/* {Input Field} */}
       <Box
-        flexDirection={'row'}
-        marginY={hp(3)}
-        width={'100%'}
-        justifyContent={'center'}
         alignItems={'center'}
+        borderBottomLeftRadius={10}
+        borderTopLeftRadius={10}
       >
-        <Text>{receivingAddress}</Text>
-        <TouchableOpacity activeOpacity={0.4}>
-          <Box
-            backgroundColor={'light.yellow1'}
-            padding={3}
-            borderTopRightRadius={10}
-            borderBottomRightRadius={10}
-          >
-            <CopyIcon />
-          </Box>
-        </TouchableOpacity>
+        <Box
+          flexDirection={'row'}
+          marginY={hp(3)}
+          width={'80%'}
+          alignItems={'center'}
+          justifyContent={'space-between'}
+          backgroundColor={'light.textInputBackground'}
+        >
+          <Text width={'80%'} marginLeft={4} noOfLines={1}>{receivingAddress}</Text>
+          <TouchableOpacity activeOpacity={0.4} onPress={() => { Clipboard.setString(receivingAddress) }}>
+            <Box
+              backgroundColor={'light.copyBackground'}
+              padding={3}
+              borderTopRightRadius={10}
+              borderBottomRightRadius={10}
+            >
+              <CopyIcon />
+            </Box>
+          </TouchableOpacity>
+        </Box>
       </Box>
       {/* {Add amount component} */}
-      <Box
-        flexDirection={'row'}
-        height={70}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        paddingX={3}
-        marginX={3}
-        marginTop={'7%'}
-        backgroundColor={'light.lightYellow'}
-      >
-        <Box flexDirection={'row'}>
-          <BtcGreen />
-          <Box flexDirection={'column'} marginLeft={5}>
-            <Text
-              color={'light.lightBlack'}
-              fontWeight={200}
-              fontFamily={'body'}
-              fontSize={14}
-              letterSpacing={1.12}
-            >
-              Add amount
-            </Text>
-            <Text
-              color={'light.GreyText'}
-              fontWeight={200}
-              fontFamily={'body'}
-              fontSize={12}
-              letterSpacing={0.6}
-            >
-              Lorem ipsum dolor sit amet, con
-            </Text>
+      <TouchableOpacity activeOpacity={0.5} style={{ marginTop: '7%' }} onPress={() => { navigtaion.navigate('AddAmount', { wallet }) }}>
+        <Box
+          flexDirection={'row'}
+          height={70}
+          borderRadius={10}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          paddingX={3}
+          marginX={3}
+          backgroundColor={'light.lightYellow'}
+        >
+          <Box flexDirection={'row'}>
+            <BtcGreen />
+            <Box flexDirection={'column'} marginLeft={5}>
+              <Text
+                color={'light.lightBlack'}
+                fontWeight={200}
+                fontFamily={'body'}
+                fontSize={14}
+                letterSpacing={1.12}
+              >
+                Add amount
+              </Text>
+              <Text
+                color={'light.GreyText'}
+                fontWeight={200}
+                fontFamily={'body'}
+                fontSize={12}
+                letterSpacing={0.6}
+              >
+                Lorem ipsum dolor sit amet, con
+              </Text>
+            </Box>
           </Box>
+          <ArrowIcon />
         </Box>
-        <ArrowIcon />
-      </Box>
+      </TouchableOpacity>
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={10} marginX={5}>
         <InfoBox
@@ -153,7 +171,7 @@ const styles = ScaledSheet.create({
   },
   textBox: {
     width: '80%',
-    backgroundColor: Colors?.textInputBackground,
+    // backgroundColor: Colors?.textInputBackground,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
