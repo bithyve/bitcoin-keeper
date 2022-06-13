@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Input, View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -10,12 +10,28 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
+import { newWalletsInfo } from 'src/store/sagas/wallets';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { useDispatch } from 'react-redux';
+import { addNewWallets } from 'src/store/sagaActions/wallets';
 
 const EnterWalletDetailScreen = () => {
   const navigtaion = useNavigation();
-
+  const dispatch = useDispatch();
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
+
+  const createNewWallet = useCallback(() => {
+    const newWallet: newWalletsInfo = {
+      walletType: WalletType.CHECKING,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
+    navigtaion.goBack();
+  }, [walletName, walletDescription]);
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
@@ -51,10 +67,12 @@ const EnterWalletDetailScreen = () => {
         />
         <View marginY={20}>
           <Buttons
-            secondaryText={'Cancle'}
-            secondaryCallback={() => { console.log('Cancle') }}
+            secondaryText={'Cancel'}
+            secondaryCallback={() => {
+              console.log('Cancel');
+            }}
             primaryText={'Create'}
-            primaryCallback={() => { console.log('Create') }}
+            primaryCallback={createNewWallet}
           />
         </View>
       </View>
@@ -86,6 +104,5 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(13),
     letterSpacing: 0.96,
   },
-
 });
 export default EnterWalletDetailScreen;
