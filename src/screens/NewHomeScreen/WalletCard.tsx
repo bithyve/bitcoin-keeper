@@ -22,7 +22,9 @@ const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
     var { balances } = item?.specs;
   }
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('WalletDetailScreen', { wallet: item })}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('WalletDetailScreen', { walletId: item.id })}
+    >
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
         {!(item?.presentationData && item?.specs) ?
           <TouchableOpacity
