@@ -51,7 +51,6 @@ import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/inte
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 export interface newWalletDetails {
   name?: string;
@@ -68,9 +67,7 @@ export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
   if (!wallet.isUsable) return '';
 
-  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(
-    getJSONFromRealmObject(wallet)
-  );
+  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
   dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
@@ -81,7 +78,7 @@ export function* getNextFreeAddressWorker(wallet: Wallet | MultiSigWallet) {
 
   const { updatedWallet, receivingAddress } = yield call(
     WalletOperations.getNextFreeExternalAddress,
-    getJSONFromRealmObject(wallet)
+    wallet
   );
   dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
@@ -557,7 +554,7 @@ function* syncWalletsWorker({
   const network = WalletUtilities.getNetworkByType(wallets[0].derivationDetails.networkType);
   const { synchedWallets, txsFound, activeAddressesWithNewTxsMap } = yield call(
     WalletOperations.syncWallets,
-    wallets.map(getJSONFromRealmObject),
+    wallets,
     network,
     options.hardRefresh
   );
