@@ -19,7 +19,9 @@ const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
   const { walletName, walletDescription } = item.presentationData;
   const { balances } = item.specs;
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('WalletDetailScreen', { wallet: item })}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('WalletDetailScreen', { walletId: item.id })}
+    >
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
         <View style={styles.cardHeader}>
           {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>

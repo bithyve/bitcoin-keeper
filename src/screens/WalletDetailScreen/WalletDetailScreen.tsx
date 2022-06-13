@@ -33,10 +33,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { FlatList } from 'react-native-gesture-handler';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-const TransactionElement = (
-  { transaction }: { transaction: Transaction }
-) => {
+const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   return (
     <Box
       flexDirection={'row'}
@@ -93,9 +94,12 @@ const TransactionElement = (
   );
 };
 
-
 const WalletDetailScreen = ({ route }) => {
-  const wallet: Wallet = route.params.wallet;
+  const { useObject } = RealmContext;
+  const wallet: Wallet = getJSONFromRealmObject(
+    useObject(RealmSchema.Wallet, route.params.walletId)
+  );
+
   const { walletName, walletDescription } = wallet.presentationData;
   const { balances, transactions } = wallet.specs;
   const navigation = useNavigation();
@@ -103,17 +107,14 @@ const WalletDetailScreen = ({ route }) => {
 
   const [pullRefresh, setPullRefresh] = useState(false);
 
-
   const pullDownRefresh = () => {
-    setPullRefresh(true)
+    setPullRefresh(true);
     dispatch(refreshWallets([wallet], {}));
-    setPullRefresh(false)
-  }
+    setPullRefresh(false);
+  };
   const renderTransactionElement = ({ item }) => {
-    return (
-      <TransactionElement transaction={item} />
-    )
-  }
+    return <TransactionElement transaction={item} />;
+  };
 
   return (
     <Box>
@@ -269,21 +270,25 @@ const WalletDetailScreen = ({ route }) => {
             <TransactionElement transaction={tx} />
           ))}
         </Box> */}
-        <Box flex={windowHeight >= 850 ? '0.45' : windowHeight >= 750 ? '0.4' : '0.42'} marginTop={13}>
+        <Box
+          flex={windowHeight >= 850 ? '0.45' : windowHeight >= 750 ? '0.4' : '0.42'}
+          marginTop={13}
+        >
           <FlatList
-            refreshControl={
-              <RefreshControl
-                onRefresh={pullDownRefresh}
-                refreshing={pullRefresh}
-              />
-            }
+            refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
             data={transactions}
             renderItem={renderTransactionElement}
-            keyExtractor={item => item}
+            keyExtractor={(item) => item}
             showsVerticalScrollIndicator={false}
           />
         </Box>
-        <Box borderWidth={0.5} borderColor={'light.GreyText'} borderRadius={20} opacity={0.2} marginTop={2} />
+        <Box
+          borderWidth={0.5}
+          borderColor={'light.GreyText'}
+          borderRadius={20}
+          opacity={0.2}
+          marginTop={2}
+        />
 
         <Box flexDirection={'row'} marginTop={2} justifyContent={'space-between'} marginX={10}>
           <TouchableOpacity
@@ -339,8 +344,8 @@ const styles = StyleSheet.create({
   },
   IconText: {
     justifyContent: 'center',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 
 export default WalletDetailScreen;
