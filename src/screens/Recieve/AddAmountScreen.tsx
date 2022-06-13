@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Keyboard } from 'react-native';
 
@@ -14,12 +14,13 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
-import BtcInput from 'src/assets/images/svgs/btc_input.svg'
+import BtcInput from 'src/assets/images/svgs/btc_input.svg';
 
 const AddAmountScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
+
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -44,7 +45,7 @@ const AddAmountScreen = ({ route }: { route }) => {
             <BtcInput />
           </View>
           <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
-          < Input
+          <Input
             placeholder="Converted Amount"
             placeholderTextColor={'light.greenText'}
             style={styles.inputField}
@@ -57,14 +58,25 @@ const AddAmountScreen = ({ route }: { route }) => {
 
         <View marginY={20}>
           <Buttons
-            secondaryText={'Cancle'}
-            secondaryCallback={() => { console.log('Cancle') }}
+            secondaryText={'Cancel'}
+            secondaryCallback={() => {
+              console.log('Cancel');
+            }}
             primaryText={'Add'}
-            primaryCallback={() => { navigtaion.navigate('Receive', { amount, wallet }) }}
+            primaryCallback={() => {
+              navigtaion.navigate('Receive', { amount, wallet });
+            }}
           />
         </View>
 
-        <AppNumPad setValue={setAmount} ok={() => { console.log('ok') }} clear={() => setAmount('')} color={'#073E39'} />
+        <AppNumPad
+          setValue={setAmount}
+          ok={() => {
+            console.log('ok');
+          }}
+          clear={() => setAmount('')}
+          color={'#073E39'}
+        />
       </View>
     </View>
   );
@@ -93,6 +105,5 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(10),
     letterSpacing: 1.04,
   },
-
 });
 export default AddAmountScreen;

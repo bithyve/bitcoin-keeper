@@ -26,21 +26,14 @@ const ReceiveScreen = ({ route }: { route }) => {
   // const dispatch = useDispatch();
 
   const wallet: Wallet = route?.params?.wallet;
-  const amt: string = route?.params?.amount;
-
+  const amount = route?.params?.amount;
   const [receivingAddress, setReceivingAddress] = useState(null);
-  const [amount, setAmount] = useState(amt ? amt : '');
   const [paymentURI, setPaymentURI] = useState(null);
-
 
   useEffect(() => {
     const receivingAddress = getNextFreeAddress(wallet);
     setReceivingAddress(receivingAddress);
   }, []);
-
-  useEffect(() => {
-    setAmount(amt ? amt : '');
-  }, [amt]);
 
   useEffect(() => {
     if (amount) {
@@ -74,16 +67,12 @@ const ReceiveScreen = ({ route }: { route }) => {
             width={'100%'}
             noOfLines={1}
           >
-            {receivingAddress}
+            {paymentURI ? paymentURI : receivingAddress}
           </Text>
         </Box>
       </Box>
       {/* {Input Field} */}
-      <Box
-        alignItems={'center'}
-        borderBottomLeftRadius={10}
-        borderTopLeftRadius={10}
-      >
+      <Box alignItems={'center'} borderBottomLeftRadius={10} borderTopLeftRadius={10}>
         <Box
           flexDirection={'row'}
           marginY={hp(3)}
@@ -92,8 +81,15 @@ const ReceiveScreen = ({ route }: { route }) => {
           justifyContent={'space-between'}
           backgroundColor={'light.textInputBackground'}
         >
-          <Text width={'80%'} marginLeft={4} noOfLines={1}>{receivingAddress}</Text>
-          <TouchableOpacity activeOpacity={0.4} onPress={() => { Clipboard.setString(receivingAddress) }}>
+          <Text width={'80%'} marginLeft={4} noOfLines={1}>
+            {paymentURI ? paymentURI : receivingAddress}
+          </Text>
+          <TouchableOpacity
+            activeOpacity={0.4}
+            onPress={() => {
+              Clipboard.setString(paymentURI ? paymentURI : receivingAddress);
+            }}
+          >
             <Box
               backgroundColor={'light.copyBackground'}
               padding={3}
@@ -106,7 +102,13 @@ const ReceiveScreen = ({ route }: { route }) => {
         </Box>
       </Box>
       {/* {Add amount component} */}
-      <TouchableOpacity activeOpacity={0.5} style={{ marginTop: '7%' }} onPress={() => { navigtaion.navigate('AddAmount', { wallet }) }}>
+      <TouchableOpacity
+        activeOpacity={0.5}
+        style={{ marginTop: '7%' }}
+        onPress={() => {
+          navigtaion.navigate('AddAmount', { wallet });
+        }}
+      >
         <Box
           flexDirection={'row'}
           height={70}
