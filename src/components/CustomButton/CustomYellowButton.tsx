@@ -31,7 +31,7 @@ const CustomYellowButton = (props) => {
         colors={['#E3BE96', '#E3BE96']}
         style={styles.linearGradient}
       >
-        <Text color={'#30292F'} fontSize={12} fontWeight={'bold'}>
+        <Text color={'#30292F'} fontSize={12} fontWeight={'300'} fontFamily={'body'}>
           {props.value}
         </Text>
       </LinearGradient>

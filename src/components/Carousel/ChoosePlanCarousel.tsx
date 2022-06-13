@@ -9,16 +9,16 @@ import CustomYellowButton from '../CustomButton/CustomYellowButton';
 const planData = [
   {
     id: 1,
-    title: 'Pro',
+    title: 'Basic',
     subTitle: 'Lorem ipsum dolor sit amet,',
-    amount: '5',
+    amount: '0',
     upgrade: false,
   },
   {
     id: 2,
-    title: 'Basic',
-    subTitle: 'Lorem ipsum dolor sit amet,',
-    amount: '0',
+    title: 'Pro',
+    subTitle: 'Lorem ipsum',
+    amount: '5',
     upgrade: true,
   },
   {
@@ -57,16 +57,22 @@ const ChoosePlanCarousel = () => {
             borderWidth={0.5}
             my={15}
           ></Box>
-          <Text fontSize={RFValue(12)} color={'light.textLight'} my={2}>
+          <Text
+            fontSize={RFValue(13)}
+            fontWeight={'300'}
+            color={'light.textLight'}
+            mt={2}
+            fontFamily={'body'}
+          >
             {item.title}
           </Text>
-          <Text fontSize={RFValue(10)} color={'light.textLight'} my={2}>
+          <Text fontSize={RFValue(10)} color={'light.textLight'} mb={2} fontFamily={'body'}>
             {item.subTitle}
           </Text>
-          <Text fontSize={RFValue(24)} color={'light.textLight'}>
+          <Text fontSize={RFValue(24)} color={'light.textLight'} fontFamily={'body'}>
             $ {item.amount}
           </Text>
-          <Text fontSize={RFValue(10)} color={'light.textLight'}>
+          <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
             / month
           </Text>
           {item.upgrade ? (

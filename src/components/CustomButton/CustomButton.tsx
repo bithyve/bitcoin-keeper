@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const CustomButton = (props) => {
   return (
@@ -31,7 +32,7 @@ const CustomButton = (props) => {
         colors={['#00836A', '#FFFFFF']}
         style={styles.linearGradient}
       >
-        <Text color={'#073E39'} fontSize={12} fontWeight={'bold'}>
+        <Text color={'#073E39'} fontSize={RFValue(12)} fontWeight={'300'} fontFamily={'body'}>
           {props.value}
         </Text>
       </LinearGradient>

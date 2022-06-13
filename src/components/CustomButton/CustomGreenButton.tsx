@@ -31,7 +31,7 @@ const CustomGreenButton = (props) => {
         colors={['#00836A', '#073E39']}
         style={styles.linearGradient}
       >
-        <Text color={'#FAFAFA'} fontSize={12} fontWeight={'bold'}>
+        <Text color={'#FAFAFA'} fontSize={12} fontWeight={'300'} fontFamily={'body'}>
           {props.value}
         </Text>
       </LinearGradient>
