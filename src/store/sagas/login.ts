@@ -31,6 +31,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setupLoading('storingCreds'));
     const hash = yield call(Cipher.hash, payload.passcode);
     const AES_KEY = yield call(Cipher.generateKey);
+    yield put(setKey(AES_KEY));
     const encryptedKey = yield call(Cipher.encrypt, AES_KEY, hash);
     if (!(yield call(SecureStore.store, hash, encryptedKey))) {
       return;

@@ -150,8 +150,8 @@ export default function CreatePin(props) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box style={[passcode.length == 1 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -163,8 +163,8 @@ export default function CreatePin(props) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box style={[passcode.length == 2 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -176,8 +176,8 @@ export default function CreatePin(props) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box style={[passcode.length == 3 ? styles.textBoxActive : styles.textBoxStyles]}>
@@ -189,8 +189,8 @@ export default function CreatePin(props) {
                           {'|'}
                         </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -211,8 +211,8 @@ export default function CreatePin(props) {
                         confirmPasscode.length == 0
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                          },
+                              ...styles.textBoxStyles,
+                            },
                       ]}
                     >
                       <Box>
@@ -223,8 +223,8 @@ export default function CreatePin(props) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Box>
                     </Box>
                     <Box
@@ -232,8 +232,8 @@ export default function CreatePin(props) {
                         confirmPasscode.length == 1
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                          },
+                              ...styles.textBoxStyles,
+                            },
                       ]}
                     >
                       <Box>
@@ -244,8 +244,8 @@ export default function CreatePin(props) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Box>
                     </Box>
                     <Box
@@ -253,13 +253,13 @@ export default function CreatePin(props) {
                         confirmPasscode.length == 2
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                            //   borderColor:
-                            //       passcode != confirmPasscode &&
-                            //       confirmPasscode.length == 4
-                            //         ? Colors.red
-                            //         : Colors.borderColor,
-                          },
+                              ...styles.textBoxStyles,
+                              //   borderColor:
+                              //       passcode != confirmPasscode &&
+                              //       confirmPasscode.length == 4
+                              //         ? Colors.red
+                              //         : Colors.borderColor,
+                            },
                       ]}
                     >
                       <Box>
@@ -270,8 +270,8 @@ export default function CreatePin(props) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Box>
                     </Box>
                     <Box
@@ -279,8 +279,8 @@ export default function CreatePin(props) {
                         confirmPasscode.length == 3
                           ? styles.textBoxActive
                           : {
-                            ...styles.textBoxStyles,
-                          },
+                              ...styles.textBoxStyles,
+                            },
                       ]}
                     >
                       <Box>
@@ -291,8 +291,8 @@ export default function CreatePin(props) {
                             {'|'}
                           </Text>
                         ) : (
-                              ''
-                            )}
+                          ''
+                        )}
                       </Box>
                     </Box>
                   </Box>
@@ -317,7 +317,7 @@ export default function CreatePin(props) {
                       setTimeout(() => {
                         setIsDisabled(true);
                       }, 2);
-                      props.navigation.replace('NewHome');
+                      // props.navigation.replace('NewHome');
                     }}
                     value={'Proceed'}
                   />

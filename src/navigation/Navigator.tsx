@@ -23,6 +23,7 @@ import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import { useAppSelector } from 'src/store/hooks';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -31,16 +32,27 @@ const defaultTheme = {
     background: '#FDF7F0',
   },
 };
+
+const LoginStack = () => {
+  const Stack = createNativeStackNavigator();
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="CreatePin" component={CreatePin} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="ResetPin" component={ResetPin} />
+    </Stack.Navigator>
+  );
+};
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
+  const key = useAppSelector((state) => state.login.key);
 
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="CreatePin" component={CreatePin} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="ResetPin" component={ResetPin} />
+        {!key && <Stack.Screen name="LoginStack" component={LoginStack} />}
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="AddTapsigner" component={AddTapsigner} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
