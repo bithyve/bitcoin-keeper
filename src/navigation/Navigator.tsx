@@ -25,6 +25,7 @@ import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -38,6 +39,7 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="CreatePin" component={CreatePin} />
         <Stack.Screen name="Login" component={Login} />
