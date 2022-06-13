@@ -14,15 +14,35 @@ import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
+import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 
 const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
-  const { walletName, walletDescription } = item.presentationData;
-  const { balances } = item.specs;
+  if (item?.presentationData && item?.specs) {
+    var { walletName, walletDescription } = item?.presentationData;
+    var { balances } = item?.specs;
+  }
   return (
     <TouchableOpacity onPress={() => navigation.navigate('WalletDetailScreen', { wallet: item })}>
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
-        <View style={styles.cardHeader}>
-          {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
+        {!(item?.presentationData && item?.specs) ?
+          <TouchableOpacity
+            style={styles.addWalletContainer}
+            onPress={() => navigation.navigate('EnterWalletDetail')}
+          >
+            <AddSCardIcon />
+            <Text
+              style={styles.addWalletText}
+              color={'light.white'}
+              fontFamily={'body'}
+              fontWeight={'300'}
+            >
+              Add New Wallet
+            </Text>
+          </TouchableOpacity>
+          :
+          <>
+            <View style={styles.cardHeader}>
+              {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
           <Text
             style={styles.hexaWalletText}
             color={'light.lightBlack'}
@@ -32,43 +52,45 @@ const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
             External
           </Text>
         </View> */}
-        </View>
-        <View style={styles.walletContainer}>
-          <TouchableOpacity>
-            <BlueWalletIcon />
-          </TouchableOpacity>
+            </View>
+            <View style={styles.walletContainer}>
+              <TouchableOpacity>
+                <BlueWalletIcon />
+              </TouchableOpacity>
 
-          <View style={styles.fundsContainer}>
-            <Text
-              style={styles.fundstitle}
-              color={'light.white'}
-              fontFamily={'body'}
-              fontWeight={'200'}
-            >
-              {walletName}
-            </Text>
-            <Text
-              style={styles.fundsSubtitle}
-              color={'light.white'}
-              fontFamily={'body'}
-              fontWeight={'100'}
-            >
-              {walletDescription}
-            </Text>
-          </View>
+              <View style={styles.fundsContainer}>
+                <Text
+                  style={styles.fundstitle}
+                  color={'light.white'}
+                  fontFamily={'body'}
+                  fontWeight={'200'}
+                >
+                  {walletName}
+                </Text>
+                <Text
+                  style={styles.fundsSubtitle}
+                  color={'light.white'}
+                  fontFamily={'body'}
+                  fontWeight={'100'}
+                >
+                  {walletDescription}
+                </Text>
+              </View>
 
-          <View style={styles.priceContainer}>
-            <BtcIcon />
-            <Text
-              style={styles.priceText}
-              color={'light.white'}
-              fontFamily={'body'}
-              fontWeight={'200'}
-            >
-              {balances.confirmed + balances.unconfirmed}
-            </Text>
-          </View>
-        </View>
+              <View style={styles.priceContainer}>
+                <BtcIcon />
+                <Text
+                  style={styles.priceText}
+                  color={'light.white'}
+                  fontFamily={'body'}
+                  fontWeight={'200'}
+                >
+                  {balances.confirmed + balances.unconfirmed}
+                </Text>
+              </View>
+            </View>
+          </>
+        }
       </ImageBackground>
     </TouchableOpacity>
   );
@@ -151,6 +173,18 @@ const styles = ScaledSheet.create({
     letterSpacing: '0.5@s',
     lineHeight: '24@s',
     marginLeft: wp(1),
+  },
+  addWalletContainer: {
+    padding: '10@s',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: hp(28),
+  },
+  addWalletText: {
+    fontSize: RFValue(13),
+    letterSpacing: '0.26@s',
+    lineHeight: '20@s',
+    marginTop: wp(1),
   },
 });
 export default WalletCard;

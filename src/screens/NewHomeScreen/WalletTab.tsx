@@ -129,7 +129,7 @@ const WalletTab = ({ animate }) => {
     );
   };
 
-  const RenderWalletCard = ({ item }: { item }) => {
+  const RenderWalletCard = ({ item, index }: { item, index: number }) => {
     return (
       <WalletCard
         item={item}
@@ -166,10 +166,10 @@ const WalletTab = ({ animate }) => {
           </Box>
           {/* {Wallets } */}
           <FlatList
-            data={wallets}
+            data={[...wallets, { isEnd: true }]}
             renderItem={RenderWalletCard}
             keyExtractor={item => item}
-            extraData={navigation}
+            extraData={{ navigation }}
             horizontal={true}
             style={styles.flatlistContainer}
             showsHorizontalScrollIndicator={false}
