@@ -1,6 +1,5 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React from 'react';
 import { Box, Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
