@@ -166,22 +166,19 @@ const CreatePin = ({ navigation }) => {
           <Box>
             <Text
               ml={5}
-              color={'light.white'}
+              color={'light.textLight'}
               fontSize={RFValue(22)}
               mt={hp('10%')}
               fontWeight={'bold'}
+              fontFamily={'heading'}
             >
               {'Welcome Back,'}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(12)} ml={5} color={'light.textColor'}>
+              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
                 {/* {strings.EnterYourName}{' '} */}
-                {'Enter your '}
-                <Text fontWeight={'bold'} fontStyle={'italic'}>
-                  {/* {strings.passcode} */}
-                  {'passcode'}
-                </Text>
+                {'Enter your passcode'}
               </Text>
               <Box alignSelf={'baseline'}>
                 <Box
@@ -197,14 +194,13 @@ const CreatePin = ({ navigation }) => {
                     ml={5}
                     alignItems={'center'}
                     justifyContent={'center'}
-                    bg={'#FDF7F0'}
-                    opacity={0.7}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 1 ? (
-                        <DotView height={3} width={3} />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text color={'light.greenText'} fontWeight={'bold'} fontSize={RFValue(13)}>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
                           {'|'}
                         </Text>
                       ) : (
@@ -219,14 +215,13 @@ const CreatePin = ({ navigation }) => {
                     ml={5}
                     alignItems={'center'}
                     justifyContent={'center'}
-                    bg={'#FDF7F0'}
-                    opacity={0.7}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 2 ? (
-                        <DotView height={3} width={3} />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 1 ? (
-                        <Text color={'light.greenText'} fontWeight={'bold'} fontSize={RFValue(13)}>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
                           {'|'}
                         </Text>
                       ) : (
@@ -241,14 +236,13 @@ const CreatePin = ({ navigation }) => {
                     ml={5}
                     alignItems={'center'}
                     justifyContent={'center'}
-                    bg={'#FDF7F0'}
-                    opacity={0.7}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 3 ? (
-                        <DotView height={3} width={3} />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 2 ? (
-                        <Text color={'light.greenText'} fontWeight={'bold'} fontSize={RFValue(13)}>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
                           {'|'}
                         </Text>
                       ) : (
@@ -263,14 +257,13 @@ const CreatePin = ({ navigation }) => {
                     ml={5}
                     alignItems={'center'}
                     justifyContent={'center'}
-                    bg={'#FDF7F0'}
-                    opacity={0.7}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 4 ? (
-                        <DotView height={3} width={3} />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 3 ? (
-                        <Text color={'light.greenText'} fontWeight={'bold'} fontSize={RFValue(13)}>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
                           {'|'}
                         </Text>
                       ) : (
@@ -320,7 +313,12 @@ const CreatePin = ({ navigation }) => {
                 setForgotVisible(true);
               }}
             >
-              <Text color={'light.white'} fontWeight={'bold'} fontSize={RFValue(14)}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(14)}
+                fontFamily={'body'}
+              >
                 {'Forgot Passcode?'}
               </Text>
             </TouchableOpacity>
