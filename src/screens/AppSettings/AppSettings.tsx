@@ -83,8 +83,12 @@ const AppSettings = ({ navigation }) => {
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'59%'}>
-          <Text fontSize={RFValue(20)}>Settings</Text>
-          <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
+          <Text fontSize={RFValue(20)} fontFamily={'heading'}>
+            Settings
+          </Text>
+          <Text fontSize={RFValue(12)} fontFamily={'body'}>
+            Lorem ipsum dolor sit amet{' '}
+          </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />

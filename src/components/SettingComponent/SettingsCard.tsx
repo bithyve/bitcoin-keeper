@@ -16,7 +16,7 @@ const SettingsCard = (props) => {
         {...props}
       >
         <Box flex={0.9}>
-          <Text color={'#041513'} fontWeight={'bold'} fontSize={RFValue(14)}>
+          <Text color={'#041513'} fontWeight={'bold'} fontSize={RFValue(14)} fontFamily={'body'}>
             {props.title}
           </Text>
           <Text color={'#4F5955'} fontFamily={'body'} fontSize={RFValue(12)}>
