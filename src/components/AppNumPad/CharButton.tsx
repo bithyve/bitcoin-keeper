@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 
-const CharButton = ({ char, Icon, pressHandler }) => {
+const CharButton = ({ char, Icon, pressHandler, color }) => {
   return (
     <TouchableOpacity onPress={() => pressHandler(char)} style={styles.charContainer}>
-      {Icon ? <View style={styles.icon}>{Icon}</View> : <Text style={styles.char}>{char}</Text>}
+      {Icon ? <View style={styles.icon}>{Icon}</View> : <Text style={{ ...styles.char, color: color }}>{char}</Text>}
     </TouchableOpacity>
   );
 };

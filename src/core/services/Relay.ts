@@ -6,7 +6,7 @@ import TrustedContactsOperations from '../trusted_contacts/TrustedContactsOperat
 import { Gift, GiftMetaData } from '../wallets/interfaces/interface';
 import { INotification } from './interfaces/interface';
 
-const { HEXA_ID, RELAY_AXIOS } = config;
+const { AUTH_ID, RELAY_AXIOS } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -21,7 +21,7 @@ export default class Relay {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('checkCompatibility', {
-        HEXA_ID,
+        AUTH_ID,
         method,
         version,
       });
@@ -44,7 +44,7 @@ export default class Relay {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('fetchReleases', {
-        HEXA_ID,
+        AUTH_ID,
         build,
       });
     } catch (err) {
@@ -67,7 +67,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateFCMTokens', {
-          HEXA_ID,
+          AUTH_ID,
           appId,
           FCMs,
         });
@@ -90,7 +90,7 @@ export default class Relay {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('fetchNotifications', {
-        HEXA_ID,
+        AUTH_ID,
         appId,
       });
     } catch (err) {
@@ -121,7 +121,7 @@ export default class Relay {
 
       try {
         res = await RELAY_AXIOS.post('sendNotifications', {
-          HEXA_ID,
+          AUTH_ID,
           receivers,
           notification,
         });
@@ -155,7 +155,7 @@ export default class Relay {
         throw new Error('Failed to send donation note: txid|note missing');
 
       const res: AxiosResponse = await RELAY_AXIOS.post('addDonationTxNote', {
-        HEXA_ID,
+        AUTH_ID,
         donationId,
         txNote,
       });
@@ -181,7 +181,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('fetchFeeAndExchangeRates', {
-          HEXA_ID,
+          AUTH_ID,
           currencyCode,
         });
       } catch (err) {
@@ -205,7 +205,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('claimCampaignGift', {
-          HEXA_ID,
+          AUTH_ID,
           campaignId: campaignId,
           appId,
         });
@@ -226,13 +226,13 @@ export default class Relay {
     try {
       let res: AxiosResponse;
       const obj = {
-        HEXA_ID,
+        AUTH_ID,
         receivers,
         notification,
       };
       try {
         res = await RELAY_AXIOS.post('sendKeeperNotifications', {
-          HEXA_ID,
+          AUTH_ID,
           receivers,
           notification,
         });
@@ -259,7 +259,7 @@ export default class Relay {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('getMessages', {
-        HEXA_ID,
+        AUTH_ID,
         appId,
         timeStamp,
       });
@@ -287,7 +287,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateMessages', {
-          HEXA_ID,
+          AUTH_ID,
           appId,
           data,
         });
@@ -311,7 +311,7 @@ export default class Relay {
     averageTxFees: any;
   }> => {
     const res = await RELAY_AXIOS.post('v2/appCheckIn', {
-      HEXA_ID,
+      AUTH_ID,
       ...(currencyCode && {
         currencyCode,
       }),
@@ -337,7 +337,7 @@ export default class Relay {
   }> => {
     try {
       const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateAppImage', {
-        HEXA_ID,
+        AUTH_ID,
         appId: appImage.appId,
         appImage,
       });
@@ -360,7 +360,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('v2/fetchappImage', {
-          HEXA_ID,
+          AUTH_ID,
           appId: appId,
         });
       } catch (err) {
@@ -393,7 +393,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateGiftChannel', {
-          HEXA_ID,
+          AUTH_ID,
           channelAddress: gift.channelAddress,
           encryptedGift,
           metaData,
@@ -423,7 +423,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('fetchGiftChannel', {
-          HEXA_ID,
+          AUTH_ID,
           channelAddress,
         });
       } catch (err) {
@@ -456,7 +456,7 @@ export default class Relay {
     let res: AxiosResponse;
     try {
       res = await RELAY_AXIOS.post('scanAuthToken', {
-        HEXA_ID,
+        AUTH_ID,
         authToken,
         xPub,
       });
@@ -483,7 +483,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('syncGiftChannelsMetaData', {
-          HEXA_ID,
+          AUTH_ID,
           giftChannelsToSync,
         });
       } catch (err) {

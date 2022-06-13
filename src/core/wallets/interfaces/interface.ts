@@ -43,7 +43,7 @@ export interface TransactionPrerequisite {
 
 export interface TransactionToAddressMapping {
   txid: string;
-  addresses: Set<string>;
+  addresses: string[];
 }
 
 export interface Transaction {
@@ -96,7 +96,12 @@ export interface UTXO {
   vout: number;
   value: number;
   address: string;
-  status?: any;
+  status?: {
+    confirmed: boolean;
+    block_height?: number;
+    block_hash?: string;
+    block_time?: number;
+  };
 }
 
 export interface WalletImportedAddresses {

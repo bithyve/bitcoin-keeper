@@ -47,11 +47,11 @@ export const getCardheight = () => {
 
 export const getAccountCardHeight = () => {
   if (windowHeight >= 850) {
-    return -90;
+    return -115;
   } else if (windowHeight >= 750) {
-    return -135;
+    return -140;
   } else if (windowHeight >= 650) {
-    return -150;
+    return -170;
   }
 };
 

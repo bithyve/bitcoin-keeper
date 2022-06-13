@@ -20,7 +20,7 @@ const HeaderTitle = ({ title = '', subtitle = '', onPressHandler, color = 'light
         <Text
           numberOfLines={1}
           style={styles.addWalletText}
-          color={'light.lightBlack'}
+          color={'light.headerText'}
           fontFamily={'body'}
           fontWeight={'200'}
         >
@@ -46,9 +46,9 @@ const styles = ScaledSheet.create({
     padding: '20@s',
   },
   addWalletText: {
-    fontSize: RFValue(22),
+    fontSize: RFValue(16),
     lineHeight: '23@s',
-    letterSpacing: '0.7@s',
+    letterSpacing: '0.8@s',
     marginTop: hp(5),
   },
   addWalletDescription: {
