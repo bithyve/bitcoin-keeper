@@ -20,6 +20,7 @@ import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
+import QRCode from 'react-native-qrcode-svg';
 
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
@@ -55,7 +56,7 @@ const ReceiveScreen = ({ route }: { route }) => {
       />
       {/* {QR component} */}
       <Box marginTop={hp(10)} alignItems={'center'} alignSelf={'center'} width={204}>
-        <Image source={QrCode} />
+        <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={200} />
         <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
           <Text
             textAlign={'center'}
