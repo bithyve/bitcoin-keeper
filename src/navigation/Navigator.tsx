@@ -39,7 +39,6 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="CreatePin" component={CreatePin} />
         <Stack.Screen name="Login" component={Login} />
@@ -59,6 +58,7 @@ const Navigator = () => {
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
+        <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
