@@ -10,17 +10,19 @@ assignees: ''
 Feature Description
 A clear and concise description of the feature
 
-*Requirements
+**Pre-requisites/ dependencies
 -Designs
 -Research
 -Discussion with a Senior
 
-Task Break Down
+**Task Break Down
 -TASK 1
 -TASK 2
 
-**ERD 
-
-**Related Diagrams 
-
 **Test Cases
+
+**Design
+
+**Flow
+
+**ERD
