@@ -48,7 +48,8 @@ export const customTheme = extendTheme({
       Border: '#005545',
       vaultCard: '#B2844E',
       headerText: '#00715B',
-      copyBackground: '#CDD8D6'
+      copyBackground: '#CDD8D6',
+      seedText: '#656565'
     },
     dark: {
       black: '#000000',
