@@ -1,6 +1,7 @@
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, VStack } from 'native-base';
 
+import AuthHandler from './AuthHandler';
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import { CommonActions } from '@react-navigation/native';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -155,12 +156,21 @@ const AddTapsigner = ({ navigation }) => {
 
   const _setup = async () => {
     try {
-      const tapsigner = await wrapper(async () => {
+      const xpub = await wrapper(async () => {
         await card.first_look();
         await card.setup(cvc);
-        return card.first_look();
+        return card.get_xpub(cvc);
       });
-      setStatus(tapsigner);
+      realm.write(() => {
+        realm.create(RealmSchema.VaultSigner, {
+          type: 'Tapsigner',
+          signerName: 'GTap',
+          signerId: card.card_ident,
+          path: card.path,
+          xpub,
+        });
+      });
+      navigation.dispatch(CommonActions.goBack());
     } catch (e) {
       console.log(e);
       setStatus(e);
@@ -189,6 +199,13 @@ const AddTapsigner = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <Text>{JSON.stringify(status)}</Text>
       <CardStatus status={status} checkStatus={checkStatus} />
+      <AuthHandler
+        status={status}
+        setStatus={setStatus}
+        withModal={withModal}
+        card={card}
+        wrapper={wrapper}
+      />
       <Setup status={status} cvc={cvc} setCVC={setCVC} setup={setup} associate={associate} />
       <NfcPrompt visible={visible} />
     </SafeAreaView>

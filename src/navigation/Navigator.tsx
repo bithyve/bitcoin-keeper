@@ -1,28 +1,27 @@
-import React from 'react';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import AddTapsigner from 'src/screens/NewHomeScreen/AddTapsigner';
+import AddTapsigner from 'src/screens/AddTapsigner/AddTapsigner';
 import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
+import AppSettings from 'src/screens/AppSettings/AppSettings';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
+import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
+import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
+// import TestingScreen from 'src/screens/TestingScreen';
+import Login from '../screens/LoginScreen/Login';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 // import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
-import AppSettings from 'src/screens/AppSettings/AppSettings';
+import React from 'react';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
-import SendScreen from 'src/screens/Send/SendScreen';
-import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
-import SplashScreen from 'src/screens/Splash/SplashScreen';
-import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
-// import TestingScreen from 'src/screens/TestingScreen';
-import Login from '../screens/LoginScreen/Login';
-import CreatePin from 'src/screens/LoginScreen/CreatePin';
-
-import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
-import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import SendScreen from 'src/screens/Send/SendScreen';
+import SplashScreen from 'src/screens/Splash/SplashScreen';
+import TestingScreen from 'src/screens/TestingScreen';
+import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const defaultTheme = {
   ...DefaultTheme,
