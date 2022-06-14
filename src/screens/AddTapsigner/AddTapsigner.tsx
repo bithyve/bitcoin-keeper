@@ -156,29 +156,32 @@ const AddTapsigner = ({ navigation }) => {
 
   const _setup = async () => {
     try {
-      const xpub = await wrapper(async () => {
-        await card.first_look();
+      const data = await wrapper(async () => {
+        const status = await card.first_look();
         await card.setup(cvc);
-        return card.get_xpub(cvc);
+        const xpub = await card.get_xpub(cvc);
+        return { xpub, status };
       });
-      realm.write(() => {
-        realm.create(RealmSchema.VaultSigner, {
-          type: 'Tapsigner',
-          signerName: 'GTap',
-          signerId: card.card_ident,
-          path: card.path,
-          xpub,
-        });
-      });
-      navigation.dispatch(CommonActions.goBack());
+      return data;
     } catch (e) {
       console.log(e);
       setStatus(e);
     }
   };
 
-  const setup = () => {
-    withModal(_setup)();
+  const setup = async () => {
+    const { status, xpub } = await withModal(_setup)();
+    setStatus(status);
+    realm.write(() => {
+      realm.create(RealmSchema.VaultSigner, {
+        type: 'Tapsigner',
+        signerName: 'GTap',
+        signerId: card.card_ident,
+        path: card.path,
+        xpub,
+      });
+    });
+    navigation.dispatch(CommonActions.goBack());
   };
 
   const associate = async () => {
