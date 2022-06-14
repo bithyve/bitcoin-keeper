@@ -15,6 +15,8 @@ import {
   sendStage1Executed,
   sendStage2Executed,
   SEND_TX_NOTIFICATION,
+  TransferAction,
+  EXECUTE_TRANSFER,
 } from '../sagaActions/send&receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
@@ -252,6 +254,57 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
+
+function* transferWorker({ payload }: TransferAction) {
+  const { wallet, recipients } = payload;
+  // TODO: plug in the average tx fee
+  const averageTxFees = null;
+  if (!averageTxFees) {
+    yield put(
+      feeIntelMissing({
+        intelMissing: true,
+      })
+    );
+    return;
+  }
+
+  const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
+
+  try {
+    // const recipients = yield call(processRecipients);
+    const { txPrerequisites } = yield call(
+      WalletOperations.transferST1,
+      wallet,
+      recipients,
+      averageTxFeeByNetwork
+    );
+
+    if (txPrerequisites) {
+      const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+      const { txid } = yield call(
+        WalletOperations.transferST2,
+        wallet,
+        wallet.id,
+        txPrerequisites,
+        TxPriority.LOW,
+        network,
+        recipients
+      );
+      console.log({ txid });
+
+      if (txid)
+        yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+          specs: wallet.specs,
+        });
+      else throw new Error('Failed to execute transfer; txid missing');
+    } else throw new Error('Failed to generate txPrerequisites');
+  } catch (err) {
+    console.log({ err });
+    return;
+  }
+}
+
+export const transferWatcher = createWatcher(transferWorker, EXECUTE_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { numberOfRecipients, wallet } = payload;

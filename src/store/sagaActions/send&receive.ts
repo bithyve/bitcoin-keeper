@@ -18,6 +18,7 @@ export const AMOUNT_FOR_RECIPIENT_UPDATED = 'AMOUNT_FOR_RECIPIENT_UPDATED';
 export const SET_BALANCE_FOR_SENDING_RECIPIENT = 'SET_BALANCE_FOR_SENDING_RECIPIENT';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
 export const SEND_PHASE_ONE_EXECUTED = 'SEND_PHASE_ONE_EXECUTED';
+export const EXECUTE_TRANSFER = 'EXECUTE_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
@@ -225,6 +226,24 @@ export const sendStage2Executed = (payload: {
 }): SendStage2ExecutedAction => {
   return {
     type: SEND_PHASE_TWO_EXECUTED,
+    payload,
+  };
+};
+
+export interface TransferAction extends Action {
+  type: typeof EXECUTE_TRANSFER;
+  payload: {
+    wallet: Wallet | MultiSigWallet;
+    recipients: {
+      address: string;
+      amount: number;
+    }[];
+  };
+}
+
+export const transfer = (payload: { wallet: Wallet; recipients }): TransferAction => {
+  return {
+    type: EXECUTE_TRANSFER,
     payload,
   };
 };
