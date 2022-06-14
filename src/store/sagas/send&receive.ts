@@ -6,10 +6,10 @@ import {
   CALCULATE_SEND_MAX_FEE,
   customFeeCalculated,
   customSendMaxUpdated,
-  ExecuteSendStage1Action,
-  ExecuteSendStage2Action,
-  EXECUTE_SEND_STAGE1,
-  EXECUTE_SEND_STAGE2,
+  SendPhaseOneAction,
+  SendPhaseTwoAction,
+  SEND_PHASE_ONE,
+  SEND_PHASE_TWO,
   feeIntelMissing,
   sendMaxFeeCalculated,
   sendStage1Executed,
@@ -137,7 +137,7 @@ export function* getNextFreeAddressWorker(wallet: Wallet | MultiSigWallet) {
 //   return recipients;
 // }
 
-function* executeSendStage1({ payload }: ExecuteSendStage1Action) {
+function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const { wallet, recipients } = payload;
   // TODO: plug in the average tx fee
   const averageTxFees = null;
@@ -190,9 +190,9 @@ function* executeSendStage1({ payload }: ExecuteSendStage1Action) {
   }
 }
 
-export const executeSendStage1Watcher = createWatcher(executeSendStage1, EXECUTE_SEND_STAGE1);
+export const sendPhaseOneWatcher = createWatcher(sendPhaseOneWorker, SEND_PHASE_ONE);
 
-function* executeSendStage2({ payload }: ExecuteSendStage2Action) {
+function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   // const sending: SendingState = yield select((state) => state.sending);
   // TODO: Wire up the send&receive reducer
   const sending: any = {};
@@ -251,7 +251,7 @@ function* executeSendStage2({ payload }: ExecuteSendStage2Action) {
   }
 }
 
-export const executeSendStage2Watcher = createWatcher(executeSendStage2, EXECUTE_SEND_STAGE2);
+export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { numberOfRecipients, wallet } = payload;

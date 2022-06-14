@@ -16,12 +16,12 @@ export const RECIPIENT_REMOVED_FROM_SENDING = 'RECIPIENT_REMOVED_FROM_SENDING';
 export const RECIPIENT_SELECTED_FOR_AMOUNT_SETTING = 'RECIPIENT_SELECTED_FOR_AMOUNT_SETTING';
 export const AMOUNT_FOR_RECIPIENT_UPDATED = 'AMOUNT_FOR_RECIPIENT_UPDATED';
 export const SET_BALANCE_FOR_SENDING_RECIPIENT = 'SET_BALANCE_FOR_SENDING_RECIPIENT';
-export const EXECUTE_SEND_STAGE1 = 'EXECUTE_SEND_STAGE1';
-export const SEND_STAGE1_EXECUTED = 'SEND_STAGE1_EXECUTED';
-export const RESET_SEND_STAGE1 = 'RESET_SEND_STAGE1';
+export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
+export const SEND_PHASE_ONE_EXECUTED = 'SEND_PHASE_ONE_EXECUTED';
+export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
-export const EXECUTE_SEND_STAGE2 = 'EXECUTE_SEND_STAGE2';
-export const SEND_STAGE2_EXECUTED = 'SEND_STAGE2_EXECUTED';
+export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
+export const SEND_PHASE_TWO_EXECUTED = 'SEND_PHASE_TWO_EXECUTED';
 export const SENDING_FAILED = 'SENDING_FAILED';
 export const SENDING_SUCCEEDED = 'SENDING_SUCCEEDED';
 export const SENDING_COMPLETED = 'SENDING_COMPLETED';
@@ -115,8 +115,8 @@ export const amountForRecipientUpdated = (payload: {
   };
 };
 
-export interface ExecuteSendStage1Action extends Action {
-  type: typeof EXECUTE_SEND_STAGE1;
+export interface SendPhaseOneAction extends Action {
+  type: typeof SEND_PHASE_ONE;
   payload: {
     wallet: Wallet | MultiSigWallet;
     recipients: {
@@ -126,18 +126,15 @@ export interface ExecuteSendStage1Action extends Action {
   };
 }
 
-export const executeSendStage1 = (payload: {
-  wallet: Wallet;
-  recipients;
-}): ExecuteSendStage1Action => {
+export const sendPhaseOne = (payload: { wallet: Wallet; recipients }): SendPhaseOneAction => {
   return {
-    type: EXECUTE_SEND_STAGE1,
+    type: SEND_PHASE_ONE,
     payload,
   };
 };
 
 export interface SendStage1ExecutedAction extends Action {
-  type: typeof SEND_STAGE1_EXECUTED;
+  type: typeof SEND_PHASE_ONE_EXECUTED;
   payload: {
     successful: boolean;
     carryOver?: {
@@ -165,18 +162,18 @@ export const sendStage1Executed = (payload: {
   err?: string;
 }): SendStage1ExecutedAction => {
   return {
-    type: SEND_STAGE1_EXECUTED,
+    type: SEND_PHASE_ONE_EXECUTED,
     payload,
   };
 };
 
 export interface ResetSendStage1Action extends Action {
-  type: typeof RESET_SEND_STAGE1;
+  type: typeof RESET_SEND_PHASE_ONE;
 }
 
 export const resetSendStage1 = (): ResetSendStage1Action => {
   return {
-    type: RESET_SEND_STAGE1,
+    type: RESET_SEND_PHASE_ONE,
   };
 };
 
@@ -194,8 +191,8 @@ export const feeIntelMissing = (payload: { intelMissing: boolean }): FeeIntelMis
   };
 };
 
-export interface ExecuteSendStage2Action extends Action {
-  type: typeof EXECUTE_SEND_STAGE2;
+export interface SendPhaseTwoAction extends Action {
+  type: typeof SEND_PHASE_TWO;
   payload: {
     wallet: Wallet | MultiSigWallet;
     txnPriority: TxPriority;
@@ -204,20 +201,20 @@ export interface ExecuteSendStage2Action extends Action {
   };
 }
 
-export const executeSendStage2 = (payload: {
+export const sendPhaseTwo = (payload: {
   wallet: Wallet | MultiSigWallet;
   txnPriority: TxPriority;
   token?: number;
   note?: string;
-}): ExecuteSendStage2Action => {
+}): SendPhaseTwoAction => {
   return {
-    type: EXECUTE_SEND_STAGE2,
+    type: SEND_PHASE_TWO,
     payload,
   };
 };
 
 export interface SendStage2ExecutedAction extends Action {
-  type: typeof SEND_STAGE2_EXECUTED;
+  type: typeof SEND_PHASE_TWO_EXECUTED;
   payload: { successful: boolean; txid?: string; err?: string };
 }
 
@@ -227,7 +224,7 @@ export const sendStage2Executed = (payload: {
   err?: string;
 }): SendStage2ExecutedAction => {
   return {
-    type: SEND_STAGE2_EXECUTED,
+    type: SEND_PHASE_TWO_EXECUTED,
     payload,
   };
 };

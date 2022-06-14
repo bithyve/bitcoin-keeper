@@ -4,11 +4,9 @@ import {
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
   credentialStorageWatcher,
-  resetPinCredWatcher
-} from './login'
-import {
-  setupKeeperAppWatcher
-} from './storage'
+  resetPinCredWatcher,
+} from './login';
+import { setupKeeperAppWatcher } from './storage';
 import {
   addNewWalletsWatcher,
   autoWalletsSyncWatcher,
@@ -24,6 +22,12 @@ import {
 } from './wallets';
 import { updateFCMTokensWatcher } from './notifications';
 import { addUaiStackWatcher, updateUaiStackWatcher } from './uai';
+import {
+  calculateCustomFeeWatcher,
+  calculateSendMaxFeeWatcher,
+  sendPhaseOneWatcher,
+  sendPhaseTwoWatcher,
+} from './send&receive';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -51,10 +55,15 @@ export const rootSaga = function* () {
     updateWalletSettingsWatcher,
     validateTwoFAWatcher,
 
+    // send and receive
+    sendPhaseOneWatcher,
+    sendPhaseTwoWatcher,
+    calculateSendMaxFeeWatcher,
+    calculateCustomFeeWatcher,
+
     // UAI
     addUaiStackWatcher,
-    updateUaiStackWatcher
-
+    updateUaiStackWatcher,
   ];
 
   yield all(
