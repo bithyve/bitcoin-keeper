@@ -315,7 +315,7 @@ const WalletDetailScreen = ({ route }) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Receive', { wallet });
+              navigation.navigate('ExportSeed', { seed: wallet.derivationDetails.mnemonic });
             }}
             style={styles.IconText}
           >
