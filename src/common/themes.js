@@ -52,6 +52,7 @@ export const customTheme = extendTheme({
       textColor2: '#4E5C6A',
       headerText: '#00715B',
       copyBackground: '#CDD8D6',
+      seedText: '#656565',
     },
     dark: {
       black: '#000000',
