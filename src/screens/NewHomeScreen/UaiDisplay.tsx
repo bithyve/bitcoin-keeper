@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { updateUaiStack } from 'src/store/sagaActions/uai';
 import { Modal } from 'native-base';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import KeeperModal from 'src/components/KeeperModal';
 
 const UaiDisplay = ({ uaiStack }) => {
   const [uai, setUai] = useState({});
@@ -29,8 +30,9 @@ const UaiDisplay = ({ uaiStack }) => {
             btnText: 'Upgrade',
           },
           cta: () => {
-            uaiSetActionFalse();
+            console.log('asdfasd');
             setShowModal(false);
+            uaiSetActionFalse();
           },
         };
       case uaiType.ALERT:
@@ -39,6 +41,18 @@ const UaiDisplay = ({ uaiStack }) => {
           modalDetails: {
             heading: 'Details',
             btnText: 'Okay',
+          },
+          cta: () => {
+            uaiSetActionFalse();
+            setShowModal(false);
+          },
+        };
+      case uaiType.VAULT_TRANSFER:
+        return {
+          btnText: 'Secure now',
+          modalDetails: {
+            heading: 'Trasfer to Vault',
+            btnText: 'Transfer details',
           },
           cta: () => {
             uaiSetActionFalse();
@@ -120,31 +134,18 @@ const UaiDisplay = ({ uaiStack }) => {
           {uaiConfig?.btnText}
         </Text>
       </TouchableOpacity>
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <Modal.Content maxWidth="400px">
-          <Modal.CloseButton />
-          <Modal.Header>{uaiConfig?.modalDetails?.heading}</Modal.Header>
-          {uai?.displayText ? (
-            <Modal.Body>
-              <Text>{uai?.displayText}</Text>
-            </Modal.Body>
-          ) : null}
-
-          <Modal.Footer>
-            <Button.Group space={2}>
-              <Button
-                variant="ghost"
-                colorScheme="blueGray"
-                onPress={() => {
-                  uaiConfig?.cta();
-                }}
-              >
-                {uaiConfig?.modalDetails?.btnText}
-              </Button>
-            </Button.Group>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
+      <KeeperModal
+        visible={showModal}
+        close={() => setShowModal(false)}
+        title={uaiConfig?.modalDetails?.heading}
+        modalBackground={['#00836A', '#073E39']}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={uaiConfig?.modalDetails?.btnText}
+        buttonTextColor={'#073E39'}
+        buttonCallback={uaiConfig?.cta}
+        textColor={'#FFF'}
+        Content={() => <Text>{uai?.displayText}</Text>}
+      />
     </>
   );
 };

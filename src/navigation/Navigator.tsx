@@ -7,12 +7,12 @@ import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
+import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
-// import TestingScreen from 'src/screens/TestingScreen';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
@@ -20,8 +20,10 @@ import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
+import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
+// import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -54,10 +56,12 @@ const Navigator = () => {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
+        <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
+        <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>

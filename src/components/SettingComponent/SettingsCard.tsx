@@ -1,14 +1,13 @@
 import React from 'react';
-import { Box, Text, Pressable, useColorMode } from 'native-base';
+import { Box, Text, Pressable } from 'native-base';
 import LinkIcon from 'src/assets/icons/link.svg';
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const SettingsCard = (props) => {
-  const { colorMode } = useColorMode();
   return (
     <Pressable onPress={() => props.onPress()}>
       <Box
-        bg={props.bgColor ? props.bgColor : `${colorMode}.backgroundColor2`}
         flexDirection={'row'}
         justifyContent={'space-evenly'}
         mx={7}
@@ -17,10 +16,10 @@ const SettingsCard = (props) => {
         {...props}
       >
         <Box flex={0.9}>
-          <Text color={'#041513'} fontWeight={'bold'} fontSize={14}>
+          <Text color={'#041513'} fontWeight={'bold'} fontSize={RFValue(14)} fontFamily={'body'}>
             {props.title}
           </Text>
-          <Text color={'#4F5955'} fontFamily={'body'} fontSize={11}>
+          <Text color={'#4F5955'} fontFamily={'body'} fontSize={RFValue(12)}>
             {props.description}
           </Text>
         </Box>
