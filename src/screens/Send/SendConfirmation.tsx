@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
@@ -8,13 +8,29 @@ import Buttons from 'src/components/Buttons';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
+import { useDispatch } from 'react-redux';
+import { crossTransfer } from 'src/store/sagaActions/send&receive';
 
-const SendConfirmation = () => {
+const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
+  const dispatch = useDispatch();
+  const isTransfer = route.params.isTransfer; // switch between automated transfer and typical send
+
+  const onProceed = () => {
+    if (isTransfer) {
+      // dispatch(
+      //   crossTransfer({
+      //     sender: ,
+      //     recipient: ,
+      //     amount: 10e5,
+      //   })
+      // );
+    }
+  };
 
   const SendingCard = () => {
     return (
-      <Box marginY={windowHeight * 0.01} >
+      <Box marginY={windowHeight * 0.01}>
         <Text
           color={'light.lightBlack'}
           fontSize={14}
@@ -24,7 +40,12 @@ const SendConfirmation = () => {
         >
           Sending From
         </Text>
-        <Box borderRadius={10} backgroundColor={'light.lightYellow'} flexDirection={'row'} padding={windowHeight * 0.019}>
+        <Box
+          borderRadius={10}
+          backgroundColor={'light.lightYellow'}
+          flexDirection={'row'}
+          padding={windowHeight * 0.019}
+        >
           <Box
             backgroundColor={'light.yellow1'}
             height={10}
@@ -45,40 +66,35 @@ const SendConfirmation = () => {
               Funds
             </Text>
             <Box flexDirection={'row'}>
-              <Text
-                color={'light.GreyText'}
-                fontSize={12}
-                letterSpacing={0.24}
-                fontWeight={100}
-              >
-                Available to spend {' '}
+              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
+                Available to spend{' '}
               </Text>
               <Box justifyContent={'center'}>
                 <BTC />
               </Box>
-              <Text
-                color={'light.GreyText'}
-                fontSize={14}
-                letterSpacing={1.4}
-                fontWeight={300}
-              >
-                {' '}0.000018
+              <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
+                {' '}
+                0.000018
               </Text>
             </Box>
           </Box>
         </Box>
       </Box>
     );
-  }
+  };
 
   const Transaction = () => {
     return (
       <Box flexDirection={'row'} justifyContent={'space-between'} marginY={3}>
-        <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>Transaction Fee</Text>
-        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>0.03 $</Text>
+        <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
+          Transaction Fee
+        </Text>
+        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+          0.03 $
+        </Text>
       </Box>
     );
-  }
+  };
   return (
     <Box
       padding={windowHeight * 0.01}
@@ -106,13 +122,15 @@ const SendConfirmation = () => {
 
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
-          primaryText='Proceed'
-          secondaryText='Cancel'
-          primaryCallback={() => { console.log('proceed') }}
-          secondaryCallback={() => { console.log('Cancle') }}
+          primaryText="Proceed"
+          secondaryText="Cancel"
+          primaryCallback={onProceed}
+          secondaryCallback={() => {
+            console.log('Cancel');
+          }}
         />
       </Box>
-    </Box >
+    </Box>
   );
 };
 export default SendConfirmation;
