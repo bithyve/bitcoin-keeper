@@ -9,6 +9,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { credsAuth } from '../../store/sagaActions/login';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
+import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -19,8 +20,10 @@ import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 const TIMEOUT = 60
+const RNBiometrics = new ReactNativeBiometrics()
 
-const CreatePin = ({ navigation }) => {
+const CreatePin = ({ navigation, route }) => {
+  const { relogin } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -94,7 +97,7 @@ const CreatePin = ({ navigation }) => {
       try {
         setTimeout(async () => {
           if (canLogin) {
-            const { success, signature } = await ReactNativeBiometrics.createSignature({
+            const { success, signature } = await RNBiometrics.createSignature({
               promptMessage: 'Authenticate',
               payload: appId,
               cancelButtonText: 'Use PIN',
@@ -145,12 +148,17 @@ const CreatePin = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.replace('NewHome');
+      if (relogin) {
+        navigation.goBack()
+      } else {
+        navigation.replace('NewHome');
+      }
+      dispatch(credsAuthenticated(false))
     }
   }, [isAuthenticated]);
 
   const attemptLogin = (passcode: string) => {
-    dispatch(credsAuth(passcode, LoginMethod.PIN));
+    dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
   const onPinChange = () => {
