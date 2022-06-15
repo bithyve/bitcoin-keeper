@@ -1,0 +1,154 @@
+import React, { useState } from 'react';
+import { Box, Input, Text } from 'native-base';
+import { Keyboard, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ScaledSheet } from 'react-native-size-matters';
+import { RFValue } from 'react-native-responsive-fontsize';
+
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import HeaderTitle from 'src/components/HeaderTitle';
+import Buttons from 'src/components/Buttons';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import AppNumPad from 'src/components/AppNumPad';
+import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
+import Colors from 'src/theme/Colors';
+
+const AddSendAmount = () => {
+  const navigtaion = useNavigation();
+  const [amount, setAmount] = useState('');
+  return (
+    <Box flex={1} padding={2} background={'light.ReceiveBackground'}>
+      <StatusBarComponent padding={50} />
+      <HeaderTitle
+        title="Sending to address"
+        subtitle="Lorem ipsum dolor sit amet,"
+        color="light.ReceiveBackground"
+        onPressHandler={() => navigtaion.goBack()}
+      />
+      <Box
+        flexDirection={'row'}
+        alignItems={'center'}
+        justifyContent={'space-between'}
+        marginX={8}
+        marginY={windowHeight >= 850 ? '12' : windowHeight >= 750 ? '8' : '5'}
+      >
+        <Box
+          flexDirection={'row'}
+          alignItems={'center'}
+        >
+          <Box
+            backgroundColor={'light.yellow1'}
+            height={10}
+            width={10}
+            borderRadius={20}
+            justifyContent={'center'}
+            alignItems={'center'}
+          >
+            <Text
+              color={'light.greenText'}
+              fontSize={20}
+              letterSpacing={1.12}
+              fontWeight={'extrabold'}
+            >
+              @
+            </Text>
+          </Box>
+          <Text
+            color={'light.greenText'}
+            fontSize={14}
+            letterSpacing={1.12}
+            fontWeight={300}
+            marginX={5}>
+            bjkdfie79583…
+          </Text>
+        </Box>
+        <DollarInput />
+      </Box>
+
+      <Box marginX={8}>
+        <Box
+          flexDirection={'row'}
+          width={'100%'}
+          justifyContent={'center'}
+          alignItems={'center'}
+          borderRadius={10}
+          backgroundColor={'light.lightYellow'}
+          marginY={2}
+          padding={3}
+        >
+          <Box
+            marginLeft={10}
+            marginRight={2}
+          >
+            <DollarInput />
+          </Box>
+          <Box
+            marginLeft={2}
+            width={0.5}
+            backgroundColor={'light.borderSaperator'}
+            opacity={0.3}
+            height={7} />
+          <Input
+            placeholder="Enter Amount"
+            placeholderTextColor={'light.greenText'}
+            color={'light.greenText'}
+            opacity={.5}
+            fontSize={RFValue(12)}
+            letterSpacing={1.04}
+            fontWeight={300}
+            borderWidth={'0'}
+            value={amount}
+            onChangeText={(value) => setAmount(value)}
+            onFocus={() => Keyboard.dismiss()}
+          />
+        </Box>
+        <Box
+          flexDirection={'row'}
+          marginY={2} width={'100%'}
+          justifyContent={'center'}
+          alignItems={'center'}
+        >
+          <TextInput
+            placeholder='Add a note'
+            style={styles.textInput}
+          />
+        </Box>
+        <Box
+          marginTop={3}
+          marginBottom={5}
+        >
+          <Buttons
+            secondaryText={'Cancel'}
+            secondaryCallback={() => {
+              console.log('Cancel');
+            }}
+            primaryText={'Send'}
+            primaryCallback={() => {
+              console.log('send');
+            }}
+          />
+        </Box>
+
+      </Box>
+      <AppNumPad
+        setValue={setAmount}
+        ok={() => {
+          console.log('ok');
+        }}
+        clear={() => setAmount('')}
+        color={'#073E39'}
+        height={windowHeight >= 850 ? 80 : 55}
+      />
+    </Box>
+  );
+};
+const styles = ScaledSheet.create({
+  textInput: {
+    width: '100%',
+    backgroundColor: Colors?.textInputBackground,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    padding: 20
+  },
+});
+export default AddSendAmount;

@@ -26,6 +26,7 @@ import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
+import AddSendAmount from 'src/screens/Send/AddSendAmount';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -59,6 +60,7 @@ const Navigator = () => {
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
+        <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
