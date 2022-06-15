@@ -3,8 +3,12 @@ import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
-
-const CustomButton = (props) => {
+export interface Props {
+  value: string;
+  onPress?: Function;
+  disabled?: boolean;
+}
+const CustomButton = (props: Props) => {
   return (
     <TouchableHighlight
       style={styles.button}

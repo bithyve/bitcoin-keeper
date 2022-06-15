@@ -2,8 +2,12 @@ import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
-
-const CustomGreenButton = (props) => {
+export interface Props {
+  value: string;
+  onPress?: Function;
+  disabled?: boolean;
+}
+const CustomGreenButton = (props: Props) => {
   return (
     <TouchableHighlight
       style={styles.button}
