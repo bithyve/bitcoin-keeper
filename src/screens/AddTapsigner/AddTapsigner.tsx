@@ -1,4 +1,4 @@
-import { Alert, Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, VStack } from 'native-base';
 
 import AuthHandler from './AuthHandler';
@@ -164,7 +164,7 @@ const AddTapsigner = ({ navigation }) => {
       });
       return data;
     } catch (e) {
-      Alert.alert(e);
+      console.log(e);
     }
   };
 
@@ -197,7 +197,7 @@ const AddTapsigner = ({ navigation }) => {
       });
       navigation.dispatch(CommonActions.goBack());
     } catch (e) {
-      Alert.alert(e);
+      console.log(e);
     }
   };
 
