@@ -14,9 +14,10 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks'
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 
+const RNBiometrics = new ReactNativeBiometrics()
+
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
-  const [isBiometicSupported, setIsBiometicSupported] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -26,33 +27,34 @@ const AppSettings = ({ navigation }) => {
   }, []);
 
   const init = async () => {
-    try {
-      const { available, biometryType } = await ReactNativeBiometrics.isSensorAvailable();
-      if (available) {
-        setIsBiometicSupported(true);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const onChangeLoginMethod = async () => {
-    if (loginMethod === LoginMethod.PIN) {
-      const { keysExist } = await ReactNativeBiometrics.biometricKeysExist();
-      if (keysExist) {
-        await ReactNativeBiometrics.createKeys();
-      }
-      const { publicKey } = await ReactNativeBiometrics.createKeys();
-      const { success } = await ReactNativeBiometrics.simplePrompt({
-        promptMessage: 'Confirm your identity',
-      });
-      if (success) {
-        dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+    try {
+      const { available, biometryType } = await RNBiometrics.isSensorAvailable();
+      if (available) {
+        if (loginMethod === LoginMethod.PIN) {
+          const { keysExist } = await RNBiometrics.biometricKeysExist();
+          if (keysExist) {
+            await RNBiometrics.createKeys();
+          }
+          const { publicKey } = await RNBiometrics.createKeys();
+          const { success } = await RNBiometrics.simplePrompt({
+            promptMessage: 'Confirm your identity',
+          });
+          if (success) {
+            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+          }
+        } else {
+          dispatch(changeLoginMethod(LoginMethod.PIN));
+        }
       } else {
+        Alert.alert('Biometrics not enabled', 'Plese go to setting and enable it')
       }
-    } else {
-      dispatch(changeLoginMethod(LoginMethod.PIN));
+    } catch (error) {
+      console.log(error)
     }
+
   };
   const changeThemeMode = () => {
     setDarkMode(!darkMode);
@@ -99,16 +101,14 @@ const AppSettings = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
-          {isBiometicSupported && (
-            <SettingsSwitchCard
-              title={'Use Biometrics'}
-              description={'Lorem ipsum dolor sit amet,'}
-              my={2}
-              bgColor={`${colorMode}.backgroundColor2`}
-              onSwitchToggle={() => onChangeLoginMethod()}
-              value={loginMethod === LoginMethod.BIOMETRIC}
-            />
-          )}
+          <SettingsSwitchCard
+            title={'Use Biometrics'}
+            description={'Lorem ipsum dolor sit amet,'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            onSwitchToggle={() => onChangeLoginMethod()}
+            value={loginMethod === LoginMethod.BIOMETRIC}
+          />
 
           <SettingsSwitchCard
             title={'Dark Mode'}
