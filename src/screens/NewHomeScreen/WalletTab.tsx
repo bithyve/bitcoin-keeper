@@ -10,7 +10,7 @@ import DollarGreen from 'src/assets/images/svgs/icon_dollar_green.svg';
 import Heading from './Heading';
 import NavVault from 'src/assets/images/svgs/nav_vault.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletCard from './WalletCard';
@@ -20,6 +20,8 @@ import { useNavigation } from '@react-navigation/native';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { useDispatch } from 'react-redux';
+import { crossTransfer } from 'src/store/sagaActions/send&receive';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
@@ -27,6 +29,17 @@ const WalletTab = ({ animate }) => {
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const { translations } = useContext( LocalizationContext )
   const home = translations[ 'home' ]
+
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   dispatch(
+  //     crossTransfer({
+  //       sender: wallets[0],
+  //       recipient: wallets[1],
+  //       amount: 30000,
+  //     })
+  //   );
+  // }, []);
 
   const BtcToCurrency = () => {
     return (

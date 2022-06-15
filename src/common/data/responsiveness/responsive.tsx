@@ -1,5 +1,6 @@
 import { Dimensions, Platform } from 'react-native';
-export const windowHeight = Dimensions.get('window').height;
+export const windowHeight: number = Dimensions.get('window').height;
+export const windowWidth: number = Dimensions.get('window').width;
 
 export const getResponsiveHome = () => {
   if (windowHeight >= 850) {
