@@ -9,7 +9,7 @@ const KeeperModal = (props) => {
     visible,
     close,
     title = 'Title',
-    subTitle = 'Subtitle',
+    subTitle = null,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = 'Button text',
@@ -46,7 +46,9 @@ const KeeperModal = (props) => {
               {subTitle}
             </Text>
           </Modal.Header>
-          <Modal.Body>{<Content />}</Modal.Body>
+          <Modal.Body>
+            <Content />
+          </Modal.Body>
           <Modal.Footer alignSelf={'flex-end'} bg={'transparent'}>
             <TouchableOpacity onPress={buttonCallback}>
               <LinearGradient
