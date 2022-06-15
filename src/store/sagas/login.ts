@@ -83,13 +83,12 @@ function* credentialsAuthWorker({ payload }) {
     return;
   }
 
-  if (payload.reLogin) {
-    // yield put(switchReLogin(true));
-  } else {
-    yield put(credsAuthenticated(true));
+  if (!payload.reLogin) {
     yield put(autoSyncWallets());
-    // check if the app has been upgraded
   }
+  yield put(credsAuthenticated(true));
+  yield put(autoSyncWallets());
+  // check if the app has been upgraded
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
