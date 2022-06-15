@@ -39,10 +39,10 @@ const Navigator = () => {
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="CreatePin" component={CreatePin} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="ResetPin" component={ResetPin} />
+        <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
+        <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
+        <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
+        <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="AddTapsigner" component={AddTapsigner} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
