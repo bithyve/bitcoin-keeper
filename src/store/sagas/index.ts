@@ -27,7 +27,7 @@ import {
   calculateSendMaxFeeWatcher,
   sendPhaseOneWatcher,
   sendPhaseTwoWatcher,
-  transferWatcher,
+  corssTransferWatcher,
 } from './send&receive';
 
 export const rootSaga = function* () {
@@ -59,7 +59,7 @@ export const rootSaga = function* () {
     // send and receive
     sendPhaseOneWatcher,
     sendPhaseTwoWatcher,
-    transferWatcher,
+    corssTransferWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
 

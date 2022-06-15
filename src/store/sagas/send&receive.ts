@@ -15,8 +15,8 @@ import {
   sendStage1Executed,
   sendStage2Executed,
   SEND_TX_NOTIFICATION,
-  TransferAction,
-  EXECUTE_TRANSFER,
+  CROSS_TRANSFER,
+  CrossTransferAction,
 } from '../sagaActions/send&receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
@@ -25,26 +25,14 @@ import WalletOperations from 'src/core/wallets/WalletOperations';
 import { createWatcher } from '../utilities';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
-import { TxPriority } from 'src/core/wallets/interfaces/enum';
+import { AverageTxFees, MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
+import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
 
 export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
   if (!wallet.isUsable) return '';
 
   const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
-  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
-  return receivingAddress;
-}
-
-export function* getNextFreeAddressWorker(wallet: Wallet | MultiSigWallet) {
-  // to be used by sagas(w/o dispatch)
-  if (!wallet.isUsable) return '';
-
-  const { updatedWallet, receivingAddress } = yield call(
-    WalletOperations.getNextFreeExternalAddress,
-    wallet
-  );
   dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
@@ -255,10 +243,24 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
-function* transferWorker({ payload }: TransferAction) {
-  const { wallet, recipients } = payload;
-  // TODO: plug in the average tx fee
-  const averageTxFees = null;
+function* corssTransferWorker({ payload }: CrossTransferAction) {
+  const { sender, recipient, amount } = payload;
+  // TODO: plug in dynamic average tx fee
+  const mockFeeElements = {
+    averageTxFee: 256,
+    feePerByte: 1,
+    estimatedBlocks: 12,
+  };
+  const mockFeeByPriority = {
+    [TxPriority.LOW]: mockFeeElements,
+    [TxPriority.MEDIUM]: mockFeeElements,
+    [TxPriority.HIGH]: mockFeeElements,
+  };
+  const averageTxFees = {
+    [NetworkType.TESTNET]: mockFeeByPriority,
+    [NetworkType.MAINNET]: mockFeeByPriority,
+  };
+
   if (!averageTxFees) {
     yield put(
       feeIntelMissing({
@@ -268,43 +270,49 @@ function* transferWorker({ payload }: TransferAction) {
     return;
   }
 
-  const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
+  const averageTxFeeByNetwork: AverageTxFees = averageTxFees[sender.derivationDetails.networkType];
 
   try {
     // const recipients = yield call(processRecipients);
+
+    const recipients = [
+      {
+        address: yield call(getNextFreeAddress, recipient),
+        amount,
+      },
+    ];
     const { txPrerequisites } = yield call(
       WalletOperations.transferST1,
-      wallet,
+      sender,
       recipients,
       averageTxFeeByNetwork
     );
 
     if (txPrerequisites) {
-      const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(sender.derivationDetails.networkType);
       const { txid } = yield call(
         WalletOperations.transferST2,
-        wallet,
-        wallet.id,
+        sender,
+        sender.id,
         txPrerequisites,
         TxPriority.LOW,
         network,
         recipients
       );
-      console.log({ txid });
 
       if (txid)
-        yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-          specs: wallet.specs,
+        yield call(dbManager.updateObjectById, RealmSchema.Wallet, sender.id, {
+          specs: sender.specs,
         });
-      else throw new Error('Failed to execute transfer; txid missing');
-    } else throw new Error('Failed to generate txPrerequisites');
+      else throw new Error('Failed to execute cross transfer; txid missing');
+    } else throw new Error('Failed to generate txPrerequisites for cross transfer');
   } catch (err) {
     console.log({ err });
     return;
   }
 }
 
-export const transferWatcher = createWatcher(transferWorker, EXECUTE_TRANSFER);
+export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { numberOfRecipients, wallet } = payload;

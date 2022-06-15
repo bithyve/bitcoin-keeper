@@ -18,7 +18,7 @@ export const AMOUNT_FOR_RECIPIENT_UPDATED = 'AMOUNT_FOR_RECIPIENT_UPDATED';
 export const SET_BALANCE_FOR_SENDING_RECIPIENT = 'SET_BALANCE_FOR_SENDING_RECIPIENT';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
 export const SEND_PHASE_ONE_EXECUTED = 'SEND_PHASE_ONE_EXECUTED';
-export const EXECUTE_TRANSFER = 'EXECUTE_TRANSFER';
+export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
@@ -230,20 +230,22 @@ export const sendStage2Executed = (payload: {
   };
 };
 
-export interface TransferAction extends Action {
-  type: typeof EXECUTE_TRANSFER;
+export interface CrossTransferAction extends Action {
+  type: typeof CROSS_TRANSFER;
   payload: {
-    wallet: Wallet | MultiSigWallet;
-    recipients: {
-      address: string;
-      amount: number;
-    }[];
+    sender: Wallet | MultiSigWallet;
+    recipient: Wallet | MultiSigWallet;
+    amount: number;
   };
 }
 
-export const transfer = (payload: { wallet: Wallet; recipients }): TransferAction => {
+export const crossTransfer = (payload: {
+  sender: Wallet | MultiSigWallet;
+  recipient: Wallet | MultiSigWallet;
+  amount: number;
+}): CrossTransferAction => {
   return {
-    type: EXECUTE_TRANSFER,
+    type: CROSS_TRANSFER,
     payload,
   };
 };
