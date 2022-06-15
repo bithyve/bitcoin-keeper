@@ -31,7 +31,7 @@ const AppSettings = ({ navigation }) => {
 
   const onChangeLoginMethod = async () => {
     try {
-      const { available, biometryType } = await RNBiometrics.isSensorAvailable();
+      const { available, } = await RNBiometrics.isSensorAvailable();
       if (available) {
         if (loginMethod === LoginMethod.PIN) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
