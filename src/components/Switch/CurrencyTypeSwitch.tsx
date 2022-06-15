@@ -6,8 +6,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
+// import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
+// import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
@@ -57,7 +57,7 @@ const CurrencyTypeSwitch = () => {
           <Box
             height={8}
             width={8}
-            borderRadius={16}
+            borderRadius={!prefersBitcoin ? 16 : 0}
             backgroundColor={!prefersBitcoin ? '#fcfcfc' : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
@@ -74,7 +74,7 @@ const CurrencyTypeSwitch = () => {
           <Box
             height={8}
             width={8}
-            borderRadius={16}
+            borderRadius={prefersBitcoin ? 16 : 0}
             backgroundColor={prefersBitcoin ? '#fcfcfc' : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
