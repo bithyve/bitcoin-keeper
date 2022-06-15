@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, VStack } from 'native-base';
 
 import AuthHandler from './AuthHandler';
@@ -164,8 +164,7 @@ const AddTapsigner = ({ navigation }) => {
       });
       return data;
     } catch (e) {
-      console.log(e);
-      setStatus(e);
+      Alert.alert(e);
     }
   };
 
@@ -185,17 +184,21 @@ const AddTapsigner = ({ navigation }) => {
   };
 
   const associate = async () => {
-    const xpub = await withModal(() => wrapper(async () => card.get_xpub(cvc)))();
-    realm.write(() => {
-      realm.create(RealmSchema.VaultSigner, {
-        type: 'Tapsigner',
-        signerName: 'GTap',
-        signerId: card.card_ident,
-        path: card.path,
-        xpub,
+    try {
+      const xpub = await withModal(() => wrapper(async () => card.get_xpub(cvc)))();
+      realm.write(() => {
+        realm.create(RealmSchema.VaultSigner, {
+          type: 'Tapsigner',
+          signerName: 'GTap',
+          signerId: card.card_ident,
+          path: card.path,
+          xpub,
+        });
       });
-    });
-    navigation.dispatch(CommonActions.goBack());
+      navigation.dispatch(CommonActions.goBack());
+    } catch (e) {
+      Alert.alert(e);
+    }
   };
 
   return (
