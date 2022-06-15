@@ -2,7 +2,7 @@
   <g id="transaction_income" data-name="transaction income" transform="translate(-19.852 -344.852)">
     <g id="basecard" transform="translate(-14 -9)">
       <circle id="Ellipse_1947" data-name="Ellipse 1947" cx="15" cy="15" r="15" transform="translate(42 358)" fill="#00836a"/>
-      <circle id="Ellipse_1949" data-name="Ellipse 1949" cx="9" cy="9" r="9" transform="translate(47 385) rotate(-90)" fill="#ebb67a" opacity="0.452"/>
+      <!-- <circle id="Ellipse_1949" data-name="Ellipse 1949" cx="9" cy="9" r="9" transform="translate(47 385) rotate(-90)" fill="#ebb67a" opacity="0.452"/> -->
     </g>
     <g id="income" transform="translate(47.729 370.838) rotate(180)">
       <path id="Union_19" data-name="Union 19" d="M-10330.143-14308.422v-7.3l-1.219,1.218a1.22,1.22,0,0,1-1.765,0,1.222,1.222,0,0,1,0-1.761l3.205-3.2a1.234,1.234,0,0,1,1.032-.53h.009a1.2,1.2,0,0,1,.282.031,1.225,1.225,0,0,1,.753.5l3.2,3.2a1.222,1.222,0,0,1,0,1.761,1.218,1.218,0,0,1-.885.378,1.206,1.206,0,0,1-.88-.378l-1.215-1.213v7.3a1.262,1.262,0,0,1-1.262,1.258A1.234,1.234,0,0,1-10330.143-14308.422Z" transform="translate(10333.501 14320.001)" fill="#fafcfc"/>

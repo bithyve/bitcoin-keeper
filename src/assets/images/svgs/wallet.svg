@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <g id="wallet" transform="translate(-33 -363)">
+    <circle id="Ellipse_1947" data-name="Ellipse 1947" cx="24" cy="24" r="24" transform="translate(33 363)" fill="#041513" opacity="0.3"/>
+    <g id="wallet-2" data-name="wallet" transform="translate(47 378)">
+      <path id="Shape" d="M17.623,17.988H2.629A2.629,2.629,0,0,1,0,15.387V3.857A3.857,3.857,0,0,1,3.856,0h9.722a3.857,3.857,0,0,1,3.856,3.857,2.075,2.075,0,0,1,1.937,1.929V16.253a1.748,1.748,0,0,1-1.749,1.736Zm-3.674-9.1a1.912,1.912,0,0,0-.009,3.825v0h.005a1.911,1.911,0,1,0,0-3.821ZM3.552,1.929A1.614,1.614,0,0,0,1.937,3.542v.314H15.5V3.542a1.613,1.613,0,0,0-1.614-1.613Z" transform="translate(0 0)" fill="#fafcfc"/>
+    </g>
+  </g>
+</svg>
