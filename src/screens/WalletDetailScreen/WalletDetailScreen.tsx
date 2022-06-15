@@ -112,7 +112,7 @@ const WalletDetailScreen = ({ route }) => {
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
-    dispatch(refreshWallets([wallet], {}));
+    dispatch(refreshWallets([wallet], { hardRefresh: true }));
     setPullRefresh(false);
   };
   const renderTransactionElement = ({ item }) => {

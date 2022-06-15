@@ -8,26 +8,23 @@ import {
   RESET_PIN,
   CHANGE_LOGIN_METHOD,
 } from '../sagaActions/login';
-import { setLoginMethod } from '../reducers/settings'
+import { setLoginMethod } from '../reducers/settings';
 import {
   credsAuthenticated,
   credsChanged,
   setCredStored,
   pinChangedFailed,
   setupLoading,
-} from '../reducers/login'
+} from '../reducers/login';
 import dbManager from '../../storage/realm/dbManager';
 import * as Cipher from '../../common/encryption';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import {
-  setPinResetCreds,
-  resetPinFailAttempts,
-  setPinHash
-} from '../reducers/storage';
+import { setPinResetCreds, resetPinFailAttempts, setPinHash } from '../reducers/storage';
 import { setupKeeperApp } from '../sagaActions/storage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RootState } from '../store'
+import { RootState } from '../store';
+import { autoSyncWallets } from '../sagaActions/wallets';
 
 function* credentialsStorageWorker({ payload }) {
   try {
@@ -45,7 +42,7 @@ function* credentialsStorageWorker({ payload }) {
 
     // setup the application
     yield put(setupKeeperApp());
-    yield put(setPinHash(hash))
+    yield put(setPinHash(hash));
 
     yield put(setCredStored());
   } catch (error) {
@@ -60,44 +57,37 @@ function* credentialsAuthWorker({ payload }) {
   try {
     const { method } = payload;
     yield put(setupLoading('authenticating'));
+
+    let hash, encryptedKey;
     if (method === LoginMethod.PIN) {
-      const hash = yield call(Cipher.hash, payload.passcode);
-      const encryptedKey = yield call(SecureStore.fetch, hash);
-      key = yield call(Cipher.decrypt, encryptedKey, hash);
-      const uint8array = yield call(Cipher.stringToArrayBuffer, key);
-      yield call(dbManager.initializeRealm, uint8array);
-      yield call(generateSeedHash)
-      yield put(setPinHash(hash))
+      hash = yield call(Cipher.hash, payload.passcode);
+      encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
       const appId = yield select((state: RootState) => state.storage.appId);
-      const { encryptedKey, hash, success } = yield call(
-        SecureStore.verifyBiometricAuth,
-        payload.passcode,
-        appId
-      );
-      if (success) {
-        key = yield call(Cipher.decrypt, encryptedKey, hash);
-        const uint8array = yield call(Cipher.stringToArrayBuffer, key);
-        yield call(dbManager.initializeRealm, uint8array);
-        yield call(generateSeedHash)
-        yield put(setPinHash(hash))
-      } else {
-        put(credsAuthenticated(false));
-      }
+      const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
+      if (!res.success) throw new Error('Biometric Auth Failed');
+      hash = res.hash;
+      encryptedKey = res.encryptedKey;
     }
+
+    key = yield call(Cipher.decrypt, encryptedKey, hash);
+    if (!key) throw new Error('Encryption key is missing');
+    const uint8array = yield call(Cipher.stringToArrayBuffer, key);
+    yield call(dbManager.initializeRealm, uint8array);
+    yield call(generateSeedHash);
+    yield put(setPinHash(hash));
   } catch (err) {
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
-    }
-    else yield put(credsAuthenticated(false));
+    } else yield put(credsAuthenticated(false));
     return;
   }
-  if (!key) throw new Error('Key is missing');
 
   if (payload.reLogin) {
     // yield put(switchReLogin(true));
   } else {
     yield put(credsAuthenticated(true));
+    yield put(autoSyncWallets());
     // check if the app has been upgraded
   }
 }
@@ -121,20 +111,20 @@ function* changeAuthCredWorker({ payload }) {
 function* resetPinWorker({ payload }) {
   const { newPasscode } = payload;
   try {
-    const hash = yield select((state: RootState) => state.storage.pinHash)
+    const hash = yield select((state: RootState) => state.storage.pinHash);
     const encryptedKey = yield call(SecureStore.fetch, hash);
     const key = yield call(Cipher.decrypt, encryptedKey, hash);
 
     // setup new pin
-    const newHash = yield call(Cipher.hash, newPasscode)
-    const newencryptedKey = yield call(Cipher.encrypt, key, newHash)
+    const newHash = yield call(Cipher.hash, newPasscode);
+    const newencryptedKey = yield call(Cipher.encrypt, key, newHash);
 
     //store the AES key against the hash
     if (!(yield call(SecureStore.store, newHash, newencryptedKey))) {
-      throw new Error('Unable to access secure store')
+      throw new Error('Unable to access secure store');
     }
     yield put(credsChanged('changed'));
-    yield put(setPinHash(newHash))
+    yield put(setPinHash(newHash));
   } catch (err) {
     console.log({
       err,
@@ -147,14 +137,17 @@ function* resetPinWorker({ payload }) {
 
 function* generateSeedHash() {
   try {
-    const { primaryMnemonic }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const words = primaryMnemonic.split(' ')
-    const random = Math.floor(Math.random() * words.length)
-    const hash = yield call(Cipher.hash, words[random])
-    yield put(setPinResetCreds({ hash, index: random }))
-    yield put(resetPinFailAttempts())
+    const { primaryMnemonic }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    const words = primaryMnemonic.split(' ');
+    const random = Math.floor(Math.random() * words.length);
+    const hash = yield call(Cipher.hash, words[random]);
+    yield put(setPinResetCreds({ hash, index: random }));
+    yield put(resetPinFailAttempts());
   } catch (error) {
-    console.log('generateSeedHash error', error)
+    console.log('generateSeedHash error', error);
   }
 }
 
