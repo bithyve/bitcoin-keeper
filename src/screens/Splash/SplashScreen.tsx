@@ -16,7 +16,7 @@ const SplashScreen = ({ navigation }) => {
     setTimeout(async () => {
       const hasCreds = await SecureStore.hasPin()
       if (hasCreds) {
-        navigation.replace('Login')
+        navigation.replace('Login', { relogin: false })
       } else {
         navigation.replace('CreatePin')
       }

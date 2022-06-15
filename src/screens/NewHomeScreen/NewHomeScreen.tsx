@@ -1,6 +1,6 @@
-import { Animated, Dimensions, Easing, View } from 'react-native';
+import { Animated, Dimensions, Easing, View, AppState } from 'react-native';
 import { Box, Pressable, Text } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -30,9 +30,25 @@ const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
+  const appState = useRef(AppState.currentState);
   const dispatch = useDispatch();
 
   const { uaiStack } = useUaiStack();
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        navigation.navigate('Login', { relogin: true })
+      }
+      appState.current = nextAppState;
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   const addtoDb = () => {
     dispatch(
