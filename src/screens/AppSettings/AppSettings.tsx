@@ -10,7 +10,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 
@@ -62,13 +62,13 @@ const AppSettings = ({ navigation }) => {
 
   const showSeed = () => {
     try {
-      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0)
-      console.log()
-      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'))
+      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0);
+      console.log();
+      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'));
     } catch (error) {
       //
     }
-  }
+  };
 
   return (
     <SafeAreaView
@@ -84,9 +84,13 @@ const AppSettings = ({ navigation }) => {
         </TouchableOpacity>
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-        <Box w={'60%'}>
-          <Text fontSize={RFValue(20)}>Settings</Text>
-          <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
+        <Box w={'59%'}>
+          <Text fontSize={RFValue(20)} fontFamily={'heading'}>
+            Settings
+          </Text>
+          <Text fontSize={RFValue(12)} fontFamily={'body'}>
+            Lorem ipsum dolor sit amet{' '}
+          </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
@@ -142,10 +146,18 @@ const AppSettings = ({ navigation }) => {
             icon={true}
             onPress={() => console.log('pressed')}
           />
+          <SettingsCard
+            title={'Choose Plan'}
+            description={'Lorem ipsum dolor sit amet'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('ChoosePlan')}
+          />
           <Pressable onPress={() => showSeed()}>
             <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
               View Seed
-              </Text>
+            </Text>
           </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
@@ -156,33 +168,32 @@ const AppSettings = ({ navigation }) => {
             }
           />
         </Box>
-        <Box flex={0.2} justifyContent={'space-evenly'}>
+        <Box flex={0.2} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
-            mx={7}
             borderRadius={8}
             p={2}
-            bg={'#EFEFEF'}
+            bg={'light.lightYellow'}
           >
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 FAQ’s
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+            <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 Terms and Conditions
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+            <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 Privacy Policy
               </Text>
             </Pressable>

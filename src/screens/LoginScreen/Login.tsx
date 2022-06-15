@@ -35,25 +35,23 @@ const CreatePin = ({ navigation, route }) => {
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
-  const [canLogin, setCanLogin] = useState(false)
-  const { isAuthenticated, authenticationFailed } = useAppSelector(
-    (state) => state.login
-  );
+  const [canLogin, setCanLogin] = useState(false);
+  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
       const waitingTime = TIMEOUT * failedAttempts;
       if (retryTime > waitingTime) {
-        setCanLogin(true)
-        return
+        setCanLogin(true);
+        return;
       } else {
         setTimeout(() => {
-          setLoginError(true)
-          setErrMessage(`Please try after sometime`)
-          setCanLogin(false)
+          setLoginError(true);
+          setErrMessage(`Please try after sometime`);
+          setCanLogin(false);
         }, 100);
-        return
+        return;
         // if (!timer) {
         //   setTimeout(waitingTime - retryTime)
         //   setCanLogin(false)
@@ -64,8 +62,8 @@ const CreatePin = ({ navigation, route }) => {
         // }
       }
     }
-    setCanLogin(true)
-  }, [failedAttempts, lastLoginFailedAt])
+    setCanLogin(true);
+  }, [failedAttempts, lastLoginFailedAt]);
 
   // useEffect(() => {
   //   if (timeout) {
@@ -130,10 +128,10 @@ const CreatePin = ({ navigation, route }) => {
 
   useEffect(() => {
     if (attempts >= 3) {
-      setAttempts(1)
-      dispatch(increasePinFailAttempts())
+      setAttempts(1);
+      dispatch(increasePinFailAttempts());
     }
-  }, [attempts])
+  }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -164,9 +162,9 @@ const CreatePin = ({ navigation, route }) => {
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    setAttempts(0)
-    dispatch(resetPinFailAttempts())
-  }
+    setAttempts(0);
+    dispatch(resetPinFailAttempts());
+  };
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -174,18 +172,21 @@ const CreatePin = ({ navigation, route }) => {
         <StatusBar />
         <Box flex={1}>
           <Box>
-            <Text ml={5} color={'#FFF'} fontSize={RFValue(22)} mt={hp('10%')} fontWeight={'bold'}>
+            <Text
+              ml={5}
+              color={'light.textLight'}
+              fontSize={RFValue(22)}
+              mt={hp('10%')}
+              fontWeight={'bold'}
+              fontFamily={'heading'}
+            >
               {'Welcome Back,'}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(12)} ml={5} color={'#CDD8D6'}>
+              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
                 {/* {strings.EnterYourName}{' '} */}
-                {'Enter your '}
-                <Text fontWeight={'bold'} fontStyle={'italic'}>
-                  {/* {strings.passcode} */}
-                  {'passcode'}
-                </Text>
+                {'Enter your passcode'}
               </Text>
               <Box alignSelf={'baseline'}>
                 <Box
@@ -195,71 +196,87 @@ const CreatePin = ({ navigation, route }) => {
                   width={'auto'}
                 >
                   <Box
-                    style={[
-                      passcode.length == 0 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 1 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 1 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 2 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 1 ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 2 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 3 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 2 ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 3 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 4 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 3 ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -267,7 +284,7 @@ const CreatePin = ({ navigation, route }) => {
             </Box>
             {loginError && (
               <Text
-                color={'white'}
+                color={'light.white'}
                 fontSize={RFValue(12)}
                 fontStyle={'italic'}
                 textAlign={'right'}
@@ -304,7 +321,12 @@ const CreatePin = ({ navigation, route }) => {
                 setForgotVisible(true);
               }}
             >
-              <Text color={'white'} fontWeight={'bold'} fontSize={RFValue(14)}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(14)}
+                fontFamily={'body'}
+              >
                 {'Forgot Passcode?'}
               </Text>
             </TouchableOpacity>
@@ -328,7 +350,7 @@ const CreatePin = ({ navigation, route }) => {
               setForgotVisible(false);
               navigation.navigate('ResetPin', {
                 onPinChange,
-              })
+              });
             }}
           />
         </ModalContainer>
@@ -373,11 +395,6 @@ const styles = StyleSheet.create({
     fontSize: RFValue(13),
     textAlign: 'center',
     lineHeight: 18,
-  },
-  passcodeTextInputText: {
-    color: '#006CB4',
-    fontWeight: 'bold',
-    fontSize: RFValue(13),
   },
   linearGradient: {
     flex: 1,

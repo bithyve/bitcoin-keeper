@@ -25,6 +25,7 @@ import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import TestingScreen from 'src/screens/TestingScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
@@ -58,6 +59,7 @@ const Navigator = () => {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
+        <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />

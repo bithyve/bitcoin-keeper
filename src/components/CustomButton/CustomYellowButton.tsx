@@ -7,12 +7,12 @@ export interface Props {
   onPress?: Function;
   disabled?: boolean;
 }
-const CustomGreenButton = (props: Props) => {
+const CustomYellowButton = (props: Props) => {
   return (
     <TouchableHighlight
       style={styles.button}
-      underlayColor={'none'}
       disabled={props.disabled}
+      underlayColor={'none'}
       onPress={() => {
         props.onPress();
       }}
@@ -32,10 +32,10 @@ const CustomGreenButton = (props: Props) => {
           x: 1,
           y: 0.0,
         }}
-        colors={['#00836A', '#073E39']}
+        colors={['#E3BE96', '#E3BE96']}
         style={styles.linearGradient}
       >
-        <Text color={'#FAFAFA'} fontSize={12} fontWeight={'300'} fontFamily={'body'}>
+        <Text color={'#30292F'} fontSize={12} fontWeight={'300'} fontFamily={'body'}>
           {props.value}
         </Text>
       </LinearGradient>
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomGreenButton;
+export default CustomYellowButton;
