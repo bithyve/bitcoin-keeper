@@ -16,7 +16,7 @@ const HeaderTitle = ({ title = '', subtitle = '', onPressHandler, color = 'light
       <TouchableOpacity onPress={onPressHandler} style={{ marginLeft: wp(2.5) }}>
         <BackButton />
       </TouchableOpacity>
-      <View style={{ marginTop: hp(1), marginLeft: wp(7) }}>
+      <View style={{ marginTop: hp(0.5), marginLeft: wp(7) }}>
         <Text
           numberOfLines={1}
           style={styles.addWalletText}
