@@ -87,7 +87,6 @@ function* credentialsAuthWorker({ payload }) {
     yield put(autoSyncWallets());
   }
   yield put(credsAuthenticated(true));
-  yield put(autoSyncWallets());
   // check if the app has been upgraded
 }
 
