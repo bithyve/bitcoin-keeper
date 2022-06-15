@@ -167,33 +167,32 @@ const AppSettings = ({ navigation }) => {
             }
           />
         </Box>
-        <Box flex={0.2} justifyContent={'space-evenly'}>
+        <Box flex={0.2} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
-            mx={7}
             borderRadius={8}
             p={2}
             bg={'light.lightYellow'}
           >
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 FAQ’s
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
+            <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 Terms and Conditions
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
+            <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={'light.textColor2'}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 Privacy Policy
               </Text>
             </Pressable>
