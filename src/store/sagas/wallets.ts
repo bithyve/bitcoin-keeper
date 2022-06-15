@@ -63,27 +63,6 @@ export interface newWalletsInfo {
   walletDetails?: newWalletDetails;
 }
 
-export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
-  // to be used by react components(w/ dispatch)
-  if (!wallet.isUsable) return '';
-
-  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
-  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
-  return receivingAddress;
-}
-
-export function* getNextFreeAddressWorker(wallet: Wallet | MultiSigWallet) {
-  // to be used by sagas(w/o dispatch)
-  if (!wallet.isUsable) return '';
-
-  const { updatedWallet, receivingAddress } = yield call(
-    WalletOperations.getNextFreeExternalAddress,
-    wallet
-  );
-  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
-  return receivingAddress;
-}
-
 export function* setup2FADetails(app: KeeperApp) {
   const { setupData } = yield call(WalletUtilities.setupTwoFA, app.id);
   const bithyveXpub = setupData.bhXpub;
