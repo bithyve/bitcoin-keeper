@@ -19,6 +19,9 @@ import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { useNavigation } from '@react-navigation/native';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { useDispatch } from 'react-redux';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
@@ -77,6 +80,7 @@ const WalletTab = ({ animate }) => {
   };
 
   const CollectiveBallance = () => {
+    const dispatch = useDispatch();
     return (
       <Box marginY={3} marginX={5} flexDirection={'row'} justifyContent={'space-between'}>
         <Box marginY={2}>
@@ -122,6 +126,17 @@ const WalletTab = ({ animate }) => {
               fontFamily={'body'}
               fontWeight={'300'}
               letterSpacing={0.88}
+              onPress={() =>
+                dispatch(
+                  addToUaiStack(
+                    'Approve Vault transfer',
+                    true,
+                    uaiType.VAULT_TRANSFER,
+                    70,
+                    'Your wallet balance is above 1,000,000sats'
+                  )
+                )
+              }
             >
               Secure Now
             </Text>
