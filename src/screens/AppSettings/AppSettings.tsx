@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
 import { SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import ReactNativeBiometrics from 'react-native-biometrics';
@@ -13,6 +13,7 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -20,6 +21,10 @@ const AppSettings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
+
+  const { translations } = useContext( LocalizationContext )
+  const common = translations[ 'common' ]
+  const settings = translations[ 'settings' ]
 
   useEffect(() => {
     init();
@@ -83,8 +88,8 @@ const AppSettings = ({ navigation }) => {
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
-          <Text fontSize={RFValue(20)}>Settings</Text>
-          <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet </Text>
+          <Text fontSize={RFValue(20)}>{common.settings}</Text>
+          <Text fontSize={RFValue(12)}>{settings.biometricsDesc}</Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
@@ -101,8 +106,8 @@ const AppSettings = ({ navigation }) => {
         >
           {isBiometicSupported && (
             <SettingsSwitchCard
-              title={'Use Biometrics'}
-              description={'Lorem ipsum dolor sit amet,'}
+              title={settings.UseBiometrics}
+              description={settings.biometricsDesc}
               my={2}
               bgColor={`${colorMode}.backgroundColor2`}
               onSwitchToggle={() => onChangeLoginMethod()}
@@ -111,32 +116,32 @@ const AppSettings = ({ navigation }) => {
           )}
 
           <SettingsSwitchCard
-            title={'Dark Mode'}
-            description={'Lorem ipsum dolor sit amet'}
+            title={settings.DarkMode}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
           />
           <SettingsCard
-            title={'Version History'}
-            description={'Lorem ipsum dolor sit amet'}
+            title={settings.VersionHistory}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => console.log('pressed')}
           />
           <SettingsCard
-            title={'Language & Country'}
-            description={'Lorem ipsum dolor sit amet'}
+            title={settings.LanguageCountry}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
           <SettingsCard
-            title={'Keeper Community Telegram Group'}
-            description={'Questions, feedback and more'}
+            title={settings.KeeperCommunityTelegramGroup}
+            description={settings.Questionsfeedbackandmore}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
@@ -144,16 +149,14 @@ const AppSettings = ({ navigation }) => {
           />
           <Pressable onPress={() => showSeed()}>
             <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-              View Seed
+              {common.ViewSeed}
               </Text>
           </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note
-            title={'Note'}
-            subtitle={
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
-            }
+            title={common.note}
+            subtitle={common.desc}
           />
         </Box>
         <Box flex={0.2} justifyContent={'space-evenly'}>
@@ -167,7 +170,7 @@ const AppSettings = ({ navigation }) => {
           >
             <Pressable>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-                FAQ’s
+                {common.FAQs}
               </Text>
             </Pressable>
             <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
@@ -175,7 +178,7 @@ const AppSettings = ({ navigation }) => {
             </Text>
             <Pressable>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-                Terms and Conditions
+              {common.TermsConditions}
               </Text>
             </Pressable>
             <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
@@ -183,7 +186,7 @@ const AppSettings = ({ navigation }) => {
             </Text>
             <Pressable>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-                Privacy Policy
+              {common.PrivacyPolicy}
               </Text>
             </Pressable>
           </Box>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -16,6 +16,7 @@ import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import IconArrow from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { useDispatch } from 'react-redux';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const styles = StyleSheet.create( {
     container: {
@@ -109,6 +110,9 @@ const ChangeLanguage = () => {
     setSatsMode(!satsMode);
   };
 
+  const { translations } = useContext( LocalizationContext )
+  const settings = translations[ 'settings' ]
+
   const Menu = ( { label, value } ) => {
     return (
       <TouchableOpacity
@@ -172,20 +176,20 @@ const ChangeLanguage = () => {
           py={3}
         >
         <Box w={'60%'} marginLeft={'10%'}>
-          <Text fontSize={RFValue(16)} style = {styles.mainText}>Language & Country</Text>
-          <Text fontSize={RFValue(12)} style = {styles.subText}>Lorem ipsum dolor sit amet </Text>
+          <Text fontSize={RFValue(16)} style = {styles.mainText}>{settings.LanguageCountry}</Text>
+          <Text fontSize={RFValue(12)} style = {styles.subText}>{settings.biometricsDesc}</Text>
         </Box>
         <CountryCard
-            title={'Sats Mode'}
-            description={'View your balances in sats'}
+            title={settings.SatsMode}
+            description={settings.Viewbalancessats}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={satsMode}
           />
           <CountrySwitchCard
-            title={'Country Settings'}
-            description={'Choose Keeper access location'}
+            title={settings.CountrySettings}
+            description={settings.ChooseKeeperaccesslocation}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
@@ -193,7 +197,7 @@ const ChangeLanguage = () => {
           />
         <Menu
           onPress={()=> {
-            setIsVisible( !isVisible )
+            setIsVisible( isVisible )
             setIsDisabled( false )
             setShowLanguages( false )
           }}
@@ -268,8 +272,8 @@ const ChangeLanguage = () => {
         </View>
         <IconArrow />
           <CountrySwitchCard
-            title={'Alternate Currency'}
-            description={'Select your local currency'}
+            title={settings.AlternateCurrency}
+            description={settings.Selectyourlocalcurrency}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
@@ -355,8 +359,8 @@ const ChangeLanguage = () => {
           )}
         </View>
           <CountrySwitchCard
-            title={'Language Settings'}
-            description={'Choose your language preference'}
+            title={settings.LanguageSettings}
+            description={settings.Chooseyourlanguage}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
@@ -442,9 +446,9 @@ const ChangeLanguage = () => {
           </ScrollView>
           <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note
-            title={'Help us translate'}
+            title={settings.HelpUstranslate}
             subtitle={
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
+              settings.desc
             }
           />
         </Box>

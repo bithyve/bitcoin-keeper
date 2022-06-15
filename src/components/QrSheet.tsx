@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import { View } from 'react-native';
 import { Text } from 'native-base';
@@ -10,6 +10,7 @@ import HexaBottomSheet from './BottomSheet';
 import BackupListComponent from './BackupListComponent';
 import QRCode from 'react-native-qrcode-svg';
 import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData'
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 type Props = {
   backUpKeyType: BACKUP_KEYS,
@@ -26,10 +27,14 @@ const QrSheet = ({
   closeAddBackUpKeySheet,
   index
 }: Props) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const strings = translations[ 'home' ]
+
   return (
     <HexaBottomSheet
-      title={'Add Backup Key'}
-      subTitle={'Strengthen your security'}
+      title={strings.AddBackupKey}
+      subTitle={strings.Strengthenyoursecurity}
       snapPoints={['80%']}
       bottomSheetRef={addBackUpKeySheetRef}
       primaryText={'Done'}
@@ -47,7 +52,7 @@ const QrSheet = ({
           item={undefined} />
       )}
       <Text style={styles.sheetSubText} fontFamily="body" fontWeight={'200'}>
-        Scan the QR below to add Backup Key
+        {strings.ScanQRAddBackup}
       </Text>
       <View style={styles.qrContainer}>
         <QRCode value="http://awesome.link.qr" logoBackgroundColor="transparent" size={250} />

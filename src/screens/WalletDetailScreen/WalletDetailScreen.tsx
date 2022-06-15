@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, ImageBackground, TouchableOpacity, RefreshControl } from 'react-native';
 import { Box, Text, Pressable } from 'native-base';
 import {
@@ -36,6 +36,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   return (
@@ -106,6 +107,10 @@ const WalletDetailScreen = ({ route }) => {
   const dispatch = useDispatch();
 
   const [pullRefresh, setPullRefresh] = useState(false);
+  
+  const { translations } = useContext( LocalizationContext )
+  const common = translations[ 'common' ]
+  const home = translations [ 'home' ]
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -178,7 +183,7 @@ const WalletDetailScreen = ({ route }) => {
               fontWeight={200}
               letterSpacing={0.6}
             >
-              Know More
+             {common.knowMore}
             </Text>
           </Pressable>
         </Box>
@@ -215,7 +220,7 @@ const WalletDetailScreen = ({ route }) => {
               fontWeight={200}
               letterSpacing={0.24}
             >
-              Available to spend
+              {home.availableToSpend}
             </Text>
             <Text
               color={'light.textLight'}
@@ -249,7 +254,7 @@ const WalletDetailScreen = ({ route }) => {
             fontWeight={200}
             letterSpacing={1.28}
           >
-            Transactions
+            {home.Transactions}
           </Text>
           <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
             <Text
@@ -259,7 +264,7 @@ const WalletDetailScreen = ({ route }) => {
               fontWeight={300}
               letterSpacing={0.6}
             >
-              View All
+              {home.ViewAll}
             </Text>
             <IconArrowBlack />
           </Box>
@@ -299,7 +304,7 @@ const WalletDetailScreen = ({ route }) => {
           >
             <Send />
             <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-              Send
+              {common.send}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -310,7 +315,7 @@ const WalletDetailScreen = ({ route }) => {
           >
             <Recieve />
             <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-              Recieve
+              {common.receive}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -321,7 +326,7 @@ const WalletDetailScreen = ({ route }) => {
           >
             <More />
             <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-              More
+              {common.More}
             </Text>
           </TouchableOpacity>
         </Box>

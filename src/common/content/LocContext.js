@@ -2,15 +2,6 @@ import {MMKV} from 'react-native-mmkv';
 import React, { createContext, useState } from 'react'
 import * as RNLocalize from 'react-native-localize'
 import en from './language/en.json'
-import es from './language/es.json'
-import de from './language/de.json'
-import mr from './language/mr.json'
-import hi from './language/hi.json'
-import fr from './language/fr.json'
-import pt from './language/pt.json'
-import gu from './language/gu.json'
-import bn from './language/bn.json'
-import ru from './language/ru.json'
 //import ja from './language/ja.json'
 
 /*import moment from 'moment'
@@ -32,7 +23,7 @@ const DEFAULT_LANGUAGE = 'en'
 const APP_LANGUAGE = 'appLanguage'
 
 const languages = {
-  en, es, de, mr, hi, fr, pt, gu, bn, ru
+  en
 }
 export const translations = new LocalizedContent( languages )
 

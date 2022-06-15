@@ -10,7 +10,7 @@ import DollarGreen from 'src/assets/images/svgs/icon_dollar_green.svg';
 import Heading from './Heading';
 import NavVault from 'src/assets/images/svgs/nav_vault.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import React from 'react';
+import React, { useContext } from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletCard from './WalletCard';
@@ -19,11 +19,14 @@ import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { useNavigation } from '@react-navigation/native';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
   const navigation = useNavigation();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
 
   const BtcToCurrency = () => {
     return (
@@ -42,7 +45,7 @@ const WalletTab = ({ animate }) => {
             fontWeight={200}
             letterSpacing={0.7}
           >
-            BTC to USD Today
+            {home.btcTo}
           </Text>
           <View style={[styles.priceContainer, { marginTop: hp(0) }]}>
             <DollarGreen />
@@ -68,7 +71,7 @@ const WalletTab = ({ animate }) => {
               fontWeight={'300'}
               letterSpacing={0.88}
             >
-              Buy Now
+              {home.buyBitCoin}
             </Text>
           </TouchableOpacity>
         </Box>
@@ -87,7 +90,7 @@ const WalletTab = ({ animate }) => {
             fontWeight={200}
             letterSpacing={0.7}
           >
-            Collective Balance
+            {home.CollectiveBalance}
           </Text>
           {/* <Text color={'light.light'} fontSize={30} fontFamily={'body'} fontWeight={200} letterSpacing={0.6}>
           0.000090
@@ -111,7 +114,7 @@ const WalletTab = ({ animate }) => {
             fontWeight={100}
             letterSpacing={0.6}
           >
-            This will be secured once it crosses 0.1 btc
+            {home.Thiswillbesecured}
           </Text>
         </Box>
         <Box justifyContent={'center'}>
@@ -123,7 +126,7 @@ const WalletTab = ({ animate }) => {
               fontWeight={'300'}
               letterSpacing={0.88}
             >
-              Secure Now
+              {home.SecureNow}
             </Text>
           </TouchableOpacity>
         </Box>

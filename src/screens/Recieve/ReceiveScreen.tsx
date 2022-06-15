@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Box, Text } from 'native-base';
@@ -22,6 +22,8 @@ import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 import QRCode from 'react-native-qrcode-svg';
 
+import { LocalizationContext } from 'src/common/content/LocContext';
+
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
   // const dispatch = useDispatch();
@@ -30,6 +32,10 @@ const ReceiveScreen = ({ route }: { route }) => {
   const amount = route?.params?.amount;
   const [receivingAddress, setReceivingAddress] = useState(null);
   const [paymentURI, setPaymentURI] = useState(null);
+
+  const { translations } = useContext( LocalizationContext )
+  const common = translations[ 'common' ]
+  const home = translations[ 'home' ]
 
   useEffect(() => {
     const receivingAddress = getNextFreeAddress(wallet);
@@ -49,8 +55,8 @@ const ReceiveScreen = ({ route }: { route }) => {
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title="Receive"
-        subtitle="Lorem ipsum dolor sit amet, consectetur"
+        title={common.receive}
+        subtitle={common.smalldesc}
         onPressHandler={() => navigtaion.goBack()}
         color={'light.ReceiveBackground'}
       />
@@ -133,7 +139,7 @@ const ReceiveScreen = ({ route }: { route }) => {
                 fontSize={14}
                 letterSpacing={1.12}
               >
-                Add amount
+                {home.AddAmount}
               </Text>
               <Text
                 color={'light.GreyText'}
@@ -152,8 +158,8 @@ const ReceiveScreen = ({ route }: { route }) => {
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={10} marginX={5}>
         <InfoBox
-          title="Add amount"
-          desciption="It would take some time for the sats to reflect in your account based on the network condition desciption"
+          title={home.AddAmount}
+          desciption={home.reflectSats}
           width="65%"
         />
       </Box>

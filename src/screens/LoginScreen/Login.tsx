@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -17,6 +17,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const TIMEOUT = 60
 
@@ -36,6 +37,10 @@ const CreatePin = ({ navigation }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector(
     (state) => state.login
   );
+
+  const { translations } = useContext( LocalizationContext )
+  const login = translations[ 'login' ]
+  const common = translations[ 'common' ]
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -167,16 +172,16 @@ const CreatePin = ({ navigation }) => {
         <Box flex={1}>
           <Box>
             <Text ml={5} color={'#FFF'} fontSize={RFValue(22)} mt={hp('10%')} fontWeight={'bold'}>
-              {'Welcome Back,'}
+              {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
               <Text fontSize={RFValue(12)} ml={5} color={'#CDD8D6'}>
                 {/* {strings.EnterYourName}{' '} */}
-                {'Enter your '}
+                { login.enter_your }
                 <Text fontWeight={'bold'} fontStyle={'italic'}>
                   {/* {strings.passcode} */}
-                  {'passcode'}
+                  {login.passcode}
                 </Text>
               </Text>
               <Box alignSelf={'baseline'}>
@@ -278,7 +283,7 @@ const CreatePin = ({ navigation }) => {
                       setElevation(0);
                       attemptLogin(passcode);
                     }}
-                    value={'Proceed'}
+                    value={common.proceed}
                   />
                 </Box>
               )}
@@ -297,7 +302,7 @@ const CreatePin = ({ navigation }) => {
               }}
             >
               <Text color={'white'} fontWeight={'bold'} fontSize={RFValue(14)}>
-                {'Forgot Passcode?'}
+                {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
           )}
