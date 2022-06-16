@@ -10,7 +10,6 @@ import { setupKeeperAppWatcher } from './storage';
 import {
   addNewWalletsWatcher,
   autoWalletsSyncWatcher,
-  feeAndExchangeRatesWatcher,
   generateSecondaryXprivWatcher,
   importNewWalletWatcher,
   refreshWalletsWatcher,
@@ -28,7 +27,8 @@ import {
   sendPhaseOneWatcher,
   sendPhaseTwoWatcher,
   corssTransferWatcher,
-} from './send&receive';
+  feeAndExchangeRatesWatcher,
+} from './send_and_receive';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -46,7 +46,6 @@ export const rootSaga = function* () {
     // wallet
     addNewWalletsWatcher,
     autoWalletsSyncWatcher,
-    feeAndExchangeRatesWatcher,
     generateSecondaryXprivWatcher,
     importNewWalletWatcher,
     refreshWalletsWatcher,
@@ -57,6 +56,7 @@ export const rootSaga = function* () {
     validateTwoFAWatcher,
 
     // send and receive
+    feeAndExchangeRatesWatcher,
     sendPhaseOneWatcher,
     sendPhaseTwoWatcher,
     corssTransferWatcher,

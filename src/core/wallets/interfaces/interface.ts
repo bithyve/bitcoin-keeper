@@ -8,6 +8,7 @@ import {
   NetworkType,
   TransactionType,
   NodeType,
+  TxPriority,
 } from './enum';
 
 export interface InputUTXOs {
@@ -22,13 +23,14 @@ export interface OutputUTXOs {
   address: string;
 }
 
-export interface AverageTxFees {
-  [priority: string]: {
-    averageTxFee: number;
-    feePerByte: number;
-    estimatedBlocks: number;
-  };
+export interface AverageTxFeeElements {
+  averageTxFee: number;
+  feePerByte: number;
+  estimatedBlocks: number;
 }
+
+export type AverageTxFees = Record<TxPriority, AverageTxFeeElements>;
+export type AverageTxFeesByNetwork = Record<NetworkType, AverageTxFees>;
 
 export interface TransactionPrerequisiteElements {
   inputs?: InputUTXOs[];
