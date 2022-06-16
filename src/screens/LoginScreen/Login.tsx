@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
+
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
+import Modal from 'react-native-modal';
+
 import { credsAuth } from '../../store/sagaActions/login';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import { credsAuthenticated } from '../../store/reducers/login';
@@ -18,9 +21,10 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import ResetPassSuccess from './components/ResetPassSuccess';
 
-const TIMEOUT = 60
-const RNBiometrics = new ReactNativeBiometrics()
+const TIMEOUT = 60;
+const RNBiometrics = new ReactNativeBiometrics();
 
 const CreatePin = ({ navigation, route }) => {
   const { relogin } = route.params;
@@ -30,6 +34,8 @@ const CreatePin = ({ navigation, route }) => {
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
+  const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
+
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [Elevation, setElevation] = useState(10);
@@ -147,11 +153,11 @@ const CreatePin = ({ navigation, route }) => {
   useEffect(() => {
     if (isAuthenticated) {
       if (relogin) {
-        navigation.goBack()
+        navigation.goBack();
       } else {
         navigation.replace('NewHome');
       }
-      dispatch(credsAuthenticated(false))
+      dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
 
@@ -164,6 +170,7 @@ const CreatePin = ({ navigation, route }) => {
     setErrMessage('');
     setAttempts(0);
     dispatch(resetPinFailAttempts());
+    setResetPassSuccessVisible(true);
   };
 
   return (
@@ -354,6 +361,28 @@ const CreatePin = ({ navigation, route }) => {
             }}
           />
         </ModalContainer>
+        {/* reset password success modal */}
+        <Box>
+          <Modal
+            isVisible={resetPassSuccessVisible}
+            onSwipeComplete={() => setResetPassSuccessVisible(false)}
+            swipeDirection={['down']}
+            style={styles.view}
+          >
+            {/* <ModalContainer
+            visible={resetPassSuccessVisible}
+            closeBottomSheet={() => {
+              setResetPassSuccessVisible(false);
+            }}
+          > */}
+            <ResetPassSuccess
+              closeBottomSheet={() => {
+                setResetPassSuccessVisible(false);
+              }}
+            />
+            {/* </ModalContainer> */}
+          </Modal>
+        </Box>
       </Box>
     </LinearGradient>
   );
@@ -399,6 +428,11 @@ const styles = StyleSheet.create({
   linearGradient: {
     flex: 1,
     padding: 10,
+  },
+  view: {
+    justifyContent: 'flex-end',
+    marginHorizontal: 15,
+    marginBottom: 25,
   },
 });
 
