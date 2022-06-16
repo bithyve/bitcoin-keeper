@@ -17,7 +17,10 @@ import {
   SEND_TX_NOTIFICATION,
   CROSS_TRANSFER,
   CrossTransferAction,
-} from '../sagaActions/send&receive';
+  setAverageTxFee,
+  FETCH_FEE_AND_EXCHANGE_RATES,
+  exchangeRatesCalculated,
+} from '../sagaActions/send_and_receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
 import dbManager from '../../storage/realm/dbManager';
@@ -27,6 +30,7 @@ import WalletUtilities from 'src/core/wallets/WalletUtilities';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { AverageTxFees, MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
+import Relay from 'src/core/services/Relay';
 
 export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
@@ -36,6 +40,38 @@ export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
+
+function* feeAndExchangeRatesWorker() {
+  const storedExchangeRates = yield select((state) => state.send.exchangeRates);
+  const storedAverageTxFees = yield select((state) => state.accounts.averageTxFees);
+  const currencyCode = 'USD';
+  try {
+    const { exchangeRates, averageTxFees } = yield call(
+      Relay.fetchFeeAndExchangeRates,
+      currencyCode
+    );
+    if (!exchangeRates) console.log('Failed to fetch exchange rates');
+    else {
+      if (JSON.stringify(exchangeRates) !== JSON.stringify(storedExchangeRates))
+        yield put(exchangeRatesCalculated(exchangeRates));
+    }
+
+    if (!averageTxFees) console.log('Failed to fetch fee rates');
+    else {
+      if (JSON.stringify(averageTxFees) !== JSON.stringify(storedAverageTxFees))
+        yield put(setAverageTxFee(averageTxFees));
+    }
+  } catch (err) {
+    console.log({
+      err,
+    });
+  }
+}
+
+export const feeAndExchangeRatesWatcher = createWatcher(
+  feeAndExchangeRatesWorker,
+  FETCH_FEE_AND_EXCHANGE_RATES
+);
 
 // function* processRecipients(accountShell: AccountShell) {
 //   const accountsState: AccountsState = yield select((state) => state.accounts);

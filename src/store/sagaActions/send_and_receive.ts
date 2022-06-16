@@ -16,6 +16,9 @@ export const RECIPIENT_REMOVED_FROM_SENDING = 'RECIPIENT_REMOVED_FROM_SENDING';
 export const RECIPIENT_SELECTED_FOR_AMOUNT_SETTING = 'RECIPIENT_SELECTED_FOR_AMOUNT_SETTING';
 export const AMOUNT_FOR_RECIPIENT_UPDATED = 'AMOUNT_FOR_RECIPIENT_UPDATED';
 export const SET_BALANCE_FOR_SENDING_RECIPIENT = 'SET_BALANCE_FOR_SENDING_RECIPIENT';
+export const FETCH_FEE_AND_EXCHANGE_RATES = 'FETCH_FEE_AND_EXCHANGE_RATES';
+export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
+export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
 export const SEND_PHASE_ONE_EXECUTED = 'SEND_PHASE_ONE_EXECUTED';
 export const CROSS_TRANSFER = 'CROSS_TRANSFER';
@@ -113,6 +116,30 @@ export const amountForRecipientUpdated = (payload: {
   return {
     type: AMOUNT_FOR_RECIPIENT_UPDATED,
     payload,
+  };
+};
+
+export const fetchFeeAndExchangeRates = () => {
+  return {
+    type: FETCH_FEE_AND_EXCHANGE_RATES,
+  };
+};
+
+export const setAverageTxFee = (averageTxFees) => {
+  return {
+    type: AVERAGE_TX_FEE,
+    payload: {
+      averageTxFees,
+    },
+  };
+};
+
+export const exchangeRatesCalculated = (exchangeRates) => {
+  return {
+    type: EXCHANGE_RATE_CALCULATED,
+    payload: {
+      exchangeRates,
+    },
   };
 };
 
