@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet, TouchableHighlight } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
@@ -9,8 +9,8 @@ export interface Props {
 }
 const KeyPadButton: React.FC<Props> = ({ title, onPressNumber }: Props) => {
   return (
-    <TouchableHighlight
-      underlayColor="#dcdcdc"
+    <TouchableOpacity
+      // underlayColor="#dcdcdc"
       onPress={() => onPressNumber(title)}
       style={styles.keyPadElementTouchable}
     >
@@ -20,7 +20,7 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber }: Props) => {
       >
         {title}
       </Text>
-    </TouchableHighlight>
+    </TouchableOpacity>
   );
 };
 const styles = StyleSheet.create({

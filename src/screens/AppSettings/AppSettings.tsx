@@ -13,8 +13,9 @@ import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import openLink from 'src/utils/OpenLink';
 
-const RNBiometrics = new ReactNativeBiometrics()
+const RNBiometrics = new ReactNativeBiometrics();
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
@@ -26,12 +27,11 @@ const AppSettings = ({ navigation }) => {
     init();
   }, []);
 
-  const init = async () => {
-  };
+  const init = async () => {};
 
   const onChangeLoginMethod = async () => {
     try {
-      const { available, } = await RNBiometrics.isSensorAvailable();
+      const { available } = await RNBiometrics.isSensorAvailable();
       if (available) {
         if (loginMethod === LoginMethod.PIN) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
@@ -49,12 +49,11 @@ const AppSettings = ({ navigation }) => {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        Alert.alert('Biometrics not enabled', 'Plese go to setting and enable it')
+        Alert.alert('Biometrics not enabled', 'Plese go to setting and enable it');
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-
   };
   const changeThemeMode = () => {
     setDarkMode(!darkMode);
@@ -128,7 +127,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => console.log('pressed')}
+            onPress={() => navigation.navigate('AppVersionHistory')}
           />
           <SettingsCard
             title={'Language & Country'}
@@ -144,7 +143,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
-            onPress={() => console.log('pressed')}
+            onPress={() => openLink('https://t.me/HexaWallet')}
           />
           <SettingsCard
             title={'Choose Plan'}
@@ -176,7 +175,7 @@ const AppSettings = ({ navigation }) => {
             p={2}
             bg={'light.lightYellow'}
           >
-            <Pressable>
+            <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
               <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 FAQ’s
               </Text>
@@ -184,7 +183,7 @@ const AppSettings = ({ navigation }) => {
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable>
+            <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
               <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 Terms and Conditions
               </Text>
@@ -192,7 +191,7 @@ const AppSettings = ({ navigation }) => {
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable>
+            <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
               <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
                 Privacy Policy
               </Text>
