@@ -121,7 +121,7 @@ const CardStatus = ({ status, checkStatus }) => {
 const AddTapsigner = ({ navigation }) => {
   const [visible, setVisible] = React.useState(false);
   const [cvc, setCVC] = React.useState('');
-  const [status, setStatus] = React.useState();
+  const [status, setStatus] = React.useState<any>();
   const card = React.useRef(new CKTapCard()).current;
   const { useRealm } = RealmContext;
   const realm = useRealm();
@@ -137,6 +137,19 @@ const AddTapsigner = ({ navigation }) => {
     });
   };
 
+  const sanitiseCard = (c) => {
+    return {
+      _certs_checked: c._certs_checked,
+      applet_version: c.applet_version,
+      auth_delay: c.auth_delay || 0,
+      birth_height: c.birth_height,
+      card_ident: c.card_ident,
+      is_tapsigner: c.is_tapsigner,
+      num_backups: c.num_backups,
+      path: c.path,
+    };
+  };
+
   const wrapper = async (callback) => {
     return await card.nfcWrapper(callback);
   };
@@ -147,7 +160,7 @@ const AddTapsigner = ({ navigation }) => {
       await card.certificate_check();
       return card;
     });
-    setStatus(status);
+    setStatus(sanitiseCard(status));
   };
 
   const checkStatus = async () => {
@@ -157,8 +170,9 @@ const AddTapsigner = ({ navigation }) => {
   const _setup = async () => {
     try {
       const data = await wrapper(async () => {
-        const status = await card.first_look();
+        await card.first_look();
         await card.setup(cvc);
+        const status = await card.first_look();
         const xpub = await card.get_xpub(cvc);
         return { xpub, status };
       });
@@ -170,7 +184,7 @@ const AddTapsigner = ({ navigation }) => {
 
   const setup = async () => {
     const { status, xpub } = await withModal(_setup)();
-    setStatus(status);
+    setStatus(sanitiseCard(status));
     realm.write(() => {
       realm.create(RealmSchema.VaultSigner, {
         type: 'Tapsigner',
@@ -201,17 +215,25 @@ const AddTapsigner = ({ navigation }) => {
     }
   };
 
+  const unlockCard = async () => {
+    const updatedStatus = await wrapper(async () => {
+      for (var i = 0; i < card.auth_delay; i++) {
+        await card.wait();
+      }
+      return card.first_look();
+    });
+    setStatus(sanitiseCard(updatedStatus));
+  };
+
+  const fixAuthDelay = async () => {
+    withModal(unlockCard)();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text>{JSON.stringify(status)}</Text>
       <CardStatus status={status} checkStatus={checkStatus} />
-      <AuthHandler
-        status={status}
-        setStatus={setStatus}
-        withModal={withModal}
-        card={card}
-        wrapper={wrapper}
-      />
+      <AuthHandler fixAuthDelay={fixAuthDelay} status={status} />
       <Setup status={status} cvc={cvc} setCVC={setCVC} setup={setup} associate={associate} />
       <NfcPrompt visible={visible} />
     </SafeAreaView>
