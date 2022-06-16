@@ -11,7 +11,7 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
+import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
@@ -46,7 +46,7 @@ const Navigator = () => {
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="AddTapsigner" component={AddTapsigner} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
