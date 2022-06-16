@@ -39,7 +39,11 @@ const ResetPassSuccess = (props) => {
         commodo consequat. Duis aute irure dolor in reprehenderit in
       </Text>
       <Box alignSelf={'flex-end'}>
-        <CustomGreenButton onPress={onPressProceed} value={'Login'} disabled={false} />
+        <CustomGreenButton
+          onPress={() => props.closeBottomSheet()}
+          value={'Login'}
+          disabled={false}
+        />
       </Box>
     </Box>
   );
