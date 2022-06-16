@@ -125,24 +125,6 @@ export const fetchFeeAndExchangeRates = () => {
   };
 };
 
-export const setAverageTxFee = (averageTxFees) => {
-  return {
-    type: AVERAGE_TX_FEE,
-    payload: {
-      averageTxFees,
-    },
-  };
-};
-
-export const exchangeRatesCalculated = (exchangeRates) => {
-  return {
-    type: EXCHANGE_RATE_CALCULATED,
-    payload: {
-      exchangeRates,
-    },
-  };
-};
-
 export interface SendPhaseOneAction extends Action {
   type: typeof SEND_PHASE_ONE;
   payload: {
