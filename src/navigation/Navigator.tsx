@@ -26,6 +26,7 @@ import SplashScreen from 'src/screens/Splash/SplashScreen';
 // import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -52,6 +53,7 @@ const Navigator = () => {
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
+        <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
