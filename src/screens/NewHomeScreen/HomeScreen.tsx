@@ -15,7 +15,7 @@ import BTC from 'src/assets/images/svgs/btc.svg';
 // components, functions and hooks
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation }: { navigation }) => {
 
   const NextIcon = () => {
     return (
