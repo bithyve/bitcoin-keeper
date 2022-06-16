@@ -8,9 +8,6 @@ import {
   RESET_TWO_FA,
   twoFAResetted,
   secondaryXprivGenerated,
-  FETCH_FEE_AND_EXCHANGE_RATES,
-  exchangeRatesCalculated,
-  setAverageTxFee,
   VALIDATE_TWO_FA,
   twoFAValid,
   resetTwoFA,
@@ -168,38 +165,6 @@ function* validateTwoFAWorker({ payload }: { payload: { token: number } }) {
 }
 
 export const validateTwoFAWatcher = createWatcher(validateTwoFAWorker, VALIDATE_TWO_FA);
-
-function* feeAndExchangeRatesWorker() {
-  const storedExchangeRates = yield select((state) => state.wallets.exchangeRates);
-  const storedAverageTxFees = yield select((state) => state.wallets.averageTxFees);
-  const currencyCode = yield select((state) => state.preferences.currencyCode);
-  try {
-    const { exchangeRates, averageTxFees } = yield call(
-      Relay.fetchFeeAndExchangeRates,
-      currencyCode
-    );
-    if (!exchangeRates) console.log('Failed to fetch exchange rates');
-    else {
-      if (JSON.stringify(exchangeRates) !== JSON.stringify(storedExchangeRates))
-        yield put(exchangeRatesCalculated(exchangeRates));
-    }
-
-    if (!averageTxFees) console.log('Failed to fetch fee rates');
-    else {
-      if (JSON.stringify(averageTxFees) !== JSON.stringify(storedAverageTxFees))
-        yield put(setAverageTxFee(averageTxFees));
-    }
-  } catch (err) {
-    console.log({
-      err,
-    });
-  }
-}
-
-export const feeAndExchangeRatesWatcher = createWatcher(
-  feeAndExchangeRatesWorker,
-  FETCH_FEE_AND_EXCHANGE_RATES
-);
 
 function* testcoinsWorker({ payload: testWallet }: { payload: Wallet }) {
   const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(testWallet);
