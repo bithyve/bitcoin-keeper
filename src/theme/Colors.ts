@@ -7,6 +7,8 @@ const Colors = {
   loginScreenBackground: 'rgb(47, 47, 47)',
   pinFiller: 'rgba(98, 197, 191, 1)',
   textInputBackground: '#FCF6EF',
-  ReceiveBackground: '#F7F2EC'
+  ReceiveBackground: '#F7F2EC',
+  borderColor: '#E3E3E3',
+  textColorGrey: '#6C6C6C',
 };
 export default Colors;

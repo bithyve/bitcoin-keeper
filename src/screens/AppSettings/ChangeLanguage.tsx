@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -9,14 +9,17 @@ import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import Note from 'src/components/Note/Note';
+import { setCurrencyCode } from 'src/store/sagaActions/preferences';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import IconArrow from 'src/assets/icons/Wallets/icon_arrow.svg';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'
 import { LocalizationContext } from 'src/common/content/LocContext';
+import availableLanguages from '../../common/content/availableLanguages';
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 const styles = StyleSheet.create( {
     container: {
@@ -55,10 +58,12 @@ const styles = StyleSheet.create( {
     textCurrency: {
       fontFamily: Fonts.FiraSansMedium,
       fontSize: RFValue( 18 ),
+      color : '#00836A',
+      fontWeight: '700'
     },
     icArrow: {
       marginLeft: wp( '3%' ),
-      marginRight: wp( '3%' ),
+      marginRight: wp( '13%' ),
       alignSelf: 'center',
     },
     textValue: {
@@ -93,8 +98,13 @@ const ChangeLanguage = () => {
   const { colorMode } = useColorMode();
   const [satsMode, setSatsMode] = useState(false);
   const [ isVisible, setIsVisible ] = useState( false )
+  const [ Visible, setVisible ] = useState( false )
   //const [ showCurrencies, setShowCurrencies ] = useState( false )
   const [ showLanguages, setShowLanguages ] = useState( false )
+  const {
+    appLanguage,
+    setAppLanguage,
+  } = useContext( LocalizationContext )
   const [ currency, setCurrency ] = useState( {
     code: 'USD',
     symbol: '$',
@@ -103,6 +113,8 @@ const ChangeLanguage = () => {
     code: 'IN',
     name: 'India',
   } )
+  
+  const [ selectedLanguage, setSelectedLanguage ] = useState( availableLanguages.find( lang => lang.iso === appLanguage ) )
   const [ isDisabled, setIsDisabled ] = useState( true )
   const dispatch = useDispatch()
 
@@ -113,10 +125,10 @@ const ChangeLanguage = () => {
   const { translations } = useContext( LocalizationContext )
   const settings = translations[ 'settings' ]
 
-  const Menu = ( { label, value } ) => {
+  const Menu = ( { label, value, onPress, arrow } ) => {
     return (
       <TouchableOpacity
-        // onPress={onPress}
+        onPress={onPress}
         style={styles.btn}
       >
         <View
@@ -137,6 +149,12 @@ const ChangeLanguage = () => {
             {label}
           </Text>
         </View>
+        <View style={{
+          height: '55%',
+          marginTop: 10,
+          width: 2,
+          backgroundColor: '#D8A572',
+        }}></View>
         <View
           style={{
             flex: 1, justifyContent: 'center', height: wp( '13%' )
@@ -147,6 +165,20 @@ const ChangeLanguage = () => {
           >
             {value}
           </Text>
+        </View>
+        <View
+          style={{
+            marginLeft: 'auto',
+            height: wp( '13%' ),
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons
+            name={arrow ? 'chevron-up' : 'chevron-down'}
+            color={Colors.textColorGrey}
+            size={18}
+            style={styles.icArrow}
+          />
         </View>
       </TouchableOpacity>
     )
@@ -195,25 +227,25 @@ const ChangeLanguage = () => {
             icon={false}
             onPress={() => console.log('pressed')}
           />
-        <Menu
+          <Menu
           onPress={()=> {
-            setIsVisible( isVisible )
+            setIsVisible( !isVisible )
             setIsDisabled( false )
-            setShowLanguages( false )
           }}
           arrow={isVisible}
           label={country ? country.code : '+91'}
           value={country ? country.name : 'India'}
         />
-         <View style={{
+        <View style={{
           position: 'relative',
-          marginLeft: 20,
         }}>
           {isVisible && (
             <View
               style={{
                 marginTop: wp( '3%' ),
-                // borderRadius: 10,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: Colors.borderColor,
                 overflow: 'hidden',
               }}
             >
@@ -222,8 +254,9 @@ const ChangeLanguage = () => {
                   return (
                     <TouchableOpacity
                       onPress={() => {
-                        setCountry( item )
+                        setCurrency( item )
                         setIsVisible( false )
+                        dispatch( setCurrencyCode( item.code ) )
                       }}
                       style={{
                         flexDirection: 'row', height: wp( '13%' )
@@ -233,14 +266,20 @@ const ChangeLanguage = () => {
                         style={{
                           height: wp( '13%' ),
                           width: wp( '15%' ),
+                          marginLeft: wp( '5%' ),
+                          backgroundColor: '#F7F2EC',
                           justifyContent: 'center',
                           alignItems: 'center',
+                          borderBottomWidth: 1,
+                          borderBottomColor: Colors.borderColor,
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansMedium,
-                            fontSize: RFValue( 12 ),
+                            fontSize: RFValue( 13 ),
+                            color : '#00836A',
+                            fontWeight: '700'
                           }}
                         >
                           {item.code}
@@ -251,12 +290,17 @@ const ChangeLanguage = () => {
                           flex: 1,
                           justifyContent: 'center',
                           height: wp( '13%' ),
+                          borderBottomWidth: 1,
+                          borderBottomColor: Colors.borderColor,
+                          backgroundColor: '#F7F2EC',
+
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
-                            fontSize: RFValue( 12 ),
+                            fontSize: RFValue( 13 ),
+                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
@@ -268,9 +312,8 @@ const ChangeLanguage = () => {
                 } )}
               </ScrollView>
             </View>
-          )}
+           )}
         </View>
-        <IconArrow />
           <CountrySwitchCard
             title={settings.AlternateCurrency}
             description={settings.Selectyourlocalcurrency}
@@ -281,32 +324,35 @@ const ChangeLanguage = () => {
           />
           <Menu
           onPress={()=> {
-            setIsVisible( !isVisible )
+            setVisible( !Visible )
             setIsDisabled( false )
             setShowLanguages( false )
           }}
-          arrow={isVisible}
+          arrow={Visible}
           label={currency ? currency.symbol : '$'}
-          value={currency ? currency.code : '+91'}
+          value={currency ? currency.code : CurrencyCode}
         />
-         <View style={{
+        <View style={{
           position: 'relative',
-          marginLeft: 20,
         }}>
-          {isVisible && (
+          {Visible && (
             <View
               style={{
                 marginTop: wp( '3%' ),
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: Colors.borderColor,
                 overflow: 'hidden',
               }}
             >
               <ScrollView>
-                {languageList.map( ( item ) => {
+                {currencyList.map( ( item ) => {
                   return (
                     <TouchableOpacity
                       onPress={() => {
                         setCurrency( item )
-                        setIsVisible( false )
+                        setVisible( false )
+                        dispatch( setCurrencyCode( item.code ) )
                       }}
                       style={{
                         flexDirection: 'row', height: wp( '13%' )
@@ -316,19 +362,23 @@ const ChangeLanguage = () => {
                         style={{
                           height: wp( '13%' ),
                           width: wp( '15%' ),
-                          backgroundColor: Colors.white,
+                          marginLeft: wp( '5%' ),
+                          backgroundColor: '#F7F2EC',
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderBottomWidth: 1,
+                          borderBottomColor: Colors.borderColor,
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansMedium,
-                            fontSize: RFValue( 12 ),
+                            fontSize: RFValue( 13 ),
+                            color : '#00836A',
+                            fontWeight: '700'
                           }}
                         >
-                          {item.dial_code}
+                          {item.symbol}
                         </Text>
                       </View>
                       <View
@@ -337,18 +387,19 @@ const ChangeLanguage = () => {
                           justifyContent: 'center',
                           height: wp( '13%' ),
                           borderBottomWidth: 1,
-                          backgroundColor: Colors.white,
-
+                          borderBottomColor: Colors.borderColor,
+                          backgroundColor: '#F7F2EC',
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
-                            fontSize: RFValue( 12 ),
+                            fontSize: RFValue( 13 ),
+                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
-                          {item.name}
+                          {item.code}
                         </Text>
                       </View>
                     </TouchableOpacity>
@@ -368,81 +419,91 @@ const ChangeLanguage = () => {
           />
           <Menu
           onPress={()=> {
-            setIsVisible( !isVisible )
+            setShowLanguages( !showLanguages )
             setIsDisabled( false )
-            setShowLanguages( false )
           }}
-          arrow={isVisible}
-          label={currency ? currency.symbol : '$'}
-          value={currency ? currency.code : '+91'}
+          arrow={showLanguages}
+          label={selectedLanguage.flag}
+          value={`${selectedLanguage.country_code.toUpperCase()}- ${selectedLanguage.displayTitle}`}
         />
-         <View style={{
-          position: 'relative',
-          marginLeft: 20,
-        }}>
-          {isVisible && (
-            <View
-              style={{
-                marginTop: wp( '3%' ),
-                borderRadius: 10,
-                borderWidth: 1,
-                overflow: 'hidden',
-              }}
-            >
-              <ScrollView>
-                {currencyList.map( ( item ) => {
-                  return (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setCurrency( item )
-                        setIsVisible( false )
-                      }}
-                      style={{
-                        flexDirection: 'row', height: wp( '13%' )
-                      }}
-                    >
-                      <View
+        {showLanguages && (
+          <View
+            style={{
+              marginTop: wp( '3%' ),
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: Colors.borderColor,
+              overflow: 'hidden',
+            }}
+          >
+            <ScrollView>
+              {availableLanguages.map( ( item ) => {
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setAppLanguage( item.iso )
+                      setShowLanguages( false )
+                      setIsVisible( false )
+                      setSelectedLanguage( availableLanguages.find( lang => lang.iso === item.iso ) )
+                    }}
+                    style={{
+                      flexDirection: 'row', height: wp( '13%' )
+                    }}
+                  >
+                    <View
                         style={{
                           height: wp( '13%' ),
                           width: wp( '15%' ),
+                          marginLeft: wp( '8%' ),
+                          backgroundColor: '#F7F2EC',
                           justifyContent: 'center',
                           alignItems: 'center',
+                          borderBottomWidth: 1,
+                          borderBottomColor: Colors.borderColor,
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansMedium,
-                            fontSize: RFValue( 12 ),
+                            fontSize: RFValue( 13 ),
+                            color : '#00836A',
+                            fontWeight: '700'
                           }}
                         >
-                          {item.symbol}
-                        </Text>
-                      </View>
-                      <View
+                        {item.flag}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        height: wp( '13%' ),
+                        borderBottomWidth: 1,
+                        borderBottomColor: Colors.borderColor,
+                      }}
+                    >
+                      <Text
                         style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          height: wp( '13%' ),
-
+                          fontFamily: Fonts.FiraSansRegular,
+                          fontSize: RFValue( 13 ),
+                          color: Colors.textColorGrey,
+                          marginLeft: wp( '3%' ),
                         }}
                       >
-                        <Text
-                          style={{
-                            fontFamily: Fonts.FiraSansRegular,
-                            fontSize: RFValue( 12 ),
-                            marginLeft: wp( '3%' ),
-                          }}
-                        >
-                          {item.code}
+                        <Text style={{
+                          textTransform: 'uppercase'
+                        }}>
+                          {item.country_code}
                         </Text>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                } )}
-              </ScrollView>
-            </View>
-          )}
-        </View>
+                        <Text>{`- ${item.displayTitle}`}</Text>
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                )
+              } )}
+            </ScrollView>
+          </View>
+        )}
           </ScrollView>
           <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note
