@@ -35,6 +35,7 @@ const NewHomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
+      console.log(appState.current, nextAppState);
       if (appState.current.match(/background/) && nextAppState === 'active') {
         navigation.navigate('Login', { relogin: true });
       }
