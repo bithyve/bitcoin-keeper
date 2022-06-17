@@ -23,6 +23,7 @@ import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
+import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
 // import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -62,6 +63,7 @@ const Navigator = () => {
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
+        <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>
