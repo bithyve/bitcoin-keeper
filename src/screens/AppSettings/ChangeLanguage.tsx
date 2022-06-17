@@ -15,39 +15,13 @@ import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
-import IconArrow from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { useDispatch, useSelector } from 'react-redux'
 import { LocalizationContext } from 'src/common/content/LocContext';
 import availableLanguages from '../../common/content/availableLanguages';
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 
 const styles = StyleSheet.create( {
-    container: {
-      flexGrow: 1,
-      paddingHorizontal:  wp( '5%' ),
-    },
-    textHeading: {
-      fontFamily: Fonts.FiraSansRegular,
-      fontSize: RFValue( 24 ),
-      marginBottom: wp( '5%' ),
-      marginTop: wp( '10%' ),
-    },
-    textTitle: {
-      fontFamily: Fonts.FiraSansRegular,
-      fontSize: RFValue( 15 ),
-    },
-    textSubtitle: {
-      fontFamily: Fonts.FiraSansRegular,
-      fontSize: RFValue( 12 ),
-    },
-    row: {
-      flexDirection: 'row',
-      marginBottom: wp( '2%' ),
-      marginTop: wp( '8%' ),
-    },
-    containerItem: {
-      marginHorizontal: wp( '5%' ),
-    },
     btn:{
       flexDirection: 'row',
       height: wp( '13%' ),
@@ -71,29 +45,17 @@ const styles = StyleSheet.create( {
       fontSize: RFValue( 13 ),
       marginLeft: wp( '3%' ),
     },
-    textHelpUs: {
-      fontFamily: Fonts.FiraSansRegular,
-      fontSize: RFValue( 16 ),
-      marginLeft: wp( '3%' ),
-    },
-    textHelpUsSub: {
-      fontFamily: Fonts.FiraSansRegular,
-      fontSize: RFValue( 13 ),
-      marginLeft: wp( '3%' ),
-      marginTop: wp( '1%' ),
-    },
     mainText :{
-        color: '#00715B',
-      },
+      color: '#00715B',
+    },
     subText : {
-        color : '#4F5955'
+      color : '#4F5955'
     }
   } )
 
 const ChangeLanguage = () => {
   const [ currencyList ] = useState( FiatCurrencies )
   const [ countryList ] = useState( CountryCode )
-  const [ languageList ] = useState( CountryCode )
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const [satsMode, setSatsMode] = useState(false);
@@ -267,7 +229,7 @@ const ChangeLanguage = () => {
                           height: wp( '13%' ),
                           width: wp( '15%' ),
                           marginLeft: wp( '5%' ),
-                          backgroundColor: '#F7F2EC',
+                          backgroundColor: '#FAF4ED',
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderBottomWidth: 1,
@@ -292,7 +254,7 @@ const ChangeLanguage = () => {
                           height: wp( '13%' ),
                           borderBottomWidth: 1,
                           borderBottomColor: Colors.borderColor,
-                          backgroundColor: '#F7F2EC',
+                          backgroundColor: '#FAF4ED',
 
                         }}
                       >
@@ -300,7 +262,6 @@ const ChangeLanguage = () => {
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
                             fontSize: RFValue( 13 ),
-                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
@@ -363,7 +324,7 @@ const ChangeLanguage = () => {
                           height: wp( '13%' ),
                           width: wp( '15%' ),
                           marginLeft: wp( '5%' ),
-                          backgroundColor: '#F7F2EC',
+                          backgroundColor: '#FAF4ED',
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderBottomWidth: 1,
@@ -388,14 +349,13 @@ const ChangeLanguage = () => {
                           height: wp( '13%' ),
                           borderBottomWidth: 1,
                           borderBottomColor: Colors.borderColor,
-                          backgroundColor: '#F7F2EC',
+                          backgroundColor: '#FAF4ED',
                         }}
                       >
                         <Text
                           style={{
                             fontFamily: Fonts.FiraSansRegular,
                             fontSize: RFValue( 13 ),
-                            color: Colors.textColorGrey,
                             marginLeft: wp( '3%' ),
                           }}
                         >
@@ -455,7 +415,7 @@ const ChangeLanguage = () => {
                           height: wp( '13%' ),
                           width: wp( '15%' ),
                           marginLeft: wp( '8%' ),
-                          backgroundColor: '#F7F2EC',
+                          backgroundColor: '#FAF4ED',
                           justifyContent: 'center',
                           alignItems: 'center',
                           borderBottomWidth: 1,
@@ -486,7 +446,6 @@ const ChangeLanguage = () => {
                         style={{
                           fontFamily: Fonts.FiraSansRegular,
                           fontSize: RFValue( 13 ),
-                          color: Colors.textColorGrey,
                           marginLeft: wp( '3%' ),
                         }}
                       >
@@ -505,14 +464,14 @@ const ChangeLanguage = () => {
           </View>
         )}
           </ScrollView>
-          <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
+          <View style = {{marginBottom: 10}}>
           <Note
             title={settings.HelpUstranslate}
             subtitle={
               settings.desc
             }
           />
-        </Box>
+        </View>
           </Box>
     </SafeAreaView>
   );

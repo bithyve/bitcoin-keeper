@@ -14,7 +14,7 @@ const ExportSeedScreen = ({ route }) => {
   const seed = route.params.seed;
 
   const { translations } = useContext( LocalizationContext )
-  const seed = translations[ 'seed' ]
+  const seedtext = translations[ 'seed' ]
   const SeedCard = ({ item, index }: { item; index }) => {
     return (
       <Box
@@ -36,7 +36,7 @@ const ExportSeedScreen = ({ route }) => {
           {index + 1}
         </Text>
         <Text fontSize={20} fontWeight={200} backgroundColor={'green.700'} letterSpacing={1} color={'light.seedText'} >
-          {seed.longing}
+          {seedtext.longing}
         </Text>
       </Box>
     );
@@ -50,8 +50,8 @@ const ExportSeedScreen = ({ route }) => {
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title={seed.ExportSeed}
-        subtitle={seed.SeedDesc}
+        title={seedtext.ExportSeed}
+        subtitle={seedtext.SeedDesc}
         color='light.ReceiveBackground'
         onPressHandler={() => navigtaion.goBack()}
       />
@@ -65,7 +65,7 @@ const ExportSeedScreen = ({ route }) => {
         />
       </Box>
       <Text marginX={2} marginTop={5} fontSize={12} fontWeight={200} letterSpacing={0.60} marginRight={10} color={'light.GreyText'}>
-        {seed.desc}
+        {seedtext.desc}
       </Text>
       <Box marginX={2} marginTop={5}>
         <Buttons primaryText="Next" primaryCallback={navigtaion.goBack} />

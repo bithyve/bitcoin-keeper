@@ -30,7 +30,6 @@ export const setCurrencyCode = ( data ) => {
     },
   }
 }
-
 export interface CurrencyKindSetAction extends Action {
   type: typeof CURRENCY_KIND_SET;
   payload: CurrencyKind,
