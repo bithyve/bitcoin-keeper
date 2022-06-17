@@ -19,9 +19,9 @@ import ModalContainer from 'src/components/Modal/ModalContainer';
 import FogotPassword from './components/FogotPassword';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -195,100 +195,11 @@ const CreatePin = ({ navigation, route }) => {
                 {/* {strings.EnterYourName}{' '} */}
                 {'Enter your passcode'}
               </Text>
-              <Box alignSelf={'baseline'}>
-                <Box
-                  flexDirection={'row'}
-                  marginTop={hp('4.5%')}
-                  marginBottom={hp('1.5%')}
-                  width={'auto'}
-                >
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 1 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 2 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 1 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 3 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 2 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 4 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 3 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
+              {/* pin input view */}
+              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              {/*  */}
             </Box>
+
             {loginError && (
               <Text
                 color={'light.white'}
@@ -369,18 +280,11 @@ const CreatePin = ({ navigation, route }) => {
             swipeDirection={['down']}
             style={styles.view}
           >
-            {/* <ModalContainer
-            visible={resetPassSuccessVisible}
-            closeBottomSheet={() => {
-              setResetPassSuccessVisible(false);
-            }}
-          > */}
             <ResetPassSuccess
               closeBottomSheet={() => {
                 setResetPassSuccessVisible(false);
               }}
             />
-            {/* </ModalContainer> */}
           </Modal>
         </Box>
       </Box>

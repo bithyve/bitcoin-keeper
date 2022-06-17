@@ -12,6 +12,7 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 
 export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
@@ -136,94 +137,9 @@ export default function CreatePin(props) {
                 {'Create your passcode '}
               </Text>
 
-              <Box>
-                <Box flexDirection={'row'} mt={hp('4.5%')} mb={hp('4.5%')}>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 1 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 2 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 1 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 3 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 2 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box color={'#000'} fontSize={RFValue(13)} textAlign={'center'} lineHeight={18}>
-                      {passcode.length >= 4 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 3 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
+              {/* pin input view */}
+              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              {/*  */}
             </Box>
             {passcode.length == 4 ? (
               <Box>
@@ -231,108 +147,12 @@ export default function CreatePin(props) {
                   {'Confirm your passcode'}{' '}
                 </Text>
                 <Box mb={10}>
-                  <Box flexDirection={'row'} mt={hp('1.5%')}>
-                    <Box
-                      height={wp('13%')}
-                      width={wp('13%')}
-                      borderRadius={7}
-                      ml={5}
-                      alignItems={'center'}
-                      justifyContent={'center'}
-                      backgroundColor={'rgba(253,247,240, 0.2)'}
-                    >
-                      <Box>
-                        {confirmPasscode.length >= 1 ? (
-                          <DotView height={3} width={3} color={'white'} />
-                        ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
-                          <Text
-                            color={'light.white'}
-                            fontWeight={'300'}
-                            fontSize={RFValue(13, 812)}
-                          >
-                            {'|'}
-                          </Text>
-                        ) : (
-                          ''
-                        )}
-                      </Box>
-                    </Box>
-                    <Box
-                      height={wp('13%')}
-                      width={wp('13%')}
-                      borderRadius={7}
-                      ml={5}
-                      alignItems={'center'}
-                      justifyContent={'center'}
-                      backgroundColor={'rgba(253,247,240, 0.2)'}
-                    >
-                      <Box>
-                        {confirmPasscode.length >= 2 ? (
-                          <DotView height={3} width={3} color={'white'} />
-                        ) : confirmPasscode.length == 1 ? (
-                          <Text
-                            color={'light.white'}
-                            fontWeight={'300'}
-                            fontSize={RFValue(13, 812)}
-                          >
-                            {'|'}
-                          </Text>
-                        ) : (
-                          ''
-                        )}
-                      </Box>
-                    </Box>
-                    <Box
-                      height={wp('13%')}
-                      width={wp('13%')}
-                      borderRadius={7}
-                      ml={5}
-                      alignItems={'center'}
-                      justifyContent={'center'}
-                      backgroundColor={'rgba(253,247,240, 0.2)'}
-                    >
-                      <Box>
-                        {confirmPasscode.length >= 3 ? (
-                          <DotView height={3} width={3} color={'white'} />
-                        ) : confirmPasscode.length == 2 ? (
-                          <Text
-                            color={'light.white'}
-                            fontWeight={'300'}
-                            fontSize={RFValue(13, 812)}
-                          >
-                            {'|'}
-                          </Text>
-                        ) : (
-                          ''
-                        )}
-                      </Box>
-                    </Box>
-                    <Box
-                      height={wp('13%')}
-                      width={wp('13%')}
-                      borderRadius={7}
-                      ml={5}
-                      alignItems={'center'}
-                      justifyContent={'center'}
-                      backgroundColor={'rgba(253,247,240, 0.2)'}
-                    >
-                      <Box>
-                        {confirmPasscode.length >= 4 ? (
-                          <DotView height={3} width={3} color={'white'} />
-                        ) : confirmPasscode.length == 3 ? (
-                          <Text
-                            color={'light.white'}
-                            fontWeight={'300'}
-                            fontSize={RFValue(13, 812)}
-                          >
-                            {'|'}
-                          </Text>
-                        ) : (
-                          ''
-                        )}
-                      </Box>
-                    </Box>
-                  </Box>
+                  {/* pin input view */}
+                  <PinInputsView
+                    passCode={confirmPasscode}
+                    passcodeFlag={confirmPasscodeFlag == 0 ? false : true}
+                  />
+                  {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                     <Text
                       color={'light.white'}
@@ -350,6 +170,7 @@ export default function CreatePin(props) {
                   <CustomButton
                     disabled={isDisabled}
                     onPress={() => {
+                      console.log('onPress');
                       dispatch(storeCreds(passcode));
                       setTimeout(() => {
                         setIsDisabled(true);
