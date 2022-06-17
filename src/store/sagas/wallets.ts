@@ -18,7 +18,6 @@ import {
   walletSettingsUpdated,
   walletSettingsUpdateFailed,
   setResetTwoFALoader,
-  recomputeNetBalance,
   IMPORT_NEW_WALLET,
   refreshWallets,
   REFRESH_WALLETS,
@@ -26,7 +25,7 @@ import {
   ADD_NEW_WALLETS,
 } from '../sagaActions/wallets';
 import config, { APP_STAGE } from 'src/core/config';
-import { WalletsState } from 'src/store/reducers/wallets';
+import { recomputeNetBalance, WalletsState } from 'src/store/reducers/wallets';
 import WalletOperations from 'src/core/wallets/WalletOperations';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
@@ -539,8 +538,10 @@ function* refreshWalletsWorker({
     if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
   }
 
-  // TODO: pass in all wallets(instead of only synched ones) to recompute
-  if (computeNetBalance) yield put(recomputeNetBalance(synchedWallets));
+  // TODO: pass in all wallets(instead of only synched ones) to aptly recompute
+  if (computeNetBalance) {
+    yield put(recomputeNetBalance(synchedWallets));
+  }
 
   // update F&F channels if any new txs found on an assigned address
   // if( Object.keys( activeAddressesWithNewTxsMap ).length )  yield call( updatePaymentAddressesToChannels, activeAddressesWithNewTxsMap, synchedWallets )
