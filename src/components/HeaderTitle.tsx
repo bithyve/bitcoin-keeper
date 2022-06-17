@@ -3,7 +3,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { View, Box, Text } from 'native-base';
+import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
@@ -11,6 +11,17 @@ import { TouchableOpacity } from 'react-native';
 import BackButton from 'src/assets/images/svgs/back.svg';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
+type Props = {
+  title: string,
+  subtitle: string,
+  onPressHandler: () => void,
+  color?: string,
+  marginLeft?: number,
+  enableBack?: boolean,
+  hearderMarginTop?: number,
+  hearderMarginLeft?: number,
+  headerColor?: string
+}
 const HeaderTitle = ({
   title = '',
   subtitle = '',
@@ -21,7 +32,8 @@ const HeaderTitle = ({
   hearderMarginTop = 0.05,
   hearderMarginLeft = 0.07,
   headerColor = 'light.headerText'
-}) => {
+}: Props) => {
+
   return (
     <Box background={color}>
       {enableBack && <TouchableOpacity

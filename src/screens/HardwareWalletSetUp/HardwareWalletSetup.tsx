@@ -7,7 +7,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
 import Arrow from 'src/assets/images/svgs/arrow.svg';
-const HardwareWalletSetup = ({ }) => {
+const HardwareWalletSetup = () => {
 
   const HardWareWallet = () => {
     return (
@@ -35,7 +35,7 @@ const HardwareWalletSetup = ({ }) => {
       <HeaderTitle
         title="Setup a Hardware Wallet"
         subtitle="to activate your Vault"
-        onPressHandler={() => { }}
+        onPressHandler={() => { console.log('goback') }}
         headerColor={'light.headerTextTwo'}
         hearderMarginTop={0.032}
         marginLeft={0}
