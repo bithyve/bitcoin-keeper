@@ -26,6 +26,7 @@ import {
   getAccountCardHeight,
   getTransactionPadding,
   windowHeight,
+  windowWidth,
 } from 'src/common/data/responsiveness/responsive';
 import BaseCardWallet from 'src/assets/images/basecard_wallet.png';
 import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
@@ -57,6 +58,8 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
             fontSize={13}
             fontWeight={200}
             letterSpacing={0.6}
+            numberOfLines={1}
+            width={windowWidth / 3}
           >
             {transaction.txid}
           </Text>
@@ -320,7 +323,7 @@ const WalletDetailScreen = ({ route }) => {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Receive', { wallet });
+              navigation.navigate('ExportSeed', { seed: wallet.derivationDetails.mnemonic });
             }}
             style={styles.IconText}
           >
