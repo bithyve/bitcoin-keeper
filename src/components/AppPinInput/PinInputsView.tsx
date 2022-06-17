@@ -20,7 +20,6 @@ const PinInputsView = ({ passCode, passcodeFlag }) => {
     } else {
       setHide(false);
     }
-    console.log('passCode', passCode);
   }, [passCode]);
 
   return (

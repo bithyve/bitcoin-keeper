@@ -170,7 +170,6 @@ export default function CreatePin(props) {
                   <CustomButton
                     disabled={isDisabled}
                     onPress={() => {
-                      console.log('onPress');
                       dispatch(storeCreds(passcode));
                       setTimeout(() => {
                         setIsDisabled(true);
