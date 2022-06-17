@@ -4,10 +4,12 @@ import ThemeMode from 'src/common/data/enums/ThemeMode'
 
 const initialState: {
   loginMethod: LoginMethod,
-  themeMode: ThemeMode
+  themeMode: ThemeMode,
+  currencyCode: any;
 } = {
   loginMethod: LoginMethod.PIN,
-  themeMode: ThemeMode.LIGHT
+  themeMode: ThemeMode.LIGHT,
+  currencyCode: []
 }
 
 const settingsSlice = createSlice({
@@ -19,10 +21,13 @@ const settingsSlice = createSlice({
     },
     setThemeMode: (state, action: PayloadAction<ThemeMode>) => {
       state.themeMode = action.payload
+    },
+    setCurrencyCode: (state, action) => {
+      state.currencyCode = action.payload
     }
   }
 })
 
-export const { setLoginMethod, setThemeMode } = settingsSlice.actions
+export const { setLoginMethod, setThemeMode, setCurrencyCode } = settingsSlice.actions
 
 export default settingsSlice.reducer
