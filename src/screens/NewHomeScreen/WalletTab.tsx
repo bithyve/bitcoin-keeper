@@ -22,11 +22,13 @@ import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useAppSelector } from 'src/store/hooks';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
   const navigation = useNavigation();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const netBalance = useAppSelector((state) => state.wallet.netBalance);
 
   const BtcToCurrency = () => {
     return (
@@ -105,7 +107,7 @@ const WalletTab = ({ animate }) => {
               fontWeight={'200'}
               fontSize={30}
             >
-              0.000024
+              {netBalance / 10e8}
             </Text>
           </View>
           <Text
