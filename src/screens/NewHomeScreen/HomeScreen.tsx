@@ -13,7 +13,7 @@ import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import VaultImage from 'src/assets/images/Vault.png';
 import BTC from 'src/assets/images/svgs/btc.svg';
 // components, functions and hooks
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const HomeScreen = ({ navigation }: { navigation }) => {
 
@@ -21,8 +21,8 @@ const HomeScreen = ({ navigation }: { navigation }) => {
     return (
       <Box
         backgroundColor={'light.yellow1'}
-        height={windowHeight * 0.046}
-        width={windowHeight * 0.046}
+        height={hp(37.352)}
+        width={hp(37.352)}
         borderRadius={20}
         justifyContent={'center'}
         alignItems={'center'}
@@ -33,7 +33,10 @@ const HomeScreen = ({ navigation }: { navigation }) => {
   }
 
   return (
-    <Box flex={1} backgroundColor={'light.lightYellow'}>
+    <Box
+      flex={1}
+      backgroundColor={'light.lightYellow'}
+    >
       <LinearGradient
         colors={['#00836A', '#073E39']}
         start={{ x: 0, y: 1 }}
@@ -56,16 +59,18 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             <Pressable>
               <Basic />
             </Pressable>
-            <Pressable onPress={() => navigation.navigate('AppSettings')}>
+            <Pressable
+              onPress={() => navigation.navigate('AppSettings')}
+            >
               <SettingIcon />
             </Pressable>
           </Box>
           <Box
             backgroundColor={'light.AddSignerCard'}
-            height={windowHeight * 0.07}
-            width={windowWidth * 0.69}
-            borderRadius={windowHeight * 0.024}
-            marginTop={windowHeight * 0.05}
+            height={hp(60)}
+            width={wp(259)}
+            borderRadius={hp(20)}
+            marginTop={hp(44)}
             flexDirection={'row'}
             justifyContent={'space-between'}
             alignItems={'center'}
@@ -73,7 +78,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
           >
             <Text
               noOfLines={2}
-              width={windowWidth * 0.40}
+              width={wp(170)}
               color={'light.white1'}
               letterSpacing={0.6}
               fontSize={RFValue(12)}
@@ -87,17 +92,23 @@ const HomeScreen = ({ navigation }: { navigation }) => {
         </Box>
       </LinearGradient>
 
-      <Box marginTop={-(windowHeight * 0.120)} alignItems={'center'}>
-        <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
-
+      <Box
+        marginTop={-(hp(97.44))}
+        alignItems={'center'}
+      >
+        <ImageBackground
+          resizeMode="contain"
+          style={styles.vault}
+          source={VaultImage}
+        >
           <Box
             backgroundColor={'light.TorLable'}
-            height={windowHeight * 0.017}
-            width={windowWidth * 0.08}
-            borderRadius={windowHeight * 0.050}
+            height={hp(13.804)}
+            width={wp(30)}
+            borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
-            marginTop={windowHeight * 0.04}
+            marginTop={hp(30)}
           >
             <Text
               color={'light.lightBlack'}
@@ -110,7 +121,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
           </Box>
 
           <Box
-            marginTop={windowHeight * 0.076}
+            marginTop={hp(64.5)}
             alignItems={'center'}
           >
             <Text
@@ -132,26 +143,33 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             </Text>
           </Box>
 
-          <Box marginTop={windowHeight * 0.038}>
+          <Box marginTop={hp(31.5)}>
             <Image
               source={require('src/assets/images/illustration.png')}
-              style={{ width: windowWidth * 0.330, height: windowHeight * 0.150 }}
+              style={{ width: wp(123.95), height: hp(122.3) }}
               resizeMode="contain"
             />
           </Box>
         </ImageBackground>
       </Box>
 
-      <Box alignItems={'center'} marginTop={windowHeight * 0.020}>
+      <Box
+        alignItems={'center'}
+        marginTop={hp(19.96)}
+      >
         <LinearGradient
           colors={['#00836A', '#073E39']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.bottomCard}
         >
-          <Box marginLeft={windowWidth * 0.026} flexDirection={'row'} alignItems={'center'}>
+          <Box
+            marginLeft={wp(9.75)}
+            flexDirection={'row'}
+            alignItems={'center'}
+          >
             <Inheritance />
-            <Box marginLeft={windowWidth * 0.048}>
+            <Box marginLeft={wp(18)}>
               <Text
                 color={'light.white1'}
                 letterSpacing={0.8}
@@ -175,16 +193,27 @@ const HomeScreen = ({ navigation }: { navigation }) => {
         </LinearGradient>
       </Box>
 
-      <Box alignItems={'center'} marginTop={windowHeight * 0.0098}>
+      <Box
+        alignItems={'center'}
+        marginTop={hp(8)}
+      >
         <LinearGradient
           colors={['#00836A', '#073E39']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.bottomCard}
         >
-          <Box marginLeft={windowWidth * 0.026} flexDirection={'row'} alignItems={'center'}>
+          <Box
+            marginLeft={wp(9.75)}
+            flexDirection={'row'}
+            alignItems={'center'}
+          >
             <Inheritance />
-            <Box marginLeft={windowWidth * 0.048} flexDirection={'row'} alignItems={'center'}>
+            <Box
+              marginLeft={wp(18)}
+              flexDirection={'row'}
+              alignItems={'center'}
+            >
               <Text
                 color={'light.white1'}
                 letterSpacing={1.76}
@@ -210,7 +239,10 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             fontSize={RFValue(30)}
             fontWeight={200}
           >
-            <Box padding={1} marginBottom={0.5}>
+            <Box
+              padding={1}
+              marginBottom={0.5}
+            >
               <BTC />
             </Box>
             0.00
@@ -224,24 +256,24 @@ const HomeScreen = ({ navigation }: { navigation }) => {
 const styles = ScaledSheet.create({
   linearGradient: {
     justifyContent: 'space-between',
-    paddingTop: windowHeight * 0.07,
-    height: windowHeight * 0.40,
+    paddingTop: hp(57),
+    height: hp(325),
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15
   },
   vault: {
-    width: windowWidth * 0.833,
-    height: windowHeight * 0.42,
+    width: wp(271.28),
+    height: hp(346.04),
     alignItems: 'center'
   },
   bottomCard: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: windowHeight * 0.123,
-    width: windowWidth * 0.893,
+    height: hp(100),
+    width: wp(335),
     borderRadius: 10,
     flexDirection: 'row',
-    paddingHorizontal: windowWidth * 0.026
+    paddingHorizontal: wp(10)
   },
 });
 
