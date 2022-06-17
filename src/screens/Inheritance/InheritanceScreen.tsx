@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useRef, useState, useContext } from 'react';
 import { Text, VStack } from 'native-base';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -12,8 +12,15 @@ import { Keyboard } from 'react-native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransferState from './TransferState';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const InheritanceScreen = () => {
+
+  const { translations } = useContext( LocalizationContext )
+  const inheritence = translations[ 'inheritence' ]
+  const common = translations[ 'common' ]
+  const wallet = translations[ 'wallet' ]
+
   const [transferState, setTransfer] = useState('Initiate Transfer');
   const [transferDescription, setDescription] = useState(
     'Initiate transfer to Gunther Greene as your beneficiary and transfer access to your funds in Keeper'
@@ -62,8 +69,8 @@ const InheritanceScreen = () => {
       <StatusBarComponent padding={80} extraPadding={30} />
       <VStack marginX={8}>
         <HeaderTitle
-          title="Setup Inheritance"
-          subtitle="Hand down your bitcoin"
+          title={inheritence.SetupInheritance}
+          subtitle={inheritence.Handdownyourbitcoin}
           onPressHandler={() => navigation.goBack()}
         />
         <Text
@@ -74,7 +81,7 @@ const InheritanceScreen = () => {
           marginY={12}
           h={'auto'}
         >
-          Make sure your legacy would be alive and glorious. Choose your beneficiary carefully.
+          {inheritence.Chooseyourbeneficiarycarefully}
         </Text>
         <InheritanceModes
           openAssignSheet={openAssignSheet}
@@ -83,23 +90,23 @@ const InheritanceScreen = () => {
         />
       </VStack>
       <HexaBottomSheet
-        title={'Assign Benificiary'}
-        subTitle={'Select who receives your bitcoin inheritance'}
+        title={inheritence.AssignBenificiary}
+        subTitle={inheritence.receivesyourbitcoininheritance}
         snapPoints={['60%']}
         bottomSheetRef={assignRef}
-        primaryText={'Add'}
-        secondaryText={'Add from contacts'}
+        primaryText={common.add}
+        secondaryText={common.Addfromcontacts}
         primaryCallback={openDeclarationSheet}
       >
         <BenificiaryList />
       </HexaBottomSheet>
       <HexaBottomSheet
-        title={'Sign Declaration'}
-        subTitle={'Read the text below before signing'}
+        title={inheritence.SignDeclaration}
+        subTitle={inheritence.Readbeforesigning}
         snapPoints={['90%']}
         bottomSheetRef={declarationRef}
-        primaryText={'Sign'}
-        secondaryText={'Cancel'}
+        primaryText={common.sign}
+        secondaryText={common.cancel}
         secondaryCallback={_closeDeclarationSheet}
         primaryCallback={openTransferSheet}
       >
@@ -108,9 +115,9 @@ const InheritanceScreen = () => {
       <HexaBottomSheet
         title={transferState}
         subTitle={
-          transferState == 'Transfer Successful!'
+          transferState == wallet.TransferSuccessful
             ? ''
-            : 'Are you sure you want to initiate transfer to'
+            : wallet.initiatetransfer
         }
         snapPoints={['60%']}
         bottomSheetRef={transferRef}

@@ -5,12 +5,17 @@ import AuthHandler from './AuthHandler';
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import { CommonActions } from '@react-navigation/native';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
+import React, {useContext} from 'react';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const Setup = ({ status, cvc, setCVC, setup, associate }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const tapsigner = translations[ 'tapsigner' ]
+
   if (!status) return null;
   if (status.error) {
     return (
@@ -43,7 +48,7 @@ const Setup = ({ status, cvc, setCVC, setup, associate }) => {
           fontWeight={'200'}
           letterSpacing={1}
         >
-          {`Setup and associate`}
+          {tapsigner.Setupandassociate}
         </Text>
       </TouchableOpacity>
     </VStack>
@@ -64,7 +69,7 @@ const Setup = ({ status, cvc, setCVC, setup, associate }) => {
           fontWeight={'200'}
           letterSpacing={1}
         >
-          {`Associate`}
+          {tapsigner.Associate}
         </Text>
       </TouchableOpacity>
     </>
@@ -72,6 +77,10 @@ const Setup = ({ status, cvc, setCVC, setup, associate }) => {
 };
 
 const CardStatus = ({ status, checkStatus }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const tapsigner = translations[ 'tapsigner' ]
+
   return !status ? (
     <TouchableOpacity style={styles.status} onPress={checkStatus}>
       <Text
@@ -81,7 +90,7 @@ const CardStatus = ({ status, checkStatus }) => {
         fontWeight={'200'}
         letterSpacing={1}
       >
-        Card Status
+        {tapsigner.CardStatus}
       </Text>
     </TouchableOpacity>
   ) : (

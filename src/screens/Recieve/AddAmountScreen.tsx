@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Keyboard } from 'react-native';
 
@@ -15,18 +15,22 @@ import { Wallet } from 'src/core/wallets/interfaces/interface';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const AddAmountScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
+  const common = translations[ 'common' ]
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title="Add Amount"
-        subtitle="Lorem ipsum dolor sit amet"
+        title={home.AddAmount}
+        subtitle={home.amountdesc}
         onPressHandler={() => navigtaion.goBack()}
         color={'light.ReceiveBackground'}
       />
@@ -46,7 +50,7 @@ const AddAmountScreen = ({ route }: { route }) => {
           </View>
           <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
           <Input
-            placeholder="Converted Amount"
+            placeholder={home.ConvertedAmount}
             placeholderTextColor={'light.greenText'}
             style={styles.inputField}
             borderWidth={'0'}
@@ -58,7 +62,7 @@ const AddAmountScreen = ({ route }: { route }) => {
 
         <View marginY={20}>
           <Buttons
-            secondaryText={'Cancel'}
+            secondaryText={common.cancel}
             secondaryCallback={() => {
               console.log('Cancel');
             }}

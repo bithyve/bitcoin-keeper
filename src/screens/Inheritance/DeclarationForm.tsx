@@ -1,11 +1,15 @@
 import { Dimensions, Image } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Avatar, Text, TextArea, VStack } from 'native-base';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import { LocalizationContext } from 'src/common/content/LocContext';
 const { height } = Dimensions.get('window');
 
 const DeclarationForm = () => {
+
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
+
   return (
     <ScrollView>
       <VStack marginY={'5'} marginLeft={'2'} marginTop={'10'}>
@@ -17,10 +21,10 @@ const DeclarationForm = () => {
           }}
         /> */}
         <Text fontSize={'sm'} fontFamily={'body'} fontWeight={'200'}>
-          {'Gunther Greene'}
+          {home.DelarationName}
         </Text>
         <Text fontSize={'xs'} fontFamily={'body'} fontWeight={'100'}>
-          {'Your Beneficiary'}
+          {home.YourBeneficiary}
         </Text>
       </VStack>
       <TextArea
@@ -34,10 +38,10 @@ const DeclarationForm = () => {
         letterSpacing={0.7}
         lineHeight={17}
       >
-        {`This letter is a declaration that I, Anant Tapadia, wish to leave behind the sum of 7.2 bitcoin to my son Gunther Greene.\n\nI attest that I’m voluntarily choosing to bequeath this wealth to my son and am under no obligation or influence of any kind to do so.`}
+        {home.Delarationdesc}
       </TextArea>
       <Text fontFamily={'body'} fontWeight={'200'} fontSize={'xs'} marginLeft={'5'}>
-        {'Your Signature'}
+        {home.YourSignature}
       </Text>
       <Image source={require('src/assets/images/sign.png')} />
     </ScrollView>

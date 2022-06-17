@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
@@ -12,6 +12,7 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
@@ -22,6 +23,10 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
+
+  const { translations } = useContext( LocalizationContext )
+  const login = translations[ 'login' ]
+  const common = translations[ 'common' ]
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -123,17 +128,15 @@ export default function CreatePin(props) {
         <Box flex={1}>
           <Box>
             <Box>
-              <Text
-                ml={5}
-                mt={hp(1)}
-                fontSize={RFValue(22)}
-                color={'light.textLight'}
-                fontFamily={'heading'}
-              >
-                Welcome,
+              <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'light.textLight'}
+                fontFamily={'heading'}>
+                {login.welcome}
               </Text>
               <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
-                {'Create your passcode '}
+                {login.EnterNew}{' '}
+                <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5} fontFamily={'body'} fontWeight={'bold'} fontStyle={'italic'}>
+                  {login.Passcode}
+                </Text>
               </Text>
 
               <Box>
@@ -227,8 +230,11 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length == 4 ? (
               <Box>
-                <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5}>
-                  {'Confirm your passcode'}{' '}
+                <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5}>
+                  {login.ReEnter}{' '}
+                  <Text fontWeight={'bold'} fontStyle={'italic'}>
+                    {login.Passcode}
+                  </Text>{' '}
                 </Text>
                 <Box mb={10}>
                   <Box flexDirection={'row'} mt={hp('1.5%')}>
@@ -342,7 +348,7 @@ export default function CreatePin(props) {
                       textAlign={'right'}
                       mt={hp('1.5%')}
                     >
-                      {'Mismatch Passcode'}
+                      {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
@@ -356,7 +362,7 @@ export default function CreatePin(props) {
                       }, 2);
                       props.navigation.replace('NewHome');
                     }}
-                    value={'Create'}
+                    value={common.create}
                   />
                 </Box>
               </Box>
