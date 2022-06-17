@@ -9,7 +9,7 @@ import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import Note from 'src/components/Note/Note';
-import { setCurrencyCode } from 'src/store/sagaActions/preferences';
+import { setCurrencyCode } from 'src/store/sagaActions/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
