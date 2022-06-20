@@ -170,9 +170,7 @@ export default class Relay {
     }
   };
 
-  public static fetchFeeAndExchangeRates = async (
-    currencyCode
-  ): Promise<{
+  public static fetchFeeAndExchangeRates = async (): Promise<{
     exchangeRates: any;
     averageTxFees: AverageTxFeesByNetwork;
   }> => {
@@ -182,7 +180,6 @@ export default class Relay {
         // TODO: re-route fee/exchange-rates fetch from legacy relay to keeper-relay
         res = await RELAY_AXIOS.post('fetchFeeAndExchangeRates', {
           HEXA_ID,
-          currencyCode,
         });
       } catch (err) {
         // console.log({ err });
