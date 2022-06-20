@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Wallet, MultiSigWallet, DonationWallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { newWalletsInfo } from '../sagas/wallets';
-import { ADD_NEW_WALLETS } from '../sagaActions/wallets'
+import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
 export type WalletsState = {
   walletsSynched: boolean;
@@ -55,24 +55,32 @@ const walletSlice = createSlice({
   initialState,
   reducers: {
     testcoinsReceived: (state) => {
-      state.testCoinsReceived = true
+      state.testCoinsReceived = true;
     },
     walletsSynched: (state, action: PayloadAction<boolean>) => {
-      state.walletsSynched = action.payload
-    }
+      state.walletsSynched = action.payload;
+    },
+    recomputeNetBalance: (state, action: PayloadAction<Wallet[]>) => {
+      let netBalance = 0;
+      action.payload.forEach((wallet) => {
+        const { confirmed, unconfirmed } = wallet.specs.balances;
+        netBalance = netBalance + confirmed + unconfirmed;
+      });
+      state.netBalance = netBalance;
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(ADD_NEW_WALLETS, state => {
-      state.isGeneratingNewWallet = true
-      state.hasNewWalletsGenerationSucceeded = false
-      state.hasNewWalletsGenerationFailed = false
+    builder.addCase(ADD_NEW_WALLETS, (state) => {
+      state.isGeneratingNewWallet = true;
+      state.hasNewWalletsGenerationSucceeded = false;
+      state.hasNewWalletsGenerationFailed = false;
     });
-  }
-})
+  },
+});
 
-export const { testcoinsReceived, walletsSynched } = walletSlice.actions
+export const { testcoinsReceived, walletsSynched, recomputeNetBalance } = walletSlice.actions;
 
-export default walletSlice.reducer
+export default walletSlice.reducer;
 
 /*
 export default (state: WalletsState = initialState, action): WalletsState => {

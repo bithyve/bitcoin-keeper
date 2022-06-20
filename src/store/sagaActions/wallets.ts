@@ -26,7 +26,6 @@ export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
 export const IMPORT_NEW_WALLET = 'IMPORT_NEW_WALLET';
 export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA';
 export const UPDATE_WALLET_SETTINGS = 'UPDATE_WALLET_SETTINGS';
-export const RECOMPUTE_NET_BALANCE = 'RECOMPUTE_NET_BALANCE';
 export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
@@ -163,15 +162,6 @@ export const setupDonationWallet = (
       description,
       configuration,
       disableWallet,
-    },
-  };
-};
-
-export const recomputeNetBalance = (wallets: (Wallet | MultiSigWallet | DonationWallet)[]) => {
-  return {
-    type: RECOMPUTE_NET_BALANCE,
-    payload: {
-      wallets,
     },
   };
 };

@@ -1,32 +1,55 @@
-import { Dimensions, TouchableOpacity } from 'react-native';
-import { Text, View } from 'native-base';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
-
-import BackButton from 'src/assets/images/svgs/back.svg';
+import {  TouchableOpacity } from 'react-native';
+import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
 
-const { width } = Dimensions.get('window');
+import BackButton from 'src/assets/images/svgs/back.svg';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
-const HeaderTitle = ({ title = '', subtitle = '', color = 'light.lightYellow' }) => {
-  const navigation = useNavigation();
+type Props = {
+  title: string,
+  subtitle: string,
+  onPressHandler: () => void,
+  color?: string,
+  marginLeft?: number,
+  enableBack?: boolean,
+  hearderMarginTop?: number,
+  hearderMarginLeft?: number,
+  headerColor?: string
+}
+const HeaderTitle = ({
+  title = '',
+  subtitle = '',
+  onPressHandler,
+  color = 'light.lightYellow',
+  marginLeft = 0.025,
+  enableBack = true,
+  hearderMarginTop = 0.05,
+  hearderMarginLeft = 0.07,
+  headerColor = 'light.headerText'
+}: Props) => {
+
   return (
-    <View style={styles.container} background={color}>
-      <TouchableOpacity onPress={navigation.goBack} style={styles.back}>
+    <Box background={color}>
+      {enableBack && <TouchableOpacity
+        onPress={onPressHandler}
+        style={{
+          marginLeft: windowWidth * marginLeft
+        }}
+      >
         <BackButton />
-      </TouchableOpacity>
-      <View style={{ marginTop: hp(0.5), marginLeft: wp(7) }}>
+      </TouchableOpacity>}
+      <Box
+        marginLeft={windowWidth * hearderMarginLeft}
+      >
         <Text
           numberOfLines={1}
           style={styles.addWalletText}
-          color={'light.headerText'}
+          color={headerColor}
           fontFamily={'body'}
           fontWeight={'200'}
+          marginTop={windowHeight * hearderMarginTop}
         >
           {title}
         </Text>
@@ -39,8 +62,8 @@ const HeaderTitle = ({ title = '', subtitle = '', color = 'light.lightYellow' })
         >
           {subtitle}
         </Text>
-      </View>
-    </View>
+      </Box>
+    </Box >
   );
 };
 
@@ -50,7 +73,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: '20@s',
     flexDirection: 'row',
     alignItems: 'center',
-    width,
+    // width,
   },
   addWalletText: {
     fontSize: RFValue(16),

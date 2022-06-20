@@ -54,7 +54,11 @@ export const customTheme = extendTheme({
       copyBackground: '#CDD8D6',
       seedText: '#656565',
       borderSaperator: '#BDB7B1',
-      sendCardHeading: '#064D41'
+      sendCardHeading: '#064D41',
+      AddSignerCard: '#3D7E6E',
+      TorLable: '#C6ECAE',
+      headerTextTwo: '#003423',
+      divider: '#BABABA'
     },
     dark: {
       black: '#000000',
