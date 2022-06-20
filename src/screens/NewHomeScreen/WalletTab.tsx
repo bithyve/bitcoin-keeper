@@ -66,7 +66,7 @@ const WalletTab = ({ animate }) => {
               marginLeft={1}
               letterSpacing={0.7}
             >
-              {exchangeRates[currencyCode].last}
+              {exchangeRates ? exchangeRates[currencyCode].last : ''}
             </Text>
           </View>
         </Box>
