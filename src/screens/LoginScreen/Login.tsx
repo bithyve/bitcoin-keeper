@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
+
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
+import Modal from 'react-native-modal';
+
 import { credsAuth } from '../../store/sagaActions/login';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
+import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -17,26 +21,33 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import ResetPassSuccess from './components/ResetPassSuccess';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const TIMEOUT = 60
+const TIMEOUT = 60;
+const RNBiometrics = new ReactNativeBiometrics();
 
-const CreatePin = ({ navigation }) => {
+const CreatePin = ({ navigation, route }) => {
+  const { relogin } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
+  const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
+
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [Elevation, setElevation] = useState(10);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
-  const [canLogin, setCanLogin] = useState(false)
-  const { isAuthenticated, authenticationFailed } = useAppSelector(
-    (state) => state.login
-  );
+  const [canLogin, setCanLogin] = useState(false);
+  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
+
+  const { translations } = useContext( LocalizationContext )
+  const login = translations[ 'login' ]
+  const common = translations[ 'common' ]
 
   const { translations } = useContext( LocalizationContext )
   const login = translations[ 'login' ]
@@ -47,15 +58,15 @@ const CreatePin = ({ navigation }) => {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);
       const waitingTime = TIMEOUT * failedAttempts;
       if (retryTime > waitingTime) {
-        setCanLogin(true)
-        return
+        setCanLogin(true);
+        return;
       } else {
         setTimeout(() => {
-          setLoginError(true)
-          setErrMessage(`Please try after sometime`)
-          setCanLogin(false)
+          setLoginError(true);
+          setErrMessage(`Please try after sometime`);
+          setCanLogin(false);
         }, 100);
-        return
+        return;
         // if (!timer) {
         //   setTimeout(waitingTime - retryTime)
         //   setCanLogin(false)
@@ -66,8 +77,8 @@ const CreatePin = ({ navigation }) => {
         // }
       }
     }
-    setCanLogin(true)
-  }, [failedAttempts, lastLoginFailedAt])
+    setCanLogin(true);
+  }, [failedAttempts, lastLoginFailedAt]);
 
   // useEffect(() => {
   //   if (timeout) {
@@ -99,7 +110,7 @@ const CreatePin = ({ navigation }) => {
       try {
         setTimeout(async () => {
           if (canLogin) {
-            const { success, signature } = await ReactNativeBiometrics.createSignature({
+            const { success, signature } = await RNBiometrics.createSignature({
               promptMessage: 'Authenticate',
               payload: appId,
               cancelButtonText: 'Use PIN',
@@ -132,10 +143,10 @@ const CreatePin = ({ navigation }) => {
 
   useEffect(() => {
     if (attempts >= 3) {
-      setAttempts(1)
-      dispatch(increasePinFailAttempts())
+      setAttempts(1);
+      dispatch(increasePinFailAttempts());
     }
-  }, [attempts])
+  }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -150,20 +161,26 @@ const CreatePin = ({ navigation }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigation.replace('NewHome');
+      if (relogin) {
+        navigation.goBack();
+      } else {
+        navigation.replace('NewHome');
+      }
+      dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
 
   const attemptLogin = (passcode: string) => {
-    dispatch(credsAuth(passcode, LoginMethod.PIN));
+    dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    setAttempts(0)
-    dispatch(resetPinFailAttempts())
-  }
+    setAttempts(0);
+    dispatch(resetPinFailAttempts());
+    setResetPassSuccessVisible(true);
+  };
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
@@ -171,12 +188,18 @@ const CreatePin = ({ navigation }) => {
         <StatusBar />
         <Box flex={1}>
           <Box>
-            <Text ml={5} color={'#FFF'} fontSize={RFValue(22)} mt={hp('10%')} fontWeight={'bold'}>
+            <Text
+             ml={5}
+             color={'light.textLight'}
+             fontSize={RFValue(22)}
+             mt={hp('10%')}
+             fontWeight={'bold'}
+             fontFamily={'heading'}>
               {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(12)} ml={5} color={'#CDD8D6'}>
+              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
                 {/* {strings.EnterYourName}{' '} */}
                 { login.enter_your }
                 <Text fontWeight={'bold'} fontStyle={'italic'}>
@@ -192,71 +215,87 @@ const CreatePin = ({ navigation }) => {
                   width={'auto'}
                 >
                   <Box
-                    style={[
-                      passcode.length == 0 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 1 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 1 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 2 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 1 ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 2 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 3 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 2 ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                   <Box
-                    style={[
-                      passcode.length == 3 && passcodeFlag == true
-                        ? styles.textBoxActive
-                        : styles.textBoxStyles,
-                    ]}
+                    height={wp('13%')}
+                    width={wp('13%')}
+                    borderRadius={7}
+                    ml={5}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'rgba(253,247,240, 0.2)'}
                   >
                     <Box>
                       {passcode.length >= 4 ? (
-                        <DotView />
+                        <DotView height={3} width={3} color={'white'} />
                       ) : passcode.length == 3 ? (
-                        <Text style={styles.passcodeTextInputText}>{'|'}</Text>
+                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+                          {'|'}
+                        </Text>
                       ) : (
-                            ''
-                          )}
+                        ''
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -264,7 +303,7 @@ const CreatePin = ({ navigation }) => {
             </Box>
             {loginError && (
               <Text
-                color={'white'}
+                color={'light.white'}
                 fontSize={RFValue(12)}
                 fontStyle={'italic'}
                 textAlign={'right'}
@@ -301,7 +340,11 @@ const CreatePin = ({ navigation }) => {
                 setForgotVisible(true);
               }}
             >
-              <Text color={'white'} fontWeight={'bold'} fontSize={RFValue(14)}>
+              <Text 
+              color={'light.white'}
+              fontWeight={'300'}
+              fontSize={RFValue(14)}
+              fontFamily={'body'}>
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
@@ -325,10 +368,32 @@ const CreatePin = ({ navigation }) => {
               setForgotVisible(false);
               navigation.navigate('ResetPin', {
                 onPinChange,
-              })
+              });
             }}
           />
         </ModalContainer>
+        {/* reset password success modal */}
+        <Box>
+          <Modal
+            isVisible={resetPassSuccessVisible}
+            onSwipeComplete={() => setResetPassSuccessVisible(false)}
+            swipeDirection={['down']}
+            style={styles.view}
+          >
+            {/* <ModalContainer
+            visible={resetPassSuccessVisible}
+            closeBottomSheet={() => {
+              setResetPassSuccessVisible(false);
+            }}
+          > */}
+            <ResetPassSuccess
+              closeBottomSheet={() => {
+                setResetPassSuccessVisible(false);
+              }}
+            />
+            {/* </ModalContainer> */}
+          </Modal>
+        </Box>
       </Box>
     </LinearGradient>
   );
@@ -371,14 +436,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  passcodeTextInputText: {
-    color: '#006CB4',
-    fontWeight: 'bold',
-    fontSize: RFValue(13),
-  },
   linearGradient: {
     flex: 1,
     padding: 10,
+  },
+  view: {
+    justifyContent: 'flex-end',
+    marginHorizontal: 15,
+    marginBottom: 25,
   },
 });
 

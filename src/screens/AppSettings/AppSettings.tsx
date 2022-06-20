@@ -10,14 +10,16 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import openLink from 'src/utils/OpenLink';
+
+const RNBiometrics = new ReactNativeBiometrics();
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
-  const [isBiometicSupported, setIsBiometicSupported] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -30,33 +32,32 @@ const AppSettings = ({ navigation }) => {
     init();
   }, []);
 
-  const init = async () => {
+  const init = async () => {};
+
+  const onChangeLoginMethod = async () => {
     try {
-      const { available, biometryType } = await ReactNativeBiometrics.isSensorAvailable();
+      const { available } = await RNBiometrics.isSensorAvailable();
       if (available) {
-        setIsBiometicSupported(true);
+        if (loginMethod === LoginMethod.PIN) {
+          const { keysExist } = await RNBiometrics.biometricKeysExist();
+          if (keysExist) {
+            await RNBiometrics.createKeys();
+          }
+          const { publicKey } = await RNBiometrics.createKeys();
+          const { success } = await RNBiometrics.simplePrompt({
+            promptMessage: 'Confirm your identity',
+          });
+          if (success) {
+            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+          }
+        } else {
+          dispatch(changeLoginMethod(LoginMethod.PIN));
+        }
+      } else {
+        Alert.alert('Biometrics not enabled', 'Plese go to setting and enable it');
       }
     } catch (error) {
       console.log(error);
-    }
-  };
-
-  const onChangeLoginMethod = async () => {
-    if (loginMethod === LoginMethod.PIN) {
-      const { keysExist } = await ReactNativeBiometrics.biometricKeysExist();
-      if (keysExist) {
-        await ReactNativeBiometrics.createKeys();
-      }
-      const { publicKey } = await ReactNativeBiometrics.createKeys();
-      const { success } = await ReactNativeBiometrics.simplePrompt({
-        promptMessage: 'Confirm your identity',
-      });
-      if (success) {
-        dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
-      } else {
-      }
-    } else {
-      dispatch(changeLoginMethod(LoginMethod.PIN));
     }
   };
   const changeThemeMode = () => {
@@ -65,13 +66,13 @@ const AppSettings = ({ navigation }) => {
 
   const showSeed = () => {
     try {
-      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0)
-      console.log()
-      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'))
+      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0);
+      console.log();
+      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'));
     } catch (error) {
       //
     }
-  }
+  };
 
   return (
     <SafeAreaView
@@ -104,7 +105,7 @@ const AppSettings = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
-          {isBiometicSupported && (
+          {/* {isBiometicSupported && ( */}
             <SettingsSwitchCard
               title={settings.UseBiometrics}
               description={settings.biometricsDesc}
@@ -113,7 +114,7 @@ const AppSettings = ({ navigation }) => {
               onSwitchToggle={() => onChangeLoginMethod()}
               value={loginMethod === LoginMethod.BIOMETRIC}
             />
-          )}
+          {/* )} */}
 
           <SettingsSwitchCard
             title={settings.DarkMode}
@@ -129,7 +130,7 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => console.log('pressed')}
+            onPress={() => navigation.navigate('AppVersionHistory')}
           />
           <SettingsCard
             title={settings.LanguageCountry}
@@ -145,7 +146,15 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
-            onPress={() => console.log('pressed')}
+            onPress={() => openLink('https://t.me/HexaWallet')}
+          />
+          <SettingsCard
+            title={'Choose Plan'}
+            description={'Lorem ipsum dolor sit amet'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('ChoosePlan')}
           />
           <Pressable onPress={() => showSeed()}>
             <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
@@ -159,21 +168,20 @@ const AppSettings = ({ navigation }) => {
             subtitle={common.desc}
           />
         </Box>
-        <Box flex={0.2} justifyContent={'space-evenly'}>
+        <Box flex={0.2} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
-            mx={7}
             borderRadius={8}
             p={2}
-            bg={'#EFEFEF'}
+            bg={'light.lightYellow'}
           >
             <Pressable>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
                 {common.FAQs}
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+            <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>
@@ -181,7 +189,7 @@ const AppSettings = ({ navigation }) => {
               {common.TermsConditions}
               </Text>
             </Pressable>
-            <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+            <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
             <Pressable>

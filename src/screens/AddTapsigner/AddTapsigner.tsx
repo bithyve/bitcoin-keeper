@@ -1,6 +1,7 @@
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, VStack } from 'native-base';
 
+import AuthHandler from './AuthHandler';
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import { CommonActions } from '@react-navigation/native';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -129,7 +130,7 @@ const CardStatus = ({ status, checkStatus }) => {
 const AddTapsigner = ({ navigation }) => {
   const [visible, setVisible] = React.useState(false);
   const [cvc, setCVC] = React.useState('');
-  const [status, setStatus] = React.useState();
+  const [status, setStatus] = React.useState<any>();
   const card = React.useRef(new CKTapCard()).current;
   const { useRealm } = RealmContext;
   const realm = useRealm();
@@ -145,6 +146,19 @@ const AddTapsigner = ({ navigation }) => {
     });
   };
 
+  const sanitiseCard = (c) => {
+    return {
+      _certs_checked: c._certs_checked,
+      applet_version: c.applet_version,
+      auth_delay: c.auth_delay || 0,
+      birth_height: c.birth_height,
+      card_ident: c.card_ident,
+      is_tapsigner: c.is_tapsigner,
+      num_backups: c.num_backups,
+      path: c.path,
+    };
+  };
+
   const wrapper = async (callback) => {
     return await card.nfcWrapper(callback);
   };
@@ -155,7 +169,7 @@ const AddTapsigner = ({ navigation }) => {
       await card.certificate_check();
       return card;
     });
-    setStatus(status);
+    setStatus(sanitiseCard(status));
   };
 
   const checkStatus = async () => {
@@ -164,24 +178,22 @@ const AddTapsigner = ({ navigation }) => {
 
   const _setup = async () => {
     try {
-      const tapsigner = await wrapper(async () => {
+      const data = await wrapper(async () => {
         await card.first_look();
         await card.setup(cvc);
-        return card.first_look();
+        const status = await card.first_look();
+        const xpub = await card.get_xpub(cvc);
+        return { xpub, status };
       });
-      setStatus(tapsigner);
+      return data;
     } catch (e) {
       console.log(e);
-      setStatus({ error: JSON.stringify(e) });
     }
   };
 
-  const setup = () => {
-    withModal(_setup)();
-  };
-
-  const associate = async () => {
-    const xpub = await withModal(() => wrapper(async () => card.get_xpub(cvc)))();
+  const setup = async () => {
+    const { status, xpub } = await withModal(_setup)();
+    setStatus(sanitiseCard(status));
     realm.write(() => {
       realm.create(RealmSchema.VaultSigner, {
         type: 'Tapsigner',
@@ -194,9 +206,43 @@ const AddTapsigner = ({ navigation }) => {
     navigation.dispatch(CommonActions.goBack());
   };
 
+  const associate = async () => {
+    try {
+      const xpub = await withModal(() => wrapper(async () => card.get_xpub(cvc)))();
+      realm.write(() => {
+        realm.create(RealmSchema.VaultSigner, {
+          type: 'Tapsigner',
+          signerName: 'GTap',
+          signerId: card.card_ident,
+          path: card.path,
+          xpub,
+        });
+      });
+      navigation.dispatch(CommonActions.goBack());
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const unlockCard = async () => {
+    const updatedStatus = await wrapper(async () => {
+      for (var i = 0; i < card.auth_delay; i++) {
+        await card.wait();
+      }
+      return card.first_look();
+    });
+    setStatus(sanitiseCard(updatedStatus));
+  };
+
+  const fixAuthDelay = async () => {
+    withModal(unlockCard)();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <Text>{JSON.stringify(status)}</Text>
       <CardStatus status={status} checkStatus={checkStatus} />
+      <AuthHandler fixAuthDelay={fixAuthDelay} status={status} />
       <Setup status={status} cvc={cvc} setCVC={setCVC} setup={setup} associate={associate} />
       <NfcPrompt visible={visible} />
     </SafeAreaView>
@@ -208,7 +254,7 @@ export default AddTapsigner;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   status: {
     alignItems: 'center',

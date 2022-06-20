@@ -14,7 +14,7 @@ import InfoBox from '../../components/InfoBox';
 
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
-import { getNextFreeAddress } from 'src/store/sagas/send&receive';
+import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 
 import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';

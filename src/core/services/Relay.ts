@@ -1,12 +1,11 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import config from '../config';
 import idx from 'idx';
-import crypto from 'crypto';
 import TrustedContactsOperations from '../trusted_contacts/TrustedContactsOperations';
-import { Gift, GiftMetaData } from '../wallets/interfaces/interface';
+import { AverageTxFeesByNetwork, Gift, GiftMetaData } from '../wallets/interfaces/interface';
 import { INotification } from './interfaces/interface';
 
-const { AUTH_ID, RELAY_AXIOS } = config;
+const { AUTH_ID, HEXA_ID, RELAY_AXIOS } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -171,18 +170,16 @@ export default class Relay {
     }
   };
 
-  public static fetchFeeAndExchangeRates = async (
-    currencyCode
-  ): Promise<{
+  public static fetchFeeAndExchangeRates = async (): Promise<{
     exchangeRates: any;
-    averageTxFees: any;
+    averageTxFees: AverageTxFeesByNetwork;
   }> => {
     try {
       let res: AxiosResponse;
       try {
+        // TODO: re-route fee/exchange-rates fetch from legacy relay to keeper-relay
         res = await RELAY_AXIOS.post('fetchFeeAndExchangeRates', {
-          AUTH_ID,
-          currencyCode,
+          HEXA_ID,
         });
       } catch (err) {
         // console.log({ err });

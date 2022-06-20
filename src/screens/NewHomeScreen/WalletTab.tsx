@@ -21,25 +21,20 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { useDispatch } from 'react-redux';
-import { crossTransfer } from 'src/store/sagaActions/send&receive';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useAppSelector } from 'src/store/hooks';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
   const navigation = useNavigation();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const netBalance = useAppSelector((state) => state.wallet.netBalance);
+  const exchangeRates = useAppSelector((state) => state.sendAndReceive.exchangeRates);
+  const currencyCode = useCurrencyCode();
   const { translations } = useContext( LocalizationContext )
   const home = translations[ 'home' ]
-
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(
-  //     crossTransfer({
-  //       sender: wallets[0],
-  //       recipient: wallets[1],
-  //       amount: 30000,
-  //     })
-  //   );
-  // }, []);
 
   const BtcToCurrency = () => {
     return (
@@ -71,7 +66,7 @@ const WalletTab = ({ animate }) => {
               marginLeft={1}
               letterSpacing={0.7}
             >
-              0.000024
+              {exchangeRates[currencyCode].last}
             </Text>
           </View>
         </Box>
@@ -93,6 +88,7 @@ const WalletTab = ({ animate }) => {
   };
 
   const CollectiveBallance = () => {
+    const dispatch = useDispatch();
     return (
       <Box marginY={3} marginX={5} flexDirection={'row'} justifyContent={'space-between'}>
         <Box marginY={2}>
@@ -117,7 +113,7 @@ const WalletTab = ({ animate }) => {
               fontWeight={'200'}
               fontSize={30}
             >
-              0.000024
+              {netBalance / 10e8}
             </Text>
           </View>
           <Text
@@ -138,6 +134,17 @@ const WalletTab = ({ animate }) => {
               fontFamily={'body'}
               fontWeight={'300'}
               letterSpacing={0.88}
+              onPress={() =>
+                dispatch(
+                  addToUaiStack(
+                    'Approve Vault transfer',
+                    true,
+                    uaiType.VAULT_TRANSFER,
+                    70,
+                    'Your wallet balance is above 1,000,000sats'
+                  )
+                )
+              }
             >
               {home.SecureNow}
             </Text>

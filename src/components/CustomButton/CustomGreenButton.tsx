@@ -2,8 +2,12 @@ import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
-
-const CustomGreenButton = (props) => {
+export interface Props {
+  value: string;
+  onPress?: Function;
+  disabled?: boolean;
+}
+const CustomGreenButton = (props: Props) => {
   return (
     <TouchableHighlight
       style={styles.button}
@@ -31,7 +35,7 @@ const CustomGreenButton = (props) => {
         colors={['#00836A', '#073E39']}
         style={styles.linearGradient}
       >
-        <Text color={'#FAFAFA'} fontSize={12} fontWeight={'bold'}>
+        <Text color={'#FAFAFA'} fontSize={13} fontWeight={'300'} fontFamily={'body'}>
           {props.value}
         </Text>
       </LinearGradient>
@@ -47,26 +51,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  btnText: {
-    color: '#F4F4F4',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
   linearGradient: {
     width: 120,
     height: 50,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  shadowProp: {
-    shadowColor: '#073E3926',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
   },
 });
 

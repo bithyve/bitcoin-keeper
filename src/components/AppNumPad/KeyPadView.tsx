@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableHighlight } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -38,22 +38,22 @@ const KeyPadView: React.FC<Props> = ({ onPressNumber, disabled = false }: Props)
         >
           <Text flex={1} p={15}></Text>
         </Box>
-        <TouchableHighlight
+        <TouchableOpacity
           onPress={() => onPressNumber('0')}
-          underlayColor="#dcdcdc"
+          // underlayColor="#dcdcdc"
           style={styles.keyPadElementTouchable}
         >
           <Text color={'#F4F4F4'} fontSize={RFValue(25)} fontStyle={'normal'}>
             0
           </Text>
-        </TouchableHighlight>
-        <TouchableHighlight
+        </TouchableOpacity>
+        <TouchableOpacity
           onPress={() => onPressNumber('x')}
-          underlayColor="#dcdcdc"
+          // underlayColor="#dcdcdc"
           style={styles.keyPadElementTouchable}
         >
           <DeleteIcon />
-        </TouchableHighlight>
+        </TouchableOpacity>
       </Box>
     </Box>
   );

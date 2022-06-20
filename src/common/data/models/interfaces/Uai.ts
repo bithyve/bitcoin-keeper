@@ -16,4 +16,5 @@ export enum uaiType {
   ALERT = 'ALERT',
   WARNING = 'WARNING',
   REMINDER = 'REMINDER',
+  VAULT_TRANSFER = 'VAULT_TRANSFER',
 }
