@@ -59,13 +59,13 @@ const ExportSeedScreen = ({ route }) => {
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title="Export Seed"
-        subtitle="Lorem ipsum dolor sit amet,"
+        title="Export Seeds"
+        subtitle="Make sure you keep them safe"
         color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={5} height={windowHeight / 1.8}>
+      <Box marginTop={10} height={windowHeight / 1.5}>
         <FlatList
           data={seed.split(' ')}
           numColumns={2}
@@ -83,12 +83,9 @@ const ExportSeedScreen = ({ route }) => {
         marginRight={10}
         color={'light.GreyText'}
       >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-        labore et
+        Use these to create any other wallet and that wallet will be linked to Keeper (will show
+        along with other wallets)
       </Text>
-      <Box marginX={2} marginTop={5}>
-        <Buttons primaryText="Next" primaryCallback={navigtaion.goBack} />
-      </Box>
     </Box>
   );
 };
