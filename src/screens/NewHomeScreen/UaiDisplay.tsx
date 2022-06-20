@@ -12,6 +12,7 @@ import { updateUaiStack } from 'src/store/sagaActions/uai';
 import { Modal } from 'native-base';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import KeeperModal from 'src/components/KeeperModal';
+import { useNavigation } from '@react-navigation/native';
 
 const UaiDisplay = ({ uaiStack }) => {
   const [uai, setUai] = useState({});
@@ -19,6 +20,7 @@ const UaiDisplay = ({ uaiStack }) => {
   const [showModal, setShowModal] = useState(false);
 
   const dispatch = useDispatch();
+  const navigtaion = useNavigation();
 
   const getUaiTypeDefinations = (type) => {
     switch (type) {
@@ -55,7 +57,7 @@ const UaiDisplay = ({ uaiStack }) => {
             btnText: 'Transfer details',
           },
           cta: () => {
-            uaiSetActionFalse();
+            navigtaion.navigate('SendConfirmation', { isVaultTransfer: true, uaiSetActionFalse });
             setShowModal(false);
           },
         };
