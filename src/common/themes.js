@@ -33,6 +33,7 @@ export const customTheme = extendTheme({
       brown: '#D8A572',
       textBlack: '#092C27',
       greenText: '#073E39',
+      greenText2: '#017963',
       lightBlue: '#62C5BF',
       darkBackground: '#232523',
       textLight: '#FAFCFC',
@@ -52,9 +53,9 @@ export const customTheme = extendTheme({
       textColor2: '#4E5C6A',
       headerText: '#00715B',
       copyBackground: '#CDD8D6',
-      seedText: '#656565',
+      seedText: '#4A4A4A',
       borderSaperator: '#BDB7B1',
-      sendCardHeading: '#064D41'
+      sendCardHeading: '#064D41',
     },
     dark: {
       black: '#000000',
