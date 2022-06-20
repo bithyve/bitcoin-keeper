@@ -24,14 +24,14 @@ const ExportSeedScreen = ({ route }) => {
           borderRadius={10}
           marginX={3}
           marginY={1.5}
-          opacity={showSeedWord == item ? 1 : 0.6}
+          opacity={showSeedWord == item ? 1 : 0.5}
         >
           <Text
             fontSize={20}
             fontWeight={300}
             letterSpacing={1.64}
             marginRight={5}
-            color={'light.light'}
+            color={'light.greenText2'}
           >
             {index < 9 ? '0' : null}
             {index + 1}
