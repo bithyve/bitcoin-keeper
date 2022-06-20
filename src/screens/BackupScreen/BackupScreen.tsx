@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useRef, useState, useEffect, useContext } from 'react';
 
 import {
   heightPercentageToDP as hp,
@@ -20,6 +20,7 @@ import SuccessSheet from 'src/components/SuccessSheet';
 import useBottomSheetUtils from 'src/hooks/useBottomSheetUtils';
 import QrSheet from 'src/components/QrSheet';
 import HardwareInputSheet from 'src/components/HardwareInputSheet';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const BackupScreen = ({}) => {
   let index = -1;
@@ -34,6 +35,10 @@ const BackupScreen = ({}) => {
     useBottomSheetUtils(addBackUpKeyHardwareSheetRef);
 
   const [data, setData] = useState({});
+
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
+  const settings = translations[ 'settings' ]
 
   useEffect(() => {
     if (index == -1) {
@@ -77,8 +82,8 @@ const BackupScreen = ({}) => {
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title="Add a Backup Key"
-        subtitle="Strengthen your security"
+        title={home.AddBackupKey}
+        subtitle={home.Strengthenyoursecurity}
         onPressHandler={() => navigtaion.navigate('Home', data)}
       />
       <FlatList
@@ -113,11 +118,11 @@ const BackupScreen = ({}) => {
       />
       <SuccessSheet
         subTitle=""
-        sheetTitle="Backup Key Added"
+        sheetTitle={home.BackupKeyAdded}
         successSheetRef={successSheetRef}
         Icon={data.baseIcon}
         data={data}
-        primaryText="View Devices"
+        primaryText={home.ViewDevices}
         title={''}
       />
     </View>

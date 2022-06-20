@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 
 import { View } from 'react-native';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 import HexaBottomSheet from './BottomSheet';
 import QRscanner from './QRscanner';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const ImportWalletSheet = ({
   importWalletSheetRef,
@@ -14,10 +15,13 @@ const ImportWalletSheet = ({
 }) => {
   const [showQR, setShowQR] = useState(false);
 
+  const { translations } = useContext( LocalizationContext )
+  const strings = translations[ 'home' ]
+
   return (
     <HexaBottomSheet
-      title={'Import Wallet'}
-      subTitle={'Insert a seed to import your existing wallet'}
+      title={strings.ImportWallet}
+      subTitle={strings.Insertaseed}
       snapPoints={['80%']}
       bottomSheetRef={importWalletSheetRef}
       primaryText={'Import'}

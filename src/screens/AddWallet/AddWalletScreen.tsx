@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useContext } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -29,6 +29,7 @@ import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const AddWalletScreen = () => {
   const dispatch = useDispatch();
@@ -49,6 +50,9 @@ const AddWalletScreen = () => {
   const [walletDetails, setWalletDetails] = useState({});
   const { openSheet: openImportProcessWalletSheet, closeSheet: closeImportProcessWalletSheet } =
     useBottomSheetUtils(importProcessWalletSheetRef);
+
+  const { translations } = useContext( LocalizationContext )
+  const wallet = translations[ 'wallet' ]
 
   const addWallet = useCallback(() => {
     const newWalletsInfo: newWalletsInfo = {
@@ -131,24 +135,24 @@ const AddWalletScreen = () => {
   const Data = [
     {
       id: 1,
-      heading: 'Create a wallet',
-      description: 'Start stacking sats',
+      heading: wallet.Createwallet,
+      description: wallet.Startstackingsats,
       items: [
         {
-          title: 'Single-sig Wallet',
-          description: 'For your day to day spends',
+          title: wallet.SinglesigWallet,
+          description:  wallet.Foryourdaytodayspends,
           icon: HardWare,
           onPress: expandAddWalletSheet,
         },
         {
-          title: 'Multi-sig Wallet',
-          description: 'For long term hodling',
+          title:  wallet.MultisigWallet,
+          description:  wallet.Forlongtermholding,
           icon: MultiSigIcon,
           onPress: expandAddWalletSheet,
         },
         {
-          title: 'Multi-sig Hardware Wallet',
-          description: 'The ultimate long term bitcoin security',
+          title:  wallet.MultisigHardwareWallet,
+          description:  wallet.Theultimatelongtermbitcoinsecurity,
           icon: HardWare,
           onPress: expandAddWalletSheet,
         },
@@ -156,35 +160,35 @@ const AddWalletScreen = () => {
     },
     {
       id: 2,
-      heading: 'Import a Wallet',
-      description: 'Backup another bitcoin wallet',
+      heading:  wallet.ImportWallet,
+      description:  wallet.Backupanotherbitcoinwallet,
       items: [
         {
-          title: 'Trust Wallet',
+          title:  wallet.TrustWallet,
           description: '',
           icon: TrustIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title: 'Coinbase',
+          title:  wallet.Coinbase,
           description: '',
           icon: CoinBaseIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title: 'Blue Wallet',
+          title:  wallet.BlueWallet,
           description: '',
           icon: BlueWalletIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title: 'Munn Wallet',
+          title:  wallet.MunnWallet,
           description: '',
           icon: MuunIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title: 'Blockchain.com',
+          title:  wallet.Blockchain,
           description: '',
           icon: BlockhchainIcon,
           onPress: expandImportWalletSheet,
@@ -193,8 +197,8 @@ const AddWalletScreen = () => {
     },
     {
       id: 3,
-      heading: 'Add a Vault',
-      description: 'Backup another bitcoin wallet',
+      heading:  wallet.AddVault,
+      description:  wallet.Backupanotherbitcoinwallet,
       items: [],
     },
   ];
@@ -205,8 +209,8 @@ const AddWalletScreen = () => {
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title="Add a Wallet"
-        subtitle="Set up a wallet for you bitcoin"
+        title={ wallet.AddWallet }
+        subtitle={ wallet.Setupawalletforyoubitcoin }
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
@@ -229,29 +233,29 @@ const AddWalletScreen = () => {
       />
       <CreateWalletSheet
         createWalletSheetRef={createWalletSheetRef}
-        title={'Creating your wallet'}
+        title={ wallet.Creatingyourwallet}
         processMap={processMapCreate}
       />
       <CreateWalletSheet
         createWalletSheetRef={importProcessWalletSheetRef}
-        title={'Importing Wallet'}
+        title={ wallet.ImportingWallet}
         processMap={processMapImport}
       />
       <SuccessSheet
         Icon={MultiSigIcon}
-        sheetTitle={'Wallet Creation Successful'}
+        sheetTitle={ wallet.WalletCreationSuccessful}
         title={walletDetails?.name}
         subTitle={walletDetails?.description}
         successSheetRef={successSheetRef}
-        primaryText="View Wallet"
+        primaryText={ wallet.ViewWallet }
       />
       <SuccessSheet
         Icon={BlueWalletIcon}
-        sheetTitle={'Wallet Imported Successfully'}
+        sheetTitle={ wallet.WalletImportedSuccessfully}
         title={importWalletType}
-        subTitle={'Daily Spend'}
+        subTitle={ wallet.DailySpend}
         successSheetRef={successSheetImportRef}
-        primaryText="View Wallet"
+        primaryText={ wallet.ViewWallet }
       />
     </View>
   );

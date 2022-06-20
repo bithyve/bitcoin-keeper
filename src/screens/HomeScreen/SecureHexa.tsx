@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 
 import { View } from 'react-native';
 import { Text } from 'native-base';
@@ -13,6 +13,7 @@ import HexaBottomSheet from 'src/components/BottomSheet';
 import HexaPayComponent from 'src/components/HexaPayComponent';
 import { importNewWallet } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 type Props = {
   bottomSheetRef: any;
@@ -21,6 +22,10 @@ type Props = {
 
 const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
   const dispatch = useDispatch();
+
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
+  const common = translations[ 'common' ]
 
   const closeSheet = useCallback(() => {
     bottomSheetRef.current?.close();
@@ -40,11 +45,11 @@ const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
-      title="Secure Hexa Pay"
-      subTitle={'Adding additional security'}
+      title={home.SecureHexaPay}
+      subTitle={home.Addingadditionalsecurity}
       snapPoints={['65%']}
-      primaryText={'Confirm'}
-      secondaryText={'Reject'}
+      primaryText={common.confirm}
+      secondaryText={common.reject}
       primaryCallback={secureWithHexa}
       secondaryCallback={closeSheet}
     >
@@ -52,9 +57,9 @@ const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
         <View style={styles.item}>
           <HexaPayComponent
             Icon={HardWare}
-            title={'Hexa Pay'}
+            title={home.HexaPay}
             subtitle={''}
-            body={'Alice’s Wallet'}
+            body={home.AliceWallet}
           />
         </View>
         <View style={styles.item}>
@@ -65,7 +70,7 @@ const SecureHexa = ({ bottomSheetRef, secureData }: Props) => {
             fontFamily={'body'}
             numberOfLines={2}
           >
-            You are about the enhance your Hexa Pay wallet's security
+            {home.HexaPaywalletsecurity}
           </Text>
         </View>
       </View>

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Input, View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -14,12 +14,17 @@ import { newWalletsInfo } from 'src/store/sagas/wallets';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const EnterWalletDetailScreen = () => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
+
+  const { translations } = useContext( LocalizationContext )
+  const wallet = translations[ 'wallet' ]
+  const common = translations[ 'common' ]
 
   const createNewWallet = useCallback(() => {
     const newWallet: newWalletsInfo = {
@@ -37,14 +42,14 @@ const EnterWalletDetailScreen = () => {
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title="Add New Wallet"
-        subtitle="Set up a wallet for you bitcoin"
+        title={wallet.AddNewWallet}
+        subtitle={wallet.Setupawalletforyoubitcoin}
         onPressHandler={() => navigtaion.goBack()}
         color={'light.ReceiveBackground'}
       />
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
-          placeholder="Wallet Name"
+          placeholder={wallet.WalletName}
           placeholderTextColor={'light.greenText'}
           backgroundColor={'light.lightYellow'}
           value={walletName}
@@ -55,7 +60,7 @@ const EnterWalletDetailScreen = () => {
           borderWidth={'0'}
         />
         <Input
-          placeholder="Single-sig Wallet"
+          placeholder={wallet.SinglesigWallet}
           placeholderTextColor={'light.greenText'}
           backgroundColor={'light.lightYellow'}
           value={walletDescription}
@@ -67,11 +72,11 @@ const EnterWalletDetailScreen = () => {
         />
         <View marginY={20}>
           <Buttons
-            secondaryText={'Cancel'}
+            secondaryText={common.cancel}
             secondaryCallback={() => {
               console.log('Cancel');
             }}
-            primaryText={'Create'}
+            primaryText={common.create}
             primaryCallback={createNewWallet}
           />
         </View>

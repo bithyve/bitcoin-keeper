@@ -7,7 +7,7 @@ import {
   defaultWallets,
 } from 'src/common/data/defaultData/defaultData';
 import { Box, HStack, Text, View } from 'native-base';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useContext } from 'react';
 import { RootStateOrAny, useDispatch, useSelector } from 'react-redux';
 import {
   heightPercentageToDP as hp,
@@ -37,6 +37,7 @@ import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 type Props = {
   route: any | undefined;
@@ -64,6 +65,9 @@ const HomeScreen = ({ navigation, route }: Props) => {
     (state: RootStateOrAny) => state.wallet.wallets
   );
   const allWallets = [...defaultWallets, ...wallets, { isEnd: true }];
+
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
 
   async function storeFCMToken() {
     const fcmToken = await messaging().getToken();
@@ -150,7 +154,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
                 borderRadius={'41'}
                 _text={{ color: '#073E39', fontSize: 9, fontWeight: '300', letterSpacing: 0.6 }}
               >
-                Inheritance Ready
+                {home.InheritanceReady}
               </Box>
             </HStack>
           ) : null}
@@ -167,7 +171,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
               fontFamily={'body'}
               fontWeight={'300'}
             >
-              Elite User
+              {home.EliteUser}
             </Text>
           </View>
         </View>
@@ -178,7 +182,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
             fontFamily={'body'}
             fontWeight={'200'}
           >
-            Hello,
+            {home.Hello}
           </Text>
           <Text
             style={styles.helloText}
@@ -192,7 +196,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
           </Text>
         </View>
         <Text style={styles.loremText} color={'light.white'} fontFamily={'body'} fontWeight={'200'}>
-          Your stack is safe
+          {home.Yourstacksafe}
         </Text>
       </ImageBackground>
       <Text
@@ -201,7 +205,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        {backupKeys.length - 1} Backup Key{backupKeys.length - 1 > 1 && 's'}
+        {backupKeys.length - 1} {home.BackupKey}{backupKeys.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
@@ -209,7 +213,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
         fontFamily={'body'}
         fontWeight={'100'}
       >
-        Used for securing funds
+        {home.Usedforsecuringfunds}
       </Text>
       <FlatList
         data={backupKeys}
@@ -226,7 +230,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        {allWallets?.length - 1} Wallet{allWallets?.length - 1 > 1 && 's'}
+        {allWallets?.length - 1} {home.wallet}{allWallets?.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
@@ -234,7 +238,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
         fontFamily={'body'}
         fontWeight={'100'}
       >
-        Keeper is securing these wallets
+        {home.Keepersecuringwallets}
       </Text>
       {allWallets?.length != 0 && (
         <FlatList
