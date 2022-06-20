@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Box, Text, useToast } from 'native-base';
+import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -9,7 +9,6 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 const ExportSeedScreen = ({ route }) => {
-  const Toast = useToast();
   const navigtaion = useNavigation();
   const seed = route.params.seed;
 
@@ -70,7 +69,7 @@ const ExportSeedScreen = ({ route }) => {
 
       <Box marginTop={10} height={windowHeight / 1.5}>
         <FlatList
-          data={seedText.split(' ')}
+          data={seed.split(' ')}
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={renderSeedCard}
