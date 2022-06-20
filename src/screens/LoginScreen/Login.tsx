@@ -49,10 +49,6 @@ const CreatePin = ({ navigation, route }) => {
   const login = translations[ 'login' ]
   const common = translations[ 'common' ]
 
-  const { translations } = useContext( LocalizationContext )
-  const login = translations[ 'login' ]
-  const common = translations[ 'common' ]
-
   useEffect(() => {
     if (failedAttempts >= 1) {
       const retryTime = Number((Date.now() - lastLoginFailedAt) / 1000);

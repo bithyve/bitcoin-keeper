@@ -29,10 +29,6 @@ export default function ResetPin(props) {
   const login = translations[ 'login' ]
   const common = translations[ 'common' ]
 
-  const { translations } = useContext( LocalizationContext )
-  const login = translations[ 'login' ]
-  const common = translations[ 'common' ]
-
   function onPressNumber(text) {
     let tmpPasscode = passcode;
     let tmpConfirmPasscode = confirmPasscode;

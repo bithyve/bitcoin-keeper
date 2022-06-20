@@ -15,9 +15,6 @@ const FogotPassword = (props) => {
   const { translations } = useContext( LocalizationContext )
   const login = translations[ 'login' ]
 
-  const { translations } = useContext( LocalizationContext )
-  const login = translations[ 'login' ]
-
   const getSeedIndexText = (seedNumber) => {
     switch (seedNumber) {
       case 1:
