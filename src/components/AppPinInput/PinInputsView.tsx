@@ -8,8 +8,11 @@ import {
 } from 'react-native-responsive-screen';
 
 import DotView from 'src/components/DotView';
-
-const PinInputsView = ({ passCode, passcodeFlag }) => {
+export interface Props {
+  passCode?: string;
+  passcodeFlag?: boolean;
+}
+const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
