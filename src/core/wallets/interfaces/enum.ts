@@ -68,6 +68,18 @@ export enum WalletType {
   LIGHTNING = 'LIGHTNING',
   IMPORTED = 'IMPORTED',
 }
+export enum VaultType {
+  TAPSIGNER = 'TAPSIGNER',
+  KEEPER = 'KEEPER',
+  TREZOR = 'TREZOR',
+  LEDGER = 'LEDGER',
+  COLDCARD = 'COLDCARD',
+  PASSPORT = 'PASSPORT',
+  JADE = 'JADE',
+  KEYSTONE = 'KEYSTONE',
+  POLICY_SERVER = 'POLICY_SERVER',
+  MOBILE_KEY = 'MOBILE_KEY',
+}
 
 export enum GiftThemeId {
   ONE = 'ONE',

@@ -9,6 +9,7 @@ import {
   TransactionType,
   NodeType,
   TxPriority,
+  VaultType,
 } from './enum';
 
 export interface InputUTXOs {
@@ -237,6 +238,12 @@ export interface WalletDerivationDetails {
   xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
 }
 
+export interface VaultDerivationDetails {
+  networkType: NetworkType; // testnet/mainnet
+  instanceNum: number; // instance number of this particular walletType
+  derivationPath: string; // derivation path of the extended keys belonging to this wallet
+}
+
 export interface WalletPresentationData {
   walletName: string; // name of the wallet
   walletDescription: string; // description of the wallet
@@ -259,6 +266,27 @@ export interface DonationWalletPresentationData extends WalletPresentationData {
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
   xpriv: string | null; // wallet's xpriv (primary for multi-sig wallets)
+  receivingAddress: string; // current external address
+  nextFreeAddressIndex: number; // external-chain free address marker
+  nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
+  importedAddresses: WalletImportedAddresses;
+  confirmedUTXOs: UTXO[]; // utxo set available for use
+  unconfirmedUTXOs: UTXO[]; // utxos to arrive
+  balances: Balances; // confirmed/unconfirmed balances
+  transactions: Transaction[]; // transactions belonging to this wallet
+  newTransactions?: Transaction[]; // new transactions arrived during the current sync
+  lastSynched: number; // wallet's last sync timestamp
+  hasNewTxn?: boolean; // indicates new txns
+  txIdCache: { [txid: string]: boolean };
+  transactionMapping: TransactionToAddressMapping[];
+  transactionsNote: {
+    [txId: string]: string;
+  };
+  // transactionsMeta?: TransactionMetaData[];
+}
+export interface VaultSpecs {
+  xpub: string[] | null; // wallet's xpub (primary for multi-sig wallets)
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
@@ -302,8 +330,19 @@ export interface Wallet {
   specs: WalletSpecs;
 }
 
+
 export interface MultiSigWallet extends Wallet {
   specs: MultiSigWalletSpecs;
+}
+
+export interface Vault {
+  id: string; // wallet identifier(derived from xpub)
+  type: VaultType; // type of wallet
+  walletShellId: string; // identifier of the wallet shell that the wallet belongs
+  isUsable: boolean; // true if wallet is usable
+  derivationDetails: VaultDerivationDetails;
+  presentationData: WalletPresentationData;
+  specs: VaultSpecs;
 }
 
 export interface DonationWallet extends Wallet {
@@ -324,7 +363,6 @@ export interface WalletShell {
   triggerPolicyId?: string;
 }
 
-export interface Vault {}
 
 export interface InheritancePolicy {
   id: string;
