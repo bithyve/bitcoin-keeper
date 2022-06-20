@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces/interface';
+import { AverageTxFeesByNetwork, ExchangeRates } from 'src/core/wallets/interfaces/interface';
 
 const initialState: {
-  exchangeRates;
+  exchangeRates: ExchangeRates;
   averageTxFees: AverageTxFeesByNetwork;
 } = {
   exchangeRates: null,
