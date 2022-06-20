@@ -1,3 +1,4 @@
+// this file is stale
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, VStack } from 'native-base';
 
