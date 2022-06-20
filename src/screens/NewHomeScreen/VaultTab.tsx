@@ -1,7 +1,7 @@
 import { Box, ScrollView, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -18,6 +18,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const { useQuery } = RealmContext;
 
@@ -29,6 +30,8 @@ const VaultTab = ({ animate }) => {
   const close = () => setModalVisible(false);
   const navigation = useNavigation();
   const Signers = useQuery(RealmSchema.VaultSigner);
+  const { translations } = useContext( LocalizationContext )
+  const vault = translations[ 'vault' ]
 
   const Slider = () => {
     return (
@@ -50,7 +53,7 @@ const VaultTab = ({ animate }) => {
             fontWeight={'200'}
             letterSpacing={1.1}
           >
-            {'Setup your Vault'}
+            {vault.SetupyourVault}
           </Text>
           <Text
             color={'light.lightBlack'}
@@ -60,12 +63,12 @@ const VaultTab = ({ animate }) => {
             letterSpacing={0.65}
             textAlign={'center'}
           >
-            {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+            {vault.VaultDesc}
           </Text>
         </VStack>
         <TouchableOpacity style={styles.cta} onPress={open}>
           <Text fontSize={14} fontFamily={'body'} fontWeight={'300'} letterSpacing={1}>
-            {'Setup Now'}
+            {vault.SetupNow}
           </Text>
         </TouchableOpacity>
       </VStack>
@@ -103,11 +106,11 @@ const VaultTab = ({ animate }) => {
         <KeeperModal
           visible={visible}
           close={close}
-          title="Setup Vault"
-          subTitle="Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna"
+          title={vault.SetupyourVault}
+          subTitle={vault.VaultDesc}
           modalBackground={['#00836A', '#073E39']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
-          buttonText={'Add a signer'}
+          buttonText={vault.Addsigner}
           buttonTextColor={'#073E39'}
           buttonCallback={addTapsigner}
           textColor={'#FFF'}
@@ -121,7 +124,7 @@ const VaultTab = ({ animate }) => {
         scrollEnabled={windowHeight < 780}
       >
         <VStack>
-          <Heading title={'Vault'} subTitle={'Your super secure bitcoin'} />
+          <Heading title={vault.Vault} subTitle={vault.Yoursupersecurebitcoin} />
           <Box
             width={width * 0.87}
             height={width * 0.55}
@@ -176,7 +179,7 @@ const VaultTab = ({ animate }) => {
               fontWeight={'200'}
               paddingTop={5}
             >
-              {'My Signers'}
+              {vault.MySigners}
             </Text>
             <Text
               color={'light.lightBlack'}
@@ -186,7 +189,7 @@ const VaultTab = ({ animate }) => {
               paddingBottom={5}
               letterSpacing={0.6}
             >
-              {'Used for securing funds'}
+              {vault.Usedforsecuringfunds}
             </Text>
           </Box>
 
@@ -206,7 +209,7 @@ const VaultTab = ({ animate }) => {
                 fontFamily={'body'}
                 fontWeight={'200'}
               >
-                {'Inheritance'}
+                {vault.Inheritance}
               </Text>
               <Text
                 color={'light.lightBlack'}
@@ -215,7 +218,7 @@ const VaultTab = ({ animate }) => {
                 fontWeight={'100'}
                 paddingBottom={5}
               >
-                {'Set up inheritance to your sats'}
+                {vault.Setupinheritancetoyoursats}
               </Text>
             </Box>
             <Box justifyContent={'center'}>
@@ -227,7 +230,7 @@ const VaultTab = ({ animate }) => {
                   fontWeight={'300'}
                   letterSpacing={0.88}
                 >
-                  {'Setup'}
+                  {vault.Setup}
                 </Text>
               </TouchableOpacity>
             </Box>

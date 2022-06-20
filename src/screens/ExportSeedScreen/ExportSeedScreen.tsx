@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Box, Text, useToast } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const ExportSeedScreen = ({ route }) => {
   const Toast = useToast();
@@ -14,6 +15,14 @@ const ExportSeedScreen = ({ route }) => {
   const seed = route.params.seed;
 
   const [showSeedWord, setShowSeedWord] = useState('');
+
+  const { translations } = useContext( LocalizationContext )
+  const seedText = translations[ 'seed' ]
+
+  const copyText = (item) => {
+    Clipboard.setString(item);
+    Toast.show({ description: 'Seed word copied!' });
+  };
 
   const SeedCard = ({ item, index }: { item; index }) => {
     return (
@@ -59,32 +68,23 @@ const ExportSeedScreen = ({ route }) => {
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title="Export Seed"
-        subtitle="Lorem ipsum dolor sit amet,"
-        color="light.ReceiveBackground"
+        title={seedText.ExportSeed}
+        subtitle={seedText.SeedDesc}
+        color='light.ReceiveBackground'
         onPressHandler={() => navigtaion.goBack()}
       />
 
       <Box marginTop={5} height={windowHeight / 1.8}>
         <FlatList
-          data={seed.split(' ')}
+          data={seedText.split(' ')}
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={renderSeedCard}
           keyExtractor={(item) => item}
         />
       </Box>
-      <Text
-        marginX={2}
-        marginTop={5}
-        fontSize={12}
-        fontWeight={200}
-        letterSpacing={0.6}
-        marginRight={10}
-        color={'light.GreyText'}
-      >
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-        labore et
+      <Text marginX={2} marginTop={5} fontSize={12} fontWeight={200} letterSpacing={0.60} marginRight={10} color={'light.GreyText'}>
+        {seedText.desc}
       </Text>
       <Box marginX={2} marginTop={5}>
         <Buttons primaryText="Next" primaryCallback={navigtaion.goBack} />

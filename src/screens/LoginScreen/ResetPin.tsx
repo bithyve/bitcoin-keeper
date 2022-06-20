@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
@@ -12,6 +12,7 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 export default function ResetPin(props) {
   const [passcode, setPasscode] = useState('');
@@ -23,6 +24,10 @@ export default function ResetPin(props) {
   const { credsChanged } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
   const oldPasscode = props.route.params.oldPin || '';
+
+  const { translations } = useContext( LocalizationContext )
+  const login = translations[ 'login' ]
+  const common = translations[ 'common' ]
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -117,17 +122,12 @@ export default function ResetPin(props) {
         <Box flex={1}>
           <Box>
             <Box>
-              <Text
-                ml={5}
-                mt={hp(1)}
-                fontSize={RFValue(22)}
-                color={'light.white'}
-                fontFamily={'heading'}
-              >
-                Reset Passcode
+              <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'light.white'}
+                fontFamily={'heading'}>
+                {login.ResetPasscode}
               </Text>
               <Text color={'light.white'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
-                {'Create a passcode'}
+                {login.Createpasscode}
               </Text>
 
               <Box>
@@ -220,8 +220,8 @@ export default function ResetPin(props) {
               </Box>
             </Box>
             <Box>
-              <Text color={'light.white'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
-                {'Confirm your passcode'}
+              <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
+                {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
                 <Box flexDirection={'row'} mt={hp('1.5%')}>
@@ -319,7 +319,7 @@ export default function ResetPin(props) {
                     textAlign={'right'}
                     mt={hp('1.5%')}
                   >
-                    {'Mismatch Passcode'}
+                    {login.MismatchPasscode}
                   </Text>
                 )}
               </Box>
@@ -328,7 +328,7 @@ export default function ResetPin(props) {
                   onPress={() => {
                     dispatch(resetPin(passcode));
                   }}
-                  value={'Proceed'}
+                  value={common.proceed}
                 />
               </Box>
             </Box>

@@ -1,11 +1,16 @@
 import { Dimensions, Image } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Avatar, Text, TextArea, VStack } from 'native-base';
 import { ScrollView } from 'react-native-gesture-handler';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const { height } = Dimensions.get('window');
 
 const TransferState = ({ setTransfer, transferDescription }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
+
   return (
     <ScrollView>
       <VStack
@@ -17,10 +22,10 @@ const TransferState = ({ setTransfer, transferDescription }) => {
         borderRadius={10}
       >
         <Text fontSize={'sm'} fontFamily={'body'} fontWeight={'200'}>
-          {'Gunther Greene'}
+          {home.DelarationName}
         </Text>
         <Text fontSize={'xs'} fontFamily={'body'} fontWeight={'100'}>
-          {'Your Beneficiary'}
+          {home.YourBeneficiary}
         </Text>
       </VStack>
       <Text

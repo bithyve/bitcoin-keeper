@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import {
   heightPercentageToDP as hp,
@@ -16,6 +16,7 @@ import HomeCardImage from 'src/assets/images/homecard.png';
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 type Props = {
   Icon: React.SFC<React.SVGProps<SVGSVGElement>>;
@@ -40,6 +41,9 @@ const HomeCard = ({
 }: Props) => {
   const navigation = useNavigation();
 
+  const { translations } = useContext( LocalizationContext )
+  const wallet = translations[ 'wallet' ]
+
   return (
     <View>
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
@@ -55,7 +59,7 @@ const HomeCard = ({
               fontFamily={'body'}
               fontWeight={'300'}
             >
-              Add Wallet
+              {wallet.AddWallet}
             </Text>
           </TouchableOpacity>
         ) : (

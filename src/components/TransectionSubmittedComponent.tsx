@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext }from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { Text } from 'native-base';
 
@@ -9,17 +9,22 @@ import {
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BitCoinBlack from 'src/assets/images/svgs/btc (black).svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const windowHeight = Dimensions.get('window').height;
 
 const TransectionSubmittedComponent = ({ }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const strings = translations[ 'transactions' ]
+
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.item}>
           <HardWare />
           <Text style={styles.text} color={'light.textBlack'} fontFamily="body" fontWeight={'200'}>
-            Hexa Pay
+          {strings.HexaPay}
           </Text>
           <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
 
@@ -33,7 +38,7 @@ const TransectionSubmittedComponent = ({ }) => {
             fontWeight={'100'}
           >
             <BitCoinBlack />
-            0.000024
+            {strings.amountText1}
           </Text>
         </View>
       </View>
