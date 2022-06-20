@@ -4,12 +4,14 @@ import { RFValue } from 'react-native-responsive-fontsize';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import Arrow from 'src/assets/images/svgs/arrow.svg';
-const HardwareWalletSetup = () => {
+import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
 
-  const HardWareWallet = () => {
+const HardwareWalletSetup = ({ navigation }: { navigation }) => {
+
+  const HardWareWallet = ({ Icon }: { Icon }) => {
     return (
       <Box>
         <Box
@@ -17,7 +19,7 @@ const HardwareWalletSetup = () => {
           alignItems={'center'}
           height={windowHeight * 0.080}
         >
-          <Arrow />
+          <Icon />
         </Box>
         <Box opacity={0.1} backgroundColor={'light.divider'} width={windowWidth * 0.68} height={0.5} />
       </Box>
@@ -35,7 +37,7 @@ const HardwareWalletSetup = () => {
       <HeaderTitle
         title="Setup a Hardware Wallet"
         subtitle="to activate your Vault"
-        onPressHandler={() => { console.log('goback') }}
+        onPressHandler={() => navigation.navigate('NewHome')}
         headerColor={'light.headerTextTwo'}
         hearderMarginTop={0.032}
         marginLeft={0}
@@ -51,13 +53,13 @@ const HardwareWalletSetup = () => {
         borderRadius={windowHeight * 0.018}
         alignItems={'center'}
       >
-        <HardWareWallet />
-        <HardWareWallet />
-        <HardWareWallet />
-        <HardWareWallet />
-        <HardWareWallet />
-        <HardWareWallet />
-        <HardWareWallet />
+        <HardWareWallet Icon={TapSigner} />
+        <HardWareWallet Icon={TapSigner} />
+        <HardWareWallet Icon={TapSigner} />
+        <HardWareWallet Icon={TapSigner} />
+        <HardWareWallet Icon={TapSigner} />
+        <HardWareWallet Icon={TapSigner} />
+        <HardWareWallet Icon={TapSigner} />
 
         <Box
           justifyContent={'center'}
@@ -76,17 +78,17 @@ const HardwareWalletSetup = () => {
         </Box>
       </Box>
 
-      <Box marginTop={windowHeight * 0.03}>
+      <Box marginTop={hp(18)}>
         <Text
           fontSize={RFValue(12)}
           letterSpacing={0.6}
           fontWeight={100}
           color={'light.lightBlack'}
-          width={windowWidth * 0.55}
-          noOfLines={2}
+          width={wp(300)}
+          noOfLines={3}
           lineHeight={18}
         >
-          These are all the Hardware Wallets we support at this time.{' '}
+          A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more.{' '}
           <Text
             fontStyle={'italic'}
             fontWeight={'bold'}

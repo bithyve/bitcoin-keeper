@@ -15,7 +15,7 @@ import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
+// import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
@@ -44,10 +44,10 @@ const Navigator = () => {
         <Stack.Screen name="CreatePin" component={CreatePin} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="ResetPin" component={ResetPin} />
-        <Stack.Screen name="NewHome" component={NewHomeScreen} />
+        {/* <Stack.Screen name="NewHome" component={NewHomeScreen} /> */}
         <Stack.Screen name="AddTapsigner" component={AddTapsigner} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="Inheritance" component={InheritanceScreen} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
