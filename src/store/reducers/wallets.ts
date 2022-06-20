@@ -7,8 +7,6 @@ import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 export type WalletsState = {
   walletsSynched: boolean;
   netBalance: number;
-  exchangeRates?: any;
-  averageTxFees: any;
   twoFAHelpFlags: {
     xprivGenerated: boolean | null;
     twoFAValid: boolean | null;
@@ -29,9 +27,6 @@ export type WalletsState = {
 
 const initialState: WalletsState = {
   walletsSynched: false,
-  exchangeRates: null,
-
-  averageTxFees: null,
   netBalance: 0,
   twoFAHelpFlags: {
     xprivGenerated: null,
