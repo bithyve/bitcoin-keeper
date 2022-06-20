@@ -25,6 +25,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import { autoSyncWallets } from '../sagaActions/wallets';
+import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
 
 function* credentialsStorageWorker({ payload }) {
   try {
@@ -45,6 +46,9 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setPinHash(hash));
 
     yield put(setCredStored());
+
+    // fetch fee and exchange rates
+    yield put(fetchFeeAndExchangeRates());
   } catch (error) {
     console.log(error);
   }
@@ -83,10 +87,12 @@ function* credentialsAuthWorker({ payload }) {
     return;
   }
 
-  if (!payload.reLogin) {
-    yield put(autoSyncWallets());
-  }
   yield put(credsAuthenticated(true));
+  if (!payload.reLogin) {
+    // case: login
+    yield put(autoSyncWallets());
+    yield put(fetchFeeAndExchangeRates());
+  }
   // check if the app has been upgraded
 }
 

@@ -1,12 +1,8 @@
 import React from 'react';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
+import { TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { TouchableOpacity } from 'react-native';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
@@ -72,9 +68,12 @@ const HeaderTitle = ({
 };
 
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
+  container: {
+    paddingVertical: '40@s',
+    paddingHorizontal: '20@s',
+    flexDirection: 'row',
+    alignItems: 'center',
+    // width,
   },
   addWalletText: {
     fontSize: RFValue(16),
@@ -85,7 +84,9 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(12),
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    width: wp('60%'),
+  },
+  back: {
+    padding: 20,
   },
 });
 export default HeaderTitle;

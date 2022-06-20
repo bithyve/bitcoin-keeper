@@ -1,6 +1,6 @@
-import { Animated, Dimensions, Easing, View, AppState } from 'react-native';
+import { Animated, AppState, Dimensions, Easing, View } from 'react-native';
 import { Box, Pressable, Text } from 'native-base';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -9,45 +9,41 @@ import {
 import Basic from 'src/assets/images/svgs/basic.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-
-// components
-import WalletTab from './WalletTab';
-import VaultTab from './VaultTab';
-
-// icons and images
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import ScannerIcon from 'src/assets/images/svgs/scanner.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import UaiDisplay from './UaiDisplay';
+import VaultTab from './VaultTab';
+// components
+import WalletTab from './WalletTab';
 // components
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 // icons and images
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import UaiDisplay from './UaiDisplay';
+// icons and images
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
-  const appState = useRef(AppState.currentState);
+  // const appState = useRef(AppState.currentState);
   const dispatch = useDispatch();
 
   const { uaiStack } = useUaiStack();
 
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", nextAppState => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
-      ) {
-        navigation.navigate('Login', { relogin: true })
-      }
-      appState.current = nextAppState;
-    });
-    return () => {
-      subscription.remove();
-    };
+    // TODO: re-think this logic
+    // const subscription = AppState.addEventListener('change', (nextAppState) => {
+    //   if (appState.current.match(/background/) && nextAppState === 'active') {
+    //     navigation.navigate('Login', { relogin: true });
+    //   }
+    //   appState.current = nextAppState;
+    // });
+    // return () => {
+    //   subscription.remove();
+    // };
   }, []);
 
   const addtoDb = () => {
