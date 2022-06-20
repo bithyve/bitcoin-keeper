@@ -32,6 +32,65 @@ export interface AverageTxFeeElements {
 export type AverageTxFees = Record<TxPriority, AverageTxFeeElements>;
 export type AverageTxFeesByNetwork = Record<NetworkType, AverageTxFees>;
 
+export enum CurrencyCodes {
+  USD = 'USD',
+  AED = 'AED',
+  ARS = 'ARS',
+  AUD = 'AUD',
+  BDT = 'BDT',
+  BHD = 'BHD',
+  BMD = 'BMD',
+  BRL = 'BRL',
+  CAD = 'CAD',
+  CHF = 'CHF',
+  CLP = 'CLP',
+  CNY = 'CNY',
+  CZK = 'CZK',
+  DKK = 'DKK',
+  EUR = 'EUR',
+  GBP = 'GBP',
+  HKD = 'HKD',
+  HUF = 'HUF',
+  IDR = 'IDR',
+  ILS = 'ILS',
+  INR = 'INR',
+  JPY = 'JPY',
+  KRW = 'KRW',
+  KWD = 'KWD',
+  LKR = 'LKR',
+  MMK = 'MMK',
+  MXN = 'MXN',
+  MYR = 'MYR',
+  NGN = 'NGN',
+  NOK = 'NOK',
+  NZD = 'NZD',
+  PHP = 'PHP',
+  PKR = 'PKR',
+  PLN = 'PLN',
+  RUB = 'RUB',
+  SAR = 'SAR',
+  SEK = 'SEK',
+  SGD = 'SGD',
+  THB = 'THB',
+  TRY = 'TRY',
+  TWD = 'TWD',
+  UAH = 'UAH',
+  VEF = 'VEF',
+  VND = 'VND',
+  ZAR = 'ZAR',
+  XDR = 'XDR',
+}
+
+export interface ExchangeRateElements {
+  '15m': number;
+  buy: number;
+  last: number;
+  sell: number;
+  symbol: string;
+}
+
+export type ExchangeRates = Record<CurrencyCodes, ExchangeRateElements>;
+
 export interface TransactionPrerequisiteElements {
   inputs?: InputUTXOs[];
   outputs?: OutputUTXOs[];

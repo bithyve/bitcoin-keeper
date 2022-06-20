@@ -45,13 +45,8 @@ export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
 }
 
 function* feeAndExchangeRatesWorker() {
-  // const currencyCode = yield select((state) => state.preferences.currencyCode);
-  const currencyCode = 'USD';
   try {
-    const { exchangeRates, averageTxFees } = yield call(
-      Relay.fetchFeeAndExchangeRates,
-      currencyCode
-    );
+    const { exchangeRates, averageTxFees } = yield call(Relay.fetchFeeAndExchangeRates);
     if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
 
