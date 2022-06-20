@@ -23,12 +23,15 @@ import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
   const navigation = useNavigation();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
+  const exchangeRates = useAppSelector((state) => state.sendAndReceive.exchangeRates);
+  const currencyCode = useCurrencyCode();
 
   const BtcToCurrency = () => {
     return (
@@ -60,7 +63,7 @@ const WalletTab = ({ animate }) => {
               marginLeft={1}
               letterSpacing={0.7}
             >
-              0.000024
+              {exchangeRates[currencyCode].last}
             </Text>
           </View>
         </Box>
