@@ -28,22 +28,22 @@ const width = Dimensions.get('window').width;
 const NewHomeScreen = ({ navigation }) => {
   const [vaultPosition, setVaultPosition] = useState(new Animated.Value(0));
   const [walletPosition, setWalletPosition] = useState(new Animated.Value(0));
-  const appState = useRef(AppState.currentState);
+  // const appState = useRef(AppState.currentState);
   const dispatch = useDispatch();
 
   const { uaiStack } = useUaiStack();
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      console.log(appState.current, nextAppState);
-      if (appState.current.match(/background/) && nextAppState === 'active') {
-        navigation.navigate('Login', { relogin: true });
-      }
-      appState.current = nextAppState;
-    });
-    return () => {
-      subscription.remove();
-    };
+    // TODO: re-think this logic
+    // const subscription = AppState.addEventListener('change', (nextAppState) => {
+    //   if (appState.current.match(/background/) && nextAppState === 'active') {
+    //     navigation.navigate('Login', { relogin: true });
+    //   }
+    //   appState.current = nextAppState;
+    // });
+    // return () => {
+    //   subscription.remove();
+    // };
   }, []);
 
   const addtoDb = () => {
