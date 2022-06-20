@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box, Text, useToast } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -9,14 +10,24 @@ import Buttons from 'src/components/Buttons';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const ExportSeedScreen = ({ route }) => {
+  const Toast = useToast();
   const navigtaion = useNavigation();
   const seed = route.params.seed;
 
   const [showSeedWord, setShowSeedWord] = useState('');
 
+  const copyText = (item) => {
+    Clipboard.setString(item);
+    Toast.show({ description: 'Seed word copied!' });
+  };
+
   const SeedCard = ({ item, index }: { item; index }) => {
     return (
-      <TouchableOpacity style={{ width: '50%' }} onPress={() => setShowSeedWord(item)}>
+      <TouchableOpacity
+        style={{ width: '50%' }}
+        onPress={() => setShowSeedWord(item)}
+        onLongPress={() => copyText(item)}
+      >
         <Box
           backgroundColor={'light.lightYellow'}
           flexDirection={'row'}
