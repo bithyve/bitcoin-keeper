@@ -10,7 +10,7 @@ import DollarGreen from 'src/assets/images/svgs/icon_dollar_green.svg';
 import Heading from './Heading';
 import NavVault from 'src/assets/images/svgs/nav_vault.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletCard from './WalletCard';
@@ -20,23 +20,13 @@ import { useNavigation } from '@react-navigation/native';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { useDispatch } from 'react-redux';
-import { crossTransfer } from 'src/store/sagaActions/send&receive';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const WalletTab = ({ animate }) => {
   const { useQuery } = RealmContext;
   const navigation = useNavigation();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(
-  //     crossTransfer({
-  //       sender: wallets[0],
-  //       recipient: wallets[1],
-  //       amount: 30000,
-  //     })
-  //   );
-  // }, []);
 
   const BtcToCurrency = () => {
     return (
@@ -90,6 +80,7 @@ const WalletTab = ({ animate }) => {
   };
 
   const CollectiveBallance = () => {
+    const dispatch = useDispatch();
     return (
       <Box marginY={3} marginX={5} flexDirection={'row'} justifyContent={'space-between'}>
         <Box marginY={2}>
@@ -135,6 +126,17 @@ const WalletTab = ({ animate }) => {
               fontFamily={'body'}
               fontWeight={'300'}
               letterSpacing={0.88}
+              onPress={() =>
+                dispatch(
+                  addToUaiStack(
+                    'Approve Vault transfer',
+                    true,
+                    uaiType.VAULT_TRANSFER,
+                    70,
+                    'Your wallet balance is above 1,000,000sats'
+                  )
+                )
+              }
             >
               Secure Now
             </Text>

@@ -51,6 +51,7 @@ import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/inte
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 export interface newWalletDetails {
   name?: string;
@@ -588,39 +589,17 @@ function* autoWalletsSyncWorker({
   payload: { syncAll?: boolean; hardRefresh?: boolean };
 }) {
   const { syncAll, hardRefresh } = payload;
-
-  const walletState: WalletsState = yield select((state) => state.wallets);
-  const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = walletState.wallets;
+  const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
 
   const walletsToSync: (Wallet | MultiSigWallet)[] = [];
-  const testWalletsToSync: Wallet[] = []; // Note: should be synched separately due to network difference(testnet)
-  const donationWalletsToSync: DonationWallet[] = [];
-  const lnWalletsToSync: Wallet[] = [];
-
   for (const wallet of wallets) {
     if (syncAll || wallet.presentationData.walletVisibility === WalletVisibility.DEFAULT) {
       if (!wallet.isUsable) continue;
-
-      switch (wallet.type) {
-        case WalletType.TEST:
-          if (syncAll) testWalletsToSync.push(wallet);
-          break;
-
-        case WalletType.DONATION:
-          donationWalletsToSync.push(wallet as DonationWallet);
-          break;
-
-        case WalletType.LIGHTNING:
-          lnWalletsToSync.push(wallet);
-          break;
-
-        default:
-          walletsToSync.push(wallet);
-      }
+      walletsToSync.push(getJSONFromRealmObject(wallet));
     }
   }
 
-  if (walletsToSync.length)
+  if (walletsToSync.length) {
     yield call(refreshWalletsWorker, {
       payload: {
         wallets: walletsToSync,
@@ -629,39 +608,7 @@ function* autoWalletsSyncWorker({
         },
       },
     });
-
-  if (syncAll && testWalletsToSync.length)
-    yield call(refreshWalletsWorker, {
-      payload: {
-        wallets: testWalletsToSync,
-        options: {
-          hardRefresh,
-        },
-      },
-    });
-
-  // if( lnShellsToSync.length ) yield call( refreshLNShellsWorker, {
-  //   payload: {
-  //     shells: lnShellsToSync,
-  //   }
-  // } )
-
-  // if( donationShellsToSync.length )
-  //   try {
-  //     for( const donationWallet of donationShellsToSync ) {
-  //       yield call( refreshWalletshellsWorker, {
-  //         payload: {
-  //           shells: [ donationWallet ],
-  //           options: {
-  //             syncDonationWallet: true
-  //           }
-  //         }
-  //       } )
-  //     }
-  //   }
-  //   catch( err ){
-  //     console.log( `Sync via xpub agent failed w/ the following err: ${err}` )
-  //   }
+  }
 }
 
 export const autoWalletsSyncWatcher = createWatcher(autoWalletsSyncWorker, AUTO_SYNC_WALLETS);

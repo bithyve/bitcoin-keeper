@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { TextInput } from 'react-native';
 // libraries
-import { View, Box, Pressable, Text } from 'native-base';
+import { View, Box, Pressable, Text, Button } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -18,7 +18,6 @@ import Colors from 'src/theme/Colors';
 import InfoBox from 'src/components/InfoBox';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import BlueWallet from 'src/assets/icons/bluewallet.svg';
-import retirementIcon from 'src/assets/icons/icon_encryption.svg';
 
 const SendScreen = () => {
   const cameraRef = useRef<RNCamera>();
@@ -34,46 +33,11 @@ const SendScreen = () => {
         color={'light.ReceiveBackground'}
       />
       {/* {QR Scanner} */}
-      <Box style={styles.qrcontainer} marginY={hp(5)}>
+      <Box style={styles.qrcontainer} marginY={hp(2)}>
         <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
       </Box>
-      {/* Send to Wallet options */}
-      <Text mb={'5'} ml={'4'}>
-        Send to Wallet
-      </Text>
-      <Box flexDirection={'row'} style={styles.walletContainer}>
-        <Box flexDirection={'column'} style={styles.iconBackground}>
-          <Pressable onPress={() => console.log('wallet')} mt={'36%'} ml={'32%'}>
-            <IconWallet />
-          </Pressable>
-          <Box mt={'50%'} ml={'20%'}>
-            <Text>Mald</Text>
-          </Box>
-        </Box>
-
-        <Box flexDirection={'column'} style={styles.iconBackground}>
-          <Pressable onPress={() => console.log('wallet')} mt={'35%'} ml={'32%'}>
-            <BlueWallet />
-          </Pressable>
-          <Box>
-            <Text mt={'40%'} ml={'20%'}>
-              Blue
-            </Text>
-          </Box>
-        </Box>
-        <Box flexDirection={'column'} style={styles.iconBackground}>
-          <Pressable onPress={() => console.log('wallet')} mt={'34%'} ml={'32%'}>
-            <BlueWallet />
-          </Pressable>
-          <Box>
-            <Text mt={'40%'} ml={'20%'}>
-              Encryption
-            </Text>
-          </Box>
-        </Box>
-      </Box>
-      {/* {Input Field} */}
-      {/* <Box
+      {/* send manually option */}
+      <Box
         flexDirection={'row'}
         marginY={hp(2)}
         width={'100%'}
@@ -81,10 +45,67 @@ const SendScreen = () => {
         alignItems={'center'}
       >
         <TextInput placeholder="or enter address manually" style={styles.textInput} />
-      </Box> */}
+      </Box>
+      {/* Send to Wallet options */}
+      <Text
+        mb={'5'}
+        ml={'4'}
+        color={'light.GreyText'}
+        fontWeight={200}
+        fontFamily={'body'}
+        fontSize={14}
+        letterSpacing={0.6}
+      >
+        Send to Wallet
+      </Text>
+      <View flexDirection={'row'} style={styles.walletContainer}>
+        <Box mt={'3'}>
+          <Box>
+            <View style={styles.buttonBackground}>
+              <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                <IconWallet />
+              </Pressable>
+            </View>
+          </Box>
+          <Box>
+            <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+              Maldives
+            </Text>
+          </Box>
+        </Box>
+        <Box mt={'3'}>
+          <Box>
+            <View style={styles.buttonBackground}>
+              <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                <BlueWallet />
+              </Pressable>
+            </View>
+          </Box>
+          <Box>
+            <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+              Alex's Wallet
+            </Text>
+          </Box>
+        </Box>
+        <Box mt={'3'}>
+          <Box>
+            <View style={styles.buttonBackground}>
+              <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                <IconWallet />
+              </Pressable>
+            </View>
+          </Box>
+          <Box>
+            <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+              Retirement
+            </Text>
+          </Box>
+        </Box>
+      </View>
+      {/* {Input Field} */}
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={4} marginX={5}>
+      <Box position={'absolute'} bottom={4} marginX={2}>
         <InfoBox
           title="Note"
           desciption="It would take some time for the sats to reflect in your account based on the network condition desciption"
@@ -97,9 +118,9 @@ const SendScreen = () => {
 
 const styles = ScaledSheet.create({
   Container: {
-    flex: 1,
-    padding: '8@s',
     position: 'relative',
+    flex: 1,
+    padding: 8,
   },
   linearGradient: {
     borderRadius: 6,
@@ -122,7 +143,8 @@ const styles = ScaledSheet.create({
   },
   qrContainer: {
     alignSelf: 'center',
-    marginVertical: hp('10%'),
+    marginVertical: hp('40%'),
+    flex: 1,
   },
   textInput: {
     width: '90%',
@@ -132,7 +154,7 @@ const styles = ScaledSheet.create({
     padding: 25,
   },
   cameraView: {
-    aspectRatio: 1,
+    height: hp('37'),
   },
   qrcontainer: {
     overflow: 'hidden',
@@ -141,16 +163,21 @@ const styles = ScaledSheet.create({
   walletContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    alignContent: 'center',
+    backgroundColor: '#FCF6EF',
+    height: hp('11'),
+    width: wp('90'),
+    borderRadius: 12,
+    marginHorizontal: wp('3%'),
   },
-  iconBackground: {
+  buttonBackground: {
     backgroundColor: '#FAC48B',
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 50,
-    padding: 1,
-    marginHorizontal: wp('4%'),
-    marginLeft: wp('4%'),
+  },
+  buttonPressable: {
+    alignItems: 'center',
+    marginVertical: 14,
   },
 });
 export default SendScreen;

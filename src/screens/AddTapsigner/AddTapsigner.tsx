@@ -1,6 +1,7 @@
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, VStack } from 'native-base';
 
+import AuthHandler from './AuthHandler';
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import { CommonActions } from '@react-navigation/native';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -155,24 +156,21 @@ const AddTapsigner = ({ navigation }) => {
 
   const _setup = async () => {
     try {
-      const tapsigner = await wrapper(async () => {
-        await card.first_look();
+      const data = await wrapper(async () => {
+        const status = await card.first_look();
         await card.setup(cvc);
-        return card.first_look();
+        const xpub = await card.get_xpub(cvc);
+        return { xpub, status };
       });
-      setStatus(tapsigner);
+      return data;
     } catch (e) {
       console.log(e);
-      setStatus({ error: JSON.stringify(e) });
     }
   };
 
-  const setup = () => {
-    withModal(_setup)();
-  };
-
-  const associate = async () => {
-    const xpub = await withModal(() => wrapper(async () => card.get_xpub(cvc)))();
+  const setup = async () => {
+    const { status, xpub } = await withModal(_setup)();
+    setStatus(status);
     realm.write(() => {
       realm.create(RealmSchema.VaultSigner, {
         type: 'Tapsigner',
@@ -185,9 +183,35 @@ const AddTapsigner = ({ navigation }) => {
     navigation.dispatch(CommonActions.goBack());
   };
 
+  const associate = async () => {
+    try {
+      const xpub = await withModal(() => wrapper(async () => card.get_xpub(cvc)))();
+      realm.write(() => {
+        realm.create(RealmSchema.VaultSigner, {
+          type: 'Tapsigner',
+          signerName: 'GTap',
+          signerId: card.card_ident,
+          path: card.path,
+          xpub,
+        });
+      });
+      navigation.dispatch(CommonActions.goBack());
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <Text>{JSON.stringify(status)}</Text>
       <CardStatus status={status} checkStatus={checkStatus} />
+      <AuthHandler
+        status={status}
+        setStatus={setStatus}
+        withModal={withModal}
+        card={card}
+        wrapper={wrapper}
+      />
       <Setup status={status} cvc={cvc} setCVC={setCVC} setup={setup} associate={associate} />
       <NfcPrompt visible={visible} />
     </SafeAreaView>
@@ -199,7 +223,7 @@ export default AddTapsigner;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   status: {
     alignItems: 'center',
