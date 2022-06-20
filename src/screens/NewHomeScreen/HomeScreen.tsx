@@ -16,7 +16,7 @@ import BTC from 'src/assets/images/svgs/btc.svg';
 // components, functions and hooks
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { useUaiStack } from 'src/hooks/useUaiStack';
+// import { useUaiStack } from 'src/hooks/useUaiStack';
 // import UaiDisplay from './UaiDisplay';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 
