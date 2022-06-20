@@ -12,11 +12,8 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-<<<<<<< HEAD
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-=======
 import { LocalizationContext } from 'src/common/content/LocContext';
->>>>>>> dev
 
 export default function ResetPin(props) {
   const [passcode, setPasscode] = useState('');
@@ -29,9 +26,9 @@ export default function ResetPin(props) {
   const [isDisabled, setIsDisabled] = useState(true);
   const oldPasscode = props.route.params.oldPin || '';
 
-  const { translations } = useContext( LocalizationContext )
-  const login = translations[ 'login' ]
-  const common = translations[ 'common' ]
+  const { translations } = useContext(LocalizationContext);
+  const login = translations['login'];
+  const common = translations['common'];
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -126,8 +123,13 @@ export default function ResetPin(props) {
         <Box flex={1}>
           <Box>
             <Box>
-              <Text ml={5} mt={hp(1)} fontSize={RFValue(22)} color={'light.white'}
-                fontFamily={'heading'}>
+              <Text
+                ml={5}
+                mt={hp(1)}
+                fontSize={RFValue(22)}
+                color={'light.white'}
+                fontFamily={'heading'}
+              >
                 {login.ResetPasscode}
               </Text>
               <Text color={'light.white'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>

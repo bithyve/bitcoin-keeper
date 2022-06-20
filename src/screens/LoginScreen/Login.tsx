@@ -21,11 +21,8 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ResetPassSuccess from './components/ResetPassSuccess';
-<<<<<<< HEAD
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-=======
 import { LocalizationContext } from 'src/common/content/LocContext';
->>>>>>> dev
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -48,9 +45,9 @@ const CreatePin = ({ navigation, route }) => {
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
-  const { translations } = useContext( LocalizationContext )
-  const login = translations[ 'login' ]
-  const common = translations[ 'common' ]
+  const { translations } = useContext(LocalizationContext);
+  const login = translations['login'];
+  const common = translations['common'];
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -188,19 +185,20 @@ const CreatePin = ({ navigation, route }) => {
         <Box flex={1}>
           <Box>
             <Text
-             ml={5}
-             color={'light.textLight'}
-             fontSize={RFValue(22)}
-             mt={hp('10%')}
-             fontWeight={'bold'}
-             fontFamily={'heading'}>
+              ml={5}
+              color={'light.textLight'}
+              fontSize={RFValue(22)}
+              mt={hp('10%')}
+              fontWeight={'bold'}
+              fontFamily={'heading'}
+            >
               {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
               <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
                 {/* {strings.EnterYourName}{' '} */}
-                { login.enter_your }
+                {login.enter_your}
                 <Text fontWeight={'bold'} fontStyle={'italic'}>
                   {/* {strings.passcode} */}
                   {login.passcode}
@@ -250,11 +248,12 @@ const CreatePin = ({ navigation, route }) => {
                 setForgotVisible(true);
               }}
             >
-              <Text 
-              color={'light.white'}
-              fontWeight={'300'}
-              fontSize={RFValue(14)}
-              fontFamily={'body'}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(14)}
+                fontFamily={'body'}
+              >
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
