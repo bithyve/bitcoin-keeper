@@ -17,7 +17,8 @@ import {
   SEND_TX_NOTIFICATION,
   CROSS_TRANSFER,
   CrossTransferAction,
-} from '../sagaActions/send&receive';
+  FETCH_FEE_AND_EXCHANGE_RATES,
+} from '../sagaActions/send_and_receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
 import dbManager from '../../storage/realm/dbManager';
@@ -25,8 +26,14 @@ import WalletOperations from 'src/core/wallets/WalletOperations';
 import { createWatcher } from '../utilities';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { AverageTxFees, MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
+import {
+  AverageTxFeesByNetwork,
+  MultiSigWallet,
+  Wallet,
+} from 'src/core/wallets/interfaces/interface';
 import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
+import Relay from 'src/core/services/Relay';
+import { setAverageTxFee, setExchangeRates } from '../reducers/send_and_receive';
 
 export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
@@ -36,6 +43,24 @@ export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
+
+function* feeAndExchangeRatesWorker() {
+  try {
+    const { exchangeRates, averageTxFees } = yield call(Relay.fetchFeeAndExchangeRates);
+    if (!exchangeRates) console.log('Failed to fetch exchange rates');
+    else yield put(setExchangeRates(exchangeRates));
+
+    if (!averageTxFees) console.log('Failed to fetch fee rates');
+    else yield put(setAverageTxFee(averageTxFees));
+  } catch (err) {
+    console.log('Failed to fetch fee and exchange rates', { err });
+  }
+}
+
+export const feeAndExchangeRatesWatcher = createWatcher(
+  feeAndExchangeRatesWorker,
+  FETCH_FEE_AND_EXCHANGE_RATES
+);
 
 // function* processRecipients(accountShell: AccountShell) {
 //   const accountsState: AccountsState = yield select((state) => state.accounts);
@@ -129,8 +154,9 @@ export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const { wallet, recipients } = payload;
-  // TODO: plug in the average tx fee
-  const averageTxFees = null;
+  const averageTxFees: AverageTxFeesByNetwork = yield select(
+    (state) => state.sendAndReceive.averageTxFees
+  );
   if (!averageTxFees) {
     yield put(
       feeIntelMissing({
@@ -245,22 +271,9 @@ export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
   const { sender, recipient, amount } = payload;
-  // TODO: plug in dynamic average tx fee
-  const mockFeeElements = {
-    averageTxFee: 256,
-    feePerByte: 1,
-    estimatedBlocks: 12,
-  };
-  const mockFeeByPriority = {
-    [TxPriority.LOW]: mockFeeElements,
-    [TxPriority.MEDIUM]: mockFeeElements,
-    [TxPriority.HIGH]: mockFeeElements,
-  };
-  const averageTxFees = {
-    [NetworkType.TESTNET]: mockFeeByPriority,
-    [NetworkType.MAINNET]: mockFeeByPriority,
-  };
-
+  const averageTxFees: AverageTxFeesByNetwork = yield select(
+    (state) => state.sendAndReceive.averageTxFees
+  );
   if (!averageTxFees) {
     yield put(
       feeIntelMissing({
@@ -270,11 +283,9 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     return;
   }
 
-  const averageTxFeeByNetwork: AverageTxFees = averageTxFees[sender.derivationDetails.networkType];
-
+  const averageTxFeeByNetwork = averageTxFees[sender.derivationDetails.networkType];
   try {
     // const recipients = yield call(processRecipients);
-
     const recipients = [
       {
         address: yield call(getNextFreeAddress, recipient),
@@ -316,7 +327,9 @@ export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRA
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { numberOfRecipients, wallet } = payload;
-  const averageTxFees = {}; // TODO: plugin average tx fee
+  const averageTxFees: AverageTxFeesByNetwork = yield select(
+    (state) => state.sendAndReceive.averageTxFees
+  );
   const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
   const feePerByte = averageTxFeeByNetwork[TxPriority.LOW].feePerByte;
   const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);

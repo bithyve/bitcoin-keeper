@@ -1,26 +1,14 @@
 import { Box, Text } from 'native-base';
-import { StyleSheet, View } from 'react-native';
 
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const AuthHandler = ({ status, withModal, card, wrapper, setStatus }) => {
+const AuthHandler = ({ status, fixAuthDelay }) => {
   const isCardBlocked = status ? !!status.auth_delay : false;
   if (!isCardBlocked) return null;
   const text = isCardBlocked ? `Looks like you've crossed the CVC rate limit!` : '';
 
-  const unlockCard = async () => {
-    const updatedStatus = await wrapper(async () => {
-      for (let i = 0; i < status.auth_delay; i++) {
-        await card.wait();
-      }
-      return card.first_look();
-    });
-    setStatus(updatedStatus);
-  };
-  const fixAuthDelay = () => {
-    withModal(unlockCard)();
-  };
   return (
     <Box p={2}>
       <Text

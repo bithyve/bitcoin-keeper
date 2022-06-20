@@ -14,7 +14,6 @@ export const ADD_TRANSFER_DETAILS = 'ADD_TRANSFER_DETAILS';
 export const REMOVE_TRANSFER_DETAILS = 'REMOVE_TRANSFER_DETAILS';
 export const CLEAR_TRANSFER = 'CLEAR_TRANSFER';
 export const ACCUMULATIVE_BAL_AND_TX = 'ACCUMULATIVE_BAL_AND_TX';
-export const FETCH_FEE_AND_EXCHANGE_RATES = 'FETCH_FEE_AND_EXCHANGE_RATES';
 export const CLEAR_WALLET_SYNC_CACHE = 'CLEAR_WALLET_SYNC_CACHE';
 export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
 export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
@@ -22,13 +21,11 @@ export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
 export const REMOVE_TWO_FA = 'REMOVE_TWO_FA';
 export const VALIDATE_TWO_FA = 'VALIDATE_TWO_FA';
-export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
 export const SETUP_DONATION_WALLET = 'SETUP_DONATION_WALLET';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
 export const IMPORT_NEW_WALLET = 'IMPORT_NEW_WALLET';
 export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA';
 export const UPDATE_WALLET_SETTINGS = 'UPDATE_WALLET_SETTINGS';
-export const RECOMPUTE_NET_BALANCE = 'RECOMPUTE_NET_BALANCE';
 export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
@@ -121,12 +118,6 @@ export const validateTwoFA = (token: number) => {
   };
 };
 
-export const fetchFeeAndExchangeRates = () => {
-  return {
-    type: FETCH_FEE_AND_EXCHANGE_RATES,
-  };
-};
-
 export const generateSecondaryXpriv = (wallet: MultiSigWallet, secondaryMnemonic: string) => {
   return {
     type: GENERATE_SECONDARY_XPRIV,
@@ -152,15 +143,6 @@ export const runTest = () => {
   };
 };
 
-export const setAverageTxFee = (averageTxFees) => {
-  return {
-    type: AVERAGE_TX_FEE,
-    payload: {
-      averageTxFees,
-    },
-  };
-};
-
 export const setupDonationWallet = (
   serviceType: string,
   donee: string,
@@ -180,15 +162,6 @@ export const setupDonationWallet = (
       description,
       configuration,
       disableWallet,
-    },
-  };
-};
-
-export const recomputeNetBalance = (wallets: (Wallet | MultiSigWallet | DonationWallet)[]) => {
-  return {
-    type: RECOMPUTE_NET_BALANCE,
-    payload: {
-      wallets,
     },
   };
 };
@@ -241,7 +214,6 @@ export const updateWalletSettings = (payload: {
 export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
 export const TRANSACTIONS_FETCHED = 'TRANSACTIONS_FETCHED';
 export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
-export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SECONDARY_XPRIV_GENERATED = 'SECONDARY_XPRIV_GENERATED';
 export const TWO_FA_VALID = 'TWO_FA_VALID';
 export const TWO_FA_RESETTED = 'TWO_FA_RESETTED';
@@ -271,15 +243,6 @@ export const walletsSynched = (synched) => {
     type: WALLETS_SYNCHED,
     payload: {
       synched,
-    },
-  };
-};
-
-export const exchangeRatesCalculated = (exchangeRates) => {
-  return {
-    type: EXCHANGE_RATE_CALCULATED,
-    payload: {
-      exchangeRates,
     },
   };
 };
