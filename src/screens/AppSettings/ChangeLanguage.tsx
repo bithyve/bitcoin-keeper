@@ -9,17 +9,17 @@ import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import Note from 'src/components/Note/Note';
-import { setCurrencyCode } from 'src/store/sagaActions/settings';
+import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
-import { useDispatch, useSelector } from 'react-redux'
 import { LocalizationContext } from 'src/common/content/LocContext';
 import availableLanguages from '../../common/content/availableLanguages';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import { useAppSelector, useAppDispatch } from '../../store/hooks'
 
 const styles = StyleSheet.create( {
     btn:{
@@ -61,24 +61,16 @@ const ChangeLanguage = () => {
   const [satsMode, setSatsMode] = useState(false);
   const [ isVisible, setIsVisible ] = useState( false )
   const [ Visible, setVisible ] = useState( false )
-  //const [ showCurrencies, setShowCurrencies ] = useState( false )
   const [ showLanguages, setShowLanguages ] = useState( false )
   const {
     appLanguage,
     setAppLanguage,
   } = useContext( LocalizationContext )
-  const [ currency, setCurrency ] = useState( {
-    code: 'USD',
-    symbol: '$',
-  } )
-  const [ country, setCountry ] = useState( {
-    code: 'IN',
-    name: 'India',
-  } )
-  
-  const [ selectedLanguage, setSelectedLanguage ] = useState( availableLanguages.find( lang => lang.iso === appLanguage ) )
+  const { currencyCode, language} = useAppSelector((state) => state.settings);
+  const [ currency, setCurrency ] = useState( FiatCurrencies.find( cur => cur.code === currencyCode) )
+  const [ selectedLanguage, setSelectedLanguage ] = useState( availableLanguages.find( lang => lang.iso === language ) )
   const [ isDisabled, setIsDisabled ] = useState( true )
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   const changeThemeMode = () => {
     setSatsMode(!satsMode);
@@ -182,100 +174,6 @@ const ChangeLanguage = () => {
             value={satsMode}
           />
           <CountrySwitchCard
-            title={settings.CountrySettings}
-            description={settings.ChooseKeeperaccesslocation}
-            my={2}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => console.log('pressed')}
-          />
-          <Menu
-          onPress={()=> {
-            setIsVisible( !isVisible )
-            setIsDisabled( false )
-          }}
-          arrow={isVisible}
-          label={country ? country.code : '+91'}
-          value={country ? country.name : 'India'}
-        />
-        <View style={{
-          position: 'relative',
-        }}>
-          {isVisible && (
-            <View
-              style={{
-                marginTop: wp( '3%' ),
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: Colors.borderColor,
-                overflow: 'hidden',
-              }}
-            >
-              <ScrollView>
-                {countryList.map( ( item ) => {
-                  return (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setCurrency( item )
-                        setIsVisible( false )
-                        dispatch( setCurrencyCode( item.code ) )
-                      }}
-                      style={{
-                        flexDirection: 'row', height: wp( '13%' )
-                      }}
-                    >
-                      <View
-                        style={{
-                          height: wp( '13%' ),
-                          width: wp( '15%' ),
-                          marginLeft: wp( '5%' ),
-                          backgroundColor: '#FAF4ED',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          borderBottomWidth: 1,
-                          borderBottomColor: Colors.borderColor,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontFamily: Fonts.FiraSansMedium,
-                            fontSize: RFValue( 13 ),
-                            color : '#00836A',
-                            fontWeight: '700'
-                          }}
-                        >
-                          {item.code}
-                        </Text>
-                      </View>
-                      <View
-                        style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          height: wp( '13%' ),
-                          borderBottomWidth: 1,
-                          borderBottomColor: Colors.borderColor,
-                          backgroundColor: '#FAF4ED',
-
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontFamily: Fonts.FiraSansRegular,
-                            fontSize: RFValue( 13 ),
-                            marginLeft: wp( '3%' ),
-                          }}
-                        >
-                          {item.name}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  )
-                } )}
-              </ScrollView>
-            </View>
-           )}
-        </View>
-          <CountrySwitchCard
             title={settings.AlternateCurrency}
             description={settings.Selectyourlocalcurrency}
             my={2}
@@ -290,8 +188,8 @@ const ChangeLanguage = () => {
             setShowLanguages( false )
           }}
           arrow={Visible}
-          label={currency ? currency.symbol : '$'}
-          value={currency ? currency.code : CurrencyCode}
+          label={currency.symbol}
+          value={currency.code}
         />
         <View style={{
           position: 'relative',
@@ -404,6 +302,7 @@ const ChangeLanguage = () => {
                       setAppLanguage( item.iso )
                       setShowLanguages( false )
                       setIsVisible( false )
+                      dispatch( setLanguage( item.iso ) )
                       setSelectedLanguage( availableLanguages.find( lang => lang.iso === item.iso ) )
                     }}
                     style={{
