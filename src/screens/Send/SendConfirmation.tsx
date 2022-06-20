@@ -14,19 +14,9 @@ import { crossTransfer } from 'src/store/sagaActions/send&receive';
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isTransfer, isVaultTransfer, uaiSetActionFalse } = route.params; // switch between automated transfer and typical send
+  const { isVaultTransfer, uaiSetActionFalse } = route.params; // switch between automated transfer and typical send
 
   const onProceed = () => {
-    console.log(isTransfer, isVaultTransfer, uaiSetActionFalse);
-    if (isTransfer) {
-      // dispatch(
-      //   crossTransfer({
-      //     sender: ,
-      //     recipient: ,
-      //     amount: 10e5,
-      //   })
-      // );
-    }
     if (isVaultTransfer) {
       uaiSetActionFalse();
       navigtaion.goBack();
