@@ -20,12 +20,10 @@ export const FETCH_FEE_AND_EXCHANGE_RATES = 'FETCH_FEE_AND_EXCHANGE_RATES';
 export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
 export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
-export const SEND_PHASE_ONE_EXECUTED = 'SEND_PHASE_ONE_EXECUTED';
 export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
-export const SEND_PHASE_TWO_EXECUTED = 'SEND_PHASE_TWO_EXECUTED';
 export const SENDING_FAILED = 'SENDING_FAILED';
 export const SENDING_SUCCEEDED = 'SENDING_SUCCEEDED';
 export const SENDING_COMPLETED = 'SENDING_COMPLETED';
@@ -185,22 +183,6 @@ export const sendPhaseTwo = (payload: {
 }): SendPhaseTwoAction => {
   return {
     type: SEND_PHASE_TWO,
-    payload,
-  };
-};
-
-export interface SendStage2ExecutedAction extends Action {
-  type: typeof SEND_PHASE_TWO_EXECUTED;
-  payload: { successful: boolean; txid?: string; err?: string };
-}
-
-export const sendStage2Executed = (payload: {
-  successful: boolean;
-  txid?: string;
-  err?: string;
-}): SendStage2ExecutedAction => {
-  return {
-    type: SEND_PHASE_TWO_EXECUTED,
     payload,
   };
 };

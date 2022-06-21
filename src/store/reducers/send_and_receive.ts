@@ -21,6 +21,12 @@ export interface SendPhaseOneExecutedPayload {
   err?: string;
 }
 
+export interface SendPhaseTwoExecutedPayload {
+  successful: boolean;
+  txid?: string;
+  err?: string;
+}
+
 export type TransactionFeeInfo = Record<TransactionPriority, TransactionFeeSnapshot>;
 
 const initialState: {
@@ -140,9 +146,23 @@ const sendAndReceiveSlice = createSlice({
         transactionFeeInfo,
       };
     },
+
+    sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
+      const { successful, txid, err } = action.payload;
+      return {
+        ...state,
+        sendPhaseTwo: {
+          inProgress: false,
+          hasFailed: !successful,
+          failedErrorMessage: !successful ? err : null,
+          isSuccessful: successful,
+          txid: successful ? txid : null,
+        },
+      };
+    },
   },
 });
 
-export const { setExchangeRates, setAverageTxFee, sendPhaseOneExecuted } =
+export const { setExchangeRates, setAverageTxFee, sendPhaseOneExecuted, sendPhaseTwoExecuted } =
   sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

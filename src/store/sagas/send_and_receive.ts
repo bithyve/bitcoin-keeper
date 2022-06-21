@@ -12,7 +12,6 @@ import {
   SEND_PHASE_TWO,
   feeIntelMissing,
   sendMaxFeeCalculated,
-  sendStage2Executed,
   SEND_TX_NOTIFICATION,
   CROSS_TRANSFER,
   CrossTransferAction,
@@ -34,6 +33,8 @@ import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
 import Relay from 'src/core/services/Relay';
 import {
   sendPhaseOneExecuted,
+  SendPhaseOneExecutedPayload,
+  sendPhaseTwoExecuted,
   setAverageTxFee,
   setExchangeRates,
 } from '../reducers/send_and_receive';
@@ -113,19 +114,14 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
 export const sendPhaseOneWatcher = createWatcher(sendPhaseOneWorker, SEND_PHASE_ONE);
 
 function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
-  // const sending: SendingState = yield select((state) => state.sending);
-  // TODO: Wire up the send&receive reducer
-  const sending: any = {};
-
+  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+    (state) => state.sendAndReceive.sendPhaseOne
+  );
   const { wallet, txnPriority, token, note } = payload;
 
-  const txPrerequisites = idx(sending, (_) => _.sendST1.carryOver.txPrerequisites);
-  const recipients = idx(sending, (_) => _.sendST1.carryOver.recipients);
-
-  const customTxPrerequisites = idx(
-    sending,
-    (_) => _.customPriorityST1.carryOver.customTxPrerequisites
-  );
+  const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
 
   try {
@@ -137,35 +133,26 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       txnPriority,
       network,
       recipients,
-      token,
-      customTxPrerequisites
+      token
+      // customTxPrerequisites
     );
 
-    if (txid) {
-      yield put(
-        sendStage2Executed({
-          successful: true,
-          txid,
-        })
-      );
-
-      if (note) wallet.specs.transactionsNote[txid] = note;
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-        specs: wallet.specs,
-      });
-    } else {
-      yield put(
-        sendStage2Executed({
-          successful: false,
-          err: 'Send failed: unable to generate txid',
-        })
-      );
-    }
+    if (!txid) throw new Error('Send failed: unable to generate txid');
+    yield put(
+      sendPhaseTwoExecuted({
+        successful: true,
+        txid,
+      })
+    );
+    if (note) wallet.specs.transactionsNote[txid] = note;
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
   } catch (err) {
     yield put(
-      sendStage2Executed({
+      sendPhaseTwoExecuted({
         successful: false,
-        err: 'Send failed: ' + err.message,
+        err,
       })
     );
   }
