@@ -14,6 +14,8 @@ end
 
 target 'hexa_keeper' do
   common_pods
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
 end
 
 target 'hexa_keeper_dev' do

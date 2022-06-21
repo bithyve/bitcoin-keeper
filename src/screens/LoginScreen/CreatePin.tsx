@@ -138,17 +138,7 @@ export default function CreatePin(props) {
                 {login.welcome}
               </Text>
               <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
-                {login.EnterNew}{' '}
-                <Text
-                  color={'light.textColor'}
-                  fontSize={RFValue(12)}
-                  ml={5}
-                  fontFamily={'body'}
-                  fontWeight={'bold'}
-                  fontStyle={'italic'}
-                >
-                  {login.Passcode}
-                </Text>
+                {login.Createpasscode}
               </Text>
 
               {/* pin input view */}
@@ -156,12 +146,9 @@ export default function CreatePin(props) {
               {/*  */}
             </Box>
             {passcode.length == 4 ? (
-              <Box>
-                <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5}>
-                  {login.ReEnter}{' '}
-                  <Text fontWeight={'bold'} fontStyle={'italic'}>
-                    {login.Passcode}
-                  </Text>{' '}
+              <Box mt={3}>
+                <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5}>
+                  {login.Confirmyourpasscode}
                 </Text>
                 <Box mb={10}>
                   {/* pin input view */}
