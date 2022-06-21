@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
+import Wallets from 'src/assets/images/svgs/wallets.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import VaultImage from 'src/assets/images/Vault.png';
@@ -209,7 +210,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             flexDirection={'row'}
             alignItems={'center'}
           >
-            <Inheritance />
+            <Wallets />
             <Box
               marginLeft={wp(18)}
               flexDirection={'row'}
