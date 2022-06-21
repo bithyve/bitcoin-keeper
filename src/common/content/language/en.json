@@ -247,7 +247,7 @@
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
-    "VaultDesc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "VaultDesc": "A signer is an air gapped device which helps you keep your Vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",
     "Vault": "Vault",

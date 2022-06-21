@@ -19,7 +19,7 @@ const KeeperModal = (props) => {
     Content = () => <></>,
   } = props;
   return (
-    <Modal isOpen={visible} onClose={close} avoidKeyboard size="xl">
+    <Modal isOpen={visible} onClose={close} avoidKeyboard size="xl" overlayVisible>
       <Modal.Content borderRadius={10}>
         <LinearGradient
           start={{ x: 0, y: 0 }}

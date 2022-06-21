@@ -223,7 +223,7 @@ const SetupTapsigner = () => {
 
   return (
     <>
-      <HeaderTitle />
+      <HeaderTitle title="" subtitle="" onPressHandler={() => navigation.goBack()} />
       <ScrollView>
         {stepItems.map((item) => (
           <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />

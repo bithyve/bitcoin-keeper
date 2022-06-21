@@ -1,23 +1,24 @@
 import { Platform, StatusBar, UIManager } from 'react-native';
-import React from 'react';
-import { PersistGate } from 'redux-persist/integration/react';
+import { persistor, store } from './src/store/store';
+
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { LocalizationProvider } from './src/common/content/LocContext';
 import { LogBox } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
+import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
-import { customTheme } from './src/common/themes';
-import { store, persistor } from './src/store/store';
+import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
-import { LocalizationProvider } from './src/common/content/LocContext'
+import { customTheme } from './src/common/themes';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
   /[Require cycle]*/,
-  'Warning: ...', /.+/s
+  'Warning: ...',
+  /.+/s,
 ]);
-
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -41,7 +42,6 @@ const App = () => {
 };
 
 export default function AppWrapper() {
-
   return (
     <RealmProvider>
       <PersistGate persistor={persistor} loading={null}>

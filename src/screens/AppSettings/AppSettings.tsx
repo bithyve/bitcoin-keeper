@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity, Alert } from 'react-native';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
-import SettingsCard from 'src/components/SettingComponent/SettingsCard';
-import { RFValue } from 'react-native-responsive-fontsize';
-import Note from 'src/components/Note/Note';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { changeLoginMethod } from '../../store/sagaActions/login';
+import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import Note from 'src/components/Note/Note';
+import { RFValue } from 'react-native-responsive-fontsize';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import { RealmSchema } from 'src/storage/realm/enum';
+import SettingsCard from 'src/components/SettingComponent/SettingsCard';
+import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
+import { changeLoginMethod } from '../../store/sagaActions/login';
+import dbManager from 'src/storage/realm/dbManager';
 import openLink from 'src/utils/OpenLink';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -82,11 +84,7 @@ const AppSettings = ({ navigation }) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={5} my={10}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
+      <HeaderTitle />
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
           <Text fontSize={RFValue(20)}>{common.settings}</Text>
