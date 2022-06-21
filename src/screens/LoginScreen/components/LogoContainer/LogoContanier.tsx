@@ -1,12 +1,17 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import LockIcon from 'src/assets/icons/lock.svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const LogoContainer = () => {
+
+  const { translations } = useContext( LocalizationContext )
+  const login = translations[ 'login' ]
+
   return (
     <View style={styles.logoContainer}>
       <LockIcon width={100} height={30} />
-      <Text style={styles.loginText}>Login</Text>
+      <Text style={styles.loginText}>{login.login}</Text>
     </View>
   );
 };

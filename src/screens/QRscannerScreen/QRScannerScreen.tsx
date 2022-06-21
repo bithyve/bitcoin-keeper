@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import { View, TouchableOpacity } from 'react-native';
 import { Text } from 'native-base';
@@ -6,6 +6,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 import QRscanner from 'src/components/QRscanner';
 import BackButtonWhiteIcon from 'src/assets/images/svgs/backWhite.svg';
@@ -15,6 +16,8 @@ const QRscannerScreen = ({ route }) => {
   const navigation = useNavigation();
   const [qrData, setQrData] = useState();
   const processQR = route.params?.processQR
+  const { translations } = useContext( LocalizationContext )
+  const home = translations[ 'home' ]
 
   useEffect(() => {
     if (qrData) {
@@ -33,7 +36,7 @@ const QRscannerScreen = ({ route }) => {
           numberOfLines={1}
           color={'light.white'}
           fontFamily={'body'}
-          fontWeight={'200'}>Scan a QR</Text>
+          fontWeight={'200'}>{home.ScanQR}</Text>
         <Text
           style={styles.subText}
           numberOfLines={1}

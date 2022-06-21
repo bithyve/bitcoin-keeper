@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -6,6 +6,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
 import HexaBottomSheet from '../../components/BottomSheet';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const AddWalletSheet = ({
   addWalletSheetRef,
@@ -18,26 +19,31 @@ const AddWalletSheet = ({
   setWalletDescription,
   addWallet,
 }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const wallet = translations[ 'wallet' ]
+  const common = translations[ 'common' ]
+
   return (
     <HexaBottomSheet
-      title={'Add Wallet Details'}
+      title={wallet.AddWalletDetails}
       subTitle={''}
       snapPoints={['50%']}
       bottomSheetRef={addWalletSheetRef}
-      primaryText={'Create'}
-      secondaryText={'Cancel'}
+      primaryText={common.create}
+      secondaryText={common.cancel}
       primaryCallback={addWallet}
       secondaryCallback={closeAddWalletSheet}
     >
       <BottomSheetTextInput
-        placeholder="Wallet Name"
+        placeholder={wallet.WalletName}
         placeholderTextColor={'#D8DBD5'}
         value={walletName}
         onChangeText={(value) => setWalletName(value)}
         style={styles.inputField}
       />
       <BottomSheetTextInput
-        placeholder="To easily remember wallets purpose"
+        placeholder={wallet.rememberwalletspurpose}
         placeholderTextColor={'#D8DBD5'}
         value={walletDescription}
         onChangeText={(value) => setWalletDescription(value)}

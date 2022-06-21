@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ImageBackground, TouchableOpacity } from 'react-native';
 import { Text, View, Pressable } from 'native-base';
 import {
@@ -15,11 +15,14 @@ import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
   const walletName = item?.presentationData?.walletName;
   const walletDescription = item?.presentationData?.walletName;
   const balances = item?.specs?.balances;
+  const { translations } = useContext( LocalizationContext )
+  const wallet = translations[ 'wallet' ]
 
   return (
     <TouchableOpacity
@@ -38,7 +41,7 @@ const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
               fontFamily={'body'}
               fontWeight={'300'}
             >
-              Add New Wallet
+              {wallet.AddNewWallet}
             </Text>
           </TouchableOpacity>
           :
