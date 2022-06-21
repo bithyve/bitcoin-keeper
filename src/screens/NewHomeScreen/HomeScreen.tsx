@@ -1,22 +1,24 @@
-import React, { useContext, useState } from 'react';
-import { ImageBackground, Image, TouchableOpacity } from 'react-native';
 import { Box, Pressable, Text, View } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-import LinearGradient from 'react-native-linear-gradient';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Image, ImageBackground, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import ScannerIcon from 'src/assets/images/svgs/scan.svg';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
+import BTC from 'src/assets/images/svgs/btc.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
-import VaultImage from 'src/assets/images/Vault.png';
-import BTC from 'src/assets/images/svgs/btc.svg';
-
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { ScaledSheet } from 'react-native-size-matters';
+import ScannerIcon from 'src/assets/images/svgs/scan.svg';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import TapsignerIcon from 'src/assets/images/tapsigner.svg';
+import VaultImage from 'src/assets/images/Vault.png';
 
 const InheritanceComponent = () => {
   return (
@@ -123,7 +125,16 @@ const VaultStatus = () => {
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vault = translations['vault'];
-  const open = () => setModalVisible(true);
+
+  const { useQuery } = RealmContext;
+  const Signers = useQuery(RealmSchema.VaultSigner);
+
+  const open = () => {
+    if (Signers.length) {
+      return;
+    }
+    setModalVisible(true);
+  };
   const close = () => setModalVisible(false);
 
   const navigateToHardwareSetup = () => {
@@ -132,7 +143,7 @@ const VaultStatus = () => {
   };
   return (
     <Box marginTop={-hp(97.44)} alignItems={'center'}>
-      <TouchableOpacity onPress={open}>
+      <TouchableOpacity onPress={open} activeOpacity={1}>
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
             backgroundColor={'light.TorLable'}
@@ -161,24 +172,30 @@ const VaultStatus = () => {
             >
               Your Vault
             </Text>
+
             <Text
               color={'light.white1'}
               letterSpacing={0.9}
               fontSize={RFValue(12)}
               fontWeight={100}
               opacity={0.8}
+              paddingBottom={1}
             >
-              Pending Activation
+              {!Signers.length
+                ? 'Pending Activation'
+                : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
+            {!Signers.length ? null : <TapsignerIcon />}
           </Box>
-
-          <Box marginTop={hp(31.5)}>
-            <Image
-              source={require('src/assets/images/illustration.png')}
-              style={{ width: wp(123.95), height: hp(122.3) }}
-              resizeMode="contain"
-            />
-          </Box>
+          {!Signers.length ? (
+            <Box marginTop={hp(31.5)}>
+              <Image
+                source={require('src/assets/images/illustration.png')}
+                style={{ width: wp(123.95), height: hp(122.3) }}
+                resizeMode="contain"
+              />
+            </Box>
+          ) : null}
         </ImageBackground>
       </TouchableOpacity>
       <KeeperModal

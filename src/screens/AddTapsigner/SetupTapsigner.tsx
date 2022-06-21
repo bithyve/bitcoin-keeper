@@ -218,12 +218,12 @@ const SetupTapsigner = () => {
         });
       });
       updateStep(4, 5);
-      navigation.dispatch(CommonActions.goBack());
+      navigation.dispatch(CommonActions.navigate('NewHome'));
     });
   }, [cvc]);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <HeaderTitle title="" subtitle="" onPressHandler={() => navigation.goBack()} />
       <ScrollView>
         {stepItems.map((item) => (
@@ -239,9 +239,12 @@ const SetupTapsigner = () => {
 export default SetupTapsigner;
 
 const styles = StyleSheet.create({
+  container: {
+    height: '100%',
+  },
   stepContainer: {
     flexDirection: 'row',
-    marginBottom: '5%',
+    marginBottom: '4%',
     marginHorizontal: '4%',
   },
   stepBodyContainer: {

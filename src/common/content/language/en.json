@@ -267,7 +267,9 @@
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
-    "CardStatus": "Card Status"
+    "CardStatus": "Card Status",
+    "SetupTitle": "Setting up TapSigner",
+    "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
   },
   "settings": {
     "UseBiometrics": "Use Biometrics",
