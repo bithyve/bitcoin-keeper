@@ -1,9 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { ImageBackground, Image, AppState } from 'react-native';
+import React from 'react';
+import { ImageBackground, Image } from 'react-native';
 import { Box, Pressable, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { useDispatch } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 // icons and images
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
@@ -15,61 +14,8 @@ import VaultImage from 'src/assets/images/Vault.png';
 import BTC from 'src/assets/images/svgs/btc.svg';
 // components, functions and hooks
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
-// import { useUaiStack } from 'src/hooks/useUaiStack';
-// import UaiDisplay from './UaiDisplay';
-import { addToUaiStack } from 'src/store/sagaActions/uai';
 
 const HomeScreen = ({ navigation }: { navigation }) => {
-
-  const dispatch = useDispatch();
-  const appState = useRef(AppState.currentState);
-  // const { uaiStack } = useUaiStack();
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", nextAppState => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === "active"
-      ) {
-        navigation.navigate('Login', { relogin: true })
-      }
-      appState.current = nextAppState;
-    });
-    return () => {
-      subscription.remove();
-    };
-  }, []);
-
-  const addtoDb = () => {
-    dispatch(
-      addToUaiStack(
-        'A new version of the app is available',
-        true,
-        uaiType.RELEASE_MESSAGE,
-        90,
-        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      )
-    );
-    dispatch(
-      addToUaiStack(
-        'Your Keeper request was rejected',
-        true,
-        uaiType.ALERT,
-        80,
-        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      )
-    );
-    dispatch(
-      addToUaiStack(
-        'Wallet restore was attempted on another device',
-        true,
-        uaiType.ALERT,
-        80,
-        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      )
-    );
-  };
 
   const NextIcon = () => {
     return (
@@ -107,7 +53,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             justifyContent={'space-between'}
             width={'100%'}
           >
-            <Pressable onPress={addtoDb}>
+            <Pressable>
               <ScannerIcon />
             </Pressable>
             <Pressable >
