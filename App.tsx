@@ -10,14 +10,14 @@ import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
 import { store, persistor } from './src/store/store';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
-import { LocalizationProvider } from './src/common/content/LocContext'
+import { LocalizationProvider } from './src/common/content/LocContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
   /[Require cycle]*/,
-  'Warning: ...', /.+/s
+  'Warning: ...',
+  /.+/s,
 ]);
-
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -41,14 +41,11 @@ const App = () => {
 };
 
 export default function AppWrapper() {
-
   return (
-    <RealmProvider>
-      <PersistGate persistor={persistor} loading={null}>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </PersistGate>
-    </RealmProvider>
+    <PersistGate persistor={persistor} loading={null}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </PersistGate>
   );
 }

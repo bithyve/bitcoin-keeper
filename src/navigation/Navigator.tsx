@@ -28,6 +28,8 @@ import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletS
 // import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RealmProvider } from 'src/storage/realm/RealmProvider';
+import { useAppSelector } from 'src/store/hooks';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -36,17 +38,27 @@ const defaultTheme = {
     background: '#FDF7F0',
   },
 };
-const Navigator = () => {
+
+const LoginStack = () => {
+  const Stack = createNativeStackNavigator();
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
+      <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
+      <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
+      <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+    </Stack.Navigator>
+  );
+};
+
+const AppStack = () => {
   const Stack = createNativeStackNavigator();
   return (
-    <NavigationContainer theme={defaultTheme}>
+    <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
-        <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
-        <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
-        <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
-        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="Backup" component={BackupScreen} />
@@ -67,6 +79,18 @@ const Navigator = () => {
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
+      </Stack.Navigator>
+    </RealmProvider>
+  );
+};
+const Navigator = () => {
+  const Stack = createNativeStackNavigator();
+  const key = useAppSelector((state) => state.login.key);
+  return (
+    <NavigationContainer theme={defaultTheme}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {<Stack.Screen name="LoginStack" component={LoginStack} />}
+        <Stack.Screen name="App" component={AppStack} />
       </Stack.Navigator>
     </NavigationContainer>
   );

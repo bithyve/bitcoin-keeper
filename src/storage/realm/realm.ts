@@ -19,7 +19,7 @@ class RealmDatabase {
         path: 'keeper.realm',
         schema,
         schemaVersion: 8,
-        // encryptionKey: key,  // TODO: enable encryption key once realm provider issue is resolved
+        encryptionKey: key, // TODO: enable encryption key once realm provider issue is resolved
         migration: (oldRealm, newRealm) => {},
       };
       this.realm = await Realm.open(realmConfig);
