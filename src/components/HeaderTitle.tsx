@@ -1,7 +1,7 @@
-import {  TouchableOpacity } from 'react-native';
+import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
-import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import BackButton from 'src/assets/images/svgs/back.svg';

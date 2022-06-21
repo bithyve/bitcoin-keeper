@@ -56,7 +56,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             <Pressable>
               <ScannerIcon />
             </Pressable>
-            <Pressable>
+            <Pressable >
               <Basic />
             </Pressable>
             <Pressable
@@ -104,7 +104,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
           <Box
             backgroundColor={'light.TorLable'}
             height={hp(13.804)}
-            width={wp(30)}
+            width={wp(60)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
@@ -114,9 +114,9 @@ const HomeScreen = ({ navigation }: { navigation }) => {
               color={'light.lightBlack'}
               letterSpacing={0.9}
               fontSize={RFValue(9)}
-              fontWeight={200}
+              fontWeight={300}
             >
-              TOR
+              Tor Enabled
             </Text>
           </Box>
 
@@ -193,9 +193,10 @@ const HomeScreen = ({ navigation }: { navigation }) => {
         </LinearGradient>
       </Box>
 
-      <Box
+      <Pressable
         alignItems={'center'}
         marginTop={hp(8)}
+        onPress={() => navigation.navigate('HardwareSetup')}
       >
         <LinearGradient
           colors={['#00836A', '#073E39']}
@@ -248,7 +249,7 @@ const HomeScreen = ({ navigation }: { navigation }) => {
             0.00
           </Text>
         </LinearGradient>
-      </Box>
+      </Pressable>
     </Box>
   );
 };
