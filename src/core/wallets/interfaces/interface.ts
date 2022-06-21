@@ -239,9 +239,11 @@ export interface WalletDerivationDetails {
 }
 
 export interface VaultDerivationDetails {
-  networkType: NetworkType; // testnet/mainnet
-  instanceNum: number; // instance number of this particular walletType
-  derivationPath: string; // derivation path of the extended keys belonging to this wallet
+  [xpub: string]: {
+    networkType: NetworkType; // testnet/mainnet
+    instanceNum: number; // instance number of this particular walletType
+    derivationPath: string; // derivation path of the extended keys belonging to this xpub
+  };
 }
 
 export interface WalletPresentationData {
@@ -330,7 +332,6 @@ export interface Wallet {
   specs: WalletSpecs;
 }
 
-
 export interface MultiSigWallet extends Wallet {
   specs: MultiSigWalletSpecs;
 }
@@ -362,7 +363,6 @@ export interface WalletShell {
   walletInstances: { [walletType: string]: number }; // various wallet types mapped to corresponding number of instances
   triggerPolicyId?: string;
 }
-
 
 export interface InheritancePolicy {
   id: string;
