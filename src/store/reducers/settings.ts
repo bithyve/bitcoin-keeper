@@ -7,11 +7,15 @@ const initialState: {
   loginMethod: LoginMethod;
   themeMode: ThemeMode;
   currencyKind: CurrencyKind;
+  currencyCode: string;
+  language : string;
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
   currencyKind: CurrencyKind.BITCOIN,
-};
+  currencyCode: 'USD',
+  language : 'en',
+}
 
 const settingsSlice = createSlice({
   name: "settings",
@@ -21,15 +25,20 @@ const settingsSlice = createSlice({
       state.loginMethod = action.payload;
     },
     setThemeMode: (state, action: PayloadAction<ThemeMode>) => {
-      state.themeMode = action.payload;
+      state.themeMode = action.payload
     },
     setCurrencyKind: (state, action: PayloadAction<CurrencyKind>) => {
       state.currencyKind = action.payload;
     },
-  },
-});
+    setCurrencyCode: (state, action: PayloadAction<string>) => {
+      state.currencyCode = action.payload
+    },
+    setLanguage: (state, action: PayloadAction<string>) => {
+      state.language = action.payload
+    }
+  }
+})
 
-export const { setLoginMethod, setThemeMode, setCurrencyKind } =
-  settingsSlice.actions;
+export const { setLoginMethod, setThemeMode, setCurrencyKind, setCurrencyCode, setLanguage } = settingsSlice.actions
 
 export default settingsSlice.reducer;
