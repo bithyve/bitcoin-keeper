@@ -24,9 +24,9 @@ const AppSettings = ({ navigation }) => {
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
 
-  const { translations } = useContext( LocalizationContext )
-  const common = translations[ 'common' ]
-  const settings = translations[ 'settings' ]
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const settings = translations['settings'];
 
   useEffect(() => {
     init();
@@ -106,14 +106,14 @@ const AppSettings = ({ navigation }) => {
           py={3}
         >
           {/* {isBiometicSupported && ( */}
-            <SettingsSwitchCard
-              title={settings.UseBiometrics}
-              description={settings.biometricsDesc}
-              my={2}
-              bgColor={`${colorMode}.backgroundColor2`}
-              onSwitchToggle={() => onChangeLoginMethod()}
-              value={loginMethod === LoginMethod.BIOMETRIC}
-            />
+          <SettingsSwitchCard
+            title={settings.UseBiometrics}
+            description={settings.biometricsDesc}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            onSwitchToggle={() => onChangeLoginMethod()}
+            value={loginMethod === LoginMethod.BIOMETRIC}
+          />
           {/* )} */}
 
           <SettingsSwitchCard
@@ -159,14 +159,11 @@ const AppSettings = ({ navigation }) => {
           <Pressable onPress={() => showSeed()}>
             <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
               {common.ViewSeed}
-              </Text>
+            </Text>
           </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
-          <Note
-            title={common.note}
-            subtitle={common.desc}
-          />
+          <Note title={common.note} subtitle={common.desc} />
         </Box>
         <Box flex={0.2} mx={7}>
           <Box
@@ -176,7 +173,7 @@ const AppSettings = ({ navigation }) => {
             p={2}
             bg={'light.lightYellow'}
           >
-            <Pressable>
+            <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
                 {common.FAQs}
               </Text>
@@ -184,17 +181,17 @@ const AppSettings = ({ navigation }) => {
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable>
+            <Pressable onPress={() => openLink(' https://hexawallet.io/terms-of-service/')}>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-              {common.TermsConditions}
+                {common.TermsConditions}
               </Text>
             </Pressable>
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable>
+            <Pressable onPress={() => openLink(' http://hexawallet.io/privacy-policy')}>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-              {common.PrivacyPolicy}
+                {common.PrivacyPolicy}
               </Text>
             </Pressable>
           </Box>
