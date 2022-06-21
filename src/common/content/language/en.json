@@ -270,7 +270,7 @@
     "CardStatus": "Card Status"
   },
   "settings": {
-    "UseBiometrics": "Use Biometrics",
+    "UseBiometrics": "Face ID",
     "DarkMode": "Dark Mode",
     "VersionHistory": "Version History",
     "LanguageCountry": "Language & Country",

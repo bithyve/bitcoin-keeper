@@ -181,7 +181,7 @@ const AppSettings = ({ navigation }) => {
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable onPress={() => openLink(' https://hexawallet.io/terms-of-service/')}>
+            <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
                 {common.TermsConditions}
               </Text>
@@ -189,7 +189,7 @@ const AppSettings = ({ navigation }) => {
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable onPress={() => openLink(' http://hexawallet.io/privacy-policy')}>
+            <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
               <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
                 {common.PrivacyPolicy}
               </Text>
