@@ -1,4 +1,4 @@
-import { NetworkType, WalletVisibility } from './interfaces/enum';
+import { DerivationPurpose, NetworkType, WalletVisibility } from './interfaces/enum';
 import {
   Vault,
   VaultDerivationDetails,
@@ -42,6 +42,14 @@ export const generateVault = async ({
       false
     ).address;
     isUsable = true;
+  } else {
+    initialRecevingAddress = WalletUtilities.getAddressByIndex(
+      xpubs[0],
+      false,
+      0,
+      network,
+      DerivationPurpose.BIP49
+    );
   }
 
   const derivationDetails: VaultDerivationDetails = {};
