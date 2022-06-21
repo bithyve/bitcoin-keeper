@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { TextInput } from 'react-native';
 // libraries
-import { View, Box, Pressable, Text, Button } from 'native-base';
+import { View, Box, Pressable, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
