@@ -1,16 +1,16 @@
 import {
-  WalletType,
-  WalletVisibility,
   ActiveAddressAssigneeType,
   GiftStatus,
   GiftThemeId,
   GiftType,
   NetworkType,
-  TransactionType,
   NodeType,
-  TxPriority,
   SignerType,
+  TransactionType,
+  TxPriority,
   VaultVisibility,
+  WalletType,
+  WalletVisibility,
 } from './enum';
 
 export interface InputUTXOs {
@@ -293,18 +293,18 @@ export interface WalletSpecs {
   // transactionsMeta?: TransactionMetaData[];
 }
 export interface VaultSpecs {
-  xpub: string[] | null; // wallet's xpub (primary for multi-sig wallets)
+  xpub: string[] | null; // list of xpubs of the signers
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
-  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
+  activeAddresses: ActiveAddresses; // addresses being actively used by this vault
   importedAddresses: WalletImportedAddresses;
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
-  transactions: Transaction[]; // transactions belonging to this wallet
+  transactions: Transaction[]; // transactions belonging to this vault
   newTransactions?: Transaction[]; // new transactions arrived during the current sync
-  lastSynched: number; // wallet's last sync timestamp
+  lastSynched: number; // vault's last sync timestamp
   hasNewTxn?: boolean; // indicates new txns
   txIdCache: { [txid: string]: boolean };
   transactionMapping: TransactionToAddressMapping[];
