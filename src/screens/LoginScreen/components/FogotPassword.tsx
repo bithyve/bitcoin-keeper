@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
-import { Box, Text, Input } from 'native-base';
+import React, { useState, useContext } from 'react';
+import { Box, Text, Input, } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import * as Cipher from '../../../common/encryption';
 import { useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const FogotPassword = (props) => {
   const [passwordText, setPasswordText] = useState('');
   const { resetCred } = useAppSelector((state) => state.storage);
   const [invalid, setInvalid] = useState(false);
+
+  const { translations } = useContext( LocalizationContext )
+  const login = translations[ 'login' ]
 
   const getSeedIndexText = (seedNumber) => {
     switch (seedNumber) {
@@ -70,8 +74,8 @@ const FogotPassword = (props) => {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Text fontSize={RFValue(19)}>Forgot your passcode?</Text>
-      <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+      <Text fontSize={RFValue(19)}>{login.ForgotPasscode}</Text>
+      <Text fontSize={RFValue(12)}>{login.forgotPasscodeDesc}</Text>
       {props.type === 'seed' ? (
         <Box>
           <Text fontSize={RFValue(13)} mt={10}>
@@ -101,11 +105,11 @@ const FogotPassword = (props) => {
             secureTextEntry
           />
 
-          {invalid && (
-            <Text color="#FF0000" m={2}>
-              Invalid word
-            </Text>
-          )}
+          {
+            invalid && (
+              <Text color="#FF0000" m={2}>{login.Invalidword}</Text>
+            )
+          }
         </Box>
       ) : (
         <Box>

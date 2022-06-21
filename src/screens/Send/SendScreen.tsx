@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext } from 'react';
 import { TextInput } from 'react-native';
 // libraries
 import { View, Box, Pressable, Text, Button } from 'native-base';
@@ -19,16 +19,22 @@ import InfoBox from 'src/components/InfoBox';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import BlueWallet from 'src/assets/icons/bluewallet.svg';
 
+import { LocalizationContext } from 'src/common/content/LocContext';
+
 const SendScreen = () => {
   const cameraRef = useRef<RNCamera>();
   const navigtaion = useNavigation();
+
+  const { translations } = useContext( LocalizationContext )
+  const common = translations[ 'common' ]
+  const home = translations[ 'home' ]
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title="Send"
-        subtitle="Lorem ipsum dolor sit amet, consectetur"
+        title={common.send}
+        subtitle={common.smalldesc}
         onPressHandler={() => navigtaion.goBack()}
         color={'light.ReceiveBackground'}
       />
@@ -107,8 +113,8 @@ const SendScreen = () => {
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={4} marginX={2}>
         <InfoBox
-          title="Note"
-          desciption="It would take some time for the sats to reflect in your account based on the network condition desciption"
+          title={common.note}
+          desciption={home.reflectSats}
           width={'65%'}
         />
       </Box>
