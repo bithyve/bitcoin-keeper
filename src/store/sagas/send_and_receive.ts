@@ -12,7 +12,6 @@ import {
   SEND_PHASE_TWO,
   feeIntelMissing,
   sendMaxFeeCalculated,
-  sendStage1Executed,
   sendStage2Executed,
   SEND_TX_NOTIFICATION,
   CROSS_TRANSFER,
@@ -33,7 +32,11 @@ import {
 } from 'src/core/wallets/interfaces/interface';
 import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
 import Relay from 'src/core/services/Relay';
-import { setAverageTxFee, setExchangeRates } from '../reducers/send_and_receive';
+import {
+  sendPhaseOneExecuted,
+  setAverageTxFee,
+  setExchangeRates,
+} from '../reducers/send_and_receive';
 
 export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
@@ -62,96 +65,6 @@ export const feeAndExchangeRatesWatcher = createWatcher(
   FETCH_FEE_AND_EXCHANGE_RATES
 );
 
-// function* processRecipients(accountShell: AccountShell) {
-//   const accountsState: AccountsState = yield select((state) => state.accounts);
-//   const accountShells = accountsState.accountShells;
-//   const selectedRecipients: Recipient[] = yield select(
-//     (state) => state.sending.selectedRecipients
-//   );
-
-//   const trustedContacts: Trusted_Contacts = yield select((state) => state.trustedContacts.contacts);
-
-//   const recipients: {
-//     id?: string;
-//     address: string;
-//     amount: number;
-//     name?: string;
-//   }[] = [];
-
-//   for (const recipient of selectedRecipients) {
-//     switch (recipient.kind) {
-//       case RecipientKind.ADDRESS:
-//         recipients.push({
-//           address: recipient.id,
-//           amount: recipient.amount,
-//         });
-//         break;
-
-//       case RecipientKind.ACCOUNT_SHELL:
-//         const recipientShell = accountShells.find((shell) => shell.id === recipient.id);
-//         const recipientAccount: Account =
-//           accountsState.accounts[recipientShell.primarySubAccount.id];
-//         const assigneeInfo: ActiveAddressAssignee = {
-//           type: accountShell.primarySubAccount.type,
-//           id: accountShell.primarySubAccount.id,
-//           senderInfo: {
-//             name: accountShell.primarySubAccount.customDisplayName,
-//           },
-//         };
-//         const recipientAddress = yield call(
-//           getNextFreeAddressWorker,
-//           recipientAccount,
-//           assigneeInfo
-//         );
-//         recipients.push({
-//           address: recipientAddress,
-//           amount: recipient.amount,
-//           name: recipientShell.primarySubAccount.customDisplayName,
-//         });
-
-//         break;
-
-//       case RecipientKind.CONTACT:
-//         const contact = trustedContacts[(recipient as ContactRecipient).channelKey];
-//         const paymentAddresses = idx(
-//           contact,
-//           (_) => _.unencryptedPermanentChannel[contact.streamId].primaryData.paymentAddresses
-//         );
-
-//         if (!paymentAddresses)
-//           throw new Error(`Payment addresses missing for: ${recipient.displayedName}`);
-
-//         let paymentAddress;
-//         switch (accountShell.primarySubAccount.sourceKind) {
-//           case SourceAccountKind.TEST_ACCOUNT:
-//             paymentAddress = paymentAddresses[AccountType.TEST_ACCOUNT];
-//             break;
-
-//           default:
-//             paymentAddress = paymentAddresses[AccountType.CHECKING_ACCOUNT];
-//         }
-//         if (!paymentAddress)
-//           throw new Error(`Payment address missing for: ${recipient.displayedName}`);
-
-//         recipients.push({
-//           id: contact.channelKey,
-//           address: paymentAddress,
-//           amount: recipient.amount,
-//           name:
-//             contact.contactDetails.contactName ||
-//             idx(
-//               contact,
-//               (_) => _.unencryptedPermanentChannel[contact.streamId].primaryData.walletName
-//             ),
-//         });
-//         break;
-//     }
-//   }
-
-//   if (!recipients.length) throw new Error('Recipients missing');
-//   return recipients;
-// }
-
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const { wallet, recipients } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
@@ -169,7 +82,6 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
 
   try {
-    // const recipients = yield call(processRecipients);
     const { txPrerequisites } = yield call(
       WalletOperations.transferST1,
       wallet,
@@ -177,27 +89,19 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
       averageTxFeeByNetwork
     );
 
-    if (txPrerequisites) {
-      yield put(
-        sendStage1Executed({
-          successful: true,
-          carryOver: {
-            txPrerequisites,
-            recipients,
-          },
-        })
-      );
-    } else {
-      yield put(
-        sendStage1Executed({
-          successful: false,
-          err: 'Send failed: unable to generate tx pre-requisite',
-        })
-      );
-    }
+    if (!txPrerequisites) throw new Error('Send failed: unable to generate tx pre-requisite');
+    yield put(
+      sendPhaseOneExecuted({
+        successful: true,
+        outputs: {
+          txPrerequisites,
+          recipients,
+        },
+      })
+    );
   } catch (err) {
     yield put(
-      sendStage1Executed({
+      sendPhaseOneExecuted({
         successful: false,
         err,
       })

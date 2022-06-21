@@ -143,40 +143,6 @@ export const sendPhaseOne = (payload: { wallet: Wallet; recipients }): SendPhase
   };
 };
 
-export interface SendStage1ExecutedAction extends Action {
-  type: typeof SEND_PHASE_ONE_EXECUTED;
-  payload: {
-    successful: boolean;
-    carryOver?: {
-      txPrerequisites?: TransactionPrerequisite;
-      recipients?: {
-        address: string;
-        amount: number;
-        name?: string;
-      }[];
-    };
-    err?: string;
-  };
-}
-
-export const sendStage1Executed = (payload: {
-  successful: boolean;
-  carryOver?: {
-    txPrerequisites?: TransactionPrerequisite;
-    recipients: {
-      address: string;
-      amount: number;
-      name?: string;
-    }[];
-  };
-  err?: string;
-}): SendStage1ExecutedAction => {
-  return {
-    type: SEND_PHASE_ONE_EXECUTED,
-    payload,
-  };
-};
-
 export interface ResetSendStage1Action extends Action {
   type: typeof RESET_SEND_PHASE_ONE;
 }
