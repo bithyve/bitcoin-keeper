@@ -16,6 +16,7 @@ export const VaultPresentationDataSchema: ObjectSchema = {
 export const VaultSpecsSchema: ObjectSchema = {
   name: RealmSchema.VaultSpecs,
   properties: {
+    is2FA: 'bool',
     xpub: 'string',
     receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
@@ -42,7 +43,7 @@ export const VaultSchema: ObjectSchema = {
     scheme: '{}',
     vaultShellId: 'string',
     isUsable: 'bool',
-    signers: RealmSchema.VaultSigner,
+    signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
   },

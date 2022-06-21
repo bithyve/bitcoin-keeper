@@ -293,6 +293,7 @@ export interface WalletSpecs {
   // transactionsMeta?: TransactionMetaData[];
 }
 export interface VaultSpecs {
+  is2FA: boolean;
   xpub: string[] | null; // list of xpubs of the signers
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
@@ -346,17 +347,17 @@ export interface Vault {
   scheme: VaultScheme; // type of vault
   vaultShellId: string; // identifier of the vault shell that the vault belongs
   isUsable: boolean; // true if vault is usable
-  signers: VaultSigner;
+  signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
 }
 
-interface VaultScheme {
+export interface VaultScheme {
   m: number; // threshold number of signatures required
   n: number; // total number of xpubs
 }
 
-interface VaultSigner {
+export interface VaultSigner {
   signerId: string;
   signerName: string;
   type: SignerType;
