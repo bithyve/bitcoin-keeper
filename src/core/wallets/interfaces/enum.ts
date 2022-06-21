@@ -54,6 +54,8 @@ export enum WalletVisibility {
   ARCHIVED = 'ARCHIVED',
 }
 
+export type VaultVisibility = WalletVisibility;
+
 export enum WalletType {
   TEST = 'TEST',
   CHECKING = 'CHECKING',
@@ -68,7 +70,8 @@ export enum WalletType {
   LIGHTNING = 'LIGHTNING',
   IMPORTED = 'IMPORTED',
 }
-export enum VaultType {
+
+export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',
   TREZOR = 'TREZOR',

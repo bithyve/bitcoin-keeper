@@ -9,7 +9,8 @@ import {
   TransactionType,
   NodeType,
   TxPriority,
-  VaultType,
+  SignerType,
+  VaultVisibility,
 } from './enum';
 
 export interface InputUTXOs {
@@ -240,8 +241,6 @@ export interface WalletDerivationDetails {
 
 export interface VaultDerivationDetails {
   [xpub: string]: {
-    networkType: NetworkType; // testnet/mainnet
-    instanceNum: number; // instance number of this particular walletType
     derivationPath: string; // derivation path of the extended keys belonging to this xpub
   };
 }
@@ -251,6 +250,12 @@ export interface WalletPresentationData {
   walletDescription: string; // description of the wallet
   walletVisibility: WalletVisibility; // visibility of the wallet
   isSynching: boolean; // sync status of the wallet
+}
+export interface VaultPresentationData {
+  vaultName: string; // name of the vault
+  vaultDescription: string; // description of the vault
+  vaultVisibility: VaultVisibility; // visibility of the vault
+  isSynching: boolean; // sync status of the vault
 }
 
 export interface DonationWalletPresentationData extends WalletPresentationData {
@@ -337,15 +342,27 @@ export interface MultiSigWallet extends Wallet {
 }
 
 export interface Vault {
-  id: string; // wallet identifier(derived from xpub)
-  type: VaultType; // type of wallet
-  walletShellId: string; // identifier of the wallet shell that the wallet belongs
-  isUsable: boolean; // true if wallet is usable
-  derivationDetails: VaultDerivationDetails;
-  presentationData: WalletPresentationData;
+  id: string; // vault identifier(derived from xpub)
+  scheme: VaultScheme; // type of vault
+  vaultShellId: string; // identifier of the vault shell that the vault belongs
+  isUsable: boolean; // true if vault is usable
+  signers: VaultSigner;
+  presentationData: VaultPresentationData;
   specs: VaultSpecs;
 }
 
+interface VaultScheme {
+  m: number; // threshold number of signatures required
+  n: number; // total number of xpubs
+}
+
+interface VaultSigner {
+  signerId: string;
+  signerName: string;
+  type: SignerType;
+  xpub: string;
+  derivation: string;
+}
 export interface DonationWallet extends Wallet {
   presentationData: DonationWalletPresentationData;
   specs: WalletSpecs | MultiSigWalletSpecs;
