@@ -1,12 +1,14 @@
 import { Box, Text } from 'native-base';
 import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
+import { CommonActions } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
 import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
+import { TouchableOpacity } from 'react-native';
 
 type HWProps = {
   Icon;
@@ -15,22 +17,27 @@ type HWProps = {
 };
 const HardwareWalletSetup = ({ navigation }: { navigation }) => {
   const HardWareWallet = ({ Icon, first = false, last = false }: HWProps) => {
+    const navigateToTapsignerSetup = () => {
+      navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
+    };
     return (
-      <Box
-        backgroundColor={'light.lightYellow'}
-        borderTopRadius={first ? 15 : 0}
-        borderBottomRadius={last ? 15 : 0}
-      >
-        <Box justifyContent={'center'} alignItems={'center'} height={windowHeight * 0.08}>
-          <Icon />
-        </Box>
+      <TouchableOpacity activeOpacity={0.9} onPress={navigateToTapsignerSetup}>
         <Box
-          opacity={0.1}
-          backgroundColor={'light.divider'}
-          width={windowWidth * 0.8}
-          height={0.5}
-        />
-      </Box>
+          backgroundColor={'light.lightYellow'}
+          borderTopRadius={first ? 15 : 0}
+          borderBottomRadius={last ? 15 : 0}
+        >
+          <Box justifyContent={'center'} alignItems={'center'} height={windowHeight * 0.08}>
+            <Icon />
+          </Box>
+          <Box
+            opacity={0.1}
+            backgroundColor={'light.divider'}
+            width={windowWidth * 0.8}
+            height={0.5}
+          />
+        </Box>
+      </TouchableOpacity>
     );
   };
 

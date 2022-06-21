@@ -12,6 +12,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 
 const StepState = ({ index, active, done }) => {
@@ -222,7 +223,7 @@ const SetupTapsigner = () => {
   }, [cvc]);
 
   return (
-    <>
+    <SafeAreaView>
       <HeaderTitle title="" subtitle="" onPressHandler={() => navigation.goBack()} />
       <ScrollView>
         {stepItems.map((item) => (
@@ -231,7 +232,7 @@ const SetupTapsigner = () => {
       </ScrollView>
       <KeyPadView onPressNumber={onPressHandler} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
       <NfcPrompt visible={nfcVisible} />
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -240,7 +241,7 @@ export default SetupTapsigner;
 const styles = StyleSheet.create({
   stepContainer: {
     flexDirection: 'row',
-    marginVertical: '3%',
+    marginBottom: '5%',
     marginHorizontal: '4%',
   },
   stepBodyContainer: {

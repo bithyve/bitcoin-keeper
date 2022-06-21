@@ -62,7 +62,6 @@ const HeaderTitle = ({
 
 const styles = ScaledSheet.create({
   container: {
-    marginTop: '20@s',
     backgroundColor: 'transparent',
   },
   addWalletText: {
@@ -79,7 +78,7 @@ const styles = ScaledSheet.create({
   },
   back: {
     paddingHorizontal: '40@s',
-    paddingVertical: '20@s',
+    paddingVertical: '15@s',
   },
 });
 export default HeaderTitle;
