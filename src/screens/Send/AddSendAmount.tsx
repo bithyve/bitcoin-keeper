@@ -12,10 +12,41 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import AppNumPad from 'src/components/AppNumPad';
 import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
 import Colors from 'src/theme/Colors';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { useDispatch } from 'react-redux';
+import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
-const AddSendAmount = () => {
-  const navigtaion = useNavigation();
-  const [amount, setAmount] = useState('');
+const AddSendAmount = ({ route }) => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const {
+    wallet,
+    address,
+    amount: prefillAmount,
+  }: { wallet: Wallet; address: string; amount: string } = route.params;
+  const [amount, setAmount] = useState(prefillAmount);
+  const navigateToNext = (recipients) => {
+    navigation.navigate('SendConfirmation', {
+      wallet,
+      recipients,
+    });
+  };
+
+  const executeSendPhaseOne = () => {
+    const recipients = [];
+    recipients.push({
+      address,
+      amount: parseInt(amount),
+    });
+    dispatch(
+      sendPhaseOne({
+        wallet,
+        recipients,
+      })
+    );
+    navigateToNext(recipients);
+  };
+
   return (
     <Box flex={1} padding={2} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -23,7 +54,7 @@ const AddSendAmount = () => {
         title="Sending to address"
         subtitle="Lorem ipsum dolor sit amet,"
         color="light.ReceiveBackground"
-        onPressHandler={() => navigtaion.goBack()}
+        onPressHandler={() => navigation.goBack()}
       />
       <Box
         flexDirection={'row'}
@@ -32,10 +63,7 @@ const AddSendAmount = () => {
         marginX={8}
         marginY={windowHeight >= 850 ? '12' : windowHeight >= 750 ? '8' : '5'}
       >
-        <Box
-          flexDirection={'row'}
-          alignItems={'center'}
-        >
+        <Box flexDirection={'row'} alignItems={'center'}>
           <Box
             backgroundColor={'light.yellow1'}
             height={10}
@@ -58,8 +86,9 @@ const AddSendAmount = () => {
             fontSize={14}
             letterSpacing={1.12}
             fontWeight={300}
-            marginX={5}>
-            bjkdfie79583…
+            marginX={5}
+          >
+            {address}
           </Text>
         </Box>
         <DollarInput />
@@ -76,10 +105,7 @@ const AddSendAmount = () => {
           marginY={2}
           padding={3}
         >
-          <Box
-            marginLeft={10}
-            marginRight={2}
-          >
+          <Box marginLeft={10} marginRight={2}>
             <DollarInput />
           </Box>
           <Box
@@ -87,12 +113,13 @@ const AddSendAmount = () => {
             width={0.5}
             backgroundColor={'light.borderSaperator'}
             opacity={0.3}
-            height={7} />
+            height={7}
+          />
           <Input
             placeholder="Enter Amount"
             placeholderTextColor={'light.greenText'}
             color={'light.greenText'}
-            opacity={.5}
+            opacity={0.5}
             fontSize={RFValue(12)}
             letterSpacing={1.04}
             fontWeight={300}
@@ -104,31 +131,23 @@ const AddSendAmount = () => {
         </Box>
         <Box
           flexDirection={'row'}
-          marginY={2} width={'100%'}
+          marginY={2}
+          width={'100%'}
           justifyContent={'center'}
           alignItems={'center'}
         >
-          <TextInput
-            placeholder='Add a note'
-            style={styles.textInput}
-          />
+          <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
-        <Box
-          marginTop={3}
-          marginBottom={5}
-        >
+        <Box marginTop={3} marginBottom={5}>
           <Buttons
             secondaryText={'Cancel'}
             secondaryCallback={() => {
               console.log('Cancel');
             }}
             primaryText={'Send'}
-            primaryCallback={() => {
-              console.log('send');
-            }}
+            primaryCallback={executeSendPhaseOne}
           />
         </Box>
-
       </Box>
       <AppNumPad
         setValue={setAmount}
@@ -148,7 +167,7 @@ const styles = ScaledSheet.create({
     backgroundColor: Colors?.textInputBackground,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
-    padding: 20
+    padding: 20,
   },
 });
 export default AddSendAmount;
