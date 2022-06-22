@@ -120,7 +120,7 @@ export default function CreatePin(props) {
       setIsDisabled(true);
     }
   }, [passcode, confirmPasscode]);
-  console.log(windowHeight);
+
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
