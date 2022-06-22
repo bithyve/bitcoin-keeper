@@ -27,7 +27,7 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
 
   return (
     <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} marginTop={hp('4.5%')} marginBottom={hp('1.5%')} width={'auto'}>
+      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
         <Box
           height={wp('13%')}
           width={wp('13%')}
@@ -39,7 +39,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
         >
           <Box>
             {passCode.length == 1 ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(20)}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
                 {passCode[0]}
               </Text>
             ) : passCode.length >= 2 ? (
@@ -64,7 +69,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
         >
           <Box>
             {passCode.length == 2 ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(20)}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
                 {passCode[1]}
               </Text>
             ) : passCode.length >= 2 ? (
@@ -89,7 +99,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
         >
           <Box>
             {passCode.length == 3 ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(20)}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
                 {passCode[2]}
               </Text>
             ) : passCode.length >= 3 ? (
@@ -114,7 +129,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
         >
           <Box>
             {passCode.length == 4 && !hide ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(20)}>
+              <Text
+                color={'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
                 {passCode[3]}
               </Text>
             ) : passCode.length >= 4 && hide ? (

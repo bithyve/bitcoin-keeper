@@ -15,6 +15,7 @@ const initialState: {
   credsChanged: string;
   pinChangedFailed: boolean;
   initializeRecoveryCompleted: boolean;
+  key: string | null;
 } = {
   hasCreds: false,
   isAuthenticated: false,
@@ -30,44 +31,49 @@ const initialState: {
   credsChanged: '',
   pinChangedFailed: false,
   initializeRecoveryCompleted: false,
-}
+  key: null,
+};
 
 const loginSlice = createSlice({
   name: 'login',
   initialState,
   reducers: {
     setCredStored: (state) => {
-      state.hasCreds = true
+      state.hasCreds = true;
       state.loading = {
         initializing: false,
         storingCreds: false,
         authenticating: false,
-      }
+      };
     },
     credsAuthenticated: (state, action: PayloadAction<boolean>) => {
-      state.isAuthenticated = action.payload,
-        state.authenticationFailed = !action.payload,
-        state.loading = {
+      (state.isAuthenticated = action.payload),
+        (state.authenticationFailed = !action.payload),
+        (state.loading = {
           initializing: false,
           storingCreds: false,
           authenticating: false,
-        }
+        });
     },
     credsChanged: (state, action: PayloadAction<string>) => {
-      state.credsChanged = action.payload
+      state.credsChanged = action.payload;
     },
     pinChangedFailed: (state, action: PayloadAction<boolean>) => {
-      state.pinChangedFailed = action.payload
+      state.pinChangedFailed = action.payload;
     },
     setupLoading: (state, action: PayloadAction<string>) => {
-      const isFailed = action.payload === 'authenticating' &&
-        !state.loading[action.payload] === true
-        ? false
-        : state.authenticationFailed
-      state.authenticationFailed = isFailed
-    }
+      const isFailed =
+        action.payload === 'authenticating' && !state.loading[action.payload] === true
+          ? false
+          : state.authenticationFailed;
+      state.authenticationFailed = isFailed;
+    },
+    setKey: (state, action: PayloadAction<string>) => {
+      console.log('from reducer', action.payload);
+      state.key = action.payload;
+    },
   },
-})
+});
 
 export const {
   credsAuthenticated,
@@ -75,5 +81,6 @@ export const {
   pinChangedFailed,
   setCredStored,
   setupLoading,
-} = loginSlice.actions
-export default loginSlice.reducer
+  setKey,
+} = loginSlice.actions;
+export default loginSlice.reducer;

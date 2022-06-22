@@ -7,8 +7,8 @@ import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 const styles = StyleSheet.create({
   container: {
     borderRadius: wp(5),
-    height: wp(8),
-    with: wp(12),
+    // height: wp(8),
+    // with: wp(12),
   },
 });
 
@@ -27,8 +27,8 @@ const Switch = ({ value, onValueChange }: Props) => {
         colors={value ? ['#2C3E50', '#00836A'] : ['#4E5C6A', '#4E5C6A']}
       >
         <Box
-          height={'8'}
-          width={'12'}
+          height={8}
+          width={12}
           borderRadius={10}
           justifyContent={'center'}
           alignItems={'center'}
@@ -40,7 +40,7 @@ const Switch = ({ value, onValueChange }: Props) => {
               borderRadius={15}
               backgroundColor={'#fcfcfc'}
               alignSelf="flex-end"
-              marginRight={1}
+              mx={1}
             />
           ) : (
             <Box
@@ -49,7 +49,7 @@ const Switch = ({ value, onValueChange }: Props) => {
               borderRadius={15}
               backgroundColor={'#fbfbfb'}
               alignSelf="flex-start"
-              marginLeft={1}
+              mx={1}
             />
           )}
         </Box>

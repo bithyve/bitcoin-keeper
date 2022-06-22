@@ -160,7 +160,7 @@ const CreatePin = ({ navigation, route }) => {
       if (relogin) {
         navigation.goBack();
       } else {
-        navigation.replace('NewHome');
+        navigation.replace('App');
       }
       dispatch(credsAuthenticated(false));
     }
@@ -199,10 +199,10 @@ const CreatePin = ({ navigation, route }) => {
               <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
-                <Text fontWeight={'bold'} fontStyle={'italic'}>
-                  {/* {strings.passcode} */}
+                {login.passcode}
+                {/* <Text fontSize={RFValue(13)} fontFamily={'body'}>
                   {login.passcode}
-                </Text>
+                </Text> */}
               </Text>
               {/* pin input view */}
               <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />

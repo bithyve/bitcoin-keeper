@@ -43,12 +43,10 @@ const App = () => {
 
 export default function AppWrapper() {
   return (
-    <RealmProvider>
-      <PersistGate persistor={persistor} loading={null}>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </PersistGate>
-    </RealmProvider>
+    <PersistGate persistor={persistor} loading={null}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </PersistGate>
   );
 }
