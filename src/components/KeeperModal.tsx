@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const KeeperModal = (props) => {
   const {
@@ -18,8 +19,17 @@ const KeeperModal = (props) => {
     textColor = '#000',
     Content = () => <></>,
   } = props;
+  const { bottom } = useSafeAreaInsets();
   return (
-    <Modal isOpen={visible} onClose={close} avoidKeyboard size="xl">
+    <Modal
+      marginTop={-bottom}
+      isOpen={visible}
+      onClose={close}
+      avoidKeyboard
+      size="xl"
+      _backdrop={{ bg: '#000', opacity: 0.8 }}
+      justifyContent={'flex-end'}
+    >
       <Modal.Content borderRadius={10}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
@@ -32,6 +42,7 @@ const KeeperModal = (props) => {
             alignSelf={'flex-start'}
             borderBottomWidth={0}
             backgroundColor={'transparent'}
+            width={'90%'}
           >
             <Text
               style={styles.title}

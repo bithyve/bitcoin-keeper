@@ -1,12 +1,7 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import bip21 from 'bip21';
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
-import bs58check from 'bs58check';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import ECPairFactory, { ECPairInterface } from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
-const ECPair = ECPairFactory(ecc);
 
 import config from '../config';
 import _ from 'lodash';
@@ -19,13 +14,19 @@ import {
   PaymentInfoKind,
 } from './interfaces/enum';
 import {
-  Wallet,
   ActiveAddresses,
   DonationWallet,
   MultiSigWallet,
   Transaction,
   TransactionToAddressMapping,
+  Wallet,
 } from './interfaces/interface';
+import ECPairFactory, { ECPairInterface } from 'ecpair';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import bip21 from 'bip21';
+import bs58check from 'bs58check';
+
+const ECPair = ECPairFactory(ecc);
 
 const { REQUEST_TIMEOUT, RELAY_AXIOS, SIGNING_AXIOS } = config;
 const accAxios: AxiosInstance = axios.create({
@@ -235,11 +236,7 @@ export default class WalletUtilities {
   };
 
   static createMultiSig = (
-    xpubs: {
-      primary: string;
-      secondary: string;
-      bithyve: string;
-    },
+    xpubs: string[],
     required: number,
     network: bitcoinJS.Network,
     childIndex: number,
@@ -251,13 +248,13 @@ export default class WalletUtilities {
     };
     address: string;
   } => {
-    const pubkeys = Object.keys(xpubs).map((xpubKey) => {
+    const pubkeys = xpubs.map((xpub) => {
       const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
-        xpubs[xpubKey],
+        xpub,
         network,
         childIndex,
         internal,
-        xpubKey !== 'primary'
+        true
       );
       const xKey = bip32.fromBase58(childExtendedKey, network);
       const pub = xKey.publicKey.toString('hex');

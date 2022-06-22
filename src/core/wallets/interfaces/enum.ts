@@ -54,6 +54,8 @@ export enum WalletVisibility {
   ARCHIVED = 'ARCHIVED',
 }
 
+export type VaultVisibility = WalletVisibility;
+
 export enum WalletType {
   TEST = 'TEST',
   CHECKING = 'CHECKING',
@@ -67,6 +69,19 @@ export enum WalletType {
   FNF = 'FNF',
   LIGHTNING = 'LIGHTNING',
   IMPORTED = 'IMPORTED',
+}
+
+export enum SignerType {
+  TAPSIGNER = 'TAPSIGNER',
+  KEEPER = 'KEEPER',
+  TREZOR = 'TREZOR',
+  LEDGER = 'LEDGER',
+  COLDCARD = 'COLDCARD',
+  PASSPORT = 'PASSPORT',
+  JADE = 'JADE',
+  KEYSTONE = 'KEYSTONE',
+  POLICY_SERVER = 'POLICY_SERVER',
+  MOBILE_KEY = 'MOBILE_KEY',
 }
 
 export enum GiftThemeId {

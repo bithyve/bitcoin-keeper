@@ -20,7 +20,7 @@ const KeyPadView: React.FC<Props> = ({
   ClearIcon = <DeleteIcon />,
 }: Props) => {
   return (
-    <Box pointerEvents={disabled ? 'none' : 'auto'} mt={'auto'} mb={10}>
+    <Box pointerEvents={disabled ? 'none' : 'auto'} mt={'auto'}>
       <Box flexDirection={'row'} height={hp('8%')}>
         <KeyPadButton title="1" onPressNumber={() => onPressNumber('1')} keyColor={keyColor} />
         <KeyPadButton title="2" onPressNumber={() => onPressNumber('2')} keyColor={keyColor} />
