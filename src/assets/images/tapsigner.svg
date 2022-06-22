@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+  <g id="tapsigner" transform="translate(-154.334 -427.945)">
+    <circle id="Ellipse_1941" data-name="Ellipse 1941" cx="15" cy="15" r="15" transform="translate(154.334 427.945)" fill="#fac48b"/>
+    <g id="Group_39357" data-name="Group 39357" transform="translate(160.075 438.715)">
+      <g id="Group_39356" data-name="Group 39356" transform="translate(0 0)">
+        <path id="Path_24806" data-name="Path 24806" d="M15.619,22.244V14.689H12.11V12.8h9.445v1.889H18.048v7.555Z" transform="translate(-12.11 -12.8)" fill="#453228"/>
+        <path id="Path_24809" data-name="Path 24809" d="M234.014,21.22h5.276c.715,0,1-.5,1-1.322,0-.5-.108-1-1.052-1.309L235.5,17.348a2.113,2.113,0,0,1-1.619-2.335,1.949,1.949,0,0,1,2.145-2.213h5.114v1.026h-4.884c-.715,0-1.066.338-1.066,1.214a1.145,1.145,0,0,0,.891,1.3l3.562,1.187c1.255.418,1.957.891,1.957,2.375,0,1.282-.5,2.348-1.957,2.348h-5.627V21.22Z" transform="translate(-222.869 -12.8)" fill="#453228"/>
+      </g>
+    </g>
+  </g>
+</svg>
