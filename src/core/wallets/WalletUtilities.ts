@@ -419,7 +419,7 @@ export default class WalletUtilities {
     };
   };
 
-  static sortOutputs = async (
+  static sortOutputs = (
     wallet: Wallet | MultiSigWallet,
     outputs: Array<{
       address: string;
@@ -427,14 +427,14 @@ export default class WalletUtilities {
     }>,
     nextFreeChangeAddressIndex: number,
     network: bitcoinJS.networks.Network
-  ): Promise<
-    Array<{
-      address: string;
-      value: number;
-    }>
-  > => {
-    const purpose =
-      wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
+  ): {
+    address: string;
+    value: number;
+  }[] => {
+    // const purpose =
+    // wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
+
+    const purpose = DerivationPurpose.BIP49;
     for (const output of outputs) {
       if (!output.address) {
         let changeAddress: string;
@@ -474,7 +474,6 @@ export default class WalletUtilities {
       }
       return 0;
     });
-
     return outputs;
   };
 

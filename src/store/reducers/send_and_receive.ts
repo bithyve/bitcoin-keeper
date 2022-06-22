@@ -126,12 +126,13 @@ const sendAndReceiveSlice = createSlice({
         txPrerequisites = outputs.txPrerequisites;
         recipients = outputs.recipients;
         Object.keys(txPrerequisites).forEach((priority) => {
-          transactionFeeInfo[priority.toUpperCase()].amount = txPrerequisites[priority].fee;
-          transactionFeeInfo[priority.toUpperCase()].estimatedBlocksBeforeConfirmation =
+          transactionFeeInfo[priority].amount = txPrerequisites[priority].fee;
+          transactionFeeInfo[priority].estimatedBlocksBeforeConfirmation =
             txPrerequisites[priority].estimatedBlocks;
         });
       }
       state.sendPhaseOne = {
+        ...state.sendPhaseOne,
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,

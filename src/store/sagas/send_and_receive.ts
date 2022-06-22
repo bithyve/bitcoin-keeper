@@ -104,7 +104,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
     yield put(
       sendPhaseOneExecuted({
         successful: false,
-        err,
+        err: err.message,
       })
     );
     return;
@@ -118,12 +118,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.sendPhaseOne
   );
   const { wallet, txnPriority, token, note } = payload;
-
   const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
-
   try {
     const { txid } = yield call(
       WalletOperations.transferST2,
@@ -152,7 +150,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     yield put(
       sendPhaseTwoExecuted({
         successful: false,
-        err,
+        err: err.message,
       })
     );
   }
