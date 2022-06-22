@@ -783,7 +783,7 @@ export default class WalletOperations {
         });
       }
 
-      const sortedOuts = await WalletUtilities.sortOutputs(
+      const sortedOuts = WalletUtilities.sortOutputs(
         wallet,
         outputs,
         wallet.specs.nextFreeChangeAddressIndex,

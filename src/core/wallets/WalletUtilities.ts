@@ -3,6 +3,16 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
+import config from '../config';
+import _ from 'lodash';
+import idx from 'idx';
+import {
+  WalletType,
+  DerivationPurpose,
+  NetworkType,
+  TransactionType,
+  PaymentInfoKind,
+} from './interfaces/enum';
 import {
   ActiveAddresses,
   DonationWallet,
@@ -11,16 +21,10 @@ import {
   TransactionToAddressMapping,
   Wallet,
 } from './interfaces/interface';
-import { DerivationPurpose, NetworkType, TransactionType, WalletType } from './interfaces/enum';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-
-import { ScannedAddressKind } from '../trusted_contacts/interfaces/enum';
-import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import config from '../config';
-import idx from 'idx';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -388,21 +392,22 @@ export default class WalletUtilities {
 
   static isPaymentURI = (paymentURI: string): boolean => paymentURI.slice(0, 8) === 'bitcoin:';
 
-  static addressDiff = (
-    scannedStr: string,
-    network: bitcoinJS.Network
-  ): { type: ScannedAddressKind | null } => {
+  static addressDiff = (scannedStr: string, network: bitcoinJS.Network) => {
     scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
     if (WalletUtilities.isPaymentURI(scannedStr)) {
-      const { address } = WalletUtilities.decodePaymentURI(scannedStr);
+      const { address, options } = WalletUtilities.decodePaymentURI(scannedStr);
       if (WalletUtilities.isValidAddress(address, network)) {
         return {
-          type: ScannedAddressKind.PAYMENT_URI,
+          type: PaymentInfoKind.PAYMENT_URI,
+          address: scannedStr,
+          amount: options.amount,
+          message: options.message,
         };
       }
     } else if (WalletUtilities.isValidAddress(scannedStr, network)) {
       return {
-        type: ScannedAddressKind.ADDRESS,
+        type: PaymentInfoKind.ADDRESS,
+        address: scannedStr,
       };
     }
 
@@ -411,7 +416,7 @@ export default class WalletUtilities {
     };
   };
 
-  static sortOutputs = async (
+  static sortOutputs = (
     wallet: Wallet | MultiSigWallet,
     outputs: Array<{
       address: string;
@@ -419,14 +424,14 @@ export default class WalletUtilities {
     }>,
     nextFreeChangeAddressIndex: number,
     network: bitcoinJS.networks.Network
-  ): Promise<
-    Array<{
-      address: string;
-      value: number;
-    }>
-  > => {
-    const purpose =
-      wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
+  ): {
+    address: string;
+    value: number;
+  }[] => {
+    // const purpose =
+    // wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
+
+    const purpose = DerivationPurpose.BIP49;
     for (const output of outputs) {
       if (!output.address) {
         let changeAddress: string;
@@ -466,7 +471,6 @@ export default class WalletUtilities {
       }
       return 0;
     });
-
     return outputs;
   };
 

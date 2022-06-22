@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
@@ -9,12 +9,17 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { useDispatch } from 'react-redux';
-import { crossTransfer } from 'src/store/sagaActions/send&receive';
+import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import { TxPriority } from 'src/core/wallets/interfaces/enum';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { useAppSelector } from 'src/store/hooks';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse } = route.params; // switch between automated transfer and typical send
+  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
 
   const onProceed = () => {
     if (isVaultTransfer) {
@@ -27,6 +32,13 @@ const SendConfirmation = ({ route }) => {
       //     amount: 10e5,
       //   })
       // );
+    } else {
+      dispatch(
+        sendPhaseTwo({
+          wallet,
+          txnPriority: transactionPriority,
+        })
+      );
     }
   };
 
@@ -76,7 +88,7 @@ const SendConfirmation = ({ route }) => {
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
                 {' '}
-                0.000018
+                {wallet ? (wallet as Wallet).specs.balances.confirmed : ''}
               </Text>
             </Box>
           </Box>
@@ -92,7 +104,7 @@ const SendConfirmation = ({ route }) => {
           Transaction Fee
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          0.03 $
+          {txFeeInfo ? txFeeInfo[transactionPriority].amount : ''}
         </Text>
       </Box>
     );
@@ -117,7 +129,6 @@ const SendConfirmation = ({ route }) => {
         <SendingCard />
 
         <Box marginTop={windowHeight * 0.01}>
-          <Transaction />
           <Transaction />
         </Box>
       </Box>

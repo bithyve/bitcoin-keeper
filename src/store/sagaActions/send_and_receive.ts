@@ -134,7 +134,13 @@ export interface SendPhaseOneAction extends Action {
   };
 }
 
-export const sendPhaseOne = (payload: { wallet: Wallet; recipients }): SendPhaseOneAction => {
+export const sendPhaseOne = (payload: {
+  wallet: Wallet | MultiSigWallet;
+  recipients: {
+    address: string;
+    amount: number;
+  }[];
+}): SendPhaseOneAction => {
   return {
     type: SEND_PHASE_ONE,
     payload,

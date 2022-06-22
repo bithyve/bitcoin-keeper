@@ -107,3 +107,8 @@ export enum GiftStatus {
   ASSOCIATED = 'ASSOCIATED',
   EXPIRED = 'EXPIRED',
 }
+
+export enum PaymentInfoKind {
+  ADDRESS = 'address',
+  PAYMENT_URI = 'paymentURI',
+}
