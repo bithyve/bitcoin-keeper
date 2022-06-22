@@ -1,5 +1,6 @@
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType } from 'src/core/wallets/interfaces/enum';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Text, View } from 'native-base';
 
@@ -14,6 +15,7 @@ import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
+import { generateVault } from 'src/core/wallets/VaultFactory';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -210,7 +212,7 @@ const SetupTapsigner = () => {
       console.log(xpub, status);
       realm.write(() => {
         realm.create(RealmSchema.VaultSigner, {
-          type: 'Tapsigner',
+          type: 'TAPSIGNER',
           signerName: 'Tapsigner',
           signerId: card.card_ident,
           derivation: status.path,
@@ -218,7 +220,28 @@ const SetupTapsigner = () => {
         });
       });
       updateStep(4, 5);
-      navigation.dispatch(CommonActions.navigate('NewHome'));
+      console.log(
+        generateVault({
+          scheme: { m: 1, n: 1 },
+          signers: [
+            {
+              type: SignerType.TAPSIGNER,
+              signerName: 'Tapsigner',
+              signerId: card.card_ident,
+              derivation: status.path,
+              xpub,
+            },
+          ],
+          vaultShellId: '0',
+          vaultName: 'New Vault',
+          vaultDescription: 'Testing vault creation',
+          xpubs: [xpub],
+          networkType: NetworkType.MAINNET,
+        })
+          .then(console.log)
+          .catch(console.log)
+      );
+      // navigation.dispatch(CommonActions.navigate('NewHome'));
     });
   }, [cvc]);
 

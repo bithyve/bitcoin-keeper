@@ -9,12 +9,14 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
+import { SignerType } from 'src/core/wallets/interfaces/enum';
 import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { TouchableOpacity } from 'react-native';
+import { WalletMap } from './WalletMap';
 
 type HWProps = {
-  Icon;
+  type: SignerType;
   first?: boolean;
   last?: boolean;
 };
@@ -35,7 +37,7 @@ const TapsignerSetupContent = () => {
   );
 };
 const HardwareWalletSetup = ({ navigation }: { navigation }) => {
-  const HardWareWallet = ({ Icon, first = false, last = false }: HWProps) => {
+  const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const navigateToTapsignerSetup = () => {
       close();
       navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
@@ -61,7 +63,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box justifyContent={'center'} alignItems={'center'} height={windowHeight * 0.08}>
-              <Icon />
+              {WalletMap(type).Logo}
             </Box>
             <Box
               opacity={0.1}
@@ -98,14 +100,20 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
       />
       <Box alignItems={'center'} justifyContent={'center'}>
         <Box paddingY={'4'}>
-          <HardWareWallet Icon={TapSigner} first />
-          <HardWareWallet Icon={TapSigner} />
-          <HardWareWallet Icon={TapSigner} />
-          <HardWareWallet Icon={TapSigner} />
-          <HardWareWallet Icon={TapSigner} />
-          <HardWareWallet Icon={TapSigner} />
-          <HardWareWallet Icon={TapSigner} />
-          <HardWareWallet Icon={TapSigner} last />
+          {[
+            'COLDCARD',
+            'JADE',
+            'KEEPER',
+            'KEYSTONE',
+            'LEDGER',
+            'PASSPORT',
+            'TAPSIGNER',
+            'TREZOR',
+            'POLICY_SERVER',
+            'MOBILE_KEY',
+          ].map((type: SignerType, index: number) => (
+            <HardWareWallet type={type} first={index === 0} last={index === 9} />
+          ))}
         </Box>
         <Text
           fontSize={RFValue(12)}
