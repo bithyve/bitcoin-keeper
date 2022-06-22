@@ -60,6 +60,8 @@ export const customTheme = extendTheme({
       TorLable: '#C6ECAE',
       headerTextTwo: '#003423',
       divider: '#BABABA',
+      textWallet: '#113834',
+      transactionPolicyCard: '#FAD8B4'
     },
     dark: {
       black: '#000000',

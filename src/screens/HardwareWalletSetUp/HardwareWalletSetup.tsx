@@ -1,6 +1,7 @@
 import { Box, Text, View } from 'native-base';
 import React, { useContext, useState } from 'react';
-import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { ScrollView } from 'react-native-gesture-handler';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import { CommonActions } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,6 +15,7 @@ import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 
 type HWProps = {
   type: SignerType;
@@ -92,6 +94,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBarComponent />
       <HeaderTitle
         title="Select a Signer"
         subtitle="For your Vault"
@@ -99,22 +102,25 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
         headerTitleColor={'light.headerTextTwo'}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
-        <Box paddingY={'4'}>
-          {[
-            'COLDCARD',
-            'JADE',
-            'KEEPER',
-            'KEYSTONE',
-            'LEDGER',
-            'PASSPORT',
-            'TAPSIGNER',
-            'TREZOR',
-            'POLICY_SERVER',
-            'MOBILE_KEY',
-          ].map((type: SignerType, index: number) => (
-            <HardWareWallet type={type} first={index === 0} last={index === 9} />
-          ))}
-        </Box>
+        <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
+          <Box paddingY={'4'}>
+            {[
+              'COLDCARD',
+              'JADE',
+              'KEYSTONE',
+              'TAPSIGNER',
+              'PASSPORT',
+              'KEEPER',
+              'LEDGER',
+              'TREZOR',
+              // 'POLICY_SERVER',
+              // 'MOBILE_KEY',
+            ].map((type: SignerType, index: number) => (
+              <HardWareWallet type={type} first={index === 0} last={index === 9} />
+            ))}
+          </Box>
+
+        </ScrollView>
         <Text
           fontSize={RFValue(12)}
           letterSpacing={0.6}
@@ -122,6 +128,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
           color={'light.lightBlack'}
           width={wp(300)}
           lineHeight={20}
+          marginTop={hp(20)}
         >
           A Signer can be a hardware wallet or a signing device or an app. Most popular ones are
           listed above. Want support for more.{' '}

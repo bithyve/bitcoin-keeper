@@ -28,6 +28,7 @@ import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletS
 // import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -67,6 +68,8 @@ const Navigator = () => {
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
+        <Stack.Screen name="WalletDetails" component={WalletDetails} />
+
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </NavigationContainer>

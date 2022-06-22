@@ -38,7 +38,6 @@ export const WalletMap = (type: SignerType) => {
         Logo: <KEYSTONELOGO />,
       };
     case SignerType.LEDGER:
-      console.log('asdfs');
       return {
         Icon: <LEDGERICON />,
         Logo: <LEDGERLOGO />,
