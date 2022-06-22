@@ -160,7 +160,7 @@ const CreatePin = ({ navigation, route }) => {
       if (relogin) {
         navigation.goBack();
       } else {
-        navigation.replace('NewHome');
+        navigation.replace('App');
       }
       dispatch(credsAuthenticated(false));
     }

@@ -174,7 +174,7 @@ export default function CreatePin(props) {
                       setTimeout(() => {
                         setIsDisabled(true);
                       }, 2);
-                      props.navigation.replace('NewHome');
+                      props.navigation.replace('App');
                     }}
                     value={common.create}
                   />
