@@ -12,8 +12,8 @@ import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
@@ -126,7 +126,7 @@ const VaultStatus = () => {
   const navigation = useNavigation();
   const vault = translations['vault'];
 
-  const { useQuery } = RealmContext;
+  const { useQuery } = useContext(RealmWrapperContext);
   const Signers = useQuery(RealmSchema.VaultSigner);
 
   const open = () => {

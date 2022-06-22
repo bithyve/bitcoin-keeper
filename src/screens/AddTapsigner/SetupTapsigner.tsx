@@ -2,6 +2,7 @@ import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-r
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerType } from 'src/core/wallets/interfaces/enum';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
 import { Text, View } from 'native-base';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
@@ -10,9 +11,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { generateVault } from 'src/core/wallets/VaultFactory';
@@ -140,8 +140,8 @@ const SetupTapsigner = () => {
   const [stepItems, setStepItems] = React.useState(steps);
   const [cvc, setCvc] = React.useState('');
   const [nfcVisible, setNfcVisible] = React.useState(false);
+  const { useQuery, useRealm } = useContext(RealmWrapperContext);
 
-  const { useRealm } = RealmContext;
   const realm = useRealm();
   const navigation = useNavigation();
 

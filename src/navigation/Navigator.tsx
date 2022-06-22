@@ -59,7 +59,6 @@ const AppStack = () => {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
@@ -90,11 +89,10 @@ const AppStack = () => {
 };
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
-  const key = useAppSelector((state) => state.login.key);
   return (
     <NavigationContainer theme={defaultTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {<Stack.Screen name="LoginStack" component={LoginStack} />}
+        <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />
       </Stack.Navigator>
     </NavigationContainer>
