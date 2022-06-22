@@ -144,6 +144,11 @@ const sendAndReceiveSlice = createSlice({
       state.transactionFeeInfo = transactionFeeInfo;
     },
 
+    sendPhasesReset: (state) => {
+      state.sendPhaseOne = initialState.sendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+    },
+
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
       state.sendPhaseTwo = {
@@ -157,6 +162,11 @@ const sendAndReceiveSlice = createSlice({
   },
 });
 
-export const { setExchangeRates, setAverageTxFee, sendPhaseOneExecuted, sendPhaseTwoExecuted } =
-  sendAndReceiveSlice.actions;
+export const {
+  setExchangeRates,
+  setAverageTxFee,
+  sendPhaseOneExecuted,
+  sendPhaseTwoExecuted,
+  sendPhasesReset,
+} = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

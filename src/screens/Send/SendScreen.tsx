@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useCallback, useState } from 'react';
+import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
 import { TextInput } from 'react-native';
 // libraries
 import { View, Box } from 'native-base';
@@ -21,16 +21,24 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
 import { PaymentInfoKind } from 'src/core/wallets/interfaces/enum';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { useDispatch } from 'react-redux';
+import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 
 const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const wallet: Wallet = route.params.wallet;
   const { translations } = useContext(LocalizationContext);
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
   const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+
+  useEffect(() => {
+    // cleanup the reducer at beginning of a new send flow
+    dispatch(sendPhasesReset());
+  }, []);
 
   const navigateToNext = (address: string, amount?: string) => {
     navigation.navigate('AddSendAmount', {
