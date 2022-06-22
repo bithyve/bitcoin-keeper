@@ -63,7 +63,7 @@ const LinkedWallets = () => {
     <Pressable
       alignItems={'center'}
       marginTop={hp(8)}
-      onPress={() => navigation.dispatch(CommonActions.navigate('HardwareSetup'))}
+      onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
       <LinearGradient
         colors={['#00836A', '#073E39']}
