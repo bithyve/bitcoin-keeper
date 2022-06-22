@@ -232,13 +232,7 @@ export default class WalletUtilities {
   };
 
   static createMultiSig = (
-    xpubs:
-      | {
-          primary: string;
-          secondary: string;
-          bithyve: string;
-        }
-      | string[],
+    xpubs: string[],
     required: number,
     network: bitcoinJS.Network,
     childIndex: number,
@@ -250,15 +244,13 @@ export default class WalletUtilities {
     };
     address: string;
   } => {
-    const isXpubRaw = typeof xpubs[0] === 'string';
-    const xpubArray = isXpubRaw ? (xpubs as string[]) : Object.keys(xpubs);
-    const pubkeys = xpubArray.map((xpubKey) => {
+    const pubkeys = xpubs.map((xpub) => {
       const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
-        isXpubRaw ? xpubKey : xpubs[xpubKey],
+        xpub,
         network,
         childIndex,
         internal,
-        isXpubRaw ? true : xpubKey !== 'primary'
+        true
       );
       const xKey = bip32.fromBase58(childExtendedKey, network);
       const pub = xKey.publicKey.toString('hex');

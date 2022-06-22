@@ -294,7 +294,7 @@ export interface WalletSpecs {
 }
 export interface VaultSpecs {
   is2FA: boolean;
-  xpub: string[] | null; // list of xpubs of the signers
+  xpubs: string[]; // list of xpubs of the signers
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker

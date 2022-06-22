@@ -2,6 +2,14 @@ import { Balances } from './wallets';
 import { ObjectSchema } from 'realm';
 import { RealmSchema } from '../enum';
 
+export const Scheme = {
+  type: '{}',
+  properties: {
+    m: 'int',
+    n: 'int',
+  },
+};
+
 export const VaultPresentationDataSchema: ObjectSchema = {
   name: RealmSchema.VaultPresentationData,
   embedded: true,
@@ -17,7 +25,7 @@ export const VaultSpecsSchema: ObjectSchema = {
   name: RealmSchema.VaultSpecs,
   properties: {
     is2FA: 'bool',
-    xpub: 'string',
+    xpubs: 'string[]',
     receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
@@ -40,7 +48,7 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
-    scheme: '{}',
+    scheme: Scheme,
     vaultShellId: 'string',
     isUsable: 'bool',
     signers: `${RealmSchema.VaultSigner}[]`,
