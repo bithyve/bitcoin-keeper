@@ -131,33 +131,27 @@ const sendAndReceiveSlice = createSlice({
             txPrerequisites[priority].estimatedBlocks;
         });
       }
-      return {
-        ...state,
-        sendPhaseOne: {
-          inProgress: false,
-          hasFailed: !successful,
-          failedErrorMessage: !successful ? err : null,
-          isSuccessful: successful,
-          outputs: {
-            txPrerequisites,
-            recipients,
-          },
+      state.sendPhaseOne = {
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        outputs: {
+          txPrerequisites,
+          recipients,
         },
-        transactionFeeInfo,
       };
+      state.transactionFeeInfo = transactionFeeInfo;
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
-      return {
-        ...state,
-        sendPhaseTwo: {
-          inProgress: false,
-          hasFailed: !successful,
-          failedErrorMessage: !successful ? err : null,
-          isSuccessful: successful,
-          txid: successful ? txid : null,
-        },
+      state.sendPhaseTwo = {
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        txid: successful ? txid : null,
       };
     },
   },
