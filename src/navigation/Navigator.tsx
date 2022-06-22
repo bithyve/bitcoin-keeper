@@ -41,7 +41,7 @@ const Navigator = () => {
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer theme={defaultTheme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={'WalletDetails'}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
         <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
         <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
