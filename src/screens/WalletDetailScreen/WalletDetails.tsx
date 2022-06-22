@@ -23,6 +23,7 @@ import Recieve from 'src/assets/images/svgs/receive.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Buy from 'src/assets/images/svgs/icon_buy.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import Arrow from 'src/assets/images/svgs/arrow_white.svg';
 // import IconSent from 'src/assets/images/svgs/icon_sent.svg'; 
 
 const WalletDetails = () => {
@@ -186,7 +187,7 @@ const WalletDetails = () => {
     );
   };
 
-  const GradientIcon = ({ height }) => {
+  const GradientIcon = ({ height, Icon }) => {
     return (
       <LinearGradient
         colors={['#00836A', '#073E39']}
@@ -195,10 +196,12 @@ const WalletDetails = () => {
         style={{
           height: hp(height),
           width: hp(height),
-          borderRadius: height
+          borderRadius: height,
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
       >
-
+        <Icon />
       </LinearGradient>
     );
   }
@@ -221,7 +224,7 @@ const WalletDetails = () => {
         <Pressable>
           <BackIcon />
         </Pressable>
-        <GradientIcon height={48} />
+        <GradientIcon height={48} Icon={Arrow} />
         <Pressable>
           <ScannerIcon />
         </Pressable>
@@ -286,7 +289,7 @@ const WalletDetails = () => {
             </Text>
           </Box>
           <Pressable>
-            <GradientIcon height={38} />
+            <GradientIcon height={38} Icon={Arrow} />
           </Pressable>
 
         </Box>
