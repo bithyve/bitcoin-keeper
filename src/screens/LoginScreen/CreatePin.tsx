@@ -120,7 +120,7 @@ export default function CreatePin(props) {
       setIsDisabled(true);
     }
   }, [passcode, confirmPasscode]);
-
+  console.log(windowHeight);
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
@@ -128,7 +128,7 @@ export default function CreatePin(props) {
           <StatusBar barStyle={'light-content'} />
         </Box>
         <Box flex={1}>
-          <Box mt={windowHeight > 600 ? hp('5%') : 0}>
+          <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
               <Text ml={5} fontSize={RFValue(22)} color={'light.textLight'} fontFamily={'heading'}>
                 {login.welcome}
