@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import React, { useEffect, useState, useContext } from 'react';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useAppSelector } from 'src/store/hooks';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 
-const { useQuery } = RealmContext;
-
 export const useUaiStack = () => {
+  const { useQuery } = useContext(RealmWrapperContext);
   const [uaiStack, setuaiStack] = useState([]);
   const UAIcollection = useQuery(RealmSchema.UAI);
   const dispatch = useDispatch();

@@ -111,7 +111,7 @@ const NewHomeScreen = ({ navigation }) => {
   return (
     <Box flex={1} backgroundColor={'light.greenText'}>
       <Box style={styles.headerContainer}>
-        <Pressable onPress={addtoDb}>
+        <Pressable onPress={() => navigation.navigate('Send')}>
           <ScannerIcon />
         </Pressable>
         <Box alignItems={'center'} flexDirection={'column'}>

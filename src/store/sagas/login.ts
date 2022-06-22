@@ -15,6 +15,7 @@ import {
   setCredStored,
   pinChangedFailed,
   setupLoading,
+  setKey,
 } from '../reducers/login';
 import dbManager from '../../storage/realm/dbManager';
 import * as Cipher from '../../common/encryption';
@@ -32,6 +33,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setupLoading('storingCreds'));
     const hash = yield call(Cipher.hash, payload.passcode);
     const AES_KEY = yield call(Cipher.generateKey);
+    yield put(setKey(AES_KEY));
     const encryptedKey = yield call(Cipher.encrypt, AES_KEY, hash);
     if (!(yield call(SecureStore.store, hash, encryptedKey))) {
       return;
@@ -73,8 +75,8 @@ function* credentialsAuthWorker({ payload }) {
       hash = res.hash;
       encryptedKey = res.encryptedKey;
     }
-
     key = yield call(Cipher.decrypt, encryptedKey, hash);
+    yield put(setKey(key));
     if (!key) throw new Error('Encryption key is missing');
     const uint8array = yield call(Cipher.stringToArrayBuffer, key);
     yield call(dbManager.initializeRealm, uint8array);
@@ -86,8 +88,8 @@ function* credentialsAuthWorker({ payload }) {
     } else yield put(credsAuthenticated(false));
     return;
   }
-
   yield put(credsAuthenticated(true));
+  yield put(setKey(key));
   if (!payload.reLogin) {
     // case: login
     yield put(autoSyncWallets());

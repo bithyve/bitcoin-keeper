@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet, StatusBar, Dimensions } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
   widthPercentageToDP as wp,
@@ -13,6 +13,8 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
+
+const windowHeight = Dimensions.get('window').height;
 
 export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
@@ -126,15 +128,9 @@ export default function CreatePin(props) {
           <StatusBar barStyle={'light-content'} />
         </Box>
         <Box flex={1}>
-          <Box>
+          <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text
-                ml={5}
-                mt={hp(1)}
-                fontSize={RFValue(22)}
-                color={'light.textLight'}
-                fontFamily={'heading'}
-              >
+              <Text ml={5} fontSize={RFValue(22)} color={'light.textLight'} fontFamily={'heading'}>
                 {login.welcome}
               </Text>
               <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
@@ -146,11 +142,11 @@ export default function CreatePin(props) {
               {/*  */}
             </Box>
             {passcode.length == 4 ? (
-              <Box mt={3}>
+              <Box>
                 <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5}>
                   {login.Confirmyourpasscode}
                 </Text>
-                <Box mb={10}>
+                <Box>
                   {/* pin input view */}
                   <PinInputsView
                     passCode={confirmPasscode}
@@ -164,21 +160,21 @@ export default function CreatePin(props) {
                       fontWeight={'500'}
                       width={wp('72%')}
                       textAlign={'right'}
-                      mt={hp('1.5%')}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
-                <Box alignSelf={'flex-end'} mr={5}>
+                <Box alignSelf={'flex-end'} mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
                     onPress={() => {
                       dispatch(storeCreds(passcode));
                       setTimeout(() => {
                         setIsDisabled(true);
-                      }, 2);
-                      props.navigation.replace('NewHome');
+                        props.navigation.replace('App');
+                      }, 20);
                     }}
                     value={common.create}
                   />

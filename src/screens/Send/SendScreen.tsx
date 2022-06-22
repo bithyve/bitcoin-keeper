@@ -1,7 +1,7 @@
 import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
 import { TextInput } from 'react-native';
 // libraries
-import { View, Box } from 'native-base';
+import { View, Box, Pressable, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -16,6 +16,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 // Colors, Images, svgs
 import Colors from 'src/theme/Colors';
 import InfoBox from 'src/components/InfoBox';
+import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
+import BlueWallet from 'src/assets/icons/bluewallet.svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
@@ -75,10 +77,10 @@ const SendScreen = ({ route }) => {
         color={'light.ReceiveBackground'}
       />
       {/* {QR Scanner} */}
-      <Box style={styles.qrcontainer} marginY={hp(5)}>
+      <Box style={styles.qrcontainer} marginY={hp(2)}>
         <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
       </Box>
-      {/* {Input Field} */}
+      {/* send manually option */}
       <Box
         flexDirection={'row'}
         marginY={hp(2)}
@@ -93,9 +95,66 @@ const SendScreen = ({ route }) => {
           onChangeText={handleTextChange}
         />
       </Box>
+      {/* Send to Wallet options */}
+      <Text
+        mb={'5'}
+        ml={'4'}
+        color={'light.GreyText'}
+        fontWeight={200}
+        fontFamily={'body'}
+        fontSize={14}
+        letterSpacing={0.6}
+      >
+        Send to Wallet
+      </Text>
+      <View flexDirection={'row'} style={styles.walletContainer}>
+        <Box mt={'3'}>
+          <Box>
+            <View style={styles.buttonBackground}>
+              <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                <IconWallet />
+              </Pressable>
+            </View>
+          </Box>
+          <Box>
+            <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+              Maldives
+            </Text>
+          </Box>
+        </Box>
+        <Box mt={'3'}>
+          <Box>
+            <View style={styles.buttonBackground}>
+              <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                <BlueWallet />
+              </Pressable>
+            </View>
+          </Box>
+          <Box>
+            <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+              Alex's Wallet
+            </Text>
+          </Box>
+        </Box>
+        <Box mt={'3'}>
+          <Box>
+            <View style={styles.buttonBackground}>
+              <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                <IconWallet />
+              </Pressable>
+            </View>
+          </Box>
+          <Box>
+            <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+              Retirement
+            </Text>
+          </Box>
+        </Box>
+      </View>
+      {/* {Input Field} */}
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={10} marginX={5}>
+      <Box position={'absolute'} bottom={4} marginX={2}>
         <InfoBox title={common.note} desciption={home.reflectSats} width={'65%'} />
       </Box>
     </View>
@@ -104,9 +163,9 @@ const SendScreen = ({ route }) => {
 
 const styles = ScaledSheet.create({
   Container: {
-    flex: 1,
-    padding: '20@s',
     position: 'relative',
+    flex: 1,
+    padding: 8,
   },
   linearGradient: {
     borderRadius: 6,
@@ -129,7 +188,8 @@ const styles = ScaledSheet.create({
   },
   qrContainer: {
     alignSelf: 'center',
-    marginVertical: 30,
+    marginVertical: hp('40%'),
+    flex: 1,
   },
   textInput: {
     width: '90%',
@@ -139,11 +199,30 @@ const styles = ScaledSheet.create({
     padding: 25,
   },
   cameraView: {
-    aspectRatio: 1,
+    height: hp('37'),
   },
   qrcontainer: {
     overflow: 'hidden',
     borderRadius: 10,
+  },
+  walletContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    backgroundColor: '#FCF6EF',
+    height: hp('11'),
+    width: wp('90'),
+    borderRadius: 12,
+    marginHorizontal: wp('3%'),
+  },
+  buttonBackground: {
+    backgroundColor: '#FAC48B',
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+  },
+  buttonPressable: {
+    alignItems: 'center',
+    marginVertical: 14,
   },
 });
 export default SendScreen;

@@ -15,7 +15,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import WalletCard from './WalletCard';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { useNavigation } from '@react-navigation/native';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
@@ -27,14 +27,14 @@ import { useAppSelector } from 'src/store/hooks';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 const WalletTab = ({ animate }) => {
-  const { useQuery } = RealmContext;
+  const { useQuery } = useContext(RealmWrapperContext);
   const navigation = useNavigation();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const exchangeRates = useAppSelector((state) => state.sendAndReceive.exchangeRates);
   const currencyCode = useCurrencyCode();
-  const { translations } = useContext( LocalizationContext )
-  const home = translations[ 'home' ]
+  const { translations } = useContext(LocalizationContext);
+  const home = translations['home'];
 
   const BtcToCurrency = () => {
     return (
@@ -231,5 +231,4 @@ const styles = ScaledSheet.create({
     marginLeft: wp(1),
   },
 });
-
 export default WalletTab;

@@ -27,7 +27,7 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
 
   return (
     <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} marginTop={hp('4%')} marginBottom={hp('1.5%')} width={'auto'}>
+      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
         <Box
           height={wp('13%')}
           width={wp('13%')}
