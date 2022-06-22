@@ -31,39 +31,29 @@ const InheritanceSetup = ({ navigation }) => {
         </Text>
       </Box>
       <InheritanceCard
-            number={1}
+            number={'1'}
             title={inheritence.SetupInheritance}
             description={inheritence.UpgradetoElitetier}
-            my={2}
-            icon={false}
         />
         <InheritanceCard
-            number={2}
+            number={'2'}
             title={inheritence.ActivateInheritance}
             description={inheritence.Downloadandsafelykeepinheritencedocuments}
-            my={2}
-            icon={false}
         />
         <InheritanceCard
-            number={3}
+            number={'3'}
             title={inheritence.Setupfalserecoveryalert}
             description={inheritence.tryingtorecoveryourwallet}
-            my={2}
-            icon={false}
         />
         <InheritanceCard
-            number={4}
+            number={'4'}
             title={inheritence.IndependentRecovery}
             description={inheritence.UnderstandhowyoucanrecoveryourVault}
-            my={2}
-            icon={false}
         />
         <InheritanceCard
-            number={5}
+            number={'5'}
             title={inheritence.Practicehealthcheck}
             description={inheritence.Makessureyousignersareaccessible}
-            my={2}
-            icon={false}
         />
       </ScrollView>
     </SafeAreaView>

@@ -3,19 +3,30 @@ import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { View, StyleSheet } from 'react-native';
 
-const InheritanceCard = (props) => {
+
+type Props = {
+    number: string;
+    title: string;
+    description: string;
+  };
+
+const InheritanceCard = ({
+    number = 'Number',
+    title = 'Name',
+    description = 'Description',
+  }: Props) => {
   return (
     <Box m={5}>
     <Box bg={'light.lightYellow'} flexDirection={'row'} p={15} borderRadius={10}>
       <View style={styles.inheritenceView}>
-          <Text fontWeight={'extrabold'}> {props.number} </Text>
+          <Text fontWeight={'extrabold'}> {number} </Text>
       </View>
         <View style = {{flexDirection: 'column'}}>
         <Text color={'light.headerText'} fontSize={RFValue(13)} fontFamily={'heading'}>
-        {props.title}
+        {title}
         </Text>
         <Text color={'light.GreyText'} fontSize={RFValue(12)} marginRight={10} fontFamily={'body'}>
-        {props.description}
+        {description}
           </Text>
         </View>
       </Box>
