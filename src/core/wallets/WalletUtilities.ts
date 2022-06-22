@@ -11,7 +11,13 @@ const ECPair = ECPairFactory(ecc);
 import config from '../config';
 import _ from 'lodash';
 import idx from 'idx';
-import { WalletType, DerivationPurpose, NetworkType, TransactionType } from './interfaces/enum';
+import {
+  WalletType,
+  DerivationPurpose,
+  NetworkType,
+  TransactionType,
+  PaymentInfoKind,
+} from './interfaces/enum';
 import {
   Wallet,
   ActiveAddresses,
@@ -20,7 +26,6 @@ import {
   Transaction,
   TransactionToAddressMapping,
 } from './interfaces/interface';
-import { ScannedAddressKind } from '../trusted_contacts/interfaces/enum';
 
 const { REQUEST_TIMEOUT, RELAY_AXIOS, SIGNING_AXIOS } = config;
 const accAxios: AxiosInstance = axios.create({
@@ -390,21 +395,22 @@ export default class WalletUtilities {
 
   static isPaymentURI = (paymentURI: string): boolean => paymentURI.slice(0, 8) === 'bitcoin:';
 
-  static addressDiff = (
-    scannedStr: string,
-    network: bitcoinJS.Network
-  ): { type: ScannedAddressKind | null } => {
+  static addressDiff = (scannedStr: string, network: bitcoinJS.Network) => {
     scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
     if (WalletUtilities.isPaymentURI(scannedStr)) {
-      const { address } = WalletUtilities.decodePaymentURI(scannedStr);
+      const { address, options } = WalletUtilities.decodePaymentURI(scannedStr);
       if (WalletUtilities.isValidAddress(address, network)) {
         return {
-          type: ScannedAddressKind.PAYMENT_URI,
+          type: PaymentInfoKind.PAYMENT_URI,
+          address: scannedStr,
+          amount: options.amount,
+          message: options.message,
         };
       }
     } else if (WalletUtilities.isValidAddress(scannedStr, network)) {
       return {
-        type: ScannedAddressKind.ADDRESS,
+        type: PaymentInfoKind.ADDRESS,
+        address: scannedStr,
       };
     }
 

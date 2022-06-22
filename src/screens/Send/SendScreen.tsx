@@ -1,4 +1,4 @@
-import React, { useRef, useContext } from 'react';
+import React, { useRef, useContext, useCallback, useState } from 'react';
 import { TextInput } from 'react-native';
 // libraries
 import { View, Box } from 'native-base';
@@ -18,14 +18,44 @@ import Colors from 'src/theme/Colors';
 import InfoBox from 'src/components/InfoBox';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
+import WalletUtilities from 'src/core/wallets/WalletUtilities';
+import { PaymentInfoKind } from 'src/core/wallets/interfaces/enum';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
 
-const SendScreen = () => {
+const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
+  const wallet: Wallet = route.params.wallet;
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const home = translations['home'];
+  const [paymentInfo, setPaymentInfo] = useState('');
+  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
 
-  const { translations } = useContext( LocalizationContext )
-  const common = translations[ 'common' ]
-  const home = translations[ 'home' ]
+  const navigateToNext = (address: string, amount?: string) => {
+    navigation.navigate('AddSendAmount', {
+      wallet,
+      address,
+      amount,
+    });
+  };
+
+  const handleTextChange = (info: string) => {
+    info = info.trim();
+    setPaymentInfo(info);
+    const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+
+    switch (paymentInfoKind) {
+      case PaymentInfoKind.ADDRESS:
+        navigateToNext(address);
+        break;
+      case PaymentInfoKind.PAYMENT_URI:
+        navigateToNext(address, amount.toString());
+        break;
+      default:
+        return;
+    }
+  };
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
@@ -33,29 +63,32 @@ const SendScreen = () => {
       <HeaderTitle
         title={common.send}
         subtitle={common.smalldesc}
-        onPressHandler={() => navigtaion.goBack()}
+        onPressHandler={() => navigation.goBack()}
         color={'light.ReceiveBackground'}
       />
       {/* {QR Scanner} */}
       <Box style={styles.qrcontainer} marginY={hp(5)}>
-        <RNCamera
-          ref={cameraRef}
-          style={styles.cameraView}
-          captureAudio={false}
-        />
+        <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
       </Box>
       {/* {Input Field} */}
-      <Box flexDirection={'row'} marginY={hp(2)} width={'100%'} justifyContent={'center'} alignItems={'center'}>
-        <TextInput placeholder='or enter address manually' style={styles.textInput} />
+      <Box
+        flexDirection={'row'}
+        marginY={hp(2)}
+        width={'100%'}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
+        <TextInput
+          placeholder="or enter address manually"
+          style={styles.textInput}
+          value={paymentInfo}
+          onChangeText={handleTextChange}
+        />
       </Box>
 
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={10} marginX={5}>
-        <InfoBox
-          title={common.note}
-          desciption={home.reflectSats}
-          width={'65%'}
-        />
+        <InfoBox title={common.note} desciption={home.reflectSats} width={'65%'} />
       </Box>
     </View>
   );
@@ -65,7 +98,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    position: 'relative'
+    position: 'relative',
   },
   linearGradient: {
     borderRadius: 6,
@@ -95,7 +128,7 @@ const styles = ScaledSheet.create({
     backgroundColor: Colors?.textInputBackground,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
-    padding: 25
+    padding: 25,
   },
   cameraView: {
     aspectRatio: 1,
