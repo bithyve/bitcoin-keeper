@@ -173,8 +173,8 @@ export default function CreatePin(props) {
                       dispatch(storeCreds(passcode));
                       setTimeout(() => {
                         setIsDisabled(true);
-                      }, 2);
-                      props.navigation.replace('App');
+                        props.navigation.replace('App');
+                      }, 20);
                     }}
                     value={common.create}
                   />
