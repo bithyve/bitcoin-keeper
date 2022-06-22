@@ -24,7 +24,7 @@ const AddSendAmount = ({ route }) => {
     address,
     amount: prefillAmount,
   }: { wallet: Wallet; address: string; amount: string } = route.params;
-  const [amount, setAmount] = useState(prefillAmount);
+  const [amount, setAmount] = useState(prefillAmount ? prefillAmount : '');
   const navigateToNext = (recipients) => {
     navigation.navigate('SendConfirmation', {
       wallet,
