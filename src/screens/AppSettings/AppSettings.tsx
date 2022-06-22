@@ -90,7 +90,7 @@ const AppSettings = ({ navigation }) => {
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
           <Text fontSize={RFValue(20)}>{common.settings}</Text>
-          <Text fontSize={RFValue(12)}>{settings.biometricsDesc}</Text>
+          <Text fontSize={RFValue(12)}>{settings.selectCurrency}</Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
@@ -108,7 +108,7 @@ const AppSettings = ({ navigation }) => {
           {/* {isBiometicSupported && ( */}
           <SettingsSwitchCard
             title={settings.UseBiometrics}
-            description={settings.biometricsDesc}
+            description={settings.UseBiometricSubTitle}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => onChangeLoginMethod()}
@@ -118,7 +118,7 @@ const AppSettings = ({ navigation }) => {
 
           <SettingsSwitchCard
             title={settings.DarkMode}
-            description={settings.biometricsDesc}
+            description={settings.DarkModeSubTitle}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
@@ -126,7 +126,7 @@ const AppSettings = ({ navigation }) => {
           />
           <SettingsCard
             title={settings.VersionHistory}
-            description={settings.biometricsDesc}
+            description={settings.VersionHistorySubTitle}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
@@ -134,7 +134,7 @@ const AppSettings = ({ navigation }) => {
           />
           <SettingsCard
             title={settings.LanguageCountry}
-            description={settings.biometricsDesc}
+            description={settings.LanguageCountrySubTitle}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
