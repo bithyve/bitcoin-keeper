@@ -13,25 +13,25 @@ import DevicesComponent from './DevicesComponent';
 import Heading from './Heading';
 import KeeperModal from 'src/components/KeeperModal';
 import NavWallet from 'src/assets/images/svgs/nav_wallet.svg';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const { useQuery } = RealmContext;
-
 const { width } = Dimensions.get('window');
 
 const VaultTab = ({ animate }) => {
+  const { useQuery } = useContext(RealmWrapperContext);
+
   const [visible, setModalVisible] = useState(false);
   const open = () => setModalVisible(true);
   const close = () => setModalVisible(false);
   const navigation = useNavigation();
   const Signers = useQuery(RealmSchema.VaultSigner);
-  const { translations } = useContext( LocalizationContext )
-  const vault = translations[ 'vault' ]
+  const { translations } = useContext(LocalizationContext);
+  const vault = translations['vault'];
 
   const Slider = () => {
     return (
