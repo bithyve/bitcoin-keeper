@@ -19,6 +19,7 @@ import {
 } from '../sagaActions/send_and_receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
+import _ from 'lodash';
 import dbManager from '../../storage/realm/dbManager';
 import WalletOperations from 'src/core/wallets/WalletOperations';
 import { createWatcher } from '../utilities';
@@ -118,7 +119,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.sendPhaseOne
   );
   const { wallet, txnPriority, token, note } = payload;
-  const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
+  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);

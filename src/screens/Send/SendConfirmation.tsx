@@ -130,7 +130,6 @@ const SendConfirmation = ({ route }) => {
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
-          <Transaction />
         </Box>
       </Box>
 
