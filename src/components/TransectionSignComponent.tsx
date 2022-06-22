@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { Text } from 'native-base';
 
@@ -9,17 +9,22 @@ import {
 import HardWare from 'src/assets/images/svgs/hardware.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BitCoinBlack from 'src/assets/images/svgs/btc (black).svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const windowHeight = Dimensions.get('window').height;
 
 const TransectionSignComponent = ({ }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const strings = translations[ 'transactions' ]
+
   return (
     <View style={styles.container}>
       <View style={styles.upperContainer}>
         <View style={styles.item}>
           <HardWare />
           <Text style={styles.text} color={'light.textBlack'} fontFamily="body" fontWeight={'200'}>
-            Hexa Pay
+            {strings.HexaPay}
           </Text>
           <Text style={styles.text1} color={'light.textBlack'} fontFamily="body" fontWeight={'100'}>
 
@@ -32,7 +37,7 @@ const TransectionSignComponent = ({ }) => {
             fontFamily="body"
             fontWeight={'300'}
           >
-            More Details
+            {strings.MoreDetails}
           </Text>
         </View>
       </View>
@@ -44,7 +49,7 @@ const TransectionSignComponent = ({ }) => {
             fontFamily="body"
             fontWeight={'100'}
           >
-            To
+            {strings.To}
           </Text>
           <Text
             style={styles.emailText}
@@ -52,7 +57,7 @@ const TransectionSignComponent = ({ }) => {
             fontFamily="body"
             fontWeight={'100'}
           >
-            jadsf8era…a9wer9we09
+             {strings.emailText}
           </Text>
         </View>
         <View style={styles.lowerContainerItem}>
@@ -62,7 +67,7 @@ const TransectionSignComponent = ({ }) => {
             fontFamily="body"
             fontWeight={'100'}
           >
-            Amount
+             {strings.Amount}
           </Text>
           <View style={styles.amountContainer}>
             <BitCoinBlack />
@@ -72,7 +77,7 @@ const TransectionSignComponent = ({ }) => {
               fontFamily="body"
               fontWeight={'100'}
             >
-              0.000024
+               {strings.amountText1}
             </Text>
           </View>
         </View>
@@ -83,7 +88,7 @@ const TransectionSignComponent = ({ }) => {
             fontFamily="body"
             fontWeight={'100'}
           >
-            Fees
+             {strings.Fees}
           </Text>
           <View style={styles.amountContainer}>
             <BitCoinBlack />
@@ -93,7 +98,7 @@ const TransectionSignComponent = ({ }) => {
               fontFamily="body"
               fontWeight={'100'}
             >
-              0.000004
+               {strings.amountText2}
             </Text>
           </View>
 

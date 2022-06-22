@@ -1,26 +1,28 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import bip21 from 'bip21';
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
-import bs58check from 'bs58check';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import ECPairFactory, { ECPairInterface } from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
-const ECPair = ECPairFactory(ecc);
 
-import config from '../config';
-import _ from 'lodash';
-import idx from 'idx';
-import { WalletType, DerivationPurpose, NetworkType, TransactionType } from './interfaces/enum';
 import {
-  Wallet,
   ActiveAddresses,
   DonationWallet,
   MultiSigWallet,
   Transaction,
   TransactionToAddressMapping,
+  Wallet,
 } from './interfaces/interface';
+import { DerivationPurpose, NetworkType, TransactionType, WalletType } from './interfaces/enum';
+import ECPairFactory, { ECPairInterface } from 'ecpair';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+
 import { ScannedAddressKind } from '../trusted_contacts/interfaces/enum';
+import _ from 'lodash';
+import bip21 from 'bip21';
+import bs58check from 'bs58check';
+import config from '../config';
+import idx from 'idx';
+
+const ECPair = ECPairFactory(ecc);
 
 const { REQUEST_TIMEOUT, RELAY_AXIOS, SIGNING_AXIOS } = config;
 const accAxios: AxiosInstance = axios.create({
@@ -230,11 +232,13 @@ export default class WalletUtilities {
   };
 
   static createMultiSig = (
-    xpubs: {
-      primary: string;
-      secondary: string;
-      bithyve: string;
-    },
+    xpubs:
+      | {
+          primary: string;
+          secondary: string;
+          bithyve: string;
+        }
+      | string[],
     required: number,
     network: bitcoinJS.Network,
     childIndex: number,
@@ -246,13 +250,15 @@ export default class WalletUtilities {
     };
     address: string;
   } => {
-    const pubkeys = Object.keys(xpubs).map((xpubKey) => {
+    const isXpubRaw = typeof xpubs[0] === 'string';
+    const xpubArray = isXpubRaw ? (xpubs as string[]) : Object.keys(xpubs);
+    const pubkeys = xpubArray.map((xpubKey) => {
       const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
-        xpubs[xpubKey],
+        isXpubRaw ? xpubKey : xpubs[xpubKey],
         network,
         childIndex,
         internal,
-        xpubKey !== 'primary'
+        isXpubRaw ? true : xpubKey !== 'primary'
       );
       const xKey = bip32.fromBase58(childExtendedKey, network);
       const pub = xKey.publicKey.toString('hex');

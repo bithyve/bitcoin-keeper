@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity, Alert } from 'react-native';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
-import SettingsCard from 'src/components/SettingComponent/SettingsCard';
-import { RFValue } from 'react-native-responsive-fontsize';
-import Note from 'src/components/Note/Note';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { changeLoginMethod } from '../../store/sagaActions/login';
+import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import dbManager from 'src/storage/realm/dbManager';
+import HeaderTitle from 'src/components/HeaderTitle';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import Note from 'src/components/Note/Note';
+import { RFValue } from 'react-native-responsive-fontsize';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
+import SettingsCard from 'src/components/SettingComponent/SettingsCard';
+import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
+import { changeLoginMethod } from '../../store/sagaActions/login';
+import dbManager from 'src/storage/realm/dbManager';
 import openLink from 'src/utils/OpenLink';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -22,6 +25,10 @@ const AppSettings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
+
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const settings = translations['settings'];
 
   useEffect(() => {
     init();
@@ -77,19 +84,11 @@ const AppSettings = ({ navigation }) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={5} my={10}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
+      <HeaderTitle />
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-        <Box w={'59%'}>
-          <Text fontSize={RFValue(20)} fontFamily={'heading'}>
-            Settings
-          </Text>
-          <Text fontSize={RFValue(12)} fontFamily={'body'}>
-            Lorem ipsum dolor sit amet{' '}
-          </Text>
+        <Box w={'60%'}>
+          <Text fontSize={RFValue(20)}>{common.settings}</Text>
+          <Text fontSize={RFValue(12)}>{settings.biometricsDesc}</Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
@@ -104,42 +103,44 @@ const AppSettings = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
+          {/* {isBiometicSupported && ( */}
           <SettingsSwitchCard
-            title={'Use Biometrics'}
-            description={'Lorem ipsum dolor sit amet,'}
+            title={settings.UseBiometrics}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => onChangeLoginMethod()}
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
+          {/* )} */}
 
           <SettingsSwitchCard
-            title={'Dark Mode'}
-            description={'Lorem ipsum dolor sit amet'}
+            title={settings.DarkMode}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
           />
           <SettingsCard
-            title={'Version History'}
-            description={'Lorem ipsum dolor sit amet'}
+            title={settings.VersionHistory}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
           />
           <SettingsCard
-            title={'Language & Country'}
-            description={'Lorem ipsum dolor sit amet'}
+            title={settings.LanguageCountry}
+            description={settings.biometricsDesc}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
           <SettingsCard
-            title={'Keeper Community Telegram Group'}
-            description={'Questions, feedback and more'}
+            title={settings.KeeperCommunityTelegramGroup}
+            description={settings.Questionsfeedbackandmore}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
@@ -155,17 +156,12 @@ const AppSettings = ({ navigation }) => {
           />
           <Pressable onPress={() => showSeed()}>
             <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-              View Seed
+              {common.ViewSeed}
             </Text>
           </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
-          <Note
-            title={'Note'}
-            subtitle={
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
-            }
-          />
+          <Note title={common.note} subtitle={common.desc} />
         </Box>
         <Box flex={0.2} mx={7}>
           <Box
@@ -176,24 +172,24 @@ const AppSettings = ({ navigation }) => {
             bg={'light.lightYellow'}
           >
             <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
-              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
-                FAQ’s
+              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+                {common.FAQs}
               </Text>
             </Pressable>
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
-              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
-                Terms and Conditions
+            <Pressable onPress={() => openLink(' https://hexawallet.io/terms-of-service/')}>
+              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+                {common.TermsConditions}
               </Text>
             </Pressable>
             <Text fontFamily={'body'} color={'light.textColor2'}>
               |
             </Text>
-            <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
-              <Text fontSize={RFValue(12)} fontFamily={'body'} color={'light.textColor2'}>
-                Privacy Policy
+            <Pressable onPress={() => openLink(' http://hexawallet.io/privacy-policy')}>
+              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+                {common.PrivacyPolicy}
               </Text>
             </Pressable>
           </Box>

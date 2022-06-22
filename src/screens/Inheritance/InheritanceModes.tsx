@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback } from 'react';
+import React, { Fragment, useCallback, useContext } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RightArrow from 'src/assets/images/rightarrow.svg';
@@ -6,9 +6,11 @@ import Benificiary from 'src/assets/images/Beneficiary.svg';
 import Declaration from 'src/assets/images/Declaration.svg';
 import Transfer from 'src/assets/images/Transfer.svg';
 import { HStack, VStack, Text } from 'native-base';
+import { LocalizationContext } from 'src/common/content/LocContext';
 const { height } = Dimensions.get('screen');
 
 const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ children, Icon }) => {
+
   return (
     <LinearGradient
       colors={['#ECD1B600', '#ECD1B6']}
@@ -34,35 +36,39 @@ const Wrapper: React.FunctionComponent<{ children: Element[]; Icon }> = ({ child
   );
 };
 const InheritanceModes = ({ openAssignSheet, openDeclarationSheet, openTransferSheet }) => {
+
+  const { translations } = useContext( LocalizationContext )
+  const inheritence = translations[ 'inheritence' ]
+
   return (
     <Fragment>
       <TouchableOpacity onPress={openAssignSheet}>
         <Wrapper Icon={<Benificiary />}>
           <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
-            Assign Beneficiary
+            {inheritence.AssignBeneficiary}
           </Text>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-            The one you hodled for so long
+            {inheritence.hodledforlong}
           </Text>
         </Wrapper>
       </TouchableOpacity>
       <TouchableOpacity onPress={openDeclarationSheet}>
         <Wrapper Icon={<Declaration />}>
           <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
-            Sign Declaration
+            {inheritence.SignDeclaration}
           </Text>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-            Transfer bitcoin custody
+            {inheritence.Transferbitcoincustody}
           </Text>
         </Wrapper>
       </TouchableOpacity>
       <TouchableOpacity onPress={openTransferSheet}>
         <Wrapper Icon={<Transfer />}>
           <Text fontFamily={'body'} fontWeight={'200'} fontSize={'13'}>
-            Activate Transfer
+            {inheritence.ActivateTransfer}
           </Text>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={'xs'}>
-            The best inheritance in history
+            {inheritence.Thebestinheritance}
           </Text>
         </Wrapper>
       </TouchableOpacity>

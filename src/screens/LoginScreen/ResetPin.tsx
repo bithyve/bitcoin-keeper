@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
 import { Box, Text } from 'native-base';
 import {
@@ -12,6 +12,8 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 export default function ResetPin(props) {
   const [passcode, setPasscode] = useState('');
@@ -23,6 +25,10 @@ export default function ResetPin(props) {
   const { credsChanged } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
   const oldPasscode = props.route.params.oldPin || '';
+
+  const { translations } = useContext(LocalizationContext);
+  const login = translations['login'];
+  const common = translations['common'];
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -124,192 +130,27 @@ export default function ResetPin(props) {
                 color={'light.white'}
                 fontFamily={'heading'}
               >
-                Reset Passcode
+                {login.ResetPasscode}
               </Text>
               <Text color={'light.white'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
-                {'Create a passcode'}
+                {login.Createpasscode}
               </Text>
 
-              <Box>
-                <Box flexDirection={'row'} mt={hp('4.5%')} mb={hp('4.5%')}>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 1 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 0 && passcodeFlag == true ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 2 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 1 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 3 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 2 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {passcode.length >= 4 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : passcode.length == 3 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
+              {/* pin input view */}
+              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              {/*  */}
             </Box>
             <Box>
-              <Text color={'light.white'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
-                {'Confirm your passcode'}
+              <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
+                {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
-                <Box flexDirection={'row'} mt={hp('1.5%')}>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {confirmPasscode.length >= 1 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : confirmPasscode.length == 0 && confirmPasscodeFlag == 1 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {confirmPasscode.length >= 2 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : confirmPasscode.length == 1 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {confirmPasscode.length >= 3 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : confirmPasscode.length == 2 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                  <Box
-                    height={wp('13%')}
-                    width={wp('13%')}
-                    borderRadius={7}
-                    ml={5}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'rgba(253,247,240, 0.2)'}
-                  >
-                    <Box>
-                      {confirmPasscode.length >= 4 ? (
-                        <DotView height={3} width={3} color={'white'} />
-                      ) : confirmPasscode.length == 3 ? (
-                        <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13, 812)}>
-                          {'|'}
-                        </Text>
-                      ) : (
-                        ''
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
+                {/* pin input view */}
+                <PinInputsView
+                  passCode={confirmPasscode}
+                  passcodeFlag={confirmPasscodeFlag == 0 ? false : true}
+                />
+                {/*  */}
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                   <Text
                     color={'light.white'}
@@ -319,7 +160,7 @@ export default function ResetPin(props) {
                     textAlign={'right'}
                     mt={hp('1.5%')}
                   >
-                    {'Mismatch Passcode'}
+                    {login.MismatchPasscode}
                   </Text>
                 )}
               </Box>
@@ -328,7 +169,7 @@ export default function ResetPin(props) {
                   onPress={() => {
                     dispatch(resetPin(passcode));
                   }}
-                  value={'Proceed'}
+                  value={common.proceed}
                 />
               </Box>
             </Box>

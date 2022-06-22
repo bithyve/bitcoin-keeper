@@ -34,7 +34,7 @@ const defaultTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#FDF7F0',
+    background: '#F7F2EC',
   },
 };
 const Navigator = () => {
@@ -47,6 +47,7 @@ const Navigator = () => {
         <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
         <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
         <Stack.Screen name="NewHome" component={HomeScreen} />
+        <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         {/* <Stack.Screen name="NewHome" component={NewHomeScreen} /> */}
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />

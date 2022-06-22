@@ -5,7 +5,7 @@ import schema from './schema';
 export const realmConfig = {
   path: 'keeper.realm',
   schema,
-  schemaVersion: 8,
+  schemaVersion: 9,
   // encryptionKey: key,
 };
 

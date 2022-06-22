@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext } from 'react';
 import { Text } from 'native-base';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -7,17 +7,21 @@ import { ScaledSheet } from 'react-native-size-matters';
 
 import HexaBottomSheet from 'src/components/BottomSheet';
 import TransectionSubmittedComponent from 'src/components/TransectionSubmittedComponent';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const TransectionSubmitted = ({ }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const { translations } = useContext( LocalizationContext )
+  const strings = translations[ 'transactions' ]
+  const common = translations [ 'common' ]
   return (
     <HexaBottomSheet
       bottomSheetRef={bottomSheetRef}
-      title="Transaction Confirmed"
+      title={strings.TransactionConfirmed}
       subTitle={''}
       snapPoints={['25%', '65%']}
-      primaryText={'Confirm'}
-      secondaryText={'Reject'}
+      primaryText={common.confirm}
+      secondaryText={common.reject}
       primaryCallback={null}
       secondaryCallback={null}
     >

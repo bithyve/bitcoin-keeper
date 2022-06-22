@@ -1,14 +1,16 @@
 import {
-  WalletType,
-  WalletVisibility,
   ActiveAddressAssigneeType,
   GiftStatus,
   GiftThemeId,
   GiftType,
   NetworkType,
-  TransactionType,
   NodeType,
+  SignerType,
+  TransactionType,
   TxPriority,
+  VaultVisibility,
+  WalletType,
+  WalletVisibility,
 } from './enum';
 
 export interface InputUTXOs {
@@ -237,11 +239,23 @@ export interface WalletDerivationDetails {
   xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
 }
 
+export interface VaultDerivationDetails {
+  [xpub: string]: {
+    derivationPath: string; // derivation path of the extended keys belonging to this xpub
+  };
+}
+
 export interface WalletPresentationData {
   walletName: string; // name of the wallet
   walletDescription: string; // description of the wallet
   walletVisibility: WalletVisibility; // visibility of the wallet
   isSynching: boolean; // sync status of the wallet
+}
+export interface VaultPresentationData {
+  vaultName: string; // name of the vault
+  vaultDescription: string; // description of the vault
+  vaultVisibility: VaultVisibility; // visibility of the vault
+  isSynching: boolean; // sync status of the vault
 }
 
 export interface DonationWalletPresentationData extends WalletPresentationData {
@@ -278,6 +292,28 @@ export interface WalletSpecs {
   };
   // transactionsMeta?: TransactionMetaData[];
 }
+export interface VaultSpecs {
+  is2FA: boolean;
+  xpub: string[] | null; // list of xpubs of the signers
+  receivingAddress: string; // current external address
+  nextFreeAddressIndex: number; // external-chain free address marker
+  nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  activeAddresses: ActiveAddresses; // addresses being actively used by this vault
+  importedAddresses: WalletImportedAddresses;
+  confirmedUTXOs: UTXO[]; // utxo set available for use
+  unconfirmedUTXOs: UTXO[]; // utxos to arrive
+  balances: Balances; // confirmed/unconfirmed balances
+  transactions: Transaction[]; // transactions belonging to this vault
+  newTransactions?: Transaction[]; // new transactions arrived during the current sync
+  lastSynched: number; // vault's last sync timestamp
+  hasNewTxn?: boolean; // indicates new txns
+  txIdCache: { [txid: string]: boolean };
+  transactionMapping: TransactionToAddressMapping[];
+  transactionsNote: {
+    [txId: string]: string;
+  };
+  // transactionsMeta?: TransactionMetaData[];
+}
 
 export interface MultiSigWalletSpecs extends WalletSpecs {
   is2FA: boolean; // is2FA enabled
@@ -306,6 +342,28 @@ export interface MultiSigWallet extends Wallet {
   specs: MultiSigWalletSpecs;
 }
 
+export interface Vault {
+  id: string; // vault identifier(derived from xpub)
+  scheme: VaultScheme; // type of vault
+  vaultShellId: string; // identifier of the vault shell that the vault belongs
+  isUsable: boolean; // true if vault is usable
+  signers: VaultSigner[];
+  presentationData: VaultPresentationData;
+  specs: VaultSpecs;
+}
+
+export interface VaultScheme {
+  m: number; // threshold number of signatures required
+  n: number; // total number of xpubs
+}
+
+export interface VaultSigner {
+  signerId: string;
+  signerName: string;
+  type: SignerType;
+  xpub: string;
+  derivation: string;
+}
 export interface DonationWallet extends Wallet {
   presentationData: DonationWalletPresentationData;
   specs: WalletSpecs | MultiSigWalletSpecs;
@@ -323,8 +381,6 @@ export interface WalletShell {
   walletInstances: { [walletType: string]: number }; // various wallet types mapped to corresponding number of instances
   triggerPolicyId?: string;
 }
-
-export interface Vault {}
 
 export interface InheritancePolicy {
   id: string;
