@@ -6,7 +6,7 @@ import BackIcon from 'src/assets/icons/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const InheritanceSetup = ({ navigation }) => {
+const InheritanceSetup = ({ navigation }: { navigation }) => {
 
   const { translations } = useContext(LocalizationContext);
   const inheritence = translations['inheritence'];
