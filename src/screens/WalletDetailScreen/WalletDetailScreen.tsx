@@ -34,7 +34,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { FlatList } from 'react-native-gesture-handler';
-import { RealmContext } from 'src/storage/realm/RealmProvider';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -99,7 +99,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
 };
 
 const WalletDetailScreen = ({ route }) => {
-  const { useObject } = RealmContext;
+  const { useObject } = useContext(RealmWrapperContext);
   const wallet: Wallet = getJSONFromRealmObject(
     useObject(RealmSchema.Wallet, route.params.walletId)
   );
@@ -110,10 +110,10 @@ const WalletDetailScreen = ({ route }) => {
   const dispatch = useDispatch();
 
   const [pullRefresh, setPullRefresh] = useState(false);
-  
-  const { translations } = useContext( LocalizationContext )
-  const common = translations[ 'common' ]
-  const home = translations [ 'home' ]
+
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const home = translations['home'];
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -186,7 +186,7 @@ const WalletDetailScreen = ({ route }) => {
               fontWeight={200}
               letterSpacing={0.6}
             >
-             {common.knowMore}
+              {common.knowMore}
             </Text>
           </Pressable>
         </Box>
