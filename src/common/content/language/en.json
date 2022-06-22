@@ -270,10 +270,15 @@
     "CardStatus": "Card Status"
   },
   "settings": {
-    "UseBiometrics": "Use Biometrics",
+    "selectCurrency": "Select currency",
+    "UseBiometrics": "Face ID",
+    "UseBiometricSubTitle": "Use Face ID to login to the app",
     "DarkMode": "Dark Mode",
+    "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
+    "VersionHistorySubTitle": "View the apps version history",
     "LanguageCountry": "Language & Country",
+    "LanguageCountrySubTitle": "Select language and currency",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Lorem ipsum dolor sit amet,",
@@ -331,6 +336,6 @@
     "ConfirmSecurityQuestion": "Confirm Security Question",
     "ConfirmWalletPin": "Confirm Wallet Pin",
     "ConfirmEncryptionPassword": "Confirm Encryption Password",
-    "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
+    "desc": "It would take some time for the sats to reflect in your account based on the network condition"
   }
 }
