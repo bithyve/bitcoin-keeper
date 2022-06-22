@@ -17,7 +17,7 @@ import { useAppSelector } from 'src/store/hooks';
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse, wallet, recipients } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
 

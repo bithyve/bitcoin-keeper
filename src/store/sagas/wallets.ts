@@ -186,26 +186,9 @@ function* addNewWallet(
 ) {
   const { primaryMnemonic } = app;
   const { walletInstances } = walletShell;
-  const {
-    name: walletName,
-    description: walletDescription,
-    is2FAEnabled,
-    doneeName,
-  } = walletDetails;
+  const { name: walletName, description: walletDescription } = walletDetails;
 
   switch (walletType) {
-    case WalletType.TEST:
-      const testWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.TEST,
-        instanceNum: walletInstances[WalletType.TEST] | 0,
-        walletShellId: walletShell.id,
-        walletName: walletName ? walletName : 'Test Wallet',
-        walletDescription: 'Testnet Wallet',
-        primaryMnemonic,
-        networkType: NetworkType.TESTNET,
-      });
-      return testWallet;
-
     case WalletType.CHECKING:
       const checkingWallet: Wallet = yield call(generateWallet, {
         type: WalletType.CHECKING,
@@ -219,88 +202,13 @@ function* addNewWallet(
       });
       return checkingWallet;
 
-    case WalletType.SAVINGS:
-      // if( !wallet.secondaryXpub && !wallet.twoFADetails ) throw new Error( 'Fail to create savings wallet; secondary-xpub/twoFADetails missing' )
-
-      const savingsWallet: MultiSigWallet = yield call(generateMultiSigWallet, {
-        type: WalletType.SAVINGS,
-        instanceNum: walletInstances[WalletType.SAVINGS] | 0,
-        walletShellId: walletShell.id,
-        walletName: walletName ? walletName : 'Savings Wallet',
-        walletDescription: walletDescription ? walletDescription : 'MultiSig Wallet',
-        primaryMnemonic,
-        secondaryXpub: app.secondaryXpub,
-        bithyveXpub: app.twoFADetails?.bithyveXpub,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
-      });
-      return savingsWallet;
-
-    case WalletType.DONATION:
-      if (is2FAEnabled)
-        if (!app.secondaryXpub && !app.twoFADetails)
-          throw new Error('Fail to create savings wallet; secondary-xpub/twoFADetails missing');
-
-      const donationWallet: DonationWallet = yield call(generateDonationWallet, {
-        type: walletType,
-        instanceNum: walletInstances[walletType] | 0,
-        walletShellId: walletShell.id,
-        walletName: 'Donation Wallet',
-        walletDescription: walletName ? walletName : 'Receive Donations',
-        donationName: walletName,
-        donationDescription: walletDescription,
-        donee: doneeName ? doneeName : app.appName,
-        primaryMnemonic,
-        is2FA: is2FAEnabled,
-        secondaryXpub: is2FAEnabled ? app.secondaryXpub : null,
-        bithyveXpub: is2FAEnabled ? app.twoFADetails?.bithyveXpub : null,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
-      });
-      const { setupSuccessful } = yield call(
-        WalletUtilities.setupDonationWallet,
-        donationWallet,
-        app.id
-      );
-      if (!setupSuccessful) throw new Error('Failed to generate donation wallet');
-      return donationWallet;
-
-    case WalletType.SWAN:
-    case WalletType.DEPOSIT:
-      let defaultWalletName, defaultWalletDescription;
-      switch (walletType) {
-        case WalletType.SWAN:
-          defaultWalletName = 'Swan Bitcoin';
-          defaultWalletDescription = 'Register\nand claim $10';
-          break;
-
-        case WalletType.DEPOSIT:
-          defaultWalletName = 'Deposit Wallet';
-          defaultWalletDescription = 'Stack sats';
-          break;
-      }
-
-      const serviceWallet: Wallet = yield call(generateWallet, {
-        type: walletType,
-        instanceNum: walletInstances[walletType] | 0,
-        walletShellId: walletShell.id,
-        walletName: walletName ? walletName : defaultWalletName,
-        walletDescription: walletDescription ? walletDescription : defaultWalletDescription,
-        primaryMnemonic,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
-      });
-      if (walletType === WalletType.SWAN) serviceWallet.isUsable = false;
-
-      return serviceWallet;
-
     case WalletType.LIGHTNING:
       const lnWallet: Wallet = yield call(generateWallet, {
         type: walletType,
         instanceNum: walletInstances[walletType] | 0,
         walletShellId: walletShell.id,
-        walletName: walletName ? walletName : defaultWalletName,
-        walletDescription: walletDescription ? walletDescription : defaultWalletDescription,
+        walletName: walletName ? walletName : 'Lightning Wallet',
+        walletDescription: walletDescription ? walletDescription : '',
         primaryMnemonic,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,

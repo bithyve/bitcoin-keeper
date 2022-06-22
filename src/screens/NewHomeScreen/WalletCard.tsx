@@ -19,17 +19,17 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 
 const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
   const walletName = item?.presentationData?.walletName;
-  const walletDescription = item?.presentationData?.walletName;
+  const walletDescription = item?.presentationData?.walletDescription;
   const balances = item?.specs?.balances;
-  const { translations } = useContext( LocalizationContext )
-  const wallet = translations[ 'wallet' ]
+  const { translations } = useContext(LocalizationContext);
+  const wallet = translations['wallet'];
 
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('WalletDetailScreen', { walletId: item.id })}
     >
       <ImageBackground resizeMode="stretch" style={styles.homeCard} source={HomeCardImage}>
-        {!(item?.presentationData && item?.specs) ?
+        {!(item?.presentationData && item?.specs) ? (
           <TouchableOpacity
             style={styles.addWalletContainer}
             onPress={() => navigation.navigate('EnterWalletDetail')}
@@ -44,7 +44,7 @@ const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
               {wallet.AddNewWallet}
             </Text>
           </TouchableOpacity>
-          :
+        ) : (
           <>
             <View style={styles.cardHeader}>
               {/* <View style={styles.hexaWalletContainer} background={'light.lightBlue'}>
@@ -95,7 +95,7 @@ const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
               </View>
             </View>
           </>
-        }
+        )}
       </ImageBackground>
     </TouchableOpacity>
   );

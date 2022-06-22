@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import TransactionPriority from 'src/common/data/enums/TransactionPriority';
 import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { TxPriority } from 'src/core/wallets/interfaces/enum';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
@@ -27,7 +27,7 @@ export interface SendPhaseTwoExecutedPayload {
   err?: string;
 }
 
-export type TransactionFeeInfo = Record<TransactionPriority, TransactionFeeSnapshot>;
+export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
 const initialState: {
   exchangeRates: ExchangeRates;
@@ -86,19 +86,19 @@ const initialState: {
   sendMaxFee: 0,
   feeIntelMissing: false,
   transactionFeeInfo: {
-    [TransactionPriority.LOW]: {
+    [TxPriority.LOW]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 50,
     },
-    [TransactionPriority.MEDIUM]: {
+    [TxPriority.MEDIUM]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 20,
     },
-    [TransactionPriority.HIGH]: {
+    [TxPriority.HIGH]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 4,
     },
-    [TransactionPriority.CUSTOM]: {
+    [TxPriority.CUSTOM]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 0,
     },
