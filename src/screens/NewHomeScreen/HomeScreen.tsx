@@ -47,7 +47,7 @@ const InheritanceComponent = () => {
               fontWeight={100}
               marginTop={-1}
             >
-              Upgrade to secure your Vault
+              Upgrade to secure your Vaul
             </Text>
           </Box>
         </Box>
@@ -271,6 +271,7 @@ const VaultInfo = () => {
 };
 
 const NextIcon = () => {
+  const navigation = useNavigation();
   return (
     <Box
       backgroundColor={'light.yellow1'}
@@ -280,7 +281,9 @@ const NextIcon = () => {
       justifyContent={'center'}
       alignItems={'center'}
     >
+      <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('InheritanceSetup'))}>
       <Arrow />
+      </Pressable>
     </Box>
   );
 };

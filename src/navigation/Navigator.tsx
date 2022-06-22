@@ -5,6 +5,7 @@ import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
+import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
@@ -69,6 +70,7 @@ const AppStack = () => {
         <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
+        <Stack.Screen name="InheritanceSetup" component={InheritanceSetup} />
         <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
