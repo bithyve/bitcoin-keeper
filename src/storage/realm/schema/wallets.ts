@@ -99,10 +99,9 @@ export const WalletDerivationDetailsSchema: ObjectSchema = {
   name: RealmSchema.WalletDerivationDetails,
   embedded: true,
   properties: {
-    networkType: 'string',
     instanceNum: 'int',
     mnemonic: 'string',
-    bip85Config: BIP85Config,
+    bip85Config: `${BIP85Config}?`,
     xDerivationPath: 'string',
   },
 };
@@ -146,10 +145,11 @@ export const WalletSchema: ObjectSchema = {
   name: RealmSchema.Wallet,
   properties: {
     id: 'string',
-    type: 'string',
     walletShellId: 'string',
+    type: 'string',
+    networkType: 'string',
     isUsable: 'bool',
-    derivationDetails: RealmSchema.WalletDerivationDetails,
+    derivationDetails: `${RealmSchema.WalletDerivationDetails}?`,
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,
   },

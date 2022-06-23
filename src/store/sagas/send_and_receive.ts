@@ -81,7 +81,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
     return;
   }
 
-  const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
+  const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
 
   try {
     const { txPrerequisites } = yield call(
@@ -122,7 +122,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
-  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
     const { txid } = yield call(
       WalletOperations.transferST2,
@@ -173,7 +173,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     return;
   }
 
-  const averageTxFeeByNetwork = averageTxFees[sender.derivationDetails.networkType];
+  const averageTxFeeByNetwork = averageTxFees[sender.networkType];
   try {
     // const recipients = yield call(processRecipients);
     const recipients = [
@@ -190,7 +190,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     );
 
     if (txPrerequisites) {
-      const network = WalletUtilities.getNetworkByType(sender.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(sender.networkType);
       const { txid } = yield call(
         WalletOperations.transferST2,
         sender,
@@ -220,9 +220,9 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.sendAndReceive.averageTxFees
   );
-  const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
+  const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
   const feePerByte = averageTxFeeByNetwork[TxPriority.LOW].feePerByte;
-  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { fee } = WalletOperations.calculateSendMaxFee(
     wallet,
@@ -255,7 +255,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
   }
 
   const { wallet, recipients, feePerByte, customEstimatedBlocks } = payload;
-  // const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  // const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   // const sendingState: SendingState = yield select((state) => state.sending);
   // const selectedRecipients: Recipient[] = [...sendingState.selectedRecipients];

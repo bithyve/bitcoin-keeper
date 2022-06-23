@@ -39,7 +39,7 @@ export default class WalletOperations {
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as MultiSigWallet).specs.is2FA)
       receivingAddress = WalletUtilities.createMultiSig(
         {
@@ -77,7 +77,7 @@ export default class WalletOperations {
   static syncGapLimit = async (wallet: Wallet | MultiSigWallet) => {
     let tryAgain = false;
     const hardGapLimit = 10;
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
       ? DerivationPurpose.BIP84
@@ -433,7 +433,7 @@ export default class WalletOperations {
       name?: string;
     }[]
   ) => {
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     const activeExternalAddresses = wallet.specs.activeAddresses.external;
     const activeInternalAddresses = wallet.specs.activeAddresses.internal;
@@ -753,7 +753,7 @@ export default class WalletOperations {
         outputs = txPrerequisites[txnPriority].outputs;
       }
 
-      const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       // console.log({ inputs, outputs });
       const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
@@ -822,7 +822,7 @@ export default class WalletOperations {
     try {
       let vin = 0;
       const childIndexArray = [];
-      const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       for (const input of inputs) {
         let keyPair, redeemScript;
@@ -872,7 +872,7 @@ export default class WalletOperations {
 
     if (!wallet.specs.xprivs.secondary)
       throw new Error('Multi-sign transaction failed: secondary xpriv missing');
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     inputs.forEach((input) => {
       const { secondaryPriv } = WalletUtilities.signingEssentialsForMultiSig(wallet, input.address);

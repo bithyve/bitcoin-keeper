@@ -232,10 +232,9 @@ export interface TwoFADetails {
 }
 
 export interface WalletDerivationDetails {
-  networkType: NetworkType; // testnet/mainnet
   instanceNum: number; // instance number of this particular walletType
   mnemonic: string; // mnemonic of the wallet
-  bip85Config: BIP85Config; // bip85 configuration leading to the derivation path for the corresponding entropy
+  bip85Config?: BIP85Config; // bip85 configuration leading to the derivation path for the corresponding entropy
   xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
 }
 
@@ -330,10 +329,11 @@ export interface MultiSigWalletSpecs extends WalletSpecs {
 
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
-  type: WalletType; // type of wallet
   walletShellId: string; // identifier of the wallet shell that the wallet belongs
+  type: WalletType; // type of wallet
+  networkType: NetworkType; // testnet/mainnet
   isUsable: boolean; // true if wallet is usable
-  derivationDetails: WalletDerivationDetails;
+  derivationDetails?: WalletDerivationDetails;
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
 }

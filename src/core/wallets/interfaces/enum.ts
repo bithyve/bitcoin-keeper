@@ -69,6 +69,7 @@ export enum WalletType {
   FNF = 'FNF',
   LIGHTNING = 'LIGHTNING',
   IMPORTED = 'IMPORTED',
+  READ_ONLY = 'READ_ONLY',
 }
 
 export enum SignerType {
