@@ -263,9 +263,6 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
     );
     walletIds.push(wallet.id);
     wallets.push(wallet);
-
-    if (wallet.type === WalletType.TEST && wallet.derivationDetails.instanceNum === 0)
-      testcoinsToWallet = wallet;
   }
 
   let presentWalletInstances = { ...walletShell.walletInstances };
@@ -282,8 +279,6 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   for (const wallet of wallets) {
     yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
   }
-
-  if (testcoinsToWallet) yield put(getTestcoins(testcoinsToWallet)); // pre-fill test-wallet w/ testcoins
 }
 
 export const addNewWalletsWatcher = createWatcher(addNewWalletsWorker, ADD_NEW_WALLETS);

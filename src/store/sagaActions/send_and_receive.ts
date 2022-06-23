@@ -176,7 +176,6 @@ export interface SendPhaseTwoAction extends Action {
   payload: {
     wallet: Wallet | MultiSigWallet;
     txnPriority: TxPriority;
-    token?: number;
     note?: string;
   };
 }

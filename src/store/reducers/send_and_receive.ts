@@ -23,6 +23,7 @@ export interface SendPhaseOneExecutedPayload {
 
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
+  serializedPSBT?: string;
   txid?: string;
   err?: string;
 }
@@ -54,6 +55,7 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
+    serializedPSBT: string;
     txid: string | null;
   };
   sendMaxFee: number;
@@ -81,6 +83,7 @@ const initialState: {
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
+    serializedPSBT: null,
     txid: null,
   },
   sendMaxFee: 0,
@@ -151,12 +154,13 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
-      const { successful, txid, err } = action.payload;
+      const { successful, txid, serializedPSBT, err } = action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
+        serializedPSBT: successful ? serializedPSBT : null,
         txid: successful ? txid : null,
       };
     },

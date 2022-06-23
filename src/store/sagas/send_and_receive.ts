@@ -30,7 +30,7 @@ import {
   MultiSigWallet,
   Wallet,
 } from 'src/core/wallets/interfaces/interface';
-import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
+import { TxPriority, WalletType } from 'src/core/wallets/interfaces/enum';
 import Relay from 'src/core/services/Relay';
 import {
   sendPhaseOneExecuted,
@@ -118,35 +118,46 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, token, note } = payload;
+  const { wallet, txnPriority, note } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid } = yield call(
+    const { txid, serializedPSBT } = yield call(
       WalletOperations.transferST2,
       wallet,
-      wallet.id,
       txPrerequisites,
       txnPriority,
       network,
-      recipients,
-      token
+      recipients
       // customTxPrerequisites
     );
 
-    if (!txid) throw new Error('Send failed: unable to generate txid');
-    yield put(
-      sendPhaseTwoExecuted({
-        successful: true,
-        txid,
-      })
-    );
-    if (note) wallet.specs.transactionsNote[txid] = note;
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-      specs: wallet.specs,
-    });
+    switch (wallet.type) {
+      case WalletType.READ_ONLY:
+        if (!serializedPSBT) throw new Error('Send failed: unable to generate PSBT');
+        yield put(
+          sendPhaseTwoExecuted({
+            successful: true,
+            serializedPSBT,
+          })
+        );
+        break;
+
+      default:
+        if (!txid) throw new Error('Send failed: unable to generate txid');
+        if (note) wallet.specs.transactionsNote[txid] = note;
+        yield put(
+          sendPhaseTwoExecuted({
+            successful: true,
+            txid,
+          })
+        );
+        yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+          specs: wallet.specs,
+        });
+    }
   } catch (err) {
     yield put(
       sendPhaseTwoExecuted({
@@ -194,7 +205,6 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
       const { txid } = yield call(
         WalletOperations.transferST2,
         sender,
-        sender.id,
         txPrerequisites,
         TxPriority.LOW,
         network,
