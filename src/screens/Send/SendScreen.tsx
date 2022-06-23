@@ -1,4 +1,4 @@
-import React, { useRef, useContext } from 'react';
+import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
 import { TextInput } from 'react-native';
 // libraries
 import { View, Box, Pressable, Text } from 'native-base';
@@ -20,14 +20,52 @@ import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import BlueWallet from 'src/assets/icons/bluewallet.svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
+import WalletUtilities from 'src/core/wallets/WalletUtilities';
+import { PaymentInfoKind } from 'src/core/wallets/interfaces/enum';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { useDispatch } from 'react-redux';
+import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 
-const SendScreen = () => {
+const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const wallet: Wallet = route.params.wallet;
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const home = translations['home'];
+  const [paymentInfo, setPaymentInfo] = useState('');
+  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
 
-  const { translations } = useContext( LocalizationContext )
-  const common = translations[ 'common' ]
-  const home = translations[ 'home' ]
+  useEffect(() => {
+    // cleanup the reducer at beginning of a new send flow
+    dispatch(sendPhasesReset());
+  }, []);
+
+  const navigateToNext = (address: string, amount?: string) => {
+    navigation.navigate('AddSendAmount', {
+      wallet,
+      address,
+      amount,
+    });
+  };
+
+  const handleTextChange = (info: string) => {
+    info = info.trim();
+    setPaymentInfo(info);
+    const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
+
+    switch (paymentInfoKind) {
+      case PaymentInfoKind.ADDRESS:
+        navigateToNext(address);
+        break;
+      case PaymentInfoKind.PAYMENT_URI:
+        navigateToNext(address, amount.toString());
+        break;
+      default:
+        return;
+    }
+  };
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
@@ -35,7 +73,7 @@ const SendScreen = () => {
       <HeaderTitle
         title={common.send}
         subtitle={common.smalldesc}
-        onPressHandler={() => navigtaion.goBack()}
+        onPressHandler={() => navigation.goBack()}
         color={'light.ReceiveBackground'}
       />
       {/* {QR Scanner} */}
@@ -50,7 +88,12 @@ const SendScreen = () => {
         justifyContent={'center'}
         alignItems={'center'}
       >
-        <TextInput placeholder="or enter address manually" style={styles.textInput} />
+        <TextInput
+          placeholder="or enter address manually"
+          style={styles.textInput}
+          value={paymentInfo}
+          onChangeText={handleTextChange}
+        />
       </Box>
       {/* Send to Wallet options */}
       <Text
@@ -112,11 +155,7 @@ const SendScreen = () => {
 
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={4} marginX={2}>
-        <InfoBox
-          title={common.note}
-          desciption={home.reflectSats}
-          width={'65%'}
-        />
+        <InfoBox title={common.note} desciption={home.reflectSats} width={'65%'} />
       </Box>
     </View>
   );

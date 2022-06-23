@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import TransactionPriority from 'src/common/data/enums/TransactionPriority';
 import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { TxPriority } from 'src/core/wallets/interfaces/enum';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
@@ -27,7 +27,7 @@ export interface SendPhaseTwoExecutedPayload {
   err?: string;
 }
 
-export type TransactionFeeInfo = Record<TransactionPriority, TransactionFeeSnapshot>;
+export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
 const initialState: {
   exchangeRates: ExchangeRates;
@@ -86,19 +86,19 @@ const initialState: {
   sendMaxFee: 0,
   feeIntelMissing: false,
   transactionFeeInfo: {
-    [TransactionPriority.LOW]: {
+    [TxPriority.LOW]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 50,
     },
-    [TransactionPriority.MEDIUM]: {
+    [TxPriority.MEDIUM]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 20,
     },
-    [TransactionPriority.HIGH]: {
+    [TxPriority.HIGH]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 4,
     },
-    [TransactionPriority.CUSTOM]: {
+    [TxPriority.CUSTOM]: {
       amount: 0,
       estimatedBlocksBeforeConfirmation: 0,
     },
@@ -126,43 +126,48 @@ const sendAndReceiveSlice = createSlice({
         txPrerequisites = outputs.txPrerequisites;
         recipients = outputs.recipients;
         Object.keys(txPrerequisites).forEach((priority) => {
-          transactionFeeInfo[priority.toUpperCase()].amount = txPrerequisites[priority].fee;
-          transactionFeeInfo[priority.toUpperCase()].estimatedBlocksBeforeConfirmation =
+          transactionFeeInfo[priority].amount = txPrerequisites[priority].fee;
+          transactionFeeInfo[priority].estimatedBlocksBeforeConfirmation =
             txPrerequisites[priority].estimatedBlocks;
         });
       }
-      return {
-        ...state,
-        sendPhaseOne: {
-          inProgress: false,
-          hasFailed: !successful,
-          failedErrorMessage: !successful ? err : null,
-          isSuccessful: successful,
-          outputs: {
-            txPrerequisites,
-            recipients,
-          },
+      state.sendPhaseOne = {
+        ...state.sendPhaseOne,
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        outputs: {
+          txPrerequisites,
+          recipients,
         },
-        transactionFeeInfo,
       };
+      state.transactionFeeInfo = transactionFeeInfo;
+    },
+
+    sendPhasesReset: (state) => {
+      state.sendPhaseOne = initialState.sendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
-      return {
-        ...state,
-        sendPhaseTwo: {
-          inProgress: false,
-          hasFailed: !successful,
-          failedErrorMessage: !successful ? err : null,
-          isSuccessful: successful,
-          txid: successful ? txid : null,
-        },
+      state.sendPhaseTwo = {
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        txid: successful ? txid : null,
       };
     },
   },
 });
 
-export const { setExchangeRates, setAverageTxFee, sendPhaseOneExecuted, sendPhaseTwoExecuted } =
-  sendAndReceiveSlice.actions;
+export const {
+  setExchangeRates,
+  setAverageTxFee,
+  sendPhaseOneExecuted,
+  sendPhaseTwoExecuted,
+  sendPhasesReset,
+} = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

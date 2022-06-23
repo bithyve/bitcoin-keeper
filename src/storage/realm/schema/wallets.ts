@@ -1,7 +1,7 @@
 import { ObjectSchema } from 'realm';
 import { RealmSchema } from '../enum';
 
-const Balances = {
+export const Balances = {
   type: '{}',
   properties: {
     confirmed: 'int',

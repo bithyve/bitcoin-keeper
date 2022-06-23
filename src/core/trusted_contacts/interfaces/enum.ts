@@ -33,12 +33,6 @@ export enum TrustedContactRelationTypes {
   EXISTING_CONTACT = 'EXISTING_CONTACT',
 }
 
-// TODO: Export from src/common interfaces
-export enum ScannedAddressKind {
-  ADDRESS = 'address',
-  PAYMENT_URI = 'paymentURI',
-}
-
 export enum QRCodeTypes {
   CONTACT_REQUEST = 'CONTACT_REQUEST',
   KEEPER_REQUEST = 'KEEPER_REQUEST',

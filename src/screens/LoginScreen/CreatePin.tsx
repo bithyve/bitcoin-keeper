@@ -23,12 +23,18 @@ export default function CreatePin(props) {
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { oldPasscode } = props.route.params || {};
   const dispatch = useAppDispatch();
-  const { credsChanged } = useAppSelector((state) => state.login);
+  const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
 
   const { translations } = useContext(LocalizationContext);
   const login = translations['login'];
   const common = translations['common'];
+
+  useEffect(() => {
+    if (hasCreds) {
+      props.navigation.replace('App');
+    }
+  }, [hasCreds])
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -160,7 +166,7 @@ export default function CreatePin(props) {
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                      // mt={hp('1.5%')}
+                    // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -171,10 +177,6 @@ export default function CreatePin(props) {
                     disabled={isDisabled}
                     onPress={() => {
                       dispatch(storeCreds(passcode));
-                      setTimeout(() => {
-                        setIsDisabled(true);
-                        props.navigation.replace('App');
-                      }, 20);
                     }}
                     value={common.create}
                   />

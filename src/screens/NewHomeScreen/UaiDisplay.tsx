@@ -95,7 +95,6 @@ const UaiDisplay = ({ uaiStack }) => {
   }, [uai]);
 
   useEffect(() => {
-    console.log('update', uaiStack);
     setUai(uaiStack[0]);
   }, [uaiStack]);
 

@@ -1,4 +1,3 @@
-import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 import {
   ActiveAddressesSchema,
   TransactionSchema,
@@ -9,6 +8,8 @@ import {
   WalletSchema,
   WalletSpecsSchema,
 } from './wallets';
+import { VaultPresentationDataSchema, VaultSchema, VaultSpecsSchema } from './vaults';
+import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
 
 import { InheritancePolicySchema } from './inheritancePolicy';
@@ -18,7 +19,6 @@ import { TriggerPolicySchema } from './triggerPolicy';
 import { TwoFADetailsSchema } from './twoFADetails';
 import { UAISchema } from './uai';
 import { UserTierSchema } from './userTier';
-import { VaultShcema } from './vaults';
 import { VaultSignerSchema } from './vaultSigner';
 
 export default [
@@ -34,7 +34,9 @@ export default [
   WalletShellShcema,
   WalletShellInstancesShcema,
   TriggerPolicySchema,
-  VaultShcema,
+  VaultSchema,
+  VaultPresentationDataSchema,
+  VaultSpecsSchema,
   VaultShellSchema,
   VaultShellInstancesShcema,
   InheritancePolicySchema,

@@ -15,7 +15,6 @@ export const useUaiStack = () => {
 
   useEffect(() => {
     if (netBalance >= 10000) {
-      console.log('Banalce is more');
       dispatch(
         addToUaiStack(
           'Approve Vault transfer',
