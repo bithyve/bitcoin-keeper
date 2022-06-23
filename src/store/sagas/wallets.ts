@@ -54,6 +54,10 @@ export interface newWalletDetails {
 export interface newWalletsInfo {
   walletType: WalletType;
   walletDetails?: newWalletDetails;
+  importDetails?: {
+    primaryMnemonic?: string;
+    xpub?: string;
+  };
 }
 
 export function* setup2FADetails(app: KeeperApp) {
@@ -178,7 +182,7 @@ function* addNewWallet(
   walletDetails: newWalletDetails,
   app: KeeperApp,
   walletShell: WalletShell,
-  importDetails?: { primaryMnemonic: string; xpub?: string }
+  importDetails?: { primaryMnemonic?: string; xpub?: string }
 ) {
   const { primaryMnemonic } = app;
   const { walletInstances } = walletShell;
@@ -242,7 +246,6 @@ function* addNewWallet(
 export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: newWalletsInfo[] }) {
   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
   const walletIds = [];
-  let testcoinsToWallet;
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
@@ -253,13 +256,14 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
     walletShellInstances.activeShell
   );
 
-  for (const { walletType, walletDetails } of newWalletsInfo) {
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
       app,
-      walletShell
+      walletShell,
+      importDetails
     );
     walletIds.push(wallet.id);
     wallets.push(wallet);
@@ -297,13 +301,11 @@ export function* importNewWalletWorker({
     {
       walletType: WalletType.IMPORTED,
       walletDetails: payload.walletDetails,
+      importDetails: {
+        primaryMnemonic: payload.mnemonic,
+      },
     },
   ];
-
-  const importDetails = {
-    primaryMnemonic: payload.mnemonic,
-    primarySeed: bip39.mnemonicToSeedSync(payload.mnemonic).toString('hex'),
-  };
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const { walletShellInstances } = app;
@@ -313,7 +315,7 @@ export function* importNewWalletWorker({
     walletShellInstances.activeShell
   );
 
-  for (const { walletType, walletDetails } of newWalletsInfo) {
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
       walletType,

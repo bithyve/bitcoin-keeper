@@ -123,7 +123,7 @@ export const WalletSpecsSchema: ObjectSchema = {
   embedded: true,
   properties: {
     xpub: 'string',
-    xpriv: 'string',
+    xpriv: 'string?',
     receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',

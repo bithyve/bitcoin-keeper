@@ -10,7 +10,7 @@ export const realmConfig = (key) => {
   return {
     path: 'keeper.realm',
     schema,
-    schemaVersion: 10,
+    schemaVersion: 11,
     encryptionKey: key,
   };
 };

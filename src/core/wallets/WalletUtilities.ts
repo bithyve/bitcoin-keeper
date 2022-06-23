@@ -119,12 +119,23 @@ export default class WalletUtilities {
     internal: boolean,
     index: number,
     network: bitcoinJS.networks.Network
-  ) => {
+  ): string => {
     const node = bip32.fromBase58(xpriv, network);
     return node
       .derive(internal ? 1 : 0)
       .derive(index)
       .toWIF();
+  };
+
+  static getPublicKeyByIndex = (
+    xpub: string,
+    internal: boolean,
+    index: number,
+    network: bitcoinJS.networks.Network
+  ): Buffer => {
+    const node = bip32.fromBase58(xpub, network);
+    const keyPair = node.derive(internal ? 1 : 0).derive(index);
+    return keyPair.publicKey;
   };
 
   static getAddressByIndex = (
@@ -208,7 +219,11 @@ export default class WalletUtilities {
     return bs58check.encode(data);
   };
 
-  static addressToPrivateKey = (address: string, wallet: Wallet): string => {
+  static addressToKey = (
+    address: string,
+    wallet: Wallet,
+    publicKey: boolean = false
+  ): string | Buffer => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -218,21 +233,26 @@ export default class WalletUtilities {
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
-        return WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+        return publicKey
+          ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
+          : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
-        return WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+        return publicKey
+          ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
+          : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
     }
 
-    for (const importedAddress in wallet.specs.importedAddresses) {
-      if (address === importedAddress)
-        return wallet.specs.importedAddresses[importedAddress].privateKey;
-    }
+    if (!publicKey)
+      for (const importedAddress in wallet.specs.importedAddresses) {
+        if (address === importedAddress)
+          return wallet.specs.importedAddresses[importedAddress].privateKey;
+      }
 
-    throw new Error('Could not find private key for: ' + address);
+    throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ` + address);
   };
 
   static createMultiSig = (

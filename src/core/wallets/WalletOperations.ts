@@ -754,16 +754,14 @@ export default class WalletOperations {
 
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
-      // console.log({ inputs, outputs });
       const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
         network,
       });
 
       for (const input of inputs) {
-        const privateKey = WalletUtilities.addressToPrivateKey(input.address, wallet);
-        const keyPair = WalletUtilities.getKeyPair(privateKey, network);
+        const publicKey = WalletUtilities.addressToKey(input.address, wallet, true) as Buffer;
         const p2wpkh = bitcoinJS.payments.p2wpkh({
-          pubkey: keyPair.publicKey,
+          pubkey: publicKey,
           network,
         });
         const p2sh = bitcoinJS.payments.p2sh({
@@ -840,8 +838,7 @@ export default class WalletOperations {
             },
           });
         } else {
-          const privateKey = WalletUtilities.addressToPrivateKey(input.address, wallet);
-
+          const privateKey = WalletUtilities.addressToKey(input.address, wallet) as string;
           keyPair = WalletUtilities.getKeyPair(privateKey, network);
           // redeemScript = WalletUtilities.getP2SH( keyPair, network ).redeem.output
         }

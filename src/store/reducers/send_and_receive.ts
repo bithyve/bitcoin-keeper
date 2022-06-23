@@ -168,11 +168,6 @@ const sendAndReceiveSlice = createSlice({
       state.transactionFeeInfo = transactionFeeInfo;
     },
 
-    sendPhasesReset: (state) => {
-      state.sendPhaseOne = initialState.sendPhaseOne;
-      state.sendPhaseTwo = initialState.sendPhaseTwo;
-    },
-
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
       const { successful, txid, serializedPSBT, err } = action.payload;
       state.sendPhaseTwo = {
@@ -194,6 +189,12 @@ const sendAndReceiveSlice = createSlice({
         isSuccessful: successful,
         txid: successful ? txid : null,
       };
+    },
+
+    sendPhasesReset: (state) => {
+      state.sendPhaseOne = initialState.sendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
     },
   },
 });
