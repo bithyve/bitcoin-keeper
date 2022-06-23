@@ -19,6 +19,9 @@ import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import VaultImage from 'src/assets/images/Vault.png';
+import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useAppSelector } from 'src/store/hooks';
 
 const InheritanceComponent = () => {
   return (
@@ -59,6 +62,10 @@ const InheritanceComponent = () => {
 
 const LinkedWallets = () => {
   const navigation = useNavigation();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const netBalance = useAppSelector((state) => state.wallet.netBalance);
+
   return (
     <Pressable
       alignItems={'center'}
@@ -80,7 +87,7 @@ const LinkedWallets = () => {
               fontSize={RFValue(22)}
               fontWeight={200}
             >
-              01
+              {wallets?.length}
             </Text>
             <Text
               color={'light.white1'}
@@ -97,7 +104,7 @@ const LinkedWallets = () => {
           <Box padding={1} marginBottom={0.5}>
             <BTC />
           </Box>
-          0.00
+          {netBalance}
         </Text>
       </LinearGradient>
     </Pressable>
@@ -282,7 +289,7 @@ const NextIcon = () => {
       alignItems={'center'}
     >
       <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('InheritanceSetup'))}>
-      <Arrow />
+        <Arrow />
       </Pressable>
     </Box>
   );
