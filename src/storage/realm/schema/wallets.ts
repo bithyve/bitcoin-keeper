@@ -9,8 +9,19 @@ export const Balances = {
   },
 };
 
-const BIP85Config = {
+const UTXOStatus = {
   type: '{}',
+  properties: {
+    confirmed: 'bool',
+    block_height: 'int?',
+    block_hash: 'string?',
+    block_time: 'int?',
+  },
+};
+
+export const BIP85ConfigSchema: ObjectSchema = {
+  name: RealmSchema.BIP85Config,
+  embedded: true,
   properties: {
     index: 'int',
     words: 'int',
@@ -25,16 +36,6 @@ export const ActiveAddressesSchema: ObjectSchema = {
   properties: {
     external: '{}',
     internal: '{}',
-  },
-};
-
-const UTXOStatus = {
-  type: '{}',
-  properties: {
-    confirmed: 'bool',
-    block_height: 'int?',
-    block_hash: 'string?',
-    block_time: 'int?',
   },
 };
 
@@ -101,7 +102,7 @@ export const WalletDerivationDetailsSchema: ObjectSchema = {
   properties: {
     instanceNum: 'int',
     mnemonic: 'string',
-    bip85Config: `${BIP85Config}?`,
+    bip85Config: `${RealmSchema.BIP85Config}?`,
     xDerivationPath: 'string',
   },
 };
