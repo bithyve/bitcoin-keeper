@@ -271,7 +271,7 @@ export interface DonationWalletPresentationData extends WalletPresentationData {
 
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
-  xpriv: string | null; // wallet's xpriv (primary for multi-sig wallets)
+  xpriv?: string | null; // wallet's xpriv (primary for multi-sig wallets)
   receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
