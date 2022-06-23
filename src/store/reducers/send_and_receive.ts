@@ -28,6 +28,12 @@ export interface SendPhaseTwoExecutedPayload {
   err?: string;
 }
 
+export interface SendPhaseThreeExecutedPayload {
+  successful: boolean;
+  txid?: string;
+  err?: string;
+}
+
 export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
 const initialState: {
@@ -58,6 +64,13 @@ const initialState: {
     serializedPSBT: string;
     txid: string | null;
   };
+  sendPhaseThree: {
+    inProgress: boolean;
+    hasFailed: boolean;
+    failedErrorMessage: string | null;
+    isSuccessful: boolean;
+    txid: string | null;
+  };
   sendMaxFee: number;
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
@@ -84,6 +97,13 @@ const initialState: {
     failedErrorMessage: null,
     isSuccessful: false,
     serializedPSBT: null,
+    txid: null,
+  },
+  sendPhaseThree: {
+    inProgress: false,
+    hasFailed: false,
+    failedErrorMessage: null,
+    isSuccessful: false,
     txid: null,
   },
   sendMaxFee: 0,
@@ -164,6 +184,17 @@ const sendAndReceiveSlice = createSlice({
         txid: successful ? txid : null,
       };
     },
+
+    sendPhaseThreeExecuted: (state, action: PayloadAction<SendPhaseThreeExecutedPayload>) => {
+      const { successful, txid, err } = action.payload;
+      state.sendPhaseThree = {
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        txid: successful ? txid : null,
+      };
+    },
   },
 });
 
@@ -172,6 +203,7 @@ export const {
   setAverageTxFee,
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,
+  sendPhaseThreeExecuted,
   sendPhasesReset,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

@@ -16,6 +16,8 @@ import {
   CROSS_TRANSFER,
   CrossTransferAction,
   FETCH_FEE_AND_EXCHANGE_RATES,
+  SendPhaseThreeAction,
+  SEND_PHASE_THREE,
 } from '../sagaActions/send_and_receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
@@ -35,10 +37,12 @@ import Relay from 'src/core/services/Relay';
 import {
   sendPhaseOneExecuted,
   SendPhaseOneExecutedPayload,
+  sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setAverageTxFee,
   setExchangeRates,
 } from '../reducers/send_and_receive';
+import * as bitcoinJS from 'bitcoinjs-lib';
 
 export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
@@ -169,6 +173,55 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
+
+function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
+  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+    (state) => state.sendAndReceive.sendPhaseOne
+  );
+  const { wallet, txnPriority, signedSerializedPSBT } = payload;
+  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+
+  // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
+  // let inputs: InputUTXOs[];
+  // if (txnPriority === TxPriority.CUSTOM) inputs = customTxPrerequisites.inputs;
+  // else inputs = txPrerequisites[txnPriority].inputs;
+  const inputs = txPrerequisites[txnPriority].inputs;
+
+  const signedPSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+
+  try {
+    const { txid } = yield call(
+      WalletOperations.broadcastTransaction,
+      wallet,
+      signedPSBT,
+      inputs,
+      recipients,
+      network
+    );
+
+    if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
+    yield put(
+      sendPhaseThreeExecuted({
+        successful: true,
+        txid,
+      })
+    );
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
+  } catch (err) {
+    yield put(
+      sendPhaseThreeExecuted({
+        successful: false,
+        err: err.message,
+      })
+    );
+  }
+}
+
+export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
   const { sender, recipient, amount } = payload;

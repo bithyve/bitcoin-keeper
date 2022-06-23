@@ -24,6 +24,7 @@ export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
+export const SEND_PHASE_THREE = 'SEND_PHASE_THREE';
 export const SENDING_FAILED = 'SENDING_FAILED';
 export const SENDING_SUCCEEDED = 'SENDING_SUCCEEDED';
 export const SENDING_COMPLETED = 'SENDING_COMPLETED';
@@ -188,6 +189,26 @@ export const sendPhaseTwo = (payload: {
 }): SendPhaseTwoAction => {
   return {
     type: SEND_PHASE_TWO,
+    payload,
+  };
+};
+
+export interface SendPhaseThreeAction extends Action {
+  type: typeof SEND_PHASE_THREE;
+  payload: {
+    wallet: Wallet | MultiSigWallet;
+    txnPriority: TxPriority;
+    signedSerializedPSBT: string;
+  };
+}
+
+export const sendPhaseThree = (payload: {
+  wallet: Wallet | MultiSigWallet;
+  txnPriority: TxPriority;
+  signedSerializedPSBT: string;
+}): SendPhaseThreeAction => {
+  return {
+    type: SEND_PHASE_THREE,
     payload,
   };
 };
