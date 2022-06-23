@@ -209,7 +209,7 @@ export default class WalletUtilities {
   };
 
   static addressToPrivateKey = (address: string, wallet: Wallet): string => {
-    const { networkType } = wallet.derivationDetails;
+    const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
 
@@ -285,7 +285,7 @@ export default class WalletUtilities {
   };
 
   static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
-    const { networkType } = wallet.derivationDetails;
+    const { networkType } = wallet;
     const network = WalletUtilities.getNetworkByType(networkType);
 
     const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;

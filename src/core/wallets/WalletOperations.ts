@@ -39,7 +39,7 @@ export default class WalletOperations {
   ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as MultiSigWallet).specs.is2FA)
       receivingAddress = WalletUtilities.createMultiSig(
         {
@@ -77,7 +77,7 @@ export default class WalletOperations {
   static syncGapLimit = async (wallet: Wallet | MultiSigWallet) => {
     let tryAgain = false;
     const hardGapLimit = 10;
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
       ? DerivationPurpose.BIP84
@@ -433,7 +433,7 @@ export default class WalletOperations {
       name?: string;
     }[]
   ) => {
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     const activeExternalAddresses = wallet.specs.activeAddresses.external;
     const activeInternalAddresses = wallet.specs.activeAddresses.internal;
@@ -738,8 +738,7 @@ export default class WalletOperations {
     wallet: Wallet | MultiSigWallet,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
-    customTxPrerequisites?: TransactionPrerequisiteElements,
-    nSequence?: number
+    customTxPrerequisites?: TransactionPrerequisiteElements
   ): Promise<{
     PSBT: bitcoinJS.Psbt;
   }> => {
@@ -753,7 +752,7 @@ export default class WalletOperations {
         outputs = txPrerequisites[txnPriority].outputs;
       }
 
-      const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       // console.log({ inputs, outputs });
       const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
@@ -774,7 +773,6 @@ export default class WalletOperations {
         PSBT.addInput({
           hash: input.txId,
           index: input.vout,
-          sequence: nSequence,
           witnessUtxo: {
             script: p2sh.output,
             value: input.value,
@@ -822,7 +820,7 @@ export default class WalletOperations {
     try {
       let vin = 0;
       const childIndexArray = [];
-      const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       for (const input of inputs) {
         let keyPair, redeemScript;
@@ -872,7 +870,7 @@ export default class WalletOperations {
 
     if (!wallet.specs.xprivs.secondary)
       throw new Error('Multi-sign transaction failed: secondary xpriv missing');
-    const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     inputs.forEach((input) => {
       const { secondaryPriv } = WalletUtilities.signingEssentialsForMultiSig(wallet, input.address);
@@ -888,6 +886,35 @@ export default class WalletOperations {
     return {
       signedPSBT: PSBT,
     };
+  };
+
+  static broadcastTransaction = async (
+    wallet: Wallet,
+    signedPSBT: bitcoinJS.Psbt,
+    inputs: InputUTXOs[],
+    recipients: {
+      address: string;
+      amount: number;
+    }[],
+    network
+  ) => {
+    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+    const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+    if (txid.includes('sendrawtransaction RPC error')) {
+      let err;
+      try {
+        err = txid.split(':')[3].split('"')[1];
+      } catch (err) {
+        console.log({
+          err,
+        });
+      }
+      throw new Error(err);
+    }
+
+    if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
+    WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
+    return txid;
   };
 
   static transferST1 = async (
@@ -946,79 +973,45 @@ export default class WalletOperations {
 
   static transferST2 = async (
     wallet: Wallet | MultiSigWallet,
-    walletId: string,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
     network: bitcoinJS.networks.Network,
     recipients: {
-      id?: string;
       address: string;
       amount: number;
-      name?: string;
     }[],
-    token?: number,
-    customTxPrerequisites?: TransactionPrerequisiteElements,
-    nSequence?: number
-  ): Promise<{
-    txid: string;
-  }> => {
+    customTxPrerequisites?: TransactionPrerequisiteElements
+  ): Promise<
+    | {
+        serializedPSBT: string;
+        txid?: undefined;
+      }
+    | {
+        serializedPSBT?: undefined;
+        txid: string;
+      }
+  > => {
     const { PSBT } = await WalletOperations.createTransaction(
       wallet,
       txPrerequisites,
       txnPriority,
-      customTxPrerequisites,
-      nSequence
+      customTxPrerequisites
     );
 
     let inputs;
-    if (txnPriority === TxPriority.CUSTOM && customTxPrerequisites)
-      inputs = customTxPrerequisites.inputs;
+    if (txnPriority === TxPriority.CUSTOM) inputs = customTxPrerequisites.inputs;
     else inputs = txPrerequisites[txnPriority].inputs;
 
-    const { signedPSBT, childIndexArray } = WalletOperations.signTransaction(wallet, inputs, PSBT);
-    let txHex;
-
-    if ((wallet as MultiSigWallet).specs.is2FA) {
-      if (token) {
-        const serializedPSBT = PSBT.toBase64();
-        const { signedTxHex } = await WalletUtilities.getSecondSignature(
-          walletId,
-          token,
-          serializedPSBT,
-          childIndexArray
-        );
-        txHex = signedTxHex;
-      } else if ((wallet as MultiSigWallet).specs.xprivs.secondary) {
-        const { signedPSBT } = WalletOperations.multiSignTransaction(
-          wallet as MultiSigWallet,
-          inputs,
-          PSBT
-        );
-        txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-        delete (wallet as MultiSigWallet).specs.xprivs.secondary;
-      } else throw new Error('Multi-sig transaction failed: token/secondary-key missing');
+    if (wallet.type === WalletType.READ_ONLY) {
+      // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT therefore
+      const serializedPSBT = PSBT.toBase64();
+      return { serializedPSBT };
     } else {
-      txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+      const { signedPSBT } = WalletOperations.signTransaction(wallet, inputs, PSBT);
+      const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
+      return {
+        txid,
+      };
     }
-
-    const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
-    if (txid.includes('sendrawtransaction RPC error')) {
-      let err;
-      try {
-        err = txid.split(':')[3].split('"')[1];
-      } catch (err) {
-        console.log({
-          err,
-        });
-      }
-      throw new Error(err);
-    }
-
-    if (txid) {
-      WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
-    } else throw new Error('Failed to broadcast transaction, txid missing');
-    return {
-      txid,
-    };
   };
 }
