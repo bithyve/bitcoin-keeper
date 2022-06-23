@@ -81,6 +81,7 @@ const WalletDetails = () => {
         {!(item?.presentationData && item?.specs) ? (
           <TouchableOpacity
             style={styles.addWalletContainer}
+            onPress={() => navigation.navigate('EnterWalletDetail')}
           >
             <AddSCardIcon />
             <Text
@@ -291,18 +292,19 @@ const WalletDetails = () => {
           {wallets?.length} Linked Wallets
         </Text>
 
-        <Text
-          color={'light.textWallet'}
-          letterSpacing={1.5}
-          fontSize={RFValue(26)}
-          fontWeight={200}
-          marginTop={hp(2)}
-        >
-          <Box marginRight={wp(1)} marginTop={hp(4)}>
+        <Box flexDirection={'row'} alignItems={'flex-end'} height={10}>
+          <Box marginRight={wp(1.5)} paddingBottom={hp(7)} >
             <BTC />
           </Box>
-          {netBalance}
-        </Text>
+          <Text
+            color={'light.textWallet'}
+            letterSpacing={1.5}
+            fontSize={RFValue(26)}
+            fontWeight={200}
+          >
+            {netBalance}
+          </Text>
+        </Box>
 
       </Box>
 
