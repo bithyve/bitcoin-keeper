@@ -35,7 +35,7 @@ const SendScreen = ({ route }) => {
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
-  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   useEffect(() => {
     // cleanup the reducer at beginning of a new send flow

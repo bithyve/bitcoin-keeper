@@ -16,6 +16,8 @@ import {
   CROSS_TRANSFER,
   CrossTransferAction,
   FETCH_FEE_AND_EXCHANGE_RATES,
+  SendPhaseThreeAction,
+  SEND_PHASE_THREE,
 } from '../sagaActions/send_and_receive';
 import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
@@ -30,15 +32,17 @@ import {
   MultiSigWallet,
   Wallet,
 } from 'src/core/wallets/interfaces/interface';
-import { NetworkType, TxPriority } from 'src/core/wallets/interfaces/enum';
+import { TxPriority, WalletType } from 'src/core/wallets/interfaces/enum';
 import Relay from 'src/core/services/Relay';
 import {
   sendPhaseOneExecuted,
   SendPhaseOneExecutedPayload,
+  sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setAverageTxFee,
   setExchangeRates,
 } from '../reducers/send_and_receive';
+import * as bitcoinJS from 'bitcoinjs-lib';
 
 export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
   // to be used by react components(w/ dispatch)
@@ -81,7 +85,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
     return;
   }
 
-  const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
+  const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
 
   try {
     const { txPrerequisites } = yield call(
@@ -118,35 +122,46 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, token, note } = payload;
+  const { wallet, txnPriority, note } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
-  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid } = yield call(
+    const { txid, serializedPSBT } = yield call(
       WalletOperations.transferST2,
       wallet,
-      wallet.id,
       txPrerequisites,
       txnPriority,
       network,
-      recipients,
-      token
+      recipients
       // customTxPrerequisites
     );
 
-    if (!txid) throw new Error('Send failed: unable to generate txid');
-    yield put(
-      sendPhaseTwoExecuted({
-        successful: true,
-        txid,
-      })
-    );
-    if (note) wallet.specs.transactionsNote[txid] = note;
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-      specs: wallet.specs,
-    });
+    switch (wallet.type) {
+      case WalletType.READ_ONLY:
+        if (!serializedPSBT) throw new Error('Send failed: unable to generate PSBT');
+        yield put(
+          sendPhaseTwoExecuted({
+            successful: true,
+            serializedPSBT,
+          })
+        );
+        break;
+
+      default:
+        if (!txid) throw new Error('Send failed: unable to generate txid');
+        if (note) wallet.specs.transactionsNote[txid] = note;
+        yield put(
+          sendPhaseTwoExecuted({
+            successful: true,
+            txid,
+          })
+        );
+        yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+          specs: wallet.specs,
+        });
+    }
   } catch (err) {
     yield put(
       sendPhaseTwoExecuted({
@@ -158,6 +173,55 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
+
+function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
+  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+    (state) => state.sendAndReceive.sendPhaseOne
+  );
+  const { wallet, txnPriority, signedSerializedPSBT } = payload;
+  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+
+  // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
+  // let inputs: InputUTXOs[];
+  // if (txnPriority === TxPriority.CUSTOM) inputs = customTxPrerequisites.inputs;
+  // else inputs = txPrerequisites[txnPriority].inputs;
+  const inputs = txPrerequisites[txnPriority].inputs;
+
+  const signedPSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+
+  try {
+    const { txid } = yield call(
+      WalletOperations.broadcastTransaction,
+      wallet,
+      signedPSBT,
+      inputs,
+      recipients,
+      network
+    );
+
+    if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
+    yield put(
+      sendPhaseThreeExecuted({
+        successful: true,
+        txid,
+      })
+    );
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
+  } catch (err) {
+    yield put(
+      sendPhaseThreeExecuted({
+        successful: false,
+        err: err.message,
+      })
+    );
+  }
+}
+
+export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
   const { sender, recipient, amount } = payload;
@@ -173,7 +237,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     return;
   }
 
-  const averageTxFeeByNetwork = averageTxFees[sender.derivationDetails.networkType];
+  const averageTxFeeByNetwork = averageTxFees[sender.networkType];
   try {
     // const recipients = yield call(processRecipients);
     const recipients = [
@@ -190,11 +254,10 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     );
 
     if (txPrerequisites) {
-      const network = WalletUtilities.getNetworkByType(sender.derivationDetails.networkType);
+      const network = WalletUtilities.getNetworkByType(sender.networkType);
       const { txid } = yield call(
         WalletOperations.transferST2,
         sender,
-        sender.id,
         txPrerequisites,
         TxPriority.LOW,
         network,
@@ -220,9 +283,9 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.sendAndReceive.averageTxFees
   );
-  const averageTxFeeByNetwork = averageTxFees[wallet.derivationDetails.networkType];
+  const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
   const feePerByte = averageTxFeeByNetwork[TxPriority.LOW].feePerByte;
-  const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { fee } = WalletOperations.calculateSendMaxFee(
     wallet,
@@ -255,7 +318,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
   }
 
   const { wallet, recipients, feePerByte, customEstimatedBlocks } = payload;
-  // const network = WalletUtilities.getNetworkByType(wallet.derivationDetails.networkType);
+  // const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   // const sendingState: SendingState = yield select((state) => state.sending);
   // const selectedRecipients: Recipient[] = [...sendingState.selectedRecipients];

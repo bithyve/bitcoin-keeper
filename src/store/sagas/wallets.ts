@@ -29,11 +29,7 @@ import { recomputeNetBalance, WalletsState } from 'src/store/reducers/wallets';
 import WalletOperations from 'src/core/wallets/WalletOperations';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WalletUtilities from 'src/core/wallets/WalletUtilities';
-import {
-  generateWallet,
-  generateDonationWallet,
-  generateMultiSigWallet,
-} from 'src/core/wallets/WalletFactory';
+import { generateWallet, generateMultiSigWallet } from 'src/core/wallets/WalletFactory';
 import Relay from 'src/core/services/Relay';
 import {
   Wallet,
@@ -58,6 +54,10 @@ export interface newWalletDetails {
 export interface newWalletsInfo {
   walletType: WalletType;
   walletDetails?: newWalletDetails;
+  importDetails?: {
+    primaryMnemonic?: string;
+    xpub?: string;
+  };
 }
 
 export function* setup2FADetails(app: KeeperApp) {
@@ -92,7 +92,7 @@ function* generateSecondaryXprivWorker({
   const { secondaryXpriv } = yield call(
     WalletUtilities.generateSecondaryXpriv,
     secondaryMnemonic,
-    app.secondaryXpub,
+    (app as any).secondaryXpub,
     network
   );
 
@@ -124,7 +124,7 @@ function* resetTwoFAWorker({ payload }: { payload: { secondaryMnemonic: string }
     WalletUtilities.resetTwoFA,
     app.id,
     secondaryMnemonic,
-    app.secondaryXpub,
+    (app as any).secondaryXpub,
     network
   );
 
@@ -167,7 +167,7 @@ export const validateTwoFAWatcher = createWatcher(validateTwoFAWorker, VALIDATE_
 
 function* testcoinsWorker({ payload: testWallet }: { payload: Wallet }) {
   const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(testWallet);
-  const network = WalletUtilities.getNetworkByType(testWallet.derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(testWallet.networkType);
 
   const { txid } = yield call(WalletUtilities.getTestcoins, receivingAddress, network);
 
@@ -182,7 +182,7 @@ function* addNewWallet(
   walletDetails: newWalletDetails,
   app: KeeperApp,
   walletShell: WalletShell,
-  importDetails?: { primaryMnemonic: string; primarySeed: string }
+  importDetails?: { primaryMnemonic?: string; xpub?: string }
 ) {
   const { primaryMnemonic } = app;
   const { walletInstances } = walletShell;
@@ -218,22 +218,34 @@ function* addNewWallet(
     case WalletType.IMPORTED:
       const importedWallet: Wallet = yield call(generateWallet, {
         type: WalletType.IMPORTED,
-        instanceNum: 0, // imported wallets always have instance number equal to zero(as they're imported using different seeds)
+        instanceNum: null, // bip-85 instance number is null for imported wallets
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Imported Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
-        primaryMnemonic: importDetails.primaryMnemonic,
+        importedMnemonic: importDetails.primaryMnemonic,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
       return importedWallet;
+
+    case WalletType.READ_ONLY:
+      const readOnlyWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.READ_ONLY,
+        instanceNum: null, // bip-85 instance number is null for read-only wallets
+        walletShellId: walletShell.id,
+        walletName: walletName ? walletName : 'Read-Only Wallet',
+        walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
+        importedXpub: importDetails.xpub,
+        networkType:
+          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+      });
+      return readOnlyWallet;
   }
 }
 
 export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: newWalletsInfo[] }) {
   const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
   const walletIds = [];
-  let testcoinsToWallet;
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
@@ -244,19 +256,17 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
     walletShellInstances.activeShell
   );
 
-  for (const { walletType, walletDetails } of newWalletsInfo) {
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
       app,
-      walletShell
+      walletShell,
+      importDetails
     );
     walletIds.push(wallet.id);
     wallets.push(wallet);
-
-    if (wallet.type === WalletType.TEST && wallet.derivationDetails.instanceNum === 0)
-      testcoinsToWallet = wallet;
   }
 
   let presentWalletInstances = { ...walletShell.walletInstances };
@@ -273,8 +283,6 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   for (const wallet of wallets) {
     yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
   }
-
-  if (testcoinsToWallet) yield put(getTestcoins(testcoinsToWallet)); // pre-fill test-wallet w/ testcoins
 }
 
 export const addNewWalletsWatcher = createWatcher(addNewWalletsWorker, ADD_NEW_WALLETS);
@@ -293,13 +301,11 @@ export function* importNewWalletWorker({
     {
       walletType: WalletType.IMPORTED,
       walletDetails: payload.walletDetails,
+      importDetails: {
+        primaryMnemonic: payload.mnemonic,
+      },
     },
   ];
-
-  const importDetails = {
-    primaryMnemonic: payload.mnemonic,
-    primarySeed: bip39.mnemonicToSeedSync(payload.mnemonic).toString('hex'),
-  };
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const { walletShellInstances } = app;
@@ -309,7 +315,7 @@ export function* importNewWalletWorker({
     walletShellInstances.activeShell
   );
 
-  for (const { walletType, walletDetails } of newWalletsInfo) {
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
     const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
       addNewWallet,
       walletType,
@@ -403,7 +409,7 @@ function* syncWalletsWorker({
   };
 }) {
   const { wallets, options } = payload;
-  const network = WalletUtilities.getNetworkByType(wallets[0].derivationDetails.networkType);
+  const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
   const { synchedWallets, txsFound, activeAddressesWithNewTxsMap } = yield call(
     WalletOperations.syncWallets,
     wallets,

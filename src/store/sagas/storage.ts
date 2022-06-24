@@ -48,7 +48,7 @@ function* setupKeeperAppWorker({ payload }) {
     const defaultWallet: newWalletsInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
-        name: 'Default Checking',
+        name: 'Checking Wallet',
       },
     };
     yield put(addNewWallets([defaultWallet]));

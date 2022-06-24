@@ -23,6 +23,13 @@ export interface SendPhaseOneExecutedPayload {
 
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
+  serializedPSBT?: string;
+  txid?: string;
+  err?: string;
+}
+
+export interface SendPhaseThreeExecutedPayload {
+  successful: boolean;
   txid?: string;
   err?: string;
 }
@@ -54,6 +61,14 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
+    serializedPSBT: string;
+    txid: string | null;
+  };
+  sendPhaseThree: {
+    inProgress: boolean;
+    hasFailed: boolean;
+    failedErrorMessage: string | null;
+    isSuccessful: boolean;
     txid: string | null;
   };
   sendMaxFee: number;
@@ -77,6 +92,14 @@ const initialState: {
     outputs: null,
   },
   sendPhaseTwo: {
+    inProgress: false,
+    hasFailed: false,
+    failedErrorMessage: null,
+    isSuccessful: false,
+    serializedPSBT: null,
+    txid: null,
+  },
+  sendPhaseThree: {
     inProgress: false,
     hasFailed: false,
     failedErrorMessage: null,
@@ -145,20 +168,33 @@ const sendAndReceiveSlice = createSlice({
       state.transactionFeeInfo = transactionFeeInfo;
     },
 
-    sendPhasesReset: (state) => {
-      state.sendPhaseOne = initialState.sendPhaseOne;
-      state.sendPhaseTwo = initialState.sendPhaseTwo;
+    sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
+      const { successful, txid, serializedPSBT, err } = action.payload;
+      state.sendPhaseTwo = {
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        serializedPSBT: successful ? serializedPSBT : null,
+        txid: successful ? txid : null,
+      };
     },
 
-    sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
+    sendPhaseThreeExecuted: (state, action: PayloadAction<SendPhaseThreeExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
-      state.sendPhaseTwo = {
+      state.sendPhaseThree = {
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
         txid: successful ? txid : null,
       };
+    },
+
+    sendPhasesReset: (state) => {
+      state.sendPhaseOne = initialState.sendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
     },
   },
 });
@@ -168,6 +204,7 @@ export const {
   setAverageTxFee,
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,
+  sendPhaseThreeExecuted,
   sendPhasesReset,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;
