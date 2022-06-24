@@ -141,9 +141,10 @@ const VaultStatus = () => {
 
   const open = () => {
     if (Signers.length) {
-      return;
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
+    } else {
+      setModalVisible(true);
     }
-    setModalVisible(true);
   };
   const close = () => setModalVisible(false);
 
@@ -160,7 +161,7 @@ const VaultStatus = () => {
   const vaultBalance = confirmed + unconfirmed;
   return (
     <Box marginTop={-hp(97.44)} alignItems={'center'}>
-      <TouchableOpacity onPress={open} activeOpacity={1}>
+      <TouchableOpacity onPress={open} activeOpacity={0.5}>
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
             backgroundColor={'light.TorLable'}

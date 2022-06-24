@@ -5,7 +5,6 @@ import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
-import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
@@ -15,6 +14,7 @@ import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
+import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
@@ -28,6 +28,7 @@ import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
+import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 // import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
@@ -83,6 +84,7 @@ const AppStack = () => {
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
+        <Stack.Screen name="VaultDetails" component={VaultDetails} />
 
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
