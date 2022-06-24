@@ -1,8 +1,7 @@
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType } from 'src/core/wallets/interfaces/enum';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { Text, View } from 'native-base';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
@@ -15,7 +14,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { generateVault } from 'src/core/wallets/VaultFactory';
+import { useDispatch } from 'react-redux';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -187,6 +189,28 @@ const SetupTapsigner = () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
 
+  const dispatch = useDispatch();
+
+  const createVault = useCallback((xpub) => {
+    try {
+      const newWalletsInfo = {
+        walletType: WalletType.READ_ONLY,
+        walletDetails: {
+          name: 'Vault',
+          description: 'Vault from Tapsigner',
+        },
+        importDetails: {
+          xpub,
+        },
+      };
+      dispatch(addNewWallets([newWalletsInfo]));
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }, []);
+
   const integrateTapsigner = React.useCallback(() => {
     updateStep(1, 2);
     withModal(async () => {
@@ -210,38 +234,20 @@ const SetupTapsigner = () => {
     })().then((resp) => {
       const { xpub, status } = resp;
       console.log(xpub, status);
-      realm.write(() => {
-        realm.create(RealmSchema.VaultSigner, {
-          type: 'TAPSIGNER',
-          signerName: 'Tapsigner',
-          signerId: card.card_ident,
-          derivation: status.path,
-          xpub,
-        });
-      });
       updateStep(4, 5);
-      console.log(
-        generateVault({
-          scheme: { m: 1, n: 1 },
-          signers: [
-            {
-              type: SignerType.TAPSIGNER,
-              signerName: 'Tapsigner',
-              signerId: card.card_ident,
-              derivation: status.path,
-              xpub,
-            },
-          ],
-          vaultShellId: '0',
-          vaultName: 'New Vault',
-          vaultDescription: 'Testing vault creation',
-          xpubs: [xpub],
-          networkType: NetworkType.MAINNET,
-        })
-          .then(console.log)
-          .catch(console.log)
-      );
-      // navigation.dispatch(CommonActions.navigate('NewHome'));
+      const isVaultCreated = createVault(xpub);
+      if (isVaultCreated) {
+        realm.write(() => {
+          realm.create(RealmSchema.VaultSigner, {
+            type: 'TAPSIGNER',
+            signerName: 'Tapsigner',
+            signerId: card.card_ident,
+            derivation: status.path,
+            xpub,
+          });
+        });
+        navigation.dispatch(CommonActions.navigate('NewHome'));
+      }
     });
   }, [cvc]);
 
