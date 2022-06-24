@@ -156,7 +156,7 @@ const VaultStatus = () => {
     .map(getJSONFromRealmObject)
     .filter((wallets) => wallets.type === WalletType.READ_ONLY)[0];
 
-  const { confirmed = 0, unconfirmed = 0 } = Vault.specs.balances || {};
+  const { confirmed = 0, unconfirmed = 0 } = Vault?.specs?.balances || {};
   const vaultBalance = confirmed + unconfirmed;
   return (
     <Box marginTop={-hp(97.44)} alignItems={'center'}>
