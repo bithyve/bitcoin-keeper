@@ -49,6 +49,7 @@ export const customTheme = extendTheme({
       Border: '#005545',
       vaultCard: '#B2844E',
       borderColor: '#EBB67A',
+      borderColor2: '#D5B690',
       textColor: '#CDD8D6',
       textColor2: '#4E5C6A',
       headerText: '#00715B',
