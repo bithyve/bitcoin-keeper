@@ -89,7 +89,7 @@ const ChangeLanguage = () => {
           style={{
             height: wp( '13%' ),
             width: wp( '15%' ),
-            // backgroundColor: Colors.borderColor,
+            backgroundColor: '#FAF4ED',
             borderTopLeftRadius: 10,
             borderBottomLeftRadius: 10,
             justifyContent: 'center',
