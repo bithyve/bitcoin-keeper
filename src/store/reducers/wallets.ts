@@ -1,8 +1,9 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Wallet, MultiSigWallet, DonationWallet } from 'src/core/wallets/interfaces/interface';
+import { DonationWallet, MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+
+import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { newWalletsInfo } from '../sagas/wallets';
-import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
 export type WalletsState = {
   walletsSynched: boolean;
@@ -59,7 +60,8 @@ const walletSlice = createSlice({
       let netBalance = 0;
       action.payload.forEach((wallet) => {
         const { confirmed, unconfirmed } = wallet.specs.balances;
-        netBalance = netBalance + confirmed + unconfirmed;
+        const { type } = wallet;
+        netBalance = netBalance + (type === WalletType.READ_ONLY ? 0 : confirmed + unconfirmed);
       });
       state.netBalance = netBalance;
     },

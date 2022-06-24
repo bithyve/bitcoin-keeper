@@ -1,50 +1,56 @@
+import { BackHandler, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, Pressable, Text } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, RefreshControl, FlatList, BackHandler } from 'react-native';
-import { Box, Text, Pressable } from 'native-base';
-import LinearGradient from 'react-native-linear-gradient';
-import { RFValue } from 'react-native-responsive-fontsize';
-import Carousel from 'react-native-snap-carousel';
-import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-//components and images
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
 import {
-  hp, windowWidth, wp,
   getTransactionPadding,
+  hp,
+  windowWidth,
+  wp,
 } from 'src/common/data/responsiveness/responsive';
-// icons and images
-import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
-import BackIcon from 'src/assets/images/svgs/back.svg';
-import BTC from 'src/assets/images/svgs/btc_wallet.svg';
-import Setting from 'src/assets/images/svgs/settings_small.svg';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import Recieve from 'src/assets/images/svgs/receive.svg';
-import Send from 'src/assets/images/svgs/send.svg';
-import Buy from 'src/assets/images/svgs/icon_buy.svg';
-import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
-import Arrow from 'src/assets/images/svgs/arrow_white.svg';
+
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import AddWalletIcon from 'src/assets/images/svgs/addWallet_illustration.svg';
+import Arrow from 'src/assets/images/svgs/arrow_white.svg';
+import BTC from 'src/assets/images/svgs/btc_wallet.svg';
+import BackIcon from 'src/assets/images/svgs/back.svg';
+import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
+import Buy from 'src/assets/images/svgs/icon_buy.svg';
+import Carousel from 'react-native-snap-carousel';
+import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
+import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
-// data 
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
+import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import LinearGradient from 'react-native-linear-gradient';
 // import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { RFValue } from 'react-native-responsive-fontsize';
+// data
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import Recieve from 'src/assets/images/svgs/receive.svg';
+// icons and images
+import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
+import Send from 'src/assets/images/svgs/send.svg';
+import Setting from 'src/assets/images/svgs/settings_small.svg';
+//components and images
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-const WalletDetails = () => {
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
+const WalletDetails = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
+    .map(getJSONFromRealmObject)
+    .filter((wallet: Wallet) => wallet.type !== WalletType.READ_ONLY);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   // const exchangeRates = useAppSelector((state) => state.sendAndReceive.exchangeRates);
   // const currencyCode = useCurrencyCode();
@@ -53,15 +59,14 @@ const WalletDetails = () => {
 
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [pullRefresh, setPullRefresh] = useState(false);
-  const currentWallet = wallets[walletIndex]
-  const transections = wallets[walletIndex]?.specs?.transactions || []
+  const currentWallet = wallets[walletIndex];
+  const transections = wallets[walletIndex]?.specs?.transactions || [];
 
   const _onSnapToItem = (index: number) => {
     setWalletIndex(index);
   };
 
   const _renderItem = ({ item }: { item }) => {
-
     const walletName = item?.presentationData?.walletName;
     const walletDescription = item?.presentationData?.walletDescription;
     const balances = item?.specs?.balances;
@@ -75,7 +80,7 @@ const WalletDetails = () => {
           borderRadius: hp(20),
           width: wp(320),
           height: hp(120),
-          position: 'relative'
+          position: 'relative',
         }}
       >
         {!(item?.presentationData && item?.specs) ? (
@@ -100,7 +105,7 @@ const WalletDetails = () => {
               justifyContent={'space-between'}
               flexDirection={'row'}
               style={{
-                marginHorizontal: wp(20)
+                marginHorizontal: wp(20),
               }}
             >
               <Pressable
@@ -133,7 +138,7 @@ const WalletDetails = () => {
               alignItems={'center'}
               justifyContent={'space-between'}
               style={{
-                marginHorizontal: wp(20)
+                marginHorizontal: wp(20),
               }}
             >
               <Box>
@@ -163,8 +168,8 @@ const WalletDetails = () => {
                 {balances.confirmed + balances.unconfirmed}
               </Text>
             </Box>
-          </>)
-        }
+          </>
+        )}
       </LinearGradient>
     );
   };
@@ -180,7 +185,6 @@ const WalletDetails = () => {
   };
 
   const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
-
     return (
       <Box
         flexDirection={'row'}
@@ -249,13 +253,13 @@ const WalletDetails = () => {
           width: hp(height),
           borderRadius: height,
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Icon />
       </LinearGradient>
     );
-  }
+  };
 
   return (
     <Box
@@ -264,14 +268,10 @@ const WalletDetails = () => {
       paddingLeft={wp(28)}
       paddingRight={wp(27)}
       paddingTop={hp(27)}
-
     >
       <StatusBarComponent padding={50} />
 
-      <Box
-        flexDirection={'row'}
-        justifyContent={'space-between'}
-      >
+      <Box flexDirection={'row'} justifyContent={'space-between'}>
         <Pressable onPress={() => navigation.goBack()}>
           <BackIcon />
         </Pressable>
@@ -293,7 +293,7 @@ const WalletDetails = () => {
         </Text>
 
         <Box flexDirection={'row'} alignItems={'flex-end'} height={10}>
-          <Box marginRight={wp(1.5)} paddingBottom={hp(7)} >
+          <Box marginRight={wp(1.5)} paddingBottom={hp(7)}>
             <BTC />
           </Box>
           <Text
@@ -305,13 +305,9 @@ const WalletDetails = () => {
             {netBalance}
           </Text>
         </Box>
-
       </Box>
 
-      <Box
-        alignItems={'center'}
-        marginTop={hp(10)}
-      >
+      <Box alignItems={'center'} marginTop={hp(10)}>
         <Box
           height={hp(67)}
           width={wp(240)}
@@ -337,20 +333,16 @@ const WalletDetails = () => {
               fontSize={RFValue(10)}
               fontWeight={200}
             >
-              Secure to Vault after{' '} <Text fontWeight={'bold'}>0.1 btc</Text>
+              Secure to Vault after <Text fontWeight={'bold'}>0.1 btc</Text>
             </Text>
           </Box>
           <Pressable>
             <GradientIcon height={38} Icon={Arrow} />
           </Pressable>
-
         </Box>
       </Box>
 
-      <Box
-        marginTop={hp(18)}
-        alignItems={'center'}>
-
+      <Box marginTop={hp(18)} alignItems={'center'}>
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -362,7 +354,7 @@ const WalletDetails = () => {
           layout={'default'}
         />
       </Box>
-      {walletIndex !== wallets.length ?
+      {walletIndex !== wallets.length ? (
         <>
           <Box
             flexDirection={'row'}
@@ -379,11 +371,7 @@ const WalletDetails = () => {
             >
               Transactions
             </Text>
-            <Box
-              flexDirection={'row'}
-              alignItems={'center'}
-              marginRight={wp(2)}
-            >
+            <Box flexDirection={'row'} alignItems={'center'} marginRight={wp(2)}>
               <Text
                 color={'light.light'}
                 marginRight={1}
@@ -397,12 +385,11 @@ const WalletDetails = () => {
             </Box>
           </Box>
 
-          <Box
-            marginTop={hp(10)}
-            height={hp(250)}
-          >
+          <Box marginTop={hp(10)} height={hp(250)}>
             <FlatList
-              refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
+              refreshControl={
+                <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
+              }
               data={transections}
               renderItem={renderTransactionElement}
               keyExtractor={(item) => item}
@@ -418,12 +405,7 @@ const WalletDetails = () => {
             marginTop={hp(20)}
           />
 
-          <Box
-            flexDirection={'row'}
-            marginTop={2}
-            justifyContent={'space-between'}
-            marginX={10}
-          >
+          <Box flexDirection={'row'} marginTop={2} justifyContent={'space-between'} marginX={10}>
             <TouchableOpacity
               style={styles.IconText}
               onPress={() => {
@@ -446,9 +428,7 @@ const WalletDetails = () => {
                 Recieve
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.IconText}
-            >
+            <TouchableOpacity style={styles.IconText}>
               <Buy />
               <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
                 Buy
@@ -457,7 +437,9 @@ const WalletDetails = () => {
             <TouchableOpacity
               style={styles.IconText}
               onPress={() => {
-                navigation.navigate('ExportSeed', { seed: currentWallet?.derivationDetails?.mnemonic });
+                navigation.navigate('ExportSeed', {
+                  seed: currentWallet?.derivationDetails?.mnemonic,
+                });
               }}
             >
               <IconSettings />
@@ -466,28 +448,25 @@ const WalletDetails = () => {
               </Text>
             </TouchableOpacity>
           </Box>
-        </> :
-        <Box
-          justifyContent={'center'}
-          alignItems={'center'}
-          flex={1}
-        >
+        </>
+      ) : (
+        <Box justifyContent={'center'} alignItems={'center'} flex={1}>
           <AddWalletIcon />
           <Text
             color={'light.lightBlack'}
             fontSize={12}
-            letterSpacing={0.60}
+            letterSpacing={0.6}
             marginY={5}
             marginX={8}
             opacity={0.85}
             noOfLines={2}
             fontWeight={100}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
           </Text>
         </Box>
-      }
-
+      )}
     </Box>
   );
 };
@@ -500,8 +479,7 @@ const styles = StyleSheet.create({
   addWalletContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100%'
+    height: '100%',
   },
 });
 export default WalletDetails;
-
