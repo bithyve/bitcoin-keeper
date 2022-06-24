@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 
 import Illustration from 'src/assets/images/illustration.svg';
+// import login from 'src/store/reducers/login';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const ResetPassSuccess = (props) => {
+  const { translations } = useContext(LocalizationContext);
+  const login = translations['login'];
   function onPressProceed() {}
 
   return (
@@ -27,16 +31,16 @@ const ResetPassSuccess = (props) => {
         </Box>
       </TouchableOpacity>
       <Text fontSize={RFValue(19)} color={'light.lightBlack'}>
-        Reset Successful!
+        {login.resetSuccess}
       </Text>
       <Text fontSize={RFValue(13)} color={'light.textColor2'}>
-        Lorem ipsum dolor sit amet, consectetur eiusmod tempor
+        {login.ResetPassSubPara1}
       </Text>
       <Box alignItems={'center'} my={10}>
         <Illustration />
       </Box>
       <Text fontSize={RFValue(13)} color={'light.textColor2'} my={5}>
-        commodo consequat. Duis aute irure dolor in reprehenderit in
+        {login.ResetPassSubPara2}
       </Text>
       <Box alignSelf={'flex-end'}>
         <CustomGreenButton

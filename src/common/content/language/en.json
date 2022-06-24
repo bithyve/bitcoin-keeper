@@ -136,7 +136,10 @@
     "Addhint": "Add a hint",
     "Makesure": "Make sure you remember the encryption password and keep it safe",
     "AnswerSecurityQuestion": "Answer\na Security Question",
-    "SelectQuestion": "Select Question"
+    "SelectQuestion": "Select Question",
+    "resetSuccess": "Reset Successful!",
+    "ResetPassSubPara1": "Your passcode has been reset successfully",
+    "ResetPassSubPara2": "Your passcode can only be reset if you have your wallet backup safe and accessible"
   },
   "home": {
     "Hello": "Hello,",
@@ -212,15 +215,15 @@
     "Transferbitcoincustody": "Transfer bitcoin custody",
     "ActivateTransfer": "Activate Transfer",
     "Thebestinheritance": "The best inheritance in history",
-    "UpgradetoElitetier" :"Upgrade to Elite tier and setup the Vault with 5 Signers",
-    "ActivateInheritance" : "Activate Inheritance",
-    "Downloadandsafelykeepinheritencedocuments" : "Download and safely keep inheritence documents. Safekeeping best practices. Will template for digital assets. Inheritance recovery instructions",
-    "Setupfalserecoveryalert" : "Setup false recovery alert (optional)",
-    "tryingtorecoveryourwallet" : "If someone is trying to recover your wallet, make sure you get notified to approve or deny the recovery",
-    "IndependentRecovery" : "Independent Recovery",
-    "UnderstandhowyoucanrecoveryourVault" : "Understand how you can recover your Vault even without the Keeper app or any service from the company",
-    "Practicehealthcheck" : "Practice health check",
-    "Makessureyousignersareaccessible" : "Make sure you signers are accessible. Change them if that is not the case"
+    "UpgradetoElitetier": "Upgrade to Elite tier and setup the Vault with 5 Signers",
+    "ActivateInheritance": "Activate Inheritance",
+    "Downloadandsafelykeepinheritencedocuments": "Download and safely keep inheritence documents. Safekeeping best practices. Will template for digital assets. Inheritance recovery instructions",
+    "Setupfalserecoveryalert": "Setup false recovery alert (optional)",
+    "tryingtorecoveryourwallet": "If someone is trying to recover your wallet, make sure you get notified to approve or deny the recovery",
+    "IndependentRecovery": "Independent Recovery",
+    "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your Vault even without the Keeper app or any service from the company",
+    "Practicehealthcheck": "Practice health check",
+    "Makessureyousignersareaccessible": "Make sure you signers are accessible. Change them if that is not the case"
   },
   "wallet": {
     "Createwallet": "Create a wallet",
