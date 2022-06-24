@@ -17,7 +17,7 @@ import InheritanceScreen from 'src/screens/Inheritance/InheritanceScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
+import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 // import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
@@ -52,6 +52,11 @@ const LoginStack = () => {
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="OnBoardingSlides"
+        component={OnBoardingSlides}
+      />
     </Stack.Navigator>
   );
 };
