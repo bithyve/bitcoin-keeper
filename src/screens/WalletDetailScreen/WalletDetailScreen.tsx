@@ -1,43 +1,42 @@
-import React, { useState, useContext } from 'react';
-import { StyleSheet, ImageBackground, TouchableOpacity, RefreshControl } from 'react-native';
-import { Box, Text, Pressable } from 'native-base';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
-// icons, images and functions
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/transaction_income.svg';
-// import IconSent from 'src/assets/images/svgs/transaction_sent.svg';
-import Recieve from 'src/assets/images/svgs/recieve.svg';
-import Send from 'src/assets/images/svgs/send.svg';
-import More from 'src/assets/images/svgs/more.svg';
-
-import BackIcon from 'src/assets/images/svgs/back_white.svg';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import Icon from 'src/assets/images/svgs/seedsigner.svg';
-import Btc from 'src/assets/images/svgs/btc.svg';
-import WalletIcon from 'src/assets/images/svgs/wallet.svg';
-
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
-import BtcSmall from 'src/assets/images/svgs/btc_small.svg';
+import { Box, Pressable, Text } from 'native-base';
+import { ImageBackground, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
 import {
   getAccountCardHeight,
   getTransactionPadding,
   windowHeight,
   windowWidth,
 } from 'src/common/data/responsiveness/responsive';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+
+import BackIcon from 'src/assets/images/svgs/back_white.svg';
 import BaseCardWallet from 'src/assets/images/basecard_wallet.png';
-import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
+import Btc from 'src/assets/images/svgs/btc.svg';
+import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
+import BtcSmall from 'src/assets/images/svgs/btc_small.svg';
 import { FlatList } from 'react-native-gesture-handler';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import Icon from 'src/assets/images/svgs/seedsigner.svg';
+// icons, images and functions
+import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
+import IconRecieve from 'src/assets/images/svgs/transaction_income.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import More from 'src/assets/images/svgs/more.svg';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+// import IconSent from 'src/assets/images/svgs/transaction_sent.svg';
+import Recieve from 'src/assets/images/svgs/recieve.svg';
+import Send from 'src/assets/images/svgs/send.svg';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import WalletIcon from 'src/assets/images/svgs/wallet.svg';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   return (

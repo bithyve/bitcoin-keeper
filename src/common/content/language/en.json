@@ -286,7 +286,7 @@
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
-    "UseBiometricSubTitle": "Use Face ID to login to the app",
+    "UseBiometricSubTitle": "Use {0} to login to the app",
     "DarkMode": "Dark Mode",
     "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
