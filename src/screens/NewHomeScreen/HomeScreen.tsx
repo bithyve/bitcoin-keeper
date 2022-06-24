@@ -16,6 +16,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
+import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import VaultImage from 'src/assets/images/Vault.png';
@@ -72,7 +73,7 @@ const LinkedWallets = () => {
         style={styles.bottomCard}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
-          <Inheritance />
+          <LinkedWallet />
           <Box marginLeft={wp(18)} flexDirection={'row'} alignItems={'center'}>
             <Text
               color={'light.white1'}
@@ -282,7 +283,7 @@ const NextIcon = () => {
       alignItems={'center'}
     >
       <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('InheritanceSetup'))}>
-      <Arrow />
+        <Arrow />
       </Pressable>
     </Box>
   );
