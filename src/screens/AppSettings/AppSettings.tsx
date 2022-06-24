@@ -2,8 +2,6 @@ import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-
-import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -25,16 +23,23 @@ const AppSettings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-
-  const { translations } = useContext(LocalizationContext);
+  const [sensorType, setSensorType] = useState('Biometrics')
+  const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
-  const settings = translations['settings'];
+  const { settings } = translations;
 
   useEffect(() => {
     init();
   }, []);
 
-  const init = async () => {};
+  const init = async () => {
+    try {
+      const { available, biometryType } = await RNBiometrics.isSensorAvailable();
+      const type = biometryType === 'TouchID' ? 'Touch ID' : biometryType === 'FaceID' ? 'Face ID' : biometryType
+      setSensorType(type)
+    } catch (error) {
+    }
+  };
 
   const onChangeLoginMethod = async () => {
     try {
@@ -105,8 +110,8 @@ const AppSettings = ({ navigation }) => {
         >
           {/* {isBiometicSupported && ( */}
           <SettingsSwitchCard
-            title={settings.UseBiometrics}
-            description={settings.UseBiometricSubTitle}
+            title={sensorType}
+            description={formatString(settings.UseBiometricSubTitle, sensorType)}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => onChangeLoginMethod()}
