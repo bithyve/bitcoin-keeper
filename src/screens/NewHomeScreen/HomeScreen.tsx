@@ -120,7 +120,7 @@ const LinkedWallets = (props) => {
             <Box flexDirection={'row'} alignItems={'center'}>
               <BTC />
               &nbsp;
-              <Text color={'light.white1'} fontSize={RFValue(30)} fontWeight={200}>
+              <Text color={'light.white1'} fontSize={RFValue(25)} fontWeight={200}>
                 {'***'}
               </Text>
             </Box>
