@@ -1,4 +1,4 @@
-import { Box, Pressable, Text, View } from 'native-base';
+import { Box, HStack, Pressable, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Image, ImageBackground, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
@@ -151,6 +151,13 @@ const VaultStatus = () => {
     close();
     navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
   };
+
+  const Vault = useQuery(RealmSchema.Wallet)
+    .map(getJSONFromRealmObject)
+    .filter((wallets) => wallets.type === WalletType.READ_ONLY)[0];
+
+  const { confirmed = 0, unconfirmed = 0 } = Vault.specs.balances || {};
+  const vaultBalance = confirmed + unconfirmed;
   return (
     <Box marginTop={-hp(97.44)} alignItems={'center'}>
       <TouchableOpacity onPress={open} activeOpacity={1}>
@@ -205,6 +212,20 @@ const VaultStatus = () => {
                 resizeMode="contain"
               />
             </Box>
+          ) : null}
+          {Signers.length ? (
+            <HStack alignItems={'center'} marginTop={'10%'}>
+              <BTC style={{ height: '20%' }} />
+              <Text
+                p={1}
+                color={'light.white1'}
+                letterSpacing={0.8}
+                fontSize={RFValue(34)}
+                fontWeight={200}
+              >
+                {vaultBalance}
+              </Text>
+            </HStack>
           ) : null}
         </ImageBackground>
       </TouchableOpacity>
