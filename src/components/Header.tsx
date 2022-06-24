@@ -1,22 +1,86 @@
-import { Dimensions, StyleSheet } from 'react-native';
-import React from 'react';
-import { HStack } from 'native-base';
-import GoBack from './GoBack';
-const { height } = Dimensions.get('window');
+import { Box, Text } from 'native-base';
 
-const Header = () => {
+import BackButton from 'src/assets/images/svgs/back.svg';
+import { RFValue } from 'react-native-responsive-fontsize';
+import React from 'react';
+import { ScaledSheet } from 'react-native-size-matters';
+import { TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
+type Props = {
+  title?: string;
+  subtitle?: string;
+  onPressHandler?: () => void;
+  enableBack?: boolean;
+  headerTitleColor?: string;
+};
+const Header = ({
+  title = '',
+  subtitle = '',
+  onPressHandler,
+  enableBack = true,
+  headerTitleColor = 'light.headerText',
+}: Props) => {
+  const navigation = useNavigation();
   return (
-    <HStack justifyContent="flex-start" style={styles.container}>
-      <GoBack />
-    </HStack>
+    <Box style={styles.container}>
+      {enableBack && (
+        <TouchableOpacity
+          onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          style={styles.back}
+        >
+          <BackButton />
+        </TouchableOpacity>
+      )}
+      <Box marginLeft={5}>
+        {title && (
+          <Text
+            numberOfLines={1}
+            style={styles.addWalletText}
+            color={headerTitleColor}
+            fontFamily={'body'}
+            fontWeight={'200'}
+          >
+            {title}
+          </Text>
+        )}
+        {subtitle && (
+          <Text
+            numberOfLines={1}
+            style={styles.addWalletDescription}
+            color={'light.lightBlack'}
+            fontFamily={'body'}
+            fontWeight={'100'}
+          >
+            {subtitle}
+          </Text>
+        )}
+      </Box>
+    </Box>
   );
 };
 
-export default Header;
-
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   container: {
-    paddingTop: height / 10,
-    padding: '13%',
+    backgroundColor: 'transparent',
+    marginTop: hp(5)
+  },
+  addWalletText: {
+    fontSize: RFValue(16),
+    lineHeight: '23@s',
+    letterSpacing: '0.8@s',
+    // paddingHorizontal: '40@s',
+  },
+  addWalletDescription: {
+    fontSize: RFValue(12),
+    lineHeight: '17@s',
+    letterSpacing: '0.5@s',
+    // paddingHorizontal: '40@s',
+  },
+  back: {
+    paddingHorizontal: wp(5),
+    marginBottom: hp(30)
   },
 });
+export default Header;

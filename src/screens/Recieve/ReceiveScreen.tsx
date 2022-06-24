@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
 
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { View, Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -8,7 +7,7 @@ import { Image, TouchableOpacity, Clipboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 // import { useDispatch } from 'react-redux';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import Header from 'src/components/Header';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from '../../components/InfoBox';
 
@@ -23,6 +22,7 @@ import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 import QRCode from 'react-native-qrcode-svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
@@ -33,9 +33,9 @@ const ReceiveScreen = ({ route }: { route }) => {
   const [receivingAddress, setReceivingAddress] = useState(null);
   const [paymentURI, setPaymentURI] = useState(null);
 
-  const { translations } = useContext( LocalizationContext )
-  const common = translations[ 'common' ]
-  const home = translations[ 'home' ]
+  const { translations } = useContext(LocalizationContext)
+  const common = translations['common']
+  const home = translations['home']
 
   useEffect(() => {
     const receivingAddress = getNextFreeAddress(wallet);
@@ -54,17 +54,24 @@ const ReceiveScreen = ({ route }: { route }) => {
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title={common.receive}
-        subtitle={common.smalldesc}
-        onPressHandler={() => navigtaion.goBack()}
-        color={'light.ReceiveBackground'}
-      />
-      <Box marginTop={hp(10)} alignItems={'center'} alignSelf={'center'} width={204}>
+      <Box>
+        <Header
+          title={common.receive}
+          subtitle={common.smalldesc}
+          onPressHandler={() => navigtaion.goBack()}
+          headerTitleColor={'light.textBlack'}
+        />
+      </Box>
+      <Box
+        marginTop={hp(80)}
+        alignItems={'center'}
+        alignSelf={'center'}
+        width={hp(200)}
+      >
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"
-          size={200}
+          size={hp(200)}
         />
         <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
           <Text
@@ -82,10 +89,14 @@ const ReceiveScreen = ({ route }: { route }) => {
         </Box>
       </Box>
       {/* {Input Field} */}
-      <Box alignItems={'center'} borderBottomLeftRadius={10} borderTopLeftRadius={10}>
+      <Box
+        alignItems={'center'}
+        borderBottomLeftRadius={10}
+        borderTopLeftRadius={10}
+        marginTop={hp(20)}
+      >
         <Box
           flexDirection={'row'}
-          marginY={hp(3)}
           width={'80%'}
           alignItems={'center'}
           justifyContent={'space-between'}
@@ -114,14 +125,14 @@ const ReceiveScreen = ({ route }: { route }) => {
       {/* {Add amount component} */}
       <TouchableOpacity
         activeOpacity={0.5}
-        style={{ marginTop: '7%' }}
+        style={{ marginTop: hp(50) }}
         onPress={() => {
           navigtaion.navigate('AddAmount', { wallet });
         }}
       >
         <Box
           flexDirection={'row'}
-          height={70}
+          height={hp(70)}
           borderRadius={10}
           justifyContent={'space-between'}
           alignItems={'center'}
@@ -156,11 +167,11 @@ const ReceiveScreen = ({ route }: { route }) => {
         </Box>
       </TouchableOpacity>
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={10} marginX={5}>
+      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
         <InfoBox
           title={home.AddAmount}
           desciption={home.reflectSats}
-          width="65%"
+          width={300}
         />
       </Box>
     </View>
