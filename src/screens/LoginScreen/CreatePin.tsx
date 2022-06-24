@@ -32,9 +32,10 @@ export default function CreatePin(props) {
 
   useEffect(() => {
     if (hasCreds) {
-      props.navigation.replace('App');
+      props.navigation.navigate('OnBoardingSlides');
+      // props.navigation.replace('App');
     }
-  }, [hasCreds])
+  }, [hasCreds]);
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -161,12 +162,12 @@ export default function CreatePin(props) {
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                     <Text
-                      color={'light.white'}
+                      color={'light.errorRed'}
                       fontSize={RFValue(13)}
-                      fontWeight={'500'}
+                      fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                    // mt={hp('1.5%')}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>

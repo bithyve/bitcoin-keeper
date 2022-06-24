@@ -49,6 +49,7 @@ export const customTheme = extendTheme({
       Border: '#005545',
       vaultCard: '#B2844E',
       borderColor: '#EBB67A',
+      borderColor2: '#D5B690',
       textColor: '#CDD8D6',
       textColor2: '#4E5C6A',
       headerText: '#00715B',
@@ -60,8 +61,9 @@ export const customTheme = extendTheme({
       TorLable: '#C6ECAE',
       headerTextTwo: '#003423',
       divider: '#BABABA',
+      errorRed: '#ff0033',
       textWallet: '#113834',
-      transactionPolicyCard: '#FAD8B4'
+      transactionPolicyCard: '#FAD8B4',
     },
     dark: {
       black: '#000000',
