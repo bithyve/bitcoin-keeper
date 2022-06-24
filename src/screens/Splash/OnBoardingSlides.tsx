@@ -1,12 +1,15 @@
 import React, { useContext, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Animated, SafeAreaView, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  Animated,
+  SafeAreaView,
+  TouchableOpacity,
+  FlatList,
+  Dimensions,
+} from 'react-native';
 import { Box, Text } from 'native-base';
 
 import LinearGradient from 'react-native-linear-gradient';
-import PagerView, {
-  PagerViewOnPageScrollEventData,
-  PagerViewOnPageSelectedEventData,
-} from 'react-native-pager-view';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 import openLink from 'src/utils/OpenLink';
@@ -18,29 +21,8 @@ import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
 import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
 import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-const { width } = Dimensions.get('window')
+const { width } = Dimensions.get('window');
 
-const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
-const indexData = [
-  {
-    '1': 1,
-  },
-  {
-    '2': 2,
-  },
-  {
-    '3': 3,
-  },
-  {
-    '4': 4,
-  },
-  {
-    '5': 5,
-  },
-  {
-    '6': 6,
-  },
-];
 const OnBoardingSlides = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const onboarding = translations['onboarding'];
@@ -75,77 +57,39 @@ const OnBoardingSlides = ({ navigation }) => {
       id: '5',
       title: onboarding.slide05Title,
       paragraph: onboarding.slide05Paragraph,
-      illustration: <Illustration_5 />,
+      illustration: <Illustration_6 />,
     },
     {
       id: '6',
       title: onboarding.slide06Title,
       paragraph: onboarding.slide06Paragraph,
-      illustration: <Illustration_6 />,
+      illustration: <Illustration_5 />,
     },
   ]);
-  const ref = useRef<PagerView>(null);
-  const scrollOffsetAnimatedValue = useRef(new Animated.Value(0)).current;
-  const positionAnimatedValue = useRef(new Animated.Value(0)).current;
-  const onPageSelectedPosition = useRef(new Animated.Value(0)).current;
 
-  const onPageScroll = useMemo(
-    () =>
-      Animated.event<PagerViewOnPageScrollEventData>(
-        [
-          {
-            nativeEvent: {
-              offset: scrollOffsetAnimatedValue,
-              position: positionAnimatedValue,
-            },
-          },
-        ],
-        {
-          useNativeDriver: false,
-        }
-      ),
-    []
-  );
+  const onViewRef = React.useRef((viewableItems) => {
+    setCurrentPosition(viewableItems.changed[0].index);
+  });
+  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
-  const onPageSelected = useMemo(
-    () =>
-      Animated.event<PagerViewOnPageSelectedEventData>(
-        [
-          {
-            nativeEvent: {
-              position: onPageSelectedPosition,
-            },
-          },
-        ],
-        {
-          listener: ({ nativeEvent: { position } }) => {
-            setCurrentPosition(position);
-          },
-          useNativeDriver: true,
-        }
-      ),
-    []
-  );
-
-  function setCurrentPage(page: number) {
-
-  }
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1, margin: 10 }}>
         <Box flex={0.2} justifyContent={'center'}>
-          <TouchableOpacity onPress={() => navigation.replace('App')}>
-            <Text
-              fontSize={RFValue(14)}
-              color={'light.white'}
-              fontFamily={'heading'}
-              textAlign={'right'}
-              opacity={0.7}
-              mr={5}
-            >
-              Skip {'>>'}
-            </Text>
-          </TouchableOpacity>
+          {currentPosition != 5 && (
+            <TouchableOpacity onPress={() => navigation.replace('App')}>
+              <Text
+                fontSize={RFValue(14)}
+                color={'light.white'}
+                fontFamily={'heading'}
+                textAlign={'right'}
+                opacity={0.7}
+                mr={5}
+              >
+                Skip {'>>'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </Box>
         <Box>
           <Text
@@ -157,25 +101,30 @@ const OnBoardingSlides = ({ navigation }) => {
             Keeper
           </Text>
         </Box>
-
-        <FlatList
-          data={items}
-          horizontal
-          snapToInterval={width}
-          showsHorizontalScrollIndicator={false}
-          decelerationRate={0}
-          snapToAlignment={"center"}
-          onViewableItemsChanged={({ viewableItems }) => {
-            console.log(viewableItems[0].index) // current visible index
-          }}
-          renderItem={({ item }) => (
-            <OnboardingSlideComponent
-              title={item.title}
-              illustration={item.illustration}
-              paragraph={item.paragraph}
-            />
-          )}
-        />
+        <Box flex={0.7}>
+          <FlatList
+            data={items}
+            horizontal
+            snapToInterval={width}
+            showsHorizontalScrollIndicator={false}
+            decelerationRate={0}
+            snapToAlignment={'center'}
+            onViewableItemsChanged={onViewRef.current}
+            viewabilityConfig={viewConfigRef.current}
+            // onViewableItemsChanged={({ viewableItems }) => {
+            //   console.log(viewableItems[0].index); // current visible index
+            // }}
+            renderItem={({ item }) => (
+              <OnboardingSlideComponent
+                title={item.title}
+                illustration={item.illustration}
+                paragraph={item.paragraph}
+                currentPosition={currentPosition}
+                navigation={navigation}
+              />
+            )}
+          />
+        </Box>
         <Box flex={0.1} flexDirection={'row'} m={10} alignItems={'center'}>
           <Box w={'70%'}>
             <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
@@ -193,7 +142,7 @@ const OnBoardingSlides = ({ navigation }) => {
               </Box>
             </TouchableOpacity>
           </Box>
-          {indexData.map((item, index) => {
+          {items.map((item, index) => {
             return (
               <Box
                 key={index}

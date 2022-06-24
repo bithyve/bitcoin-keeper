@@ -3,7 +3,7 @@ import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window')
+const { width } = Dimensions.get('window');
 
 const OnboardingSlideComponent = (props) => {
   return (
@@ -19,7 +19,7 @@ const OnboardingSlideComponent = (props) => {
           {props.paragraph}
         </Text>
       </Box>
-      {props.position && (
+      {props.currentPosition == 5 && (
         <Box justifyContent={'center'} mt={10}>
           <TouchableOpacity onPress={() => props.navigation.replace('App')}>
             <Text
