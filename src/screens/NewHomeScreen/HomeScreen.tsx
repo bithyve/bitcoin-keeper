@@ -20,6 +20,7 @@ import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import VaultImage from 'src/assets/images/Vault.png';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 
@@ -63,7 +64,9 @@ const InheritanceComponent = () => {
 const LinkedWallets = () => {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
+    .map(getJSONFromRealmObject)
+    .filter((wallet) => wallet.type !== WalletType.READ_ONLY);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
 
   return (
