@@ -61,7 +61,7 @@ const InheritanceComponent = () => {
   );
 };
 
-const LinkedWallets = () => {
+const LinkedWallets = (props) => {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
@@ -103,12 +103,29 @@ const LinkedWallets = () => {
             </Text>
           </Box>
         </Box>
-        <Text color={'light.white1'} letterSpacing={0.6} fontSize={RFValue(30)} fontWeight={200}>
-          <Box padding={1} marginBottom={0.5}>
-            <BTC />
-          </Box>
-          {netBalance}
-        </Text>
+        <Pressable onPress={() => props.onAmountPress()}>
+          {props.showHideAmounts ? (
+            <Text
+              color={'light.white1'}
+              letterSpacing={0.6}
+              fontSize={RFValue(30)}
+              fontWeight={200}
+            >
+              <Box padding={1} marginBottom={0.5}>
+                <BTC />
+              </Box>
+              {netBalance}
+            </Text>
+          ) : (
+            <Box flexDirection={'row'} alignItems={'center'}>
+              <BTC />
+              &nbsp;
+              <Text color={'light.white1'} fontSize={RFValue(25)} fontWeight={200}>
+                {'***'}
+              </Text>
+            </Box>
+          )}
+        </Pressable>
       </LinearGradient>
     </Pressable>
   );
@@ -130,7 +147,7 @@ const VaultSetupContent = () => {
   );
 };
 
-const VaultStatus = () => {
+const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
@@ -216,15 +233,17 @@ const VaultStatus = () => {
           {Signers.length ? (
             <HStack alignItems={'center'} marginTop={'10%'}>
               <BTC style={{ height: '20%' }} />
-              <Text
-                p={1}
-                color={'light.white1'}
-                letterSpacing={0.8}
-                fontSize={RFValue(34)}
-                fontWeight={200}
-              >
-                {vaultBalance}
-              </Text>
+              <Pressable onPress={() => props.onAmountPress()}>
+                <Text
+                  p={1}
+                  color={'light.white1'}
+                  letterSpacing={0.8}
+                  fontSize={RFValue(34)}
+                  fontWeight={200}
+                >
+                  {props.showHideAmounts ? vaultBalance : '*****'}
+                </Text>
+              </Pressable>
             </HStack>
           ) : null}
         </ImageBackground>
@@ -320,12 +339,23 @@ const NextIcon = () => {
 };
 
 const HomeScreen = () => {
+  const [showHideAmounts, setShowHideAmounts] = useState(false);
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />
-      <VaultStatus />
+      <VaultStatus
+        onAmountPress={() => {
+          setShowHideAmounts(!showHideAmounts);
+        }}
+        showHideAmounts={showHideAmounts}
+      />
       <InheritanceComponent />
-      <LinkedWallets />
+      <LinkedWallets
+        onAmountPress={() => {
+          setShowHideAmounts(!showHideAmounts);
+        }}
+        showHideAmounts={showHideAmounts}
+      />
     </Box>
   );
 };
