@@ -19,7 +19,6 @@ export const RealmWrapperContext = createContext({});
 
 export const RealmProvider = ({ children }) => {
   const key = useAppSelector((state) => state?.login?.key);
-  console.log('provider', key);
 
   if (key) {
     const bufferKey = Cipher.stringToArrayBuffer(key);
