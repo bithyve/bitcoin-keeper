@@ -1,5 +1,5 @@
 import { Modal, Text } from 'native-base';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,9 +21,10 @@ const KeeperModal = (props) => {
     Content = () => <></>,
   } = props;
   const { bottom } = useSafeAreaInsets();
+
+  const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
   return (
     <Modal
-      marginTop={-bottom}
       isOpen={visible}
       onClose={close}
       avoidKeyboard
@@ -31,7 +32,7 @@ const KeeperModal = (props) => {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
     >
-      <Modal.Content borderRadius={10} marginBottom={'5%'}>
+      <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
