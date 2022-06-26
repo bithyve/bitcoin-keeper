@@ -19,10 +19,9 @@ export const RealmWrapperContext = createContext({});
 
 export const RealmProvider = ({ children }) => {
   const key = useAppSelector((state) => state?.login?.key);
-
+  const bufferKey = Cipher.stringToArrayBuffer(key);
+  const RealmContext = useMemo(() => createRealmContext(realmConfig(bufferKey)), [key]);
   if (key) {
-    const bufferKey = Cipher.stringToArrayBuffer(key);
-    const RealmContext = useMemo(() => createRealmContext(realmConfig(bufferKey)), []);
     const { useQuery, useRealm, useObject } = RealmContext;
     return (
       <RealmWrapperContext.Provider value={{ useQuery, useRealm, useObject }}>
