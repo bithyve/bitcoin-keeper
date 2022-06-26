@@ -344,7 +344,7 @@ const NextIcon = () => {
 };
 
 const HomeScreen = () => {
-  const [showHideAmounts, setShowHideAmounts] = useState(false);
+  const [showHideAmounts, setShowHideAmounts] = useState(true);
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />

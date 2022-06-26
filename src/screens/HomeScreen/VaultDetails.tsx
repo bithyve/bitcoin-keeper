@@ -2,13 +2,14 @@ import { Box, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
+  InteractionManager,
   Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -178,9 +179,9 @@ const Header = () => {
 
 const VaultInfo = ({ Vault }) => {
   const {
-    presentationData: { walletName, walletDescription },
-    specs: {
-      balances: { confirmed, unconfirmed },
+    presentationData: { walletName, walletDescription } = { walletName: '', walletDescription: '' },
+    specs: { balances: { confirmed, unconfirmed } } = {
+      balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = Vault;
   return (
@@ -251,9 +252,9 @@ const VaultInfo = ({ Vault }) => {
   );
 };
 
-const TransactionList = ({ transections, pullDownRefresh, pullRefresh }) => {
+const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
   return (
-    <VStack>
+    <VStack pt={'15%'}>
       <HStack justifyContent={'space-between'}>
         <Text
           color={'light.textBlack'}
@@ -279,7 +280,7 @@ const TransactionList = ({ transections, pullDownRefresh, pullRefresh }) => {
       </HStack>
       <FlatList
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
-        data={transections}
+        data={transactions}
         renderItem={renderTransactionElement}
         keyExtractor={(item) => item}
         showsVerticalScrollIndicator={false}
@@ -295,11 +296,13 @@ const SignerList = () => {
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: '-100%' }}
+      style={{ position: 'absolute', bottom: '65%' }}
+      showsHorizontalScrollIndicator={false}
+      horizontal
     >
       {Signers.map((signer) => {
         return (
-          <Box style={styles.signerCard}>
+          <Box style={styles.signerCard} marginRight={'3'}>
             <SignerIcon />
             <VStack pb={2}>
               <Text
@@ -340,14 +343,25 @@ const VaultDetails = () => {
   )[0];
 
   const [pullRefresh, setPullRefresh] = useState(false);
-  const transections = Vault?.specs?.transactions || [];
+  const transactions = Vault?.specs?.transactions || [];
+
+  const refreshVault = () => {
+    dispatch(refreshWallets([JSON.parse(JSON.stringify(Vault))], { hardRefresh: true }));
+  };
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
-    dispatch(refreshWallets([JSON.parse(JSON.stringify(Vault))], { hardRefresh: true }));
+    refreshVault();
     setPullRefresh(false);
   };
+
   const styles = getStyles(top);
+
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      pullDownRefresh();
+    });
+  }, []);
 
   return (
     <LinearGradient
@@ -364,14 +378,13 @@ const VaultDetails = () => {
         justifyContent={'space-between'}
         backgroundColor={'light.lightYellow'}
         p={wp(28)}
-        pt={'20%'}
         borderTopLeftRadius={20}
         flex={1}
       >
         <VStack>
           <SignerList />
           <TransactionList
-            transections={transections}
+            transactions={transactions}
             pullDownRefresh={pullDownRefresh}
             pullRefresh={pullRefresh}
           />
@@ -386,7 +399,6 @@ const getStyles = (top) =>
   StyleSheet.create({
     container: {
       paddingTop: hp(top * Platform.select({ android: 1.5, ios: 1 })),
-
       justifyContent: 'space-between',
       flex: 1,
     },
@@ -416,7 +428,7 @@ const getStyles = (top) =>
       backgroundColor: '#FDF7F0',
     },
     scrollContainer: {
-      padding: '10%',
+      padding: '8%',
     },
     knowMore: {
       backgroundColor: '#725436',
