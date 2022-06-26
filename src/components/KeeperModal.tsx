@@ -1,6 +1,7 @@
 import { Modal, Text } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
+import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,14 +31,16 @@ const KeeperModal = (props) => {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
     >
-      <Modal.Content borderRadius={10}>
+      <Modal.Content borderRadius={10} marginBottom={'5%'}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           colors={modalBackground}
           style={styles.container}
         >
-          <Modal.CloseButton style={styles.close} size={8} />
+          <TouchableOpacity style={styles.close} onPress={close}>
+            <Close />
+          </TouchableOpacity>
           <Modal.Header
             alignSelf={'flex-start'}
             borderBottomWidth={0}
@@ -109,7 +112,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   close: {
-    backgroundColor: '#FAC48B',
-    borderRadius: 100,
+    alignSelf: 'flex-end',
   },
 });
