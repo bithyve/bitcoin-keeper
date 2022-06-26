@@ -142,7 +142,7 @@ const SetupTapsigner = () => {
   const [stepItems, setStepItems] = React.useState(steps);
   const [cvc, setCvc] = React.useState('');
   const [nfcVisible, setNfcVisible] = React.useState(false);
-  const { useQuery, useRealm } = useContext(RealmWrapperContext);
+  const { useRealm } = useContext(RealmWrapperContext);
 
   const realm = useRealm();
   const navigation = useNavigation();
@@ -212,8 +212,8 @@ const SetupTapsigner = () => {
   }, []);
 
   const integrateTapsigner = React.useCallback(() => {
-    updateStep(1, 2);
     withModal(async () => {
+      updateStep(1, 2);
       const status = await card.first_look();
       const isLegit = await card.certificate_check();
       if (isLegit) {
