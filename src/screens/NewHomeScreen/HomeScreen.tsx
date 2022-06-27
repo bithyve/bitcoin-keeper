@@ -10,6 +10,7 @@ import Basic from 'src/assets/images/svgs/basic.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
+import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -19,6 +20,7 @@ import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import VaultImage from 'src/assets/images/Vault.png';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -82,7 +84,7 @@ const LinkedWallets = (props) => {
         style={styles.bottomCard}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
-          <Inheritance />
+          <LinkedWallet />
           <Box marginLeft={wp(18)} flexDirection={'row'} alignItems={'center'}>
             <Text
               color={'light.white1'}
@@ -134,13 +136,15 @@ const LinkedWallets = (props) => {
 const VaultSetupContent = () => {
   return (
     <View>
-      <View style={styles.dummy} />
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
+      <Box alignSelf={'center'}>
+        <VaultSetupIcon />
+      </Box>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
         {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
         {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
       </Text>
     </View>
@@ -158,9 +162,10 @@ const VaultStatus = (props) => {
 
   const open = () => {
     if (Signers.length) {
-      return;
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
+    } else {
+      setModalVisible(true);
     }
-    setModalVisible(true);
   };
   const close = () => setModalVisible(false);
 
@@ -177,7 +182,7 @@ const VaultStatus = (props) => {
   const vaultBalance = confirmed + unconfirmed;
   return (
     <Box marginTop={-hp(97.44)} alignItems={'center'}>
-      <TouchableOpacity onPress={open} activeOpacity={1}>
+      <TouchableOpacity onPress={open} activeOpacity={0.5}>
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
             backgroundColor={'light.TorLable'}
@@ -339,7 +344,7 @@ const NextIcon = () => {
 };
 
 const HomeScreen = () => {
-  const [showHideAmounts, setShowHideAmounts] = useState(false);
+  const [showHideAmounts, setShowHideAmounts] = useState(true);
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />
