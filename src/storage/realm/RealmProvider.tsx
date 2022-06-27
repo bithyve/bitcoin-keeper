@@ -5,12 +5,13 @@ import React, { createContext, useMemo } from 'react';
 import { createRealmContext } from '@realm/react';
 import schema from './schema';
 import { useAppSelector } from 'src/store/hooks';
+import { RealmDatabase } from './realm';
 
 export const realmConfig = (key) => {
   return {
-    path: 'keeper.realm',
+    path: RealmDatabase.file,
     schema,
-    schemaVersion: 11,
+    schemaVersion: RealmDatabase.schemaVersion,
     encryptionKey: key,
   };
 };
