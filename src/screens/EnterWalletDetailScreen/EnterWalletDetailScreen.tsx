@@ -22,9 +22,9 @@ const EnterWalletDetailScreen = () => {
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
 
-  const { translations } = useContext( LocalizationContext )
-  const wallet = translations[ 'wallet' ]
-  const common = translations[ 'common' ]
+  const { translations } = useContext(LocalizationContext)
+  const wallet = translations['wallet']
+  const common = translations['common']
 
   const createNewWallet = useCallback(() => {
     const newWallet: newWalletsInfo = {
@@ -78,6 +78,7 @@ const EnterWalletDetailScreen = () => {
             }}
             primaryText={common.create}
             primaryCallback={createNewWallet}
+            primaryDisable={!walletName || !walletDescription}
           />
         </View>
       </View>
