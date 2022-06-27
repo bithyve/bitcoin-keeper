@@ -192,7 +192,7 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={'light.TorLable'}
             height={hp(13.804)}
-            width={wp(80)}
+            width={wp(75)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
