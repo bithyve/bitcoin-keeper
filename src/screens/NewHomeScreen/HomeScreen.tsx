@@ -192,7 +192,7 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={'light.TorLable'}
             height={hp(13.804)}
-            width={wp(60)}
+            width={wp(80)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
@@ -204,7 +204,7 @@ const VaultStatus = (props) => {
               fontSize={RFValue(9)}
               fontWeight={300}
             >
-              Tor Enabled
+              TOR ENABLED
             </Text>
           </Box>
           <Box marginTop={hp(64.5)} alignItems={'center'}>
