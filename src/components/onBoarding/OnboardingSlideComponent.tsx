@@ -3,6 +3,8 @@ import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity, Dimensions } from 'react-native';
 
+import Skip from 'src/assets/images/svgs/skip.svg';
+
 const { width } = Dimensions.get('window');
 
 const OnboardingSlideComponent = (props) => {
@@ -21,16 +23,20 @@ const OnboardingSlideComponent = (props) => {
       </Box>
       {props.currentPosition == 5 && (
         <Box justifyContent={'center'} mt={10}>
-          <TouchableOpacity onPress={() => props.navigation.replace('App')}>
+          <TouchableOpacity
+            onPress={() => props.navigation.replace('App')}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
+          >
             <Text
-              fontSize={RFValue(16)}
+              fontSize={RFValue(14)}
               color={'light.white'}
-              // fontFamily={'heading'}
+              fontFamily={'heading'}
               textAlign={'center'}
               fontWeight={300}
             >
-              Start App {'>>'}
+              Start App&nbsp;&nbsp;
             </Text>
+            <Skip />
           </TouchableOpacity>
         </Box>
       )}
