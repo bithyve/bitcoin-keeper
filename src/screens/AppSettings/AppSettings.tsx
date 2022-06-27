@@ -23,7 +23,7 @@ const AppSettings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-  const [sensorType, setSensorType] = useState('Biometrics')
+  const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
   const { settings } = translations;
@@ -35,10 +35,14 @@ const AppSettings = ({ navigation }) => {
   const init = async () => {
     try {
       const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      const type = biometryType === 'TouchID' ? 'Touch ID' : biometryType === 'FaceID' ? 'Face ID' : biometryType
-      setSensorType(type)
-    } catch (error) {
-    }
+      const type =
+        biometryType === 'TouchID'
+          ? 'Touch ID'
+          : biometryType === 'FaceID'
+          ? 'Face ID'
+          : biometryType;
+      setSensorType(type);
+    } catch (error) {}
   };
 
   const onChangeLoginMethod = async () => {
@@ -150,14 +154,6 @@ const AppSettings = ({ navigation }) => {
             bgColor={`${colorMode}.backgroundColor2`}
             icon={true}
             onPress={() => openLink('https://t.me/HexaWallet')}
-          />
-          <SettingsCard
-            title={'Choose Plan'}
-            description={'Lorem ipsum dolor sit amet'}
-            my={2}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('ChoosePlan')}
           />
           <Pressable onPress={() => showSeed()}>
             <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
