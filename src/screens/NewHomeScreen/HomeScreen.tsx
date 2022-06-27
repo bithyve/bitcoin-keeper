@@ -280,7 +280,6 @@ const VaultInfo = () => {
   const { uaiStack } = useUaiStack();
   const dispatch = useDispatch();
   const addtoDb = () => {
-    console.log('asdf');
     dispatch(
       addToUaiStack(
         'A new version of the app is available',
