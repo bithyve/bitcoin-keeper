@@ -56,14 +56,8 @@ const walletSlice = createSlice({
     walletsSynched: (state, action: PayloadAction<boolean>) => {
       state.walletsSynched = action.payload;
     },
-    recomputeNetBalance: (state, action: PayloadAction<Wallet[]>) => {
-      let netBalance = 0;
-      action.payload.forEach((wallet) => {
-        const { confirmed, unconfirmed } = wallet.specs.balances;
-        const { type } = wallet;
-        netBalance = netBalance + (type === WalletType.READ_ONLY ? 0 : confirmed + unconfirmed);
-      });
-      state.netBalance = netBalance;
+    setNetBalance: (state, action: PayloadAction<number>) => {
+      state.netBalance = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -75,7 +69,7 @@ const walletSlice = createSlice({
   },
 });
 
-export const { testcoinsReceived, walletsSynched, recomputeNetBalance } = walletSlice.actions;
+export const { testcoinsReceived, walletsSynched, setNetBalance } = walletSlice.actions;
 
 export default walletSlice.reducer;
 
