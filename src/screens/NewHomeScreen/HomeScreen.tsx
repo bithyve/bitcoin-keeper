@@ -25,6 +25,11 @@ import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
+import UaiDisplay from './UaiDisplay';
+import { useUaiStack } from 'src/hooks/useUaiStack';
+import { useDispatch } from 'react-redux';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const InheritanceComponent = () => {
   return (
@@ -272,6 +277,37 @@ const VaultStatus = (props) => {
 
 const VaultInfo = () => {
   const navigation = useNavigation();
+  const { uaiStack } = useUaiStack();
+  const dispatch = useDispatch();
+  const addtoDb = () => {
+    dispatch(
+      addToUaiStack(
+        'A new version of the app is available',
+        true,
+        uaiType.RELEASE_MESSAGE,
+        90,
+        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+      )
+    );
+    dispatch(
+      addToUaiStack(
+        'Your Keeper request was rejected',
+        true,
+        uaiType.ALERT,
+        80,
+        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+      )
+    );
+    dispatch(
+      addToUaiStack(
+        'Wallet restore was attempted on another device',
+        true,
+        uaiType.ALERT,
+        80,
+        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+      )
+    );
+  };
   return (
     <LinearGradient
       colors={['#00836A', '#073E39']}
@@ -286,7 +322,7 @@ const VaultInfo = () => {
           justifyContent={'space-between'}
           width={'100%'}
         >
-          <Pressable>
+          <Pressable onPress={addtoDb}>
             <ScannerIcon />
           </Pressable>
           <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
@@ -296,55 +332,33 @@ const VaultInfo = () => {
             <SettingIcon />
           </Pressable>
         </Box>
-        <Box
-          backgroundColor={'light.AddSignerCard'}
-          height={hp(60)}
-          width={wp(259)}
-          borderRadius={hp(20)}
-          marginTop={hp(44)}
-          flexDirection={'row'}
-          justifyContent={'space-between'}
-          alignItems={'center'}
-          paddingX={4}
-        >
-          <Text
-            noOfLines={2}
-            width={wp(170)}
-            color={'light.white1'}
-            letterSpacing={0.6}
-            fontSize={RFValue(12)}
-            fontWeight={200}
-            lineHeight={14}
-          >
-            Add Signers to Secure your Vault
-          </Text>
-          <NextIcon />
-        </Box>
+        <UaiDisplay uaiStack={uaiStack} />
       </Box>
     </LinearGradient>
   );
 };
 
-const NextIcon = () => {
+export const NextIcon = ({ pressHandler }) => {
   const navigation = useNavigation();
   return (
-    <Box
-      backgroundColor={'light.yellow1'}
-      height={hp(37.352)}
-      width={hp(37.352)}
-      borderRadius={20}
-      justifyContent={'center'}
-      alignItems={'center'}
-    >
-      <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('InheritanceSetup'))}>
+    <Pressable onPress={pressHandler}>
+      <Box
+        backgroundColor={'light.yellow1'}
+        height={hp(37.352)}
+        width={hp(37.352)}
+        borderRadius={20}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
         <Arrow />
-      </Pressable>
-    </Box>
+      </Box>
+    </Pressable>
   );
 };
 
 const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(true);
+
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />
