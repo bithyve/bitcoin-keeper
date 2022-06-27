@@ -14,6 +14,7 @@ type Props = {
   onPressHandler?: () => void;
   enableBack?: boolean;
   headerTitleColor?: string;
+  fontSize?: number
 };
 const Header = ({
   title = '',
@@ -21,6 +22,7 @@ const Header = ({
   onPressHandler,
   enableBack = true,
   headerTitleColor = 'light.headerText',
+  fontSize = 16
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -41,6 +43,7 @@ const Header = ({
             color={headerTitleColor}
             fontFamily={'body'}
             fontWeight={'200'}
+            fontSize={RFValue(fontSize)}
           >
             {title}
           </Text>
@@ -67,7 +70,6 @@ const styles = ScaledSheet.create({
     marginTop: hp(5)
   },
   addWalletText: {
-    fontSize: RFValue(16),
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
     // paddingHorizontal: '40@s',

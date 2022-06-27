@@ -32,6 +32,7 @@ import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 // import TestingScreen from 'src/screens/TestingScreen';
 import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
+import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppSelector } from 'src/store/hooks';
 
@@ -90,7 +91,7 @@ const AppStack = () => {
         <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
-
+        <Stack.Screen name="WalletSettings" component={WalletSettings} />
         {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </RealmProvider>
