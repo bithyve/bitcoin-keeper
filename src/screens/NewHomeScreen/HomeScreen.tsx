@@ -58,7 +58,7 @@ const InheritanceComponent = () => {
               fontWeight={100}
               marginTop={-1}
             >
-              Upgrade to secure your Vaul
+              Upgrade to secure your Vault
             </Text>
           </Box>
         </Box>
@@ -226,7 +226,7 @@ const VaultStatus = (props) => {
               paddingBottom={1}
             >
               {!Signers.length
-                ? 'Pending Activation'
+                ? 'Activate Now '
                 : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
             {!Signers.length ? null : <TapsignerIcon />}
