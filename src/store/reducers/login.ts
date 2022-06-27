@@ -69,7 +69,6 @@ const loginSlice = createSlice({
       state.authenticationFailed = isFailed;
     },
     setKey: (state, action: PayloadAction<string>) => {
-      console.log('from reducer', action.payload);
       state.key = action.payload;
     },
   },
