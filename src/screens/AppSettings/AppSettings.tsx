@@ -21,7 +21,7 @@ const AppSettings = ({ navigation }) => {
   const [darkMode, setDarkMode] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-  const [sensorType, setSensorType] = useState('Biometrics')
+  const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
   const { settings } = translations;

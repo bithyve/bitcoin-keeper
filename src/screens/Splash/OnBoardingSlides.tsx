@@ -1,16 +1,16 @@
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   StyleSheet,
-  Animated,
   SafeAreaView,
   TouchableOpacity,
   FlatList,
   Dimensions,
+  ImageBackground,
 } from 'react-native';
 import { Box, Text } from 'native-base';
 
-import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
+import LinearGradient from 'react-native-linear-gradient';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -20,6 +20,9 @@ import Illustration_3 from 'src/assets/images/svgs/illustration_3.svg';
 import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
 import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
 import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
+import Skip from 'src/assets/images/svgs/skip.svg';
+import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
+
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 const { width } = Dimensions.get('window');
 
@@ -74,84 +77,87 @@ const OnBoardingSlides = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1, margin: 10 }}>
-        <Box flex={0.2} justifyContent={'center'}>
-          {currentPosition != 5 && (
-            <TouchableOpacity onPress={() => navigation.replace('App')}>
-              <Text
-                fontSize={RFValue(14)}
-                color={'light.white'}
-                fontFamily={'heading'}
-                textAlign={'right'}
-                opacity={0.7}
-                mr={5}
+      <ImageBackground resizeMode="stretch" style={{ flex: 1 }} source={OnboardingBackImage}>
+        <SafeAreaView style={{ flex: 1, margin: 10 }}>
+          <Box flex={0.2} justifyContent={'center'} mr={5}>
+            {currentPosition != 5 && (
+              <TouchableOpacity
+                onPress={() => navigation.replace('App')}
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
-                Skip {'>>'}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </Box>
-        <Box>
-          <Text
-            fontSize={RFValue(20)}
-            color={'light.white'}
-            fontFamily={'heading'}
-            textAlign={'center'}
-          >
-            Keeper
-          </Text>
-        </Box>
-        <Box flex={0.7}>
-          <FlatList
-            data={items}
-            horizontal
-            snapToInterval={width}
-            showsHorizontalScrollIndicator={false}
-            decelerationRate={0}
-            snapToAlignment={'center'}
-            onViewableItemsChanged={onViewRef.current}
-            viewabilityConfig={viewConfigRef.current}
-            // onViewableItemsChanged={({ viewableItems }) => {
-            //   console.log(viewableItems[0].index); // current visible index
-            // }}
-            renderItem={({ item }) => (
-              <OnboardingSlideComponent
-                title={item.title}
-                illustration={item.illustration}
-                paragraph={item.paragraph}
-                currentPosition={currentPosition}
-                navigation={navigation}
-              />
-            )}
-          />
-        </Box>
-        <Box flex={0.1} flexDirection={'row'} m={10} alignItems={'center'}>
-          <Box w={'70%'}>
-            <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
-              <Box
-                borderColor={'light.borderColor2'}
-                borderWidth={0.7}
-                borderRadius={30}
-                w={120}
-                h={30}
-                alignItems={'center'}
-              >
-                <Text color={'light.borderColor2'} fontSize={RFValue(14)}>
-                  {common.learnMore}
+                <Text
+                  fontSize={RFValue(14)}
+                  color={'light.white'}
+                  fontFamily={'heading'}
+                  fontWeight={300}
+                  textAlign={'right'}
+                  opacity={0.7}
+                >
+                  Skip&nbsp;&nbsp;
                 </Text>
-              </Box>
-            </TouchableOpacity>
+                <Skip />
+              </TouchableOpacity>
+            )}
           </Box>
-          {items.map((item, index) => {
-            return (
-              <Box
-                key={index}
-                style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
-              />
-            );
-          })}
-        </Box>
-      </SafeAreaView>
+          <Box>
+            <Text
+              fontSize={RFValue(20)}
+              color={'light.white'}
+              fontFamily={'heading'}
+              textAlign={'center'}
+            >
+              Keeper
+            </Text>
+          </Box>
+          <Box flex={0.7}>
+            <FlatList
+              data={items}
+              horizontal
+              snapToInterval={width}
+              showsHorizontalScrollIndicator={false}
+              decelerationRate={0}
+              snapToAlignment={'center'}
+              onViewableItemsChanged={onViewRef.current}
+              viewabilityConfig={viewConfigRef.current}
+              renderItem={({ item }) => (
+                <OnboardingSlideComponent
+                  title={item.title}
+                  illustration={item.illustration}
+                  paragraph={item.paragraph}
+                  currentPosition={currentPosition}
+                  navigation={navigation}
+                />
+              )}
+            />
+          </Box>
+          <Box flex={0.1} flexDirection={'row'} m={10} alignItems={'center'}>
+            <Box w={'70%'}>
+              <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
+                <Box
+                  borderColor={'light.borderColor2'}
+                  borderWidth={0.7}
+                  borderRadius={30}
+                  w={120}
+                  h={30}
+                  alignItems={'center'}
+                >
+                  <Text color={'light.borderColor2'} fontSize={RFValue(14)}>
+                    {common.learnMore}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            </Box>
+            {items.map((item, index) => {
+              return (
+                <Box
+                  key={index}
+                  style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                />
+              );
+            })}
+          </Box>
+        </SafeAreaView>
+      </ImageBackground>
     </LinearGradient>
   );
 };

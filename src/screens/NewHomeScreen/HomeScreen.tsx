@@ -325,7 +325,7 @@ const VaultInfo = () => {
           <Pressable onPress={addtoDb}>
             <ScannerIcon />
           </Pressable>
-          <Pressable>
+          <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
             <Basic />
           </Pressable>
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
