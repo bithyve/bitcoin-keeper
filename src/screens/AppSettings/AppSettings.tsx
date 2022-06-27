@@ -9,11 +9,9 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { RealmSchema } from 'src/storage/realm/enum';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
-import dbManager from 'src/storage/realm/dbManager';
 import openLink from 'src/utils/OpenLink';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -35,9 +33,12 @@ const AppSettings = ({ navigation }) => {
   const init = async () => {
     try {
       const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      const type = biometryType === 'TouchID' ? 'Touch ID' : biometryType === 'FaceID' ? 'Face ID' : biometryType
-      setSensorType(type)
+      if(available) {
+        const type = biometryType === 'TouchID' ? 'Touch ID' : biometryType === 'FaceID' ? 'Face ID' : biometryType
+        setSensorType(type)
+      }
     } catch (error) {
+      console.log(error)
     }
   };
 
@@ -67,18 +68,9 @@ const AppSettings = ({ navigation }) => {
       console.log(error);
     }
   };
+
   const changeThemeMode = () => {
     setDarkMode(!darkMode);
-  };
-
-  const showSeed = () => {
-    try {
-      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0);
-      console.log();
-      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'));
-    } catch (error) {
-      //
-    }
   };
 
   return (
@@ -159,11 +151,6 @@ const AppSettings = ({ navigation }) => {
             icon={false}
             onPress={() => navigation.navigate('ChoosePlan')}
           />
-          <Pressable onPress={() => showSeed()}>
-            <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-              {common.ViewSeed}
-            </Text>
-          </Pressable>
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note title={common.note} subtitle={settings.desc} />
