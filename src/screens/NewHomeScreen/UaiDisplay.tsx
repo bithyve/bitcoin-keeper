@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { Button, Text } from 'native-base';
-import { TouchableOpacity, View } from 'react-native';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
-import { ScaledSheet } from 'react-native-size-matters';
-import { useDispatch } from 'react-redux';
-import { updateUaiStack } from 'src/store/sagaActions/uai';
-import { Modal } from 'native-base';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import KeeperModal from 'src/components/KeeperModal';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { Box, Text } from 'native-base';
+import { NextIcon } from './HomeScreen';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { useDispatch } from 'react-redux';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { updateUaiStack } from 'src/store/sagaActions/uai';
+import KeeperModal from 'src/components/KeeperModal';
 
 const UaiDisplay = ({ uaiStack }) => {
   const [uai, setUai] = useState({});
@@ -113,54 +108,48 @@ const UaiDisplay = ({ uaiStack }) => {
     }
   };
 
-  return (
-    <>
-      <Text
-        color={'light.textLight'}
-        fontSize={RFValue(12)}
-        fontFamily={'body'}
-        fontWeight={'100'}
-        marginY={'2'}
-      >
-        {uai?.title}
-      </Text>
-      <TouchableOpacity style={styles.button} onPress={pressHandler}>
-        <Text
-          color={'light.textDark'}
-          fontSize={RFValue(11)}
-          fontFamily={'body'}
-          fontWeight={'300'}
-          letterSpacing={0.88}
+  if (uaiStack.length > 0) {
+    return (
+      <>
+        <Box
+          backgroundColor={'light.AddSignerCard'}
+          height={hp(60)}
+          width={wp(259)}
+          borderRadius={hp(20)}
+          marginTop={hp(44)}
+          flexDirection={'row'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          paddingX={4}
         >
-          {uaiConfig?.btnText}
-        </Text>
-      </TouchableOpacity>
-      <KeeperModal
-        visible={showModal}
-        close={() => setShowModal(false)}
-        title={uaiConfig?.modalDetails?.heading}
-        modalBackground={['#00836A', '#073E39']}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={uaiConfig?.modalDetails?.btnText}
-        buttonTextColor={'#073E39'}
-        buttonCallback={uaiConfig?.cta}
-        textColor={'#FFF'}
-        Content={() => <Text>{uai?.displayText}</Text>}
-      />
-    </>
-  );
+          <Text
+            noOfLines={2}
+            width={wp(170)}
+            color={'light.white1'}
+            letterSpacing={0.6}
+            fontSize={RFValue(12)}
+            fontWeight={200}
+            lineHeight={14}
+          >
+            {uai?.title}
+          </Text>
+          <NextIcon pressHandler={pressHandler} />
+        </Box>
+        <KeeperModal
+          visible={showModal}
+          close={() => setShowModal(false)}
+          title={uaiConfig?.modalDetails?.heading}
+          modalBackground={['#00836A', '#073E39']}
+          buttonBackground={['#FFFFFF', '#80A8A1']}
+          buttonText={uaiConfig?.modalDetails?.btnText}
+          buttonTextColor={'#073E39'}
+          buttonCallback={uaiConfig?.cta}
+          textColor={'#FFF'}
+          Content={() => <Text>{uai?.displayText}</Text>}
+        />
+      </>
+    );
+  } else return null;
 };
-
-const styles = ScaledSheet.create({
-  button: {
-    borderRadius: 10,
-    marginTop: hp(1),
-    width: 80,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FAC48B',
-  },
-});
 
 export default UaiDisplay;
