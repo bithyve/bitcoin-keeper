@@ -1,12 +1,5 @@
-import React, { useContext, useMemo, useRef, useState } from 'react';
-import {
-  StyleSheet,
-  Animated,
-  SafeAreaView,
-  TouchableOpacity,
-  FlatList,
-  Dimensions,
-} from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, SafeAreaView, TouchableOpacity, FlatList, Dimensions } from 'react-native';
 import { Box, Text } from 'native-base';
 
 import LinearGradient from 'react-native-linear-gradient';
@@ -20,6 +13,7 @@ import Illustration_3 from 'src/assets/images/svgs/illustration_3.svg';
 import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
 import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
 import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
+import Skip from 'src/assets/images/svgs/skip.svg';
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 const { width } = Dimensions.get('window');
 
@@ -75,19 +69,23 @@ const OnBoardingSlides = ({ navigation }) => {
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1, margin: 10 }}>
-        <Box flex={0.2} justifyContent={'center'}>
+        <Box flex={0.2} justifyContent={'center'} mr={5}>
           {currentPosition != 5 && (
-            <TouchableOpacity onPress={() => navigation.replace('App')}>
+            <TouchableOpacity
+              onPress={() => navigation.replace('App')}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
+            >
               <Text
                 fontSize={RFValue(14)}
                 color={'light.white'}
                 fontFamily={'heading'}
+                fontWeight={300}
                 textAlign={'right'}
                 opacity={0.7}
-                mr={5}
               >
-                Skip {'>>'}
+                Skip&nbsp;&nbsp;
               </Text>
+              <Skip />
             </TouchableOpacity>
           )}
         </Box>
