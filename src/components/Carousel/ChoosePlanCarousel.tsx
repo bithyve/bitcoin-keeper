@@ -7,7 +7,7 @@ import { FlatList, Dimensions } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 import Basic from 'src/assets/images/svgs/basic.svg';
 import Elite from 'src/assets/images/svgs/elitePlan.svg';
-
+import Pro from 'src/assets/images/svgs/expert.svg';
 const planData = [
   {
     id: 1,
@@ -23,7 +23,7 @@ const planData = [
     subTitle: 'Lorem ipsum',
     amount: '5',
     upgrade: true,
-    icon: <Basic />,
+    icon: <Pro />,
   },
   {
     id: 3,
