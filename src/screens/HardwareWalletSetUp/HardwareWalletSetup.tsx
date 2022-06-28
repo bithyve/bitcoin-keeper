@@ -122,12 +122,14 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBarComponent />
-      <HeaderTitle
-        title="Select a Signer"
-        subtitle="For your Vault"
-        onPressHandler={() => navigation.navigate('NewHome')}
-        headerTitleColor={'light.headerTextTwo'}
-      />
+      <Box marginX={10}>
+        <HeaderTitle
+          title="Select a Signer"
+          subtitle="For your Vault"
+          onPressHandler={() => navigation.navigate('NewHome')}
+          headerTitleColor={'light.headerTextTwo'}
+        />
+      </Box>
       <Box alignItems={'center'} justifyContent={'center'}>
         <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
