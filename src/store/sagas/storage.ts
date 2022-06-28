@@ -9,10 +9,10 @@ import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
-import { WalletShell } from 'src/core/wallets/interfaces/interface';
+import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { addNewWallets } from '../sagaActions/wallets';
 import { newWalletsInfo } from './wallets';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -49,6 +49,7 @@ function* setupKeeperAppWorker({ payload }) {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: 'Checking Wallet',
+        description: 'Bitcoin Wallet',
       },
     };
     yield put(addNewWallets([defaultWallet]));

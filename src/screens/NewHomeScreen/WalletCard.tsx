@@ -13,7 +13,7 @@ import { getResponsiveHome, windowHeight } from 'src/common/data/responsiveness/
 import HomeCardImage from 'src/assets/images/homecard.png';
 import BtcIcon from 'src/assets/images/svgs/btc.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 

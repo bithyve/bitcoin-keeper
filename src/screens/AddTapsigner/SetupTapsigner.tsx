@@ -14,9 +14,9 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
-import { generateVault } from 'src/core/wallets/VaultFactory';
+import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const StepState = ({ index, active, done }) => {

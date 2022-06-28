@@ -26,20 +26,18 @@ import {
 } from '../sagaActions/wallets';
 import config, { APP_STAGE } from 'src/core/config';
 import { setNetBalance } from 'src/store/reducers/wallets';
-import WalletOperations from 'src/core/wallets/WalletOperations';
+import WalletOperations from 'src/core/wallets/operations';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
-import { generateWallet, generateMultiSigWallet } from 'src/core/wallets/WalletFactory';
-import Relay from 'src/core/services/Relay';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import Relay from 'src/core/services/operations/Relay';
 import {
   Wallet,
-  DonationWallet,
   MultiSigWallet,
   MultiSigWalletSpecs,
   WalletShell,
-  ActiveAddressAssignee,
-} from 'src/core/wallets/interfaces/interface';
-import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/interfaces/enum';
+} from 'src/core/wallets/interfaces/wallet';
+import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/enums';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -244,7 +242,7 @@ function* addNewWallet(
 }
 
 export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: newWalletsInfo[] }) {
-  const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
+  const wallets: (Wallet | MultiSigWallet)[] = [];
   const walletIds = [];
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -257,7 +255,7 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
   );
 
   for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
-    const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
+    const wallet: Wallet | MultiSigWallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
@@ -271,7 +269,7 @@ export function* addNewWalletsWorker({ payload: newWalletsInfo }: { payload: new
 
   let presentWalletInstances = { ...walletShell.walletInstances };
 
-  wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
+  wallets.forEach((wallet: Wallet | MultiSigWallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
@@ -295,7 +293,7 @@ export function* importNewWalletWorker({
     walletDetails?: newWalletDetails;
   };
 }) {
-  const wallets: (Wallet | MultiSigWallet | DonationWallet)[] = [];
+  const wallets: (Wallet | MultiSigWallet)[] = [];
   const walletIds = [];
   const newWalletsInfo: newWalletsInfo[] = [
     {
@@ -316,7 +314,7 @@ export function* importNewWalletWorker({
   );
 
   for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
-    const wallet: Wallet | MultiSigWallet | DonationWallet = yield call(
+    const wallet: Wallet | MultiSigWallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
@@ -329,7 +327,7 @@ export function* importNewWalletWorker({
   }
 
   let presentWalletInstances = { ...walletShell.walletInstances };
-  wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
+  wallets.forEach((wallet: Wallet | MultiSigWallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
@@ -402,7 +400,7 @@ function* syncWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | MultiSigWallet | DonationWallet)[];
+    wallets: (Wallet | MultiSigWallet)[];
     options: {
       hardRefresh?: boolean;
     };
@@ -430,7 +428,7 @@ function* refreshWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | MultiSigWallet | DonationWallet)[];
+    wallets: (Wallet | MultiSigWallet)[];
     options: { hardRefresh?: boolean };
   };
 }) {

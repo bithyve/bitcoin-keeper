@@ -1,9 +1,4 @@
-import {
-  NodeConnect,
-  TwoFADetails,
-  VaultShell,
-  WalletShell,
-} from 'src/core/wallets/interfaces/interface';
+import { NodeConnect, TwoFADetails } from 'src/core/wallets/interfaces';
 import { AppTierLevel } from '../../enums/AppTierLevel';
 
 export interface UserTier {

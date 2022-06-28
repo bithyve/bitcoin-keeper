@@ -28,7 +28,7 @@ import BlueWalletIcon from 'src/assets/images/svgs/bluewallet.svg';
 import CoinBaseIcon from 'src/assets/images/svgs/coinbase.svg';
 import MuunIcon from 'src/assets/images/svgs/muun.svg';
 import TrustIcon from 'src/assets/images/svgs/trust.svg';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 const AddWalletScreen = () => {
@@ -51,8 +51,8 @@ const AddWalletScreen = () => {
   const { openSheet: openImportProcessWalletSheet, closeSheet: closeImportProcessWalletSheet } =
     useBottomSheetUtils(importProcessWalletSheetRef);
 
-  const { translations } = useContext( LocalizationContext )
-  const wallet = translations[ 'wallet' ]
+  const { translations } = useContext(LocalizationContext);
+  const wallet = translations['wallet'];
 
   const addWallet = useCallback(() => {
     const newWalletsInfo: newWalletsInfo = {
@@ -140,19 +140,19 @@ const AddWalletScreen = () => {
       items: [
         {
           title: wallet.SinglesigWallet,
-          description:  wallet.Foryourdaytodayspends,
+          description: wallet.Foryourdaytodayspends,
           icon: HardWare,
           onPress: expandAddWalletSheet,
         },
         {
-          title:  wallet.MultisigWallet,
-          description:  wallet.Forlongtermholding,
+          title: wallet.MultisigWallet,
+          description: wallet.Forlongtermholding,
           icon: MultiSigIcon,
           onPress: expandAddWalletSheet,
         },
         {
-          title:  wallet.MultisigHardwareWallet,
-          description:  wallet.Theultimatelongtermbitcoinsecurity,
+          title: wallet.MultisigHardwareWallet,
+          description: wallet.Theultimatelongtermbitcoinsecurity,
           icon: HardWare,
           onPress: expandAddWalletSheet,
         },
@@ -160,35 +160,35 @@ const AddWalletScreen = () => {
     },
     {
       id: 2,
-      heading:  wallet.ImportWallet,
-      description:  wallet.Backupanotherbitcoinwallet,
+      heading: wallet.ImportWallet,
+      description: wallet.Backupanotherbitcoinwallet,
       items: [
         {
-          title:  wallet.TrustWallet,
+          title: wallet.TrustWallet,
           description: '',
           icon: TrustIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title:  wallet.Coinbase,
+          title: wallet.Coinbase,
           description: '',
           icon: CoinBaseIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title:  wallet.BlueWallet,
+          title: wallet.BlueWallet,
           description: '',
           icon: BlueWalletIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title:  wallet.MunnWallet,
+          title: wallet.MunnWallet,
           description: '',
           icon: MuunIcon,
           onPress: expandImportWalletSheet,
         },
         {
-          title:  wallet.Blockchain,
+          title: wallet.Blockchain,
           description: '',
           icon: BlockhchainIcon,
           onPress: expandImportWalletSheet,
@@ -197,8 +197,8 @@ const AddWalletScreen = () => {
     },
     {
       id: 3,
-      heading:  wallet.AddVault,
-      description:  wallet.Backupanotherbitcoinwallet,
+      heading: wallet.AddVault,
+      description: wallet.Backupanotherbitcoinwallet,
       items: [],
     },
   ];
@@ -209,8 +209,8 @@ const AddWalletScreen = () => {
     <View style={styles.Container} background={'light.lightYellow'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title={ wallet.AddWallet }
-        subtitle={ wallet.Setupawalletforyoubitcoin }
+        title={wallet.AddWallet}
+        subtitle={wallet.Setupawalletforyoubitcoin}
         onPressHandler={() => navigtaion.goBack()}
       />
       <FlatList data={Data} renderItem={renderItem} keyExtractor={(item) => item.id} />
@@ -233,29 +233,29 @@ const AddWalletScreen = () => {
       />
       <CreateWalletSheet
         createWalletSheetRef={createWalletSheetRef}
-        title={ wallet.Creatingyourwallet}
+        title={wallet.Creatingyourwallet}
         processMap={processMapCreate}
       />
       <CreateWalletSheet
         createWalletSheetRef={importProcessWalletSheetRef}
-        title={ wallet.ImportingWallet}
+        title={wallet.ImportingWallet}
         processMap={processMapImport}
       />
       <SuccessSheet
         Icon={MultiSigIcon}
-        sheetTitle={ wallet.WalletCreationSuccessful}
+        sheetTitle={wallet.WalletCreationSuccessful}
         title={walletDetails?.name}
         subTitle={walletDetails?.description}
         successSheetRef={successSheetRef}
-        primaryText={ wallet.ViewWallet }
+        primaryText={wallet.ViewWallet}
       />
       <SuccessSheet
         Icon={BlueWalletIcon}
-        sheetTitle={ wallet.WalletImportedSuccessfully}
+        sheetTitle={wallet.WalletImportedSuccessfully}
         title={importWalletType}
-        subTitle={ wallet.DailySpend}
+        subTitle={wallet.DailySpend}
         successSheetRef={successSheetImportRef}
-        primaryText={ wallet.ViewWallet }
+        primaryText={wallet.ViewWallet}
       />
     </View>
   );

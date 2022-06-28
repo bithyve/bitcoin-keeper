@@ -11,7 +11,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { newWalletsInfo } from 'src/store/sagas/wallets';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -22,9 +22,9 @@ const EnterWalletDetailScreen = () => {
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
 
-  const { translations } = useContext( LocalizationContext )
-  const wallet = translations[ 'wallet' ]
-  const common = translations[ 'common' ]
+  const { translations } = useContext(LocalizationContext);
+  const wallet = translations['wallet'];
+  const common = translations['common'];
 
   const createNewWallet = useCallback(() => {
     const newWallet: newWalletsInfo = {

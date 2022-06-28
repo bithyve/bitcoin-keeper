@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
-import { SignerType } from 'src/core/wallets/interfaces/enum';
+import { SignerType } from 'src/core/wallets/enums';
 import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { TouchableOpacity } from 'react-native';
@@ -119,7 +119,6 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
-
         </ScrollView>
         <Text
           fontSize={RFValue(12)}

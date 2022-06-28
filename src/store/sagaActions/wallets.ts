@@ -1,10 +1,5 @@
-import { WalletVisibility } from 'src/core/wallets/interfaces/enum';
-import {
-  Wallet,
-  Gift,
-  MultiSigWallet,
-  DonationWallet,
-} from 'src/core/wallets/interfaces/interface';
+import { WalletVisibility } from 'src/core/wallets/enums';
+import { Wallet, MultiSigWallet } from 'src/core/wallets/interfaces/wallet';
 import { newWalletDetails, newWalletsInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -32,7 +27,7 @@ export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
 
 export const syncWallets = (
-  wallets: (Wallet | MultiSigWallet | DonationWallet)[],
+  wallets: (Wallet | MultiSigWallet)[],
   options: {
     hardRefresh?: boolean;
     blindRefresh?: boolean;
@@ -167,7 +162,7 @@ export const setupDonationWallet = (
 };
 
 export const refreshWallets = (
-  wallets: (Wallet | MultiSigWallet | DonationWallet)[],
+  wallets: (Wallet | MultiSigWallet)[],
   options: { hardRefresh?: boolean }
 ) => {
   return {
