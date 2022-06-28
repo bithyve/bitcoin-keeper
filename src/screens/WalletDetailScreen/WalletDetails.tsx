@@ -281,7 +281,7 @@ const WalletDetails = () => {
         </Pressable>
       </Box>
 
-      <Box alignItems={'center'} marginTop={-hp(20)}>
+      <Box alignItems={'center'} marginTop={-hp(30)}>
         <GradientIcon height={48} Icon={WalletInside} />
         <Text
           color={'light.textWallet'}
