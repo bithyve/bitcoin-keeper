@@ -13,7 +13,6 @@ const ShowXPub = (props) => {
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
   const common = translations['common'];
-  const settings = translations['settings'];
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
@@ -33,8 +32,12 @@ const ShowXPub = (props) => {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={RFValue(19)}>{wallet.XPubTitle}</Text>
-        <Text fontSize={RFValue(13)}>{wallet.XPubSubTitle}</Text>
+        <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
+          {wallet.XPubTitle}
+        </Text>
+        <Text fontSize={RFValue(13)} color={'light.lightBlack'} fontFamily={'body'}>
+          {wallet.XPubSubTitle}
+        </Text>
       </Box>
       <Box alignItems={'center'} justifyContent={'center'} my={5}>
         <Image style={{ height: 200, width: 200 }} source={QrCode} />
@@ -69,7 +72,7 @@ const ShowXPub = (props) => {
         </Box>
       </Box>
       <Box p={2} mb={5}>
-        <Note title={common.note} subtitle={settings.desc} />
+        <Note title={common.note} subtitle={wallet.AccountXpubNote} />
       </Box>
     </Box>
   );
