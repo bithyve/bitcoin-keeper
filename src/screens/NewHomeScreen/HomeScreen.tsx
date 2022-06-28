@@ -32,6 +32,7 @@ import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const InheritanceComponent = () => {
+  const navigation = useNavigation();
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
       <LinearGradient
@@ -62,7 +63,7 @@ const InheritanceComponent = () => {
             </Text>
           </Box>
         </Box>
-        <NextIcon />
+        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
       </LinearGradient>
     </Box>
   );
