@@ -7,7 +7,6 @@ import { call } from 'redux-saga/effects';
 function* addToUaiStackWorker({ payload }) {
   const { uai } = payload;
   try {
-    yield call(dbManager.initializeRealm, Buffer.from('random'));
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
   } catch (err) {
     console.error('Db add failed', err);
@@ -16,8 +15,6 @@ function* addToUaiStackWorker({ payload }) {
 
 function* updateUaiStackWorker({ payload }) {
   const { uai } = payload;
-  console.log('uai to update', uai);
-  yield call(dbManager.initializeRealm, Buffer.from('random'));
   yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, uai);
 }
 
