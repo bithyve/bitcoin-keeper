@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Input, View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -10,15 +10,14 @@ import Header from 'src/components/Header';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
-import { newWalletsInfo } from 'src/store/sagas/wallets';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
-import { useDispatch } from 'react-redux';
-import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
+// import { newWalletsInfo } from 'src/store/sagas/wallets';
+// import { WalletType } from 'src/core/wallets/interfaces/enum';
+// import { useDispatch } from 'react-redux';
+// import { addNewWallets } from 'src/store/sagaActions/wallets';
 
-const EnterWalletDetailScreen = () => {
+const EditWalletScreen = () => {
   const navigtaion = useNavigation();
-  const dispatch = useDispatch();
   const [walletName, setWalletName] = useState('');
   const [walletDescription, setWalletDescription] = useState('');
 
@@ -26,29 +25,17 @@ const EnterWalletDetailScreen = () => {
   const wallet = translations['wallet']
   const common = translations['common']
 
-  const createNewWallet = useCallback(() => {
-    const newWallet: newWalletsInfo = {
-      walletType: WalletType.CHECKING,
-      walletDetails: {
-        name: walletName,
-        description: walletDescription,
-      },
-    };
-    dispatch(addNewWallets([newWallet]));
-    navigtaion.goBack();
-  }, [walletName, walletDescription]);
-
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Header
-        title={wallet.AddNewWallet}
-        subtitle={wallet.Setupawalletforyoubitcoin}
+        title={common.EditDetails}
+        subtitle={'Lorem ipsum dolor sit amet'}
         onPressHandler={() => navigtaion.goBack()}
       />
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
-          placeholder={wallet.WalletName}
+          placeholder={'Maldives Funds'}
           placeholderTextColor={'light.greenText'}
           backgroundColor={'light.lightYellow'}
           value={walletName}
@@ -76,7 +63,7 @@ const EnterWalletDetailScreen = () => {
               console.log('Cancel');
             }}
             primaryText={common.create}
-            primaryCallback={createNewWallet}
+            primaryCallback={() => { }}
             primaryDisable={!walletName || !walletDescription}
           />
         </View>
@@ -110,4 +97,4 @@ const styles = ScaledSheet.create({
     letterSpacing: 0.96,
   },
 });
-export default EnterWalletDetailScreen;
+export default EditWalletScreen;
