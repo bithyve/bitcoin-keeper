@@ -99,17 +99,7 @@ const OnBoardingSlides = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </Box>
-          <Box>
-            <Text
-              fontSize={RFValue(20)}
-              color={'light.white'}
-              fontFamily={'heading'}
-              textAlign={'center'}
-            >
-              Keeper
-            </Text>
-          </Box>
-          <Box flex={1}>
+          <Box flex={0.8}>
             <FlatList
               data={items}
               horizontal
@@ -130,7 +120,7 @@ const OnBoardingSlides = ({ navigation }) => {
               )}
             />
           </Box>
-          <Box flex={0.1} flexDirection={'row'} m={10} alignItems={'center'}>
+          <Box flex={0.1} flexDirection={'row'} m={5} alignItems={'center'}>
             <Box w={'70%'}>
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
@@ -140,6 +130,7 @@ const OnBoardingSlides = ({ navigation }) => {
                   w={120}
                   h={30}
                   alignItems={'center'}
+                  justifyContent={'center'}
                 >
                   <Text color={'light.borderColor2'} fontSize={RFValue(14)}>
                     {common.learnMore}
@@ -176,7 +167,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#4E5C6A',
+    backgroundColor: '#89AEA7',
     marginEnd: 5,
   },
 });

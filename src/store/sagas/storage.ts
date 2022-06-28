@@ -48,7 +48,8 @@ function* setupKeeperAppWorker({ payload }) {
     const defaultWallet: newWalletsInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
-        name: 'Checking Wallet',
+        name: 'Mobile Wallet',
+        description: 'Single-sig bitcoin wallet'
       },
     };
     yield put(addNewWallets([defaultWallet]));

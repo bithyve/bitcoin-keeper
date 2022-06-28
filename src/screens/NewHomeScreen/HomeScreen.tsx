@@ -20,19 +20,20 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
+import UaiDisplay from './UaiDisplay';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
-import UaiDisplay from './UaiDisplay';
-import { useUaiStack } from 'src/hooks/useUaiStack';
-import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 
 const InheritanceComponent = () => {
+  const navigation = useNavigation();
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
       <LinearGradient
@@ -59,11 +60,11 @@ const InheritanceComponent = () => {
               fontWeight={100}
               marginTop={-1}
             >
-              Upgrade to secure your Vaul
+              Upgrade to secure your Vault
             </Text>
           </Box>
         </Box>
-        <NextIcon />
+        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
       </LinearGradient>
     </Box>
   );
@@ -148,9 +149,9 @@ const VaultSetupContent = () => {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
         {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
-      </Text>
+      </Text> */}
     </View>
   );
 };
@@ -191,7 +192,7 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={'light.TorLable'}
             height={hp(13.804)}
-            width={wp(60)}
+            width={wp(75)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
@@ -203,7 +204,7 @@ const VaultStatus = (props) => {
               fontSize={RFValue(9)}
               fontWeight={300}
             >
-              Tor Enabled
+              TOR ENABLED
             </Text>
           </Box>
           <Box marginTop={hp(64.5)} alignItems={'center'}>
@@ -225,7 +226,7 @@ const VaultStatus = (props) => {
               paddingBottom={1}
             >
               {!Signers.length
-                ? 'Pending Activation'
+                ? 'Activate Now '
                 : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
             {!Signers.length ? null : <TapsignerIcon />}
@@ -284,11 +285,14 @@ const VaultInfo = () => {
   const dispatch = useDispatch();
   const addtoDb = () => {
     dispatch(
+      addToUaiStack('Add Signer to Secure your Vault', false, uaiType.SECURE_VAULT, 70, null)
+    );
+    dispatch(
       addToUaiStack(
         'A new version of the app is available',
         true,
         uaiType.RELEASE_MESSAGE,
-        90,
+        50,
         'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
       )
     );
@@ -297,7 +301,7 @@ const VaultInfo = () => {
         'Your Keeper request was rejected',
         true,
         uaiType.ALERT,
-        80,
+        40,
         'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
       )
     );
@@ -306,7 +310,7 @@ const VaultInfo = () => {
         'Wallet restore was attempted on another device',
         true,
         uaiType.ALERT,
-        80,
+        40,
         'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
       )
     );
@@ -360,7 +364,7 @@ export const NextIcon = ({ pressHandler }) => {
 };
 
 const HomeScreen = () => {
-  const [showHideAmounts, setShowHideAmounts] = useState(true);
+  const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>

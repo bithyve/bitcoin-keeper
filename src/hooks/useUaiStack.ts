@@ -21,7 +21,7 @@ export const useUaiStack = () => {
           true,
           uaiType.VAULT_TRANSFER,
           70,
-          'Your wallet balance is above 1,000,000sats'
+          'Your wallet balance is above 10,000sats'
         )
       );
     }
