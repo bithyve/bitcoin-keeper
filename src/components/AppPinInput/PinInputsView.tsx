@@ -11,8 +11,10 @@ import DotView from 'src/components/DotView';
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
+  backgroundColor?: boolean;
+  textColor?: boolean;
 }
-const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
+const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -35,12 +37,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
           ml={5}
           alignItems={'center'}
           justifyContent={'center'}
-          backgroundColor={'rgba(253,247,240, 0.2)'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
         >
           <Box>
             {passCode.length == 1 ? (
               <Text
-                color={'light.white'}
+                color={textColor ? 'light.textBlack' : 'light.white'}
                 fontWeight={'300'}
                 fontSize={RFValue(20)}
                 fontFamily={'body'}
@@ -48,9 +50,13 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
                 {passCode[0]}
               </Text>
             ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={'white'} />
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 0 && passcodeFlag == true ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
                 {'|'}
               </Text>
             ) : (
@@ -65,12 +71,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
           ml={5}
           alignItems={'center'}
           justifyContent={'center'}
-          backgroundColor={'rgba(253,247,240, 0.2)'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
         >
           <Box>
             {passCode.length == 2 ? (
               <Text
-                color={'light.white'}
+                color={textColor ? 'light.textBlack' : 'light.white'}
                 fontWeight={'300'}
                 fontSize={RFValue(20)}
                 fontFamily={'body'}
@@ -78,9 +84,13 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
                 {passCode[1]}
               </Text>
             ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={'white'} />
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 1 ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
                 {'|'}
               </Text>
             ) : (
@@ -95,12 +105,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
           ml={5}
           alignItems={'center'}
           justifyContent={'center'}
-          backgroundColor={'rgba(253,247,240, 0.2)'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
         >
           <Box>
             {passCode.length == 3 ? (
               <Text
-                color={'light.white'}
+                color={textColor ? 'light.textBlack' : 'light.white'}
                 fontWeight={'300'}
                 fontSize={RFValue(20)}
                 fontFamily={'body'}
@@ -108,9 +118,13 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
                 {passCode[2]}
               </Text>
             ) : passCode.length >= 3 ? (
-              <DotView height={3} width={3} color={'white'} />
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 2 ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
                 {'|'}
               </Text>
             ) : (
@@ -125,12 +139,12 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
           ml={5}
           alignItems={'center'}
           justifyContent={'center'}
-          backgroundColor={'rgba(253,247,240, 0.2)'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
         >
           <Box>
             {passCode.length == 4 && !hide ? (
               <Text
-                color={'light.white'}
+                color={textColor ? 'light.textBlack' : 'light.white'}
                 fontWeight={'300'}
                 fontSize={RFValue(20)}
                 fontFamily={'body'}
@@ -138,9 +152,13 @@ const PinInputsView = ({ passCode, passcodeFlag }: Props) => {
                 {passCode[3]}
               </Text>
             ) : passCode.length >= 4 && hide ? (
-              <DotView height={3} width={3} color={'white'} />
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 3 ? (
-              <Text color={'light.white'} fontWeight={'300'} fontSize={RFValue(13)}>
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
                 {'|'}
               </Text>
             ) : (
