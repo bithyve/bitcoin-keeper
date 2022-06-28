@@ -14,7 +14,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import AccordionsComponent from 'src/screens/AddWallet/AccordionsComponent';
 import { addNewWallets, importNewWallet } from 'src/store/sagaActions/wallets';
-import { newWalletsInfo } from 'src/store/sagas/wallets';
+import { newWalletInfo } from 'src/store/sagas/wallets';
 import SuccessSheet from 'src/components/SuccessSheet';
 import AddWalletSheet from 'src/screens/AddWallet/AddWalletSheet';
 import ImportWalletSheet from 'src/components/ImportWalletSheet';
@@ -55,14 +55,14 @@ const AddWalletScreen = () => {
   const wallet = translations['wallet'];
 
   const addWallet = useCallback(() => {
-    const newWalletsInfo: newWalletsInfo = {
+    const newWalletInfo: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: walletName,
         description: walletDescription,
       },
     };
-    dispatch(addNewWallets([newWalletsInfo]));
+    dispatch(addNewWallets([newWalletInfo]));
     setWalletDetails({
       name: walletName,
       description: walletDescription,

@@ -14,9 +14,9 @@ export interface KeeperApp {
     shells: string[];
     activeShell: string;
   };
-  vaultShellInstances?: {
+  vaultShellInstances: {
     shells: string[];
-    activeShell: string;
+    activeShell?: string;
   };
   twoFADetails?: TwoFADetails;
   nodeConnect?: NodeConnect;

@@ -10,7 +10,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
-import { newWalletsInfo } from 'src/store/sagas/wallets';
+import { newWalletInfo } from 'src/store/sagas/wallets';
 import { WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
@@ -27,7 +27,7 @@ const EnterWalletDetailScreen = () => {
   const common = translations['common'];
 
   const createNewWallet = useCallback(() => {
-    const newWallet: newWalletsInfo = {
+    const newWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: walletName,

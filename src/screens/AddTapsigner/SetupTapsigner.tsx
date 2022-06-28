@@ -193,7 +193,7 @@ const SetupTapsigner = () => {
 
   const createVault = useCallback((xpub) => {
     try {
-      const newWalletsInfo = {
+      const newWalletInfo = {
         walletType: WalletType.READ_ONLY,
         walletDetails: {
           name: 'Vault',
@@ -203,7 +203,7 @@ const SetupTapsigner = () => {
           xpub,
         },
       };
-      dispatch(addNewWallets([newWalletsInfo]));
+      dispatch(addNewWallets([newWalletInfo]));
       return true;
     } catch (err) {
       console.log(err);

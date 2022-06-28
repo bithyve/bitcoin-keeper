@@ -16,6 +16,6 @@ export const VaultShellInstancesShcema: ObjectSchema = {
   embedded: true,
   properties: {
     shells: 'string[]',
-    activeShell: 'string',
+    activeShell: 'string?',
   },
 };

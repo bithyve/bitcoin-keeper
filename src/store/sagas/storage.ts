@@ -11,7 +11,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { addNewWallets } from '../sagaActions/wallets';
-import { newWalletsInfo } from './wallets';
+import { newWalletInfo } from './wallets';
 import { WalletType } from 'src/core/wallets/enums';
 
 function* setupKeeperAppWorker({ payload }) {
@@ -38,6 +38,10 @@ function* setupKeeperAppWorker({ payload }) {
         shells: [defaultWalletShell.id],
         activeShell: defaultWalletShell.id,
       },
+      vaultShellInstances: {
+        shells: [],
+        activeShell: null,
+      },
       userTier,
       version: DeviceInfo.getVersion(),
     };
@@ -45,7 +49,7 @@ function* setupKeeperAppWorker({ payload }) {
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
     // create default wallet
-    const defaultWallet: newWalletsInfo = {
+    const defaultWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: 'Checking Wallet',
