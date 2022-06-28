@@ -139,12 +139,12 @@ const UaiDisplay = ({ uaiStack }) => {
           visible={showModal}
           close={() => setShowModal(false)}
           title={uaiConfig?.modalDetails?.heading}
-          modalBackground={['#00836A', '#073E39']}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
           buttonTextColor={'#FAFAFA'}
           buttonCallback={uaiConfig?.cta}
-          textColor={'#FFF'}
+          textColor={'#000'}
           Content={() => <Text>{uai?.displayText}</Text>}
         />
       </>
