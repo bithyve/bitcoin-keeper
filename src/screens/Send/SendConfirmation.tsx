@@ -24,24 +24,26 @@ const SendConfirmation = ({ route }) => {
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
+  const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
+  const Vault: Wallet = useQuery(RealmSchema.Wallet)
+    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
+    .map(getJSONFromRealmObject)[0];
+
   const onProceed = () => {
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
+        navigtaion.goBack();
       }
-      navigtaion.goBack();
-      const Vault: Wallet = useQuery(RealmSchema.Wallet)
-        .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
-        .map(getJSONFromRealmObject)[0];
-      const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
       if (Vault) {
         dispatch(
           crossTransfer({
-            sender: Vault,
-            recipient: defaultWallet,
-            amount: 10e5,
+            sender: defaultWallet,
+            recipient: Vault,
+            amount: 10e3,
           })
         );
+        navigtaion.goBack();
       }
     } else {
       dispatch(
