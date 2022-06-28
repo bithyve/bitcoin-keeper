@@ -271,7 +271,7 @@
     "Setup": "Setup"
   },
   "seed": {
-    "ExportSeed": "Export Seeds",
+    "ExportSeed": "Seed words",
     "SeedDesc": "Make sure you keep them safe",
     "longing": "longing",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"

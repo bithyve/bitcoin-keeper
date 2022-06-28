@@ -7,6 +7,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
+import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
@@ -127,9 +128,7 @@ const LinkedWallets = (props) => {
             <Box flexDirection={'row'} alignItems={'center'}>
               <BTC />
               &nbsp;
-              <Text color={'light.white1'} fontSize={RFValue(25)} fontWeight={200}>
-                {'***'}
-              </Text>
+              <Hidden />
             </Box>
           )}
         </Pressable>
@@ -244,15 +243,19 @@ const VaultStatus = (props) => {
             <HStack alignItems={'center'} marginTop={'10%'}>
               <BTC style={{ height: '20%' }} />
               <Pressable onPress={() => props.onAmountPress()}>
-                <Text
-                  p={1}
-                  color={'light.white1'}
-                  letterSpacing={0.8}
-                  fontSize={RFValue(34)}
-                  fontWeight={200}
-                >
-                  {props.showHideAmounts ? vaultBalance : '*****'}
-                </Text>
+                {props.showHideAmounts ? (
+                  <Text
+                    p={1}
+                    color={'light.white1'}
+                    letterSpacing={0.8}
+                    fontSize={RFValue(34)}
+                    fontWeight={200}
+                  >
+                    {vaultBalance}
+                  </Text>
+                ) : (
+                  <Hidden />
+                )}
               </Pressable>
             </HStack>
           ) : null}
