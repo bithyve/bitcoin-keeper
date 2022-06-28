@@ -334,11 +334,14 @@ const WalletDetails = () => {
               fontSize={RFValue(10)}
               fontWeight={200}
             >
-              Secure to Vault after <Text fontWeight={'bold'}>0.1 btc</Text>
+              Secure to Vault after <Text fontWeight={'bold'}>0.0001฿</Text>
             </Text>
           </Box>
-          <Pressable>
-            <GradientIcon height={hp(38)} Icon={Arrow} />
+
+          <Pressable
+            onPress={() => navigation.navigate('SendConfirmation', { isVaultTransfer: true })}
+          >
+            <GradientIcon height={38} Icon={Arrow} />
           </Pressable>
         </Box>
       </Box>
@@ -463,7 +466,8 @@ const WalletDetails = () => {
             noOfLines={2}
             fontWeight={100}
           >
-            Add another wallet for keeping the funds separate or to link it to another external wallet
+            Add another wallet for keeping the funds separate or to link it to another external
+            wallet
           </Text>
         </Box>
       )}

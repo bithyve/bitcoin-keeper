@@ -285,11 +285,14 @@ const VaultInfo = () => {
   const dispatch = useDispatch();
   const addtoDb = () => {
     dispatch(
+      addToUaiStack('Add Signer to Secure your Vault', false, uaiType.SECURE_VAULT, 70, null)
+    );
+    dispatch(
       addToUaiStack(
         'A new version of the app is available',
         true,
         uaiType.RELEASE_MESSAGE,
-        90,
+        50,
         'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
       )
     );
@@ -298,7 +301,7 @@ const VaultInfo = () => {
         'Your Keeper request was rejected',
         true,
         uaiType.ALERT,
-        80,
+        40,
         'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
       )
     );
@@ -307,7 +310,7 @@ const VaultInfo = () => {
         'Wallet restore was attempted on another device',
         true,
         uaiType.ALERT,
-        80,
+        40,
         'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
       )
     );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
@@ -10,9 +10,12 @@ import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { useDispatch } from 'react-redux';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-import { TxPriority } from 'src/core/wallets/interfaces/enum';
+import { TxPriority, WalletType } from 'src/core/wallets/interfaces/enum';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { useAppSelector } from 'src/store/hooks';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -20,18 +23,26 @@ const SendConfirmation = ({ route }) => {
   const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
-
+  const { useQuery } = useContext(RealmWrapperContext);
   const onProceed = () => {
     if (isVaultTransfer) {
-      uaiSetActionFalse();
+      if (uaiSetActionFalse) {
+        uaiSetActionFalse();
+      }
       navigtaion.goBack();
-      // dispatch(
-      //   crossTransfer({
-      //     sender: ,
-      //     recipient: ,
-      //     amount: 10e5,
-      //   })
-      // );
+      const Vault: Wallet = useQuery(RealmSchema.Wallet)
+        .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
+        .map(getJSONFromRealmObject)[0];
+      const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
+      if (Vault) {
+        dispatch(
+          crossTransfer({
+            sender: Vault,
+            recipient: defaultWallet,
+            amount: 10e5,
+          })
+        );
+      }
     } else {
       dispatch(
         sendPhaseTwo({
