@@ -33,6 +33,7 @@ const SendConfirmation = ({ route }) => {
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
+        navigtaion.goBack();
       }
       if (Vault) {
         dispatch(
