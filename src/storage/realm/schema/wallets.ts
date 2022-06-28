@@ -114,7 +114,6 @@ export const WalletPresentationDataSchema: ObjectSchema = {
     walletName: 'string',
     walletDescription: 'string',
     walletVisibility: 'string',
-    isSynching: 'bool',
   },
 };
 

@@ -14,10 +14,9 @@ export const VaultPresentationDataSchema: ObjectSchema = {
   name: RealmSchema.VaultPresentationData,
   embedded: true,
   properties: {
-    vaultName: 'string', // name of the vault
-    vaultDescription: 'string', // description of the vault
-    vaultVisibility: 'string', // visibility of the vault
-    isSynching: 'bool', // sync status of the vault
+    vaultName: 'string',
+    vaultDescription: 'string',
+    vaultVisibility: 'string',
   },
 };
 
