@@ -123,7 +123,6 @@ export const WalletSpecsSchema: ObjectSchema = {
   properties: {
     xpub: 'string',
     xpriv: 'string?',
-    receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
     activeAddresses: RealmSchema.ActiveAddresses,
@@ -137,7 +136,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     hasNewTxn: 'bool?',
     txIdCache: '{}',
     transactionMapping: `${RealmSchema.TransactionToAddressMapping}[]`,
-    transactionsNote: '{}',
+    transactionNote: '{}',
   },
 };
 

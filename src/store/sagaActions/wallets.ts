@@ -1,4 +1,4 @@
-import { WalletVisibility } from 'src/core/wallets/enums';
+import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet, MultiSigWallet } from 'src/core/wallets/interfaces/wallet';
 import { newWalletDetails, newWalletsInfo } from '../sagas/wallets';
 
@@ -196,7 +196,7 @@ export const updateWalletSettings = (payload: {
   settings: {
     walletName?: string;
     walletDescription?: string;
-    visibility?: WalletVisibility;
+    visibility?: VisibilityType;
   };
 }) => {
   return {

@@ -148,7 +148,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 
       default:
         if (!txid) throw new Error('Send failed: unable to generate txid');
-        if (note) wallet.specs.transactionsNote[txid] = note;
+        if (note) wallet.specs.transactionNote[txid] = note;
         yield put(
           sendPhaseTwoExecuted({
             successful: true,

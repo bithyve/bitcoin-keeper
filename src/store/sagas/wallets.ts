@@ -37,7 +37,7 @@ import {
   MultiSigWalletSpecs,
   WalletShell,
 } from 'src/core/wallets/interfaces/wallet';
-import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/enums';
+import { WalletType, NetworkType, VisibilityType } from 'src/core/wallets/enums';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -357,7 +357,7 @@ function* updateWalletSettingsWorker({
     settings: {
       walletName?: string;
       walletDescription?: string;
-      visibility?: WalletVisibility;
+      visibility?: VisibilityType;
     };
   };
 }) {
@@ -379,7 +379,7 @@ function* updateWalletSettingsWorker({
     //   updateWallets: true,
     //   walletIds: [ wallet.id ]
     // } ) )
-    if (visibility === WalletVisibility.DEFAULT) {
+    if (visibility === VisibilityType.DEFAULT) {
       yield put(walletSettingsUpdated());
     }
   } catch (error) {
@@ -483,7 +483,7 @@ function* autoWalletsSyncWorker({
 
   const walletsToSync: (Wallet | MultiSigWallet)[] = [];
   for (const wallet of wallets) {
-    if (syncAll || wallet.presentationData.walletVisibility === WalletVisibility.DEFAULT) {
+    if (syncAll || wallet.presentationData.walletVisibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
