@@ -462,8 +462,7 @@ const WalletDetails = () => {
             noOfLines={2}
             fontWeight={100}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et
+            Add another wallet for keeping the funds separate or to link it to another external wallet
           </Text>
         </Box>
       )}
