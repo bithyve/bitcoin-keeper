@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import config from '../config';
+import config from '../../config';
 import { AxiosResponse } from 'axios';
 import idx from 'idx';
 import {
@@ -13,8 +13,8 @@ import {
   Trusted_Contacts,
   UnecryptedStreamData,
   UnecryptedStreams,
-} from './interfaces/interface';
-import { TrustedContactRelationTypes } from './interfaces/enum';
+} from '../interfaces';
+import { TrustedContactRelationTypes } from '../enums';
 const { AUTH_ID, RELAY_AXIOS } = config;
 
 export default class TrustedContactsOperations {

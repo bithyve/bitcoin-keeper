@@ -57,19 +57,15 @@ export enum WalletVisibility {
 export type VaultVisibility = WalletVisibility;
 
 export enum WalletType {
-  TEST = 'TEST',
   CHECKING = 'CHECKING',
-  SAVINGS = 'SAVINGS',
-  DONATION = 'DONATION',
-  DEPOSIT = 'DEPOSIT',
-  RAMP = 'RAMP',
-  SWAN = 'SWAN',
-  WYRE = 'WYRE',
-  EXCHANGE = 'EXCHANGE',
-  FNF = 'FNF',
-  LIGHTNING = 'LIGHTNING',
   IMPORTED = 'IMPORTED',
   READ_ONLY = 'READ_ONLY',
+  SWAN = 'SWAN',
+  LIGHTNING = 'LIGHTNING',
+}
+
+export enum VaultType {
+  DEFAULT = 'DEFAULT',
 }
 
 export enum SignerType {
@@ -83,30 +79,6 @@ export enum SignerType {
   KEYSTONE = 'KEYSTONE',
   POLICY_SERVER = 'POLICY_SERVER',
   MOBILE_KEY = 'MOBILE_KEY',
-}
-
-export enum GiftThemeId {
-  ONE = 'ONE',
-  TWO = 'TWO',
-  THREE = 'THREE',
-  FOUR = 'FOUR',
-  FIVE = 'FIVE',
-  SIX = 'SIX',
-}
-
-export enum GiftType {
-  SENT = 'SENT',
-  RECEIVED = 'RECEIVED',
-}
-
-export enum GiftStatus {
-  CREATED = 'CREATED',
-  SENT = 'SENT',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-  RECLAIMED = 'RECLAIMED',
-  ASSOCIATED = 'ASSOCIATED',
-  EXPIRED = 'EXPIRED',
 }
 
 export enum PaymentInfoKind {

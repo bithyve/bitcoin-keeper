@@ -1,38 +1,27 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as bip32 from 'bip32';
-import crypto from 'crypto';
 import coinselect from 'coinselect';
 import coinselectSplit from 'coinselect/split';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
-const ECPair = ECPairFactory(ecc);
-import WalletUtilities from './WalletUtilities';
-import config from '../config';
-import idx from 'idx';
+import WalletUtilities from './utils';
 import {
-  Wallet,
   ActiveAddressAssignee,
   ActiveAddresses,
   AverageTxFees,
   Balances,
-  DonationWallet,
-  Gift,
   InputUTXOs,
-  MultiSigWallet,
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
   UTXO,
   TransactionToAddressMapping,
-} from './interfaces/interface';
-import {
-  WalletType,
-  DerivationPurpose,
-  GiftStatus,
-  GiftThemeId,
-  GiftType,
-  TxPriority,
-} from './interfaces/enum';
+} from '../interfaces/';
+import { WalletType, DerivationPurpose, TxPriority } from '../enums';
+import { MultiSigWallet, Wallet } from '../interfaces/wallet';
+
+const ECPair = ECPairFactory(ecc);
+
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
     wallet: Wallet | MultiSigWallet
@@ -158,11 +147,11 @@ export default class WalletOperations {
   };
 
   static syncWallets = async (
-    wallets: (Wallet | MultiSigWallet | DonationWallet)[],
+    wallets: (Wallet | MultiSigWallet)[],
     network: bitcoinJS.networks.Network,
     hardRefresh?: boolean
   ): Promise<{
-    synchedWallets: (Wallet | MultiSigWallet | DonationWallet)[];
+    synchedWallets: (Wallet | MultiSigWallet)[];
     txsFound: Transaction[];
     activeAddressesWithNewTxsMap: {
       [walletId: string]: ActiveAddresses;
@@ -340,17 +329,6 @@ export default class WalletOperations {
       const confirmedUTXOs = [];
       const unconfirmedUTXOs = [];
       for (const utxo of UTXOs) {
-        if (wallet.type === WalletType.TEST) {
-          if (
-            utxo.address ===
-            WalletUtilities.getAddressByIndex(wallet.specs.xpub, false, 0, network, purpose)
-          ) {
-            confirmedUTXOs.push(utxo); // testnet-utxo from BH-testnet-faucet is treated as an spendable exception
-            balances.confirmed += utxo.value;
-            continue;
-          }
-        }
-
         if (utxo.status.confirmed) {
           confirmedUTXOs.push(utxo);
           balances.confirmed += utxo.value;

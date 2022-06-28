@@ -4,7 +4,7 @@ import {
   InitTrustedContactFlowKind,
   ShareSplitScheme,
   TrustedContactRelationTypes,
-} from './enum';
+} from '../enums';
 
 export interface MetaShare {
   encryptedShare?: {

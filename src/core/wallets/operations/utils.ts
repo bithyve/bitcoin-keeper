@@ -3,7 +3,7 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
-import config from '../config';
+import config from '../../config';
 import _ from 'lodash';
 import idx from 'idx';
 import {
@@ -12,19 +12,13 @@ import {
   NetworkType,
   TransactionType,
   PaymentInfoKind,
-} from './interfaces/enum';
-import {
-  ActiveAddresses,
-  DonationWallet,
-  MultiSigWallet,
-  Transaction,
-  TransactionToAddressMapping,
-  Wallet,
-} from './interfaces/interface';
+} from '../enums';
+import { ActiveAddresses, Transaction, TransactionToAddressMapping } from '../interfaces/';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
+import { MultiSigWallet, Wallet } from '../interfaces/wallet';
 
 const ECPair = ECPairFactory(ecc);
 

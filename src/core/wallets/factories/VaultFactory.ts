@@ -1,14 +1,13 @@
-import { DerivationPurpose, NetworkType, WalletVisibility } from './interfaces/enum';
+import { DerivationPurpose, NetworkType, VaultType, WalletVisibility } from '../enums';
 import {
   Vault,
-  VaultDerivationDetails,
   VaultPresentationData,
   VaultScheme,
   VaultSigner,
   VaultSpecs,
-} from './interfaces/interface';
+} from '../interfaces/vault';
 
-import WalletUtilities from './WalletUtilities';
+import WalletUtilities from '../operations/utils';
 import crypto from 'crypto';
 
 export const generateVault = async ({
@@ -52,9 +51,6 @@ export const generateVault = async ({
     );
   }
 
-  const derivationDetails: VaultDerivationDetails = {};
-  signers.map((signer) => (derivationDetails[signer.xpub] = { derivationPath: signer.derivation }));
-
   const id = crypto
     .createHash('sha256')
     .update(signers.map((signer) => signer.signerId).join(' '))
@@ -64,12 +60,10 @@ export const generateVault = async ({
     vaultName,
     vaultDescription,
     vaultVisibility: WalletVisibility.DEFAULT, // visibility of the vault
-    isSynching: false,
   };
 
   const specs: VaultSpecs = {
-    is2FA: true,
-    xpub: xpubs,
+    xpubs: xpubs,
     activeAddresses: {
       external: {},
       internal: {},
@@ -93,9 +87,12 @@ export const generateVault = async ({
 
   const vault: Vault = {
     id,
-    scheme,
     vaultShellId,
+    type: VaultType.DEFAULT,
+    networkType,
     isUsable,
+    isMultiSig: true,
+    scheme,
     signers,
     presentationData,
     specs,
