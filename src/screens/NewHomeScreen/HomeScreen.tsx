@@ -19,17 +19,17 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
+import UaiDisplay from './UaiDisplay';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
-import UaiDisplay from './UaiDisplay';
-import { useUaiStack } from 'src/hooks/useUaiStack';
-import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 
 const InheritanceComponent = () => {
   return (
@@ -357,7 +357,7 @@ export const NextIcon = ({ pressHandler }) => {
 };
 
 const HomeScreen = () => {
-  const [showHideAmounts, setShowHideAmounts] = useState(true);
+  const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>
