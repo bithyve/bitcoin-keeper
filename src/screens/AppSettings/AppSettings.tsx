@@ -15,17 +15,19 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
-
 //
-import ModalContainer from 'src/components/Modal/ModalContainer';
 import ShowXPub from 'src/components/XPub/ShowXPub';
+import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
+  //
   const [xpubVisible, setXPubVisible] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   const [sensorType, setSensorType] = useState('Biometrics');
@@ -165,6 +167,14 @@ const AppSettings = ({ navigation }) => {
             icon={false}
             onPress={() => setXPubVisible(true)}
           />
+          <SettingsCard
+            title={'Wallet seed words'}
+            description={'Lorem ipsum dolor sit amet'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => setConfirmPassVisible(true)}
+          />
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note title={common.note} subtitle={settings.desc} />
@@ -202,12 +212,6 @@ const AppSettings = ({ navigation }) => {
         </Box>
       </Box>
       {/*  */}
-      {/* <ModalContainer
-        visible={xpubVisible}
-        closeBottomSheet={() => {
-          setXPubVisible(false);
-        }}
-      > */}
       <Box>
         <Modal
           isVisible={xpubVisible}
@@ -225,7 +229,24 @@ const AppSettings = ({ navigation }) => {
             }}
           />
         </Modal>
+        <Modal
+          isVisible={confirmPassVisible}
+          onSwipeComplete={() => setConfirmPassVisible(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <SeedConfirmPasscode
+            closeBottomSheet={() => {
+              setConfirmPassVisible(false);
+            }}
+          />
+        </Modal>
       </Box>
+      {/*  */}
     </SafeAreaView>
   );
 };
