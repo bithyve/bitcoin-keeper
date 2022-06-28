@@ -275,13 +275,13 @@ const WalletDetails = () => {
         <Pressable onPress={() => navigation.goBack()}>
           <BackIcon />
         </Pressable>
-        <GradientIcon height={48} Icon={Arrow} />
         <Pressable>
           <ScannerIcon />
         </Pressable>
       </Box>
 
-      <Box alignItems={'center'}>
+      <Box alignItems={'center'} marginTop={-hp(20)}>
+        <GradientIcon height={hp(48)} Icon={Arrow} />
         <Text
           color={'light.textWallet'}
           letterSpacing={0.96}
@@ -293,7 +293,7 @@ const WalletDetails = () => {
         </Text>
 
         <Box flexDirection={'row'} alignItems={'flex-end'} height={10}>
-          <Box marginRight={wp(1.5)} paddingBottom={hp(7)}>
+          <Box marginRight={1} paddingBottom={hp(12)}>
             <BTC />
           </Box>
           <Text
@@ -337,7 +337,7 @@ const WalletDetails = () => {
             </Text>
           </Box>
           <Pressable>
-            <GradientIcon height={38} Icon={Arrow} />
+            <GradientIcon height={hp(38)} Icon={Arrow} />
           </Pressable>
         </Box>
       </Box>
