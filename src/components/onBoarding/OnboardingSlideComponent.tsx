@@ -9,20 +9,22 @@ const { width } = Dimensions.get('window');
 
 const OnboardingSlideComponent = (props) => {
   return (
-    <Box width={width} alignItems={'center'} p={5}>
-      <Box>
+    <Box width={width} alignItems={'center'} p={5} flex={1}>
+      <Box flex={0.1}>
         <Text fontSize={RFValue(14)} color={'light.white'} fontFamily={'body'} textAlign={'center'}>
           {props.title}
         </Text>
       </Box>
-      <Box my={10}>{props.illustration}</Box>
-      <Box>
+      <Box flex={0.7} justifyContent={'center'}>
+        {props.illustration}
+      </Box>
+      <Box flex={0.2}>
         <Text fontSize={RFValue(14)} color={'light.white'} fontFamily={'body'} textAlign={'center'}>
           {props.paragraph}
         </Text>
       </Box>
       {props.currentPosition == 5 && (
-        <Box justifyContent={'center'} mt={10}>
+        <Box justifyContent={'center'} mt={15}>
           <TouchableOpacity
             onPress={() => props.navigation.replace('App')}
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
