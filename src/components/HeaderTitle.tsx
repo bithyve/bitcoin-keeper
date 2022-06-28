@@ -68,16 +68,16 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(16),
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    paddingHorizontal: '40@s',
+    paddingHorizontal: '20@s',
   },
   addWalletDescription: {
     fontSize: RFValue(12),
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    paddingHorizontal: '40@s',
+    paddingHorizontal: '20@s',
   },
   back: {
-    paddingHorizontal: '40@s',
+    paddingHorizontal: '5@s',
     paddingVertical: '15@s',
   },
 });

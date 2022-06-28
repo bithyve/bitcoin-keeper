@@ -2,8 +2,10 @@ import Realm from 'realm';
 import { RealmSchema } from './enum';
 import schema from './schema';
 
-class RealmDatabase {
+export class RealmDatabase {
   private realm: Realm;
+  public static file = 'keeper.realm';
+  public static schemaVersion = 11;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -16,9 +18,9 @@ class RealmDatabase {
     try {
       if (this.realm) return true; // database already initialized
       const realmConfig: Realm.Configuration = {
-        path: 'keeper.realm',
+        path: RealmDatabase.file,
         schema,
-        schemaVersion: 11,
+        schemaVersion: RealmDatabase.schemaVersion,
         encryptionKey: key,
         migration: (oldRealm, newRealm) => {},
       };

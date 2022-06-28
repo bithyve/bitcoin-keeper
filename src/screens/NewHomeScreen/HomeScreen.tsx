@@ -7,6 +7,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
+import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,17 +20,17 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
+import UaiDisplay from './UaiDisplay';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/interface';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
-import UaiDisplay from './UaiDisplay';
-import { useUaiStack } from 'src/hooks/useUaiStack';
-import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -128,9 +129,7 @@ const LinkedWallets = (props) => {
             <Box flexDirection={'row'} alignItems={'center'}>
               <BTC />
               &nbsp;
-              <Text color={'light.white1'} fontSize={RFValue(25)} fontWeight={200}>
-                {'***'}
-              </Text>
+              <Hidden />
             </Box>
           )}
         </Pressable>
@@ -245,15 +244,19 @@ const VaultStatus = (props) => {
             <HStack alignItems={'center'} marginTop={'10%'}>
               <BTC style={{ height: '20%' }} />
               <Pressable onPress={() => props.onAmountPress()}>
-                <Text
-                  p={1}
-                  color={'light.white1'}
-                  letterSpacing={0.8}
-                  fontSize={RFValue(34)}
-                  fontWeight={200}
-                >
-                  {props.showHideAmounts ? vaultBalance : '*****'}
-                </Text>
+                {props.showHideAmounts ? (
+                  <Text
+                    p={1}
+                    color={'light.white1'}
+                    letterSpacing={0.8}
+                    fontSize={RFValue(34)}
+                    fontWeight={200}
+                  >
+                    {vaultBalance}
+                  </Text>
+                ) : (
+                  <Hidden />
+                )}
               </Pressable>
             </HStack>
           ) : null}
@@ -326,7 +329,7 @@ const VaultInfo = () => {
           <Pressable onPress={addtoDb}>
             <ScannerIcon />
           </Pressable>
-          <Pressable>
+          <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
             <Basic />
           </Pressable>
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
@@ -358,7 +361,7 @@ export const NextIcon = ({ pressHandler }) => {
 };
 
 const HomeScreen = () => {
-  const [showHideAmounts, setShowHideAmounts] = useState(true);
+  const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>

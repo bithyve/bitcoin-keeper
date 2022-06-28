@@ -21,10 +21,10 @@ const UaiDisplay = ({ uaiStack }) => {
     switch (type) {
       case uaiType.RELEASE_MESSAGE:
         return {
-          btnText: 'Upgrade',
+          btnText: 'Update',
           modalDetails: {
             heading: 'Update application',
-            btnText: 'Upgrade',
+            btnText: 'Update',
           },
           cta: () => {
             console.log('asdfasd');
@@ -139,12 +139,12 @@ const UaiDisplay = ({ uaiStack }) => {
           visible={showModal}
           close={() => setShowModal(false)}
           title={uaiConfig?.modalDetails?.heading}
-          modalBackground={['#00836A', '#073E39']}
-          buttonBackground={['#FFFFFF', '#80A8A1']}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
-          buttonTextColor={'#073E39'}
+          buttonTextColor={'#FAFAFA'}
           buttonCallback={uaiConfig?.cta}
-          textColor={'#FFF'}
+          textColor={'#000'}
           Content={() => <Text>{uai?.displayText}</Text>}
         />
       </>

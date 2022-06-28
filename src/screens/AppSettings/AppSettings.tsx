@@ -1,6 +1,8 @@
 import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import Modal from 'react-native-modal';
+
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -9,21 +11,26 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { RealmSchema } from 'src/storage/realm/enum';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
-import dbManager from 'src/storage/realm/dbManager';
 import openLink from 'src/utils/OpenLink';
+//
+import ShowXPub from 'src/components/XPub/ShowXPub';
+import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
+  //
+  const [xpubVisible, setXPubVisible] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-  const [sensorType, setSensorType] = useState('Biometrics')
+  const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
   const { settings } = translations;
@@ -35,9 +42,17 @@ const AppSettings = ({ navigation }) => {
   const init = async () => {
     try {
       const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      const type = biometryType === 'TouchID' ? 'Touch ID' : biometryType === 'FaceID' ? 'Face ID' : biometryType
-      setSensorType(type)
+      if (available) {
+        const type =
+          biometryType === 'TouchID'
+            ? 'Touch ID'
+            : biometryType === 'FaceID'
+            ? 'Face ID'
+            : biometryType;
+        setSensorType(type);
+      }
     } catch (error) {
+      console.log(error);
     }
   };
 
@@ -67,18 +82,9 @@ const AppSettings = ({ navigation }) => {
       console.log(error);
     }
   };
+
   const changeThemeMode = () => {
     setDarkMode(!darkMode);
-  };
-
-  const showSeed = () => {
-    try {
-      const wallet = dbManager.getObjectByIndex(RealmSchema.KeeperApp, 0);
-      console.log();
-      Alert.alert('Seed', wallet.toJSON().primaryMnemonic.replace(/ /g, '\n'));
-    } catch (error) {
-      //
-    }
   };
 
   return (
@@ -89,7 +95,9 @@ const AppSettings = ({ navigation }) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <HeaderTitle />
+      <Box ml={3}>
+        <HeaderTitle />
+      </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
           <Text fontSize={RFValue(20)}>{common.settings}</Text>
@@ -152,18 +160,21 @@ const AppSettings = ({ navigation }) => {
             onPress={() => openLink('https://t.me/HexaWallet')}
           />
           <SettingsCard
-            title={'Choose Plan'}
+            title={'Account xPub'}
             description={'Lorem ipsum dolor sit amet'}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => navigation.navigate('ChoosePlan')}
+            onPress={() => setXPubVisible(true)}
           />
-          <Pressable onPress={() => showSeed()}>
-            <Text m={5} fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
-              {common.ViewSeed}
-            </Text>
-          </Pressable>
+          <SettingsCard
+            title={'Wallet seed words'}
+            description={'Lorem ipsum dolor sit amet'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => setConfirmPassVisible(true)}
+          />
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note title={common.note} subtitle={settings.desc} />
@@ -200,6 +211,42 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Box>
       </Box>
+      {/*  */}
+      <Box>
+        <Modal
+          isVisible={xpubVisible}
+          onSwipeComplete={() => setXPubVisible(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <ShowXPub
+            closeBottomSheet={() => {
+              setXPubVisible(false);
+            }}
+          />
+        </Modal>
+        <Modal
+          isVisible={confirmPassVisible}
+          onSwipeComplete={() => setConfirmPassVisible(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <SeedConfirmPasscode
+            closeBottomSheet={() => {
+              setConfirmPassVisible(false);
+            }}
+          />
+        </Modal>
+      </Box>
+      {/*  */}
     </SafeAreaView>
   );
 };

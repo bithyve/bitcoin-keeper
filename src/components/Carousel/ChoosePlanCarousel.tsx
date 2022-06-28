@@ -5,7 +5,9 @@ import Carousel from 'react-native-snap-carousel';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList, Dimensions } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
-
+import Basic from 'src/assets/images/svgs/basic.svg';
+import Elite from 'src/assets/images/svgs/elitePlan.svg';
+import Pro from 'src/assets/images/svgs/expert.svg';
 const planData = [
   {
     id: 1,
@@ -13,6 +15,7 @@ const planData = [
     subTitle: 'Lorem ipsum dolor sit amet,',
     amount: '0',
     upgrade: false,
+    icon: <Basic />,
   },
   {
     id: 2,
@@ -20,6 +23,7 @@ const planData = [
     subTitle: 'Lorem ipsum',
     amount: '5',
     upgrade: true,
+    icon: <Pro />,
   },
   {
     id: 3,
@@ -27,6 +31,7 @@ const planData = [
     subTitle: 'Lorem ipsum dolor sit amet,',
     amount: '10',
     upgrade: false,
+    icon: <Elite />,
   },
 ];
 
@@ -48,15 +53,7 @@ const ChoosePlanCarousel = () => {
         }}
       >
         <Box py={3} alignItems={'center'} justifyContent={'center'}>
-          <Box
-            h={20}
-            w={20}
-            borderRadius={40}
-            bg={'light.lightBlack'}
-            borderColor={'light.borderColor'}
-            borderWidth={0.5}
-            my={15}
-          ></Box>
+          <Box my={15}>{item.icon}</Box>
           <Text
             fontSize={RFValue(13)}
             fontWeight={'300'}
