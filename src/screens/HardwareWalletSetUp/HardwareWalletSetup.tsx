@@ -64,8 +64,35 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
-            <Box justifyContent={'center'} alignItems={'center'} height={windowHeight * 0.08}>
-              {WalletMap(type).Logo}
+            <Box
+              alignItems={'center'}
+              height={windowHeight * 0.08}
+              flexDirection={'row'}
+              style={{
+                paddingVertical: hp(25),
+                paddingLeft: wp(40)
+              }}
+            >
+              <Box
+                style={{
+                  marginRight: wp(20),
+                  width: wp(15)
+                }}>
+                {WalletMap(type).Icon}
+              </Box>
+              <Box
+                opacity={0.3}
+                backgroundColor={'light.divider'}
+                height={hp(24)}
+                width={0.5}
+              />
+              <Box
+                style={{
+                  marginLeft: wp(23)
+                }}
+              >
+                {WalletMap(type).Logo}
+              </Box>
             </Box>
             <Box
               opacity={0.1}
