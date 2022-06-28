@@ -32,6 +32,7 @@ import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -338,15 +339,16 @@ const VaultDetails = () => {
   const wallet = translations['wallet'];
 
   const { top } = useSafeAreaInsets();
-  const Vault: Wallet = useQuery(RealmSchema.Wallet).filter(
-    (wallets) => wallets.type === WalletType.READ_ONLY
-  )[0];
+
+  const Vault: Wallet = useQuery(RealmSchema.Wallet)
+    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
+    .map(getJSONFromRealmObject)[0];
 
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = Vault?.specs?.transactions || [];
 
   const refreshVault = () => {
-    dispatch(refreshWallets([JSON.parse(JSON.stringify(Vault))], { hardRefresh: true }));
+    dispatch(refreshWallets([Vault], { hardRefresh: true }));
   };
 
   const pullDownRefresh = () => {
