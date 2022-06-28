@@ -56,7 +56,6 @@ export default class WalletOperations {
 
     wallet.specs.activeAddresses.external[receivingAddress] = wallet.specs.nextFreeAddressIndex;
     wallet.specs.nextFreeAddressIndex++;
-    wallet.specs.receivingAddress = receivingAddress;
     return {
       updatedWallet: wallet,
       receivingAddress,
@@ -176,7 +175,7 @@ export default class WalletOperations {
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
         walletType: string;
-        transactionsNote: {
+        transactionNote: {
           [txId: string]: string;
         };
         contactName?: string;
@@ -285,7 +284,7 @@ export default class WalletOperations {
         cachedTransactionMapping,
         lastUsedAddressIndex: wallet.specs.nextFreeAddressIndex - 1,
         lastUsedChangeAddressIndex: wallet.specs.nextFreeChangeAddressIndex - 1,
-        transactionsNote: wallet.specs.transactionsNote,
+        transactionNote: wallet.specs.transactionNote,
         walletType: wallet.type,
         walletName: wallet.presentationData.walletName,
         hardRefresh: shouldHardRefresh,
@@ -351,28 +350,6 @@ export default class WalletOperations {
       wallet.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
       wallet.specs.activeAddresses = activeAddresses;
       wallet.specs.hasNewTxn = hasNewTxn;
-
-      if ((wallet as MultiSigWallet).specs.is2FA)
-        wallet.specs.receivingAddress = WalletUtilities.createMultiSig(
-          {
-            primary: wallet.specs.xpub,
-            secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-            bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-          },
-          2,
-          network,
-          wallet.specs.nextFreeAddressIndex,
-          false
-        ).address;
-      else
-        wallet.specs.receivingAddress = WalletUtilities.getAddressByIndex(
-          wallet.specs.xpub,
-          false,
-          wallet.specs.nextFreeAddressIndex,
-          network,
-          purpose
-        );
-
       // find tx delta(missing txs): hard vs soft refresh
       // if( hardRefresh ){
       //   if( wallet.transactionMapping && transactionMapping ){

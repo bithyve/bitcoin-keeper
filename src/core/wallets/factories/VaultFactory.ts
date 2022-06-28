@@ -1,4 +1,5 @@
-import { DerivationPurpose, NetworkType, VaultType, WalletVisibility } from '../enums';
+import crypto from 'crypto';
+import { NetworkType, VaultType, VisibilityType } from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -7,59 +8,30 @@ import {
   VaultSpecs,
 } from '../interfaces/vault';
 
-import WalletUtilities from '../operations/utils';
-import crypto from 'crypto';
-
 export const generateVault = async ({
-  scheme,
-  signers,
+  type,
   vaultShellId,
   vaultName,
   vaultDescription,
-  xpubs,
+  scheme,
+  signers,
   networkType,
 }: {
-  scheme: VaultScheme;
-  signers: VaultSigner[];
+  type: VaultType;
   vaultShellId: string;
   vaultName: string;
   vaultDescription: string;
-  xpubs: string[];
+  scheme: VaultScheme;
+  signers: VaultSigner[];
   networkType: NetworkType;
 }): Promise<Vault> => {
-  const network = WalletUtilities.getNetworkByType(networkType);
-
-  let initialRecevingAddress = '';
-  let isUsable = false;
-
-  if (xpubs.length > 1) {
-    initialRecevingAddress = WalletUtilities.createMultiSig(
-      xpubs,
-      scheme.m,
-      network,
-      0,
-      false
-    ).address;
-    isUsable = true;
-  } else {
-    initialRecevingAddress = WalletUtilities.getAddressByIndex(
-      xpubs[0],
-      false,
-      0,
-      network,
-      DerivationPurpose.BIP49
-    );
-  }
-
-  const id = crypto
-    .createHash('sha256')
-    .update(signers.map((signer) => signer.signerId).join(' '))
-    .digest('hex');
+  const xpubs = signers.map((signer) => signer.xpub);
+  const id = crypto.createHash('sha256').update(xpubs.join('')).digest('hex');
 
   const presentationData: VaultPresentationData = {
     vaultName,
     vaultDescription,
-    vaultVisibility: WalletVisibility.DEFAULT, // visibility of the vault
+    vaultVisibility: VisibilityType.DEFAULT,
   };
 
   const specs: VaultSpecs = {
@@ -69,7 +41,6 @@ export const generateVault = async ({
       internal: {},
     },
     importedAddresses: {},
-    receivingAddress: initialRecevingAddress,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     confirmedUTXOs: [],
@@ -82,15 +53,15 @@ export const generateVault = async ({
     lastSynched: 0,
     txIdCache: {},
     transactionMapping: [],
-    transactionsNote: {},
+    transactionNote: {},
   };
 
   const vault: Vault = {
     id,
     vaultShellId,
-    type: VaultType.DEFAULT,
+    type,
     networkType,
-    isUsable,
+    isUsable: true,
     isMultiSig: true,
     scheme,
     signers,

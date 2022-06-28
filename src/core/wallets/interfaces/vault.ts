@@ -6,17 +6,16 @@ import {
   WalletImportedAddresses,
   Transaction,
 } from '.';
-import { NetworkType, SignerType, VaultType, VaultVisibility } from '../enums';
+import { NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
 
 export interface VaultPresentationData {
   vaultName: string; // name of the vault
   vaultDescription: string; // description of the vault
-  vaultVisibility: VaultVisibility; // visibility of the vault
+  vaultVisibility: VisibilityType; // visibility of the vault
 }
 
 export interface VaultSpecs {
   xpubs: string[]; // signers' xpubs
-  receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   activeAddresses: ActiveAddresses; // addresses being actively used by this vault
@@ -30,7 +29,7 @@ export interface VaultSpecs {
   hasNewTxn?: boolean; // indicates new txns
   txIdCache: { [txid: string]: boolean };
   transactionMapping: TransactionToAddressMapping[];
-  transactionsNote: {
+  transactionNote: {
     [txId: string]: string;
   };
   // transactionsMeta?: TransactionMetaData[];
@@ -46,13 +45,15 @@ export interface VaultSigner {
   signerName: string;
   type: SignerType;
   xpub: string;
-  derivation: string;
+  xpubInfo?: {
+    derivationPath?: string;
+  };
 }
 
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
   vaultShellId: string; // identifier of the vault shell that the vault belongs
-  type: VaultType; // type of wallet
+  type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
   isUsable: boolean; // true if vault is usable
   isMultiSig: boolean; // true

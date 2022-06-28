@@ -508,7 +508,7 @@ export default class WalletUtilities {
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
         walletType: string;
-        transactionsNote: {
+        transactionNote: {
           [txId: string]: string;
         };
         contactName?: string;
@@ -641,7 +641,7 @@ export default class WalletUtilities {
           cachedTransactionMapping,
           walletType,
           walletName,
-          transactionsNote,
+          transactionNote,
         } = wallets[walletId];
         const { Utxos, Txs } = walletToResponseMapping[walletId];
         const UTXOs = cachedUTXOs;
@@ -702,7 +702,7 @@ export default class WalletUtilities {
                 //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                 //     address: addressInfo.Address,
                 //     isNew: true,
-                //     notes: transactionsNote[tx.txid],
+                //     notes: transactionNote[tx.txid],
                 //   };
 
                 //   const incomingTx: Transaction = {
@@ -719,7 +719,7 @@ export default class WalletUtilities {
                 //     senderAddresses: tx.SenderAddresses,
                 //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                 //     isNew: true,
-                //     notes: transactionsNote[tx.txid],
+                //     notes: transactionNote[tx.txid],
                 //   };
 
                 //   newTxs.push(...[outgoingTx, incomingTx]);
@@ -742,7 +742,7 @@ export default class WalletUtilities {
                   blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
                   address: addressInfo.Address,
                   isNew: true,
-                  notes: transactionsNote[tx.txid],
+                  notes: transactionNote[tx.txid],
                 };
 
                 newTxs.push(transaction);

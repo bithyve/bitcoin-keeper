@@ -7,7 +7,7 @@ import {
   WalletImportedAddresses,
   Transaction,
 } from '.';
-import { NetworkType, WalletType, WalletVisibility } from '../enums';
+import { NetworkType, WalletType, VisibilityType } from '../enums';
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
@@ -19,13 +19,12 @@ export interface WalletDerivationDetails {
 export interface WalletPresentationData {
   walletName: string; // name of the wallet
   walletDescription: string; // description of the wallet
-  walletVisibility: WalletVisibility; // visibility of the wallet
+  walletVisibility: VisibilityType; // visibility of the wallet
 }
 
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
   xpriv?: string | null; // wallet's xpriv (primary for multi-sig wallets)
-  receivingAddress: string; // current external address
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
@@ -39,7 +38,7 @@ export interface WalletSpecs {
   hasNewTxn?: boolean; // indicates new txns
   txIdCache: { [txid: string]: boolean };
   transactionMapping: TransactionToAddressMapping[];
-  transactionsNote: {
+  transactionNote: {
     [txId: string]: string;
   };
   // transactionsMeta?: TransactionMetaData[];

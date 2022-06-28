@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import WalletUtilities from '../operations/utils';
 import * as bip39 from 'bip39';
 import BIP85 from '../operations/BIP85';
-import { WalletType, DerivationPurpose, NetworkType, WalletVisibility } from '../enums';
+import { WalletType, DerivationPurpose, NetworkType, VisibilityType } from '../enums';
 import {
   Wallet,
   WalletDerivationDetails,
@@ -79,7 +79,7 @@ export const generateWallet = async ({
   const presentationData: WalletPresentationData = {
     walletName,
     walletDescription,
-    walletVisibility: WalletVisibility.DEFAULT,
+    walletVisibility: VisibilityType.DEFAULT,
   };
 
   const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(type)
@@ -94,7 +94,6 @@ export const generateWallet = async ({
       internal: {},
     },
     importedAddresses: {},
-    receivingAddress: WalletUtilities.getAddressByIndex(xpub, false, 0, network, purpose),
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     confirmedUTXOs: [],
@@ -107,7 +106,7 @@ export const generateWallet = async ({
     lastSynched: 0,
     txIdCache: {},
     transactionMapping: [],
-    transactionsNote: {},
+    transactionNote: {},
   };
 
   const wallet: Wallet = {

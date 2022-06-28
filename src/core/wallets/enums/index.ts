@@ -47,14 +47,12 @@ export enum ActiveAddressAssigneeType {
   GIFT = 'GIFT',
 }
 
-export enum WalletVisibility {
+export enum VisibilityType {
   DEFAULT = 'DEFAULT',
   DURESS = 'DURESS',
   HIDDEN = 'HIDDEN',
   ARCHIVED = 'ARCHIVED',
 }
-
-export type VaultVisibility = WalletVisibility;
 
 export enum WalletType {
   CHECKING = 'CHECKING',
