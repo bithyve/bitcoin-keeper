@@ -104,14 +104,8 @@ const Footer = ({ Vault }) => {
   const styles = getStyles(0);
   return (
     <Box>
-      <Box
-        borderWidth={0.5}
-        borderColor={'light.GreyText'}
-        borderRadius={20}
-        opacity={0.2}
-        marginTop={hp(20)}
-      />
-      <Box flexDirection={'row'} marginTop={2} justifyContent={'space-between'} marginX={10}>
+      <Box borderWidth={0.5} borderColor={'light.GreyText'} borderRadius={20} opacity={0.2} />
+      <Box flexDirection={'row'} justifyContent={'space-between'} marginX={10} marginTop={3}>
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
@@ -255,7 +249,7 @@ const VaultInfo = ({ Vault }) => {
 
 const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
   return (
-    <VStack pt={'15%'}>
+    <VStack paddingTop={'25%'}>
       <HStack justifyContent={'space-between'}>
         <Text
           color={'light.textBlack'}
@@ -280,6 +274,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
         </HStack>
       </HStack>
       <FlatList
+        style={{ height: '75%' }}
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
@@ -297,7 +292,7 @@ const SignerList = () => {
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', bottom: '65%' }}
+      style={{ position: 'absolute', bottom: '80%' }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -376,22 +371,16 @@ const VaultDetails = () => {
         <Header />
         <VaultInfo Vault={Vault} />
       </VStack>
-      <VStack
-        justifyContent={'space-between'}
-        backgroundColor={'light.lightYellow'}
-        p={wp(28)}
-        borderTopLeftRadius={20}
-        flex={1}
-      >
-        <VStack>
+      <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
+        <VStack justifyContent={'space-between'}>
           <SignerList />
           <TransactionList
             transactions={transactions}
             pullDownRefresh={pullDownRefresh}
             pullRefresh={pullRefresh}
           />
+          <Footer Vault={Vault} />
         </VStack>
-        <Footer Vault={Vault} />
       </VStack>
     </LinearGradient>
   );
