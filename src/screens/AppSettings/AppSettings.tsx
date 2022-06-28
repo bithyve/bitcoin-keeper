@@ -1,6 +1,8 @@
 import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import Modal from 'react-native-modal';
+
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,11 +16,16 @@ import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCa
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
 
+//
+import ModalContainer from 'src/components/Modal/ModalContainer';
+import ShowXPub from 'src/components/XPub/ShowXPub';
+
 const RNBiometrics = new ReactNativeBiometrics();
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
+  const [xpubVisible, setXPubVisible] = useState(false);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   const [sensorType, setSensorType] = useState('Biometrics');
@@ -151,12 +158,12 @@ const AppSettings = ({ navigation }) => {
             onPress={() => openLink('https://t.me/HexaWallet')}
           />
           <SettingsCard
-            title={'Choose Plan'}
+            title={'Account xPub'}
             description={'Lorem ipsum dolor sit amet'}
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => navigation.navigate('ChoosePlan')}
+            onPress={() => setXPubVisible(true)}
           />
         </ScrollView>
         <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
@@ -193,6 +200,31 @@ const AppSettings = ({ navigation }) => {
             </Pressable>
           </Box>
         </Box>
+      </Box>
+      {/*  */}
+      {/* <ModalContainer
+        visible={xpubVisible}
+        closeBottomSheet={() => {
+          setXPubVisible(false);
+        }}
+      > */}
+      <Box>
+        <Modal
+          isVisible={xpubVisible}
+          onSwipeComplete={() => setXPubVisible(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <ShowXPub
+            closeBottomSheet={() => {
+              setXPubVisible(false);
+            }}
+          />
+        </Modal>
       </Box>
     </SafeAreaView>
   );

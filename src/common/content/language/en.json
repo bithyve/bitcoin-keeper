@@ -255,7 +255,10 @@
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
-    "initiatetransfer": "Are you sure you want to initiate transfer to"
+    "initiatetransfer": "Are you sure you want to initiate transfer to",
+    "XPubTitle": "Account xPub",
+    "XPubSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "AccountXpub": "Account Xpub"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
