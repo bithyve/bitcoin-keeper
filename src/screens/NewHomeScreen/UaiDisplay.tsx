@@ -21,7 +21,6 @@ const UaiDisplay = ({ uaiStack }) => {
     switch (type) {
       case uaiType.RELEASE_MESSAGE:
         return {
-          btnText: 'Update',
           modalDetails: {
             heading: 'Update application',
             btnText: 'Update',
@@ -34,7 +33,6 @@ const UaiDisplay = ({ uaiStack }) => {
         };
       case uaiType.ALERT:
         return {
-          btnText: 'Details',
           modalDetails: {
             heading: 'Details',
             btnText: 'Okay',
@@ -46,7 +44,6 @@ const UaiDisplay = ({ uaiStack }) => {
         };
       case uaiType.VAULT_TRANSFER:
         return {
-          btnText: 'Secure now',
           modalDetails: {
             heading: 'Trasfer to Vault',
             btnText: 'Transfer details',
@@ -54,6 +51,12 @@ const UaiDisplay = ({ uaiStack }) => {
           cta: () => {
             navigtaion.navigate('SendConfirmation', { isVaultTransfer: true, uaiSetActionFalse });
             setShowModal(false);
+          },
+        };
+      case uaiType.SECURE_VAULT:
+        return {
+          cta: () => {
+            navigtaion.navigate('HardwareSetup');
           },
         };
       // case uaiType.WARNING:
@@ -104,6 +107,7 @@ const UaiDisplay = ({ uaiStack }) => {
     if (uai?.isDisplay) {
       setShowModal(true);
     } else {
+      uaiConfig?.cta();
       uaiSetActionFalse();
     }
   };

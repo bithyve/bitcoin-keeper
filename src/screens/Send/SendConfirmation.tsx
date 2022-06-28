@@ -23,7 +23,9 @@ const SendConfirmation = ({ route }) => {
 
   const onProceed = () => {
     if (isVaultTransfer) {
-      uaiSetActionFalse();
+      if (uaiSetActionFalse) {
+        uaiSetActionFalse();
+      }
       navigtaion.goBack();
       // dispatch(
       //   crossTransfer({
