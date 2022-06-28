@@ -359,17 +359,17 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition"
   },
   "onboarding": {
-    "slide01Title": "Most secure way to store your bitcoin",
+    "slide01Title": "Most secure way to\nstore your bitcoin",
     "slide01Paragraph": "Keeper works with most of the trusted hardware signers which hold your keys in an air-gapped and/ or multisig manner",
-    "slide02Title": "Security should not come at the cost of privacy",
+    "slide02Title": "Security should not\ncome at the cost of privacy",
     "slide02Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
-    "slide03Title": "Secure bitcoin for you and your loved ones, anywhere",
+    "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
-    "slide04Title": "All that you will need for securing your bitcoin",
+    "slide04Title": "All that you will need for\nsecuring your bitcoin",
     "slide04Paragraph": "BIP 85 hot wallets, auto-transfer to vault, buy bitcoin directly in to your cold storage, and much more",
-    "slide05Title": "Works just with the mobile app, no computer needed",
+    "slide05Title": "Works just with the mobile app,\nno computer needed",
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signers, without any intermediate step",
-    "slide06Title": "Affordable plans and a great offer",
+    "slide06Title": "Affordable plans\nand a great offer",
     "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your Vault now."
   }
 }
