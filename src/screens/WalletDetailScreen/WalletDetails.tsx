@@ -34,6 +34,7 @@ import Recieve from 'src/assets/images/svgs/receive.svg';
 import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Setting from 'src/assets/images/svgs/settings_small.svg';
+import WalletInside from 'src/assets/images/svgs/Wallet_inside.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
@@ -281,7 +282,7 @@ const WalletDetails = () => {
       </Box>
 
       <Box alignItems={'center'} marginTop={-hp(20)}>
-        <GradientIcon height={hp(48)} Icon={Arrow} />
+        <GradientIcon height={48} Icon={WalletInside} />
         <Text
           color={'light.textWallet'}
           letterSpacing={0.96}
