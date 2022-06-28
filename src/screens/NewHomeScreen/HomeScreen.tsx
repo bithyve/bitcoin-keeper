@@ -33,6 +33,7 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 
 const InheritanceComponent = () => {
+  const navigation = useNavigation();
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
       <LinearGradient
@@ -59,11 +60,11 @@ const InheritanceComponent = () => {
               fontWeight={100}
               marginTop={-1}
             >
-              Upgrade to secure your Vaul
+              Upgrade to secure your Vault
             </Text>
           </Box>
         </Box>
-        <NextIcon />
+        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
       </LinearGradient>
     </Box>
   );
@@ -148,9 +149,9 @@ const VaultSetupContent = () => {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
         {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
-      </Text>
+      </Text> */}
     </View>
   );
 };
@@ -191,7 +192,7 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={'light.TorLable'}
             height={hp(13.804)}
-            width={wp(60)}
+            width={wp(75)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
@@ -203,7 +204,7 @@ const VaultStatus = (props) => {
               fontSize={RFValue(9)}
               fontWeight={300}
             >
-              Tor Enabled
+              TOR ENABLED
             </Text>
           </Box>
           <Box marginTop={hp(64.5)} alignItems={'center'}>
@@ -225,7 +226,7 @@ const VaultStatus = (props) => {
               paddingBottom={1}
             >
               {!Signers.length
-                ? 'Pending Activation'
+                ? 'Activate Now '
                 : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
             {!Signers.length ? null : <TapsignerIcon />}
