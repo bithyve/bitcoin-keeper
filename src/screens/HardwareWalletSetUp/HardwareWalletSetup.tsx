@@ -137,9 +137,9 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
               'KEYSTONE',
               'TAPSIGNER',
               'PASSPORT',
-              'KEEPER',
               'LEDGER',
               'TREZOR',
+              'KEEPER',
               // 'POLICY_SERVER',
               // 'MOBILE_KEY',
             ].map((type: SignerType, index: number) => (
