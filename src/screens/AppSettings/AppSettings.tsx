@@ -33,12 +33,17 @@ const AppSettings = ({ navigation }) => {
   const init = async () => {
     try {
       const { available, biometryType } = await RNBiometrics.isSensorAvailable();
-      if(available) {
-        const type = biometryType === 'TouchID' ? 'Touch ID' : biometryType === 'FaceID' ? 'Face ID' : biometryType
-        setSensorType(type)
+      if (available) {
+        const type =
+          biometryType === 'TouchID'
+            ? 'Touch ID'
+            : biometryType === 'FaceID'
+            ? 'Face ID'
+            : biometryType;
+        setSensorType(type);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -81,7 +86,9 @@ const AppSettings = ({ navigation }) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <HeaderTitle />
+      <Box ml={3}>
+        <HeaderTitle />
+      </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
           <Text fontSize={RFValue(20)}>{common.settings}</Text>
