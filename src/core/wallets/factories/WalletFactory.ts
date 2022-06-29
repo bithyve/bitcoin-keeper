@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import WalletUtilities from '../operations/utils';
 import * as bip39 from 'bip39';
 import BIP85 from '../operations/BIP85';
-import { WalletType, DerivationPurpose, NetworkType, VisibilityType } from '../enums';
+import { WalletType, DerivationPurpose, NetworkType, VisibilityType, EntityKind } from '../enums';
 import {
   Wallet,
   WalletDerivationDetails,
@@ -112,6 +112,7 @@ export const generateWallet = async ({
   const wallet: Wallet = {
     id,
     walletShellId,
+    entityKind: EntityKind.WALLET,
     type,
     networkType,
     isUsable: true,

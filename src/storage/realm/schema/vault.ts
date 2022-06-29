@@ -64,6 +64,7 @@ export const VaultSchema: ObjectSchema = {
   properties: {
     id: 'string',
     vaultShellId: 'string',
+    entityKind: 'string',
     type: 'string',
     networkType: 'string',
     isUsable: 'bool',

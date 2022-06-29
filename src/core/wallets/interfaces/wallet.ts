@@ -7,7 +7,7 @@ import {
   WalletImportedAddresses,
   Transaction,
 } from '.';
-import { NetworkType, WalletType, VisibilityType } from '../enums';
+import { NetworkType, WalletType, VisibilityType, EntityKind } from '../enums';
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
@@ -60,6 +60,7 @@ export interface MultiSigWalletSpecs extends WalletSpecs {
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
   walletShellId: string; // identifier of the wallet shell that the wallet belongs
+  entityKind: EntityKind; // Wallet vs Vault identifier
   type: WalletType; // type of wallet
   networkType: NetworkType; // testnet/mainnet
   isUsable: boolean; // true if wallet is usable

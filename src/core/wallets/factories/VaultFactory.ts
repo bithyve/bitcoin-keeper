@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { NetworkType, VaultType, VisibilityType } from '../enums';
+import { EntityKind, NetworkType, VaultType, VisibilityType } from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -59,6 +59,7 @@ export const generateVault = ({
   const vault: Vault = {
     id,
     vaultShellId,
+    entityKind: EntityKind.VAULT,
     type,
     networkType,
     isUsable: true,

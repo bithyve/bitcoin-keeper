@@ -145,6 +145,7 @@ export const WalletSchema: ObjectSchema = {
   properties: {
     id: 'string',
     walletShellId: 'string',
+    entityKind: 'string',
     type: 'string',
     networkType: 'string',
     isUsable: 'bool',
