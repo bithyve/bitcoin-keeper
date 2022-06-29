@@ -325,9 +325,6 @@ const VaultInfo = ({ level }: { level: number }) => {
   const dispatch = useDispatch();
   const addtoDb = () => {
     dispatch(
-      addToUaiStack('Add Signer to Secure your Vault', false, uaiType.SECURE_VAULT, 70, null)
-    );
-    dispatch(
       addToUaiStack(
         'A new version of the app is available',
         true,
