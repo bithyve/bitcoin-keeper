@@ -50,6 +50,7 @@ const ChoosePlanCarousel = () => {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 20,
+          paddingVertical: 15,
         }}
       >
         <Box py={3} alignItems={'center'} justifyContent={'center'}>
@@ -89,7 +90,7 @@ const ChoosePlanCarousel = () => {
         data={planData}
         renderItem={_renderItem}
         sliderWidth={Dimensions.get('screen').width}
-        itemWidth={Dimensions.get('screen').width - 150}
+        itemWidth={180}
         layout={'default'}
       />
     </Box>
