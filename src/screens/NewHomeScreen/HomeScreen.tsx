@@ -418,7 +418,7 @@ const HomeScreen = () => {
   }, [noOfTabs])
 
   useEffect(() => {
-    if (noOfTabs >= 3) {
+    if (noOfTabs === 3) {
       setLevel((prev: number) => {
         if (prev < 3) {
           return prev + 1;
