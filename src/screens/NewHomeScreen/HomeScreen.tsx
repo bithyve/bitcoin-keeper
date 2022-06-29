@@ -257,7 +257,7 @@ const VaultStatus = (props) => {
                 ? 'Activate Now '
                 : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
-            {(!Signers.length && false) ? null :
+            {!Signers.length ? null :
               <Box flexDirection={'row'} marginTop={hp(10)}>
                 {icons.map((icon) => {
                   return (
@@ -269,7 +269,7 @@ const VaultStatus = (props) => {
               </Box>
             }
           </Box>
-          {(!Signers.length && false) ? (
+          {!Signers.length ? (
             <Box marginTop={hp(31.5)}>
               <Image
                 source={require('src/assets/images/illustration.png')}
