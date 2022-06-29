@@ -442,9 +442,10 @@ const WalletDetails = () => {
             <TouchableOpacity
               style={styles.IconText}
               onPress={() => {
-                navigation.navigate('ExportSeed', {
-                  seed: currentWallet?.derivationDetails?.mnemonic,
-                });
+                navigation.navigate('WalletSettings');
+                // navigation.navigate('ExportSeed', {
+                //   seed: currentWallet?.derivationDetails?.mnemonic,
+                // });
               }}
             >
               <IconSettings />

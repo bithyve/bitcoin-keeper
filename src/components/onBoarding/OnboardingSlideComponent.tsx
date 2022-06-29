@@ -3,6 +3,11 @@ import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity, Dimensions } from 'react-native';
 
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
+
 import Skip from 'src/assets/images/svgs/skip.svg';
 
 const { width } = Dimensions.get('window');
@@ -20,7 +25,7 @@ const OnboardingSlideComponent = (props) => {
           {props.title}
         </Text>
       </Box>
-      <Box flex={0.6} justifyContent={'center'}>
+      <Box flex={0.6} justifyContent={'center'} mt={props.currentPosition >= 1 ? hp(5) : 0}>
         {props.illustration}
       </Box>
       <Box flex={0.2} justifyContent={'center'}>
