@@ -2,6 +2,7 @@ import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-r
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext } from 'react';
+import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { Text, View } from 'native-base';
 import config, { APP_STAGE } from 'src/core/config';
 
@@ -14,7 +15,6 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-gesture-handler';
 import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { generateVault } from 'src/core/wallets/VaultFactory';
@@ -253,14 +253,34 @@ const SetupTapsigner = () => {
     });
   }, [cvc]);
 
+  const MockVaultCreation = () => {
+    if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      const isVaultCreated = createVault('xpub');
+      if (isVaultCreated) {
+        realm.write(() => {
+          realm.create(RealmSchema.VaultSigner, {
+            type: 'TAPSIGNER',
+            signerName: 'Tapsigner',
+            signerId: 'ABCD-EFGH-IJKL-MNOP',
+            derivation: 'm/84h/0h/0h',
+            xpub: 'xpub',
+          });
+        });
+        navigation.dispatch(CommonActions.navigate('NewHome'));
+      }
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <HeaderTitle title="" subtitle="" onPressHandler={() => navigation.goBack()} />
-      <ScrollView>
-        {stepItems.map((item) => (
-          <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />
-        ))}
-      </ScrollView>
+      <TapGestureHandler numberOfTaps={3} onActivated={MockVaultCreation}>
+        <ScrollView>
+          {stepItems.map((item) => (
+            <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />
+          ))}
+        </ScrollView>
+      </TapGestureHandler>
       <KeyPadView onPressNumber={onPressHandler} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
       <NfcPrompt visible={nfcVisible} />
     </SafeAreaView>
