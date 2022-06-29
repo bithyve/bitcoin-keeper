@@ -97,7 +97,6 @@ const UaiDisplay = ({ uaiStack }) => {
   }, [uaiStack]);
 
   const uaiSetActionFalse = () => {
-    console.log('uai', uai);
     let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
     updatedUai = { ...updatedUai, isActioned: true };
     dispatch(updateUaiStack(updatedUai));
@@ -108,7 +107,6 @@ const UaiDisplay = ({ uaiStack }) => {
       setShowModal(true);
     } else {
       uaiConfig?.cta();
-      uaiSetActionFalse();
     }
   };
 

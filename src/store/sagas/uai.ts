@@ -16,7 +16,6 @@ function* addToUaiStackWorker({ payload }) {
 
 function* updateUaiStackWorker({ payload }) {
   const { uai } = payload;
-  console.log('uai to update', uai);
   yield call(dbManager.initializeRealm, Buffer.from('random'));
   yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, uai);
 }
