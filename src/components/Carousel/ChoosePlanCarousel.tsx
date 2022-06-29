@@ -13,7 +13,7 @@ const planData = [
   {
     id: 1,
     title: 'Basic',
-    subTitle: 'Lorem ipsum dolor sit amet,',
+    subTitle: 'Lorem ipsum',
     amount: '0',
     upgrade: false,
     icon: <Basic />,
@@ -31,7 +31,7 @@ const planData = [
   {
     id: 3,
     title: 'Elite',
-    subTitle: 'Lorem ipsum dolor sit amet,',
+    subTitle: 'Lorem ipsum',
     amount: '10',
     upgrade: false,
     icon: <Elite />,
