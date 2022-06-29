@@ -77,9 +77,9 @@ const OnBoardingSlides = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
-      <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
+      <ImageBackground resizeMode="stretch" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, margin: 10 }}>
-          <Box flex={0.1} justifyContent={'center'} m={4}>
+          <Box justifyContent={'center'} m={4}>
             {currentPosition != 5 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('App')}
