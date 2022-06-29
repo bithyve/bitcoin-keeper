@@ -6,7 +6,7 @@ import {
   WalletImportedAddresses,
   Transaction,
 } from '.';
-import { NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
 
 export interface VaultPresentationData {
   vaultName: string; // name of the vault
@@ -53,6 +53,7 @@ export interface VaultSigner {
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
   vaultShellId: string; // identifier of the vault shell that the vault belongs
+  entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
   isUsable: boolean; // true if vault is usable

@@ -54,6 +54,11 @@ export enum VisibilityType {
   ARCHIVED = 'ARCHIVED',
 }
 
+export enum EntityKind {
+  WALLET = 'WALLET',
+  VAULT = 'VAULT',
+}
+
 export enum WalletType {
   CHECKING = 'CHECKING',
   IMPORTED = 'IMPORTED',
