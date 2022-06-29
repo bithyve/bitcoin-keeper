@@ -121,64 +121,53 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
 
   return (
     <Box>
-      {false ?
-        <SafeAreaView style={styles.container}>
-          <StatusBarComponent />
-          <Box marginX={10}>
-            <HeaderTitle
-              title="Select a Signer"
-              subtitle="For your Vault"
-              onPressHandler={() => navigation.navigate('NewHome')}
-              headerTitleColor={'light.headerTextTwo'}
-            />
-          </Box>
-          <Box alignItems={'center'} justifyContent={'center'}>
-            <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
-              <Box paddingY={'4'}>
-                {[
-                  'COLDCARD',
-                  'JADE',
-                  'KEYSTONE',
-                  'TAPSIGNER',
-                  'PASSPORT',
-                  'LEDGER',
-                  'TREZOR',
-                  'KEEPER',
-                  // 'POLICY_SERVER',
-                  // 'MOBILE_KEY',
-                ].map((type: SignerType, index: number) => (
-                  <HardWareWallet type={type} first={index === 0} last={index === 9} />
-                ))}
-              </Box>
-
-            </ScrollView>
-            <Text
-              fontSize={RFValue(12)}
-              letterSpacing={0.6}
-              fontWeight={100}
-              color={'light.lightBlack'}
-              width={wp(300)}
-              lineHeight={20}
-              marginTop={hp(20)}
-            >
-              A Signer can be a hardware wallet or a signing device or an app. Most popular ones are
-              listed above. Want support for more.{' '}
-              <Text fontStyle={'italic'} fontWeight={'bold'}>
-                Contact Us
-              </Text>
-            </Text>
-          </Box>
-        </SafeAreaView>
-        :
-        <>
-          <StatusBarComponent />
-          <Image
-            source={require('src/assets/images/AddSigner.png')}
-            style={{ width: windowWidth, height: windowHeight }}
-            resizeMode="contain"
+      <SafeAreaView style={styles.container}>
+        <StatusBarComponent />
+        <Box marginX={10}>
+          <HeaderTitle
+            title="Select a Signer"
+            subtitle="For your Vault"
+            onPressHandler={() => navigation.navigate('NewHome')}
+            headerTitleColor={'light.headerTextTwo'}
           />
-        </>
-      }
+        </Box>
+        <Box alignItems={'center'} justifyContent={'center'}>
+          <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
+            <Box paddingY={'4'}>
+              {[
+                'COLDCARD',
+                'JADE',
+                'KEYSTONE',
+                'TAPSIGNER',
+                'PASSPORT',
+                'LEDGER',
+                'TREZOR',
+                'KEEPER',
+                // 'POLICY_SERVER',
+                // 'MOBILE_KEY',
+              ].map((type: SignerType, index: number) => (
+                <HardWareWallet type={type} first={index === 0} last={index === 9} />
+              ))}
+            </Box>
+
+          </ScrollView>
+          <Text
+            fontSize={RFValue(12)}
+            letterSpacing={0.6}
+            fontWeight={100}
+            color={'light.lightBlack'}
+            width={wp(300)}
+            lineHeight={20}
+            marginTop={hp(20)}
+          >
+            A Signer can be a hardware wallet or a signing device or an app. Most popular ones are
+            listed above. Want support for more.{' '}
+            <Text fontStyle={'italic'} fontWeight={'bold'}>
+              Contact Us
+            </Text>
+          </Text>
+        </Box>
+      </SafeAreaView>
     </Box>
   );
 };
