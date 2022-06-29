@@ -3,6 +3,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext } from 'react';
 import { Text, View } from 'native-base';
+import config, { APP_STAGE } from 'src/core/config';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import DeleteIcon from 'src/assets/images/delete.svg';
@@ -241,8 +242,9 @@ const SetupTapsigner = () => {
           realm.create(RealmSchema.VaultSigner, {
             type: 'TAPSIGNER',
             signerName: 'Tapsigner',
-            signerId: card.card_ident,
-            derivation: status.path,
+            signerId:
+              config.APP_STAGE === APP_STAGE.DEVELOPMENT ? 'ABCD-EFGH-IJKL-MNOP' : card.card_ident,
+            derivation: config.APP_STAGE === APP_STAGE.DEVELOPMENT ? 'm/84h/0h/0h' : status.path,
             xpub,
           });
         });
