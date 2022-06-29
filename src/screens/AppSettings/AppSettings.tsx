@@ -153,10 +153,10 @@ const AppSettings = ({ navigation }) => {
             onPress={() => openLink('https://t.me/HexaWallet')}
           />
         </ScrollView>
-        <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
+        {/* <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note title={common.note} subtitle={settings.desc} />
-        </Box>
-        <Box flex={0.2} mx={7}>
+        </Box> */}
+        <Box flex={0.1} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
