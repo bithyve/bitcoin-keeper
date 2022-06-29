@@ -54,12 +54,12 @@ const ChoosePlanCarousel = (props) => {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 20,
-          paddingVertical: 15,
+          paddingVertical: 20,
         }}
       >
         <Box py={3} alignItems={'center'} justifyContent={'center'}>
           {item.activate && (
-            <Box bg={'light.white'} p={1} borderRadius={10} px={2}>
+            <Box bg={'light.white'} borderRadius={10} px={2}>
               <Text fontSize={RFValue(8)}>Current</Text>
             </Box>
           )}
@@ -83,7 +83,7 @@ const ChoosePlanCarousel = (props) => {
             / month
           </Text>
           {item.upgrade ? (
-            <Box mt={5}>
+            <Box mt={10}>
               <CustomYellowButton value={'Upgrade'} />
             </Box>
           ) : null}
@@ -99,7 +99,7 @@ const ChoosePlanCarousel = (props) => {
         data={planData}
         renderItem={_renderItem}
         sliderWidth={Dimensions.get('screen').width}
-        itemWidth={180}
+        itemWidth={150}
         layout={'default'}
       />
     </Box>
