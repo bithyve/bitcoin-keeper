@@ -30,6 +30,7 @@ export const customTheme = extendTheme({
       white: '#FAFAFA',
       white1: '#FFFFFF',
       lightBlack: '#041513',
+      lightBlack2: '#5F6965',
       brown: '#D8A572',
       textBlack: '#092C27',
       greenText: '#073E39',
@@ -64,6 +65,8 @@ export const customTheme = extendTheme({
       errorRed: '#ff0033',
       textWallet: '#113834',
       transactionPolicyCard: '#FAD8B4',
+      inheritanceBullet: '#E3E3E3',
+      inheritanceTitle: '#055146'
     },
     dark: {
       black: '#000000',

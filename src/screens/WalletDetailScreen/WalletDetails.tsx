@@ -34,6 +34,7 @@ import Recieve from 'src/assets/images/svgs/receive.svg';
 import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Setting from 'src/assets/images/svgs/settings_small.svg';
+import WalletInside from 'src/assets/images/svgs/Wallet_inside.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { WalletType } from 'src/core/wallets/enums';
@@ -276,13 +277,13 @@ const WalletDetails = () => {
         <Pressable onPress={() => navigation.goBack()}>
           <BackIcon />
         </Pressable>
-        <GradientIcon height={48} Icon={Arrow} />
         <Pressable>
           <ScannerIcon />
         </Pressable>
       </Box>
 
-      <Box alignItems={'center'}>
+      <Box alignItems={'center'} marginTop={-hp(30)}>
+        <GradientIcon height={48} Icon={WalletInside} />
         <Text
           color={'light.textWallet'}
           letterSpacing={0.96}
@@ -294,7 +295,7 @@ const WalletDetails = () => {
         </Text>
 
         <Box flexDirection={'row'} alignItems={'flex-end'} height={10}>
-          <Box marginRight={wp(1.5)} paddingBottom={hp(7)}>
+          <Box marginRight={1} paddingBottom={hp(12)}>
             <BTC />
           </Box>
           <Text
@@ -334,10 +335,13 @@ const WalletDetails = () => {
               fontSize={RFValue(10)}
               fontWeight={200}
             >
-              Secure to Vault after <Text fontWeight={'bold'}>0.1 btc</Text>
+              Secure to Vault after <Text fontWeight={'bold'}>0.0001฿</Text>
             </Text>
           </Box>
-          <Pressable>
+
+          <Pressable
+            onPress={() => navigation.navigate('SendConfirmation', { isVaultTransfer: true })}
+          >
             <GradientIcon height={38} Icon={Arrow} />
           </Pressable>
         </Box>
@@ -463,8 +467,8 @@ const WalletDetails = () => {
             noOfLines={2}
             fontWeight={100}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et
+            Add another wallet for keeping the funds separate or to link it to another external
+            wallet
           </Text>
         </Box>
       )}

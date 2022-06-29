@@ -208,7 +208,6 @@ const styles = ScaledSheet.create({
   walletContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    backgroundColor: '#FCF6EF',
     height: hp(50),
     width: '100%',
     borderRadius: 12,

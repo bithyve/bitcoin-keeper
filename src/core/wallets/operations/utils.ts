@@ -236,7 +236,7 @@ export default class WalletUtilities {
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
         return publicKey
-          ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
+          ? WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
     }
 
