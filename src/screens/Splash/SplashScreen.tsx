@@ -1,14 +1,9 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StatusBar, ImageBackground } from 'react-native';
+import Video from 'react-native-video';
 import * as SecureStore from '../../storage/secure-store';
 
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-  },
-});
+import SplashBackground from 'src/assets/images/SplashBackground.png';
 
 const SplashScreen = ({ navigation }) => {
   useEffect(() => {
@@ -19,13 +14,24 @@ const SplashScreen = ({ navigation }) => {
       } else {
         navigation.replace('CreatePin');
       }
-    }, 500);
+    }, 8000);
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text>Keeper</Text>
-    </View>
+    <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={SplashBackground}>
+      <StatusBar barStyle={'light-content'} />
+      <Video
+        source={require('src/assets/video/Splash_animation.mp4')}
+        style={{
+          flex: 1,
+        }}
+        muted={true}
+        repeat={false}
+        resizeMode={'cover'}
+        rate={1.0}
+        ignoreSilentSwitch={'obey'}
+      />
+    </ImageBackground>
   );
 };
 
