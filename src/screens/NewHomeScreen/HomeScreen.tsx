@@ -74,9 +74,7 @@ const InheritanceComponent = () => {
 const LinkedWallets = (props) => {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
-    .map(getJSONFromRealmObject)
-    .filter((wallet) => wallet.type !== WalletType.READ_ONLY);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
 
   return (
@@ -164,8 +162,8 @@ const VaultStatus = (props) => {
   const vaultTranslations = translations['vault'];
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const vault: Vault = useQuery(RealmSchema.Vault);
-  const Signers = vault?.signers || [];
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers || [];
 
   const open = () => {
     if (Signers.length) {

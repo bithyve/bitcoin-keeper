@@ -19,45 +19,43 @@ import {
 } from '../interfaces/';
 import { WalletType, DerivationPurpose, TxPriority } from '../enums';
 import { MultiSigWallet, Wallet } from '../interfaces/wallet';
+import { Vault } from '../interfaces/vault';
 
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
-    wallet: Wallet | MultiSigWallet
-  ): { updatedWallet: Wallet | MultiSigWallet; receivingAddress: string } => {
+    wall: Wallet | Vault
+  ): { updatedWall: Wallet | Vault; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    if ((wallet as MultiSigWallet).specs.is2FA)
+    const network = WalletUtilities.getNetworkByType(wall.networkType);
+    if ((wall as Vault).isMultiSig) {
+      const xpubs = (wall as Vault).specs.xpubs;
       receivingAddress = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
+        xpubs,
+        xpubs.length,
         network,
-        wallet.specs.nextFreeAddressIndex,
+        wall.specs.nextFreeAddressIndex,
         false
       ).address;
-    else {
-      const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
+    } else {
+      const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes((wall as Wallet).type)
         ? DerivationPurpose.BIP84
         : DerivationPurpose.BIP49;
       receivingAddress = WalletUtilities.getAddressByIndex(
-        wallet.specs.xpub,
+        (wall as Wallet).specs.xpub,
         false,
-        wallet.specs.nextFreeAddressIndex,
+        (wall as Wallet).specs.nextFreeAddressIndex,
         network,
         purpose
       );
     }
 
-    wallet.specs.activeAddresses.external[receivingAddress] = wallet.specs.nextFreeAddressIndex;
-    wallet.specs.nextFreeAddressIndex++;
+    wall.specs.activeAddresses.external[receivingAddress] = wall.specs.nextFreeAddressIndex;
+    wall.specs.nextFreeAddressIndex++;
     return {
-      updatedWallet: wallet,
+      updatedWall: wall,
       receivingAddress,
     };
   };
