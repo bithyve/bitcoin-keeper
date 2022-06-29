@@ -42,9 +42,9 @@ export interface VaultScheme {
 
 export interface VaultSigner {
   signerId: string;
-  signerName: string;
   type: SignerType;
   xpub: string;
+  signerName?: string;
   xpubInfo?: {
     derivationPath?: string;
   };

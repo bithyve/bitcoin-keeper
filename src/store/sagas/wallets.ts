@@ -164,6 +164,9 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
   const { vaultShellInstances } = app;
   const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
 
+  if (vaultScheme.n !== vaultSigners.length)
+    throw new Error('Vault schema(n) and signers mismatch');
+
   let vaultShell: VaultShell;
   let newVaultShell: boolean = false;
   if (vaultShellInstances.shells.length === 0) {
