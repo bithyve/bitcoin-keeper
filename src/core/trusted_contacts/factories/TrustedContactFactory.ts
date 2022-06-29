@@ -1,6 +1,6 @@
 import idx from 'idx';
 import crypto from 'crypto';
-import { ContactDetails, TrustedContact, UnecryptedStreamData } from './interfaces/interface';
+import { ContactDetails, TrustedContact, UnecryptedStreamData } from '../interfaces';
 
 export function generateTrustedContact({
   contactDetails,

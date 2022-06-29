@@ -18,7 +18,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { useNavigation } from '@react-navigation/native';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';

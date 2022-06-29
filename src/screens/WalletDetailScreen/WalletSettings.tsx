@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
+import Modal from 'react-native-modal';
+
 //components and functions
+import ShowXPub from 'src/components/XPub/ShowXPub';
+import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import Header from 'src/components/Header';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
@@ -12,19 +16,18 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 
 type Props = {
-  title: string,
-  subTitle: string,
-  onPress: () => void
-}
+  title: string;
+  subTitle: string;
+  onPress: () => void;
+};
 
 const WalletSettings = () => {
   const navigtaion = useNavigation();
+  //
+  const [xpubVisible, setXPubVisible] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
-  const Option = ({
-    title,
-    subTitle,
-    onPress
-  }: Props) => {
+  const Option = ({ title, subTitle, onPress }: Props) => {
     return (
       <Pressable
         flexDirection={'row'}
@@ -59,7 +62,7 @@ const WalletSettings = () => {
         </Box>
       </Pressable>
     );
-  }
+  };
 
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
@@ -73,25 +76,27 @@ const WalletSettings = () => {
           fontSize={20}
         />
       </Box>
-      <Box
-        marginTop={hp(60)}
-        alignItems={'center'}
-        paddingX={wp(25)}
-      >
+      <Box marginTop={hp(60)} alignItems={'center'} paddingX={wp(25)}>
         <Option
           title={'Wallet Details'}
           subTitle={'Change wallet name & description'}
-          onPress={() => { console.log('Wallet Details') }}
+          onPress={() => {
+            console.log('Wallet Details');
+          }}
         />
         <Option
           title={'Show xPub'}
           subTitle={'Use to create a external watch-only wallet'}
-          onPress={() => { console.log('Show xPub') }}
+          onPress={() => {
+            setXPubVisible(true);
+          }}
         />
         <Option
           title={'Wallet seed words'}
           subTitle={'Use to link external wallets to Keeper'}
-          onPress={() => { console.log('Wallet seed words') }}
+          onPress={() => {
+            setConfirmPassVisible(true);
+          }}
         />
       </Box>
 
@@ -99,10 +104,48 @@ const WalletSettings = () => {
       <Box position={'absolute'} bottom={hp(45)} marginX={5}>
         <InfoBox
           title={'Note'}
-          desciption={'These settings are for your Default Wallet only and does not affect other wallets'}
+          desciption={
+            'These settings are for your Default Wallet only and does not affect other wallets'
+          }
           width={250}
         />
       </Box>
+      {/* Modals */}
+      <Box>
+        <Modal
+          isVisible={xpubVisible}
+          onSwipeComplete={() => setXPubVisible(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <ShowXPub
+            closeBottomSheet={() => {
+              setXPubVisible(false);
+            }}
+          />
+        </Modal>
+        <Modal
+          isVisible={confirmPassVisible}
+          onSwipeComplete={() => setConfirmPassVisible(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <SeedConfirmPasscode
+            closeBottomSheet={() => {
+              setConfirmPassVisible(false);
+            }}
+          />
+        </Modal>
+      </Box>
+      {/* end */}
     </Box>
   );
 };

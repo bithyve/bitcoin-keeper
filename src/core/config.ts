@@ -4,7 +4,7 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import axios, { AxiosInstance } from 'axios';
 
 import PersonalNode from '../common/data/models/PersonalNode';
-import { WalletType } from './wallets/interfaces/enum';
+import { WalletType } from './wallets/enums';
 import _ from 'lodash';
 import config from 'react-native-config';
 
@@ -53,10 +53,6 @@ class Configuration {
     : DEFAULT_CONFIG.ENC_KEY_STORAGE_IDENTIFIER;
 
   public WALLET_INSTANCES = {
-    [WalletType.TEST]: {
-      series: 0,
-      upperBound: 1,
-    },
     [WalletType.CHECKING]: {
       series: 0,
       upperBound: 10,
@@ -65,20 +61,8 @@ class Configuration {
       series: 0,
       upperBound: 10,
     },
-    [WalletType.SAVINGS]: {
-      series: 10,
-      upperBound: 10,
-    },
-    [WalletType.DONATION]: {
-      series: 20,
-      upperBound: 10,
-    },
     [WalletType.SWAN]: {
       series: 30,
-      upperBound: 10,
-    },
-    [WalletType.DEPOSIT]: {
-      series: 40,
       upperBound: 10,
     },
     [WalletType.LIGHTNING]: {

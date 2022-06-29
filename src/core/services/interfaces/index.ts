@@ -1,4 +1,4 @@
-import { notificationTag, notificationType } from './enum';
+import { notificationTag, notificationType } from '../enums';
 
 export interface INotification {
   notificationType: notificationType;

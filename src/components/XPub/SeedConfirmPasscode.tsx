@@ -18,9 +18,9 @@ import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletType } from 'src/core/wallets/enums';
 
 const SeedConfirmPasscode = (props) => {
   const navigation = useNavigation();

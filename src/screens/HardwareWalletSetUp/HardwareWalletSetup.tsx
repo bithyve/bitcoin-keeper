@@ -1,4 +1,4 @@
-import { Box, Text, View, Image } from 'native-base';
+import { Box, Text, View } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
-import { SignerType } from 'src/core/wallets/interfaces/enum';
+import { SignerType } from 'src/core/wallets/enums';
 import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { TouchableOpacity } from 'react-native';

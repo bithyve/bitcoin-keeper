@@ -1,7 +1,7 @@
 import { Box, Pressable, Text } from 'native-base';
 import { ImageBackground, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
-import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import {
   getAccountCardHeight,
   getTransactionPadding,
@@ -37,6 +37,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   return (

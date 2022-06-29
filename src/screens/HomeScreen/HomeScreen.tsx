@@ -36,7 +36,7 @@ import { loginWithHexa } from 'src/store/sagaActions/wallets';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
+import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 type Props = {
@@ -66,8 +66,8 @@ const HomeScreen = ({ navigation, route }: Props) => {
   );
   const allWallets = [...defaultWallets, ...wallets, { isEnd: true }];
 
-  const { translations } = useContext( LocalizationContext )
-  const home = translations[ 'home' ]
+  const { translations } = useContext(LocalizationContext);
+  const home = translations['home'];
 
   async function storeFCMToken() {
     const fcmToken = await messaging().getToken();
@@ -205,7 +205,8 @@ const HomeScreen = ({ navigation, route }: Props) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        {backupKeys.length - 1} {home.BackupKey}{backupKeys.length - 1 > 1 && 's'}
+        {backupKeys.length - 1} {home.BackupKey}
+        {backupKeys.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}
@@ -230,7 +231,8 @@ const HomeScreen = ({ navigation, route }: Props) => {
         fontFamily={'body'}
         fontWeight={'200'}
       >
-        {allWallets?.length - 1} {home.wallet}{allWallets?.length - 1 > 1 && 's'}
+        {allWallets?.length - 1} {home.wallet}
+        {allWallets?.length - 1 > 1 && 's'}
       </Text>
       <Text
         style={styles.securingFundsText}

@@ -1,13 +1,9 @@
 import { Action } from 'redux';
 import { Satoshis } from '../../common/data/typealiases/UnitAliases';
-import {
-  MultiSigWallet,
-  TransactionPrerequisite,
-  TransactionPrerequisiteElements,
-  Wallet,
-} from 'src/core/wallets/interfaces/interface';
-import { TxPriority } from 'src/core/wallets/interfaces/enum';
+import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TxPriority } from 'src/core/wallets/enums';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
+import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';

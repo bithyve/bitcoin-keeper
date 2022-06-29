@@ -1,7 +1,7 @@
 import { BackHandler, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, Text } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
-import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import {
   getTransactionPadding,
   hp,
@@ -37,12 +37,13 @@ import Setting from 'src/assets/images/svgs/settings_small.svg';
 import WalletInside from 'src/assets/images/svgs/Wallet_inside.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -442,9 +443,10 @@ const WalletDetails = () => {
             <TouchableOpacity
               style={styles.IconText}
               onPress={() => {
-                navigation.navigate('ExportSeed', {
-                  seed: currentWallet?.derivationDetails?.mnemonic,
-                });
+                navigation.navigate('WalletSettings');
+                // navigation.navigate('ExportSeed', {
+                //   seed: currentWallet?.derivationDetails?.mnemonic,
+                // });
               }}
             >
               <IconSettings />

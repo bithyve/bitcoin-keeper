@@ -3,7 +3,7 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
-import config from '../config';
+import config from '../../config';
 import _ from 'lodash';
 import idx from 'idx';
 import {
@@ -12,19 +12,13 @@ import {
   NetworkType,
   TransactionType,
   PaymentInfoKind,
-} from './interfaces/enum';
-import {
-  ActiveAddresses,
-  DonationWallet,
-  MultiSigWallet,
-  Transaction,
-  TransactionToAddressMapping,
-  Wallet,
-} from './interfaces/interface';
+} from '../enums';
+import { ActiveAddresses, Transaction, TransactionToAddressMapping } from '../interfaces/';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
+import { MultiSigWallet, Wallet } from '../interfaces/wallet';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -514,7 +508,7 @@ export default class WalletUtilities {
         lastUsedAddressIndex: number;
         lastUsedChangeAddressIndex: number;
         walletType: string;
-        transactionsNote: {
+        transactionNote: {
           [txId: string]: string;
         };
         contactName?: string;
@@ -647,7 +641,7 @@ export default class WalletUtilities {
           cachedTransactionMapping,
           walletType,
           walletName,
-          transactionsNote,
+          transactionNote,
         } = wallets[walletId];
         const { Utxos, Txs } = walletToResponseMapping[walletId];
         const UTXOs = cachedUTXOs;
@@ -708,7 +702,7 @@ export default class WalletUtilities {
                 //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                 //     address: addressInfo.Address,
                 //     isNew: true,
-                //     notes: transactionsNote[tx.txid],
+                //     notes: transactionNote[tx.txid],
                 //   };
 
                 //   const incomingTx: Transaction = {
@@ -725,7 +719,7 @@ export default class WalletUtilities {
                 //     senderAddresses: tx.SenderAddresses,
                 //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
                 //     isNew: true,
-                //     notes: transactionsNote[tx.txid],
+                //     notes: transactionNote[tx.txid],
                 //   };
 
                 //   newTxs.push(...[outgoingTx, incomingTx]);
@@ -748,7 +742,7 @@ export default class WalletUtilities {
                   blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(), // only available when tx is confirmed; otherwise set to the current timestamp
                   address: addressInfo.Address,
                   isNew: true,
-                  notes: transactionsNote[tx.txid],
+                  notes: transactionNote[tx.txid],
                 };
 
                 newTxs.push(transaction);

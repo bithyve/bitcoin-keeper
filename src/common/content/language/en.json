@@ -372,5 +372,10 @@
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signers, without any intermediate step",
     "slide06Title": "Affordable plans\nand a great offer",
     "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your Vault now."
+  },
+  "choosePlan": {
+    "choosePlantitle": "Choose your plan",
+    "choosePlanSubTitle": "Lorem ipsum dolor sit amet",
+    "noteSubTitle": "This purchase would be made on the App Store Lorem ipsum dolor sit amet, consectetur adipiscing elit"
   }
 }

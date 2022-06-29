@@ -14,9 +14,9 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
-import { generateVault } from 'src/core/wallets/VaultFactory';
+import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const StepState = ({ index, active, done }) => {
@@ -193,7 +193,7 @@ const SetupTapsigner = () => {
 
   const createVault = useCallback((xpub) => {
     try {
-      const newWalletsInfo = {
+      const newWalletInfo = {
         walletType: WalletType.READ_ONLY,
         walletDetails: {
           name: 'Vault',
@@ -203,7 +203,7 @@ const SetupTapsigner = () => {
           xpub,
         },
       };
-      dispatch(addNewWallets([newWalletsInfo]));
+      dispatch(addNewWallets([newWalletInfo]));
       return true;
     } catch (err) {
       console.log(err);

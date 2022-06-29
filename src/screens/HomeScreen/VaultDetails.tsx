@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BTC from 'src/assets/images/btc_white.svg';
@@ -31,11 +31,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;

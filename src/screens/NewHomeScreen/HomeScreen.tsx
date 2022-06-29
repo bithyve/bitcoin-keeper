@@ -29,14 +29,15 @@ import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletType } from 'src/core/wallets/enums';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -80,9 +81,7 @@ const InheritanceComponent = () => {
 const LinkedWallets = (props) => {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
-    .map(getJSONFromRealmObject)
-    .filter((wallet) => wallet.type !== WalletType.READ_ONLY);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
 
   return (
@@ -170,10 +169,11 @@ const VaultStatus = (props) => {
   const [icons, setIcons] = useState([<TapsignerIcon />])
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
-  const vault = translations['vault'];
+  const vaultTranslations = translations['vault'];
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const Signers = useQuery(RealmSchema.VaultSigner);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers || [];
 
   useEffect(() => {
     if (props.level === 1) {
@@ -305,11 +305,11 @@ const VaultStatus = (props) => {
       <KeeperModal
         visible={visible}
         close={close}
-        title={vault.SetupyourVault}
-        subTitle={vault.VaultDesc}
+        title={vaultTranslations.SetupyourVault}
+        subTitle={vaultTranslations.VaultDesc}
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vault.Addsigner}
+        buttonText={vaultTranslations.Addsigner}
         buttonTextColor={'#073E39'}
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}

@@ -4,7 +4,7 @@ import ColdCardIcon from 'src/assets/images/svgs/coldcard_tile.svg';
 import LaptopIcon from 'src/assets/images/svgs/laptop_tile.svg';
 import PdfIcon from 'src/assets/images/svgs/pdf_tile.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export interface BACKUP_KEYS {
   id: string;

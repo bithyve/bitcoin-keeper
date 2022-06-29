@@ -114,7 +114,6 @@ export const WalletPresentationDataSchema: ObjectSchema = {
     walletName: 'string',
     walletDescription: 'string',
     walletVisibility: 'string',
-    isSynching: 'bool',
   },
 };
 
@@ -124,7 +123,6 @@ export const WalletSpecsSchema: ObjectSchema = {
   properties: {
     xpub: 'string',
     xpriv: 'string?',
-    receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
     activeAddresses: RealmSchema.ActiveAddresses,
@@ -138,7 +136,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     hasNewTxn: 'bool?',
     txIdCache: '{}',
     transactionMapping: `${RealmSchema.TransactionToAddressMapping}[]`,
-    transactionsNote: '{}',
+    transactionNote: '{}',
   },
 };
 
@@ -147,6 +145,7 @@ export const WalletSchema: ObjectSchema = {
   properties: {
     id: 'string',
     walletShellId: 'string',
+    entityKind: 'string',
     type: 'string',
     networkType: 'string',
     isUsable: 'bool',
