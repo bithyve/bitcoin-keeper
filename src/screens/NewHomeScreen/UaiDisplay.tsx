@@ -26,7 +26,6 @@ const UaiDisplay = ({ uaiStack }) => {
             btnText: 'Update',
           },
           cta: () => {
-            console.log('asdfasd');
             setShowModal(false);
             uaiSetActionFalse();
           },
