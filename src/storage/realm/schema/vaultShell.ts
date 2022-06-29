@@ -6,7 +6,7 @@ export const VaultShellSchema: ObjectSchema = {
   properties: {
     id: 'string',
     vaultInstances: '{}',
-    inheritancePolicyId: 'string',
+    inheritancePolicyId: 'string?',
   },
   primaryKey: 'id',
 };

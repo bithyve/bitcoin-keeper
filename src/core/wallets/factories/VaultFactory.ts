@@ -8,7 +8,7 @@ import {
   VaultSpecs,
 } from '../interfaces/vault';
 
-export const generateVault = async ({
+export const generateVault = ({
   type,
   vaultShellId,
   vaultName,
@@ -24,7 +24,7 @@ export const generateVault = async ({
   scheme: VaultScheme;
   signers: VaultSigner[];
   networkType: NetworkType;
-}): Promise<Vault> => {
+}): Vault => {
   const xpubs = signers.map((signer) => signer.xpub);
   const id = crypto.createHash('sha256').update(xpubs.join('')).digest('hex');
 

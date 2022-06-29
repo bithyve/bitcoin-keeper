@@ -1,6 +1,6 @@
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet, MultiSigWallet } from 'src/core/wallets/interfaces/wallet';
-import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
+import { newVaultInfo, newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -18,6 +18,7 @@ export const REMOVE_TWO_FA = 'REMOVE_TWO_FA';
 export const VALIDATE_TWO_FA = 'VALIDATE_TWO_FA';
 export const SETUP_DONATION_WALLET = 'SETUP_DONATION_WALLET';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
+export const ADD_NEW_VAULT = 'ADD_NEW_VAULT';
 export const IMPORT_NEW_WALLET = 'IMPORT_NEW_WALLET';
 export const LOGIN_WITH_HEXA = 'LOGIN_WITH_HEXA';
 export const UPDATE_WALLET_SETTINGS = 'UPDATE_WALLET_SETTINGS';
@@ -177,6 +178,13 @@ export const refreshWallets = (
 export const addNewWallets = (payload: newWalletInfo[]) => {
   return {
     type: ADD_NEW_WALLETS,
+    payload,
+  };
+};
+
+export const addNewVault = (payload: newVaultInfo) => {
+  return {
+    type: ADD_NEW_VAULT,
     payload,
   };
 };

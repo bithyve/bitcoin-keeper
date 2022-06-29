@@ -31,6 +31,7 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -160,10 +161,11 @@ const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
-  const vault = translations['vault'];
+  const vaultTranslations = translations['vault'];
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const Signers = useQuery(RealmSchema.VaultSigner);
+  const vault: Vault = useQuery(RealmSchema.Vault);
+  const Signers = vault?.signers || [];
 
   const open = () => {
     if (Signers.length) {
@@ -265,11 +267,11 @@ const VaultStatus = (props) => {
       <KeeperModal
         visible={visible}
         close={close}
-        title={vault.SetupyourVault}
-        subTitle={vault.VaultDesc}
+        title={vaultTranslations.SetupyourVault}
+        subTitle={vaultTranslations.VaultDesc}
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vault.Addsigner}
+        buttonText={vaultTranslations.Addsigner}
         buttonTextColor={'#073E39'}
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}

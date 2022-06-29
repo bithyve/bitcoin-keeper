@@ -12,12 +12,12 @@ export const Scheme = {
 
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
-  primaryKey: 'signerId',
+  embedded: true,
   properties: {
     signerId: 'string',
-    signerName: 'string',
     type: 'string',
     xpub: 'string',
+    signerName: 'string?',
     xpubInfo: {
       type: '{}?',
       properties: {
@@ -39,6 +39,7 @@ export const VaultPresentationDataSchema: ObjectSchema = {
 
 export const VaultSpecsSchema: ObjectSchema = {
   name: RealmSchema.VaultSpecs,
+  embedded: true,
   properties: {
     xpubs: 'string[]',
     nextFreeAddressIndex: 'int',

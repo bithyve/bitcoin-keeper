@@ -11,6 +11,7 @@ import {
   REFRESH_WALLETS,
   AUTO_SYNC_WALLETS,
   ADD_NEW_WALLETS,
+  ADD_NEW_VAULT,
 } from '../sagaActions/wallets';
 import config, { APP_STAGE } from 'src/core/config';
 import { setNetBalance } from 'src/store/reducers/wallets';
@@ -24,7 +25,8 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { VaultShell } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 
 export interface newWalletDetails {
   name?: string;
@@ -152,44 +154,64 @@ export const addNewWalletsWatcher = createWatcher(addNewWalletsWorker, ADD_NEW_W
 export type newVaultDetails = newWalletDetails;
 export interface newVaultInfo {
   vaultType: VaultType;
+  vaultScheme: VaultScheme;
+  vaultSigners: VaultSigner[];
   vaultDetails?: newVaultDetails;
-  signerDetails: {};
 }
 
-export function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }) {
-  const { vaultType, vaultDetails, signerDetails } = newVaultInfo;
-  const vault: Vault = {};
-  yield call(dbManager.createObject, RealmSchema.Vault, vault);
-
+function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-
   const { vaultShellInstances } = app;
+  const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
+
+  if (vaultScheme.n !== vaultSigners.length)
+    throw new Error('Vault schema(n) and signers mismatch');
+
   let vaultShell: VaultShell;
+  let newVaultShell: boolean = false;
   if (vaultShellInstances.shells.length === 0) {
     vaultShell = {
       id: crypto.randomBytes(12).toString('hex'),
-      vaultInstances: {
-        [vault.type]: 1,
-      },
+      vaultInstances: {},
     };
-    yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
-    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-      vaultShellInstances: {
-        shells: [vaultShell.id],
-        activeShell: vaultShell.id,
-      },
-    });
+    newVaultShell = true;
   } else {
     vaultShell = yield call(
       dbManager.getObjectById,
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
     );
+  }
+
+  const networkType =
+    config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+
+  const vault: Vault = yield call(generateVault, {
+    type: vaultType,
+    vaultShellId: vaultShell.id,
+    vaultName: vaultDetails.name,
+    vaultDescription: vaultDetails.description,
+    scheme: vaultScheme,
+    signers: vaultSigners,
+    networkType,
+  });
+  yield call(dbManager.createObject, RealmSchema.Vault, vault);
+
+  if (!newVaultShell) {
     let presentVaultInstances = { ...vaultShell.vaultInstances };
     presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
 
     yield call(dbManager.updateObjectById, RealmSchema.WalletShell, vaultShell.id, {
       vaultInstances: presentVaultInstances,
+    });
+  } else {
+    vaultShell.vaultInstances[vault.type] = 1;
+    yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
+    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+      vaultShellInstances: {
+        shells: [vaultShell.id],
+        activeShell: vaultShell.id,
+      },
     });
   }
 }
