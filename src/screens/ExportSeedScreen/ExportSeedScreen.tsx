@@ -13,13 +13,19 @@ const ExportSeedScreen = ({ route }) => {
   const seed = route.params.seed;
 
   const [showSeedWord, setShowSeedWord] = useState('');
+  const [showHideStatus, setShowHideStatus] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
   const seedText = translations['seed'];
 
   const SeedCard = ({ item, index }: { item; index }) => {
     return (
-      <TouchableOpacity style={{ width: '50%' }} onPress={() => setShowSeedWord(item)}>
+      <TouchableOpacity
+        style={{ width: '50%' }}
+        onPress={() => {
+          setShowSeedWord(item), setShowHideStatus(!showHideStatus);
+        }}
+      >
         <Box
           backgroundColor={'light.lightYellow'}
           flexDirection={'row'}
@@ -27,7 +33,7 @@ const ExportSeedScreen = ({ route }) => {
           borderRadius={10}
           marginX={3}
           marginY={1.5}
-          opacity={showSeedWord == item ? 1 : 0.5}
+          opacity={showHideStatus && showSeedWord == item ? 1 : 0.5}
         >
           <Text
             fontSize={20}
@@ -46,7 +52,7 @@ const ExportSeedScreen = ({ route }) => {
             letterSpacing={1}
             color={'light.seedText'}
           >
-            {showSeedWord == item ? item : '******'}
+            {showHideStatus && showSeedWord == item ? item : '******'}
           </Text>
         </Box>
       </TouchableOpacity>

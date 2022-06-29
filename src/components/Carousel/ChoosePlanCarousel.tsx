@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Carousel from 'react-native-snap-carousel';
@@ -8,14 +8,16 @@ import CustomYellowButton from '../CustomButton/CustomYellowButton';
 import Basic from 'src/assets/images/svgs/basic.svg';
 import Elite from 'src/assets/images/svgs/elitePlan.svg';
 import Pro from 'src/assets/images/svgs/expert.svg';
+
 const planData = [
   {
     id: 1,
     title: 'Basic',
-    subTitle: 'Lorem ipsum dolor sit amet,',
+    subTitle: 'Lorem ipsum',
     amount: '0',
     upgrade: false,
     icon: <Basic />,
+    activate: true,
   },
   {
     id: 2,
@@ -24,35 +26,43 @@ const planData = [
     amount: '5',
     upgrade: true,
     icon: <Pro />,
+    activate: false,
   },
   {
     id: 3,
     title: 'Elite',
-    subTitle: 'Lorem ipsum dolor sit amet,',
+    subTitle: 'Lorem ipsum',
     amount: '10',
     upgrade: false,
     icon: <Elite />,
+    activate: false,
   },
 ];
 
-const ChoosePlanCarousel = () => {
+const ChoosePlanCarousel = (props) => {
+  const [currentPosition, setCurrentPosition] = useState(0);
   const carasualRef = useRef<Carousel<FlatList>>(null);
   const _onSnapToItem = (index) => {
-    // console.log('index', index);
-    // carasualRef.snapCallback(index, planData);
-    // carasualRef.onSnapToItem(index, planData);
+    setCurrentPosition(index);
+    props.onChange(index);
   };
-  const _renderItem = ({ item }) => {
+  const _renderItem = ({ item, index }) => {
     return (
       <LinearGradient
-        colors={['#00836A', '#073E39']}
+        colors={currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484']}
         style={{
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 20,
+          paddingVertical: 20,
         }}
       >
         <Box py={3} alignItems={'center'} justifyContent={'center'}>
+          {item.activate && (
+            <Box bg={'light.white'} borderRadius={10} px={2}>
+              <Text fontSize={RFValue(8)}>Current</Text>
+            </Box>
+          )}
           <Box my={15}>{item.icon}</Box>
           <Text
             fontSize={RFValue(13)}
@@ -73,7 +83,7 @@ const ChoosePlanCarousel = () => {
             / month
           </Text>
           {item.upgrade ? (
-            <Box mt={5}>
+            <Box mt={10}>
               <CustomYellowButton value={'Upgrade'} />
             </Box>
           ) : null}
@@ -89,7 +99,7 @@ const ChoosePlanCarousel = () => {
         data={planData}
         renderItem={_renderItem}
         sliderWidth={Dimensions.get('screen').width}
-        itemWidth={Dimensions.get('screen').width - 150}
+        itemWidth={150}
         layout={'default'}
       />
     </Box>
