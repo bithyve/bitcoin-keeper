@@ -1,4 +1,4 @@
-import { Modal, Text } from 'native-base';
+import { Box, Modal, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
@@ -64,7 +64,7 @@ const KeeperModal = (props) => {
           <Modal.Body>
             <Content />
           </Modal.Body>
-          <Modal.Footer alignSelf={'flex-end'} bg={'transparent'}>
+          <Box alignSelf={'flex-end'} bg={'transparent'}>
             <TouchableOpacity onPress={buttonCallback}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
@@ -83,7 +83,7 @@ const KeeperModal = (props) => {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
-          </Modal.Footer>
+          </Box>
         </LinearGradient>
       </Modal.Content>
     </Modal>

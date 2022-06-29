@@ -17,7 +17,7 @@
     "share": "Share",
     "note": "Note",
     "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et",
-    "smalldesc": "Lorem ipsum dolor sit amet, consectetur",
+    "smalldesc": "Provide a bitcoin address or select a wallet",
     "optional": "Optional",
     "tryAgain": "Try again",
     "today": "Today",
@@ -61,7 +61,8 @@
     "FAQs": "FAQ's",
     "TermsConditions": "Terms and Conditions",
     "PrivacyPolicy": "Privacy Policy",
-    "ViewSeed": "View Seed"
+    "ViewSeed": "View Seed",
+    "EditDetails": "Edit Details"
   },
   "noInternet": {
     "no": "No Internet",
