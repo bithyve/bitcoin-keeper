@@ -71,6 +71,7 @@ const WalletDetails = () => {
     const walletName = item?.presentationData?.walletName;
     const walletDescription = item?.presentationData?.walletDescription;
     const balances = item?.specs?.balances;
+    const walletBalance = balances?.confirmed + balances?.unconfirmed
 
     return (
       <LinearGradient
@@ -163,10 +164,10 @@ const WalletDetails = () => {
               <Text
                 color={'light.white'}
                 letterSpacing={1.2}
-                fontSize={RFValue(24)}
+                fontSize={hp(24)}
                 fontWeight={200}
               >
-                {balances.confirmed + balances.unconfirmed}
+                {walletBalance < 99.9999 ? (walletBalance / 10e8).toFixed(4) : 99.9999}
               </Text>
             </Box>
           </>
@@ -233,7 +234,7 @@ const WalletDetails = () => {
             marginX={2}
             marginRight={3}
           >
-            {transaction.amount}
+            {transaction.amount < 99.9999 ? (transaction.amount / 10e8).toFixed(4) : 99.9999}
           </Text>
           <Box>
             <IconArrowGrey />
@@ -293,17 +294,17 @@ const WalletDetails = () => {
           {wallets?.length} Linked Wallets
         </Text>
 
-        <Box flexDirection={'row'} alignItems={'flex-end'} height={10}>
-          <Box marginRight={1} paddingBottom={hp(12)}>
+        <Box flexDirection={'row'} alignItems={'center'} height={10}>
+          <Box marginRight={1} marginBottom={-2}>
             <BTC />
           </Box>
           <Text
             color={'light.textWallet'}
             letterSpacing={1.5}
-            fontSize={RFValue(26)}
+            fontSize={hp(30)}
             fontWeight={200}
           >
-            {netBalance}
+            {netBalance < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
           </Text>
         </Box>
       </Box>

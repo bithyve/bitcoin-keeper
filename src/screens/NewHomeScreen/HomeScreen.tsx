@@ -121,17 +121,19 @@ const LinkedWallets = (props) => {
         </Box>
         <Pressable onPress={() => props.onAmountPress()}>
           {props.showHideAmounts ? (
-            <Text
-              color={'light.white1'}
-              letterSpacing={0.6}
-              fontSize={RFValue(30)}
-              fontWeight={200}
-            >
-              <Box padding={1} marginBottom={0.5}>
+            <Box flexDirection={'row'} alignItems={'center'}>
+              <Box padding={1} marginBottom={-1}>
                 <BTC />
               </Box>
-              {netBalance}
-            </Text>
+              <Text
+                color={'light.white1'}
+                letterSpacing={0.6}
+                fontSize={hp(30)}
+                fontWeight={200}
+              >
+                {netBalance < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
+              </Text>
+            </Box>
           ) : (
             <Box flexDirection={'row'} alignItems={'center'}>
               <BTC />
@@ -287,10 +289,10 @@ const VaultStatus = (props) => {
                     p={1}
                     color={'light.white1'}
                     letterSpacing={0.8}
-                    fontSize={RFValue(34)}
+                    fontSize={hp(34)}
                     fontWeight={200}
                   >
-                    {vaultBalance}
+                    {vaultBalance < 99.9999 ? (vaultBalance / 10e8).toFixed(4) : 99.9999}
                   </Text>
                 ) : (
                   <Hidden />
