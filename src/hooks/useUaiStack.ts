@@ -15,7 +15,6 @@ export const useUaiStack = () => {
   const UAIcollection = useQuery(RealmSchema.UAI);
   const dispatch = useDispatch();
   const { hasCreds } = useAppSelector((state) => state.login);
-
   //TO-DO Will be removed
   const addtoDb = () => {
     dispatch(
@@ -47,6 +46,10 @@ export const useUaiStack = () => {
     );
   };
 
+  useEffect(() => {
+    if (hasCreds) addtoDb();
+  }, [hasCreds]);
+
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const Vault: Wallet = useQuery(RealmSchema.Wallet)
     .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
@@ -54,9 +57,6 @@ export const useUaiStack = () => {
 
   //creation of default stack
   useEffect(() => {
-    if (hasCreds) {
-      addtoDb();
-    }
     if (netBalance >= 10000) {
       dispatch(
         addToUaiStack(
@@ -71,6 +71,7 @@ export const useUaiStack = () => {
     const uai_SECURE_VAULT = UAIcollection.filter(
       (uai) => uai.uaiType === uaiType.SECURE_VAULT && uai.isActioned === false
     )[0];
+
     if (!Vault) {
       if (!uai_SECURE_VAULT) {
         dispatch(
@@ -84,6 +85,7 @@ export const useUaiStack = () => {
         );
       }
     }
+
     if (Vault && uai_SECURE_VAULT) {
       let updatedUai: UAI = JSON.parse(JSON.stringify(uai_SECURE_VAULT)); //Need to get a better way
       updatedUai = { ...updatedUai, isActioned: true };
