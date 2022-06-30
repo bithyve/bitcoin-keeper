@@ -289,7 +289,8 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
 
 const SignerList = () => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const Signers = useQuery(RealmSchema.VaultSigner);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers;
   const styles = getStyles(0);
   return (
     <ScrollView

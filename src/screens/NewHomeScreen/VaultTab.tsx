@@ -19,6 +19,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +30,8 @@ const VaultTab = ({ animate }) => {
   const open = () => setModalVisible(true);
   const close = () => setModalVisible(false);
   const navigation = useNavigation();
-  const Signers = useQuery(RealmSchema.VaultSigner);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers;
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
 
