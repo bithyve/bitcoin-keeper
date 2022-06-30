@@ -17,9 +17,9 @@ export interface WalletDerivationDetails {
 }
 
 export interface WalletPresentationData {
-  walletName: string; // name of the wallet
-  walletDescription: string; // description of the wallet
-  walletVisibility: VisibilityType; // visibility of the wallet
+  name: string; // name of the wallet
+  description: string; // description of the wallet
+  visibility: VisibilityType; // visibility of the wallet
 }
 
 export interface WalletSpecs {

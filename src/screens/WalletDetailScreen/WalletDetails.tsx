@@ -69,8 +69,8 @@ const WalletDetails = () => {
   };
 
   const _renderItem = ({ item }: { item }) => {
-    const walletName = item?.presentationData?.walletName;
-    const walletDescription = item?.presentationData?.walletDescription;
+    const walletName = item?.presentationData?.name;
+    const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
 
     return (

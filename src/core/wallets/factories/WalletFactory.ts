@@ -77,9 +77,9 @@ export const generateWallet = async ({
   }
 
   const presentationData: WalletPresentationData = {
-    walletName,
-    walletDescription,
-    walletVisibility: VisibilityType.DEFAULT,
+    name: walletName,
+    description: walletDescription,
+    visibility: VisibilityType.DEFAULT,
   };
 
   const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(type)

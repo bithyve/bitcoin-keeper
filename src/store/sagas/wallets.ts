@@ -286,7 +286,7 @@ function* syncWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | MultiSigWallet)[];
+    wallets: (Wallet | Vault)[];
     options: {
       hardRefresh?: boolean;
     };
@@ -314,7 +314,7 @@ function* refreshWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | MultiSigWallet)[];
+    wallets: (Wallet | Vault)[];
     options: { hardRefresh?: boolean };
   };
 }) {
@@ -366,10 +366,11 @@ function* autoWalletsSyncWorker({
 }) {
   const { syncAll, hardRefresh } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
+  const vault: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
 
-  const walletsToSync: (Wallet | MultiSigWallet)[] = [];
-  for (const wallet of wallets) {
-    if (syncAll || wallet.presentationData.walletVisibility === VisibilityType.DEFAULT) {
+  const walletsToSync: (Wallet | Vault)[] = [];
+  for (const wallet of [...wallets, ...vault]) {
+    if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
@@ -393,7 +394,7 @@ function* updateWalletSettingsWorker({
   payload,
 }: {
   payload: {
-    wallet: Wallet;
+    wallet: Wallet | Vault;
     settings: {
       walletName?: string;
       walletDescription?: string;
@@ -405,9 +406,9 @@ function* updateWalletSettingsWorker({
   const { walletName, walletDescription, visibility } = settings;
 
   try {
-    if (walletName) wallet.presentationData.walletName = walletName;
-    if (walletDescription) wallet.presentationData.walletDescription = walletDescription;
-    if (visibility) wallet.presentationData.walletVisibility = visibility;
+    if (walletName) wallet.presentationData.name = walletName;
+    if (walletDescription) wallet.presentationData.description = walletDescription;
+    if (visibility) wallet.presentationData.visibility = visibility;
 
     yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
       presentationData: wallet.presentationData,

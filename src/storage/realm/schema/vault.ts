@@ -31,9 +31,9 @@ export const VaultPresentationDataSchema: ObjectSchema = {
   name: RealmSchema.VaultPresentationData,
   embedded: true,
   properties: {
-    vaultName: 'string',
-    vaultDescription: 'string',
-    vaultVisibility: 'string',
+    name: 'string',
+    description: 'string',
+    visibility: 'string',
   },
 };
 
