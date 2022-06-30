@@ -29,7 +29,7 @@ const ChoosePlan = (props) => {
             Choose your plan
           </Text>
           <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
-            Lorem ipsum dolor sit amet{' '}
+          You are currently on the basic plan{' '}
           </Text>
         </Box>
       </Box>
@@ -71,7 +71,7 @@ const ChoosePlan = (props) => {
         <Note
           title={'Note'}
           subtitle={
-            'This purchase would be made on the App Store Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+            'Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store'
           }
         />
       </Box>

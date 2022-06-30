@@ -12,7 +12,7 @@ const planData = [
   {
     id: 1,
     title: 'Basic',
-    subTitle: 'Lorem ipsum dolor sit amet,',
+    subTitle: 'Always free',
     amount: '0',
     upgrade: false,
     icon: <Basic />,
@@ -20,7 +20,7 @@ const planData = [
   {
     id: 2,
     title: 'Pro',
-    subTitle: 'Lorem ipsum',
+    subTitle: 'Multi-sig security',
     amount: '5',
     upgrade: true,
     icon: <Pro />,
@@ -28,7 +28,7 @@ const planData = [
   {
     id: 3,
     title: 'Elite',
-    subTitle: 'Lorem ipsum dolor sit amet,',
+    subTitle: 'Includes Inheritance',
     amount: '10',
     upgrade: false,
     icon: <Elite />,
