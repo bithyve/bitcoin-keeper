@@ -29,7 +29,7 @@ const SetupInheritance = () => {
     },
     {
       title: 'Independent Recovery (optional)',
-      subTitle: 'This needs to be changed on the app and the UX.'
+      subTitle: 'Understand how you can recover your Vault even without teh Keeper app or any service from the company'
     }
   ]
 
