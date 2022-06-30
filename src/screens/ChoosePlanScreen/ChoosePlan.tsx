@@ -17,27 +17,33 @@ const ChoosePlan = (props) => {
   const [items, setItems] = useState([
     {
       id: '1',
-      title: 'Benefits of going Basic',
-      subTitle: 'Lorem ipsum dolor sit amet',
-      point1: ' incididunt ut labore et dolore magna',
-      point2: ' aliqua. Ut enim ad minim veniam',
-      point3: 'quis nostrud exercitation ullamco',
+      title: 'Benefits of Basic tier',
+      subTitle: 'A good place to start',
+      point1: 'Add multiple wallets',
+      point2: 'Encrypted iCloud/ Google Drive backup for wallets',
+      point3: 'Add one hardware signer',
+      point4: 'Air-gapped Vault (single-sig)',
+      point5: 'Community support',
     },
     {
       id: '2',
-      title: 'Benefits of going Pro',
-      subTitle: 'Lorem ipsum dolor sit amet',
-      point1: ' incididunt ut labore et dolore magna',
-      point2: ' aliqua. Ut enim ad minim veniam',
-      point3: 'quis nostrud exercitation ullamco',
+      title: 'Benefits of Pro tier',
+      subTitle: 'Suggested for up to $50,000 in total funds',
+      point1: 'All features of Basic tier',
+      point2: 'Import wallets',
+      point3: 'Add up to 3 hardware signers',
+      point4: '2 of 3 multi-sig Vault',
+      point5: 'Email support',
     },
     {
       id: '3',
-      title: 'Benefits of going Elite',
-      subTitle: 'Lorem ipsum dolor sit amet',
-      point1: ' incididunt ut labore et dolore magna',
-      point2: ' aliqua. Ut enim ad minim veniam',
-      point3: 'quis nostrud exercitation ullamco',
+      title: 'Benefits of Elite tier',
+      subTitle: 'Suggested for up to $100,000,000 in total funds',
+      point1: 'All features of Pro tier',
+      point2: 'Add up to 5 hardware wallets',
+      point3: '3 of 5 multi-sig Vault',
+      point4: 'Inheritance and independent recovery',
+      point5: 'Dedicated email support',
     },
   ]);
   return (
@@ -95,6 +101,18 @@ const ChoosePlan = (props) => {
             <DotView height={2} width={2} color={'black'} />
             <Text fontSize={RFValue(13)} color={'light.GreyText'} mb={2} ml={3}>
               {items[currentPosition].point3}
+            </Text>
+          </Box>
+          <Box flexDirection={'row'} alignItems={'center'}>
+            <DotView height={2} width={2} color={'black'} />
+            <Text fontSize={RFValue(13)} color={'light.GreyText'} mb={2} ml={3}>
+              {items[currentPosition].point4}
+            </Text>
+          </Box>
+          <Box flexDirection={'row'} alignItems={'center'}>
+            <DotView height={2} width={2} color={'black'} />
+            <Text fontSize={RFValue(13)} color={'light.GreyText'} mb={2} ml={3}>
+              {items[currentPosition].point5}
             </Text>
           </Box>
         </Box>
