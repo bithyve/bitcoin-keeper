@@ -20,24 +20,16 @@ const SetupInheritance = () => {
 
   const inheritanceData = [
     {
-      title: 'Setup Inheritance',
-      subTitle: 'Upgrade to Elite tier and setup the Vault with 5 Signers'
+      title: 'Setup Vault',
+      subTitle: 'Upgrade the Vault to Elite with 5 Signers'
     },
     {
       title: 'Activate Inheritance',
-      subTitle: 'Download and safely keep inheritance documents. Safekeeping best practices. Will template for digital assets. Inheritance recovery instructions'
+      subTitle: 'Download documents: Will Addendum for Digital Assets and Recovery Instructions. Understand safekeeping best practices'
     },
     {
-      title: 'Setup false recovery alert (optional)',
-      subTitle: 'If someone is trying to recover your wallet, make sure you get notified to approve or deny the recovery'
-    },
-    {
-      title: 'Independent Recovery',
-      subTitle: 'Understand how you can recover your Vault even without the Keeper app or any service from the company'
-    },
-    {
-      title: 'Practice health check',
-      subTitle: 'Make sure you signers are accessible. Change them if that is not the case'
+      title: 'Independent Recovery (optional)',
+      subTitle: 'This needs to be changed on the app and the UX.'
     }
   ]
 
@@ -47,6 +39,7 @@ const SetupInheritance = () => {
         height={25}
         width={25}
         borderRadius={25}
+        marginLeft={4}
         backgroundColor={'light.inheritanceBullet'}
         justifyContent={'center'}
         alignItems={'center'}
@@ -69,6 +62,7 @@ const SetupInheritance = () => {
   }: Props) => {
     return (
       <Pressable
+        backgroundColor={'light.lightYellow'}
         flexDirection={'row'}
         alignItems={'center'}
         width={'100%'}
@@ -128,6 +122,7 @@ const SetupInheritance = () => {
       <Box>
         <Header
           title={'Setup Inheritance'}
+          subtitle={'Securely bequeath your bitcoin'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.headerText'}
           fontSize={16}

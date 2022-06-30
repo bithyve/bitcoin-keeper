@@ -8,7 +8,6 @@ import { Box, Text, ScrollView, StatusBar, useColorMode } from 'native-base';
 import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
-import Note from 'src/components/Note/Note';
 import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
@@ -20,6 +19,7 @@ import availableLanguages from '../../common/content/availableLanguages';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import LanguageNote from 'src/components/Note/LanguageNote';
 
 const styles = StyleSheet.create( {
     btn:{
@@ -364,7 +364,7 @@ const ChangeLanguage = () => {
         )}
           </ScrollView>
           <View style = {{marginBottom: 10}}>
-          <Note
+          <LanguageNote
             title={settings.HelpUstranslate}
             subtitle={
               settings.desc
