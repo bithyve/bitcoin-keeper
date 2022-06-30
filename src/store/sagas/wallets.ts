@@ -19,7 +19,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import crypto from 'crypto';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet, MultiSigWallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { WalletType, NetworkType, VisibilityType, VaultType } from 'src/core/wallets/enums';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
@@ -108,7 +108,7 @@ function* addNewWallet(
 }
 
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newWalletInfo[] }) {
-  const wallets: (Wallet | MultiSigWallet)[] = [];
+  const wallets: Wallet[] = [];
   const walletIds = [];
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -121,7 +121,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newW
   );
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet | MultiSigWallet = yield call(
+    const wallet: Wallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
@@ -135,7 +135,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newW
 
   let presentWalletInstances = { ...walletShell.walletInstances };
 
-  wallets.forEach((wallet: Wallet | MultiSigWallet) => {
+  wallets.forEach((wallet: Wallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
@@ -226,7 +226,7 @@ export function* importNewWalletWorker({
     walletDetails?: newWalletDetails;
   };
 }) {
-  const wallets: (Wallet | MultiSigWallet)[] = [];
+  const wallets: Wallet[] = [];
   const walletIds = [];
   const newWalletInfo: newWalletInfo[] = [
     {
@@ -247,7 +247,7 @@ export function* importNewWalletWorker({
   );
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet | MultiSigWallet = yield call(
+    const wallet: Wallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
@@ -260,7 +260,7 @@ export function* importNewWalletWorker({
   }
 
   let presentWalletInstances = { ...walletShell.walletInstances };
-  wallets.forEach((wallet: Wallet | MultiSigWallet) => {
+  wallets.forEach((wallet: Wallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
@@ -343,11 +343,12 @@ function* refreshWalletsWorker({
       null,
       true
     );
+    const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+
     let netBalance = 0;
-    wallets.forEach((wallet) => {
+    [...wallets, ...vaults].forEach((wallet) => {
       const { confirmed, unconfirmed } = wallet.specs.balances;
-      const { type } = wallet;
-      netBalance = netBalance + (type === WalletType.READ_ONLY ? 0 : confirmed + unconfirmed);
+      netBalance = netBalance + confirmed + unconfirmed;
     });
 
     yield put(setNetBalance(netBalance));

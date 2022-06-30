@@ -115,7 +115,7 @@ export const validateTwoFA = (token: number) => {
   };
 };
 
-// export const generateSecondaryXpriv = (wallet: MultiSigWallet, secondaryMnemonic: string) => {
+// export const generateSecondaryXpriv = (wallet, secondaryMnemonic: string) => {
 //   return {
 //     type: GENERATE_SECONDARY_XPRIV,
 //     payload: {
