@@ -37,6 +37,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Transaction } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
@@ -330,21 +331,15 @@ const SignerList = () => {
 const VaultDetails = () => {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
-
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
-
   const { top } = useSafeAreaInsets();
-
-  const Vault: Wallet = useQuery(RealmSchema.Wallet)
-    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
-    .map(getJSONFromRealmObject)[0];
-
+  const Vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = Vault?.specs?.transactions || [];
 
   const refreshVault = () => {
-    dispatch(refreshWallets([Vault], { hardRefresh: true }));
+    dispatch(refreshWallets([Vault], {}));
   };
 
   const pullDownRefresh = () => {

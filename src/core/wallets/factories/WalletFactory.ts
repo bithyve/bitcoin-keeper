@@ -82,10 +82,6 @@ export const generateWallet = async ({
     visibility: VisibilityType.DEFAULT,
   };
 
-  const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(type)
-    ? DerivationPurpose.BIP84
-    : DerivationPurpose.BIP49;
-
   const specs: WalletSpecs = {
     xpub,
     xpriv,
