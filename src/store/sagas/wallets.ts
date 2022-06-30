@@ -1,49 +1,51 @@
-import { all, call, delay, put, select } from 'redux-saga/effects';
-import _ from 'lodash';
 import * as bip39 from 'bip39';
-import { createWatcher } from 'src/store/utilities';
-import {
-  GET_TESTCOINS,
-  GENERATE_SECONDARY_XPRIV,
-  RESET_TWO_FA,
-  twoFAResetted,
-  secondaryXprivGenerated,
-  VALIDATE_TWO_FA,
-  twoFAValid,
-  resetTwoFA,
-  generateSecondaryXpriv,
-  SYNC_WALLETS,
-  getTestcoins,
-  UPDATE_WALLET_SETTINGS,
-  walletSettingsUpdated,
-  walletSettingsUpdateFailed,
-  setResetTwoFALoader,
-  IMPORT_NEW_WALLET,
-  refreshWallets,
-  REFRESH_WALLETS,
-  AUTO_SYNC_WALLETS,
-  ADD_NEW_WALLETS,
-} from '../sagaActions/wallets';
-import config, { APP_STAGE } from 'src/core/config';
-import { setNetBalance } from 'src/store/reducers/wallets';
-import WalletOperations from 'src/core/wallets/WalletOperations';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
-import { generateWallet, generateMultiSigWallet } from 'src/core/wallets/WalletFactory';
-import Relay from 'src/core/services/Relay';
+
 import {
-  Wallet,
+  ADD_NEW_WALLETS,
+  AUTO_SYNC_WALLETS,
+  GENERATE_SECONDARY_XPRIV,
+  GET_TESTCOINS,
+  IMPORT_NEW_WALLET,
+  REFRESH_WALLETS,
+  RESET_TWO_FA,
+  SYNC_WALLETS,
+  UPDATE_WALLET_SETTINGS,
+  VALIDATE_TWO_FA,
+  generateSecondaryXpriv,
+  getTestcoins,
+  refreshWallets,
+  resetTwoFA,
+  secondaryXprivGenerated,
+  setResetTwoFALoader,
+  twoFAResetted,
+  twoFAValid,
+  walletSettingsUpdateFailed,
+  walletSettingsUpdated,
+} from '../sagaActions/wallets';
+import {
+  ActiveAddressAssignee,
   DonationWallet,
   MultiSigWallet,
   MultiSigWalletSpecs,
+  Wallet,
   WalletShell,
-  ActiveAddressAssignee,
 } from 'src/core/wallets/interfaces/interface';
-import { WalletType, NetworkType, WalletVisibility } from 'src/core/wallets/interfaces/enum';
+import { NetworkType, WalletType, WalletVisibility } from 'src/core/wallets/interfaces/enum';
+import { all, call, delay, put, select } from 'redux-saga/effects';
+import config, { APP_STAGE } from 'src/core/config';
+import { generateMultiSigWallet, generateWallet } from 'src/core/wallets/WalletFactory';
+
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/Relay';
+import WalletOperations from 'src/core/wallets/WalletOperations';
+import WalletUtilities from 'src/core/wallets/WalletUtilities';
+import _ from 'lodash';
+import { createWatcher } from 'src/store/utilities';
+import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { setNetBalance } from 'src/store/reducers/wallets';
 
 export interface newWalletDetails {
   name?: string;
@@ -235,7 +237,10 @@ function* addNewWallet(
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Read-Only Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
-        importedXpub: importDetails.xpub,
+        importedXpub:
+          config.APP_STAGE === APP_STAGE.DEVELOPMENT
+            ? 'tpubDAenfwNu5GyCJWv8oqRAckdKMSUoZjgVF5p8WvQwHQeXjDhAHmGrPa4a4y2Fn7HF2nfCLefJanHV3ny1UY25MRVogizB2zRUdAo7Tr9XAjm'
+            : importDetails.xpub,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
