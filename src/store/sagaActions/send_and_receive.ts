@@ -4,6 +4,7 @@ import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/wallet';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
 import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';
@@ -212,15 +213,15 @@ export const sendPhaseThree = (payload: {
 export interface CrossTransferAction extends Action {
   type: typeof CROSS_TRANSFER;
   payload: {
-    sender: Wallet | MultiSigWallet;
-    recipient: Wallet | MultiSigWallet;
+    sender: Wallet | Vault;
+    recipient: Wallet | Vault;
     amount: number;
   };
 }
 
 export const crossTransfer = (payload: {
-  sender: Wallet | MultiSigWallet;
-  recipient: Wallet | MultiSigWallet;
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
   amount: number;
 }): CrossTransferAction => {
   return {

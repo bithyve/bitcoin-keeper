@@ -16,6 +16,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -25,21 +26,18 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
-  const Vault: Wallet = useQuery(RealmSchema.Wallet)
-    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
-    .map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
 
   const onProceed = () => {
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
-        navigtaion.goBack();
       }
-      if (Vault) {
+      if (defaultVault) {
         dispatch(
           crossTransfer({
             sender: defaultWallet,
-            recipient: Vault,
+            recipient: defaultVault,
             amount: 10e3,
           })
         );
