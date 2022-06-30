@@ -1,7 +1,6 @@
 import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import Modal from 'react-native-modal';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
@@ -15,18 +14,12 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
-//
-import ShowXPub from 'src/components/XPub/ShowXPub';
-import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
-  //
-  const [xpubVisible, setXPubVisible] = useState(false);
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -159,27 +152,11 @@ const AppSettings = ({ navigation }) => {
             icon={true}
             onPress={() => openLink('https://t.me/HexaWallet')}
           />
-          <SettingsCard
-            title={'Account xPub'}
-            description={'Lorem ipsum dolor sit amet'}
-            my={2}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => setXPubVisible(true)}
-          />
-          <SettingsCard
-            title={'Wallet seed words'}
-            description={'Lorem ipsum dolor sit amet'}
-            my={2}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => setConfirmPassVisible(true)}
-          />
         </ScrollView>
-        <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
+        {/* <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note title={common.note} subtitle={settings.desc} />
-        </Box>
-        <Box flex={0.2} mx={7}>
+        </Box> */}
+        <Box flex={0.1} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
@@ -211,42 +188,6 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Box>
       </Box>
-      {/*  */}
-      <Box>
-        <Modal
-          isVisible={xpubVisible}
-          onSwipeComplete={() => setXPubVisible(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
-        >
-          <ShowXPub
-            closeBottomSheet={() => {
-              setXPubVisible(false);
-            }}
-          />
-        </Modal>
-        <Modal
-          isVisible={confirmPassVisible}
-          onSwipeComplete={() => setConfirmPassVisible(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
-        >
-          <SeedConfirmPasscode
-            closeBottomSheet={() => {
-              setConfirmPassVisible(false);
-            }}
-          />
-        </Modal>
-      </Box>
-      {/*  */}
     </SafeAreaView>
   );
 };

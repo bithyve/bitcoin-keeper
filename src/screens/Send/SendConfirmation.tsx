@@ -31,10 +31,6 @@ const SendConfirmation = ({ route }) => {
 
   const onProceed = () => {
     if (isVaultTransfer) {
-      if (uaiSetActionFalse) {
-        uaiSetActionFalse();
-        navigtaion.goBack();
-      }
       if (Vault) {
         dispatch(
           crossTransfer({
@@ -43,6 +39,9 @@ const SendConfirmation = ({ route }) => {
             amount: 10e3,
           })
         );
+        if (uaiSetActionFalse) {
+          uaiSetActionFalse();
+        }
         navigtaion.goBack();
       }
     } else {
@@ -55,7 +54,7 @@ const SendConfirmation = ({ route }) => {
     }
   };
 
-  const SendingCard = () => {
+  const SendingCard = ({ isSend }) => {
     return (
       <Box marginY={windowHeight * 0.01}>
         <Text
@@ -65,7 +64,7 @@ const SendConfirmation = ({ route }) => {
           fontWeight={200}
           marginY={windowHeight * 0.011}
         >
-          Sending From
+          {isSend ? 'Sending From' : 'Sending To'}
         </Text>
         <Box
           borderRadius={10}
@@ -90,18 +89,21 @@ const SendConfirmation = ({ route }) => {
               letterSpacing={1.12}
               fontWeight={200}
             >
-              Funds
+              {isVaultTransfer && !isSend ? 'Vault' : 'Funds'}
             </Text>
             <Box flexDirection={'row'}>
               <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                Available to spend{' '}
+                {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`}
               </Text>
               <Box justifyContent={'center'}>
                 <BTC />
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {' '}
-                {wallet ? (wallet as Wallet).specs.balances.confirmed : ''}
+                {isVaultTransfer && defaultWallet && isSend
+                  ? (defaultWallet as Wallet).specs.balances.confirmed / 10e8
+                  : ''}
+                {wallet ? (wallet as Wallet).specs.balances.confirmed / 10e8 : ''}
+                {!isSend && isVaultTransfer ? '0.0001' : ''}
               </Text>
             </Box>
           </Box>
@@ -117,7 +119,7 @@ const SendConfirmation = ({ route }) => {
           Transaction Fee
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo ? txFeeInfo[transactionPriority].amount : ''}
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'}
         </Text>
       </Box>
     );
@@ -138,7 +140,7 @@ const SendConfirmation = ({ route }) => {
         onPressHandler={() => navigtaion.goBack()}
       />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <SendingCard />
+        <SendingCard isSend />
         <SendingCard />
 
         <Box marginTop={windowHeight * 0.01}>
