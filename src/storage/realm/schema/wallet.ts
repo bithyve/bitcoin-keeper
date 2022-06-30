@@ -111,9 +111,9 @@ export const WalletPresentationDataSchema: ObjectSchema = {
   name: RealmSchema.WalletPresentationData,
   embedded: true,
   properties: {
-    walletName: 'string',
-    walletDescription: 'string',
-    walletVisibility: 'string',
+    name: 'string',
+    description: 'string',
+    visibility: 'string',
   },
 };
 

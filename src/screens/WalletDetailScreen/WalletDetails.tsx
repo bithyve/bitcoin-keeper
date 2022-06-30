@@ -50,9 +50,8 @@ const WalletDetails = () => {
   const dispatch = useDispatch();
   const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
-    .map(getJSONFromRealmObject)
-    .filter((wallet: Wallet) => wallet.type !== WalletType.READ_ONLY);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   // const exchangeRates = useAppSelector((state) => state.sendAndReceive.exchangeRates);
   // const currencyCode = useCurrencyCode();
@@ -69,8 +68,8 @@ const WalletDetails = () => {
   };
 
   const _renderItem = ({ item }: { item }) => {
-    const walletName = item?.presentationData?.walletName;
-    const walletDescription = item?.presentationData?.walletDescription;
+    const walletName = item?.presentationData?.name;
+    const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
 
     return (

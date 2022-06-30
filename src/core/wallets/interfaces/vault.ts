@@ -7,12 +7,9 @@ import {
   Transaction,
 } from '.';
 import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+import { WalletPresentationData } from './wallet';
 
-export interface VaultPresentationData {
-  vaultName: string; // name of the vault
-  vaultDescription: string; // description of the vault
-  vaultVisibility: VisibilityType; // visibility of the vault
-}
+export interface VaultPresentationData extends WalletPresentationData {}
 
 export interface VaultSpecs {
   xpubs: string[]; // signers' xpubs

@@ -19,8 +19,14 @@ import WalletOperations from 'src/core/wallets/operations';
 import crypto from 'crypto';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet, MultiSigWallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import { WalletType, NetworkType, VisibilityType, VaultType } from 'src/core/wallets/enums';
+import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import {
+  WalletType,
+  NetworkType,
+  VisibilityType,
+  VaultType,
+  EntityKind,
+} from 'src/core/wallets/enums';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -108,7 +114,7 @@ function* addNewWallet(
 }
 
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newWalletInfo[] }) {
-  const wallets: (Wallet | MultiSigWallet)[] = [];
+  const wallets: Wallet[] = [];
   const walletIds = [];
 
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -121,7 +127,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newW
   );
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet | MultiSigWallet = yield call(
+    const wallet: Wallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
@@ -135,7 +141,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newW
 
   let presentWalletInstances = { ...walletShell.walletInstances };
 
-  wallets.forEach((wallet: Wallet | MultiSigWallet) => {
+  wallets.forEach((wallet: Wallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
@@ -226,7 +232,7 @@ export function* importNewWalletWorker({
     walletDetails?: newWalletDetails;
   };
 }) {
-  const wallets: (Wallet | MultiSigWallet)[] = [];
+  const wallets: Wallet[] = [];
   const walletIds = [];
   const newWalletInfo: newWalletInfo[] = [
     {
@@ -247,7 +253,7 @@ export function* importNewWalletWorker({
   );
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet | MultiSigWallet = yield call(
+    const wallet: Wallet = yield call(
       addNewWallet,
       walletType,
       walletDetails || {},
@@ -260,7 +266,7 @@ export function* importNewWalletWorker({
   }
 
   let presentWalletInstances = { ...walletShell.walletInstances };
-  wallets.forEach((wallet: Wallet | MultiSigWallet) => {
+  wallets.forEach((wallet: Wallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
@@ -286,7 +292,7 @@ function* syncWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | MultiSigWallet)[];
+    wallets: (Wallet | Vault)[];
     options: {
       hardRefresh?: boolean;
     };
@@ -314,13 +320,13 @@ function* refreshWalletsWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | MultiSigWallet)[];
+    wallets: (Wallet | Vault)[];
     options: { hardRefresh?: boolean };
   };
 }) {
   const { wallets } = payload;
   const options: { hardRefresh?: boolean } = payload.options;
-  const { synchedWallets, activeAddressesWithNewTxsMap } = yield call(syncWalletsWorker, {
+  const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
       options,
@@ -329,11 +335,16 @@ function* refreshWalletsWorker({
 
   let computeNetBalance = false;
   for (const synchedWallet of synchedWallets) {
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
-      specs: synchedWallet.specs,
-    });
-
-    if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
+    if (synchedWallet.entityKind === EntityKind.VAULT) {
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
+        specs: synchedWallet.specs,
+      });
+    } else {
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
+        specs: synchedWallet.specs,
+      });
+      if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
+    }
   }
 
   if (computeNetBalance) {
@@ -343,11 +354,12 @@ function* refreshWalletsWorker({
       null,
       true
     );
+    // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+
     let netBalance = 0;
     wallets.forEach((wallet) => {
       const { confirmed, unconfirmed } = wallet.specs.balances;
-      const { type } = wallet;
-      netBalance = netBalance + (type === WalletType.READ_ONLY ? 0 : confirmed + unconfirmed);
+      netBalance = netBalance + confirmed + unconfirmed;
     });
 
     yield put(setNetBalance(netBalance));
@@ -366,10 +378,11 @@ function* autoWalletsSyncWorker({
 }) {
   const { syncAll, hardRefresh } = payload;
   const wallets: Wallet[] = yield call(dbManager.getObjectByIndex, RealmSchema.Wallet, null, true);
+  const vault: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
 
-  const walletsToSync: (Wallet | MultiSigWallet)[] = [];
-  for (const wallet of wallets) {
-    if (syncAll || wallet.presentationData.walletVisibility === VisibilityType.DEFAULT) {
+  const walletsToSync: (Wallet | Vault)[] = [];
+  for (const wallet of [...wallets, ...vault]) {
+    if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
       if (!wallet.isUsable) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
@@ -393,7 +406,7 @@ function* updateWalletSettingsWorker({
   payload,
 }: {
   payload: {
-    wallet: Wallet;
+    wallet: Wallet | Vault;
     settings: {
       walletName?: string;
       walletDescription?: string;
@@ -405,9 +418,9 @@ function* updateWalletSettingsWorker({
   const { walletName, walletDescription, visibility } = settings;
 
   try {
-    if (walletName) wallet.presentationData.walletName = walletName;
-    if (walletDescription) wallet.presentationData.walletDescription = walletDescription;
-    if (visibility) wallet.presentationData.walletVisibility = visibility;
+    if (walletName) wallet.presentationData.name = walletName;
+    if (walletDescription) wallet.presentationData.description = walletDescription;
+    if (visibility) wallet.presentationData.visibility = visibility;
 
     yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
       presentationData: wallet.presentationData,

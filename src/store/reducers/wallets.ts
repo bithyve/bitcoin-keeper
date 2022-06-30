@@ -169,7 +169,7 @@ export default (state: WalletsState = initialState, action): WalletsState => {
 
     case RECOMPUTE_NET_BALANCE:
       let netBalance = 0;
-      action.payload.wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
+      action.payload.wallets.forEach((wallet: Wallet ) => {
         if (wallet.type !== WalletType.TEST) {
           const balances = wallet.specs.balances;
           netBalance = netBalance + (balances.confirmed + balances.unconfirmed);

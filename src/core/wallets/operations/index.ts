@@ -17,100 +17,99 @@ import {
   UTXO,
   TransactionToAddressMapping,
 } from '../interfaces/';
-import { WalletType, DerivationPurpose, TxPriority } from '../enums';
-import { MultiSigWallet, Wallet } from '../interfaces/wallet';
+import { WalletType, DerivationPurpose, TxPriority, EntityKind } from '../enums';
+import { Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
-    wall: Wallet | Vault
-  ): { updatedWall: Wallet | Vault; receivingAddress: string } => {
+    wallet: Wallet | Vault
+  ): { updatedWallet: Wallet | Vault; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
-    const network = WalletUtilities.getNetworkByType(wall.networkType);
-    if ((wall as Vault).isMultiSig) {
-      const xpubs = (wall as Vault).specs.xpubs;
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    if ((wallet as Vault).isMultiSig) {
+      const xpubs = (wallet as Vault).specs.xpubs;
       receivingAddress = WalletUtilities.createMultiSig(
         xpubs,
-        xpubs.length,
+        (wallet as Vault).scheme.m,
         network,
-        wall.specs.nextFreeAddressIndex,
+        wallet.specs.nextFreeAddressIndex,
         false
       ).address;
     } else {
-      const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes((wall as Wallet).type)
+      const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
+        (wallet as Wallet).type
+      )
         ? DerivationPurpose.BIP84
         : DerivationPurpose.BIP49;
       receivingAddress = WalletUtilities.getAddressByIndex(
-        (wall as Wallet).specs.xpub,
+        (wallet as Wallet).specs.xpub,
         false,
-        (wall as Wallet).specs.nextFreeAddressIndex,
+        (wallet as Wallet).specs.nextFreeAddressIndex,
         network,
         purpose
       );
     }
 
-    wall.specs.activeAddresses.external[receivingAddress] = wall.specs.nextFreeAddressIndex;
-    wall.specs.nextFreeAddressIndex++;
+    wallet.specs.activeAddresses.external[receivingAddress] = wallet.specs.nextFreeAddressIndex;
+    wallet.specs.nextFreeAddressIndex++;
     return {
-      updatedWall: wall,
+      updatedWallet: wallet,
       receivingAddress,
     };
   };
 
-  static syncGapLimit = async (wallet: Wallet | MultiSigWallet) => {
+  static syncGapLimit = async (wallet: Wallet | Vault) => {
     let tryAgain = false;
     const hardGapLimit = 10;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
-    const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
+    const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
+      (wallet as Wallet).type
+    )
       ? DerivationPurpose.BIP84
       : DerivationPurpose.BIP49;
+
     let externalAddress: string;
-    if ((wallet as MultiSigWallet).specs.is2FA)
+    if ((wallet as Vault).isMultiSig) {
       externalAddress = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
+        (wallet as Vault).specs.xpubs,
+        (wallet as Vault).scheme.m,
         network,
         wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
         false
       ).address;
-    else
+    } else {
       externalAddress = WalletUtilities.getAddressByIndex(
-        wallet.specs.xpub,
+        (wallet as Wallet).specs.xpub,
         false,
         wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
         network,
         purpose
       );
+    }
 
     let internalAddress: string;
-    if ((wallet as MultiSigWallet).specs.is2FA)
+    if ((wallet as Vault).isMultiSig) {
       internalAddress = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
+        (wallet as Vault).specs.xpubs,
+        (wallet as Vault).scheme.m,
         network,
         wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
         true
       ).address;
-    else
+    } else {
       internalAddress = WalletUtilities.getAddressByIndex(
-        wallet.specs.xpub,
+        (wallet as Wallet).specs.xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
         network,
         purpose
       );
+    }
 
     const txCounts = await WalletUtilities.getTxCounts([externalAddress, internalAddress], network);
 
@@ -130,7 +129,7 @@ export default class WalletOperations {
   };
 
   static importAddress = async (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     privateKey: string,
     address: string,
     requester: ActiveAddressAssignee
@@ -144,11 +143,11 @@ export default class WalletOperations {
   };
 
   static syncWallets = async (
-    wallets: (Wallet | MultiSigWallet)[],
+    wallets: (Wallet | Vault)[],
     network: bitcoinJS.networks.Network,
     hardRefresh?: boolean
   ): Promise<{
-    synchedWallets: (Wallet | MultiSigWallet)[];
+    synchedWallets: (Wallet | Vault)[];
     txsFound: Transaction[];
     activeAddressesWithNewTxsMap: {
       [walletId: string]: ActiveAddresses;
@@ -187,7 +186,9 @@ export default class WalletOperations {
       };
     } = {};
     for (const wallet of wallets) {
-      const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
+      const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
+        (wallet as Wallet).type
+      )
         ? DerivationPurpose.BIP84
         : DerivationPurpose.BIP49;
       const ownedAddresses = []; // owned address mapping
@@ -197,26 +198,25 @@ export default class WalletOperations {
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
         let address: string;
-        if ((wallet as MultiSigWallet).specs.is2FA)
+        if ((wallet as Vault).isMultiSig) {
+          const xpubs = (wallet as Vault).specs.xpubs;
           address = WalletUtilities.createMultiSig(
-            {
-              primary: wallet.specs.xpub,
-              secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-              bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-            },
-            2,
+            xpubs,
+            (wallet as Vault).scheme.m,
             network,
             itr,
             false
           ).address;
-        else
+        } else {
           address = WalletUtilities.getAddressByIndex(
-            wallet.specs.xpub,
+            (wallet as Wallet).specs.xpub,
             false,
             itr,
             network,
             purpose
           );
+        }
+
         externalAddresses[address] = itr;
         ownedAddresses.push(address);
       }
@@ -231,26 +231,25 @@ export default class WalletOperations {
       const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
         let address: string;
-        if ((wallet as MultiSigWallet).specs.is2FA)
+        if ((wallet as Vault).isMultiSig) {
+          const xpubs = (wallet as Vault).specs.xpubs;
           address = WalletUtilities.createMultiSig(
-            {
-              primary: wallet.specs.xpub,
-              secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-              bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-            },
-            2,
+            xpubs,
+            (wallet as Vault).scheme.m,
             network,
             itr,
             true
           ).address;
-        else
+        } else {
           address = WalletUtilities.getAddressByIndex(
-            wallet.specs.xpub,
+            (wallet as Wallet).specs.xpub,
             true,
             itr,
             network,
             purpose
           );
+        }
+
         internalAddresses[address] = itr;
         ownedAddresses.push(address);
       }
@@ -284,7 +283,7 @@ export default class WalletOperations {
         lastUsedChangeAddressIndex: wallet.specs.nextFreeChangeAddressIndex - 1,
         transactionNote: wallet.specs.transactionNote,
         walletType: wallet.type,
-        walletName: wallet.presentationData.walletName,
+        walletName: wallet.presentationData.name,
         hardRefresh: shouldHardRefresh,
       };
 
@@ -313,10 +312,6 @@ export default class WalletOperations {
         hasNewTxn,
       } = synchedWallets[wallet.id];
       const { internalAddresses } = walletsInternals[wallet.id];
-
-      const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
-        ? DerivationPurpose.BIP84
-        : DerivationPurpose.BIP49;
 
       // update utxo sets and balances
       const balances: Balances = {
@@ -348,13 +343,7 @@ export default class WalletOperations {
       wallet.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
       wallet.specs.activeAddresses = activeAddresses;
       wallet.specs.hasNewTxn = hasNewTxn;
-      // find tx delta(missing txs): hard vs soft refresh
-      // if( hardRefresh ){
-      //   if( wallet.transactionMapping && transactionMapping ){
-      //     const deltaTxs = WalletUtilities.findTxDelta( wallet.transactionMapping, transactionMapping, transactions )
-      //     if( deltaTxs.length ) txsFound.push( ...deltaTxs )
-      //   } else txsFound.push( ...transactions )
-      // }
+
       const { newTransactions, lastSynched } = WalletUtilities.setNewTransactions(
         transactions,
         wallet.specs.lastSynched
@@ -376,7 +365,7 @@ export default class WalletOperations {
   };
 
   static updateActiveAddresses = (
-    wallet: Wallet,
+    wallet: Wallet | Vault,
     consumedUTXOs: { [txid: string]: InputUTXOs },
     txid: string,
     recipients: {
@@ -401,34 +390,34 @@ export default class WalletOperations {
       }),
     };
 
-    const purpose = [WalletType.SWAN, WalletType.IMPORTED].includes(wallet.type)
+    const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
+      (wallet as Wallet).type
+    )
       ? DerivationPurpose.BIP84
       : DerivationPurpose.BIP49;
+
     for (const consumedUTXO of Object.values(consumedUTXOs)) {
       let found = false;
       // is out of bound external address?
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex; itr++) {
         let address: string;
-        if ((wallet as MultiSigWallet).specs.is2FA)
+        if ((wallet as Vault).isMultiSig) {
           address = WalletUtilities.createMultiSig(
-            {
-              primary: wallet.specs.xpub,
-              secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-              bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-            },
-            2,
+            (wallet as Vault).specs.xpubs,
+            (wallet as Vault).scheme.m,
             network,
             itr,
             false
           ).address;
-        else
+        } else {
           address = WalletUtilities.getAddressByIndex(
-            wallet.specs.xpub,
+            (wallet as Wallet).specs.xpub,
             false,
             itr,
             network,
             purpose
           );
+        }
 
         if (consumedUTXO.address === address) {
           // include out of bound ext address
@@ -443,26 +432,23 @@ export default class WalletOperations {
       if (!found)
         for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex; itr++) {
           let address: string;
-          if ((wallet as MultiSigWallet).specs.is2FA)
+          if ((wallet as Vault).isMultiSig) {
             address = WalletUtilities.createMultiSig(
-              {
-                primary: wallet.specs.xpub,
-                secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-                bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-              },
-              2,
+              (wallet as Vault).specs.xpubs,
+              (wallet as Vault).scheme.m,
               network,
               itr,
               true
             ).address;
-          else
+          } else {
             address = WalletUtilities.getAddressByIndex(
-              wallet.specs.xpub,
+              (wallet as Wallet).specs.xpub,
               true,
               itr,
               network,
               purpose
             );
+          }
 
           if (consumedUTXO.address === address) {
             // include out of bound(soft-refresh range) int address
@@ -477,33 +463,30 @@ export default class WalletOperations {
     // add internal address used for change utxo to activeAddresses.internal
     let changeAddress: string;
 
-    if ((wallet as MultiSigWallet).specs.is2FA)
+    if ((wallet as Vault).isMultiSig) {
       changeAddress = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
+        (wallet as Vault).specs.xpubs,
+        (wallet as Vault).scheme.m,
         network,
         wallet.specs.nextFreeChangeAddressIndex,
         true
       ).address;
-    else
+    } else {
       changeAddress = WalletUtilities.getAddressByIndex(
-        wallet.specs.xpub,
+        (wallet as Wallet).specs.xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex,
         network,
         purpose
       );
+    }
 
     activeInternalAddresses[changeAddress] = wallet.specs.nextFreeChangeAddressIndex;
     wallet.specs.nextFreeChangeAddressIndex++;
   };
 
   static removeConsumedUTXOs = (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     inputs: InputUTXOs[],
     txid: string,
     recipients: {
@@ -562,7 +545,7 @@ export default class WalletOperations {
   };
 
   static prepareTransactionPrerequisites = (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     recipients: {
       address: string;
       amount: number;
@@ -656,7 +639,7 @@ export default class WalletOperations {
   };
 
   static prepareCustomTransactionPrerequisites = (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     outputUTXOs: {
       address: string;
       value: number;
@@ -688,7 +671,7 @@ export default class WalletOperations {
   };
 
   static createTransaction = async (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
     customTxPrerequisites?: TransactionPrerequisiteElements
@@ -754,7 +737,7 @@ export default class WalletOperations {
   };
 
   static signTransaction = (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet,
     inputs: any,
     PSBT: bitcoinJS.Psbt,
     witnessScript?: any
@@ -775,26 +758,28 @@ export default class WalletOperations {
 
       for (const input of inputs) {
         let keyPair, redeemScript;
-        if ((wallet as MultiSigWallet).specs.is2FA) {
-          const { multiSig, primaryPriv, childIndex } =
-            WalletUtilities.signingEssentialsForMultiSig(wallet as MultiSigWallet, input.address);
+        // if ((wallet ).specs.is2FA) {
+        //   const { multiSig, primaryPriv, childIndex } =
+        //     WalletUtilities.signingEssentialsForMultiSig(wallet as MultiSigWallet, input.address);
 
-          keyPair = bip32.fromBase58(primaryPriv, network);
-          // redeemScript = Buffer.from( multiSig.scripts.redeem, 'hex' )
-          // witnessScript = Buffer.from( multiSig.scripts.witness, 'hex' )
-          childIndexArray.push({
-            childIndex,
-            inputIdentifier: {
-              txId: input.txId,
-              vout: input.vout,
-              value: input.value,
-            },
-          });
-        } else {
-          const privateKey = WalletUtilities.addressToKey(input.address, wallet) as string;
-          keyPair = WalletUtilities.getKeyPair(privateKey, network);
-          // redeemScript = WalletUtilities.getP2SH( keyPair, network ).redeem.output
-        }
+        //   keyPair = bip32.fromBase58(primaryPriv, network);
+        //   // redeemScript = Buffer.from( multiSig.scripts.redeem, 'hex' )
+        //   // witnessScript = Buffer.from( multiSig.scripts.witness, 'hex' )
+        //   childIndexArray.push({
+        //     childIndex,
+        //     inputIdentifier: {
+        //       txId: input.txId,
+        //       vout: input.vout,
+        //       value: input.value,
+        //     },
+        //   });
+        // } else {
+        //   const privateKey = WalletUtilities.addressToKey(input.address, wallet) as string;
+        //   keyPair = WalletUtilities.getKeyPair(privateKey, network);
+        //   // redeemScript = WalletUtilities.getP2SH( keyPair, network ).redeem.output
+        // }
+        const privateKey = WalletUtilities.addressToKey(input.address, wallet) as string;
+        keyPair = WalletUtilities.getKeyPair(privateKey, network);
 
         PSBT.signInput(vin, keyPair);
         vin++;
@@ -809,37 +794,37 @@ export default class WalletOperations {
     }
   };
 
-  static multiSignTransaction = (
-    wallet: MultiSigWallet,
-    inputs: any,
-    PSBT: bitcoinJS.Psbt
-  ): {
-    signedPSBT: bitcoinJS.Psbt;
-  } => {
-    let vin = 0;
+  // static multiSignTransaction = (
+  //   wallet: MultiSigWallet,
+  //   inputs: any,
+  //   PSBT: bitcoinJS.Psbt
+  // ): {
+  //   signedPSBT: bitcoinJS.Psbt;
+  // } => {
+  //   let vin = 0;
 
-    if (!wallet.specs.xprivs.secondary)
-      throw new Error('Multi-sign transaction failed: secondary xpriv missing');
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  //   if (!wallet.specs.xprivs.secondary)
+  //     throw new Error('Multi-sign transaction failed: secondary xpriv missing');
+  //   const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
-    inputs.forEach((input) => {
-      const { secondaryPriv } = WalletUtilities.signingEssentialsForMultiSig(wallet, input.address);
+  //   inputs.forEach((input) => {
+  //     const { secondaryPriv } = WalletUtilities.signingEssentialsForMultiSig(wallet, input.address);
 
-      const keyPair = bip32.fromBase58(secondaryPriv, network);
-      // const redeemScript = Buffer.from( multiSig.scripts.redeem, 'hex' )
-      // const witnessScript = Buffer.from( multiSig.scripts.witness, 'hex' )
+  //     const keyPair = bip32.fromBase58(secondaryPriv, network);
+  //     // const redeemScript = Buffer.from( multiSig.scripts.redeem, 'hex' )
+  //     // const witnessScript = Buffer.from( multiSig.scripts.witness, 'hex' )
 
-      PSBT.signInput(vin, keyPair);
-      vin += 1;
-    });
+  //     PSBT.signInput(vin, keyPair);
+  //     vin += 1;
+  //   });
 
-    return {
-      signedPSBT: PSBT,
-    };
-  };
+  //   return {
+  //     signedPSBT: PSBT,
+  //   };
+  // };
 
   static broadcastTransaction = async (
-    wallet: Wallet,
+    wallet: Wallet | Vault,
     signedPSBT: bitcoinJS.Psbt,
     inputs: InputUTXOs[],
     recipients: {
@@ -868,7 +853,7 @@ export default class WalletOperations {
   };
 
   static transferST1 = async (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     recipients: {
       address: string;
       amount: number;
@@ -922,7 +907,7 @@ export default class WalletOperations {
   };
 
   static transferST2 = async (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
     network: bitcoinJS.networks.Network,
@@ -952,12 +937,12 @@ export default class WalletOperations {
     if (txnPriority === TxPriority.CUSTOM) inputs = customTxPrerequisites.inputs;
     else inputs = txPrerequisites[txnPriority].inputs;
 
-    if (wallet.type === WalletType.READ_ONLY) {
+    if (wallet.entityKind === EntityKind.VAULT) {
       // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT therefore
       const serializedPSBT = PSBT.toBase64();
       return { serializedPSBT };
     } else {
-      const { signedPSBT } = WalletOperations.signTransaction(wallet, inputs, PSBT);
+      const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
       const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
       return {
         txid,

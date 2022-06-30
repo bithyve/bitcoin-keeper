@@ -104,7 +104,7 @@ const WalletDetailScreen = ({ route }) => {
     useObject(RealmSchema.Wallet, route.params.walletId)
   );
 
-  const { walletName, walletDescription } = wallet.presentationData;
+  const { name: walletName, description: walletDescription } = wallet.presentationData;
   const { balances, transactions } = wallet.specs;
   const navigation = useNavigation();
   const dispatch = useDispatch();

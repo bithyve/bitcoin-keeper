@@ -36,8 +36,9 @@ import { loginWithHexa } from 'src/store/sagaActions/wallets';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import { MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { useAppSelector } from 'src/store/hooks';
 
 type Props = {
   route: any | undefined;
@@ -61,9 +62,7 @@ const HomeScreen = ({ navigation, route }: Props) => {
     },
   ]);
 
-  const wallets: (Wallet | MultiSigWallet)[] = useSelector(
-    (state: RootStateOrAny) => state.wallet.wallets
-  );
+  const wallets: Wallet[] = useAppSelector((state: RootStateOrAny) => state.wallet.wallets);
   const allWallets = [...defaultWallets, ...wallets, { isEnd: true }];
 
   const { translations } = useContext(LocalizationContext);

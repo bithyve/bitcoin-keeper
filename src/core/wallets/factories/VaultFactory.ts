@@ -29,9 +29,9 @@ export const generateVault = ({
   const id = crypto.createHash('sha256').update(xpubs.join('')).digest('hex');
 
   const presentationData: VaultPresentationData = {
-    vaultName,
-    vaultDescription,
-    vaultVisibility: VisibilityType.DEFAULT,
+    name: vaultName,
+    description: vaultDescription,
+    visibility: VisibilityType.DEFAULT,
   };
 
   const specs: VaultSpecs = {

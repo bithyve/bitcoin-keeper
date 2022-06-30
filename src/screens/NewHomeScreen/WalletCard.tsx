@@ -18,8 +18,8 @@ import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 const WalletCard = ({ item, navigation }: { item: Wallet; navigation }) => {
-  const walletName = item?.presentationData?.walletName;
-  const walletDescription = item?.presentationData?.walletDescription;
+  const walletName = item?.presentationData?.name;
+  const walletDescription = item?.presentationData?.description;
   const balances = item?.specs?.balances;
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];

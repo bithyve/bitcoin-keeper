@@ -18,11 +18,12 @@ import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import { MultiSigWallet, Wallet } from '../interfaces/wallet';
+import { Wallet } from '../interfaces/wallet';
+import { Vault } from '../interfaces/vault';
 
 const ECPair = ECPairFactory(ecc);
 
-const { REQUEST_TIMEOUT, RELAY_AXIOS, SIGNING_AXIOS } = config;
+const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
 const accAxios: AxiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT * 3,
 });
@@ -298,85 +299,85 @@ export default class WalletUtilities {
     };
   };
 
-  static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
-    const { networkType } = wallet;
-    const network = WalletUtilities.getNetworkByType(networkType);
+  // static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
+  //   const { networkType } = wallet;
+  //   const network = WalletUtilities.getNetworkByType(networkType);
 
-    const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= closingExtIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
-        network,
-        itr,
-        false
-      );
-      if (multiSig.address === address) {
-        return {
-          multiSig,
-          primaryPriv: WalletUtilities.generateChildFromExtendedKey(
-            wallet.specs.xpriv,
-            network,
-            itr,
-            false
-          ),
-          secondaryPriv: wallet.specs.xprivs.secondary
-            ? WalletUtilities.generateChildFromExtendedKey(
-                wallet.specs.xprivs.secondary,
-                network,
-                itr,
-                false,
-                true
-              )
-            : null,
-          childIndex: itr,
-        };
-      }
-    }
+  //   const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;
+  //   for (let itr = 0; itr <= closingExtIndex; itr++) {
+  //     const multiSig = WalletUtilities.createMultiSig(
+  //       {
+  //         primary: wallet.specs.xpub,
+  //         secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
+  //         bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
+  //       },
+  //       2,
+  //       network,
+  //       itr,
+  //       false
+  //     );
+  //     if (multiSig.address === address) {
+  //       return {
+  //         multiSig,
+  //         primaryPriv: WalletUtilities.generateChildFromExtendedKey(
+  //           wallet.specs.xpriv,
+  //           network,
+  //           itr,
+  //           false
+  //         ),
+  //         secondaryPriv: wallet.specs.xprivs.secondary
+  //           ? WalletUtilities.generateChildFromExtendedKey(
+  //               wallet.specs.xprivs.secondary,
+  //               network,
+  //               itr,
+  //               false,
+  //               true
+  //             )
+  //           : null,
+  //         childIndex: itr,
+  //       };
+  //     }
+  //   }
 
-    const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
-    for (let itr = 0; itr <= closingIntIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(
-        {
-          primary: wallet.specs.xpub,
-          secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-          bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-        },
-        2,
-        network,
-        itr,
-        true
-      );
-      if (multiSig.address === address) {
-        return {
-          multiSig,
-          primaryPriv: WalletUtilities.generateChildFromExtendedKey(
-            wallet.specs.xpriv,
-            network,
-            itr,
-            true
-          ),
-          secondaryPriv: wallet.specs.xprivs.secondary
-            ? WalletUtilities.generateChildFromExtendedKey(
-                wallet.specs.xprivs.secondary,
-                network,
-                itr,
-                true,
-                true
-              )
-            : null,
-          childIndex: itr,
-          internal: true,
-        };
-      }
-    }
+  //   const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
+  //   for (let itr = 0; itr <= closingIntIndex; itr++) {
+  //     const multiSig = WalletUtilities.createMultiSig(
+  //       {
+  //         primary: wallet.specs.xpub,
+  //         secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
+  //         bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
+  //       },
+  //       2,
+  //       network,
+  //       itr,
+  //       true
+  //     );
+  //     if (multiSig.address === address) {
+  //       return {
+  //         multiSig,
+  //         primaryPriv: WalletUtilities.generateChildFromExtendedKey(
+  //           wallet.specs.xpriv,
+  //           network,
+  //           itr,
+  //           true
+  //         ),
+  //         secondaryPriv: wallet.specs.xprivs.secondary
+  //           ? WalletUtilities.generateChildFromExtendedKey(
+  //               wallet.specs.xprivs.secondary,
+  //               network,
+  //               itr,
+  //               true,
+  //               true
+  //             )
+  //           : null,
+  //         childIndex: itr,
+  //         internal: true,
+  //       };
+  //     }
+  //   }
 
-    throw new Error('Could not find signing essentials for ' + address);
-  };
+  //   throw new Error('Could not find signing essentials for ' + address);
+  // };
 
   static generatePaymentURI = (
     address: string,
@@ -431,7 +432,7 @@ export default class WalletUtilities {
   };
 
   static sortOutputs = (
-    wallet: Wallet | MultiSigWallet,
+    wallet: Wallet | Vault,
     outputs: Array<{
       address: string;
       value: number;
@@ -450,26 +451,24 @@ export default class WalletUtilities {
       if (!output.address) {
         let changeAddress: string;
 
-        if ((wallet as MultiSigWallet).specs.is2FA)
+        if ((wallet as Vault).isMultiSig) {
+          const xpubs = (wallet as Vault).specs.xpubs;
           changeAddress = WalletUtilities.createMultiSig(
-            {
-              primary: wallet.specs.xpub,
-              secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-              bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-            },
-            2,
+            xpubs,
+            (wallet as Vault).scheme.m,
             network,
             nextFreeChangeAddressIndex,
             true
           ).address;
-        else
+        } else {
           changeAddress = WalletUtilities.getAddressByIndex(
-            wallet.specs.xpub,
+            (wallet as Wallet).specs.xpub,
             true,
             nextFreeChangeAddressIndex,
             network,
             purpose
           );
+        }
 
         output.address = changeAddress;
         // console.log(`adding the change address: ${output.address}`);

@@ -17,9 +17,9 @@ export interface WalletDerivationDetails {
 }
 
 export interface WalletPresentationData {
-  walletName: string; // name of the wallet
-  walletDescription: string; // description of the wallet
-  walletVisibility: VisibilityType; // visibility of the wallet
+  name: string; // name of the wallet
+  description: string; // description of the wallet
+  visibility: VisibilityType; // visibility of the wallet
 }
 
 export interface WalletSpecs {
@@ -44,19 +44,6 @@ export interface WalletSpecs {
   // transactionsMeta?: TransactionMetaData[];
 }
 
-export interface MultiSigWalletSpecs extends WalletSpecs {
-  is2FA: boolean; // is2FA enabled
-  xpubs: {
-    // additional xpubs for multi-sig
-    secondary: string;
-    bithyve: string;
-  };
-  xprivs: {
-    // additional xpirvs for multi-sig
-    secondary?: string;
-  };
-}
-
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
   walletShellId: string; // identifier of the wallet shell that the wallet belongs
@@ -67,10 +54,6 @@ export interface Wallet {
   derivationDetails?: WalletDerivationDetails;
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
-}
-
-export interface MultiSigWallet extends Wallet {
-  specs: MultiSigWalletSpecs;
 }
 
 export interface TriggerPolicy {

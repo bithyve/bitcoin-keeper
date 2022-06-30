@@ -1,5 +1,6 @@
 import { VisibilityType } from 'src/core/wallets/enums';
-import { Wallet, MultiSigWallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { newVaultInfo, newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -28,7 +29,7 @@ export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
 
 export const syncWallets = (
-  wallets: (Wallet | MultiSigWallet)[],
+  wallets: (Wallet | Vault)[],
   options: {
     hardRefresh?: boolean;
     blindRefresh?: boolean;
@@ -114,15 +115,15 @@ export const validateTwoFA = (token: number) => {
   };
 };
 
-export const generateSecondaryXpriv = (wallet: MultiSigWallet, secondaryMnemonic: string) => {
-  return {
-    type: GENERATE_SECONDARY_XPRIV,
-    payload: {
-      wallet,
-      secondaryMnemonic,
-    },
-  };
-};
+// export const generateSecondaryXpriv = (wallet, secondaryMnemonic: string) => {
+//   return {
+//     type: GENERATE_SECONDARY_XPRIV,
+//     payload: {
+//       wallet,
+//       secondaryMnemonic,
+//     },
+//   };
+// };
 
 export const resetTwoFA = (secondaryMnemonic) => {
   return {
@@ -162,10 +163,7 @@ export const setupDonationWallet = (
   };
 };
 
-export const refreshWallets = (
-  wallets: (Wallet | MultiSigWallet)[],
-  options: { hardRefresh?: boolean }
-) => {
+export const refreshWallets = (wallets: (Wallet | Vault)[], options: { hardRefresh?: boolean }) => {
   return {
     type: REFRESH_WALLETS,
     payload: {

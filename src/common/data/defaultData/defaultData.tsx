@@ -62,7 +62,7 @@ export const defaultBackupKeys: BACKUP_KEYS[] = [
 ];
 
 export const walletData = (item) => {
-  const walletTitle = (item as Wallet)?.presentationData?.walletName;
+  const walletTitle = (item as Wallet)?.presentationData?.name;
   if (walletTitle == 'Full Import') {
     return {
       Icon: BlueWalletIcon,
@@ -75,8 +75,8 @@ export const walletData = (item) => {
     return {
       Icon: SingleSigIcon,
       type: 'Single-sig',
-      name: item?.presentationData?.walletName,
-      description: item?.presentationData?.walletDescription,
+      name: item?.presentationData?.name,
+      description: item?.presentationData?.description,
       balance: 0,
     };
   } else {
