@@ -1,11 +1,12 @@
 import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
-import { TextInput } from 'react-native';
+import { TextInput, ScrollView } from 'react-native';
 // libraries
 import { View, Box, Pressable, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 // components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Header from 'src/components/Header';
@@ -65,7 +66,7 @@ const SendScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
+    <ScrollView style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Header
@@ -80,20 +81,22 @@ const SendScreen = ({ route }) => {
         <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
       </Box>
       {/* send manually option */}
-      <Box
-        flexDirection={'row'}
-        marginY={hp(2)}
-        width={'100%'}
-        justifyContent={'center'}
-        alignItems={'center'}
-      >
-        <TextInput
-          placeholder="or enter address manually"
-          style={styles.textInput}
-          value={paymentInfo}
-          onChangeText={handleTextChange}
-        />
-      </Box>
+      <KeyboardAwareScrollView>
+        <Box
+          flexDirection={'row'}
+          marginY={hp(2)}
+          width={'100%'}
+          justifyContent={'center'}
+          alignItems={'center'}
+        >
+          <TextInput
+            placeholder="or enter address manually"
+            style={styles.textInput}
+            value={paymentInfo}
+            onChangeText={handleTextChange}
+          />
+        </Box>
+      </KeyboardAwareScrollView>
       {/* Send to Wallet options */}
       <Box marginTop={hp(10)}>
         <Text
@@ -156,7 +159,7 @@ const SendScreen = ({ route }) => {
       <Box marginTop={hp(70)} marginX={2}>
         <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
       </Box>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -198,12 +201,12 @@ const styles = ScaledSheet.create({
   },
   cameraView: {
     height: hp(300),
-    width: wp(375)
+    width: wp(375),
   },
   qrcontainer: {
     overflow: 'hidden',
     borderRadius: 10,
-    marginVertical: hp(25)
+    marginVertical: hp(25),
   },
   walletContainer: {
     flexDirection: 'row',
