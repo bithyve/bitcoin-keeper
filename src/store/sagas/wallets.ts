@@ -20,7 +20,13 @@ import crypto from 'crypto';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import { WalletType, NetworkType, VisibilityType, VaultType } from 'src/core/wallets/enums';
+import {
+  WalletType,
+  NetworkType,
+  VisibilityType,
+  VaultType,
+  EntityKind,
+} from 'src/core/wallets/enums';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -320,7 +326,7 @@ function* refreshWalletsWorker({
 }) {
   const { wallets } = payload;
   const options: { hardRefresh?: boolean } = payload.options;
-  const { synchedWallets, activeAddressesWithNewTxsMap } = yield call(syncWalletsWorker, {
+  const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
       options,
@@ -329,11 +335,16 @@ function* refreshWalletsWorker({
 
   let computeNetBalance = false;
   for (const synchedWallet of synchedWallets) {
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
-      specs: synchedWallet.specs,
-    });
-
-    if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
+    if (synchedWallet.entityKind === EntityKind.VAULT) {
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
+        specs: synchedWallet.specs,
+      });
+    } else {
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
+        specs: synchedWallet.specs,
+      });
+      if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
+    }
   }
 
   if (computeNetBalance) {
@@ -343,10 +354,10 @@ function* refreshWalletsWorker({
       null,
       true
     );
-    const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+    // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
 
     let netBalance = 0;
-    [...wallets, ...vaults].forEach((wallet) => {
+    wallets.forEach((wallet) => {
       const { confirmed, unconfirmed } = wallet.specs.balances;
       netBalance = netBalance + confirmed + unconfirmed;
     });
