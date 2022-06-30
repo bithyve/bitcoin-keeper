@@ -167,7 +167,7 @@ const WalletDetails = () => {
                 fontSize={hp(24)}
                 fontWeight={200}
               >
-                {walletBalance < 99.9999 ? (walletBalance / 10e8).toFixed(4) : 99.9999}
+                {walletBalance / 10e8 < 99.9999 ? (walletBalance / 10e8).toFixed(4) : 99.9999}
               </Text>
             </Box>
           </>
@@ -234,7 +234,7 @@ const WalletDetails = () => {
             marginX={2}
             marginRight={3}
           >
-            {transaction.amount < 99.9999 ? (transaction.amount / 10e8).toFixed(4) : 99.9999}
+            {transaction.amount / 10e8 < 99.9999 ? (transaction.amount / 10e8).toFixed(4) : 99.9999}
           </Text>
           <Box>
             <IconArrowGrey />
@@ -304,7 +304,7 @@ const WalletDetails = () => {
             fontSize={hp(30)}
             fontWeight={200}
           >
-            {netBalance < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
+            {netBalance / 10e8 < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
           </Text>
         </Box>
       </Box>

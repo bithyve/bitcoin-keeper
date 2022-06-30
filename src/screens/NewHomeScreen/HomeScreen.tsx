@@ -131,7 +131,7 @@ const LinkedWallets = (props) => {
                 fontSize={hp(30)}
                 fontWeight={200}
               >
-                {netBalance < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
+                {netBalance / 10e8 < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
               </Text>
             </Box>
           ) : (
@@ -292,7 +292,7 @@ const VaultStatus = (props) => {
                     fontSize={hp(34)}
                     fontWeight={200}
                   >
-                    {vaultBalance < 99.9999 ? (vaultBalance / 10e8).toFixed(4) : 99.9999}
+                    {vaultBalance / 10e8 < 99.9999 ? (vaultBalance / 10e8).toFixed(4) : 99.9999}
                   </Text>
                 ) : (
                   <Hidden />
