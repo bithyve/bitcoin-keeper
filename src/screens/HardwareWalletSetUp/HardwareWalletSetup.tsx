@@ -40,23 +40,6 @@ const TapsignerSetupContent = () => {
 };
 const HardwareWalletSetup = ({ navigation }: { navigation }) => {
 
-  const navigateToTapsignerSetup = () => {
-    close();
-    navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
-  };
-  const [visible, setVisible] = useState(false);
-
-  const { translations } = useContext(LocalizationContext);
-  const tapsigner = translations['tapsigner'];
-
-  const onPress = () => {
-    open();
-  };
-
-  const close = () => setVisible(false);
-  const open = () => setVisible(true);
-
-
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const navigateToTapsignerSetup = () => {
       close();
@@ -149,16 +132,8 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
         />
       </Box>
       <Box alignItems={'center'} justifyContent={'center'}>
-        <Pressable onPress={onPress}>
-          <Image
-            source={require('src/assets/images/AddSigner.png')}
-            style={{ width: wp(295), height: hp(538) }}
-            resizeMode="contain"
-            paddingY={'4'}
-          />
-        </Pressable>
-        {/* {commented for demo Purpose} */}
-        {/* <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
+
+        <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
             {[
               'COLDCARD',
@@ -175,8 +150,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
-
-        </ScrollView> */}
+        </ScrollView>
         <Text
           fontSize={RFValue(12)}
           letterSpacing={0.6}
@@ -192,19 +166,6 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
             Contact Us
           </Text>
         </Text>
-        <KeeperModal
-          visible={visible}
-          close={close}
-          title={tapsigner.SetupTitle}
-          subTitle={tapsigner.SetupDescription}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Setup'}
-          buttonTextColor={'#FAFAFA'}
-          buttonCallback={navigateToTapsignerSetup}
-          textColor={'#041513'}
-          Content={TapsignerSetupContent}
-        />
       </Box>
     </SafeAreaView>
   );
