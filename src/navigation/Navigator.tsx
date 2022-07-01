@@ -2,10 +2,8 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
-import AddWallet from 'src/screens/AddWallet/AddWalletScreen';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
-import BackupScreen from 'src/screens/BackupScreen/BackupScreen';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
@@ -72,9 +70,7 @@ const AppStack = () => {
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
-        <Stack.Screen name="Backup" component={BackupScreen} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
-        <Stack.Screen name="AddWallet Screen" component={AddWallet} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="InheritanceSetup" component={InheritanceSetup} />
@@ -94,7 +90,6 @@ const AppStack = () => {
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
-        {/* <Stack.Screen name="Test" component={TestingScreen} /> */}
       </Stack.Navigator>
     </RealmProvider>
   );
