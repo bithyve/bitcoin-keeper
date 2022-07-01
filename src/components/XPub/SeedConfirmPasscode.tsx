@@ -18,9 +18,9 @@ import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletType } from 'src/core/wallets/enums';
 
 const SeedConfirmPasscode = (props) => {
   const navigation = useNavigation();
@@ -40,9 +40,7 @@ const SeedConfirmPasscode = (props) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
-    .map(getJSONFromRealmObject)
-    .filter((wallet: Wallet) => wallet.type !== WalletType.READ_ONLY);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const currentWallet = wallets[walletIndex];
 
   const onPressNumber = (text) => {

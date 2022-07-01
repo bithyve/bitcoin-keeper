@@ -18,9 +18,9 @@ import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import BlueWallet from 'src/assets/icons/bluewallet.svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
-import { PaymentInfoKind } from 'src/core/wallets/interfaces/enum';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { PaymentInfoKind } from 'src/core/wallets/enums';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useDispatch } from 'react-redux';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';

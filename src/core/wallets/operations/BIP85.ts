@@ -3,9 +3,9 @@ import bs58 from 'bs58';
 import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
 import crypto from 'crypto';
-import config from '../config';
-import { WalletType, BIP85Languages, BIP85Words } from './interfaces/enum';
-import { BIP85Config } from './interfaces/interface';
+import config from '../../config';
+import { WalletType, BIP85Languages, BIP85Words } from '../enums';
+import { BIP85Config } from '../interfaces';
 
 export default class BIP85 {
   private static hmacsha512 = (message): Buffer => {

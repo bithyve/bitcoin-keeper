@@ -1,13 +1,10 @@
 import { Action } from 'redux';
 import { Satoshis } from '../../common/data/typealiases/UnitAliases';
-import {
-  MultiSigWallet,
-  TransactionPrerequisite,
-  TransactionPrerequisiteElements,
-  Wallet,
-} from 'src/core/wallets/interfaces/interface';
-import { TxPriority } from 'src/core/wallets/interfaces/enum';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TxPriority } from 'src/core/wallets/enums';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
+import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';
@@ -48,11 +45,11 @@ export const resetSendState = (): ResetSendState => {
 
 export interface SourceAccountSelectedForSendingAction extends Action {
   type: typeof SOURCE_WALLET_SELECTED_FOR_SENDING;
-  payload: Wallet | MultiSigWallet;
+  payload: Wallet | Vault;
 }
 
 export const sourceAccountSelectedForSending = (
-  payload: Wallet | MultiSigWallet
+  payload: Wallet | Vault
 ): SourceAccountSelectedForSendingAction => {
   return {
     type: SOURCE_WALLET_SELECTED_FOR_SENDING,
@@ -127,7 +124,7 @@ export const fetchFeeAndExchangeRates = () => {
 export interface SendPhaseOneAction extends Action {
   type: typeof SEND_PHASE_ONE;
   payload: {
-    wallet: Wallet | MultiSigWallet;
+    wallet: Wallet | Vault;
     recipients: {
       address: string;
       amount: number;
@@ -136,7 +133,7 @@ export interface SendPhaseOneAction extends Action {
 }
 
 export const sendPhaseOne = (payload: {
-  wallet: Wallet | MultiSigWallet;
+  wallet: Wallet | Vault;
   recipients: {
     address: string;
     amount: number;
@@ -175,14 +172,14 @@ export const feeIntelMissing = (payload: { intelMissing: boolean }): FeeIntelMis
 export interface SendPhaseTwoAction extends Action {
   type: typeof SEND_PHASE_TWO;
   payload: {
-    wallet: Wallet | MultiSigWallet;
+    wallet: Wallet | Vault;
     txnPriority: TxPriority;
     note?: string;
   };
 }
 
 export const sendPhaseTwo = (payload: {
-  wallet: Wallet | MultiSigWallet;
+  wallet: Wallet | Vault;
   txnPriority: TxPriority;
   token?: number;
   note?: string;
@@ -196,14 +193,14 @@ export const sendPhaseTwo = (payload: {
 export interface SendPhaseThreeAction extends Action {
   type: typeof SEND_PHASE_THREE;
   payload: {
-    wallet: Wallet | MultiSigWallet;
+    wallet: Wallet | Vault;
     txnPriority: TxPriority;
     signedSerializedPSBT: string;
   };
 }
 
 export const sendPhaseThree = (payload: {
-  wallet: Wallet | MultiSigWallet;
+  wallet: Wallet | Vault;
   txnPriority: TxPriority;
   signedSerializedPSBT: string;
 }): SendPhaseThreeAction => {
@@ -216,15 +213,15 @@ export const sendPhaseThree = (payload: {
 export interface CrossTransferAction extends Action {
   type: typeof CROSS_TRANSFER;
   payload: {
-    sender: Wallet | MultiSigWallet;
-    recipient: Wallet | MultiSigWallet;
+    sender: Wallet | Vault;
+    recipient: Wallet | Vault;
     amount: number;
   };
 }
 
 export const crossTransfer = (payload: {
-  sender: Wallet | MultiSigWallet;
-  recipient: Wallet | MultiSigWallet;
+  sender: Wallet | Vault;
+  recipient: Wallet | Vault;
   amount: number;
 }): CrossTransferAction => {
   return {
@@ -266,13 +263,13 @@ export interface CalculateSendMaxFeeAction extends Action {
   type: typeof CALCULATE_SEND_MAX_FEE;
   payload: {
     numberOfRecipients: number;
-    wallet: Wallet | MultiSigWallet;
+    wallet: Wallet | Vault;
   };
 }
 
 export const calculateSendMaxFee = (payload: {
   numberOfRecipients: number;
-  wallet: Wallet | MultiSigWallet;
+  wallet: Wallet | Vault;
 }): CalculateSendMaxFeeAction => {
   return {
     type: CALCULATE_SEND_MAX_FEE,
@@ -301,7 +298,7 @@ export const sendMaxFeeCalculated = (payload: Satoshis): SendMaxFeeCalculatedAct
 export interface CalculateCustomFeeAction extends Action {
   type: typeof CALCULATE_CUSTOM_FEE;
   payload: {
-    wallet: Wallet | MultiSigWallet;
+    wallet: Wallet | Vault;
     recipients: {
       address: string;
       amount: number;
@@ -312,7 +309,7 @@ export interface CalculateCustomFeeAction extends Action {
 }
 
 export const calculateCustomFee = (payload: {
-  wallet: Wallet | MultiSigWallet;
+  wallet: Wallet | Vault;
   recipients: {
     address: string;
     amount: number;

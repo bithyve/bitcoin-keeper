@@ -6,7 +6,7 @@ export const VaultShellSchema: ObjectSchema = {
   properties: {
     id: 'string',
     vaultInstances: '{}',
-    inheritancePolicyId: 'string',
+    inheritancePolicyId: 'string?',
   },
   primaryKey: 'id',
 };
@@ -16,6 +16,6 @@ export const VaultShellInstancesShcema: ObjectSchema = {
   embedded: true,
   properties: {
     shells: 'string[]',
-    activeShell: 'string',
+    activeShell: 'string?',
   },
 };

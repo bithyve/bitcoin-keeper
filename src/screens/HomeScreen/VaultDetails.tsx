@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Transaction, Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BTC from 'src/assets/images/btc_white.svg';
@@ -31,11 +31,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Transaction } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
@@ -99,7 +101,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   );
 };
 
-const Footer = ({ Vault }) => {
+const Footer = ({ vault }) => {
   const navigation = useNavigation();
   const styles = getStyles(0);
   return (
@@ -109,7 +111,7 @@ const Footer = ({ Vault }) => {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Send', { wallet: Vault }));
+            navigation.dispatch(CommonActions.navigate('Send', { wallet: vault }));
           }}
         >
           <Send />
@@ -120,7 +122,7 @@ const Footer = ({ Vault }) => {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Receive', { wallet: Vault }));
+            navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
           }}
         >
           <Recieve />
@@ -139,7 +141,7 @@ const Footer = ({ Vault }) => {
           onPress={() => {
             navigation.dispatch(
               CommonActions.navigate('ExportSeed', {
-                seed: Vault?.derivationDetails?.mnemonic,
+                seed: vault?.derivationDetails?.mnemonic,
               })
             );
           }}
@@ -172,13 +174,13 @@ const Header = () => {
   );
 };
 
-const VaultInfo = ({ Vault }) => {
+const VaultInfo = ({ vault }: { vault: Vault }) => {
   const {
-    presentationData: { walletName, walletDescription } = { walletName: '', walletDescription: '' },
+    presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
-  } = Vault;
+  } = vault;
   return (
     <VStack paddingY={12}>
       <HStack alignItems={'center'} justifyContent={'space-between'}>
@@ -194,7 +196,7 @@ const VaultInfo = ({ Vault }) => {
               fontWeight={200}
               letterSpacing={1.28}
             >
-              {walletName}
+              {name}
             </Text>
             <Text
               color={'light.white1'}
@@ -203,7 +205,7 @@ const VaultInfo = ({ Vault }) => {
               fontWeight={200}
               letterSpacing={1.28}
             >
-              {walletDescription}
+              {description}
             </Text>
           </VStack>
         </HStack>
@@ -287,7 +289,8 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
 
 const SignerList = () => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const Signers = useQuery(RealmSchema.VaultSigner);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers;
   const styles = getStyles(0);
   return (
     <ScrollView
@@ -329,21 +332,15 @@ const SignerList = () => {
 const VaultDetails = () => {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
-
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
-
   const { top } = useSafeAreaInsets();
-
-  const Vault: Wallet = useQuery(RealmSchema.Wallet)
-    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
-    .map(getJSONFromRealmObject)[0];
-
+  const vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
-  const transactions = Vault?.specs?.transactions || [];
+  const transactions = vault?.specs?.transactions || [];
 
   const refreshVault = () => {
-    dispatch(refreshWallets([Vault], { hardRefresh: true }));
+    dispatch(refreshWallets([vault], { hardRefresh: true }));
   };
 
   const pullDownRefresh = () => {
@@ -369,7 +366,7 @@ const VaultDetails = () => {
     >
       <VStack mx={'8%'}>
         <Header />
-        <VaultInfo Vault={Vault} />
+        <VaultInfo vault={vault} />
       </VStack>
       <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
         <VStack justifyContent={'space-between'}>
@@ -379,7 +376,7 @@ const VaultDetails = () => {
             pullDownRefresh={pullDownRefresh}
             pullRefresh={pullRefresh}
           />
-          <Footer Vault={Vault} />
+          <Footer vault={vault} />
         </VStack>
       </VStack>
     </LinearGradient>

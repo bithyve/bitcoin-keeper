@@ -23,17 +23,13 @@ import RecipientKind from '../../common/data/enums/RecipientKind';
 import idx from 'idx';
 import _ from 'lodash';
 import dbManager from '../../storage/realm/dbManager';
-import WalletOperations from 'src/core/wallets/WalletOperations';
+import WalletOperations from 'src/core/wallets/operations';
 import { createWatcher } from '../utilities';
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { RealmSchema } from 'src/storage/realm/enum';
-import {
-  AverageTxFeesByNetwork,
-  MultiSigWallet,
-  Wallet,
-} from 'src/core/wallets/interfaces/interface';
-import { TxPriority, WalletType } from 'src/core/wallets/interfaces/enum';
-import Relay from 'src/core/services/Relay';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { EntityKind, TxPriority, WalletType } from 'src/core/wallets/enums';
+import Relay from 'src/core/services/operations/Relay';
 import {
   sendPhaseOneExecuted,
   SendPhaseOneExecutedPayload,
@@ -43,13 +39,14 @@ import {
   setExchangeRates,
 } from '../reducers/send_and_receive';
 import * as bitcoinJS from 'bitcoinjs-lib';
+import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
-export function getNextFreeAddress(wallet: Wallet | MultiSigWallet) {
-  // to be used by react components(w/ dispatch)
+export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return '';
-
   const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
-  dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs: updatedWallet.specs });
+  const schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
+  dbManager.updateObjectById(schema, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 
@@ -138,20 +135,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       // customTxPrerequisites
     );
 
-    switch (wallet.type) {
-      case WalletType.READ_ONLY:
-        if (!serializedPSBT) throw new Error('Send failed: unable to generate PSBT');
-        yield put(
-          sendPhaseTwoExecuted({
-            successful: true,
-            serializedPSBT,
-          })
-        );
-        break;
-
-      default:
+    switch (wallet.entityKind) {
+      case EntityKind.WALLET:
         if (!txid) throw new Error('Send failed: unable to generate txid');
-        if (note) wallet.specs.transactionsNote[txid] = note;
+        if (note) wallet.specs.transactionNote[txid] = note;
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -161,6 +148,17 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
           specs: wallet.specs,
         });
+        break;
+
+      case EntityKind.VAULT:
+        if (!serializedPSBT) throw new Error('Send failed: unable to generate PSBT');
+        yield put(
+          sendPhaseTwoExecuted({
+            successful: true,
+            serializedPSBT,
+          })
+        );
+        break;
     }
   } catch (err) {
     yield put(

@@ -11,7 +11,7 @@ import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
@@ -21,9 +21,9 @@ const AddAmountScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
-  const { translations } = useContext( LocalizationContext )
-  const home = translations[ 'home' ]
-  const common = translations[ 'common' ]
+  const { translations } = useContext(LocalizationContext);
+  const home = translations['home'];
+  const common = translations['common'];
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>

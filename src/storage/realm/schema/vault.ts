@@ -1,4 +1,4 @@
-import { Balances } from './wallets';
+import { Balances } from './wallet';
 import { ObjectSchema } from 'realm';
 import { RealmSchema } from '../enum';
 
@@ -10,23 +10,38 @@ export const Scheme = {
   },
 };
 
+export const VaultSignerSchema: ObjectSchema = {
+  name: RealmSchema.VaultSigner,
+  embedded: true,
+  properties: {
+    signerId: 'string',
+    type: 'string',
+    xpub: 'string',
+    signerName: 'string?',
+    xpubInfo: {
+      type: '{}?',
+      properties: {
+        derivationPath: 'string?',
+      },
+    },
+  },
+};
+
 export const VaultPresentationDataSchema: ObjectSchema = {
   name: RealmSchema.VaultPresentationData,
   embedded: true,
   properties: {
-    vaultName: 'string', // name of the vault
-    vaultDescription: 'string', // description of the vault
-    vaultVisibility: 'string', // visibility of the vault
-    isSynching: 'bool', // sync status of the vault
+    name: 'string',
+    description: 'string',
+    visibility: 'string',
   },
 };
 
 export const VaultSpecsSchema: ObjectSchema = {
   name: RealmSchema.VaultSpecs,
+  embedded: true,
   properties: {
-    is2FA: 'bool',
     xpubs: 'string[]',
-    receivingAddress: 'string',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
     activeAddresses: RealmSchema.ActiveAddresses,
@@ -40,7 +55,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     hasNewTxn: 'bool?',
     txIdCache: '{}',
     transactionMapping: `${RealmSchema.TransactionToAddressMapping}[]`,
-    transactionsNote: '{}',
+    transactionNote: '{}',
   },
 };
 
@@ -48,9 +63,13 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
-    scheme: Scheme,
     vaultShellId: 'string',
+    entityKind: 'string',
+    type: 'string',
+    networkType: 'string',
     isUsable: 'bool',
+    isMultiSig: 'bool',
+    scheme: Scheme,
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,

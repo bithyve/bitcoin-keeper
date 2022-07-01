@@ -4,6 +4,7 @@ import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import React, { useCallback, useContext } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { Text, View } from 'native-base';
+import crypto from 'crypto';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
@@ -15,10 +16,11 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
-import { addNewWallets } from 'src/store/sagaActions/wallets';
-import { generateVault } from 'src/core/wallets/VaultFactory';
+import { SignerType, VaultType } from 'src/core/wallets/enums';
+import { addNewVault } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { newVaultInfo } from 'src/store/sagas/wallets';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -192,19 +194,18 @@ const SetupTapsigner = () => {
 
   const dispatch = useDispatch();
 
-  const createVault = useCallback((xpub) => {
+  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
-      const newWalletsInfo = {
-        walletType: WalletType.READ_ONLY,
-        walletDetails: {
+      const newVaultInfo: newVaultInfo = {
+        vaultType: VaultType.DEFAULT,
+        vaultScheme: scheme,
+        vaultSigners: signers,
+        vaultDetails: {
           name: 'Vault',
-          description: 'Vault from Tapsigner',
-        },
-        importDetails: {
-          xpub,
+          description: 'Secure your sats',
         },
       };
-      dispatch(addNewWallets([newWalletsInfo]));
+      dispatch(addNewVault(newVaultInfo));
       return true;
     } catch (err) {
       console.log(err);
@@ -234,40 +235,37 @@ const SetupTapsigner = () => {
       }
     })().then((resp) => {
       const { xpub, status } = resp;
-      console.log(xpub, status);
       updateStep(4, 5);
-      const isVaultCreated = createVault(xpub);
-      if (isVaultCreated) {
-        realm.write(() => {
-          realm.create(RealmSchema.VaultSigner, {
-            type: 'TAPSIGNER',
-            signerName: 'Tapsigner',
-            signerId:
-              config.APP_STAGE === APP_STAGE.DEVELOPMENT ? 'ABCD-EFGH-IJKL-MNOP' : card.card_ident,
-            derivation: config.APP_STAGE === APP_STAGE.DEVELOPMENT ? 'm/84h/0h/0h' : status.path,
-            xpub,
-          });
-        });
-        navigation.dispatch(CommonActions.navigate('NewHome'));
-      }
+      const signer: VaultSigner = {
+        signerId: card.card_ident,
+        type: SignerType.TAPSIGNER,
+        signerName: 'Tapsigner',
+        xpub,
+        xpubInfo: {
+          derivationPath: status.path,
+        },
+      };
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      const isVaultCreated = createVault([signer], scheme);
+      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
     });
   }, [cvc]);
 
   const MockVaultCreation = () => {
     if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
-      const isVaultCreated = createVault('xpub');
-      if (isVaultCreated) {
-        realm.write(() => {
-          realm.create(RealmSchema.VaultSigner, {
-            type: 'TAPSIGNER',
-            signerName: 'Tapsigner',
-            signerId: 'ABCD-EFGH-IJKL-MNOP',
-            derivation: 'm/84h/0h/0h',
-            xpub: 'xpub',
-          });
-        });
-        navigation.dispatch(CommonActions.navigate('NewHome'));
-      }
+      const mockTapSigner: VaultSigner = {
+        signerId: 'ABCD-EFGH-IJKL-MNOP',
+        type: SignerType.TAPSIGNER,
+        signerName: 'Tapsigner',
+        xpub: 'tpubDDsxrJ1EBEerDBJdCLjUNVf3gVELdgCX6WKYV1PfBsSkJfn87EktiqpTNhDWH4gucAafEVLYnSaWZ217vaL1Kekd1HtWpsjykJj1yV6c8fy',
+        xpubInfo: {
+          derivationPath: 'm/84h/0h/0h',
+        },
+      };
+
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      const isVaultCreated = createVault([mockTapSigner], scheme);
+      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
     }
   };
 
