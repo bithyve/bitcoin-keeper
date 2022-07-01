@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 // components
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -67,18 +67,24 @@ const SendScreen = ({ route }) => {
   };
 
   return (
-    <ScrollView style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
-      <Box marginX={3}>
-        <Header
-          title={common.send}
-          subtitle={common.smalldesc}
-          onPressHandler={() => navigation.goBack()}
-          headerTitleColor={'light.textBlack'}
-        />
-      </Box>
-      {/* {QR Scanner} */}
-      <KeyboardAwareScrollView scrollsToTop={true}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      enabled
+      keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+      style={styles.Container}
+    >
+      <ScrollView>
+        <StatusBarComponent padding={50} />
+        <Box marginX={3}>
+          <Header
+            title={common.send}
+            subtitle={common.smalldesc}
+            onPressHandler={() => navigation.goBack()}
+            headerTitleColor={'light.textBlack'}
+          />
+        </Box>
+        {/* {QR Scanner} */}
+
         <Box style={styles.qrcontainer}>
           <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
         </Box>
@@ -160,8 +166,8 @@ const SendScreen = ({ route }) => {
         <Box marginTop={hp(70)} marginX={2}>
           <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
         </Box>
-      </KeyboardAwareScrollView>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -169,6 +175,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: 8,
+    backgroundColor: 'light.ReceiveBackground',
   },
   linearGradient: {
     borderRadius: 6,
