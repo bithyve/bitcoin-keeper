@@ -126,7 +126,8 @@ export const generateMockExtendedKey = (): {
   const mockMnemonic = 'dwarf inch wild elephant depart jump cook mind name crop bicycle arrange';
   const seed = bip39.mnemonicToSeedSync(mockMnemonic).toString('hex');
   const networkType = NetworkType.TESTNET;
-  const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
+  const randomWalletNumber = Math.floor(Math.random() * 10e5);
+  const xDerivationPath = WalletUtilities.getDerivationPath(networkType, randomWalletNumber);
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed,
