@@ -2,8 +2,10 @@ import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-r
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext } from 'react';
+import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { Text, View } from 'native-base';
 import crypto from 'crypto';
+import config, { APP_STAGE } from 'src/core/config';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import DeleteIcon from 'src/assets/images/delete.svg';
@@ -14,11 +16,10 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 
 const StepState = ({ index, active, done }) => {
@@ -193,11 +194,11 @@ const SetupTapsigner = () => {
 
   const dispatch = useDispatch();
 
-  const createVault = useCallback((signers: VaultSigner[]) => {
+  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
       const newVaultInfo: newVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: { m: 1, n: 1 },
+        vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
           name: 'Vault',
@@ -244,19 +245,40 @@ const SetupTapsigner = () => {
           derivationPath: status.path,
         },
       };
-      const isVaultCreated = createVault([signer]);
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      const isVaultCreated = createVault([signer], scheme);
       if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
     });
   }, [cvc]);
 
+  const MockVaultCreation = () => {
+    if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      const mockTapSigner: VaultSigner = {
+        signerId: 'ABCD-EFGH-IJKL-MNOP',
+        type: SignerType.TAPSIGNER,
+        signerName: 'Tapsigner',
+        xpub: 'tpubDDsxrJ1EBEerDBJdCLjUNVf3gVELdgCX6WKYV1PfBsSkJfn87EktiqpTNhDWH4gucAafEVLYnSaWZ217vaL1Kekd1HtWpsjykJj1yV6c8fy',
+        xpubInfo: {
+          derivationPath: 'm/84h/0h/0h',
+        },
+      };
+
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      const isVaultCreated = createVault([mockTapSigner], scheme);
+      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <HeaderTitle title="" subtitle="" onPressHandler={() => navigation.goBack()} />
-      <ScrollView>
-        {stepItems.map((item) => (
-          <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />
-        ))}
-      </ScrollView>
+      <TapGestureHandler numberOfTaps={3} onActivated={MockVaultCreation}>
+        <ScrollView>
+          {stepItems.map((item) => (
+            <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />
+          ))}
+        </ScrollView>
+      </TapGestureHandler>
       <KeyPadView onPressNumber={onPressHandler} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
       <NfcPrompt visible={nfcVisible} />
     </SafeAreaView>

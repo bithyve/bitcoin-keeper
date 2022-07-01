@@ -1,4 +1,4 @@
-import { Box, Text, View } from 'native-base';
+import { Box, Image, Pressable, Text, View } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -39,6 +39,7 @@ const TapsignerSetupContent = () => {
   );
 };
 const HardwareWalletSetup = ({ navigation }: { navigation }) => {
+
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const navigateToTapsignerSetup = () => {
       close();
@@ -131,6 +132,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
         />
       </Box>
       <Box alignItems={'center'} justifyContent={'center'}>
+
         <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
             {[

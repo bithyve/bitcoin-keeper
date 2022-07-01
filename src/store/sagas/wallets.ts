@@ -28,8 +28,8 @@ import {
   EntityKind,
 } from 'src/core/wallets/enums';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
@@ -105,7 +105,10 @@ function* addNewWallet(
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Read-Only Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
-        importedXpub: importDetails.xpub,
+        importedXpub:
+          config.APP_STAGE === APP_STAGE.DEVELOPMENT
+            ? 'tpubDAenfwNu5GyCJWv8oqRAckdKMSUoZjgVF5p8WvQwHQeXjDhAHmGrPa4a4y2Fn7HF2nfCLefJanHV3ny1UY25MRVogizB2zRUdAo7Tr9XAjm'
+            : importDetails.xpub,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
