@@ -15,7 +15,6 @@ import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
-// import NewHomeScreen from 'src/screens/NewHomeScreen/NewHomeScreen';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
@@ -26,8 +25,6 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
-// import TestingScreen from 'src/screens/TestingScreen';
-import WalletDetailScreen from 'src/screens/WalletDetailScreen/WalletDetailScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
@@ -74,7 +71,6 @@ const AppStack = () => {
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="InheritanceSetup" component={InheritanceSetup} />
-        <Stack.Screen name="WalletDetailScreen" component={WalletDetailScreen} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />

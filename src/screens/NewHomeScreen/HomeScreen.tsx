@@ -1,18 +1,18 @@
 import { Box, HStack, Pressable, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Image, ImageBackground, TouchableOpacity } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
-import Elite from 'src/assets/images/svgs/elite.svg';
-import Pro from 'src/assets/images/svgs/pro.svg';
-import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
-import Ledger from 'src/assets/images/svgs/ledger_home.svg';
-import Trezor from 'src/assets/images/svgs/trezor_home.svg';
-import Mac from 'src/assets/images/svgs/mac_home.svg';
+// import Elite from 'src/assets/images/svgs/elite.svg';
+// import Pro from 'src/assets/images/svgs/pro.svg';
+// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
+// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
+// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
+// import Mac from 'src/assets/images/svgs/mac_home.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -167,33 +167,12 @@ const VaultSetupContent = () => {
 
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
-  const [icons, setIcons] = useState([<TapsignerIcon />])
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vault = translations['vault'];
 
   const { useQuery } = useContext(RealmWrapperContext);
   const Signers = useQuery(RealmSchema.VaultSigner);
-
-  useEffect(() => {
-    if (props.level === 1) {
-      setIcons([<TapsignerIcon />])
-    } else if (props.level === 2) {
-      setIcons([
-        <TapsignerIcon />,
-        <ColdCard />,
-        <Trezor />
-      ])
-    } else {
-      setIcons([
-        <TapsignerIcon />,
-        <ColdCard />,
-        <Trezor />,
-        <Ledger />,
-        <Mac />
-      ])
-    }
-  }, [props.level])
 
   const open = () => {
     if (Signers.length) {
@@ -261,13 +240,7 @@ const VaultStatus = (props) => {
             </Text>
             {!Signers.length ? null :
               <Box flexDirection={'row'} marginTop={hp(10)}>
-                {icons.map((icon) => {
-                  return (
-                    <Box marginX={1}>
-                      {icon}
-                    </Box>
-                  )
-                })}
+                <TapsignerIcon />
               </Box>
             }
           </Box>
@@ -319,7 +292,7 @@ const VaultStatus = (props) => {
   );
 };
 
-const VaultInfo = ({ level }: { level: number }) => {
+const VaultInfo = () => {
   const navigation = useNavigation();
   const { uaiStack } = useUaiStack();
   const dispatch = useDispatch();
@@ -370,7 +343,7 @@ const VaultInfo = ({ level }: { level: number }) => {
             <ScannerIcon />
           </Pressable>
           <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
-            {level === 1 ? <Basic /> : level === 2 ? <Pro /> : <Elite />}
+            <Basic />
           </Pressable>
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
@@ -403,42 +376,17 @@ export const NextIcon = ({ pressHandler }) => {
 const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
-  const [level, setLevel] = useState(1);
-  const [noOfTabs, setNoOfTabs] = useState<number>(0);
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (noOfTabs < 3) {
-        setNoOfTabs(0)
-      }
-    }, 1000)
-  }, [noOfTabs])
-
-  useEffect(() => {
-    if (noOfTabs === 3) {
-      setLevel((prev: number) => {
-        if (prev < 3) {
-          return prev + 1;
-        } else {
-          return 3;
-        }
-      })
-    }
-  }, [noOfTabs])
-
   return (
-    <Pressable
+    <Box
       flex={1}
       backgroundColor={'light.lightYellow'}
-      onPress={() => setNoOfTabs(prev => prev + 1)}
     >
-      <VaultInfo level={level} />
+      <VaultInfo />
       <VaultStatus
         onAmountPress={() => {
           setShowHideAmounts(!showHideAmounts);
         }}
         showHideAmounts={showHideAmounts}
-        level={level}
       />
       <InheritanceComponent />
       <LinkedWallets
@@ -447,7 +395,7 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-    </Pressable>
+    </Box>
   );
 };
 
