@@ -73,18 +73,18 @@ const SendScreen = ({ route }) => {
       keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
       style={styles.Container}
     >
-      <ScrollView>
-        <StatusBarComponent padding={50} />
-        <Box marginX={3}>
-          <Header
-            title={common.send}
-            subtitle={common.smalldesc}
-            onPressHandler={() => navigation.goBack()}
-            headerTitleColor={'light.textBlack'}
-          />
-        </Box>
-        {/* {QR Scanner} */}
+      <StatusBarComponent padding={50} />
+      <Box marginX={3}>
+        <Header
+          title={common.send}
+          subtitle={common.smalldesc}
+          onPressHandler={() => navigation.goBack()}
+          headerTitleColor={'light.textBlack'}
+        />
+      </Box>
+      {/* {QR Scanner} */}
 
+      <ScrollView>
         <Box style={styles.qrcontainer}>
           <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
         </Box>
