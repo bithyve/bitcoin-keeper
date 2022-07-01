@@ -1,11 +1,13 @@
 import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
-import { TextInput } from 'react-native';
+import { TextInput, ScrollView } from 'react-native';
 // libraries
 import { View, Box, Pressable, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
+import { KeyboardAvoidingView, Platform } from 'react-native';
+
 // components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Header from 'src/components/Header';
@@ -65,7 +67,12 @@ const SendScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      enabled
+      keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+      style={styles.Container}
+    >
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Header
@@ -76,87 +83,91 @@ const SendScreen = ({ route }) => {
         />
       </Box>
       {/* {QR Scanner} */}
-      <Box style={styles.qrcontainer}>
-        <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
-      </Box>
-      {/* send manually option */}
-      <Box
-        flexDirection={'row'}
-        marginY={hp(2)}
-        width={'100%'}
-        justifyContent={'center'}
-        alignItems={'center'}
-      >
-        <TextInput
-          placeholder="or enter address manually"
-          style={styles.textInput}
-          value={paymentInfo}
-          onChangeText={handleTextChange}
-        />
-      </Box>
-      {/* Send to Wallet options */}
-      <Box marginTop={hp(10)}>
-        <Text
-          marginX={5}
-          color={'light.GreyText'}
-          fontWeight={200}
-          fontFamily={'body'}
-          fontSize={14}
-          letterSpacing={0.6}
-        >
-          Send to Wallet
-        </Text>
-        <View flexDirection={'row'} style={styles.walletContainer}>
-          <Box mt={'3'}>
-            <Box>
-              <View style={styles.buttonBackground}>
-                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                  <IconWallet />
-                </Pressable>
-              </View>
-            </Box>
-            <Box>
-              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                Maldives
-              </Text>
-            </Box>
-          </Box>
-          <Box mt={'3'}>
-            <Box>
-              <View style={styles.buttonBackground}>
-                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                  <BlueWallet />
-                </Pressable>
-              </View>
-            </Box>
-            <Box>
-              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                Alex's Wallet
-              </Text>
-            </Box>
-          </Box>
-          <Box mt={'3'}>
-            <Box>
-              <View style={styles.buttonBackground}>
-                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                  <IconWallet />
-                </Pressable>
-              </View>
-            </Box>
-            <Box>
-              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                Retirement
-              </Text>
-            </Box>
-          </Box>
-        </View>
-      </Box>
 
-      {/* {Bottom note} */}
-      <Box marginTop={hp(70)} marginX={2}>
-        <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
-      </Box>
-    </View>
+      <ScrollView>
+        <Box style={styles.qrcontainer}>
+          <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
+        </Box>
+        {/* send manually option */}
+        <Box
+          flexDirection={'row'}
+          marginY={hp(2)}
+          width={'100%'}
+          justifyContent={'center'}
+          alignItems={'center'}
+        >
+          <TextInput
+            placeholder="or enter address manually"
+            style={styles.textInput}
+            value={paymentInfo}
+            onChangeText={handleTextChange}
+          />
+        </Box>
+
+        {/* Send to Wallet options */}
+        <Box marginTop={hp(10)}>
+          <Text
+            marginX={5}
+            color={'light.GreyText'}
+            fontWeight={200}
+            fontFamily={'body'}
+            fontSize={14}
+            letterSpacing={0.6}
+          >
+            Send to Wallet
+          </Text>
+          <View flexDirection={'row'} style={styles.walletContainer}>
+            <Box mt={'3'}>
+              <Box>
+                <View style={styles.buttonBackground}>
+                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                    <IconWallet />
+                  </Pressable>
+                </View>
+              </Box>
+              <Box>
+                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                  Maldives
+                </Text>
+              </Box>
+            </Box>
+            <Box mt={'3'}>
+              <Box>
+                <View style={styles.buttonBackground}>
+                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                    <BlueWallet />
+                  </Pressable>
+                </View>
+              </Box>
+              <Box>
+                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                  Alex's Wallet
+                </Text>
+              </Box>
+            </Box>
+            <Box mt={'3'}>
+              <Box>
+                <View style={styles.buttonBackground}>
+                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                    <IconWallet />
+                  </Pressable>
+                </View>
+              </Box>
+              <Box>
+                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                  Retirement
+                </Text>
+              </Box>
+            </Box>
+          </View>
+        </Box>
+
+        {/* {Bottom note} */}
+        <Box marginTop={hp(70)} marginX={2}>
+          <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
+        </Box>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -164,6 +175,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: 8,
+    backgroundColor: 'light.ReceiveBackground',
   },
   linearGradient: {
     borderRadius: 6,
@@ -198,12 +210,12 @@ const styles = ScaledSheet.create({
   },
   cameraView: {
     height: hp(300),
-    width: wp(375)
+    width: wp(375),
   },
   qrcontainer: {
     overflow: 'hidden',
     borderRadius: 10,
-    marginVertical: hp(25)
+    marginVertical: hp(25),
   },
   walletContainer: {
     flexDirection: 'row',
