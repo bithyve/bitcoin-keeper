@@ -118,3 +118,20 @@ export const generateWallet = async ({
   };
   return wallet;
 };
+
+export const generateMockExtendedKey = (): {
+  xpriv: string;
+  xpub: string;
+} => {
+  const mockMnemonic = 'dwarf inch wild elephant depart jump cook mind name crop bicycle arrange';
+  const seed = bip39.mnemonicToSeedSync(mockMnemonic).toString('hex');
+  const networkType = NetworkType.TESTNET;
+  const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed,
+    network,
+    xDerivationPath
+  );
+  return extendedKeys;
+};

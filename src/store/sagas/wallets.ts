@@ -105,10 +105,7 @@ function* addNewWallet(
         walletShellId: walletShell.id,
         walletName: walletName ? walletName : 'Read-Only Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
-        importedXpub:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT
-            ? 'tpubDAenfwNu5GyCJWv8oqRAckdKMSUoZjgVF5p8WvQwHQeXjDhAHmGrPa4a4y2Fn7HF2nfCLefJanHV3ny1UY25MRVogizB2zRUdAo7Tr9XAjm'
-            : importDetails.xpub,
+        importedXpub: importDetails.xpub,
         networkType:
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });

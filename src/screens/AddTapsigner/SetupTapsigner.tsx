@@ -21,6 +21,7 @@ import { addNewVault } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { newVaultInfo } from 'src/store/sagas/wallets';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -257,7 +258,7 @@ const SetupTapsigner = () => {
         signerId: 'ABCD-EFGH-IJKL-MNOP',
         type: SignerType.TAPSIGNER,
         signerName: 'Tapsigner',
-        xpub: 'tpubDDsxrJ1EBEerDBJdCLjUNVf3gVELdgCX6WKYV1PfBsSkJfn87EktiqpTNhDWH4gucAafEVLYnSaWZ217vaL1Kekd1HtWpsjykJj1yV6c8fy',
+        xpub: generateMockExtendedKey().xpub,
         xpubInfo: {
           derivationPath: 'm/84h/0h/0h',
         },
