@@ -7,6 +7,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 // components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Header from 'src/components/Header';
@@ -77,11 +78,11 @@ const SendScreen = ({ route }) => {
         />
       </Box>
       {/* {QR Scanner} */}
-      <Box style={styles.qrcontainer}>
-        <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
-      </Box>
-      {/* send manually option */}
-      <KeyboardAwareScrollView>
+      <KeyboardAwareScrollView scrollsToTop={true}>
+        <Box style={styles.qrcontainer}>
+          <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
+        </Box>
+        {/* send manually option */}
         <Box
           flexDirection={'row'}
           marginY={hp(2)}
@@ -96,69 +97,70 @@ const SendScreen = ({ route }) => {
             onChangeText={handleTextChange}
           />
         </Box>
-      </KeyboardAwareScrollView>
-      {/* Send to Wallet options */}
-      <Box marginTop={hp(10)}>
-        <Text
-          marginX={5}
-          color={'light.GreyText'}
-          fontWeight={200}
-          fontFamily={'body'}
-          fontSize={14}
-          letterSpacing={0.6}
-        >
-          Send to Wallet
-        </Text>
-        <View flexDirection={'row'} style={styles.walletContainer}>
-          <Box mt={'3'}>
-            <Box>
-              <View style={styles.buttonBackground}>
-                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                  <IconWallet />
-                </Pressable>
-              </View>
-            </Box>
-            <Box>
-              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                Maldives
-              </Text>
-            </Box>
-          </Box>
-          <Box mt={'3'}>
-            <Box>
-              <View style={styles.buttonBackground}>
-                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                  <BlueWallet />
-                </Pressable>
-              </View>
-            </Box>
-            <Box>
-              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                Alex's Wallet
-              </Text>
-            </Box>
-          </Box>
-          <Box mt={'3'}>
-            <Box>
-              <View style={styles.buttonBackground}>
-                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                  <IconWallet />
-                </Pressable>
-              </View>
-            </Box>
-            <Box>
-              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                Retirement
-              </Text>
-            </Box>
-          </Box>
-        </View>
-      </Box>
 
-      {/* {Bottom note} */}
-      <Box marginTop={hp(70)} marginX={2}>
-        <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
-      </Box>
+        {/* Send to Wallet options */}
+        <Box marginTop={hp(10)}>
+          <Text
+            marginX={5}
+            color={'light.GreyText'}
+            fontWeight={200}
+            fontFamily={'body'}
+            fontSize={14}
+            letterSpacing={0.6}
+          >
+            Send to Wallet
+          </Text>
+          <View flexDirection={'row'} style={styles.walletContainer}>
+            <Box mt={'3'}>
+              <Box>
+                <View style={styles.buttonBackground}>
+                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                    <IconWallet />
+                  </Pressable>
+                </View>
+              </Box>
+              <Box>
+                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                  Maldives
+                </Text>
+              </Box>
+            </Box>
+            <Box mt={'3'}>
+              <Box>
+                <View style={styles.buttonBackground}>
+                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                    <BlueWallet />
+                  </Pressable>
+                </View>
+              </Box>
+              <Box>
+                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                  Alex's Wallet
+                </Text>
+              </Box>
+            </Box>
+            <Box mt={'3'}>
+              <Box>
+                <View style={styles.buttonBackground}>
+                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                    <IconWallet />
+                  </Pressable>
+                </View>
+              </Box>
+              <Box>
+                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                  Retirement
+                </Text>
+              </Box>
+            </Box>
+          </View>
+        </Box>
+
+        {/* {Bottom note} */}
+        <Box marginTop={hp(70)} marginX={2}>
+          <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
+        </Box>
+      </KeyboardAwareScrollView>
     </ScrollView>
   );
 };
