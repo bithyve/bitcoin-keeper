@@ -19,10 +19,12 @@ import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import QRCode from 'react-native-qrcode-svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
@@ -50,6 +52,8 @@ const ReceiveScreen = ({ route }: { route }) => {
       setPaymentURI(newPaymentURI);
     } else if (paymentURI) setPaymentURI(null);
   }, [amount]);
+
+ const {showToast} = useToastMessage();
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
@@ -104,6 +108,7 @@ const ReceiveScreen = ({ route }: { route }) => {
             activeOpacity={0.4}
             onPress={() => {
               Clipboard.setString(paymentURI || receivingAddress);
+              showToast('Address Copied Successfully', <TickIcon />)
             }}
           >
             <Box

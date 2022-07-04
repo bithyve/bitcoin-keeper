@@ -121,7 +121,7 @@ const SetupInheritance = () => {
       <StatusBarComponent padding={50} />
       <Box>
         <Header
-          title={'Setup Inheritance'}
+          title={'Inheritance'}
           subtitle={'Securely bequeath your bitcoin'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.headerText'}
