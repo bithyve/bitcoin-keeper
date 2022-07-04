@@ -1,5 +1,5 @@
 import { ImageSourcePropType } from 'react-native';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { WalletType } from 'src/core/wallets/enums';
 import RecipientKind from '../../enums/RecipientKind';
 import { Satoshis } from '../../typealiases/UnitAliases';
 

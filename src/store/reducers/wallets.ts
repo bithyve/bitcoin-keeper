@@ -1,9 +1,5 @@
-import { DonationWallet, MultiSigWallet, Wallet } from 'src/core/wallets/interfaces/interface';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
-import { newWalletsInfo } from '../sagas/wallets';
 
 export type WalletsState = {
   walletsSynched: boolean;
@@ -173,7 +169,7 @@ export default (state: WalletsState = initialState, action): WalletsState => {
 
     case RECOMPUTE_NET_BALANCE:
       let netBalance = 0;
-      action.payload.wallets.forEach((wallet: Wallet | MultiSigWallet | DonationWallet) => {
+      action.payload.wallets.forEach((wallet: Wallet ) => {
         if (wallet.type !== WalletType.TEST) {
           const balances = wallet.specs.balances;
           netBalance = netBalance + (balances.confirmed + balances.unconfirmed);

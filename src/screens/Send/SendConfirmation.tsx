@@ -10,12 +10,13 @@ import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { useDispatch } from 'react-redux';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-import { TxPriority, WalletType } from 'src/core/wallets/interfaces/enum';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { TxPriority, WalletType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -25,23 +26,24 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
-  const Vault: Wallet = useQuery(RealmSchema.Wallet)
-    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
-    .map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
 
   const onProceed = () => {
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      if (Vault) {
+      if (defaultVault) {
         dispatch(
           crossTransfer({
             sender: defaultWallet,
-            recipient: Vault,
+            recipient: defaultVault,
             amount: 10e3,
           })
         );
+        if (uaiSetActionFalse) {
+          uaiSetActionFalse();
+        }
         navigtaion.goBack();
       }
     } else {
@@ -54,7 +56,7 @@ const SendConfirmation = ({ route }) => {
     }
   };
 
-  const SendingCard = () => {
+  const SendingCard = ({ isSend }) => {
     return (
       <Box marginY={windowHeight * 0.01}>
         <Text
@@ -64,7 +66,7 @@ const SendConfirmation = ({ route }) => {
           fontWeight={200}
           marginY={windowHeight * 0.011}
         >
-          Sending From
+          {isSend ? 'Sending From' : 'Sending To'}
         </Text>
         <Box
           borderRadius={10}
@@ -89,18 +91,21 @@ const SendConfirmation = ({ route }) => {
               letterSpacing={1.12}
               fontWeight={200}
             >
-              Funds
+              {isVaultTransfer && !isSend ? 'Vault' : 'Funds'}
             </Text>
             <Box flexDirection={'row'}>
               <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                Available to spend{' '}
+                {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`}
               </Text>
               <Box justifyContent={'center'}>
                 <BTC />
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {' '}
-                {wallet ? (wallet as Wallet).specs.balances.confirmed : ''}
+                {isVaultTransfer && defaultWallet && isSend
+                  ? (defaultWallet as Wallet).specs.balances.confirmed / 10e8
+                  : ''}
+                {wallet ? (wallet as Wallet).specs.balances.confirmed / 10e8 : ''}
+                {!isSend && isVaultTransfer ? '0.0001' : ''}
               </Text>
             </Box>
           </Box>
@@ -116,7 +121,7 @@ const SendConfirmation = ({ route }) => {
           Transaction Fee
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo ? txFeeInfo[transactionPriority].amount : ''}
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'}
         </Text>
       </Box>
     );
@@ -137,7 +142,7 @@ const SendConfirmation = ({ route }) => {
         onPressHandler={() => navigtaion.goBack()}
       />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <SendingCard />
+        <SendingCard isSend />
         <SendingCard />
 
         <Box marginTop={windowHeight * 0.01}>

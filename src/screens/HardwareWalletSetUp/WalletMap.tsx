@@ -9,7 +9,7 @@ import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
-import { SignerType } from 'src/core/wallets/interfaces/enum';
+import { SignerType } from 'src/core/wallets/enums';
 import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
 import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';

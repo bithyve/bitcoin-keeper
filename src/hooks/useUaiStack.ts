@@ -5,9 +5,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { addToUaiStack, updateUaiStack } from 'src/store/sagaActions/uai';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export const useUaiStack = () => {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -16,9 +15,7 @@ export const useUaiStack = () => {
   const dispatch = useDispatch();
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const Vault: Wallet = useQuery(RealmSchema.Wallet)
-    .filter((wallet: Wallet) => wallet.type === WalletType.READ_ONLY)
-    .map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
 
   //creation of default stack
   useEffect(() => {
@@ -26,7 +23,7 @@ export const useUaiStack = () => {
       (uai) => uai.uaiType === uaiType.SECURE_VAULT && uai.isActioned === false
     )[0];
 
-    if (!Vault) {
+    if (!defaultVault) {
       if (!uai_SECURE_VAULT) {
         dispatch(
           addToUaiStack(
@@ -40,12 +37,12 @@ export const useUaiStack = () => {
       }
     }
 
-    if (Vault && uai_SECURE_VAULT) {
+    if (defaultVault && uai_SECURE_VAULT) {
       let updatedUai: UAI = JSON.parse(JSON.stringify(uai_SECURE_VAULT)); //Need to get a better way
       updatedUai = { ...updatedUai, isActioned: true };
       dispatch(updateUaiStack(updatedUai));
     }
-  }, [Vault]);
+  }, [defaultVault]);
 
   useEffect(() => {
     if (netBalance >= 10000) {

@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/interfaces/enum';
+import { TxPriority } from 'src/core/wallets/enums';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
-} from 'src/core/wallets/interfaces/interface';
+} from 'src/core/wallets/interfaces/';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;

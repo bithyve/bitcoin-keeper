@@ -1,9 +1,4 @@
-import {
-  NodeConnect,
-  TwoFADetails,
-  VaultShell,
-  WalletShell,
-} from 'src/core/wallets/interfaces/interface';
+import { NodeConnect, TwoFADetails } from 'src/core/wallets/interfaces';
 import { AppTierLevel } from '../../enums/AppTierLevel';
 
 export interface UserTier {
@@ -19,9 +14,9 @@ export interface KeeperApp {
     shells: string[];
     activeShell: string;
   };
-  vaultShellInstances?: {
+  vaultShellInstances: {
     shells: string[];
-    activeShell: string;
+    activeShell?: string;
   };
   twoFADetails?: TwoFADetails;
   nodeConnect?: NodeConnect;

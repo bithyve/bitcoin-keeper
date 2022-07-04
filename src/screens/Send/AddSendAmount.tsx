@@ -12,7 +12,7 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import AppNumPad from 'src/components/AppNumPad';
 import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
 import Colors from 'src/theme/Colors';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useDispatch } from 'react-redux';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 

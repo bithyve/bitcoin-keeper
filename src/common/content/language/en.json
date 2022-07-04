@@ -375,7 +375,7 @@
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
-    "choosePlanSubTitle": "Lorem ipsum dolor sit amet",
+    "choosePlanSubTitle": "You are currently on the basic plan",
     "noteSubTitle": "This purchase would be made on the App Store Lorem ipsum dolor sit amet, consectetur adipiscing elit"
   }
 }

@@ -7,6 +7,12 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
+// import Elite from 'src/assets/images/svgs/elite.svg';
+// import Pro from 'src/assets/images/svgs/pro.svg';
+// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
+// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
+// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
+// import Mac from 'src/assets/images/svgs/mac_home.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -23,17 +29,19 @@ import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletType } from 'src/core/wallets/enums';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
+
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
       <LinearGradient
@@ -73,9 +81,7 @@ const InheritanceComponent = () => {
 const LinkedWallets = (props) => {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet)
-    .map(getJSONFromRealmObject)
-    .filter((wallet) => wallet.type !== WalletType.READ_ONLY);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
 
   return (
@@ -114,17 +120,19 @@ const LinkedWallets = (props) => {
         </Box>
         <Pressable onPress={() => props.onAmountPress()}>
           {props.showHideAmounts ? (
-            <Text
-              color={'light.white1'}
-              letterSpacing={0.6}
-              fontSize={RFValue(30)}
-              fontWeight={200}
-            >
-              <Box padding={1} marginBottom={0.5}>
+            <Box flexDirection={'row'} alignItems={'center'}>
+              <Box padding={1} marginBottom={-1}>
                 <BTC />
               </Box>
-              {netBalance}
-            </Text>
+              <Text
+                color={'light.white1'}
+                letterSpacing={0.6}
+                fontSize={hp(30)}
+                fontWeight={200}
+              >
+                {netBalance / 10e8 < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
+              </Text>
+            </Box>
           ) : (
             <Box flexDirection={'row'} alignItems={'center'}>
               <BTC />
@@ -160,10 +168,11 @@ const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
-  const vault = translations['vault'];
+  const vaultTranslations = translations['vault'];
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const Signers = useQuery(RealmSchema.VaultSigner);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers || [];
 
   const open = () => {
     if (Signers.length) {
@@ -179,9 +188,7 @@ const VaultStatus = (props) => {
     navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
   };
 
-  const Vault = useQuery(RealmSchema.Wallet)
-    .map(getJSONFromRealmObject)
-    .filter((wallets) => wallets.type === WalletType.READ_ONLY)[0];
+  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
 
   const { confirmed = 0, unconfirmed = 0 } = Vault?.specs?.balances || {};
   const vaultBalance = confirmed + unconfirmed;
@@ -229,7 +236,11 @@ const VaultStatus = (props) => {
                 ? 'Activate Now '
                 : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
-            {!Signers.length ? null : <TapsignerIcon />}
+            {!Signers.length ? null :
+              <Box flexDirection={'row'} marginTop={hp(10)}>
+                <TapsignerIcon />
+              </Box>
+            }
           </Box>
           {!Signers.length ? (
             <Box marginTop={hp(31.5)}>
@@ -249,10 +260,10 @@ const VaultStatus = (props) => {
                     p={1}
                     color={'light.white1'}
                     letterSpacing={0.8}
-                    fontSize={RFValue(34)}
+                    fontSize={hp(34)}
                     fontWeight={200}
                   >
-                    {vaultBalance}
+                    {vaultBalance / 10e8 < 99.9999 ? (vaultBalance / 10e8).toFixed(4) : 99.9999}
                   </Text>
                 ) : (
                   <Hidden />
@@ -265,11 +276,11 @@ const VaultStatus = (props) => {
       <KeeperModal
         visible={visible}
         close={close}
-        title={vault.SetupyourVault}
-        subTitle={vault.VaultDesc}
+        title={vaultTranslations.SetupyourVault}
+        subTitle={vaultTranslations.VaultDesc}
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vault.Addsigner}
+        buttonText={vaultTranslations.Addsigner}
         buttonTextColor={'#073E39'}
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
@@ -364,7 +375,10 @@ const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
-    <Box flex={1} backgroundColor={'light.lightYellow'}>
+    <Box
+      flex={1}
+      backgroundColor={'light.lightYellow'}
+    >
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {

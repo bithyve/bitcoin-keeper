@@ -1,4 +1,4 @@
-import { Box, Text, View } from 'native-base';
+import { Box, Image, Pressable, Text, View } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -10,7 +10,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
-import { SignerType } from 'src/core/wallets/interfaces/enum';
+import { SignerType } from 'src/core/wallets/enums';
 import TapSigner from 'src/assets/images/svgs/tapsigner.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { TouchableOpacity } from 'react-native';
@@ -39,6 +39,7 @@ const TapsignerSetupContent = () => {
   );
 };
 const HardwareWalletSetup = ({ navigation }: { navigation }) => {
+
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const navigateToTapsignerSetup = () => {
       close();
@@ -131,6 +132,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
         />
       </Box>
       <Box alignItems={'center'} justifyContent={'center'}>
+
         <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
             {[
@@ -148,7 +150,6 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
-
         </ScrollView>
         <Text
           fontSize={RFValue(12)}

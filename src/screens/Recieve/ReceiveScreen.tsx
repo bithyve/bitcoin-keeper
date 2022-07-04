@@ -11,8 +11,8 @@ import Header from 'src/components/Header';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from '../../components/InfoBox';
 
-import WalletUtilities from 'src/core/wallets/WalletUtilities';
-import { Wallet } from 'src/core/wallets/interfaces/interface';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 
 import QrCode from 'src/assets/images/qrcode.png';
@@ -33,9 +33,9 @@ const ReceiveScreen = ({ route }: { route }) => {
   const [receivingAddress, setReceivingAddress] = useState(null);
   const [paymentURI, setPaymentURI] = useState(null);
 
-  const { translations } = useContext(LocalizationContext)
-  const common = translations['common']
-  const home = translations['home']
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const home = translations['home'];
 
   useEffect(() => {
     const receivingAddress = getNextFreeAddress(wallet);
@@ -62,12 +62,7 @@ const ReceiveScreen = ({ route }: { route }) => {
           headerTitleColor={'light.textBlack'}
         />
       </Box>
-      <Box
-        marginTop={hp(80)}
-        alignItems={'center'}
-        alignSelf={'center'}
-        width={hp(200)}
-      >
+      <Box marginTop={hp(80)} alignItems={'center'} alignSelf={'center'} width={hp(200)}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"
@@ -168,11 +163,7 @@ const ReceiveScreen = ({ route }: { route }) => {
       </TouchableOpacity>
       {/* {Bottom note} */}
       <Box position={'absolute'} bottom={hp(45)} marginX={5}>
-        <InfoBox
-          title={home.AddAmount}
-          desciption={home.reflectSats}
-          width={300}
-        />
+        <InfoBox title={home.AddAmount} desciption={home.reflectSats} width={300} />
       </Box>
     </View>
   );

@@ -9,10 +9,10 @@ import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
-import { WalletShell } from 'src/core/wallets/interfaces/interface';
+import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { addNewWallets } from '../sagaActions/wallets';
-import { newWalletsInfo } from './wallets';
-import { WalletType } from 'src/core/wallets/interfaces/enum';
+import { newWalletInfo } from './wallets';
+import { WalletType } from 'src/core/wallets/enums';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -38,6 +38,10 @@ function* setupKeeperAppWorker({ payload }) {
         shells: [defaultWalletShell.id],
         activeShell: defaultWalletShell.id,
       },
+      vaultShellInstances: {
+        shells: [],
+        activeShell: null,
+      },
       userTier,
       version: DeviceInfo.getVersion(),
     };
@@ -45,11 +49,11 @@ function* setupKeeperAppWorker({ payload }) {
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
     // create default wallet
-    const defaultWallet: newWalletsInfo = {
+    const defaultWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: 'Mobile Wallet',
-        description: 'Single-sig bitcoin wallet'
+        description: 'Single-sig bitcoin wallet',
       },
     };
     yield put(addNewWallets([defaultWallet]));

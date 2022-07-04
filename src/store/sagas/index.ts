@@ -8,16 +8,13 @@ import {
 } from './login';
 import { setupKeeperAppWatcher } from './storage';
 import {
+  addNewVaultWatcher,
   addNewWalletsWatcher,
   autoWalletsSyncWatcher,
-  generateSecondaryXprivWatcher,
   importNewWalletWatcher,
   refreshWalletsWatcher,
-  resetTwoFAWatcher,
   syncWalletsWatcher,
-  testcoinsWatcher,
   updateWalletSettingsWatcher,
-  validateTwoFAWatcher,
 } from './wallets';
 import { updateFCMTokensWatcher } from './notifications';
 import { addUaiStackWatcher, updateUaiStackWatcher } from './uai';
@@ -46,15 +43,12 @@ export const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
+    addNewVaultWatcher,
     autoWalletsSyncWatcher,
-    generateSecondaryXprivWatcher,
     importNewWalletWatcher,
     refreshWalletsWatcher,
-    resetTwoFAWatcher,
     syncWalletsWatcher,
-    testcoinsWatcher,
     updateWalletSettingsWatcher,
-    validateTwoFAWatcher,
 
     // send and receive
     feeAndExchangeRatesWatcher,
