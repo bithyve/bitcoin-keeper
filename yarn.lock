@@ -3926,9 +3926,9 @@ code-point-at@^1.0.0:
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha512-RpAVKQA5T63xEj6/giIbUEtZwJ4UFIc3ZtvEkiaUERylqe8xb5IvqcgOurZLahv93CLKfxcw5YI+DZcUBRyLXA==
 
-"coinkite-tap-protocol-js@git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#main":
+"coinkite-tap-protocol-js@git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#main":
   version "0.0.1"
-  resolved "git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#e3e1e2111e23c3ac874e52b671aa113c3b32a5a2"
+  resolved "git+https://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:x-oauth-basic@github.com/bithyve/coinkite-tap-protocol-js.git#e3e1e2111e23c3ac874e52b671aa113c3b32a5a2"
   dependencies:
     "@ellipticoin/cbor" "^1.0.4"
     bech32 "^2.0.0"
