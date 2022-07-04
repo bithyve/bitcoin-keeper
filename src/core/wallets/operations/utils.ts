@@ -268,8 +268,7 @@ export default class WalletUtilities {
         xpub,
         network,
         childIndex,
-        internal,
-        true
+        internal
       );
       const xKey = bip32.fromBase58(childExtendedKey, network);
       const pub = xKey.publicKey.toString('hex');
