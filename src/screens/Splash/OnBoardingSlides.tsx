@@ -24,9 +24,10 @@ import Skip from 'src/assets/images/svgs/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const OnBoardingSlides = ({ navigation }) => {
+  console.log('height', height);
   const { translations } = useContext(LocalizationContext);
   const onboarding = translations['onboarding'];
   const common = translations['common'];
@@ -79,7 +80,7 @@ const OnBoardingSlides = ({ navigation }) => {
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="stretch" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, margin: 10 }}>
-          <Box justifyContent={'center'} m={4}>
+          <Box justifyContent={'center'} m={4} mt={height < 670 ? 6 : 0}>
             {currentPosition != 5 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('App')}

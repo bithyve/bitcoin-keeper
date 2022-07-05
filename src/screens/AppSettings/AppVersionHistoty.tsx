@@ -20,7 +20,8 @@ const AppVersionHistory = ({ navigation }) => {
           <BackIcon />
         </TouchableOpacity>
       </Box>
-      <Box mx={10}>
+
+      <Box mx={10} mb={5}>
         <Text color={'light.headerText'} fontSize={RFValue(16)} fontFamily={'heading'} pl={10}>
           Version History
         </Text>
@@ -28,9 +29,11 @@ const AppVersionHistory = ({ navigation }) => {
           Lorem ipsum dolor sit amet
         </Text>
       </Box>
-      <Box m={10}>
-        <VersionHistoryList />
-      </Box>
+      <ScrollView>
+        <Box m={10}>
+          <VersionHistoryList />
+        </Box>
+      </ScrollView>
     </SafeAreaView>
   );
 };
