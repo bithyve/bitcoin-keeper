@@ -513,7 +513,7 @@ export default class WalletOperations {
   };
 
   static calculateSendMaxFee = (
-    wallet: Wallet,
+    wallet: Wallet | Vault,
     numberOfRecipients: number,
     feePerByte: number,
     network: bitcoinJS.networks.Network
@@ -695,23 +695,36 @@ export default class WalletOperations {
       });
 
       for (const input of inputs) {
-        const publicKey = WalletUtilities.addressToKey(input.address, wallet, true) as Buffer;
-        const p2wpkh = bitcoinJS.payments.p2wpkh({
-          pubkey: publicKey,
-          network,
-        });
-        const p2sh = bitcoinJS.payments.p2sh({
-          redeem: p2wpkh,
-        });
+        let witnessScript, redeemScript;
+        if (wallet.entityKind === EntityKind.WALLET) {
+          const publicKey = WalletUtilities.addressToKey(
+            input.address,
+            wallet as Wallet,
+            true
+          ) as Buffer;
+          const p2wpkh = bitcoinJS.payments.p2wpkh({
+            pubkey: publicKey,
+            network,
+          });
+          const p2sh = bitcoinJS.payments.p2sh({
+            redeem: p2wpkh,
+          });
+          witnessScript = p2sh.output;
+          redeemScript = p2wpkh.output;
+        } else if (wallet.entityKind === EntityKind.VAULT) {
+          const { p2wsh, p2sh } = WalletUtilities.addressToMultiSig(input.address, wallet as Vault);
+          witnessScript = p2sh.output;
+          redeemScript = p2wsh.output;
+        }
 
         PSBT.addInput({
           hash: input.txId,
           index: input.vout,
           witnessUtxo: {
-            script: p2sh.output,
+            script: witnessScript,
             value: input.value,
           },
-          redeemScript: p2wpkh.output,
+          redeemScript: redeemScript,
         });
       }
 
