@@ -709,12 +709,12 @@ export default class WalletOperations {
           const p2sh = bitcoinJS.payments.p2sh({
             redeem: p2wpkh,
           });
-          witnessScript = p2sh;
-          redeemScript = p2wpkh;
+          witnessScript = p2sh.output;
+          redeemScript = p2wpkh.output;
         } else if (wallet.entityKind === EntityKind.VAULT) {
           const { p2wsh, p2sh } = WalletUtilities.addressToMultiSig(input.address, wallet as Vault);
-          witnessScript = p2sh;
-          redeemScript = p2wsh;
+          witnessScript = p2sh.output;
+          redeemScript = p2wsh.output;
         }
 
         PSBT.addInput({
