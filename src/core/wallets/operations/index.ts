@@ -846,6 +846,9 @@ export default class WalletOperations {
     }[],
     network
   ) => {
+    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
     if (txid.includes('sendrawtransaction RPC error')) {
