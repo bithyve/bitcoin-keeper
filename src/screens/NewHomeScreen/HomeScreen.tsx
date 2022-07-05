@@ -198,18 +198,19 @@ const VaultStatus = (props) => {
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
             backgroundColor={'light.TorLable'}
-            height={hp(13.804)}
-            width={wp(75)}
+            height={hp(15)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
             marginTop={hp(30)}
+            paddingX={1}
           >
             <Text
               color={'light.lightBlack'}
               letterSpacing={0.9}
-              fontSize={RFValue(9)}
+              fontSize={hp(9)}
               fontWeight={300}
+              textAlign={'center'}
             >
               TOR ENABLED
             </Text>
