@@ -257,10 +257,8 @@ export default class WalletUtilities {
     childIndex: number,
     internal: boolean
   ): {
-    scripts: {
-      redeem: string;
-      witness: string;
-    };
+    p2wsh: bitcoinJS.payments.Payment;
+    p2sh: bitcoinJS.payments.Payment;
     address: string;
   } => {
     const pubkeys = xpubs.map((xpub) => {
@@ -290,12 +288,50 @@ export default class WalletUtilities {
     });
 
     return {
-      scripts: {
-        redeem: p2sh.redeem.output.toString('hex'),
-        witness: p2wsh.redeem.output.toString('hex'),
-      },
+      p2wsh,
+      p2sh,
       address: p2sh.address,
     };
+  };
+
+  static addressToMultiSig = (
+    address: string,
+    wallet: Vault
+  ): {
+    p2wsh: bitcoinJS.payments.Payment;
+    p2sh: bitcoinJS.payments.Payment;
+    address: string;
+  } => {
+    const { networkType } = wallet;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpubs } = wallet.specs;
+    const network = WalletUtilities.getNetworkByType(networkType);
+
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+      const multiSig = WalletUtilities.createMultiSig(
+        xpubs,
+        (wallet as Vault).scheme.m,
+        network,
+        itr,
+        false
+      );
+
+      if (multiSig.address === address) return multiSig;
+    }
+
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= closingIntIndex; itr++) {
+      const multiSig = WalletUtilities.createMultiSig(
+        xpubs,
+        (wallet as Vault).scheme.m,
+        network,
+        itr,
+        true
+      );
+      if (multiSig.address === address) return multiSig;
+    }
+
+    throw new Error(`Could not find multisig for: ` + address);
   };
 
   // static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
@@ -470,7 +506,6 @@ export default class WalletUtilities {
         }
 
         output.address = changeAddress;
-        // console.log(`adding the change address: ${output.address}`);
       }
     }
 

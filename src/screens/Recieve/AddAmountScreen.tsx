@@ -3,14 +3,13 @@ import { useNavigation } from '@react-navigation/native';
 import { Keyboard } from 'react-native';
 
 import { Input, View } from 'native-base';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
@@ -34,7 +33,7 @@ const AddAmountScreen = ({ route }: { route }) => {
         onPressHandler={() => navigtaion.goBack()}
         color={'light.ReceiveBackground'}
       />
-      <View marginX={8} marginY={windowHeight / 8}>
+      <View marginX={8} marginTop={hp(100)}>
         <View
           flexDirection={'row'}
           width={'100%'}
@@ -60,7 +59,7 @@ const AddAmountScreen = ({ route }: { route }) => {
           />
         </View>
 
-        <View marginY={20}>
+        <View marginY={hp(70)}>
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
@@ -73,15 +72,15 @@ const AddAmountScreen = ({ route }: { route }) => {
           />
         </View>
 
-        <AppNumPad
-          setValue={setAmount}
-          ok={() => {
-            console.log('ok');
-          }}
-          clear={() => setAmount('')}
-          color={'#073E39'}
-        />
       </View>
+      <AppNumPad
+        setValue={setAmount}
+        ok={() => {
+          console.log('ok');
+        }}
+        clear={() => setAmount('')}
+        color={'#073E39'}
+      />
     </View>
   );
 };
