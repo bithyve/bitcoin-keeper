@@ -104,7 +104,7 @@ const WalletDetails = () => {
           <>
             <Box
               marginTop={hp(21)}
-              justifyContent={'space-between'}
+              justifyContent={'flex-start'}
               flexDirection={'row'}
               style={{
                 marginHorizontal: wp(20),
@@ -128,9 +128,6 @@ const WalletDetails = () => {
                 >
                   Know More
                 </Text>
-              </Pressable>
-              <Pressable>
-                <Setting />
               </Pressable>
             </Box>
 
