@@ -54,7 +54,7 @@ const ChoosePlan = (props) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={7} my={10}>
+      <Box mx={7} my={5}>
         <TouchableOpacity onPress={() => props.navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
