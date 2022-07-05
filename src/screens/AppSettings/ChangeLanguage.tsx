@@ -16,7 +16,7 @@ import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import availableLanguages from '../../common/content/availableLanguages';
-import Icon from 'react-native-vector-icons/FontAwesome'
+import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
 import LanguageNote from 'src/components/Note/LanguageNote';
 
@@ -126,12 +126,12 @@ const ChangeLanguage = () => {
             justifyContent: 'center',
           }}
         >
-          <Icon
-            name={arrow ? 'chevron-up' : 'chevron-down'}
-            color={Colors.textColorGrey}
-            size={13}
-            style={styles.icArrow}
-          />
+          <Box style={[styles.icArrow, {
+            transform: [
+              { rotate: arrow ? "-90deg" : "90deg" }]
+          }]}>
+            <RightArrowIcon />
+          </Box>
         </View>
       </TouchableOpacity>
     )
