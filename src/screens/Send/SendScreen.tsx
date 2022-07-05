@@ -25,6 +25,10 @@ import { useDispatch } from 'react-redux';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+
 const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
   const navigation = useNavigation();
@@ -34,9 +38,16 @@ const SendScreen = ({ route }) => {
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
+  const [walletIndex, setWalletIndex] = useState<number>(0);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const currentWallet = wallets[walletIndex];
 
   useEffect(() => {
+    {wallets.map((walletdetails) => {
+      console.log(walletdetails.presentationData.name)
+        })}
     // cleanup the reducer at beginning of a new send flow
     dispatch(sendPhasesReset());
   }, []);
@@ -104,63 +115,39 @@ const SendScreen = ({ route }) => {
           />
         </Box>
 
-        {/* Send to Wallet options */}
+         {/* Send to Wallet options */}
         <Box marginTop={hp(10)}>
-          <Text
-            marginX={5}
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontFamily={'body'}
-            fontSize={14}
-            letterSpacing={0.6}
-          >
-            Send to Wallet
-          </Text>
-          <View flexDirection={'row'} style={styles.walletContainer}>
-            <Box mt={'3'}>
-              <Box>
-                <View style={styles.buttonBackground}>
-                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                    <IconWallet />
-                  </Pressable>
-                </View>
-              </Box>
-              <Box>
-                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                  Maldives
-                </Text>
-              </Box>
+        <Text
+          marginX={5}
+          color={'light.GreyText'}
+          fontWeight={200}
+          fontFamily={'body'}
+          fontSize={14}
+          letterSpacing={0.6}
+        >
+          Send to Wallet
+        </Text>
+        <View>
+        {wallets.map((walletdetails) => {
+        <View flexDirection={'row'} style={styles.walletContainer}>
+          <Box mt={'3'}>
+            <Box>
+              <View style={styles.buttonBackground}>
+                <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+                  <IconWallet />
+                </Pressable>
+              </View>
             </Box>
-            <Box mt={'3'}>
-              <Box>
-                <View style={styles.buttonBackground}>
-                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                    <BlueWallet />
-                  </Pressable>
-                </View>
-              </Box>
-              <Box>
-                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                  Alex's Wallet
-                </Text>
-              </Box>
+            <Box>
+              <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
+                {walletdetails.presentationData.name}
+              </Text>
             </Box>
-            <Box mt={'3'}>
-              <Box>
-                <View style={styles.buttonBackground}>
-                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                    <IconWallet />
-                  </Pressable>
-                </View>
-              </Box>
-              <Box>
-                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                  Retirement
-                </Text>
-              </Box>
-            </Box>
-          </View>
-        </Box>
+          </Box>
+        </View>
+          })}
+        </View>
+      </Box>
 
         {/* {Bottom note} */}
         <Box marginTop={hp(70)} marginX={2}>
