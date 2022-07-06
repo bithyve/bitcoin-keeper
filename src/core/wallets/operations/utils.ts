@@ -26,6 +26,9 @@ const ECPair = ECPairFactory(ecc);
 const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
 const accAxios: AxiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT * 3,
+  headers: {
+    HEXA_ID: config.HEXA_ID
+  }
 });
 
 export default class WalletUtilities {
