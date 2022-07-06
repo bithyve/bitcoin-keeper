@@ -25,7 +25,7 @@ export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
   signingData?: Array<{
     signerType: SignerType;
-    inputsToSign: Array<{ digest: string; subPath: [] }>;
+    inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number; sighashType: any }>;
   }>;
   txid?: string;
   err?: string;
@@ -66,7 +66,7 @@ const initialState: {
     isSuccessful: boolean;
     signingData: Array<{
       signerType: SignerType;
-      inputsToSign: Array<{ digest: string; subPath: [] }>;
+      inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number; sighashType: any }>;
     }>;
     txid: string | null;
   };

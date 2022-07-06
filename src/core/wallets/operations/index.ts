@@ -944,7 +944,12 @@ export default class WalletOperations {
     | {
         signingData: Array<{
           signerType: SignerType;
-          inputsToSign: Array<{ digest: string; subPath: [] }>;
+          inputsToSign: Array<{
+            digest: string;
+            subPath: [];
+            inputIndex: number;
+            sighashType: any;
+          }>;
         }>;
         txid?: undefined;
       }
@@ -970,7 +975,7 @@ export default class WalletOperations {
 
       const signingData: Array<{
         signerType: SignerType;
-        inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number }>;
+        inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number; sighashType: any }>;
       }> = [];
 
       // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
@@ -982,7 +987,7 @@ export default class WalletOperations {
           wallet as Vault
         );
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, pubkeys[0]);
-        inputsToSign.push({ digest: hash.toString('hex'), subPath, inputIndex });
+        inputsToSign.push({ digest: hash.toString('hex'), subPath, inputIndex, sighashType });
       }
       signingData.push({ signerType, inputsToSign });
       return { signingData };
