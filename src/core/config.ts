@@ -7,6 +7,8 @@ import PersonalNode from '../common/data/models/PersonalNode';
 import { WalletType } from './wallets/enums';
 import _ from 'lodash';
 import config from 'react-native-config';
+import {Platform} from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
@@ -90,6 +92,12 @@ class Configuration {
   public RELAY_AXIOS: AxiosInstance = axios.create({
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
+    headers: {
+      HEXA_ID: config.HEXA_ID,
+      appVersion: DeviceInfo.getVersion(),
+      buildNumber: DeviceInfo.getBuildNumber(),
+      os: Platform.OS
+    }
   });
   public SIGNING_AXIOS: AxiosInstance = axios.create({
     baseURL: this.SIGNING_SERVER,
