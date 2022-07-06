@@ -80,7 +80,7 @@ const OnBoardingSlides = ({ navigation }) => {
       <ImageBackground resizeMode="stretch" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1 }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
-          <Box justifyContent={'center'} m={4} mt={10}>
+          <Box justifyContent={'center'} mr={4} mt={10}>
             {currentPosition != 5 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('App')}
