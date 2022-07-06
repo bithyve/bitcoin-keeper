@@ -200,7 +200,7 @@ export default class Relay {
   };
 
   public static getMessages = async (
-    appId: string,
+    appID: string,
     timeStamp: Date
   ): Promise<{
     messages: [];
@@ -209,7 +209,7 @@ export default class Relay {
     try {
       res = await RELAY_AXIOS.post('getMessages', {
         AUTH_ID,
-        appId,
+        appID,
         timeStamp,
       });
     } catch (err) {
