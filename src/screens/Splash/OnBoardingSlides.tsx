@@ -7,7 +7,7 @@ import {
   Dimensions,
   ImageBackground,
 } from 'react-native';
-import { Box, Text } from 'native-base';
+import { Box, Text, StatusBar } from 'native-base';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
@@ -27,7 +27,6 @@ import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideC
 const { width, height } = Dimensions.get('window');
 
 const OnBoardingSlides = ({ navigation }) => {
-  console.log('height', height);
   const { translations } = useContext(LocalizationContext);
   const onboarding = translations['onboarding'];
   const common = translations['common'];
@@ -79,8 +78,9 @@ const OnBoardingSlides = ({ navigation }) => {
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="stretch" style={{ flex: 1 }} source={OnboardingBackImage}>
-        <SafeAreaView style={{ flex: 1, margin: 10 }}>
-          <Box justifyContent={'center'} m={4} mt={height < 670 ? 6 : 0}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
+          <Box justifyContent={'center'} m={4} mt={10}>
             {currentPosition != 5 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('App')}
