@@ -1,5 +1,5 @@
 import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
-import { TextInput, ScrollView } from 'react-native';
+import { TextInput, ScrollView, FlatList } from 'react-native';
 // libraries
 import { View, Box, Pressable, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
@@ -25,6 +25,11 @@ import { useDispatch } from 'react-redux';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { widthPercentageToDP } from 'react-native-responsive-screen';
+
 const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
   const navigation = useNavigation();
@@ -34,9 +39,18 @@ const SendScreen = ({ route }) => {
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
+  const [walletIndex, setWalletIndex] = useState<number>(0);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const currentWallet = wallets[walletIndex];
 
   useEffect(() => {
+    {
+      wallets.map((walletdetails) => {
+        console.log(walletdetails.presentationData.name)
+      })
+    }
     // cleanup the reducer at beginning of a new send flow
     dispatch(sendPhasesReset());
   }, []);
@@ -66,6 +80,33 @@ const SendScreen = ({ route }) => {
     }
   };
 
+  const renderWallets = ({ item }: { item: Wallet }) => {
+    return (
+      <Box
+        justifyContent={'center'}
+        alignItems={'center'}
+        style={{ marginRight: wp(10) }}
+        width={wp(60)}
+      >
+        <Box style={styles.buttonBackground}>
+          <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+            <IconWallet />
+          </Pressable>
+        </Box>
+        <Box>
+          <Text
+            fontFamily={'body'}
+            fontWeight={'100'}
+            fontSize={12}
+            mt={'1'}
+            numberOfLines={1}
+          >
+            {item.presentationData.name}
+          </Text>
+        </Box>
+      </Box>
+    )
+  }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -116,54 +157,21 @@ const SendScreen = ({ route }) => {
           >
             Send to Wallet
           </Text>
-          <View flexDirection={'row'} style={styles.walletContainer}>
-            <Box mt={'3'}>
-              <Box>
-                <View style={styles.buttonBackground}>
-                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                    <IconWallet />
-                  </Pressable>
-                </View>
-              </Box>
-              <Box>
-                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                  Maldives
-                </Text>
-              </Box>
-            </Box>
-            <Box mt={'3'}>
-              <Box>
-                <View style={styles.buttonBackground}>
-                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                    <BlueWallet />
-                  </Pressable>
-                </View>
-              </Box>
-              <Box>
-                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                  Alex's Wallet
-                </Text>
-              </Box>
-            </Box>
-            <Box mt={'3'}>
-              <Box>
-                <View style={styles.buttonBackground}>
-                  <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
-                    <IconWallet />
-                  </Pressable>
-                </View>
-              </Box>
-              <Box>
-                <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'}>
-                  Retirement
-                </Text>
-              </Box>
-            </Box>
+          <View>
+            <View flexDirection={'row'} style={styles.walletContainer} backgroundColor={'light.textInputBackground'}>
+              <FlatList
+                data={wallets}
+                renderItem={renderWallets}
+                keyExtractor={item => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+              />
+            </View>
           </View>
         </Box>
 
         {/* {Bottom note} */}
-        <Box marginTop={hp(70)} marginX={2}>
+        <Box marginTop={hp(20)} marginX={2}>
           <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
         </Box>
       </ScrollView>
@@ -219,11 +227,13 @@ const styles = ScaledSheet.create({
   },
   walletContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    height: hp(50),
-    width: '100%',
-    borderRadius: 12,
-    marginHorizontal: wp(3),
+    alignItems: 'center',
+    height: hp(100),
+    width: wp(330),
+    borderRadius: hp(10),
+    marginHorizontal: wp(16),
+    paddingHorizontal: wp(25),
+    marginTop: hp(10),
   },
   buttonBackground: {
     backgroundColor: '#FAC48B',
