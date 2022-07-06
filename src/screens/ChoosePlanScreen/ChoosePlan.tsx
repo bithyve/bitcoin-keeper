@@ -69,7 +69,7 @@ const ChoosePlan = (props) => {
           </Text>
         </Box>
       </Box>
-      <ScrollView>
+      <ScrollView style={{ height: '80%' }}>
         <ChoosePlanCarousel onChange={(item) => setCurrentPosition(item)} />
         <Box mx={10} my={5}>
           <Text
@@ -116,10 +116,10 @@ const ChoosePlan = (props) => {
             </Text>
           </Box>
         </Box>
-        <Box flex={1} justifyContent={'flex-end'}>
-          <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
-        </Box>
       </ScrollView>
+      <Box height={'10%'} justifyContent={'flex-end'}>
+        <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
+      </Box>
     </SafeAreaView>
   );
 };
