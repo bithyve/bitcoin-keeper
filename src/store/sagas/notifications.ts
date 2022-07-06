@@ -39,8 +39,8 @@ export const updateFCMTokensWatcher = createWatcher(updateFCMTokensWorker, UPDAT
 
 export function* fetchNotificationsWorker() {
   yield put(fetchNotificationStarted(true));
-  const { walletId } = yield select((state) => state.storage.wallet);
-  const { notifications } = yield call(Relay.fetchNotifications, walletId);
+  const appId = yield select((state: RootState) => state.storage.appId);
+  const { notifications } = yield call(Relay.fetchNotifications, appId);
   yield call(notificationsFetched, notifications);
   //yield call( setupNotificationListWorker )
   yield put(fetchNotificationStarted(false));
@@ -56,7 +56,6 @@ export function* getMessageWorker() {
   const storedMessages = yield select((state) => state.notifications.messages);
   const walletId = yield select((state) => state.preferences.walletId);
   const timeStamp = yield select((state) => state.notifications.timeStamp);
-  console.log('messages timeStamp', timeStamp);
 
   const { messages } = yield call(Relay.getMessages, walletId, timeStamp);
   if (!storedMessages) return;

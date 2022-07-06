@@ -79,7 +79,7 @@ export default class Relay {
   };
 
   public static fetchNotifications = async (
-    appId: string
+    appID: string
   ): Promise<{
     notifications: INotification[];
     DHInfos: [{ address: string; publicKey: string }];
@@ -88,7 +88,7 @@ export default class Relay {
     try {
       res = await RELAY_AXIOS.post('fetchNotifications', {
         AUTH_ID,
-        appId,
+        appID,
       });
     } catch (err) {
       console.log({

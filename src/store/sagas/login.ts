@@ -27,6 +27,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
+import { getMessages } from '../sagaActions/notifications';
 
 function* credentialsStorageWorker({ payload }) {
   try {
@@ -94,6 +95,7 @@ function* credentialsAuthWorker({ payload }) {
     // case: login
     yield put(autoSyncWallets());
     yield put(fetchFeeAndExchangeRates());
+    yield put(getMessages())
   }
   // check if the app has been upgraded
 }
