@@ -5,11 +5,13 @@ const initialState: {
   fetchStarted: boolean;
   timeStamp: any;
   messages: [];
+  fcmToken: string
 } = {
   notifications: [],
   fetchStarted: false,
   timeStamp: null,
-  messages: []
+  messages: [],
+  fcmToken: ''
 }
 
 const notificationsSlice = createSlice({
@@ -27,6 +29,9 @@ const notificationsSlice = createSlice({
     },
     messageFetched: (state, action) => {
       state.messages = action.payload
+    },
+    setFcmToken: (state, action) => {
+      state.fcmToken = action.payload
     }
   }
 })
@@ -35,7 +40,8 @@ export const {
   notificationsFetched,
   fetchNotificationStarted,
   storeMessagesTimeStamp,
-  messageFetched
+  messageFetched,
+  setFcmToken
 } = notificationsSlice.actions
 
 export default notificationsSlice.reducer

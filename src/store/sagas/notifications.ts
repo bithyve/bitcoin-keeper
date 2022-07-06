@@ -12,8 +12,10 @@ import {
   fetchNotificationStarted,
   storeMessagesTimeStamp,
   messageFetched,
+  setFcmToken
 } from '../reducers/notifications';
 import Relay from 'src/core/services/operations/Relay';
+import { RootState } from '../store';
 
 function* updateFCMTokensWorker({ payload }) {
   try {
@@ -21,9 +23,13 @@ function* updateFCMTokensWorker({ payload }) {
     if (FCMs.length === 0) {
       throw new Error('No FCM token found');
     }
-    const { walletId } = yield select((state) => state.storage.wallet);
-    const { updated } = yield call(Relay.updateFCMTokens, walletId, payload.FCMs);
-    if (!updated) console.log('Failed to update FCMs on the server');
+    const appId = yield select((state: RootState) => state.storage.appId);
+    const { updated } = yield call(Relay.updateFCMTokens, appId, payload.FCMs);
+    if (updated){
+      yield put(setFcmToken(FCMs[0]))
+      } else {
+        console.log('Failed to update FCMs on the server')
+      }
   } catch (err) {
     console.log('err', err);
   }
