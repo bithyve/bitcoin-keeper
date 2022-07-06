@@ -54,17 +54,16 @@ export const fetchNotificationsWatcher = createWatcher(
 export function* getMessageWorker() {
   yield put(fetchNotificationStarted(true));
   const storedMessages = yield select((state) => state.notifications.messages);
-  const walletId = yield select((state) => state.preferences.walletId);
+  const appId = yield select((state: RootState) => state.storage.appId);
   const timeStamp = yield select((state) => state.notifications.timeStamp);
 
-  const { messages } = yield call(Relay.getMessages, walletId, timeStamp);
+  const { messages } = yield call(Relay.getMessages, appId, timeStamp);
   if (!storedMessages) return;
   const newMessageArray = storedMessages.concat(
     messages.filter(
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId == notificationId)
     )
   );
-  console.log('newMessageArray', newMessageArray);
 
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
