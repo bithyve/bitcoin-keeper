@@ -17,7 +17,7 @@ import {
   UTXO,
   TransactionToAddressMapping,
 } from '../interfaces/';
-import { WalletType, DerivationPurpose, TxPriority, EntityKind } from '../enums';
+import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
 import { Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 
@@ -695,7 +695,6 @@ export default class WalletOperations {
       });
 
       for (const input of inputs) {
-        let witnessScript, redeemScript;
         if (wallet.entityKind === EntityKind.WALLET) {
           const publicKey = WalletUtilities.addressToKey(
             input.address,
@@ -709,23 +708,32 @@ export default class WalletOperations {
           const p2sh = bitcoinJS.payments.p2sh({
             redeem: p2wpkh,
           });
-          witnessScript = p2sh.output;
-          redeemScript = p2wpkh.output;
-        } else if (wallet.entityKind === EntityKind.VAULT) {
-          const { p2wsh, p2sh } = WalletUtilities.addressToMultiSig(input.address, wallet as Vault);
-          witnessScript = p2sh.output;
-          redeemScript = p2wsh.output;
-        }
 
-        PSBT.addInput({
-          hash: input.txId,
-          index: input.vout,
-          witnessUtxo: {
-            script: witnessScript,
-            value: input.value,
-          },
-          redeemScript: redeemScript,
-        });
+          PSBT.addInput({
+            hash: input.txId,
+            index: input.vout,
+            witnessUtxo: {
+              script: p2sh.output,
+              value: input.value,
+            },
+            redeemScript: p2wpkh.output,
+          });
+        } else if (wallet.entityKind === EntityKind.VAULT) {
+          const { p2ms, p2wsh, p2sh } = WalletUtilities.addressToMultiSig(
+            input.address,
+            wallet as Vault
+          );
+          PSBT.addInput({
+            hash: input.txId,
+            index: input.vout,
+            witnessUtxo: {
+              script: p2sh.output,
+              value: input.value,
+            },
+            redeemScript: p2wsh.output,
+            witnessScript: p2ms.output,
+          });
+        }
       }
 
       const sortedOuts = WalletUtilities.sortOutputs(
@@ -934,11 +942,14 @@ export default class WalletOperations {
     customTxPrerequisites?: TransactionPrerequisiteElements
   ): Promise<
     | {
-        serializedPSBT: string;
+        signingData: Array<{
+          signerType: SignerType;
+          inputsToSign: Array<{ digest: string; subPath: [] }>;
+        }>;
         txid?: undefined;
       }
     | {
-        serializedPSBT?: undefined;
+        signingData?: undefined;
         txid: string;
       }
   > => {
@@ -955,8 +966,26 @@ export default class WalletOperations {
 
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT therefore
-      const serializedPSBT = PSBT.toBase64();
-      return { serializedPSBT };
+      // const serializedPSBT = PSBT.toBase64();
+
+      const signingData: Array<{
+        signerType: SignerType;
+        inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number }>;
+      }> = [];
+
+      // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
+      const signerType = SignerType.TAPSIGNER;
+      const inputsToSign = [];
+      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+        const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(
+          inputs[inputIndex].address,
+          wallet as Vault
+        );
+        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, pubkeys[0]);
+        inputsToSign.push({ digest: hash.toString('hex'), subPath, inputIndex });
+      }
+      signingData.push({ signerType, inputsToSign });
+      return { signingData };
     } else {
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
       const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
+import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
@@ -23,7 +23,10 @@ export interface SendPhaseOneExecutedPayload {
 
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
-  serializedPSBT?: string;
+  signingData?: Array<{
+    signerType: SignerType;
+    inputsToSign: Array<{ digest: string; subPath: [] }>;
+  }>;
   txid?: string;
   err?: string;
 }
@@ -61,7 +64,10 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
-    serializedPSBT: string;
+    signingData: Array<{
+      signerType: SignerType;
+      inputsToSign: Array<{ digest: string; subPath: [] }>;
+    }>;
     txid: string | null;
   };
   sendPhaseThree: {
@@ -96,7 +102,7 @@ const initialState: {
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
-    serializedPSBT: null,
+    signingData: null,
     txid: null,
   },
   sendPhaseThree: {
@@ -169,13 +175,13 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
-      const { successful, txid, serializedPSBT, err } = action.payload;
+      const { successful, txid, signingData, err } = action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
-        serializedPSBT: successful ? serializedPSBT : null,
+        signingData: successful ? signingData : null,
         txid: successful ? txid : null,
       };
     },

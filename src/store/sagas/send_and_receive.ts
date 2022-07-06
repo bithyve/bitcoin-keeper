@@ -125,7 +125,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid, serializedPSBT } = yield call(
+    const { txid, signingData } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -151,11 +151,11 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       case EntityKind.VAULT:
-        if (!serializedPSBT) throw new Error('Send failed: unable to generate PSBT');
+        if (!signingData) throw new Error('Send failed: unable to generate signing data');
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
-            serializedPSBT,
+            signingData,
           })
         );
         break;
