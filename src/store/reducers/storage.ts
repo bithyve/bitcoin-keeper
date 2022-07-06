@@ -8,7 +8,8 @@ const initialState: {
   },
   failedAttempts: number,
   lastLoginFailedAt: number,
-  pinHash: string
+  pinHash: string,
+  appVersion: string
 } = {
   appId: '',
   resetCred: {
@@ -17,7 +18,8 @@ const initialState: {
   },
   failedAttempts: 0,
   lastLoginFailedAt: null,
-  pinHash: ''
+  pinHash: '',
+  appVersion: ''
 }
 
 const storageSlice = createSlice({
@@ -43,7 +45,10 @@ const storageSlice = createSlice({
     },
     setPinHash: (state, action: PayloadAction<string>) => {
       state.pinHash = action.payload
-    }
+    },
+    setAppVersion: (state, action: PayloadAction<string>) => {
+      state.appVersion = action.payload
+    },
   }
 })
 
@@ -52,7 +57,8 @@ export const {
   increasePinFailAttempts,
   setPinResetCreds,
   resetPinFailAttempts,
-  setPinHash
+  setPinHash,
+  setAppVersion
 } = storageSlice.actions
 
 export default storageSlice.reducer

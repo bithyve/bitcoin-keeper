@@ -5,6 +5,7 @@ import {
   changeLoginMethodWatcher,
   credentialStorageWatcher,
   resetPinCredWatcher,
+  applicationUpdateWatcher
 } from './login';
 import { setupKeeperAppWatcher } from './storage';
 import {
@@ -16,7 +17,7 @@ import {
   syncWalletsWatcher,
   updateWalletSettingsWatcher,
 } from './wallets';
-import { updateFCMTokensWatcher } from './notifications';
+import { updateFCMTokensWatcher, getMessageWatcher } from './notifications';
 import { addUaiStackWatcher, updateUaiStackWatcher } from './uai';
 import {
   calculateCustomFeeWatcher,
@@ -37,9 +38,10 @@ export const rootSaga = function* () {
     credentialStorageWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
-
+    applicationUpdateWatcher,
     // notification
     updateFCMTokensWatcher,
+    getMessageWatcher,
 
     // wallet
     addNewWalletsWatcher,
