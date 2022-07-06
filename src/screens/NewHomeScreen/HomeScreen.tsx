@@ -124,12 +124,7 @@ const LinkedWallets = (props) => {
               <Box padding={1} marginBottom={-1}>
                 <BTC />
               </Box>
-              <Text
-                color={'light.white1'}
-                letterSpacing={0.6}
-                fontSize={hp(30)}
-                fontWeight={200}
-              >
+              <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
                 {netBalance / 10e8 < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
               </Text>
             </Box>
@@ -155,6 +150,24 @@ const VaultSetupContent = () => {
       <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
         {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
+        }
+      </Text>
+      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
+      </Text> */}
+    </View>
+  );
+};
+
+const VaultCreationContent = () => {
+  return (
+    <View>
+      <Box alignSelf={'center'}>
+        <VaultSetupIcon />
+      </Box>
+      <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {
+          'For sending out of the Vault you will need the Signer. This means no one can steal your bitcoin in the Vault unless they also have the signer'
         }
       </Text>
       {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
@@ -236,11 +249,11 @@ const VaultStatus = (props) => {
                 ? 'Activate Now '
                 : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
             </Text>
-            {!Signers.length ? null :
+            {!Signers.length ? null : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
                 <TapsignerIcon />
               </Box>
-            }
+            )}
           </Box>
           {!Signers.length ? (
             <Box marginTop={hp(31.5)}>
@@ -273,6 +286,19 @@ const VaultStatus = (props) => {
           ) : null}
         </ImageBackground>
       </TouchableOpacity>
+      {/* <KeeperModal
+        visible={visible}
+        close={close}
+        title={vaultTranslations.VaultCreated}
+        subTitle={vaultTranslations.VaultCreationDesc}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={vaultTranslations.ViewVault}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToHardwareSetup}
+        textColor={'#5F6965'}
+        Content={VaultCreationContent}
+      /> */}
       <KeeperModal
         visible={visible}
         close={close}
@@ -375,10 +401,7 @@ const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
-    <Box
-      flex={1}
-      backgroundColor={'light.lightYellow'}
-    >
+    <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {

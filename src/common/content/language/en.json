@@ -275,7 +275,10 @@
     "Usedforsecuringfunds": "Used for securing funds",
     "Inheritance": "Inheritance",
     "Setupinheritancetoyoursats": "Set up inheritance to your sats",
-    "Setup": "Setup"
+    "Setup": "Setup",
+    "VaultCreated": "Vault Created",
+    "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
+    "ViewVault": "View Vault"
   },
   "seed": {
     "ExportSeed": "Seed words",
