@@ -65,8 +65,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         res = await RELAY_AXIOS.post('updateFCMTokens', {
-          AUTH_ID,
-          appId,
+          appID: appId,
           FCMs,
         });
       } catch (err) {
@@ -80,7 +79,7 @@ export default class Relay {
   };
 
   public static fetchNotifications = async (
-    appId: string
+    appID: string
   ): Promise<{
     notifications: INotification[];
     DHInfos: [{ address: string; publicKey: string }];
@@ -89,7 +88,7 @@ export default class Relay {
     try {
       res = await RELAY_AXIOS.post('fetchNotifications', {
         AUTH_ID,
-        appId,
+        appID,
       });
     } catch (err) {
       console.log({
@@ -142,33 +141,6 @@ export default class Relay {
     }
   };
 
-  public static sendDonationNote = async (
-    donationId: string,
-    txNote: { txId: string; note: string }
-  ): Promise<{
-    added: boolean;
-  }> => {
-    try {
-      if (!txNote || !txNote.txId || !txNote.note)
-        throw new Error('Failed to send donation note: txid|note missing');
-
-      const res: AxiosResponse = await RELAY_AXIOS.post('addDonationTxNote', {
-        AUTH_ID,
-        donationId,
-        txNote,
-      });
-
-      const { added } = res.data;
-      if (!added) throw new Error();
-
-      return {
-        added,
-      };
-    } catch (err) {
-      throw new Error('Failed to send donation note');
-    }
-  };
-
   public static fetchFeeAndExchangeRates = async (): Promise<{
     exchangeRates: any;
     averageTxFees: AverageTxFeesByNetwork;
@@ -193,25 +165,6 @@ export default class Relay {
       };
     } catch (err) {
       throw new Error('Failed fetch fee and exchange rates');
-    }
-  };
-
-  public static getCampaignGift = async (campaignId: string, appId: string) => {
-    try {
-      let res: AxiosResponse;
-      try {
-        res = await RELAY_AXIOS.post('claimCampaignGift', {
-          AUTH_ID,
-          campaignId: campaignId,
-          appId,
-        });
-        return res.data;
-      } catch (err) {
-        if (err.response) throw new Error(err.response.data.err);
-        if (err.code) throw new Error(err.code);
-      }
-    } catch (err) {
-      throw new Error(err);
     }
   };
 
@@ -300,27 +253,6 @@ export default class Relay {
     }
   };
 
-  public static appCheckIn = async (
-    currencyCode?: any
-  ): Promise<{
-    exchangeRates: { [currency: string]: number };
-    averageTxFees: any;
-  }> => {
-    const res = await RELAY_AXIOS.post('v2/appCheckIn', {
-      AUTH_ID,
-      ...(currencyCode && {
-        currencyCode,
-      }),
-    });
-
-    const { exchangeRates, averageTxFees } = res.data;
-
-    return {
-      exchangeRates,
-      averageTxFees,
-    };
-  };
-
   public static updateAppImage = async (
     appImage: any
   ): Promise<{
@@ -369,26 +301,6 @@ export default class Relay {
       };
     } catch (err) {
       throw new Error('Failed to fetch App Image');
-    }
-  };
-
-  public static loginWithHexa = async (
-    authToken: string,
-    xPub: string
-  ): Promise<{
-    data: object;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await RELAY_AXIOS.post('scanAuthToken', {
-        AUTH_ID,
-        authToken,
-        xPub,
-      });
-      return res.data;
-    } catch (err) {
-      console.log(err);
-      return undefined;
     }
   };
 }

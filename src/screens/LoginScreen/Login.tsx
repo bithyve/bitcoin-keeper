@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
+import messaging from '@react-native-firebase/messaging';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
@@ -23,6 +24,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -36,7 +38,7 @@ const CreatePin = ({ navigation, route }) => {
   const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
-
+  const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [Elevation, setElevation] = useState(10);
@@ -160,11 +162,21 @@ const CreatePin = ({ navigation, route }) => {
       if (relogin) {
         navigation.goBack();
       } else {
+        updateFCM()
         navigation.replace('App');
       }
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
+
+  const updateFCM =async () => {
+    try {
+      const token = await messaging().getToken();
+      if ( !existingFCMToken || existingFCMToken != token ) dispatch(updateFCMTokens([token]))      
+     } catch (error) {
+      console.log(error)
+     }
+  }
 
   const attemptLogin = (passcode: string) => {
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
