@@ -216,9 +216,9 @@ export interface SigningDataHW {
     digest: string;
     subPath: string;
     inputIndex: number;
-    sighashType: any;
+    sighashType: number;
     publicKey: string;
-    signature?: any;
+    signature?: string;
   }>;
 }
 

@@ -1017,7 +1017,12 @@ export default class WalletOperations {
     for (const { signerType, inputsToSign } of signingDataHW) {
       if (signerType === SignerType.TAPSIGNER) {
         for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
-          PSBT.addSignedDisgest(inputIndex, Buffer.from(publicKey, 'hex'), signature, sighashType);
+          PSBT.addSignedDisgest(
+            inputIndex,
+            Buffer.from(publicKey, 'hex'),
+            Buffer.from(signature, 'hex'),
+            sighashType
+          );
         }
       }
     }
