@@ -1,4 +1,4 @@
-import { Alert, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Alert, SafeAreaView, Platform } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -88,7 +88,7 @@ const AppSettings = ({ navigation }) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box ml={3}>
+      <Box ml={3} mt={Platform.OS == 'ios' ? 3 : 10}>
         <HeaderTitle />
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
