@@ -178,7 +178,7 @@ const SendConfirmation = ({ route }) => {
             <RadioButton isChecked={false} ignoresTouch />
           </Box>
           <Text mr={wp(37)}>Custom</Text>
-          <Text mr={wp(3)}>20 - 40 minutes</Text>
+          <Text mr={wp(35)}>20 - 40 minutes</Text>
           <Text>0.03 $</Text>
         </HStack>
       </Box>
