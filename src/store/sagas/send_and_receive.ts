@@ -125,7 +125,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid, signingData } = yield call(
+    const { txid, serializedPSBTEnvelop } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -151,11 +151,12 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       case EntityKind.VAULT:
-        if (!signingData) throw new Error('Send failed: unable to generate signing data');
+        if (!serializedPSBTEnvelop)
+          throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
-            signingData,
+            serializedPSBTEnvelop,
           })
         );
         break;
@@ -176,27 +177,18 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, signedSerializedPSBT } = payload;
+  const { wallet, txnPriority, serializedPSBTEnvelop } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
 
-  // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
-  // let inputs: InputUTXOs[];
-  // if (txnPriority === TxPriority.CUSTOM) inputs = customTxPrerequisites.inputs;
-  // else inputs = txPrerequisites[txnPriority].inputs;
-  const inputs = txPrerequisites[txnPriority].inputs;
-
-  const signedPSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
-
   try {
     const { txid } = yield call(
-      WalletOperations.broadcastTransaction,
+      WalletOperations.transferST3,
       wallet,
-      signedPSBT,
-      inputs,
-      recipients,
-      network
+      serializedPSBTEnvelop,
+      txPrerequisites,
+      txnPriority,
+      recipients
     );
 
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');

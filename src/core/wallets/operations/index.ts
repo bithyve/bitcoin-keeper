@@ -1006,8 +1006,7 @@ export default class WalletOperations {
     recipients: {
       address: string;
       amount: number;
-    }[],
-    network: bitcoinJS.networks.Network
+    }[]
   ): Promise<{
     txid: string;
   }> => {
@@ -1023,6 +1022,7 @@ export default class WalletOperations {
       }
     }
 
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const txid = await this.broadcastTransaction(wallet, PSBT, inputs, recipients, network);
     return {
       txid,
