@@ -16,6 +16,7 @@ import {
   TransactionPrerequisiteElements,
   UTXO,
   TransactionToAddressMapping,
+  SigningDataHW,
 } from '../interfaces/';
 import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
 import { Wallet } from '../interfaces/wallet';
@@ -942,15 +943,7 @@ export default class WalletOperations {
     customTxPrerequisites?: TransactionPrerequisiteElements
   ): Promise<
     | {
-        signingData: Array<{
-          signerType: SignerType;
-          inputsToSign: Array<{
-            digest: string;
-            subPath: [];
-            inputIndex: number;
-            sighashType: any;
-          }>;
-        }>;
+        signingData: SigningDataHW[];
         txid?: undefined;
       }
     | {
@@ -973,10 +966,7 @@ export default class WalletOperations {
       // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT therefore
       // const serializedPSBT = PSBT.toBase64();
 
-      const signingData: Array<{
-        signerType: SignerType;
-        inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number; sighashType: any }>;
-      }> = [];
+      const signingData: SigningDataHW[] = [];
 
       // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
       const signerType = SignerType.TAPSIGNER;
@@ -987,7 +977,12 @@ export default class WalletOperations {
           wallet as Vault
         );
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, pubkeys[0]);
-        inputsToSign.push({ digest: hash.toString('hex'), subPath, inputIndex, sighashType });
+        inputsToSign.push({
+          digest: hash.toString('hex'),
+          subPath: `/${subPath.join('/')}`,
+          inputIndex,
+          sighashType,
+        });
       }
       signingData.push({ signerType, inputsToSign });
       return { signingData };

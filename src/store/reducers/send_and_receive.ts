@@ -4,6 +4,7 @@ import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
+  SigningDataHW,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
 } from 'src/core/wallets/interfaces/';
@@ -23,10 +24,7 @@ export interface SendPhaseOneExecutedPayload {
 
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
-  signingData?: Array<{
-    signerType: SignerType;
-    inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number; sighashType: any }>;
-  }>;
+  signingData?: SigningDataHW[];
   txid?: string;
   err?: string;
 }
@@ -64,10 +62,7 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
-    signingData: Array<{
-      signerType: SignerType;
-      inputsToSign: Array<{ digest: string; subPath: []; inputIndex: number; sighashType: any }>;
-    }>;
+    signingData: SigningDataHW[];
     txid: string | null;
   };
   sendPhaseThree: {
