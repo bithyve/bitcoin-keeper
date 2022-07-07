@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box, Text, VStack, HStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -17,6 +17,14 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import {
+  getTransactionPadding,
+  hp,
+  windowWidth,
+  wp,
+} from 'src/common/data/responsiveness/responsive';
+
+import RadioButton from 'src/components/RadioButton';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -118,14 +126,65 @@ const SendConfirmation = ({ route }) => {
     return (
       <Box flexDirection={'row'} justifyContent={'space-between'} marginY={3}>
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
-          Transaction Fee
+          Transaction Priority
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'}
+          {/* {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'} */}
         </Text>
       </Box>
     );
   };
+
+  const SendingPriority = () => {
+    return (
+      <Box>
+        <Box flexDirection={'row'} justifyContent={'space-between'}>
+          <Box ml={5} mr={wp(80)}>
+            <Text>Prority</Text>
+          </Box>
+          <Box mr={wp(80)}>
+            <Text>Arrival</Text>
+          </Box>
+          <Box>
+            <Text>Fee</Text>
+          </Box>
+        </Box>
+        <HStack my={hp(15)}>
+          <Box mr={5} ml={5}>
+            <RadioButton isChecked={true} ignoresTouch />
+          </Box>
+          <Text mr={wp(55)}>High</Text>
+          <Text mr={wp(38)}>10 - 20 minutes</Text>
+          <Text>0.10 $</Text>
+        </HStack>
+        <HStack my={hp(15)}>
+          <Box mr={5} ml={5}>
+            <RadioButton isChecked={false} ignoresTouch />
+          </Box>
+          <Text mr={wp(35)}>Medium</Text>
+          <Text mr={wp(35)}>20 - 40 minutes</Text>
+          <Text>0.03 $</Text>
+        </HStack>
+        <HStack my={hp(15)}>
+          <Box mr={5} ml={5}>
+            <RadioButton isChecked={false} ignoresTouch />
+          </Box>
+          <Text mr={wp(60)}>Low</Text>
+          <Text mr={wp(35)}>20 - 40 minutes</Text>
+          <Text>0.03 $</Text>
+        </HStack>
+        <HStack my={hp(15)}>
+          <Box mr={5} ml={5}>
+            <RadioButton isChecked={false} ignoresTouch />
+          </Box>
+          <Text mr={wp(37)}>Custom</Text>
+          <Text mr={wp(3)}>20 - 40 minutes</Text>
+          <Text>0.03 $</Text>
+        </HStack>
+      </Box>
+    );
+  };
+
   return (
     <Box
       padding={windowHeight * 0.01}
@@ -148,13 +207,17 @@ const SendConfirmation = ({ route }) => {
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
         </Box>
+
+        <Box>
+          <SendingPriority />
+        </Box>
       </Box>
 
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"
           secondaryText="Cancel"
-          primaryCallback={onProceed}
+          // primaryCallback={onProceed}
           secondaryCallback={() => {
             console.log('Cancel');
           }}
