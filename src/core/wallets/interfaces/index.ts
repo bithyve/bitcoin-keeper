@@ -217,5 +217,12 @@ export interface SigningDataHW {
     subPath: string;
     inputIndex: number;
     sighashType: any;
+    publicKey: string;
+    signature?: any;
   }>;
+}
+
+export interface SerializedPSBTEnvelop {
+  serializedPSBT: string;
+  signingDataHW: SigningDataHW[];
 }

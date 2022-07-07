@@ -17,6 +17,7 @@ import {
   UTXO,
   TransactionToAddressMapping,
   SigningDataHW,
+  SerializedPSBTEnvelop,
 } from '../interfaces/';
 import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
 import { Wallet } from '../interfaces/wallet';
@@ -943,11 +944,11 @@ export default class WalletOperations {
     customTxPrerequisites?: TransactionPrerequisiteElements
   ): Promise<
     | {
-        signingData: SigningDataHW[];
+        serializedPSBTEnvelop: SerializedPSBTEnvelop;
         txid?: undefined;
       }
     | {
-        signingData?: undefined;
+        serializedPSBTEnvelop?: undefined;
         txid: string;
       }
   > => {
@@ -963,10 +964,8 @@ export default class WalletOperations {
     else inputs = txPrerequisites[txnPriority].inputs;
 
     if (wallet.entityKind === EntityKind.VAULT) {
-      // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT therefore
-      // const serializedPSBT = PSBT.toBase64();
-
-      const signingData: SigningDataHW[] = [];
+      // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT and signing digest
+      const signingDataHW: SigningDataHW[] = [];
 
       // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
       const signerType = SignerType.TAPSIGNER;
@@ -976,16 +975,20 @@ export default class WalletOperations {
           inputs[inputIndex].address,
           wallet as Vault
         );
-        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, pubkeys[0]);
+        const publicKey = pubkeys[0];
+        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
         inputsToSign.push({
           digest: hash.toString('hex'),
           subPath: `/${subPath.join('/')}`,
           inputIndex,
           sighashType,
+          publicKey: publicKey.toString('hex'),
         });
       }
-      signingData.push({ signerType, inputsToSign });
-      return { signingData };
+      signingDataHW.push({ signerType, inputsToSign });
+      const serializedPSBT = PSBT.toBase64();
+      const serializedPSBTEnvelop = { serializedPSBT, signingDataHW };
+      return { serializedPSBTEnvelop };
     } else {
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
       const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
@@ -993,5 +996,36 @@ export default class WalletOperations {
         txid,
       };
     }
+  };
+
+  static transferST3 = async (
+    wallet: Wallet | Vault,
+    serializedPSBTEnvelop: SerializedPSBTEnvelop,
+    txPrerequisites: TransactionPrerequisite,
+    txnPriority: TxPriority,
+    recipients: {
+      address: string;
+      amount: number;
+    }[],
+    network: bitcoinJS.networks.Network
+  ): Promise<{
+    txid: string;
+  }> => {
+    const inputs = txPrerequisites[txnPriority].inputs;
+    const { serializedPSBT, signingDataHW } = serializedPSBTEnvelop;
+    const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+
+    for (const { signerType, inputsToSign } of signingDataHW) {
+      if (signerType === SignerType.TAPSIGNER) {
+        for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
+          PSBT.addSignedDisgest(inputIndex, Buffer.from(publicKey, 'hex'), signature, sighashType);
+        }
+      }
+    }
+
+    const txid = await this.broadcastTransaction(wallet, PSBT, inputs, recipients, network);
+    return {
+      txid,
+    };
   };
 }
