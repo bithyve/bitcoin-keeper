@@ -1,4 +1,11 @@
-import { NetworkType, NodeType, TransactionType, TxPriority, WalletType } from '../enums';
+import {
+  NetworkType,
+  NodeType,
+  SignerType,
+  TransactionType,
+  TxPriority,
+  WalletType,
+} from '../enums';
 
 export interface InputUTXOs {
   txId: string;
@@ -201,4 +208,21 @@ export interface TwoFADetails {
   bithyveXpub?: string;
   twoFAKey?: string;
   twoFAValidated?: boolean;
+}
+
+export interface SigningDataHW {
+  signerType: SignerType;
+  inputsToSign: Array<{
+    digest: string;
+    subPath: string;
+    inputIndex: number;
+    sighashType: number;
+    publicKey: string;
+    signature?: string;
+  }>;
+}
+
+export interface SerializedPSBTEnvelop {
+  serializedPSBT: string;
+  signingDataHW: SigningDataHW[];
 }

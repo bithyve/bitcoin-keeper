@@ -260,10 +260,14 @@ export default class WalletUtilities {
     childIndex: number,
     internal: boolean
   ): {
+    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
+    pubkeys: Buffer[];
     address: string;
+    subPath: number[];
   } => {
+    const subPath = [internal ? 1 : 0, childIndex];
     const pubkeys = xpubs.map((xpub) => {
       const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
         xpub,
@@ -291,9 +295,12 @@ export default class WalletUtilities {
     });
 
     return {
+      p2ms,
       p2wsh,
       p2sh,
+      pubkeys,
       address: p2sh.address,
+      subPath,
     };
   };
 
@@ -301,9 +308,12 @@ export default class WalletUtilities {
     address: string,
     wallet: Vault
   ): {
+    p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
     p2sh: bitcoinJS.payments.Payment;
+    pubkeys: Buffer[];
     address: string;
+    subPath: number[];
   } => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpubs } = wallet.specs;
