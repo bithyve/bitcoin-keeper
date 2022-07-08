@@ -1,30 +1,27 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { Box, Text, View } from 'native-base';
+import { Clipboard, Image, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { View, Box, Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-import { Image, TouchableOpacity, Clipboard } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-// import { useDispatch } from 'react-redux';
-
-import Header from 'src/components/Header';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from '../../components/InfoBox';
-
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
-
-import QrCode from 'src/assets/images/qrcode.png';
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import QRCode from 'react-native-qrcode-svg';
-
+import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import Header from 'src/components/Header';
+import InfoBox from '../../components/InfoBox';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import QRCode from 'react-native-qrcode-svg';
+import QrCode from 'src/assets/images/qrcode.png';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
+import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
+
+// import { useDispatch } from 'react-redux';
 
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
@@ -53,7 +50,7 @@ const ReceiveScreen = ({ route }: { route }) => {
     } else if (paymentURI) setPaymentURI(null);
   }, [amount]);
 
- const {showToast} = useToastMessage();
+  const { showToast } = useToastMessage();
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
@@ -108,7 +105,7 @@ const ReceiveScreen = ({ route }: { route }) => {
             activeOpacity={0.4}
             onPress={() => {
               Clipboard.setString(paymentURI || receivingAddress);
-              showToast('Address Copied Successfully', <TickIcon />)
+              showToast('Address Copied Successfully', <TickIcon />);
             }}
           >
             <Box
