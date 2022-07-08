@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
+import { Platform } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
 import axios, { AxiosInstance } from 'axios';
 
@@ -90,6 +92,12 @@ class Configuration {
   public RELAY_AXIOS: AxiosInstance = axios.create({
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
+    headers: {
+      'HEXA-ID': config.HEXA_ID,
+      appVersion: DeviceInfo.getVersion(),
+      buildNumber: DeviceInfo.getBuildNumber(),
+      os: Platform.OS
+    }
   });
   public SIGNING_AXIOS: AxiosInstance = axios.create({
     baseURL: this.SIGNING_SERVER,
