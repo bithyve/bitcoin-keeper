@@ -29,10 +29,10 @@ const CustomGreenButton = (props: Props) => {
         useAngle={true}
         angle={286}
         angleCenter={{
-          x: 1,
+          x: 0.5,
           y: 0.0,
         }}
-        colors={['#00836A', '#073E39']}
+        colors={['#073E39', '#00836A']}
         style={styles.linearGradient}
       >
         <Text color={'#FAFAFA'} fontSize={13} fontWeight={'300'} fontFamily={'body'}>
