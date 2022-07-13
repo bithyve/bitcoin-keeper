@@ -1,8 +1,8 @@
-import { AxiosResponse } from 'axios';
-import config from '../../config';
-import idx from 'idx';
-import { INotification } from '../interfaces';
-import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
+import { AxiosResponse } from "axios";
+import config from "../../config";
+import idx from "idx";
+import { INotification } from "../interfaces";
+import { AverageTxFeesByNetwork } from "../../wallets/interfaces";
 
 const { AUTH_ID, HEXA_ID, RELAY_AXIOS } = config;
 export default class Relay {
@@ -18,7 +18,7 @@ export default class Relay {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RELAY_AXIOS.post('checkCompatibility', {
+      res = await RELAY_AXIOS.post("checkCompatibility", {
         AUTH_ID,
         method,
         version,
@@ -34,25 +34,15 @@ export default class Relay {
     };
   };
 
-  public static fetchReleases = async (
-    build: string
-  ): Promise<{
-    releases: any[];
-  }> => {
+  public static fetchReleaseNotes = async (version: string): Promise<any> => {
     let res: AxiosResponse;
     try {
-      res = await RELAY_AXIOS.post('fetchReleases', {
-        AUTH_ID,
-        build,
-      });
+      res = await RELAY_AXIOS.get(`releasesNotes?version=${version}`);
     } catch (err) {
       if (err.response) console.log(err.response.data.err);
       if (err.code) console.log(err.code);
     }
-    const { releases = [] } = idx(res, (_) => _.data) || {};
-    return {
-      releases,
-    };
+    return res;
   };
 
   public static updateFCMTokens = async (
@@ -64,7 +54,7 @@ export default class Relay {
     try {
       let res: AxiosResponse;
       try {
-        res = await RELAY_AXIOS.post('updateFCMTokens', {
+        res = await RELAY_AXIOS.post("updateFCMTokens", {
           appID: appId,
           FCMs,
         });
@@ -74,7 +64,7 @@ export default class Relay {
       }
       return res.data;
     } catch (err) {
-      throw new Error('Failed to fetch GetBittr Details');
+      throw new Error("Failed to fetch GetBittr Details");
     }
   };
 
@@ -86,7 +76,7 @@ export default class Relay {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RELAY_AXIOS.post('fetchNotifications', {
+      res = await RELAY_AXIOS.post("fetchNotifications", {
         AUTH_ID,
         appID,
       });
@@ -114,15 +104,16 @@ export default class Relay {
     try {
       let res: AxiosResponse;
 
-      if (!receivers.length) throw new Error('Failed to deliver notification: receivers missing');
+      if (!receivers.length)
+        throw new Error("Failed to deliver notification: receivers missing");
 
       try {
-        res = await RELAY_AXIOS.post('sendNotifications', {
+        res = await RELAY_AXIOS.post("sendNotifications", {
           AUTH_ID,
           receivers,
           notification,
         });
-        console.log('sendNotifications', {
+        console.log("sendNotifications", {
           res,
         });
       } catch (err) {
@@ -137,7 +128,7 @@ export default class Relay {
         sent,
       };
     } catch (err) {
-      throw new Error('Failed to deliver notification');
+      throw new Error("Failed to deliver notification");
     }
   };
 
@@ -149,7 +140,7 @@ export default class Relay {
       let res: AxiosResponse;
       try {
         // TODO: re-route fee/exchange-rates fetch from legacy relay to keeper-relay
-        res = await RELAY_AXIOS.post('fetchFeeAndExchangeRates', {
+        res = await RELAY_AXIOS.post("fetchFeeAndExchangeRates", {
           HEXA_ID,
         });
       } catch (err) {
@@ -164,7 +155,7 @@ export default class Relay {
         averageTxFees,
       };
     } catch (err) {
-      throw new Error('Failed fetch fee and exchange rates');
+      throw new Error("Failed fetch fee and exchange rates");
     }
   };
 
@@ -180,7 +171,7 @@ export default class Relay {
         notification,
       };
       try {
-        res = await RELAY_AXIOS.post('sendKeeperNotifications', {
+        res = await RELAY_AXIOS.post("sendKeeperNotifications", {
           AUTH_ID,
           receivers,
           notification,
@@ -195,7 +186,7 @@ export default class Relay {
         if (err.code) throw new Error(err.code);
       }
     } catch (err) {
-      throw new Error('Failed to deliver notification');
+      throw new Error("Failed to deliver notification");
     }
   };
 
@@ -207,7 +198,7 @@ export default class Relay {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RELAY_AXIOS.post('getMessages', {
+      res = await RELAY_AXIOS.post("getMessages", {
         AUTH_ID,
         appID,
         timeStamp,
@@ -235,7 +226,7 @@ export default class Relay {
     try {
       let res: AxiosResponse;
       try {
-        res = await RELAY_AXIOS.post('updateMessages', {
+        res = await RELAY_AXIOS.post("updateMessages", {
           AUTH_ID,
           appId,
           data,
@@ -249,7 +240,7 @@ export default class Relay {
         updated,
       };
     } catch (err) {
-      throw new Error('Failed to fetch GetBittr Details');
+      throw new Error("Failed to fetch GetBittr Details");
     }
   };
 
@@ -264,7 +255,7 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateAppImage', {
+      const res: AxiosResponse = await RELAY_AXIOS.post("v2/updateAppImage", {
         AUTH_ID,
         appId: appImage.appId,
         appImage,
@@ -275,7 +266,7 @@ export default class Relay {
         data: updated,
       };
     } catch (err) {
-      throw new Error('Failed to update App Image');
+      throw new Error("Failed to update App Image");
     }
   };
 
@@ -287,7 +278,7 @@ export default class Relay {
     try {
       let res: AxiosResponse;
       try {
-        res = await RELAY_AXIOS.post('v2/fetchappImage', {
+        res = await RELAY_AXIOS.post("v2/fetchappImage", {
           AUTH_ID,
           appId: appId,
         });
@@ -300,7 +291,7 @@ export default class Relay {
         appImage,
       };
     } catch (err) {
-      throw new Error('Failed to fetch App Image');
+      throw new Error("Failed to fetch App Image");
     }
   };
 }

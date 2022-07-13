@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FlatList, Box, Text } from 'native-base';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import DotView from '../DotView';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 const data = [
   {
     id: 1,
@@ -35,6 +38,9 @@ const data = [
   },
 ];
 const VersionHistoryList = () => {
+  const { useQuery } = useContext(RealmWrapperContext);
+  const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
+  console.log('VersionHistoryData', VersionHistoryData);
   return (
     <FlatList
       style={{ overflow: 'visible' }}
