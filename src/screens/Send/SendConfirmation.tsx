@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, VStack, HStack } from 'native-base';
+import { Box, Text, VStack, HStack, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -148,7 +148,7 @@ const SendConfirmation = ({ route }) => {
 
   const SendingPriority = () => {
     return (
-      <Box>
+      <Box flexDirection={'column'}>
         <Box flexDirection={'row'} justifyContent={'space-between'}>
           <Box
             style={{
@@ -160,13 +160,43 @@ const SendConfirmation = ({ route }) => {
           >
             <Text style={styles.headingLabelText}>Priority</Text>
             <Text style={styles.headingLabelText}>Arrival Time</Text>
-            <Text style={styles.headingLabelText}>Fee</Text>
+            <Text style={styles.headingLabelText}>Fsee</Text>
           </Box>
+        </Box>
 
-          {/* taken from hexa --> TtransactionPriorityScreen.tsx - Line */}
-          {/* {transactionPriorities.map( priority =>{
-            return()
-          }} */}
+        {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
+        <Box my={hp(20)}>
+          {availableTransactionPriorities.map((priority) => {
+            return (
+              <TouchableOpacity style={styles.priorityRowContainer} key={priority}>
+                <Box style={styles.priorityBox}>
+                  <RadioButton
+                    size={20}
+                    isChecked={transactionPriority == priority}
+                    onpress={() => {
+                      //  setTransactionPriority( priority )
+                      //  onTransactionPriorityChanged( priority )
+                    }}
+                  />
+                  <Text
+                    style={{
+                      ...styles.priorityTableText,
+                      marginLeft: 12,
+                    }}
+                  >
+                    {String(priority.toUpperCase())}
+                  </Text>
+                  <Text
+                    style={{
+                      ...styles.priorityTableText,
+                    }}
+                  >
+                    ~
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            );
+          })}
         </Box>
       </Box>
     );
@@ -184,12 +214,11 @@ const SendConfirmation = ({ route }) => {
       <HeaderTitle
         title="Sending to address"
         subtitle="Lorem ipsum dolor sit amet,"
-        // color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
-        {/* <SendingCard /> */}
+        <SendingCard isSend />
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
@@ -204,7 +233,6 @@ const SendConfirmation = ({ route }) => {
         <Buttons
           primaryText="Proceed"
           secondaryText="Cancel"
-          // primaryCallback={onProceed}
           secondaryCallback={() => {
             console.log('Cancel');
           }}
@@ -221,5 +249,22 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     color: '#656565',
+  },
+  priorityRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    paddingHorizontal: 25,
+  },
+  priorityBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: hp(20),
+    flex: 1,
+  },
+  priorityTableText: {
+    fontSize: 12,
+    textAlign: 'right',
   },
 });
