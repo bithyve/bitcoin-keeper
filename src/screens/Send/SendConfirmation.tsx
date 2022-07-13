@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, VStack, HStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
@@ -25,6 +24,9 @@ import {
 } from 'src/common/data/responsiveness/responsive';
 
 import RadioButton from 'src/components/RadioButton';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+
+import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -35,6 +37,15 @@ const SendConfirmation = ({ route }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
   const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const availableTransactionPriorities = useAvailableTransactionPriorities();
+  const [transactionPriorities, setTransactionPriorities] = useState(
+    availableTransactionPriorities
+  );
+
+  // taken from hexa --> TransactionPriority.tsx - line 98
+  const setCustomTransactionPriority = () => {
+    // logic for custom transaction priority
+  };
 
   const onProceed = () => {
     if (isVaultTransfer) {
@@ -129,7 +140,7 @@ const SendConfirmation = ({ route }) => {
           Transaction Priority
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {/* {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'} */}
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'}
         </Text>
       </Box>
     );
@@ -139,48 +150,24 @@ const SendConfirmation = ({ route }) => {
     return (
       <Box>
         <Box flexDirection={'row'} justifyContent={'space-between'}>
-          <Box ml={5} mr={wp(80)}>
-            <Text>Prority</Text>
+          <Box
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingVertical: 10,
+              flex: 1,
+            }}
+          >
+            <Text style={styles.headingLabelText}>Priority</Text>
+            <Text style={styles.headingLabelText}>Arrival Time</Text>
+            <Text style={styles.headingLabelText}>Fee</Text>
           </Box>
-          <Box mr={wp(80)}>
-            <Text>Arrival</Text>
-          </Box>
-          <Box>
-            <Text>Fee</Text>
-          </Box>
+
+          {/* taken from hexa --> TtransactionPriorityScreen.tsx - Line */}
+          {/* {transactionPriorities.map( priority =>{
+            return()
+          }} */}
         </Box>
-        <HStack my={hp(15)}>
-          <Box mr={5} ml={5}>
-            <RadioButton isChecked={true} ignoresTouch />
-          </Box>
-          <Text mr={wp(55)}>High</Text>
-          <Text mr={wp(38)}>10 - 20 minutes</Text>
-          <Text>0.10 $</Text>
-        </HStack>
-        <HStack my={hp(15)}>
-          <Box mr={5} ml={5}>
-            <RadioButton isChecked={false} ignoresTouch />
-          </Box>
-          <Text mr={wp(35)}>Medium</Text>
-          <Text mr={wp(35)}>20 - 40 minutes</Text>
-          <Text>0.03 $</Text>
-        </HStack>
-        <HStack my={hp(15)}>
-          <Box mr={5} ml={5}>
-            <RadioButton isChecked={false} ignoresTouch />
-          </Box>
-          <Text mr={wp(60)}>Low</Text>
-          <Text mr={wp(35)}>20 - 40 minutes</Text>
-          <Text>0.03 $</Text>
-        </HStack>
-        <HStack my={hp(15)}>
-          <Box mr={5} ml={5}>
-            <RadioButton isChecked={false} ignoresTouch />
-          </Box>
-          <Text mr={wp(37)}>Custom</Text>
-          <Text mr={wp(35)}>20 - 40 minutes</Text>
-          <Text>0.03 $</Text>
-        </HStack>
       </Box>
     );
   };
@@ -197,12 +184,12 @@ const SendConfirmation = ({ route }) => {
       <HeaderTitle
         title="Sending to address"
         subtitle="Lorem ipsum dolor sit amet,"
-        color="light.ReceiveBackground"
+        // color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
-        <SendingCard />
+        {/* <SendingCard /> */}
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
@@ -227,3 +214,12 @@ const SendConfirmation = ({ route }) => {
   );
 };
 export default SendConfirmation;
+
+const styles = StyleSheet.create({
+  headingLabelText: {
+    fontSize: 11,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#656565',
+  },
+});
