@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: 'com.google.gms.google-services'
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 import com.android.build.OutputFile
 
@@ -135,7 +136,7 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 31
+        versionCode 32
         versionName "0.0.1"
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true

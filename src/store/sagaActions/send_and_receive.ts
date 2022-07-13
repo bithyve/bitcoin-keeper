@@ -3,7 +3,10 @@ import { Satoshis } from '../../common/data/typealiases/UnitAliases';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
-import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
+import {
+  SerializedPSBTEnvelop,
+  TransactionPrerequisiteElements,
+} from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
@@ -195,14 +198,14 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
-    signedSerializedPSBT: string;
+    serializedPSBTEnvelop: SerializedPSBTEnvelop;
   };
 }
 
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
-  signedSerializedPSBT: string;
+  serializedPSBTEnvelop: SerializedPSBTEnvelop;
 }): SendPhaseThreeAction => {
   return {
     type: SEND_PHASE_THREE,

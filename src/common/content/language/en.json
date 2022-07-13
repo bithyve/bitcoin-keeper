@@ -275,7 +275,10 @@
     "Usedforsecuringfunds": "Used for securing funds",
     "Inheritance": "Inheritance",
     "Setupinheritancetoyoursats": "Set up inheritance to your sats",
-    "Setup": "Setup"
+    "Setup": "Setup",
+    "VaultCreated": "Vault Created",
+    "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
+    "ViewVault": "View Vault"
   },
   "seed": {
     "ExportSeed": "Seed words",
@@ -377,5 +380,19 @@
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
     "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store"
+  },
+  "BackupWallet": {
+    "confirmSeedWord": "Confirm Seed Words",
+    "enterSeedWord": "Enter the second(02) word",
+    "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
+    "startOver": "Start Over",
+    "backupSuccessTitle": "Backup Successful",
+    "backupSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "backupSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "home": "Home",
+    "backupWallet": "Backup Wallet",
+    "backupWalletSubTitle": "Setup backup for Keeper",
+    "exportAppSeed": "Export app individual seeds",
+    "backupOnCloud": "Backup on cloud service"
   }
 }

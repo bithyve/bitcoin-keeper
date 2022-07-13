@@ -1,7 +1,6 @@
 import { BackHandler, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, Text } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import {
   getTransactionPadding,
   hp,
@@ -34,16 +33,17 @@ import Recieve from 'src/assets/images/svgs/receive.svg';
 import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Setting from 'src/assets/images/svgs/settings_small.svg';
-import WalletInside from 'src/assets/images/svgs/Wallet_inside.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
+import { Transaction } from 'src/core/wallets/interfaces';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletInside from 'src/assets/images/svgs/Wallet_inside.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { Transaction } from 'src/core/wallets/interfaces';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -71,7 +71,7 @@ const WalletDetails = () => {
     const walletName = item?.presentationData?.name;
     const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
-    const walletBalance = balances?.confirmed + balances?.unconfirmed
+    const walletBalance = balances?.confirmed + balances?.unconfirmed;
 
     return (
       <LinearGradient
@@ -158,13 +158,8 @@ const WalletDetails = () => {
                   {walletDescription}
                 </Text>
               </Box>
-              <Text
-                color={'light.white'}
-                letterSpacing={1.2}
-                fontSize={hp(24)}
-                fontWeight={200}
-              >
-                {walletBalance / 10e8 < 99.9999 ? (walletBalance / 10e8).toFixed(4) : 99.9999}
+              <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+                {walletBalance}
               </Text>
             </Box>
           </>
@@ -231,7 +226,7 @@ const WalletDetails = () => {
             marginX={2}
             marginRight={3}
           >
-            {transaction.amount / 10e8 < 99.9999 ? (transaction.amount / 10e8).toFixed(4) : 99.9999}
+            {transaction.amount}
           </Text>
           <Box>
             <IconArrowGrey />
@@ -295,13 +290,8 @@ const WalletDetails = () => {
           <Box marginRight={1} marginBottom={-2}>
             <BTC />
           </Box>
-          <Text
-            color={'light.textWallet'}
-            letterSpacing={1.5}
-            fontSize={hp(30)}
-            fontWeight={200}
-          >
-            {netBalance / 10e8 < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
+          <Text color={'light.textWallet'} letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
+            {netBalance}
           </Text>
         </Box>
       </Box>

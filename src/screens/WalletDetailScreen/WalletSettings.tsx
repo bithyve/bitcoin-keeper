@@ -76,7 +76,21 @@ const WalletSettings = () => {
           fontSize={20}
         />
       </Box>
-      <Box marginTop={hp(60)} alignItems={'center'} paddingX={wp(25)}>
+      <Box
+        borderBottomColor={'light.divider'}
+        borderBottomWidth={0.2}
+        marginTop={hp(60)}
+        paddingX={wp(25)}
+      >
+        <Option
+          title={'Wallet Backup'}
+          subTitle={'Setup backup for Wallet'}
+          onPress={() => {
+            navigtaion.navigate('BackupWallet');
+          }}
+        />
+      </Box>
+      <Box alignItems={'center'} paddingX={wp(25)}>
         <Option
           title={'Wallet Details'}
           subTitle={'Change wallet name & description'}

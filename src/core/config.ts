@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
+import { Platform } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
 import axios, { AxiosInstance } from 'axios';
 
@@ -7,8 +9,6 @@ import PersonalNode from '../common/data/models/PersonalNode';
 import { WalletType } from './wallets/enums';
 import _ from 'lodash';
 import config from 'react-native-config';
-import {Platform} from 'react-native';
-import DeviceInfo from 'react-native-device-info';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
@@ -23,12 +23,12 @@ export enum BITCOIN_NETWORK {
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
-  APP_STAGE: APP_STAGE.DEVELOPMENT,
+  BITCOIN_NETWORK: BITCOIN_NETWORK.MAINNET,
+  APP_STAGE: APP_STAGE.STAGING,
   TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
   MAINNET_WRAPPER: 'https://api.bithyve.com',
-  RELAY: 'https://dev-relay.bithyve.com/',
-  SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
+  RELAY: 'https://new-staging-relay.nw.r.appspot.com/',
+  SIGNING_SERVER: 'https://new-staging-sign.nw.r.appspot.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
   AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
@@ -93,7 +93,7 @@ class Configuration {
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
     headers: {
-      HEXA_ID: config.HEXA_ID,
+      'HEXA-ID': config.HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
       os: Platform.OS

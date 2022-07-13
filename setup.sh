@@ -4,6 +4,10 @@ cp mods/bunyan/bunyan.js node_modules/bunyan/lib/bunyan.js
 # cp mods/react-native-mail/RNMailModule.java node_modules/react-native-mail/android/src/main/java/com/chirag/RNMail/RNMailModule.java
 cp mods/react-native-safe-area-view/index.js node_modules/react-native-safe-area-view/index.js
 
+# adding PSBT methods to support TapSigner in bitcoinjs-lib@5.1.6
+cp mods/bitcoinjs-lib/psbt.js ./node_modules/bitcoinjs-lib/src/psbt.js
+cp mods/bitcoinjs-lib/psbt.d.ts ./node_modules/bitcoinjs-lib/types/psbt.d.ts
+
 # enabling node core modules
 rn-nodeify --install --hack --yarn
 

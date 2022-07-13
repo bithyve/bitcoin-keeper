@@ -1,20 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, VStack, HStack, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
-import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
-import { useDispatch } from 'react-redux';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-import { TxPriority, WalletType } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { useAppSelector } from 'src/store/hooks';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import SigningController from './SigningController';
+import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import {
   getTransactionPadding,
@@ -27,6 +21,13 @@ import RadioButton from 'src/components/RadioButton';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -238,6 +239,7 @@ const SendConfirmation = ({ route }) => {
           }}
         />
       </Box>
+      <SigningController />
     </Box>
   );
 };

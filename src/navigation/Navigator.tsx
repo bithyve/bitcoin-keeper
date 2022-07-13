@@ -7,6 +7,7 @@ import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
+import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
@@ -22,15 +23,15 @@ import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
+import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
-import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
-import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppSelector } from 'src/store/hooks';
+import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -46,8 +47,8 @@ const LoginStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen options={{ gestureEnabled: false }} name="Splash" component={SplashScreen} />
-      <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
+      <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
@@ -86,6 +87,7 @@ const AppStack = () => {
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
+        <Stack.Screen name="BackupWallet" component={BackupWallet} />
       </Stack.Navigator>
     </RealmProvider>
   );

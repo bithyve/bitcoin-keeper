@@ -54,22 +54,24 @@ const ChoosePlan = (props) => {
       }}
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={7} my={5}>
-        <TouchableOpacity onPress={() => props.navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
-      <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-        <Box w={'60%'}>
-          <Text fontSize={RFValue(20)} color={'light.textBlack'} fontFamily={'heading'}>
-            {choosePlan.choosePlantitle}
-          </Text>
-          <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
-            {choosePlan.choosePlanSubTitle}{' '}
-          </Text>
+      <Box height={'20%'} mt={4}>
+        <Box mx={7} my={5}>
+          <TouchableOpacity onPress={() => props.navigation.goBack()}>
+            <BackIcon />
+          </TouchableOpacity>
+        </Box>
+        <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
+          <Box w={'60%'}>
+            <Text fontSize={RFValue(20)} color={'light.textBlack'} fontFamily={'heading'}>
+              {choosePlan.choosePlantitle}
+            </Text>
+            <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
+              {choosePlan.choosePlanSubTitle}{' '}
+            </Text>
+          </Box>
         </Box>
       </Box>
-      <ScrollView>
+      <ScrollView style={{ height: '70%' }}>
         <ChoosePlanCarousel onChange={(item) => setCurrentPosition(item)} />
         <Box mx={10} my={5}>
           <Text
@@ -116,10 +118,10 @@ const ChoosePlan = (props) => {
             </Text>
           </Box>
         </Box>
-        <Box flex={1} justifyContent={'flex-end'}>
-          <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
-        </Box>
       </ScrollView>
+      <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
+        <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
+      </Box>
     </SafeAreaView>
   );
 };
