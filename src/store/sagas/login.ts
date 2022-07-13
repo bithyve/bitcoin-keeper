@@ -65,9 +65,8 @@ function* credentialsStorageWorker({ payload }) {
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
     // fetch fee and exchange rates
     yield put(fetchFeeAndExchangeRates());
-    // intial app installed version
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: DeviceInfo.getVersion(),
+      version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
       date: new Date().toString(),
       title: 'Intial installed',
@@ -215,7 +214,7 @@ function* applicationUpdateWorker({
 }) {
   const { newVersion, previousVersion } = payload;
   try {
-    const res = yield call(Relay.fetchReleaseNotes, '0.0.1');
+    const res = yield call(Relay.fetchReleaseNotes, newVersion);
     let notes = '';
     notes = res.release
       ? Platform.OS == 'ios'
@@ -223,7 +222,7 @@ function* applicationUpdateWorker({
         : res.release.releaseNotes.android
       : '';
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: newVersion,
+      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: notes,
       date: new Date().toString(),
       title: 'Upgraded from ' + previousVersion,
