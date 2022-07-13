@@ -1,6 +1,7 @@
 import { call, put, select } from "redux-saga/effects";
 import { createWatcher } from "../utilities";
 import * as SecureStore from "../../storage/secure-store";
+import {Platform} from 'react-native'
 import {
   CREDS_AUTH,
   STORE_CREDS,
@@ -18,29 +19,27 @@ import {
   pinChangedFailed,
   setupLoading,
   setKey,
-} from "../reducers/login";
-import dbManager from "../../storage/realm/dbManager";
-import * as Cipher from "../../common/encryption";
-import LoginMethod from "src/common/data/enums/LoginMethod";
+} from '../reducers/login';
+import dbManager from '../../storage/realm/dbManager';
+import * as Cipher from '../../common/encryption';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
 import {
   setPinResetCreds,
   resetPinFailAttempts,
   setPinHash,
   setAppVersion,
-} from "../reducers/storage";
-import { setupKeeperApp } from "../sagaActions/storage";
-import { KeeperApp } from "src/common/data/models/interfaces/KeeperApp";
-import { RealmSchema } from "src/storage/realm/enum";
-import { RootState } from "../store";
-import { autoSyncWallets } from "../sagaActions/wallets";
-import { fetchFeeAndExchangeRates } from "../sagaActions/send_and_receive";
-import { getMessages } from "../sagaActions/notifications";
-import DeviceInfo from "react-native-device-info";
-import messaging from "@react-native-firebase/messaging";
-import { getReleaseTopic } from "src/utils/releaseTopic";
-import { version } from "process";
+} from '../reducers/storage';
+import { setupKeeperApp } from '../sagaActions/storage';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RootState } from '../store';
+import { autoSyncWallets } from '../sagaActions/wallets';
+import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
+import { getMessages } from '../sagaActions/notifications';
+import DeviceInfo from 'react-native-device-info';
+import messaging from '@react-native-firebase/messaging';
+import { getReleaseTopic } from 'src/utils/releaseTopic';
 import Relay from "src/core/services/operations/Relay";
-import { Platform } from "react-native";
 
 function* credentialsStorageWorker({ payload }) {
   try {
@@ -62,12 +61,8 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setPinHash(hash));
 
     yield put(setCredStored());
-
     yield put(setAppVersion(DeviceInfo.getVersion()));
-    yield call(
-      messaging().subscribeToTopic,
-      getReleaseTopic(DeviceInfo.getVersion())
-    );
+    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
     // fetch fee and exchange rates
     yield put(fetchFeeAndExchangeRates());
     // intial app installed version
@@ -75,7 +70,7 @@ function* credentialsStorageWorker({ payload }) {
       version: DeviceInfo.getVersion(),
       releaseNote: "",
       date: new Date().toString(),
-      title: "Intial installed version",
+      title: "Intial installed",
     });
   } catch (error) {
     console.log(error);
@@ -130,12 +125,9 @@ function* credentialsAuthWorker({ payload }) {
     yield put(getMessages());
   }
   // check if the app has been upgraded
-  const appVersion = yield select(
-    (state: RootState) => state.storage.appVersion
-  );
+  const appVersion = yield select((state: RootState) => state.storage.appVersion);
   const currentVersion = DeviceInfo.getVersion();
-  if (currentVersion !== appVersion)
-    yield put(updateApplication(currentVersion, appVersion));
+  if (currentVersion !== appVersion) yield put(updateApplication(currentVersion, appVersion));
 }
 
 export const credentialsAuthWatcher = createWatcher(
@@ -229,10 +221,7 @@ function* changeLoginMethodWorker({
   }
 }
 
-export const changeLoginMethodWatcher = createWatcher(
-  changeLoginMethodWorker,
-  CHANGE_LOGIN_METHOD
-);
+export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
 
 function* applicationUpdateWorker({
   payload,
@@ -259,13 +248,12 @@ function* applicationUpdateWorker({
       date: new Date().toString(),
       title: "Upgraded from " + previousVersion,
     });
+    messaging().unsubscribeFromTopic, getReleaseTopic(previousVersion);
+    messaging().subscribeToTopic, getReleaseTopic(newVersion);
     yield put(setAppVersion(DeviceInfo.getVersion()));
   } catch (error) {
     console.log(error);
   }
 }
 
-export const applicationUpdateWatcher = createWatcher(
-  applicationUpdateWorker,
-  UPDATE_APPLICATION
-);
+export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);
