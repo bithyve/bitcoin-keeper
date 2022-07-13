@@ -9,4 +9,5 @@ export const VersionHistorySchema: ObjectSchema = {
     date: "string",
     title: "string",
   },
+  primaryKey: 'version',
 };

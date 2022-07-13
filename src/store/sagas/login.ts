@@ -214,6 +214,15 @@ function* applicationUpdateWorker({
 }) {
   const { newVersion, previousVersion } = payload;
   try {
+    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
+      releaseNote: '',
+      date: new Date().toString(),
+      title: 'Upgraded from ' + previousVersion,
+    });
+    messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion))
+    messaging().subscribeToTopic( getReleaseTopic(newVersion))
+    yield put(setAppVersion(DeviceInfo.getVersion()));
     const res = yield call(Relay.fetchReleaseNotes, newVersion);
     let notes = '';
     notes = res.release
@@ -221,15 +230,12 @@ function* applicationUpdateWorker({
         ? res.release.releaseNotes.ios
         : res.release.releaseNotes.android
       : '';
-    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: notes,
-      date: new Date().toString(),
-      title: 'Upgraded from ' + previousVersion,
-    });
-    messaging().unsubscribeFromTopic, getReleaseTopic(previousVersion);
-    messaging().subscribeToTopic, getReleaseTopic(newVersion);
-    yield put(setAppVersion(DeviceInfo.getVersion()));
+      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+        version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
+        releaseNote: notes,
+        date: new Date().toString(),
+        title: 'Upgraded from ' + previousVersion,
+      });
   } catch (error) {
     console.log(error);
   }
