@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity, Clipboard } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
