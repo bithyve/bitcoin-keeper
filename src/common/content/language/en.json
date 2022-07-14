@@ -396,6 +396,11 @@
     "exportAppSeed": "Export app individual seeds",
     "backupOnCloud": "Backup on cloud service",
     "appGeneratePassTitle": "App Generated Password",
-    "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
+    "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "createCloudBackTitle": "Creating Cloud Backup",
+    "createCloudBackSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "healthCheck": "Health Check",
+    "enterStrongPass": "Enter App Generated Strong Password",
+    "healthCheckNote": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
   }
 }
