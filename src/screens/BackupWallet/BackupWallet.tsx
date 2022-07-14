@@ -16,6 +16,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import AppGeneratePass from 'src/components/CloudBackup/AppGeneratePass';
+import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponent';
 
 type Props = {
   title: string;
@@ -28,6 +30,8 @@ const BackupWallet = () => {
   const BackupWallet = translations['BackupWallet'];
 
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
+  const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
+  const [healthCheckModal, setHealthCheckModal] = useState(false);
 
   const navigation = useNavigation();
   const [walletIndex, setWalletIndex] = useState<number>(0);
@@ -96,7 +100,9 @@ const BackupWallet = () => {
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
           onPress={() => {
-            setCloudBackupModal(true);
+            // setCloudBackupModal(true);
+            // setCreateCloudBackupModal(true);
+            setHealthCheckModal(true);
           }}
         />
       </Box>
@@ -112,6 +118,34 @@ const BackupWallet = () => {
           }}
         >
           <AppGeneratePass closeBottomSheet={() => setCloudBackupModal(false)} />
+        </Modal>
+        <Modal
+          isVisible={createCloudBackupModal}
+          onSwipeComplete={() => setCloudBackupModal(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+        </Modal>
+        <Modal
+          isVisible={healthCheckModal}
+          onSwipeComplete={() => setHealthCheckModal(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'center',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <HealthCheckComponent
+            closeBottomSheet={() => {
+              setHealthCheckModal(false);
+            }}
+          />
         </Modal>
       </Box>
     </Box>
