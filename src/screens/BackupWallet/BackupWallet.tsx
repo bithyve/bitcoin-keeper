@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import Modal from 'react-native-modal';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,6 +15,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import AppGeneratePass from 'src/components/CloudBackup/AppGeneratePass';
 
 type Props = {
   title: string;
@@ -24,6 +26,8 @@ type Props = {
 const BackupWallet = () => {
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
+
+  const [cloudBackupModal, setCloudBackupModal] = useState(false);
 
   const navigation = useNavigation();
   const [walletIndex, setWalletIndex] = useState<number>(0);
@@ -91,8 +95,24 @@ const BackupWallet = () => {
         <Option
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
-          onPress={() => {}}
+          onPress={() => {
+            setCloudBackupModal(true);
+          }}
         />
+      </Box>
+      <Box>
+        <Modal
+          isVisible={cloudBackupModal}
+          onSwipeComplete={() => setCloudBackupModal(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <AppGeneratePass closeBottomSheet={() => setCloudBackupModal(false)} />
+        </Modal>
       </Box>
     </Box>
   );

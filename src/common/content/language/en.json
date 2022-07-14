@@ -62,7 +62,8 @@
     "TermsConditions": "Terms and Conditions",
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
-    "EditDetails": "Edit Details"
+    "EditDetails": "Edit Details",
+    "next": "Next"
   },
   "noInternet": {
     "no": "No Internet",
@@ -393,6 +394,8 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual seeds",
-    "backupOnCloud": "Backup on cloud service"
+    "backupOnCloud": "Backup on cloud service",
+    "appGeneratePassTitle": "App Generated Password",
+    "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
   }
 }
