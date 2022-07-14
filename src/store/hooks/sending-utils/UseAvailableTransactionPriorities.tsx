@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { TxPriority } from 'src/core/wallets/enums/index';
 // import useSendingState from '../state-selectors/sending/UseSendingState'
-const defaultTransactionPrioritiesAvailable = [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH];
+const defaultTransactionPrioritiesAvailable = [TxPriority.HIGH, TxPriority.MEDIUM, TxPriority.LOW];
 
 export default function useAvailableTransactisonPriorities() {
   return defaultTransactionPrioritiesAvailable;

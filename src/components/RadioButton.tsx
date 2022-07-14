@@ -10,7 +10,7 @@ export type Props = {
   isChecked: boolean;
   size?: number;
   // color?: string;
-  // borderColor?: string;
+  borderColor?: string;
   ignoresTouch?: boolean;
   onpress?: () => void;
 };
@@ -19,14 +19,14 @@ const RadioButton: React.FC<Props> = ({
   isChecked = false,
   size = 20,
   // color = '#00836A',
-  // borderColor = '#E3E3E3',
+  borderColor = '#E3E3E3',
   ignoresTouch = false,
   onpress = () => {},
 }: Props) => {
   const containerStyle = useMemo(() => {
     return {
       ...styles.rootContainer,
-      // borderColor,
+      borderColor,
       borderRadius: size / 2,
       height: size,
       width: size,

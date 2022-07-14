@@ -158,14 +158,16 @@ const SendConfirmation = ({ route }) => {
               flex: 1,
             }}
           >
-            <Text style={styles.headingLabelText}>Priority</Text>
+            <Text style={styles.headingLabelText} ml={wp(13)}>
+              Priority
+            </Text>
             <Text style={styles.headingLabelText}>Arrival Time</Text>
-            <Text style={styles.headingLabelText}>Fsee</Text>
+            <Text style={styles.headingLabelText}>Fees</Text>
           </Box>
         </Box>
 
         {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
-        <Box my={hp(20)}>
+        <Box mt={hp(1)}>
           {availableTransactionPriorities.map((priority) => {
             return (
               <TouchableOpacity style={styles.priorityRowContainer} key={priority}>
@@ -173,6 +175,7 @@ const SendConfirmation = ({ route }) => {
                   <RadioButton
                     size={20}
                     isChecked={transactionPriority == priority}
+                    borderColor={'#E3E3E3'}
                     onpress={() => {
                       //  setTransactionPriority( priority )
                       //  onTransactionPriorityChanged( priority )
@@ -183,9 +186,10 @@ const SendConfirmation = ({ route }) => {
                     style={{
                       ...styles.priorityTableText,
                       marginLeft: 12,
+                      fontStyle: 'normal',
                     }}
                   >
-                    {String(priority.toUpperCase())}
+                    {String(priority)}
                   </Text>
                 </Box>
               </TouchableOpacity>
@@ -241,7 +245,7 @@ export default SendConfirmation;
 const styles = StyleSheet.create({
   headingLabelText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '500',
     textAlign: 'center',
     color: '#656565',
   },
@@ -249,9 +253,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderTopWidth: 0.25,
-    paddingHorizontal: 25,
-    borderTopColor: '#005545',
+    borderBottomWidth: 0.5,
+    paddingHorizontal: 12,
+    borderBottomColor: 'rgba(0, 85, 69, 0.15)',
   },
   priorityBox: {
     flexDirection: 'row',
@@ -260,7 +264,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   priorityTableText: {
-    fontSize: 12,
+    fontSize: 10,
     textAlign: 'right',
     color: '#656565',
   },
