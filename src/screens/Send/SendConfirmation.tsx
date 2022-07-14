@@ -19,7 +19,6 @@ import {
 
 import RadioButton from 'src/components/RadioButton';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
@@ -179,6 +178,7 @@ const SendConfirmation = ({ route }) => {
                       //  onTransactionPriorityChanged( priority )
                     }}
                   />
+
                   <Text
                     style={{
                       ...styles.priorityTableText,
@@ -186,13 +186,6 @@ const SendConfirmation = ({ route }) => {
                     }}
                   >
                     {String(priority.toUpperCase())}
-                  </Text>
-                  <Text
-                    style={{
-                      ...styles.priorityTableText,
-                    }}
-                  >
-                    ~
                   </Text>
                 </Box>
               </TouchableOpacity>
@@ -256,17 +249,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderTopWidth: 1,
+    borderTopWidth: 0.25,
     paddingHorizontal: 25,
+    borderTopColor: '#005545',
   },
   priorityBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: hp(20),
+    paddingVertical: hp(14),
     flex: 1,
   },
   priorityTableText: {
     fontSize: 12,
     textAlign: 'right',
+    color: '#656565',
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
   },
 });
