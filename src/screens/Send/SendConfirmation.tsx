@@ -27,6 +27,10 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { timeConvertNear30 } from 'src/common/utilities';
+import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
+import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -140,12 +144,20 @@ const SendConfirmation = ({ route }) => {
           Transaction Priority
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'}
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority.toLowerCase()].amount : '274 sats'}
         </Text>
       </Box>
     );
   };
 
+  const TextValue = ({ amt, unit }) => {
+    return (
+      <Text style={{
+        ...styles.priorityTableText,
+        flex: 1,
+      }}>{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
+    )
+  }
   const SendingPriority = () => {
     return (
       <Box flexDirection={'column'}>
@@ -170,15 +182,21 @@ const SendConfirmation = ({ route }) => {
         <Box mt={hp(1)}>
           {availableTransactionPriorities.map((priority) => {
             return (
-              <TouchableOpacity style={styles.priorityRowContainer} key={priority}>
+              <TouchableOpacity
+                style={styles.priorityRowContainer}
+                key={priority}
+                onPress={() => {
+                  setTransactionPriority(priority)
+                  // onTransactionPriorityChanged(priority)
+                }}>
                 <Box style={styles.priorityBox}>
                   <RadioButton
                     size={20}
                     isChecked={transactionPriority == priority}
                     borderColor={'#E3E3E3'}
                     onpress={() => {
-                      //  setTransactionPriority( priority )
-                      //  onTransactionPriorityChanged( priority )
+                      setTransactionPriority(priority)
+                      // onTransactionPriorityChanged(priority)
                     }}
                   />
 
@@ -192,9 +210,63 @@ const SendConfirmation = ({ route }) => {
                     {String(priority)}
                   </Text>
                 </Box>
+                <Text style={{
+                  ...styles.priorityTableText,
+                  flex: 1,
+                }}>
+                  ~
+                  {timeConvertNear30(
+                    (txFeeInfo[priority.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                    * 10
+                  )}
+                </Text>
+                <TextValue amt={txFeeInfo[priority.toLowerCase()].amount} unit={{
+                  bitcoinUnit: BitcoinUnit.SATS,
+                }} />
               </TouchableOpacity>
             );
           })}
+          <TouchableOpacity
+            style={styles.customPriorityRowContainer}
+            onPress={() => {
+              setTransactionPriority(TxPriority.CUSTOM)
+              //  onTransactionPriorityChanged( priority )
+            }}
+          >
+            <Box style={styles.priorityBox}>
+              <RadioButton
+                size={20}
+                borderColor={'#E3E3E3'}
+                onpress={() => {
+                  setTransactionPriority(TxPriority.CUSTOM)
+                  //  onTransactionPriorityChanged( priority )
+                }}
+                isChecked={transactionPriority == TxPriority.CUSTOM} />
+
+              <Text
+                style={{
+                  ...styles.priorityTableText,
+                  marginLeft: 12,
+                  fontStyle: 'normal',
+                }}
+              >
+                Custom Priority
+              </Text>
+            </Box>
+            <Text style={{
+              ...styles.priorityTableText,
+              flex: 1,
+            }}>
+              ~
+              {timeConvertNear30(
+                (txFeeInfo[TxPriority.CUSTOM.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                * 10
+              )}
+            </Text>
+            <TextValue amt={txFeeInfo[TxPriority.CUSTOM.toLowerCase()].amount} unit={{
+              bitcoinUnit: BitcoinUnit.SATS,
+            }} />
+          </TouchableOpacity>
         </Box>
       </Box>
     );
@@ -234,6 +306,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
+
         />
       </Box>
       <SigningController />
@@ -256,6 +329,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     paddingHorizontal: 12,
     borderBottomColor: 'rgba(0, 85, 69, 0.15)',
+  },
+  customPriorityRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
   },
   priorityBox: {
     flexDirection: 'row',
