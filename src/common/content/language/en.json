@@ -293,6 +293,13 @@
     "SetupTitle": "Setting up TapSigner",
     "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
   },
+  "coldcard": {
+    "Setupandassociate": "Setup and associate",
+    "Associate": "Associate",
+    "CardStatus": "Card Status",
+    "SetupTitle": "Setting up ColdCard",
+    "SetupDescription": "Keep your MK4 ready before proceeding"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
