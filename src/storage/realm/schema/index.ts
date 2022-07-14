@@ -8,23 +8,24 @@ import {
   WalletPresentationDataSchema,
   WalletSchema,
   WalletSpecsSchema,
-} from './wallet';
+} from "./wallet";
 import {
   VaultPresentationDataSchema,
   VaultSchema,
   VaultSpecsSchema,
   VaultSignerSchema,
-} from './vault';
-import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
-import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
+} from "./vault";
+import { VaultShellInstancesShcema, VaultShellSchema } from "./vaultShell";
+import { WalletShellInstancesShcema, WalletShellShcema } from "./walletShell";
 
-import { InheritancePolicySchema } from './inheritancePolicy';
-import { KeeperAppSchema } from './app';
-import { NodeConnectSchema } from './nodeConnect';
-import { TriggerPolicySchema } from './triggerPolicy';
-import { TwoFADetailsSchema } from './twoFADetails';
-import { UAISchema } from './uai';
-import { UserTierSchema } from './userTier';
+import { InheritancePolicySchema } from "./inheritancePolicy";
+import { KeeperAppSchema } from "./app";
+import { NodeConnectSchema } from "./nodeConnect";
+import { TriggerPolicySchema } from "./triggerPolicy";
+import { TwoFADetailsSchema } from "./twoFADetails";
+import { UAISchema } from "./uai";
+import { UserTierSchema } from "./userTier";
+import { VersionHistorySchema } from "./versionHistory";
 
 export default [
   KeeperAppSchema,
@@ -51,4 +52,5 @@ export default [
   UserTierSchema,
   UAISchema,
   VaultSignerSchema,
+  VersionHistorySchema,
 ];

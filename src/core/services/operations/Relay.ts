@@ -34,25 +34,15 @@ export default class Relay {
     };
   };
 
-  public static fetchReleases = async (
-    build: string
-  ): Promise<{
-    releases: any[];
-  }> => {
+  public static fetchReleaseNotes = async (version: string): Promise<any> => {
     let res: AxiosResponse;
     try {
-      res = await RELAY_AXIOS.post('fetchReleases', {
-        AUTH_ID,
-        build,
-      });
+      res = await RELAY_AXIOS.get(`releasesNotes?version=${version}`);
     } catch (err) {
       if (err.response) console.log(err.response.data.err);
       if (err.code) console.log(err.code);
     }
-    const { releases = [] } = idx(res, (_) => _.data) || {};
-    return {
-      releases,
-    };
+    return res.data;
   };
 
   public static updateFCMTokens = async (
