@@ -14,11 +14,13 @@ import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/icons/backup.svg';
 
 type Props = {
   title: string;
   subTitle: string;
   onPress: () => void;
+  Icon: boolean;
 };
 
 const WalletSettings = () => {
@@ -27,17 +29,21 @@ const WalletSettings = () => {
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
-  const Option = ({ title, subTitle, onPress }: Props) => {
+  const Option = ({ title, subTitle, onPress, Icon }: Props) => {
     return (
       <Pressable
         flexDirection={'row'}
-        justifyContent={'space-between'}
         alignItems={'center'}
         width={'100%'}
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box>
+        {Icon && (
+          <Box w={'16%'}>
+            <BackupIcon />
+          </Box>
+        )}
+        <Box w={Icon ? '80%' : '96%'}>
           <Text
             color={'light.lightBlack'}
             fontFamily={'body'}
@@ -57,7 +63,7 @@ const WalletSettings = () => {
             {subTitle}
           </Text>
         </Box>
-        <Box>
+        <Box w={'4%'}>
           <Arrow />
         </Box>
       </Pressable>
@@ -88,6 +94,7 @@ const WalletSettings = () => {
           onPress={() => {
             navigtaion.navigate('BackupWallet');
           }}
+          Icon={true}
         />
       </Box>
       <Box alignItems={'center'} paddingX={wp(25)}>
@@ -97,6 +104,7 @@ const WalletSettings = () => {
           onPress={() => {
             console.log('Wallet Details');
           }}
+          Icon={false}
         />
         <Option
           title={'Show xPub'}
@@ -104,6 +112,7 @@ const WalletSettings = () => {
           onPress={() => {
             setXPubVisible(true);
           }}
+          Icon={false}
         />
         <Option
           title={'Wallet seed words'}
@@ -111,6 +120,7 @@ const WalletSettings = () => {
           onPress={() => {
             setConfirmPassVisible(true);
           }}
+          Icon={false}
         />
       </Box>
 
