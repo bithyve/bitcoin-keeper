@@ -100,9 +100,9 @@ const BackupWallet = () => {
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
           onPress={() => {
-            // setCloudBackupModal(true);
+            setCloudBackupModal(true);
             // setCreateCloudBackupModal(true);
-            setHealthCheckModal(true);
+            // setHealthCheckModal(true);
           }}
         />
       </Box>
