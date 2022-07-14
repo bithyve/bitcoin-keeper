@@ -1,16 +1,25 @@
-import { Box, Text } from 'native-base';
-import React, { useContext, useState } from 'react';
-import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-
-import BTC from 'src/assets/images/svgs/btc_grey.svg';
-import Buttons from 'src/components/Buttons';
+import React, { useContext, useEffect, useState } from 'react';
+import { Box, Text, VStack, HStack, View } from 'native-base';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
+import Buttons from 'src/components/Buttons';
+import BTC from 'src/assets/images/svgs/btc_grey.svg';
+import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SigningController from './SigningController';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import {
+  getTransactionPadding,
+  hp,
+  windowWidth,
+  wp,
+} from 'src/common/data/responsiveness/responsive';
+
+import RadioButton from 'src/components/RadioButton';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -28,6 +37,15 @@ const SendConfirmation = ({ route }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
   const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const availableTransactionPriorities = useAvailableTransactionPriorities();
+  const [transactionPriorities, setTransactionPriorities] = useState(
+    availableTransactionPriorities
+  );
+
+  // taken from hexa --> TransactionPriority.tsx - line 98
+  const setCustomTransactionPriority = () => {
+    // logic for custom transaction priority
+  };
 
   const onProceed = () => {
     if (isVaultTransfer) {
@@ -119,7 +137,7 @@ const SendConfirmation = ({ route }) => {
     return (
       <Box flexDirection={'row'} justifyContent={'space-between'} marginY={3}>
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
-          Transaction Fee
+          Transaction Priority
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
           {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority].amount : '274 sats'}
@@ -127,6 +145,61 @@ const SendConfirmation = ({ route }) => {
       </Box>
     );
   };
+
+  const SendingPriority = () => {
+    return (
+      <Box flexDirection={'column'}>
+        <Box flexDirection={'row'} justifyContent={'space-between'}>
+          <Box
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingVertical: 10,
+              flex: 1,
+            }}
+          >
+            <Text style={styles.headingLabelText} ml={wp(13)}>
+              Priority
+            </Text>
+            <Text style={styles.headingLabelText}>Arrival Time</Text>
+            <Text style={styles.headingLabelText}>Fees</Text>
+          </Box>
+        </Box>
+
+        {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
+        <Box mt={hp(1)}>
+          {availableTransactionPriorities.map((priority) => {
+            return (
+              <TouchableOpacity style={styles.priorityRowContainer} key={priority}>
+                <Box style={styles.priorityBox}>
+                  <RadioButton
+                    size={20}
+                    isChecked={transactionPriority == priority}
+                    borderColor={'#E3E3E3'}
+                    onpress={() => {
+                      //  setTransactionPriority( priority )
+                      //  onTransactionPriorityChanged( priority )
+                    }}
+                  />
+
+                  <Text
+                    style={{
+                      ...styles.priorityTableText,
+                      marginLeft: 12,
+                      fontStyle: 'normal',
+                    }}
+                  >
+                    {String(priority)}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            );
+          })}
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <Box
       padding={windowHeight * 0.01}
@@ -139,15 +212,18 @@ const SendConfirmation = ({ route }) => {
       <HeaderTitle
         title="Sending to address"
         subtitle="Lorem ipsum dolor sit amet,"
-        color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
-        <SendingCard />
+        <SendingCard isSend />
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
+        </Box>
+
+        <Box>
+          <SendingPriority />
         </Box>
       </Box>
 
@@ -155,7 +231,6 @@ const SendConfirmation = ({ route }) => {
         <Buttons
           primaryText="Proceed"
           secondaryText="Cancel"
-          primaryCallback={onProceed}
           secondaryCallback={() => {
             console.log('Cancel');
           }}
@@ -166,3 +241,37 @@ const SendConfirmation = ({ route }) => {
   );
 };
 export default SendConfirmation;
+
+const styles = StyleSheet.create({
+  headingLabelText: {
+    fontSize: 11,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#656565',
+  },
+  priorityRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 0.5,
+    paddingHorizontal: 12,
+    borderBottomColor: 'rgba(0, 85, 69, 0.15)',
+  },
+  priorityBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: hp(14),
+    flex: 1,
+  },
+  priorityTableText: {
+    fontSize: 10,
+    textAlign: 'right',
+    color: '#656565',
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+});
