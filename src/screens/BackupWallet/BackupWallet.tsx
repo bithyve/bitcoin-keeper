@@ -19,6 +19,7 @@ import AppGeneratePass from 'src/components/CloudBackup/AppGeneratePass';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
+import SkipHealthCheck from 'src/components/CloudBackup/SkipHealthCheck';
 
 type Props = {
   title: string;
@@ -35,6 +36,8 @@ const BackupWallet = () => {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
+
+  const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
 
   const navigation = useNavigation();
   const [walletIndex, setWalletIndex] = useState<number>(0);
@@ -106,7 +109,8 @@ const BackupWallet = () => {
             // setCloudBackupModal(true);
             // setCreateCloudBackupModal(true);
             // setHealthCheckModal(true);
-            setHealthCheckSuccessModal(true);
+            // setHealthCheckSuccessModal(true);
+            setSkipHealthCheckModal(true);
           }}
         />
       </Box>
@@ -151,6 +155,27 @@ const BackupWallet = () => {
             }}
           />
         </Modal>
+        {/* skip health check */}
+        <Modal
+          isVisible={skipHealthCheckModal}
+          onSwipeComplete={() => setSkipHealthCheckModal(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <SkipHealthCheck
+            closeBottomSheet={() => {
+              setSkipHealthCheckModal(false);
+            }}
+            confirmBtnPress={() => {
+              console.log('confirm seed');
+            }}
+          />
+        </Modal>
+
         {/* health check success */}
         <Modal
           isVisible={healthCheckSuccessModal}

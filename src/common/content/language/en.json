@@ -404,6 +404,10 @@
     "healthCheckNote": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et ",
     "healthCheckSuccessTitle": "Health Check Successful",
     "healthCheckSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
-    "healthCheckSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+    "healthCheckSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "skipHealthCheckTitle": "Skipping Health Check",
+    "skipHealthCheckSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris"
   }
 }
