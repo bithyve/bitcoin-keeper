@@ -5,7 +5,7 @@ import {
   changeLoginMethodWatcher,
   credentialStorageWatcher,
   resetPinCredWatcher,
-  applicationUpdateWatcher
+  applicationUpdateWatcher,
 } from './login';
 import { setupKeeperAppWatcher } from './storage';
 import {
@@ -28,6 +28,7 @@ import {
   feeAndExchangeRatesWatcher,
   sendPhaseThreeWatcher,
 } from './send_and_receive';
+import { updateAppImageWatcher } from './bhr';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -64,6 +65,9 @@ export const rootSaga = function* () {
     // UAI
     addUaiStackWatcher,
     updateUaiStackWatcher,
+
+    //BHR
+    updateAppImageWatcher,
   ];
 
   yield all(

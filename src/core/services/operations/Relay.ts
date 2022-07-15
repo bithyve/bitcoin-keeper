@@ -253,32 +253,6 @@ export default class Relay {
     }
   };
 
-  public static updateAppImage = async (
-    appImage: any
-  ): Promise<{
-    status: number;
-    data: {
-      updated: boolean;
-    };
-    err?: undefined;
-    message?: undefined;
-  }> => {
-    try {
-      const res: AxiosResponse = await RELAY_AXIOS.post('v2/updateAppImage', {
-        AUTH_ID,
-        appId: appImage.appId,
-        appImage,
-      });
-      const { updated } = res.data;
-      return {
-        status: res.status,
-        data: updated,
-      };
-    } catch (err) {
-      throw new Error('Failed to update App Image');
-    }
-  };
-
   public static fetchAppImage = async (
     appId: string
   ): Promise<{
@@ -301,6 +275,26 @@ export default class Relay {
       };
     } catch (err) {
       throw new Error('Failed to fetch App Image');
+    }
+  };
+
+  public static updateAppImage = async (
+    walletImage
+  ): Promise<{
+    status?: number;
+    data?: {
+      updated: boolean;
+    };
+    err?: undefined;
+    message?: undefined;
+  }> => {
+    try {
+      const res: AxiosResponse = await RELAY_AXIOS.post('updateAppImage', walletImage);
+      return {
+        status: res.status,
+      };
+    } catch (err) {
+      throw new Error('Failed to update App Image');
     }
   };
 }

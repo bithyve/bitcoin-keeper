@@ -33,6 +33,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
+import { updateAppImage } from '../sagaActions/bhr';
 
 export interface newWalletDetails {
   name?: string;
@@ -152,6 +153,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newW
 
   for (const wallet of wallets) {
     yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+    yield put(updateAppImage(wallet.id));
   }
 }
 
