@@ -1,35 +1,33 @@
-import React, { useRef, useContext, useCallback, useState, useEffect } from 'react';
-import { TextInput, ScrollView, FlatList } from 'react-native';
 // libraries
-import { View, Box, Pressable, Text } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
-import { ScaledSheet } from 'react-native-size-matters';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RNCamera } from 'react-native-camera';
+import { Box, Pressable, Text, View } from 'native-base';
+import { FlatList, ScrollView, TextInput } from 'react-native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
-
-// components
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
-// Colors, Images, svgs
-import Colors from 'src/theme/Colors';
-import InfoBox from 'src/components/InfoBox';
-import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
-import BlueWallet from 'src/assets/icons/bluewallet.svg';
-
-import { LocalizationContext } from 'src/common/content/LocContext';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { PaymentInfoKind } from 'src/core/wallets/enums';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { useDispatch } from 'react-redux';
-import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import BlueWallet from 'src/assets/icons/bluewallet.svg';
+// Colors, Images, svgs
+import Colors from 'src/theme/Colors';
+import Header from 'src/components/Header';
+import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
+import InfoBox from 'src/components/InfoBox';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { PaymentInfoKind } from 'src/core/wallets/enums';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { RNCamera } from 'react-native-camera';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { ScaledSheet } from 'react-native-size-matters';
+// components
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
+import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { widthPercentageToDP } from 'react-native-responsive-screen';
 
 const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
@@ -40,19 +38,11 @@ const SendScreen = ({ route }) => {
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [walletIndex, setWalletIndex] = useState<number>(0);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-  const currentWallet = wallets[walletIndex];
 
   useEffect(() => {
-    {
-      wallets.map((walletdetails) => {
-        console.log(walletdetails.presentationData.name)
-      })
-    }
-    // cleanup the reducer at beginning of a new send flow
     dispatch(sendPhasesReset());
   }, []);
 
@@ -93,9 +83,9 @@ const SendScreen = ({ route }) => {
           <Pressable
             onPress={() => {
               navigation.navigate('AddSendAmount', {
-                wallet: item,
+                wallet,
                 address: getNextFreeAddress(item),
-              })
+              });
             }}
             style={styles.buttonPressable}
           >
@@ -103,19 +93,13 @@ const SendScreen = ({ route }) => {
           </Pressable>
         </Box>
         <Box>
-          <Text
-            fontFamily={'body'}
-            fontWeight={'100'}
-            fontSize={12}
-            mt={'1'}
-            numberOfLines={1}
-          >
+          <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'} numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
       </Box>
-    )
-  }
+    );
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -167,11 +151,15 @@ const SendScreen = ({ route }) => {
             Send to Wallet
           </Text>
           <View>
-            <View flexDirection={'row'} style={styles.walletContainer} backgroundColor={'light.textInputBackground'}>
+            <View
+              flexDirection={'row'}
+              style={styles.walletContainer}
+              backgroundColor={'light.textInputBackground'}
+            >
               <FlatList
                 data={wallets}
                 renderItem={renderWallets}
-                keyExtractor={item => item.id}
+                keyExtractor={(item) => item.id}
                 horizontal
                 showsHorizontalScrollIndicator={false}
               />

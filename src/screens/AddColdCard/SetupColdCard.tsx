@@ -4,7 +4,7 @@ import { SignerType, VaultType } from 'src/core/wallets/enums';
 import { StyleSheet, Text, View } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
-import NFC from 'src/services/nfc';
+import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { NfcTech } from 'react-native-nfc-manager';
 import { addNewVault } from 'src/store/sagaActions/wallets';

@@ -73,4 +73,26 @@ export default class NFC {
       throw error;
     }
   };
+  public static send = async (techRequest: NfcTech | NfcTech[], bytes: number[]) => {
+    try {
+      const supported = await NfcManager.isSupported();
+      if (supported) {
+        await NfcManager.start();
+        await NfcManager.requestTechnology(techRequest);
+        const data = await NfcManager.nfcVHandler.transceive(bytes);
+        if (Platform.OS === 'ios') {
+          await NfcManager.setAlertMessageIOS('Success');
+        }
+        await NfcManager.cancelTechnologyRequest();
+        return { data };
+      }
+    } catch (error) {
+      console.log(error);
+      if (Platform.OS === 'ios') {
+        await NfcManager.setAlertMessageIOS('Something went wrong!');
+      }
+      await NfcManager.cancelTechnologyRequest();
+      throw error;
+    }
+  };
 }
