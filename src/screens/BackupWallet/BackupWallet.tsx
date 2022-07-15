@@ -18,6 +18,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import AppGeneratePass from 'src/components/CloudBackup/AppGeneratePass';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponent';
+import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 
 type Props = {
   title: string;
@@ -26,12 +27,14 @@ type Props = {
 };
 
 const BackupWallet = () => {
+  const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
 
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
+  const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
 
   const navigation = useNavigation();
   const [walletIndex, setWalletIndex] = useState<number>(0);
@@ -100,9 +103,10 @@ const BackupWallet = () => {
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
           onPress={() => {
-            setCloudBackupModal(true);
+            // setCloudBackupModal(true);
             // setCreateCloudBackupModal(true);
             // setHealthCheckModal(true);
+            setHealthCheckSuccessModal(true);
           }}
         />
       </Box>
@@ -145,6 +149,29 @@ const BackupWallet = () => {
             closeBottomSheet={() => {
               setHealthCheckModal(false);
             }}
+          />
+        </Modal>
+        {/* health check success */}
+        <Modal
+          isVisible={healthCheckSuccessModal}
+          onSwipeComplete={() => setHealthCheckSuccessModal(false)}
+          swipeDirection={['down']}
+          style={{
+            justifyContent: 'flex-end',
+            marginHorizontal: 15,
+            marginBottom: 25,
+          }}
+        >
+          <BackupSuccessful
+            closeBottomSheet={() => {
+              setHealthCheckSuccessModal(false);
+            }}
+            confirmBtnPress={() => {
+              navigtaion.navigate('NewHome');
+            }}
+            title={BackupWallet.healthCheckSuccessTitle}
+            subTitle={BackupWallet.healthCheckSuccessSubTitle}
+            paragraph={BackupWallet.healthCheckSuccessParagraph}
           />
         </Modal>
       </Box>
