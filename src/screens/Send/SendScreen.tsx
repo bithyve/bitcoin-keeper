@@ -29,6 +29,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
+import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 
 const SendScreen = ({ route }) => {
   const cameraRef = useRef<RNCamera>();
@@ -89,7 +90,15 @@ const SendScreen = ({ route }) => {
         width={wp(60)}
       >
         <Box style={styles.buttonBackground}>
-          <Pressable onPress={() => console.log('wallet')} style={styles.buttonPressable}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate('AddSendAmount', {
+                wallet: item,
+                address: getNextFreeAddress(item),
+              })
+            }}
+            style={styles.buttonPressable}
+          >
             <IconWallet />
           </Pressable>
         </Box>

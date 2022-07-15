@@ -7,6 +7,7 @@ import {
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -15,6 +16,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import messaging from '@react-native-firebase/messaging';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -65,9 +67,18 @@ export default function CreatePin(props) {
     if (hasCreds) {
       addDummyUaiToDb();
       props.navigation.navigate('OnBoardingSlides');
-      // props.navigation.replace('App');
+      updateFCM();
     }
   }, [hasCreds]);
+
+  async function updateFCM() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(updateFCMTokens([token]));
+    } catch (error) {
+      //
+    }
+  }
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;

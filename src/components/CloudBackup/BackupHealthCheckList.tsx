@@ -1,20 +1,29 @@
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 import { FlatList, Box, Text } from 'native-base';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import DotView from '../DotView';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-const VersionHistoryList = () => {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
+const BackupHealthCheckList = () => {
+  const [data, SetData] = useState([
+    {
+      id: '1',
+      date: '15 March ’21',
+      title: 'Health Check Successful',
+      subTitle: 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit',
+    },
+    {
+      id: '2',
+      date: '15 January ’21',
+      title: 'Health Check Skipped',
+      subTitle: 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit',
+    },
+  ]);
 
   return (
     <FlatList
       style={{ overflow: 'visible' }}
-      data={VersionHistoryData.reverse()}
+      data={data}
       renderItem={({ item }) => (
         <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} position="relative">
           <Box
@@ -41,16 +50,13 @@ const VersionHistoryList = () => {
               {item.title}
             </Text>
             <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-              {item.version}
-            </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-              {item.releaseNote}
+              {item.subTitle}
             </Text>
           </Box>
         </Box>
       )}
-      keyExtractor={(item) => item.version}
+      keyExtractor={(item) => item.id}
     />
   );
 };
-export default VersionHistoryList;
+export default BackupHealthCheckList;

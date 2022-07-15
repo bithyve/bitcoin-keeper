@@ -14,11 +14,13 @@ import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/icons/backup.svg';
 
 type Props = {
   title: string;
   subTitle: string;
   onPress: () => void;
+  Icon: boolean;
 };
 
 const WalletSettings = () => {
@@ -27,17 +29,21 @@ const WalletSettings = () => {
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
-  const Option = ({ title, subTitle, onPress }: Props) => {
+  const Option = ({ title, subTitle, onPress, Icon }: Props) => {
     return (
       <Pressable
         flexDirection={'row'}
-        justifyContent={'space-between'}
         alignItems={'center'}
         width={'100%'}
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box>
+        {Icon && (
+          <Box w={'16%'}>
+            <BackupIcon />
+          </Box>
+        )}
+        <Box w={Icon ? '80%' : '96%'}>
           <Text
             color={'light.lightBlack'}
             fontFamily={'body'}
@@ -57,7 +63,7 @@ const WalletSettings = () => {
             {subTitle}
           </Text>
         </Box>
-        <Box>
+        <Box w={'4%'}>
           <Arrow />
         </Box>
       </Pressable>
@@ -76,13 +82,29 @@ const WalletSettings = () => {
           fontSize={20}
         />
       </Box>
-      <Box marginTop={hp(60)} alignItems={'center'} paddingX={wp(25)}>
+      <Box
+        borderBottomColor={'light.divider'}
+        borderBottomWidth={0.2}
+        marginTop={hp(60)}
+        paddingX={wp(25)}
+      >
+        <Option
+          title={'Wallet Backup'}
+          subTitle={'Setup backup for Wallet'}
+          onPress={() => {
+            navigtaion.navigate('BackupWallet');
+          }}
+          Icon={true}
+        />
+      </Box>
+      <Box alignItems={'center'} paddingX={wp(25)}>
         <Option
           title={'Wallet Details'}
           subTitle={'Change wallet name & description'}
           onPress={() => {
             console.log('Wallet Details');
           }}
+          Icon={false}
         />
         <Option
           title={'Show xPub'}
@@ -90,6 +112,7 @@ const WalletSettings = () => {
           onPress={() => {
             setXPubVisible(true);
           }}
+          Icon={false}
         />
         <Option
           title={'Wallet seed words'}
@@ -97,6 +120,7 @@ const WalletSettings = () => {
           onPress={() => {
             setConfirmPassVisible(true);
           }}
+          Icon={false}
         />
       </Box>
 

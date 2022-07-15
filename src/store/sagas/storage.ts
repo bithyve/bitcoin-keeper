@@ -1,5 +1,4 @@
 import * as bip39 from 'bip39';
-import crypto from 'crypto';
 import DeviceInfo from 'react-native-device-info';
 import { SETUP_KEEPER_APP } from '../sagaActions/storage';
 import { setAppId } from '../reducers/storage';
@@ -13,27 +12,28 @@ import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { addNewWallets } from '../sagaActions/wallets';
 import { newWalletInfo } from './wallets';
 import { WalletType } from 'src/core/wallets/enums';
+import { getRandomBytes, hash256 } from 'src/core/services/operations/encryption';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName }: { appName: string } = payload;
     const primaryMnemonic = bip39.generateMnemonic();
-    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
+    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic).toString('hex');
 
     const defaultWalletShell: WalletShell = {
-      id: crypto.randomBytes(12).toString('hex'),
+      id: getRandomBytes(12),
       walletInstances: {},
     };
 
     const userTier: UserTier = {
       level: AppTierLevel.ONE,
     };
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const id = hash256(primarySeed);
     const app: KeeperApp = {
       id,
       appName,
       primaryMnemonic,
-      primarySeed: primarySeed.toString('hex'),
+      primarySeed: primarySeed,
       walletShellInstances: {
         shells: [defaultWalletShell.id],
         activeShell: defaultWalletShell.id,

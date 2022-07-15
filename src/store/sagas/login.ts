@@ -1,6 +1,7 @@
 import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import * as SecureStore from '../../storage/secure-store';
+import { Platform } from 'react-native';
 import {
   CREDS_AUTH,
   STORE_CREDS,
@@ -8,7 +9,7 @@ import {
   RESET_PIN,
   CHANGE_LOGIN_METHOD,
   UPDATE_APPLICATION,
-  updateApplication
+  updateApplication,
 } from '../sagaActions/login';
 import { setLoginMethod } from '../reducers/settings';
 import {
@@ -20,33 +21,53 @@ import {
   setKey,
 } from '../reducers/login';
 import dbManager from '../../storage/realm/dbManager';
-import * as Cipher from '../../common/encryption';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { setPinResetCreds, resetPinFailAttempts, setPinHash, setAppVersion } from '../reducers/storage';
-import { setupKeeperApp, } from '../sagaActions/storage';
+import {
+  setPinResetCreds,
+  resetPinFailAttempts,
+  setPinHash,
+  setAppVersion,
+} from '../reducers/storage';
+import { setupKeeperApp } from '../sagaActions/storage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
-import DeviceInfo from 'react-native-device-info'
+import DeviceInfo from 'react-native-device-info';
 import messaging from '@react-native-firebase/messaging';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
+import Relay from 'src/core/services/operations/Relay';
+import {
+  decrypt,
+  encrypt,
+  generateEncryptionKey,
+  hash512,
+} from 'src/core/services/operations/encryption';
+
+export const stringToArrayBuffer = (byteString: string): Uint8Array => {
+  const byteArray = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    byteArray[i] = byteString.codePointAt(i);
+  }
+  return byteArray;
+};
 
 function* credentialsStorageWorker({ payload }) {
   try {
     yield put(setupLoading('storingCreds'));
-    const hash = yield call(Cipher.hash, payload.passcode);
-    const AES_KEY = yield call(Cipher.generateKey);
+    const hash = yield call(hash512, payload.passcode);
+    const AES_KEY = yield call(generateEncryptionKey);
     yield put(setKey(AES_KEY));
-    const encryptedKey = yield call(Cipher.encrypt, AES_KEY, hash);
+    const encryptedKey = yield call(encrypt, hash, AES_KEY);
+
     if (!(yield call(SecureStore.store, hash, encryptedKey))) {
       return;
     }
 
     // initialize the database
-    const uint8array = yield call(Cipher.stringToArrayBuffer, AES_KEY);
+    const uint8array = yield call(stringToArrayBuffer, AES_KEY);
     yield call(dbManager.initializeRealm, uint8array);
 
     // setup the application
@@ -54,11 +75,16 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setPinHash(hash));
 
     yield put(setCredStored());
-    
-    yield put(setAppVersion(DeviceInfo.getVersion()))
-    yield call(messaging().subscribeToTopic, getReleaseTopic(DeviceInfo.getVersion()))
+    yield put(setAppVersion(DeviceInfo.getVersion()));
+    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
     // fetch fee and exchange rates
     yield put(fetchFeeAndExchangeRates());
+    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+      version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+      releaseNote: '',
+      date: new Date().toString(),
+      title: 'Intial installed',
+    });
   } catch (error) {
     console.log(error);
   }
@@ -74,7 +100,7 @@ function* credentialsAuthWorker({ payload }) {
 
     let hash, encryptedKey;
     if (method === LoginMethod.PIN) {
-      hash = yield call(Cipher.hash, payload.passcode);
+      hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
       const appId = yield select((state: RootState) => state.storage.appId);
@@ -83,10 +109,10 @@ function* credentialsAuthWorker({ payload }) {
       hash = res.hash;
       encryptedKey = res.encryptedKey;
     }
-    key = yield call(Cipher.decrypt, encryptedKey, hash);
+    key = yield call(decrypt, hash, encryptedKey);
     yield put(setKey(key));
     if (!key) throw new Error('Encryption key is missing');
-    const uint8array = yield call(Cipher.stringToArrayBuffer, key);
+    const uint8array = yield call(stringToArrayBuffer, key);
     yield call(dbManager.initializeRealm, uint8array);
     yield call(generateSeedHash);
     yield put(setPinHash(hash));
@@ -102,12 +128,12 @@ function* credentialsAuthWorker({ payload }) {
     // case: login
     yield put(autoSyncWallets());
     yield put(fetchFeeAndExchangeRates());
-    yield put(getMessages())
+    yield put(getMessages());
   }
   // check if the app has been upgraded
   const appVersion = yield select((state: RootState) => state.storage.appVersion);
-  const currentVersion = DeviceInfo.getVersion()
-  if( currentVersion !== appVersion ) yield put( updateApplication( currentVersion, appVersion ) )
+  const currentVersion = DeviceInfo.getVersion();
+  if (currentVersion !== appVersion) yield put(updateApplication(currentVersion, appVersion));
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
@@ -121,7 +147,6 @@ function* changeAuthCredWorker({ payload }) {
       err,
     });
     yield put(pinChangedFailed(true));
-    // Alert.alert('Pin change failed!', err.message);
     yield put(credsChanged('not-changed'));
   }
 }
@@ -131,11 +156,11 @@ function* resetPinWorker({ payload }) {
   try {
     const hash = yield select((state: RootState) => state.storage.pinHash);
     const encryptedKey = yield call(SecureStore.fetch, hash);
-    const key = yield call(Cipher.decrypt, encryptedKey, hash);
+    const key = yield call(decrypt, hash, encryptedKey);
 
     // setup new pin
-    const newHash = yield call(Cipher.hash, newPasscode);
-    const newencryptedKey = yield call(Cipher.encrypt, key, newHash);
+    const newHash = yield call(hash512, newPasscode);
+    const newencryptedKey = yield call(encrypt, newHash, key);
 
     //store the AES key against the hash
     if (!(yield call(SecureStore.store, newHash, newencryptedKey))) {
@@ -148,7 +173,6 @@ function* resetPinWorker({ payload }) {
       err,
     });
     yield put(pinChangedFailed(true));
-    // Alert.alert('Pin change failed!', err.message);
     yield put(credsChanged('not-changed'));
   }
 }
@@ -161,7 +185,7 @@ function* generateSeedHash() {
     );
     const words = primaryMnemonic.split(' ');
     const random = Math.floor(Math.random() * words.length);
-    const hash = yield call(Cipher.hash, words[random]);
+    const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());
   } catch (error) {
@@ -197,19 +221,38 @@ function* changeLoginMethodWorker({
 
 export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
 
-
-function* applicationUpdateWorker( { payload }: {payload: { newVersion: string, previousVersion: string }} ) {
-  const { newVersion, previousVersion } = payload
+function* applicationUpdateWorker({
+  payload,
+}: {
+  payload: { newVersion: string; previousVersion: string };
+}) {
+  const { newVersion, previousVersion } = payload;
   try {
-    yield call(messaging().unsubscribeFromTopic, getReleaseTopic(previousVersion))
-    yield call(messaging().subscribeToTopic, getReleaseTopic(newVersion))
-    yield put(setAppVersion(DeviceInfo.getVersion()))
+    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
+      releaseNote: '',
+      date: new Date().toString(),
+      title: 'Upgraded from ' + previousVersion,
+    });
+    messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
+    messaging().subscribeToTopic(getReleaseTopic(newVersion));
+    yield put(setAppVersion(DeviceInfo.getVersion()));
+    const res = yield call(Relay.fetchReleaseNotes, newVersion);
+    let notes = '';
+    notes = res.release
+      ? Platform.OS == 'ios'
+        ? res.release.releaseNotes.ios
+        : res.release.releaseNotes.android
+      : '';
+    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
+      releaseNote: notes,
+      date: new Date().toString(),
+      title: 'Upgraded from ' + previousVersion,
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
-export const applicationUpdateWatcher = createWatcher(
-  applicationUpdateWorker,
-  UPDATE_APPLICATION,
-)
+export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);

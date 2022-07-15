@@ -82,6 +82,7 @@ const SeedConfirmPasscode = (props) => {
       } else {
         navigation.navigate('ExportSeed', {
           seed: currentWallet?.derivationDetails?.mnemonic,
+          next: false,
         });
         props.closeBottomSheet();
       }
