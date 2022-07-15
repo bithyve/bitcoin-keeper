@@ -4,7 +4,7 @@ import { createRealmContext } from '@realm/react';
 import schema from './schema';
 import { useAppSelector } from 'src/store/hooks';
 import { RealmDatabase } from './realm';
-import { stringToArrayBuffer } from 'src/core/services/operations/encryption';
+import { stringToArrayBuffer } from 'src/store/sagas/login';
 
 export const realmConfig = (key) => {
   return {
