@@ -109,8 +109,8 @@ const BackupWallet = () => {
             // setCloudBackupModal(true);
             // setCreateCloudBackupModal(true);
             // setHealthCheckModal(true);
-            // setHealthCheckSuccessModal(true);
-            setSkipHealthCheckModal(true);
+            setHealthCheckSuccessModal(true);
+            // setSkipHealthCheckModal(true);
           }}
         />
       </Box>
@@ -171,7 +171,8 @@ const BackupWallet = () => {
               setSkipHealthCheckModal(false);
             }}
             confirmBtnPress={() => {
-              console.log('confirm seed');
+              setSkipHealthCheckModal(false);
+              navigation.navigate('MyWalletBackScreen');
             }}
           />
         </Modal>
@@ -192,7 +193,8 @@ const BackupWallet = () => {
               setHealthCheckSuccessModal(false);
             }}
             confirmBtnPress={() => {
-              navigtaion.navigate('NewHome');
+              setHealthCheckSuccessModal(false);
+              navigation.navigate('MyWalletBackScreen');
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}
