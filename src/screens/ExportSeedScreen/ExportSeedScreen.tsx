@@ -16,6 +16,7 @@ const ExportSeedScreen = ({ route }) => {
   const navigtaion = useNavigation();
 
   const { translations } = useContext(LocalizationContext);
+  const BackupWallet = translations['BackupWallet'];
   const login = translations['login'];
 
   const seed = route.params.seed;
@@ -97,8 +98,8 @@ const ExportSeedScreen = ({ route }) => {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                // setBackupSuccessModal(true);
-                setConfirmSeedModal(true);
+                setBackupSuccessModal(true);
+                // setConfirmSeedModal(true);
               }}
               value={login.Next}
             />
@@ -135,7 +136,6 @@ const ExportSeedScreen = ({ route }) => {
               setConfirmSeedModal(false);
             }}
             confirmBtnPress={() => {
-              // setConfirmSeedModal(false);
               setTimeout(() => {
                 setBackupSuccessModal(true);
               }, 2000);
@@ -161,6 +161,9 @@ const ExportSeedScreen = ({ route }) => {
             confirmBtnPress={() => {
               navigtaion.navigate('NewHome');
             }}
+            title={BackupWallet.backupSuccessTitle}
+            subTitle={BackupWallet.backupSuccessSubTitle}
+            paragraph={BackupWallet.backupSuccessParagraph}
           />
         </Modal>
       </Box>
