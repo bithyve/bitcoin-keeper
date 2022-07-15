@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import WalletUtilities from '../operations/utils';
 import * as bip39 from 'bip39';
 import BIP85 from '../operations/BIP85';
@@ -10,6 +9,7 @@ import {
   WalletSpecs,
 } from '../interfaces/wallet';
 import { BIP85Config } from '../interfaces';
+import { hash256 } from 'src/core/services/operations/encryption';
 
 export const generateWallet = async ({
   type,
@@ -39,7 +39,7 @@ export const generateWallet = async ({
   switch (type) {
     case WalletType.READ_ONLY:
       xpub = importedXpub;
-      id = crypto.createHash('sha256').update(xpub).digest('hex');
+      id = hash256(xpub);
       break;
 
     default:
@@ -56,7 +56,7 @@ export const generateWallet = async ({
         mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
       }
 
-      id = crypto.createHash('sha256').update(mnemonic).digest('hex');
+      id = hash256(mnemonic);
       // derive extended keys
       const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
       const xDerivationPath = WalletUtilities.getDerivationPath(networkType);

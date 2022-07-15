@@ -44,8 +44,15 @@ import {
   encrypt,
   generateEncryptionKey,
   hash512,
-  stringToArrayBuffer,
 } from 'src/core/services/operations/encryption';
+
+export const stringToArrayBuffer = (byteString: string): Uint8Array => {
+  const byteArray = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    byteArray[i] = byteString.codePointAt(i);
+  }
+  return byteArray;
+};
 
 function* credentialsStorageWorker({ payload }) {
   try {

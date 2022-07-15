@@ -16,7 +16,6 @@ import {
 import config, { APP_STAGE } from 'src/core/config';
 import { setNetBalance } from 'src/store/reducers/wallets';
 import WalletOperations from 'src/core/wallets/operations';
-import crypto from 'crypto';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
@@ -33,6 +32,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
+import { getRandomBytes } from 'src/core/services/operations/encryption';
 
 export interface newWalletDetails {
   name?: string;
@@ -177,7 +177,7 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
   let newVaultShell: boolean = false;
   if (vaultShellInstances.shells.length === 0) {
     vaultShell = {
-      id: crypto.randomBytes(12).toString('hex'),
+      id: getRandomBytes(12),
       vaultInstances: {},
     };
     newVaultShell = true;
