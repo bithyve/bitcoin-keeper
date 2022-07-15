@@ -32,6 +32,7 @@ import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppSelector } from 'src/store/hooks';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
+import MyWalletBackScreen from 'src/screens/BackupWallet/MyWalletBackScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -88,6 +89,7 @@ const AppStack = () => {
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
+        <Stack.Screen name="MyWalletBackScreen" component={MyWalletBackScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
