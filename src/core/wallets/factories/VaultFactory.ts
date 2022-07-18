@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { hash256 } from 'src/core/services/operations/encryption';
 import { EntityKind, NetworkType, VaultType, VisibilityType } from '../enums';
 import {
   Vault,
@@ -26,7 +26,7 @@ export const generateVault = ({
   networkType: NetworkType;
 }): Vault => {
   const xpubs = signers.map((signer) => signer.xpub);
-  const id = crypto.createHash('sha256').update(xpubs.join('')).digest('hex');
+  const id = hash256(xpubs.join(''));
 
   const presentationData: VaultPresentationData = {
     name: vaultName,

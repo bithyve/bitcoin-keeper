@@ -32,8 +32,6 @@ const DEFAULT_CONFIG = {
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
   AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
-  CIPHER_SPEC_ALGO: 'aes-192-cbc',
-  CIPHER_SPEC_SALT: 'e44dac4a355',
 };
 
 class Configuration {
@@ -73,20 +71,6 @@ class Configuration {
     },
   };
 
-  public CIPHER_SPEC: {
-    algorithm: string;
-    salt: string;
-    iv: Buffer;
-    keyLength: number;
-  } = {
-    algorithm: DEFAULT_CONFIG.CIPHER_SPEC_ALGO,
-    salt: config.CIPHER_SPEC_SALT
-      ? config.CIPHER_SPEC_SALT.trim()
-      : DEFAULT_CONFIG.CIPHER_SPEC_SALT,
-    keyLength: 24,
-    iv: Buffer.alloc(16, 0),
-  };
-
   public REQUEST_TIMEOUT: number = 15000;
   public GAP_LIMIT: number = 5;
   public RELAY_AXIOS: AxiosInstance = axios.create({
@@ -96,8 +80,8 @@ class Configuration {
       'HEXA-ID': config.HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
-      os: Platform.OS
-    }
+      os: Platform.OS,
+    },
   });
   public SIGNING_AXIOS: AxiosInstance = axios.create({
     baseURL: this.SIGNING_SERVER,

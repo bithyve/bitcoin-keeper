@@ -1,11 +1,10 @@
-import * as Cipher from 'src/common/encryption';
-
 import React, { createContext, useMemo } from 'react';
 
 import { createRealmContext } from '@realm/react';
 import schema from './schema';
 import { useAppSelector } from 'src/store/hooks';
 import { RealmDatabase } from './realm';
+import { stringToArrayBuffer } from 'src/store/sagas/login';
 
 export const realmConfig = (key) => {
   return {
@@ -20,7 +19,7 @@ export const RealmWrapperContext = createContext({});
 
 export const RealmProvider = ({ children }) => {
   const key = useAppSelector((state) => state?.login?.key);
-  const bufferKey = Cipher.stringToArrayBuffer(key);
+  const bufferKey = stringToArrayBuffer(key);
   const RealmContext = useMemo(() => createRealmContext(realmConfig(bufferKey)), [key]);
   if (key) {
     const { useQuery, useRealm, useObject } = RealmContext;

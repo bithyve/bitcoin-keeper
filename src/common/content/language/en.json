@@ -62,7 +62,8 @@
     "TermsConditions": "Terms and Conditions",
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
-    "EditDetails": "Edit Details"
+    "EditDetails": "Edit Details",
+    "next": "Next"
   },
   "noInternet": {
     "no": "No Internet",
@@ -400,6 +401,21 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual seeds",
-    "backupOnCloud": "Backup on cloud service"
+    "backupOnCloud": "Backup on cloud service",
+    "appGeneratePassTitle": "App Generated Password",
+    "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "createCloudBackTitle": "Creating Cloud Backup",
+    "createCloudBackSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "healthCheck": "Health Check",
+    "enterStrongPass": "Enter App Generated Strong Password",
+    "healthCheckNote": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et ",
+    "healthCheckSuccessTitle": "Health Check Successful",
+    "healthCheckSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "healthCheckSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "skipHealthCheckTitle": "Skipping Health Check",
+    "skipHealthCheckSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
+    "myWalletBackupTitle": "My Wallet Backup"
   }
 }

@@ -4,7 +4,6 @@ import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import React, { useCallback, useContext } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { Text, View } from 'native-base';
-import crypto from 'crypto';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';

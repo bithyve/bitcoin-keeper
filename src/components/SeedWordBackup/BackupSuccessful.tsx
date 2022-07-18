@@ -9,7 +9,6 @@ import CustomGreenButton from '../CustomButton/CustomGreenButton';
 const BackupSuccessful = (props) => {
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
-  const common = translations['common'];
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
@@ -30,17 +29,17 @@ const BackupSuccessful = (props) => {
       </TouchableOpacity>
       <Box p={10}>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
-          {BackupWallet.backupSuccessTitle}
+          {props.title}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack'} fontFamily={'body'}>
-          {BackupWallet.backupSuccessSubTitle}
+          {props.subTitle}
         </Text>
       </Box>
       <Box alignItems={'center'} my={5}>
         <Illustration />
       </Box>
       <Box p={10}>
-        <Text>{BackupWallet.backupSuccessParagraph}</Text>
+        <Text>{props.paragraph}</Text>
       </Box>
       <Box alignItems={'flex-end'} px={10} mb={5}>
         <CustomGreenButton
