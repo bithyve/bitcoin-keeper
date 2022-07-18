@@ -286,7 +286,7 @@ const SendConfirmation = ({ route }) => {
         <Header
           title="Sending to address"
           subtitle="Lorem ipsum dolor sit amet,"
-          onPressHandler={() => navigation.goBack()}
+          onPressHandler={() => navigtaion.goBack()}
         />
       </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
