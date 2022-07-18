@@ -76,6 +76,7 @@ const SendConfirmation = ({ route }) => {
           txnPriority: transactionPriority,
         })
       );
+
     }
   };
 
@@ -143,9 +144,9 @@ const SendConfirmation = ({ route }) => {
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {/* {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount : '274 sats'} */}
-        </Text>
+        {/* <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority]?.amount : '274 sats'}
+        </Text> */}
       </Box>
     );
   };
@@ -226,7 +227,9 @@ const SendConfirmation = ({ route }) => {
               </TouchableOpacity>
             );
           })}
-          <TouchableOpacity
+          {/* {Disable custom priority for now } */}
+
+          {/* <TouchableOpacity
             style={styles.customPriorityRowContainer}
             onPress={() => {
               setTransactionPriority(TxPriority.CUSTOM)
@@ -266,7 +269,7 @@ const SendConfirmation = ({ route }) => {
             <TextValue amt={txFeeInfo[TxPriority?.CUSTOM]?.amount} unit={{
               bitcoinUnit: BitcoinUnit.SATS,
             }} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </Box>
       </Box>
     );
@@ -288,7 +291,7 @@ const SendConfirmation = ({ route }) => {
       />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
-        <SendingCard isSend />
+        <SendingCard isSend={false} />
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
@@ -306,7 +309,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-
+          primaryCallback={onProceed}
         />
       </Box>
       <SigningController />
