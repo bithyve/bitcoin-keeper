@@ -12,7 +12,7 @@ import Basic from 'src/assets/images/svgs/basic.svg';
 // import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
 // import Ledger from 'src/assets/images/svgs/ledger_home.svg';
 // import Trezor from 'src/assets/images/svgs/trezor_home.svg';
-// import Mac from 'src/assets/images/svgs/mac_home.svg';
+import Pleb from 'src/assets/images/svgs/pleb.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -367,12 +367,12 @@ const VaultInfo = () => {
           justifyContent={'space-between'}
           width={'100%'}
         >
-          <Pressable onPress={addtoDb}>
-            <ScannerIcon />
-          </Pressable>
           <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
-            <Basic />
+            <Pleb />
           </Pressable>
+          {/* <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
+            <Basic />
+          </Pressable> */}
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
           </Pressable>

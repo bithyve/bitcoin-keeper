@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, VStack, HStack, View } from 'native-base';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
+import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
@@ -11,9 +11,7 @@ import SigningController from './SigningController';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import {
-  getTransactionPadding,
   hp,
-  windowWidth,
   wp,
 } from 'src/common/data/responsiveness/responsive';
 
@@ -76,6 +74,7 @@ const SendConfirmation = ({ route }) => {
           txnPriority: transactionPriority,
         })
       );
+
     }
   };
 
@@ -143,9 +142,9 @@ const SendConfirmation = ({ route }) => {
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority.toLowerCase()].amount : '274 sats'}
-        </Text>
+        {/* <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount : '274 sats'}
+        </Text> */}
       </Box>
     );
   };
@@ -180,7 +179,7 @@ const SendConfirmation = ({ route }) => {
 
         {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
         <Box mt={hp(1)}>
-          {availableTransactionPriorities.map((priority) => {
+          {availableTransactionPriorities?.map((priority) => {
             return (
               <TouchableOpacity
                 style={styles.priorityRowContainer}
@@ -216,17 +215,19 @@ const SendConfirmation = ({ route }) => {
                 }}>
                   ~
                   {timeConvertNear30(
-                    (txFeeInfo[priority.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                    (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1)
                     * 10
                   )}
                 </Text>
-                <TextValue amt={txFeeInfo[priority.toLowerCase()].amount} unit={{
+                <TextValue amt={txFeeInfo[priority?.toLowerCase()]?.amount} unit={{
                   bitcoinUnit: BitcoinUnit.SATS,
                 }} />
               </TouchableOpacity>
             );
           })}
-          <TouchableOpacity
+          {/* {Disable custom priority for now } */}
+
+          {/* <TouchableOpacity
             style={styles.customPriorityRowContainer}
             onPress={() => {
               setTransactionPriority(TxPriority.CUSTOM)
@@ -259,14 +260,14 @@ const SendConfirmation = ({ route }) => {
             }}>
               ~
               {timeConvertNear30(
-                (txFeeInfo[TxPriority.CUSTOM.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                (txFeeInfo[TxPriority?.CUSTOM?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1)
                 * 10
               )}
             </Text>
-            <TextValue amt={txFeeInfo[TxPriority.CUSTOM.toLowerCase()].amount} unit={{
+            <TextValue amt={txFeeInfo[TxPriority?.CUSTOM?.toLowerCase()]?.amount} unit={{
               bitcoinUnit: BitcoinUnit.SATS,
             }} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </Box>
       </Box>
     );
@@ -281,14 +282,16 @@ const SendConfirmation = ({ route }) => {
       position={'relative'}
     >
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title="Sending to address"
-        subtitle="Lorem ipsum dolor sit amet,"
-        onPressHandler={() => navigtaion.goBack()}
-      />
+      <Box marginLeft={3}>
+        <Header
+          title="Sending to address"
+          subtitle="Lorem ipsum dolor sit amet,"
+          onPressHandler={() => navigtaion.goBack()}
+        />
+      </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
-        <SendingCard isSend />
+        <SendingCard isSend={false} />
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
@@ -306,7 +309,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-
+          primaryCallback={onProceed}
         />
       </Box>
       <SigningController />

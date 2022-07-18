@@ -6,7 +6,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
+import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import AppNumPad from 'src/components/AppNumPad';
@@ -50,12 +50,13 @@ const AddSendAmount = ({ route }) => {
   return (
     <Box flex={1} padding={2} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title="Sending to address"
-        subtitle="Lorem ipsum dolor sit amet,"
-        color="light.ReceiveBackground"
-        onPressHandler={() => navigation.goBack()}
-      />
+      <Box marginLeft={3}>
+        <Header
+          title="Sending to address"
+          subtitle="Lorem ipsum dolor sit amet,"
+          onPressHandler={() => navigation.goBack()}
+        />
+      </Box>
       <Box
         flexDirection={'row'}
         alignItems={'center'}
