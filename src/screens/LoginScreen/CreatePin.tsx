@@ -200,7 +200,9 @@ export default function CreatePin(props) {
                   {/* pin input view */}
                   <PinInputsView
                     passCode={confirmPasscode}
-                    passcodeFlag={confirmPasscodeFlag == 0 ? false : true}
+                    passcodeFlag={
+                      confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2 ? false : true
+                    }
                   />
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
