@@ -672,6 +672,84 @@ export default class WalletOperations {
     };
   };
 
+  static addInputToPSBT = (
+    PSBT: bitcoinJS.Psbt,
+    wallet: Wallet | Vault,
+    input: InputUTXOs,
+    network: bitcoinJS.networks.Network
+  ) => {
+    if (wallet.entityKind === EntityKind.WALLET) {
+      const { publicKey, subPath } = WalletUtilities.addressToKey(
+        input.address,
+        wallet as Wallet,
+        true
+      ) as { publicKey: Buffer; subPath: number[] };
+      const p2wpkh = bitcoinJS.payments.p2wpkh({
+        pubkey: publicKey,
+        network,
+      });
+      const p2sh = bitcoinJS.payments.p2sh({
+        redeem: p2wpkh,
+      });
+
+      const path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
+      const masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
+        (wallet as Wallet).derivationDetails.mnemonic
+      );
+
+      const bip32Derivation = [
+        {
+          masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
+          path: path,
+          pubkey: publicKey,
+        },
+      ];
+
+      PSBT.addInput({
+        hash: input.txId,
+        index: input.vout,
+        bip32Derivation,
+        witnessUtxo: {
+          script: p2sh.output,
+          value: input.value,
+        },
+        redeemScript: p2wpkh.output,
+      });
+    } else if (wallet.entityKind === EntityKind.VAULT) {
+      const { p2ms, p2wsh, p2sh, subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+        input.address,
+        wallet as Vault
+      );
+
+      const bip32Derivation = [];
+      for (const signer of (wallet as Vault).signers) {
+        if (signer.type === SignerType.COLDCARD) {
+          const derivationPath = signer.xpubInfo?.derivationPath;
+          const path = derivationPath + `/${subPath.join('/')}`;
+          for (const pubkey of pubkeys) {
+            bip32Derivation.push({
+              masterFingerprint: Buffer.from([0x00, 0x00, 0x00, 0x00]), // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
+              path,
+              pubkey,
+            });
+          }
+        }
+      }
+
+      PSBT.addInput({
+        hash: input.txId,
+        index: input.vout,
+        bip32Derivation,
+        witnessUtxo: {
+          script: p2sh.output,
+          value: input.value,
+        },
+        redeemScript: p2wsh.output,
+        witnessScript: p2ms.output,
+      });
+    }
+  };
+
   static createTransaction = async (
     wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
@@ -691,52 +769,11 @@ export default class WalletOperations {
       }
 
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
-
       const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
         network,
       });
 
-      for (const input of inputs) {
-        if (wallet.entityKind === EntityKind.WALLET) {
-          const publicKey = WalletUtilities.addressToKey(
-            input.address,
-            wallet as Wallet,
-            true
-          ) as Buffer;
-          const p2wpkh = bitcoinJS.payments.p2wpkh({
-            pubkey: publicKey,
-            network,
-          });
-          const p2sh = bitcoinJS.payments.p2sh({
-            redeem: p2wpkh,
-          });
-
-          PSBT.addInput({
-            hash: input.txId,
-            index: input.vout,
-            witnessUtxo: {
-              script: p2sh.output,
-              value: input.value,
-            },
-            redeemScript: p2wpkh.output,
-          });
-        } else if (wallet.entityKind === EntityKind.VAULT) {
-          const { p2ms, p2wsh, p2sh } = WalletUtilities.addressToMultiSig(
-            input.address,
-            wallet as Vault
-          );
-          PSBT.addInput({
-            hash: input.txId,
-            index: input.vout,
-            witnessUtxo: {
-              script: p2sh.output,
-              value: input.value,
-            },
-            redeemScript: p2wsh.output,
-            witnessScript: p2ms.output,
-          });
-        }
-      }
+      for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network);
 
       const sortedOuts = WalletUtilities.sortOutputs(
         wallet,
@@ -780,28 +817,11 @@ export default class WalletOperations {
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       for (const input of inputs) {
-        let keyPair, redeemScript;
-        // if ((wallet ).specs.is2FA) {
-        //   const { multiSig, primaryPriv, childIndex } =
-        //     WalletUtilities.signingEssentialsForMultiSig(wallet as MultiSigWallet, input.address);
-
-        //   keyPair = bip32.fromBase58(primaryPriv, network);
-        //   // redeemScript = Buffer.from( multiSig.scripts.redeem, 'hex' )
-        //   // witnessScript = Buffer.from( multiSig.scripts.witness, 'hex' )
-        //   childIndexArray.push({
-        //     childIndex,
-        //     inputIdentifier: {
-        //       txId: input.txId,
-        //       vout: input.vout,
-        //       value: input.value,
-        //     },
-        //   });
-        // } else {
-        //   const privateKey = WalletUtilities.addressToKey(input.address, wallet) as string;
-        //   keyPair = WalletUtilities.getKeyPair(privateKey, network);
-        //   // redeemScript = WalletUtilities.getP2SH( keyPair, network ).redeem.output
-        // }
-        const privateKey = WalletUtilities.addressToKey(input.address, wallet) as string;
+        let keyPair;
+        const { privateKey } = WalletUtilities.addressToKey(input.address, wallet) as {
+          privateKey: string;
+          subPath: number[];
+        };
         keyPair = WalletUtilities.getKeyPair(privateKey, network);
 
         PSBT.signInput(vin, keyPair);

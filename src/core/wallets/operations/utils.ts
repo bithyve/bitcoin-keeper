@@ -58,9 +58,7 @@ export default class WalletUtilities {
 
   static getFingerprintFromSeed = (seed: Buffer) => {
     const root = bip32.fromSeed(seed);
-    console.log({ fp: root.fingerprint });
     let fingerprintHex = root.fingerprint.toString('hex');
-    console.log({ fingerprintHex });
     while (fingerprintHex.length < 8) fingerprintHex = '0' + fingerprintHex;
     return fingerprintHex.toUpperCase();
   };
