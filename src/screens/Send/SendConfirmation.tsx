@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, VStack, HStack, View } from 'native-base';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
+import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
@@ -11,9 +11,7 @@ import SigningController from './SigningController';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import {
-  getTransactionPadding,
   hp,
-  windowWidth,
   wp,
 } from 'src/common/data/responsiveness/responsive';
 
@@ -284,11 +282,13 @@ const SendConfirmation = ({ route }) => {
       position={'relative'}
     >
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title="Sending to address"
-        subtitle="Lorem ipsum dolor sit amet,"
-        onPressHandler={() => navigtaion.goBack()}
-      />
+      <Box marginLeft={3}>
+        <Header
+          title="Sending to address"
+          subtitle="Lorem ipsum dolor sit amet,"
+          onPressHandler={() => navigation.goBack()}
+        />
+      </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
         <SendingCard isSend={false} />
