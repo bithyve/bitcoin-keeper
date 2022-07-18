@@ -144,7 +144,7 @@ const SendConfirmation = ({ route }) => {
           Transaction Priority
         </Text>
         <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority.toLowerCase()].amount : '274 sats'}
+          {/* {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount : '274 sats'} */}
         </Text>
       </Box>
     );
@@ -180,7 +180,7 @@ const SendConfirmation = ({ route }) => {
 
         {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
         <Box mt={hp(1)}>
-          {availableTransactionPriorities.map((priority) => {
+          {availableTransactionPriorities?.map((priority) => {
             return (
               <TouchableOpacity
                 style={styles.priorityRowContainer}
@@ -216,11 +216,11 @@ const SendConfirmation = ({ route }) => {
                 }}>
                   ~
                   {timeConvertNear30(
-                    (txFeeInfo[priority.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                    (txFeeInfo[priority]?.estimatedBlocksBeforeConfirmation + 1)
                     * 10
                   )}
                 </Text>
-                <TextValue amt={txFeeInfo[priority.toLowerCase()].amount} unit={{
+                <TextValue amt={txFeeInfo[priority]?.amount} unit={{
                   bitcoinUnit: BitcoinUnit.SATS,
                 }} />
               </TouchableOpacity>
@@ -259,11 +259,11 @@ const SendConfirmation = ({ route }) => {
             }}>
               ~
               {timeConvertNear30(
-                (txFeeInfo[TxPriority.CUSTOM.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                (txFeeInfo[TxPriority?.CUSTOM]?.estimatedBlocksBeforeConfirmation + 1)
                 * 10
               )}
             </Text>
-            <TextValue amt={txFeeInfo[TxPriority.CUSTOM.toLowerCase()].amount} unit={{
+            <TextValue amt={txFeeInfo[TxPriority?.CUSTOM]?.amount} unit={{
               bitcoinUnit: BitcoinUnit.SATS,
             }} />
           </TouchableOpacity>
