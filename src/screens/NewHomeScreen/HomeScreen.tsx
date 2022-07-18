@@ -201,7 +201,7 @@ const VaultStatus = (props) => {
     navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
   };
 
-  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
