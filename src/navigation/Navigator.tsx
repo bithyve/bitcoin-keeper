@@ -4,6 +4,7 @@ import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
+import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
@@ -15,6 +16,7 @@ import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import MyWalletBackScreen from 'src/screens/BackupWallet/MyWalletBackScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
@@ -23,6 +25,7 @@ import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
+import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
@@ -30,9 +33,6 @@ import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAppSelector } from 'src/store/hooks';
-import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
-import MyWalletBackScreen from 'src/screens/BackupWallet/MyWalletBackScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -69,6 +69,7 @@ const AppStack = () => {
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
+        <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />

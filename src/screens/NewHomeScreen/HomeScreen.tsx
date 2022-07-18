@@ -27,6 +27,7 @@ import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -37,7 +38,6 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -125,7 +125,7 @@ const LinkedWallets = (props) => {
                 <BTC />
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
-                {netBalance / 10e8 < 99.9999 ? (netBalance / 10e8).toFixed(4) : 99.9999}
+                {netBalance}
               </Text>
             </Box>
           ) : (
@@ -201,9 +201,12 @@ const VaultStatus = (props) => {
     navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
   };
 
-  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
-
-  const { confirmed = 0, unconfirmed = 0 } = Vault?.specs?.balances || {};
+  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
+  const {
+    specs: { balances: { confirmed, unconfirmed } } = {
+      balances: { confirmed: 0, unconfirmed: 0 },
+    },
+  } = Vault;
   const vaultBalance = confirmed + unconfirmed;
   return (
     <Box marginTop={-hp(97.44)} alignItems={'center'}>
@@ -277,7 +280,7 @@ const VaultStatus = (props) => {
                     fontSize={hp(34)}
                     fontWeight={200}
                   >
-                    {vaultBalance / 10e8 < 99.9999 ? (vaultBalance / 10e8).toFixed(4) : 99.9999}
+                    {vaultBalance}
                   </Text>
                 ) : (
                   <Hidden />
