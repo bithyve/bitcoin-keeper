@@ -56,17 +56,29 @@ export default class WalletUtilities {
     else return bitcoinJS.networks.bitcoin;
   };
 
-  static getFingerprintFromSeed = (seed: Buffer) => {
-    const root = bip32.fromSeed(seed);
-    let fingerprintHex = root.fingerprint.toString('hex');
+  static getFingerprintFromNode = (node: bip32.BIP32Interface) => {
+    let fingerprintHex = node.fingerprint.toString('hex');
     while (fingerprintHex.length < 8) fingerprintHex = '0' + fingerprintHex;
     return fingerprintHex.toUpperCase();
+  };
+
+  static getFingerprintFromSeed = (seed: Buffer) => {
+    const root = bip32.fromSeed(seed);
+    return WalletUtilities.getFingerprintFromNode(root);
   };
 
   static getFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return WalletUtilities.getFingerprintFromSeed(seed);
   }
+
+  static getFingerprintFromExtendedKey = (
+    extendedKey: string,
+    network: bitcoinJS.networks.Network
+  ) => {
+    const node = bip32.fromBase58(extendedKey, network);
+    return WalletUtilities.getFingerprintFromNode(node);
+  };
 
   static getDerivationPath = (
     type: NetworkType,
