@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import Modal from 'react-native-modal';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -20,6 +19,7 @@ import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/CloudBackup/SkipHealthCheck';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
 
 type Props = {
   title: string;
@@ -109,62 +109,36 @@ const BackupWallet = () => {
             // setCloudBackupModal(true);
             // setCreateCloudBackupModal(true);
             // setHealthCheckModal(true);
-            setHealthCheckSuccessModal(true);
-            // setSkipHealthCheckModal(true);
+            // setHealthCheckSuccessModal(true);
+            setSkipHealthCheckModal(true);
           }}
         />
       </Box>
       <Box>
-        <Modal
-          isVisible={cloudBackupModal}
-          onSwipeComplete={() => setCloudBackupModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
-        >
+        <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>
           <AppGeneratePass closeBottomSheet={() => setCloudBackupModal(false)} />
-        </Modal>
-        <Modal
-          isVisible={createCloudBackupModal}
-          onSwipeComplete={() => setCloudBackupModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
+        </ModalWrapper>
+        <ModalWrapper
+          visible={createCloudBackupModal}
+          onSwipeComplete={() => setCreateCloudBackupModal(false)}
         >
           <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-        </Modal>
-        <Modal
-          isVisible={healthCheckModal}
+        </ModalWrapper>
+        <ModalWrapper
+          visible={healthCheckModal}
           onSwipeComplete={() => setHealthCheckModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
+          position={'center'}
         >
           <HealthCheckComponent
             closeBottomSheet={() => {
               setHealthCheckModal(false);
             }}
           />
-        </Modal>
+        </ModalWrapper>
         {/* skip health check */}
-        <Modal
-          isVisible={skipHealthCheckModal}
+        <ModalWrapper
+          visible={skipHealthCheckModal}
           onSwipeComplete={() => setSkipHealthCheckModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
         >
           <SkipHealthCheck
             closeBottomSheet={() => {
@@ -175,18 +149,12 @@ const BackupWallet = () => {
               navigation.navigate('MyWalletBackScreen');
             }}
           />
-        </Modal>
+        </ModalWrapper>
 
         {/* health check success */}
-        <Modal
-          isVisible={healthCheckSuccessModal}
+        <ModalWrapper
+          visible={healthCheckSuccessModal}
           onSwipeComplete={() => setHealthCheckSuccessModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
         >
           <BackupSuccessful
             closeBottomSheet={() => {
@@ -200,7 +168,7 @@ const BackupWallet = () => {
             subTitle={BackupWallet.healthCheckSuccessSubTitle}
             paragraph={BackupWallet.healthCheckSuccessParagraph}
           />
-        </Modal>
+        </ModalWrapper>
       </Box>
     </Box>
   );
