@@ -3,23 +3,30 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
-import config from '../../config';
-import _ from 'lodash';
-import idx from 'idx';
 import {
-  WalletType,
+  ActiveAddresses,
+  OutputUTXOs,
+  Transaction,
+  TransactionToAddressMapping,
+} from '../interfaces/';
+import {
   DerivationPurpose,
   NetworkType,
-  TransactionType,
   PaymentInfoKind,
+  TransactionType,
+  WalletType,
 } from '../enums';
-import { ActiveAddresses, Transaction, TransactionToAddressMapping } from '../interfaces/';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+
+import { Vault } from '../interfaces/vault';
+import { Wallet } from '../interfaces/wallet';
+import WalletOperations from '.';
+import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import { Wallet } from '../interfaces/wallet';
-import { Vault } from '../interfaces/vault';
+import config from '../../config';
+import idx from 'idx';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -56,17 +63,29 @@ export default class WalletUtilities {
     else return bitcoinJS.networks.bitcoin;
   };
 
-  static getFingerprintFromSeed = (seed: Buffer) => {
-    const root = bip32.fromSeed(seed);
-    let fingerprintHex = root.fingerprint.toString('hex');
+  static getFingerprintFromNode = (node: bip32.BIP32Interface) => {
+    let fingerprintHex = node.fingerprint.toString('hex');
     while (fingerprintHex.length < 8) fingerprintHex = '0' + fingerprintHex;
     return fingerprintHex.toUpperCase();
+  };
+
+  static getFingerprintFromSeed = (seed: Buffer) => {
+    const root = bip32.fromSeed(seed);
+    return WalletUtilities.getFingerprintFromNode(root);
   };
 
   static getFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return WalletUtilities.getFingerprintFromSeed(seed);
   }
+
+  static getFingerprintFromExtendedKey = (
+    extendedKey: string,
+    network: bitcoinJS.networks.Network
+  ) => {
+    const node = bip32.fromBase58(extendedKey, network);
+    return WalletUtilities.getFingerprintFromNode(node);
+  };
 
   static getDerivationPath = (
     type: NetworkType,
@@ -499,21 +518,15 @@ export default class WalletUtilities {
 
   static sortOutputs = (
     wallet: Wallet | Vault,
-    outputs: Array<{
-      address: string;
-      value: number;
-    }>,
+    outputs: Array<OutputUTXOs>,
     nextFreeChangeAddressIndex: number,
     network: bitcoinJS.networks.Network
-  ): {
-    address: string;
-    value: number;
-  }[] => {
+  ): OutputUTXOs[] => {
     // const purpose =
     // wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
 
     const purpose = DerivationPurpose.BIP49;
-    for (const output of outputs) {
+    for (let output of outputs) {
       if (!output.address) {
         let changeAddress: string;
 
@@ -526,6 +539,7 @@ export default class WalletUtilities {
             nextFreeChangeAddressIndex,
             true
           ).address;
+          output = WalletOperations.getOutputDataForChange(wallet, output, network);
         } else {
           changeAddress = WalletUtilities.getAddressByIndex(
             (wallet as Wallet).specs.xpub,

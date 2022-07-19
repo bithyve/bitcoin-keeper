@@ -17,6 +17,9 @@ export interface InputUTXOs {
 export interface OutputUTXOs {
   value: number;
   address: string;
+  bip32Derivation?: any[];
+  witnessScript?: Buffer;
+  redeemScript?: Buffer;
 }
 
 export interface AverageTxFeeElements {

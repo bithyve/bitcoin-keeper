@@ -92,12 +92,19 @@ const SigningController = () => {
         case SignerType.COLDCARD: {
           try {
             setNfcVisible(true);
-            const bytes = Ndef.encodeMessage([
+
+            const justBytes = JSON.parse(
+              JSON.stringify(Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64'))
+            ).data;
+            const enc = Ndef.encodeMessage([
               Ndef.textRecord(serializedPSBTEnvelop.serializedPSBT, 'en', 'base64'),
             ]);
+            const bytes = [112, 115, 98, 116, 255].concat(justBytes);
             // psbt\xff --> initial bytes of psbt [112, 115, 98, 116, 255]
             // TODO: add this ^ as headers to the filan psbt bytes
-            const { data } = await NFC.send([NfcTech.Ndef], bytes);
+            console.log(serializedPSBTEnvelop.serializedPSBT);
+            console.log(bytes);
+            const { data } = await NFC.send([NfcTech.Ndef], enc);
             setNfcVisible(false);
           } catch (error) {
             setNfcVisible(false);

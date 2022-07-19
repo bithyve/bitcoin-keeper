@@ -38,9 +38,25 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import NewWalletModal from 'src/components/NewWalletModal';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
+
+  const navigateBack = () => {
+    close();
+  };
+  const [visible, setVisible] = useState(false);
+
+  const { translations } = useContext(LocalizationContext);
+  const wallet = translations['wallet'];
+  const seed = translations['seed'];
+  const onPress = () => {
+    open();
+  };
+
+  const close = () => setVisible(false);
+  const open = () => setVisible(true);
 
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
@@ -73,6 +89,33 @@ const InheritanceComponent = () => {
           </Box>
         </Box>
         <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
+        {/* <NextIcon pressHandler={() => onPress()} />
+        <>
+          <NewWalletModal
+            visible={visible}
+            close={close}
+            title={wallet.AddNewWallet}
+            createTitle={wallet.CreateNewwallet}
+            createSubTitle={wallet.WalletDesc}
+            newButton={wallet.CreateNew}
+            newButtonDesc={wallet.WalletDesc}
+            existingButtonTitle={wallet.Recoverexisting}
+            existingButtonSubTitle={wallet.WalletDesc}
+            seedButton={wallet.UsingSeed}
+            seedButtonDesc={wallet.WalletDesc}
+            cloudButton={wallet.FromCloud}
+            cloudButtonDesc={wallet.WalletDesc}
+            mainDesc={wallet.XPubSubTitle}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonCancel={'Cancel'}
+            buttonText={'Next'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCancelColor={'#073E39'}
+            buttonCallback={navigateBack}
+            textColor={'#041513'}
+          />
+        </> */}
       </LinearGradient>
     </Box>
   );

@@ -1,27 +1,30 @@
-import * as bitcoinJS from 'bitcoinjs-lib';
 import * as bip32 from 'bip32';
-import coinselect from 'coinselect';
-import coinselectSplit from 'coinselect/split';
-import ECPairFactory from 'ecpair';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
-import WalletUtilities from './utils';
+
 import {
   ActiveAddressAssignee,
   ActiveAddresses,
   AverageTxFees,
   Balances,
   InputUTXOs,
+  OutputUTXOs,
+  SerializedPSBTEnvelop,
+  SigningDataHW,
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
-  UTXO,
   TransactionToAddressMapping,
-  SigningDataHW,
-  SerializedPSBTEnvelop,
+  UTXO,
 } from '../interfaces/';
-import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
-import { Wallet } from '../interfaces/wallet';
+import { DerivationPurpose, EntityKind, SignerType, TxPriority, WalletType } from '../enums';
+
+import ECPairFactory from 'ecpair';
 import { Vault } from '../interfaces/vault';
+import { Wallet } from '../interfaces/wallet';
+import WalletUtilities from './utils';
+import coinselect from 'coinselect';
+import coinselectSplit from 'coinselect/split';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -728,7 +731,10 @@ export default class WalletOperations {
           const path = derivationPath + `/${subPath.join('/')}`;
           for (const pubkey of pubkeys) {
             bip32Derivation.push({
-              masterFingerprint: Buffer.from([0x00, 0x00, 0x00, 0x00]), // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
+              masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(
+                signer.xpub,
+                network
+              ),
               path,
               pubkey,
             });
@@ -748,6 +754,40 @@ export default class WalletOperations {
         witnessScript: p2ms.output,
       });
     }
+  };
+
+  static getOutputDataForChange = (
+    wallet: Wallet | Vault,
+    outputData: OutputUTXOs,
+    network: bitcoinJS.networks.Network
+  ) => {
+    if (wallet.entityKind !== EntityKind.VAULT) {
+      return outputData;
+    }
+    const bip32Derivation = []; // array per each pubkey thats gona be used
+    const { p2ms, p2wsh, subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+      outputData.address,
+      wallet as Vault
+    );
+    for (const signer of (wallet as Vault).signers) {
+      if (signer.type === SignerType.COLDCARD) {
+        const derivationPath = signer.xpubInfo?.derivationPath;
+        const path = derivationPath + `/${subPath.join('/')}`;
+        for (const pubkey of pubkeys) {
+          bip32Derivation.push({
+            masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network), // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
+            path,
+            pubkey,
+          });
+        }
+      }
+    }
+
+    outputData.bip32Derivation = bip32Derivation;
+    outputData.redeemScript = p2wsh.output;
+    outputData.witnessScript = p2ms.output;
+
+    return outputData;
   };
 
   static createTransaction = async (
@@ -782,11 +822,9 @@ export default class WalletOperations {
         network
       );
 
-      for (const output of sortedOuts)
-        PSBT.addOutput({
-          address: output.address,
-          value: output.value,
-        });
+      for (const output of sortedOuts) {
+        PSBT.addOutput(output);
+      }
 
       return {
         PSBT,
@@ -988,7 +1026,7 @@ export default class WalletOperations {
       const signingDataHW: SigningDataHW[] = [];
 
       // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
-      const signerType = SignerType.TAPSIGNER;
+      const signerType = (wallet as Vault).signers[0].type;
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
         const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(
