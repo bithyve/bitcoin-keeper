@@ -1,9 +1,9 @@
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import { Text, View } from 'native-base';
+import { Text, View, Box } from 'native-base';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
@@ -21,6 +21,10 @@ import { useDispatch } from 'react-redux';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import CustomButton from 'src/components/CustomButton/CustomButton';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import Buttons from 'src/components/Buttons';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -107,45 +111,46 @@ const InputCvc = ({ cvc, setCvc, callback }) => {
 };
 
 const SetupTapsigner = () => {
-  const steps = [
-    {
-      index: 1,
-      title: 'Enter CVC Code',
-      description: 'Please enter the CVC code on the back of your card',
-      active: true,
-      extraComponent: InputCvc,
-      done: false,
-    },
-    {
-      index: 2,
-      title: 'Verifying Card',
-      description: 'Checking if the card certificate is valid',
-      active: false,
-      extraComponent: null,
-      done: false,
-    },
-    {
-      index: 3,
-      title: 'Setting & Accociating Tapsigner',
-      description: 'Picking keys for your card and fetching xPub',
-      active: false,
-      extraComponent: null,
-      done: false,
-    },
-    {
-      index: 4,
-      title: 'Setting up your Vault',
-      description: 'Creating a new Vault with your card',
-      active: false,
-      extraComponent: null,
-      done: false,
-    },
-  ];
+  // const steps = [
+  //   {
+  //     index: 1,
+  //     title: 'Enter CVC Code',
+  //     description: 'Please enter the CVC code on the back of your card',
+  //     active: true,
+  //     extraComponent: InputCvc,
+  //     done: false,
+  //   },
+  //   {
+  //     index: 2,
+  //     title: 'Verifying Card',
+  //     description: 'Checking if the card certificate is valid',
+  //     active: false,
+  //     extraComponent: null,
+  //     done: false,
+  //   },
+  //   {
+  //     index: 3,
+  //     title: 'Setting & Accociating Tapsigner',
+  //     description: 'Picking keys for your card and fetching xPub',
+  //     active: false,
+  //     extraComponent: null,
+  //     done: false,
+  //   },
+  //   {
+  //     index: 4,
+  //     title: 'Setting up your Vault',
+  //     description: 'Creating a new Vault with your card',
+  //     active: false,
+  //     extraComponent: null,
+  //     done: false,
+  //   },
+  // ];
 
-  const [stepItems, setStepItems] = React.useState(steps);
+  // const [stepItems, setStepItems] = React.useState(steps);
   const [cvc, setCvc] = React.useState('');
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const { useRealm } = useContext(RealmWrapperContext);
+  const [passcodeFlag] = useState(true);
 
   const realm = useRealm();
   const navigation = useNavigation();
@@ -185,7 +190,7 @@ const SetupTapsigner = () => {
         return item;
       }
     });
-    setStepItems(updatedSteps);
+    // setStepItems(updatedSteps);
   }, []);
 
   const delay = (ms) => {
@@ -271,16 +276,39 @@ const SetupTapsigner = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <HeaderTitle title="" subtitle="" onPressHandler={() => navigation.goBack()} />
-      <TapGestureHandler numberOfTaps={3} onActivated={MockVaultCreation}>
-        <ScrollView>
-          {stepItems.map((item) => (
+      <Box flex={1}>
+        <Box style={styles.header}>
+          <HeaderTitle
+            title="Setting up Tapsigner"
+            subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+            onPressHandler={() => navigation.goBack()}
+          />
+        </Box>
+        <TapGestureHandler numberOfTaps={3} onActivated={MockVaultCreation}>
+          <ScrollView>
+            {/* {stepItems.map((item) => (
             <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />
-          ))}
-        </ScrollView>
-      </TapGestureHandler>
-      <KeyPadView onPressNumber={onPressHandler} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
-      <NfcPrompt visible={nfcVisible} />
+          ))} */}
+            <PinInputsView
+              passCode={cvc}
+              passcodeFlag={passcodeFlag}
+              passCodeBox={true}
+              backgroundColor={'#FDF7F0'}
+            />
+          </ScrollView>
+        </TapGestureHandler>
+        <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+        <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp('15')}>
+          <Buttons primaryText="Proceed" />
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressHandler}
+          keyColor={'#041513'}
+          ClearIcon={<DeleteIcon />}
+        />
+
+        <NfcPrompt visible={nfcVisible} />
+      </Box>
     </SafeAreaView>
   );
 };
@@ -290,6 +318,13 @@ export default SetupTapsigner;
 const styles = StyleSheet.create({
   container: {
     height: '100%',
+    backgroundColor: '#F7F2EC',
+    flex: 1,
+    padding: 10,
+  },
+  header: {
+    flex: 1,
+    padding: '5%',
   },
   stepContainer: {
     flexDirection: 'row',
