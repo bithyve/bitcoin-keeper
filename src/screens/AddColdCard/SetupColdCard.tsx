@@ -21,9 +21,9 @@ const SetupColdCard = () => {
   const scanMK4 = async () => {
     setNfcVisible(true);
     try {
-      const { data: xpub } = await NFC.read(NfcTech.NfcV);
+      const { data: xpub, path } = await NFC.read(NfcTech.NfcV);
       setNfcVisible(false);
-      return xpub;
+      return { xpub, path };
     } catch (err) {
       console.log(err);
       setNfcVisible(false);
@@ -50,14 +50,14 @@ const SetupColdCard = () => {
   }, []);
 
   const getColdCardDetails = async () => {
-    const xpub = await scanMK4();
+    const { xpub, path: derivationPath } = await scanMK4();
     const signer: VaultSigner = {
       signerId: crypto.createHash('sha256').update(xpub).digest('hex'),
       type: SignerType.COLDCARD,
       signerName: 'MK4',
       xpub,
       xpubInfo: {
-        derivationPath: xpub.startsWith('t') ? 'm/44h/1h/0h' : 'm/44h/0h/0h',
+        derivationPath,
       },
     };
     const scheme: VaultScheme = { m: 1, n: 1 };

@@ -1,9 +1,11 @@
 import { Alert, Dimensions, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import KeeperModal from 'src/components/KeeperModal';
+import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -58,9 +60,9 @@ const SigningController = () => {
     if (serializedPSBTEnvelop) {
       const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
       const { signerType, inputsToSign } = copySerializedPSBTEnvelop.signingDataHW[0];
-      setCvcModalVisible(false);
       switch (signerType) {
         case SignerType.TAPSIGNER: {
+          setCvcModalVisible(false);
           withModal(async () => {
             try {
               const status = await card.first_look();
@@ -87,6 +89,21 @@ const SigningController = () => {
             }
           })().catch(console.log);
         }
+        case SignerType.COLDCARD: {
+          try {
+            setNfcVisible(true);
+            const bytes = Ndef.encodeMessage([
+              Ndef.textRecord(serializedPSBTEnvelop.serializedPSBT, 'en', 'base64'),
+            ]);
+            // psbt\xff --> initial bytes of psbt [112, 115, 98, 116, 255]
+            // TODO: add this ^ as headers to the filan psbt bytes
+            const { data } = await NFC.send([NfcTech.Ndef], bytes);
+            setNfcVisible(false);
+          } catch (error) {
+            setNfcVisible(false);
+            console.log({ error });
+          }
+        }
         default: {
           break;
         }
@@ -99,6 +116,8 @@ const SigningController = () => {
       const { signerType } = serializedPSBTEnvelop.signingDataHW[0];
       if (signerType === SignerType.TAPSIGNER) {
         setCvcModalVisible(true);
+      } else if (signerType === SignerType.COLDCARD) {
+        signTransaction();
       }
     }
   }, [serializedPSBTEnvelop]);
