@@ -13,12 +13,13 @@ import { addNewWallets } from '../sagaActions/wallets';
 import { newWalletInfo } from './wallets';
 import { WalletType } from 'src/core/wallets/enums';
 import { getRandomBytes, hash256 } from 'src/core/services/operations/encryption';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName }: { appName: string } = payload;
     const primaryMnemonic = bip39.generateMnemonic();
-    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic).toString('hex');
+    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
     const defaultWalletShell: WalletShell = {
       id: getRandomBytes(12),
@@ -28,12 +29,12 @@ function* setupKeeperAppWorker({ payload }) {
     const userTier: UserTier = {
       level: AppTierLevel.ONE,
     };
-    const id = hash256(primarySeed);
+    const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const app: KeeperApp = {
       id,
       appName,
       primaryMnemonic,
-      primarySeed: primarySeed,
+      primarySeed: primarySeed.toString('hex'),
       walletShellInstances: {
         shells: [defaultWalletShell.id],
         activeShell: defaultWalletShell.id,

@@ -15,7 +15,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SignerType, VaultType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -25,6 +25,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -241,8 +242,13 @@ const SetupTapsigner = () => {
     })().then((resp) => {
       const { xpub, status } = resp;
       updateStep(4, 5);
+
+      const networkType =
+        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const network = WalletUtilities.getNetworkByType(networkType);
+
       const signer: VaultSigner = {
-        signerId: card.card_ident,
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
         type: SignerType.TAPSIGNER,
         signerName: 'Tapsigner',
         xpub,
