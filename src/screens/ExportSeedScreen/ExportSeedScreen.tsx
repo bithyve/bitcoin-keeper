@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Modal from 'react-native-modal';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -11,6 +10,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
 
 const ExportSeedScreen = ({ route }) => {
   const navigtaion = useNavigation();
@@ -121,15 +121,10 @@ const ExportSeedScreen = ({ route }) => {
       )}
       {/* Modals */}
       <Box>
-        <Modal
-          isVisible={confirmSeedModal}
+        <ModalWrapper
+          visible={confirmSeedModal}
           onSwipeComplete={() => setConfirmSeedModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
+          position={'center'}
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
@@ -141,18 +136,12 @@ const ExportSeedScreen = ({ route }) => {
               }, 2000);
             }}
           />
-        </Modal>
+        </ModalWrapper>
       </Box>
       <Box>
-        <Modal
-          isVisible={backupSuccessModal}
+        <ModalWrapper
+          visible={backupSuccessModal}
           onSwipeComplete={() => setBackupSuccessModal(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
         >
           <BackupSuccessful
             closeBottomSheet={() => {
@@ -165,7 +154,7 @@ const ExportSeedScreen = ({ route }) => {
             subTitle={BackupWallet.backupSuccessSubTitle}
             paragraph={BackupWallet.backupSuccessParagraph}
           />
-        </Modal>
+        </ModalWrapper>
       </Box>
     </Box>
   );

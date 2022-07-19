@@ -9,7 +9,6 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import LinearGradient from 'react-native-linear-gradient';
-import Modal from 'react-native-modal';
 
 import { credsAuth } from '../../store/sagaActions/login';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
@@ -25,6 +24,7 @@ import ResetPassSuccess from './components/ResetPassSuccess';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -162,21 +162,21 @@ const CreatePin = ({ navigation, route }) => {
       if (relogin) {
         navigation.goBack();
       } else {
-        updateFCM()
+        updateFCM();
         navigation.replace('App');
       }
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
 
-  const updateFCM =async () => {
+  const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
-      if ( !existingFCMToken || existingFCMToken != token ) dispatch(updateFCMTokens([token]))      
-     } catch (error) {
-      console.log(error)
-     }
-  }
+      if (!existingFCMToken || existingFCMToken != token) dispatch(updateFCMTokens([token]));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const attemptLogin = (passcode: string) => {
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
@@ -295,18 +295,16 @@ const CreatePin = ({ navigation, route }) => {
         </ModalContainer>
         {/* reset password success modal */}
         <Box>
-          <Modal
-            isVisible={resetPassSuccessVisible}
+          <ModalWrapper
+            visible={resetPassSuccessVisible}
             onSwipeComplete={() => setResetPassSuccessVisible(false)}
-            swipeDirection={['down']}
-            style={styles.view}
           >
             <ResetPassSuccess
               closeBottomSheet={() => {
                 setResetPassSuccessVisible(false);
               }}
             />
-          </Modal>
+          </ModalWrapper>
         </Box>
       </Box>
     </LinearGradient>
@@ -353,11 +351,6 @@ const styles = StyleSheet.create({
   linearGradient: {
     flex: 1,
     padding: 10,
-  },
-  view: {
-    justifyContent: 'flex-end',
-    marginHorizontal: 15,
-    marginBottom: 25,
   },
 });
 
