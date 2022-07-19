@@ -27,10 +27,10 @@ export enum TransactionType {
 }
 
 export enum TxPriority {
-  LOW = 'Low',
-  MEDIUM = 'Medium',
-  HIGH = 'High',
-  CUSTOM = 'Custom',
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CUSTOM = 'custom',
 }
 
 export enum NetworkType {
