@@ -33,13 +33,12 @@ export const generateWallet = async ({
   networkType: NetworkType;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
-
   let xpriv: string, xpub: string, id: string, derivationDetails: WalletDerivationDetails;
 
   switch (type) {
     case WalletType.READ_ONLY:
       xpub = importedXpub;
-      id = hash256(xpub);
+      id = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
       break;
 
     default:
@@ -56,7 +55,7 @@ export const generateWallet = async ({
         mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
       }
 
-      id = hash256(mnemonic);
+      id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
       // derive extended keys
       const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
       const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
