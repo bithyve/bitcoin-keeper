@@ -30,6 +30,7 @@ import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
+import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -87,6 +88,7 @@ const AppStack = () => {
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
+        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />

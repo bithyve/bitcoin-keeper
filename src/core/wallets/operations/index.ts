@@ -728,7 +728,10 @@ export default class WalletOperations {
           const path = derivationPath + `/${subPath.join('/')}`;
           for (const pubkey of pubkeys) {
             bip32Derivation.push({
-              masterFingerprint: Buffer.from([0x00, 0x00, 0x00, 0x00]), // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
+              masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(
+                signer.xpub,
+                network
+              ),
               path,
               pubkey,
             });

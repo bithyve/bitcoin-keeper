@@ -1,12 +1,14 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import React, { useCallback, useEffect } from 'react';
-import { SignerType, VaultType } from 'src/core/wallets/enums';
 import { StyleSheet, Text, View } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import config, { APP_STAGE } from 'src/core/config';
 
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { NfcTech } from 'react-native-nfc-manager';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import crypto from 'crypto';
 import { newVaultInfo } from 'src/store/sagas/wallets';
@@ -51,8 +53,11 @@ const SetupColdCard = () => {
 
   const getColdCardDetails = async () => {
     const { xpub, path: derivationPath } = await scanMK4();
+    const networkType =
+      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const network = WalletUtilities.getNetworkByType(networkType);
     const signer: VaultSigner = {
-      signerId: crypto.createHash('sha256').update(xpub).digest('hex'),
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
       signerName: 'MK4',
       xpub,
