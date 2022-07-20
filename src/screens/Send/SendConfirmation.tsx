@@ -66,23 +66,6 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  {
-    /* Success modal for 'Vault - Send Success modal' */
-  }
-  {
-    /* <SuccessModal
-        visible={visible}
-        close={close}
-        title={wallet.SendSuccess}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
-        buttonText={wallet.ViewDetails}
-        buttonTextColor={'#FAFAFA'}
-        cancelButtonText={common.cancel}
-        cancelButtonColor={'#073E39'}
-        Content={SendSuccessfulContent}
-      /> */
-  }
-
   const onProceed = () => {
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
@@ -352,6 +335,20 @@ const SendConfirmation = ({ route }) => {
           primaryCallback={onProceed}
         />
       </Box>
+
+      {/* Success modal for 'Vault - Send Success modal' */}
+      {/* <SuccessModal
+        visible={visible}
+        close={close}
+        title={wallet.SendSuccess}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
+        buttonText={wallet.ViewDetails}
+        buttonTextColor={'#FAFAFA'}
+        cancelButtonText={common.cancel}
+        cancelButtonColor={'#073E39'}
+        Content={SendSuccessfulContent}
+      /> */}
+
       <SigningController />
     </Box>
   );
