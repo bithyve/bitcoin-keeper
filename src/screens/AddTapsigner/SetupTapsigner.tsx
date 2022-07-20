@@ -1,11 +1,11 @@
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { Text, View, Box } from 'native-base';
 import config, { APP_STAGE } from 'src/core/config';
-
+import { RFValue } from 'react-native-responsive-fontsize';
 import { CKTapCard } from 'coinkite-tap-protocol-js';
 import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -23,9 +23,10 @@ import { newVaultInfo } from 'src/store/sagas/wallets';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import DotView from 'src/components/DotView';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [
@@ -108,6 +109,237 @@ const InputCvc = ({ cvc, setCvc, callback }) => {
         </LinearGradient>
       </TouchableOpacity>
     </Animated.View>
+  );
+};
+
+const PinInputs = ({ passCode, passcodeFlag, backgroundColor, textColor, passCodeBox }) => {
+  const [hide, setHide] = useState(false);
+
+  useEffect(() => {
+    if (passCode.length == 6) {
+      setTimeout(() => {
+        setHide(true);
+      }, 2000);
+    } else {
+      setHide(false);
+    }
+  }, [passCode]);
+
+  return (
+    <Box alignSelf={'baseline'} flex={1} mt={hp(90)}>
+      <Box flexDirection={'row'} mt={hp(2)} marginBottom={hp(2.5)} width={'auto'} flex={1}>
+        {/* 1st */}
+        <Box
+          height={wp(45)}
+          width={wp(35)}
+          borderRadius={7}
+          ml={5}
+          alignItems={'center'}
+          justifyContent={'center'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        >
+          <Box>
+            {passCode.length == 1 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
+                {passCode[0]}
+              </Text>
+            ) : passCode.length >= 2 ? (
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+            ) : passCode.length == 0 && passcodeFlag == true ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
+                {'|'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </Box>
+        </Box>
+        {/* 2nd */}
+        <Box
+          height={wp(45)}
+          width={wp(35)}
+          borderRadius={7}
+          ml={5}
+          alignItems={'center'}
+          justifyContent={'center'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        >
+          <Box>
+            {passCode.length == 2 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
+                {passCode[1]}
+              </Text>
+            ) : passCode.length >= 2 ? (
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+            ) : passCode.length == 1 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
+                {'|'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </Box>
+        </Box>
+        {/* 3rd */}
+        <Box
+          height={wp(45)}
+          width={wp(35)}
+          borderRadius={7}
+          ml={5}
+          alignItems={'center'}
+          justifyContent={'center'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        >
+          <Box>
+            {passCode.length == 3 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
+                {passCode[2]}
+              </Text>
+            ) : passCode.length >= 3 ? (
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+            ) : passCode.length == 2 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
+                {'|'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </Box>
+        </Box>
+        {/* 4th */}
+        <Box
+          height={wp(45)}
+          width={wp(35)}
+          borderRadius={7}
+          ml={5}
+          alignItems={'center'}
+          justifyContent={'center'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        >
+          <Box>
+            {passCode.length == 4 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
+                {passCode[2]}
+              </Text>
+            ) : passCode.length >= 4 ? (
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+            ) : passCode.length == 3 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
+                {'|'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </Box>
+        </Box>
+        {/* 5th */}
+        <Box
+          height={wp(45)}
+          width={wp(35)}
+          borderRadius={7}
+          ml={5}
+          alignItems={'center'}
+          justifyContent={'center'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        >
+          <Box>
+            {passCode.length == 5 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
+                {passCode[2]}
+              </Text>
+            ) : passCode.length >= 5 ? (
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+            ) : passCode.length == 4 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
+                {'|'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </Box>
+        </Box>
+        {/* 6th */}
+        <Box
+          height={wp(45)}
+          width={wp(35)}
+          borderRadius={7}
+          ml={5}
+          alignItems={'center'}
+          justifyContent={'center'}
+          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        >
+          <Box>
+            {passCode.length == 5 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(20)}
+                fontFamily={'body'}
+              >
+                {passCode[2]}
+              </Text>
+            ) : passCode.length >= 5 ? (
+              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+            ) : passCode.length == 4 ? (
+              <Text
+                color={textColor ? 'light.textBlack' : 'light.white'}
+                fontWeight={'300'}
+                fontSize={RFValue(13)}
+              >
+                {'|'}
+              </Text>
+            ) : (
+              ''
+            )}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
@@ -295,16 +527,17 @@ const SetupTapsigner = () => {
             {/* {stepItems.map((item) => (
             <Step item={item} cvc={cvc} setCvc={setCvc} callback={integrateTapsigner} />
           ))} */}
-            <PinInputsView
+            <PinInputs
               passCode={cvc}
               passcodeFlag={passcodeFlag}
               passCodeBox={true}
               backgroundColor={'#FDF7F0'}
+              textColor={'#041513'}
             />
           </ScrollView>
         </TapGestureHandler>
         <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
-        <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp('15')}>
+        <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
           <Buttons primaryText="Proceed" />
         </Box>
         <KeyPadView

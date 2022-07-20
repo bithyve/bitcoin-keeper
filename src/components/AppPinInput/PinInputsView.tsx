@@ -13,15 +13,8 @@ export interface Props {
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
   textColor?: boolean;
-  passCodeBox?: boolean;
 }
-const PinInputsView = ({
-  passCode,
-  passcodeFlag,
-  backgroundColor,
-  textColor,
-  passCodeBox,
-}: Props) => {
+const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -38,8 +31,8 @@ const PinInputsView = ({
     <Box alignSelf={'baseline'}>
       <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
         <Box
-          height={wp(passCodeBox ? '10%' : '13%')}
-          width={wp(passCodeBox ? '10%' : '13%')}
+          height={wp('13%')}
+          width={wp('13%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -72,8 +65,8 @@ const PinInputsView = ({
           </Box>
         </Box>
         <Box
-          height={wp(passCodeBox ? '10%' : '13%')}
-          width={wp(passCodeBox ? '10%' : '13%')}
+          height={wp('13%')}
+          width={wp('13%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -106,8 +99,8 @@ const PinInputsView = ({
           </Box>
         </Box>
         <Box
-          height={wp(passCodeBox ? '10%' : '13%')}
-          width={wp(passCodeBox ? '10%' : '13%')}
+          height={wp('13%')}
+          width={wp('13%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -140,8 +133,8 @@ const PinInputsView = ({
           </Box>
         </Box>
         <Box
-          height={wp(passCodeBox ? '10%' : '13%')}
-          width={wp(passCodeBox ? '10%' : '13%')}
+          height={wp('13%')}
+          width={wp('13%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -173,81 +166,6 @@ const PinInputsView = ({
             )}
           </Box>
         </Box>
-        {/* number of input box extended for tapsigner CVC */}
-        {passCodeBox && (
-          <>
-            <Box
-              height={wp(passCodeBox ? '10%' : '13%')}
-              width={wp(passCodeBox ? '10%' : '13%')}
-              borderRadius={7}
-              ml={15}
-              alignItems={'center'}
-              justifyContent={'center'}
-              backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-            >
-              <Box flex={1}>
-                {passCode.length == 6 && !hide ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(20)}
-                    fontFamily={'body'}
-                    alignItems={'space-between'}
-                  >
-                    {passCode[5]}
-                  </Text>
-                ) : passCode.length >= 6 && hide ? (
-                  <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-                ) : passCode.length == 5 ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(13)}
-                  >
-                    {'|'}
-                  </Text>
-                ) : (
-                  ''
-                )}
-              </Box>
-            </Box>
-            <Box
-              height={wp(passCodeBox ? '10%' : '13%')}
-              width={wp(passCodeBox ? '10%' : '13%')}
-              borderRadius={7}
-              ml={15}
-              alignItems={'center'}
-              justifyContent={'center'}
-              backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-            >
-              <Box flex={1}>
-                {passCode.length == 6 && !hide ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(20)}
-                    fontFamily={'body'}
-                    alignItems={'space-between'}
-                  >
-                    {passCode[5]}
-                  </Text>
-                ) : passCode.length >= 6 && hide ? (
-                  <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-                ) : passCode.length == 5 ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(13)}
-                  >
-                    {'|'}
-                  </Text>
-                ) : (
-                  ''
-                )}
-              </Box>
-            </Box>
-          </>
-        )}
       </Box>
     </Box>
   );
