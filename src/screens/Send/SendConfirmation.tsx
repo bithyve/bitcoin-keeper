@@ -10,10 +10,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SigningController from './SigningController';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import {
-  hp,
-  wp,
-} from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import RadioButton from 'src/components/RadioButton';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -29,6 +26,7 @@ import { timeConvertNear30 } from 'src/common/utilities';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
+import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -48,6 +46,42 @@ const SendConfirmation = ({ route }) => {
   const setCustomTransactionPriority = () => {
     // logic for custom transaction priority
   };
+
+  // Content for "Send is Successful"
+  const SendSuccessfulContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>
+          <SuccessIcon />
+        </Box>
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+        {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {
+            'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
+          }
+        </Text> */}
+      </View>
+    );
+  };
+
+  {
+    /* Success modal for 'Vault - Send Success modal' */
+  }
+  {
+    /* <SuccessModal
+        visible={visible}
+        close={close}
+        title={wallet.SendSuccess}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
+        buttonText={wallet.ViewDetails}
+        buttonTextColor={'#FAFAFA'}
+        cancelButtonText={common.cancel}
+        cancelButtonColor={'#073E39'}
+        Content={SendSuccessfulContent}
+      /> */
+  }
 
   const onProceed = () => {
     if (isVaultTransfer) {
@@ -74,7 +108,6 @@ const SendConfirmation = ({ route }) => {
           txnPriority: transactionPriority,
         })
       );
-
     }
   };
 
@@ -151,12 +184,14 @@ const SendConfirmation = ({ route }) => {
 
   const TextValue = ({ amt, unit }) => {
     return (
-      <Text style={{
-        ...styles.priorityTableText,
-        flex: 1,
-      }}>{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
-    )
-  }
+      <Text
+        style={{
+          ...styles.priorityTableText,
+          flex: 1,
+        }}
+      >{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
+    );
+  };
   const SendingPriority = () => {
     return (
       <Box flexDirection={'column'}>
@@ -185,16 +220,17 @@ const SendConfirmation = ({ route }) => {
                 style={styles.priorityRowContainer}
                 key={priority}
                 onPress={() => {
-                  setTransactionPriority(priority)
+                  setTransactionPriority(priority);
                   // onTransactionPriorityChanged(priority)
-                }}>
+                }}
+              >
                 <Box style={styles.priorityBox}>
                   <RadioButton
                     size={20}
                     isChecked={transactionPriority == priority}
                     borderColor={'#E3E3E3'}
                     onpress={() => {
-                      setTransactionPriority(priority)
+                      setTransactionPriority(priority);
                       // onTransactionPriorityChanged(priority)
                     }}
                   />
@@ -209,19 +245,23 @@ const SendConfirmation = ({ route }) => {
                     {String(priority)}
                   </Text>
                 </Box>
-                <Text style={{
-                  ...styles.priorityTableText,
-                  flex: 1,
-                }}>
+                <Text
+                  style={{
+                    ...styles.priorityTableText,
+                    flex: 1,
+                  }}
+                >
                   ~
                   {timeConvertNear30(
-                    (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1)
-                    * 10
+                    (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
                   )}
                 </Text>
-                <TextValue amt={txFeeInfo[priority?.toLowerCase()]?.amount} unit={{
-                  bitcoinUnit: BitcoinUnit.SATS,
-                }} />
+                <TextValue
+                  amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                  unit={{
+                    bitcoinUnit: BitcoinUnit.SATS,
+                  }}
+                />
               </TouchableOpacity>
             );
           })}
