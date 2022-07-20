@@ -10,6 +10,7 @@ export interface KeeperApp {
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;
+  imageEncryptionKey: string;
   walletShellInstances: {
     shells: string[];
     activeShell: string;
