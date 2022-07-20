@@ -1,11 +1,11 @@
-import Realm from "realm";
-import { RealmSchema } from "./enum";
-import schema from "./schema";
+import Realm from 'realm';
+import { RealmSchema } from './enum';
+import schema from './schema';
 
 export class RealmDatabase {
   private realm: Realm;
-  public static file = "keeper.realm";
-  public static schemaVersion = 15;
+  public static file = 'keeper.realm';
+  public static schemaVersion = 16;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -27,7 +27,7 @@ export class RealmDatabase {
       this.realm = await Realm.open(realmConfig);
       return true;
     } catch (err) {
-      console.log("failed to initialize the database", { err });
+      console.log('failed to initialize the database', { err });
       return false;
     }
   };
@@ -37,7 +37,7 @@ export class RealmDatabase {
    */
   public getDatabase = (): Realm => {
     if (this.realm) return this.realm;
-    else throw new Error("database not initialized");
+    else throw new Error('database not initialized');
   };
 
   /**
