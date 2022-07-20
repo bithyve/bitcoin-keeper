@@ -39,6 +39,9 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import NewWalletModal from 'src/components/NewWalletModal';
+import SuccessModal from 'src/components/SuccessModal';
+import { walletData } from 'src/common/data/defaultData/defaultData';
+import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -220,11 +223,29 @@ const VaultCreationContent = () => {
   );
 };
 
+const SendSuccessfulContent = () => {
+  return (
+    <View>
+      <Box alignSelf={'center'}>
+        <SuccessIcon />
+      </Box>
+      <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+      </Text>
+      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
+      </Text> */}
+    </View>
+  );
+};
+
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vaultTranslations = translations['vault'];
+  const wallet = translations['wallet'];
+  const common = translations['common'];
 
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
@@ -333,6 +354,7 @@ const VaultStatus = (props) => {
           ) : null}
         </ImageBackground>
       </TouchableOpacity>
+      {/* Vault creation successful modal */}
       {/* <KeeperModal
         visible={visible}
         close={close}
@@ -359,6 +381,18 @@ const VaultStatus = (props) => {
         textColor={'#FFF'}
         Content={VaultSetupContent}
       />
+      {/* Success modal for 'Vault - Send Success' */}
+      {/* <SuccessModal
+        visible={visible}
+        close={close}
+        title={wallet.SendSuccess}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
+        buttonText={wallet.ViewDetails}
+        buttonTextColor={'#FAFAFA'}
+        cancelButtonText={common.cancel}
+        cancelButtonColor={'#073E39'}
+        Content={SendSuccessfulContent}
+      /> */}
     </Box>
   );
 };

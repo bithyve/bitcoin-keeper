@@ -269,7 +269,9 @@
     "AccountXpub": "Account Xpub",
     "AccountXpubNote": "This xPub is for Maldives Funds only and not for the Wallet. Each account has its own xPub",
     "confirmPassTitle": "Confirm Passcode",
-    "confirmPassSubTitle": "To show seed words for this wallet"
+    "confirmPassSubTitle": "To show seed words for this wallet",
+    "SendSuccess": "Send Successful",
+    "ViewDetails": "View Details"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
