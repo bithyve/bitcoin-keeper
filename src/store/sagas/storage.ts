@@ -12,8 +12,10 @@ import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { addNewWallets } from '../sagaActions/wallets';
 import { newWalletInfo } from './wallets';
 import { WalletType } from 'src/core/wallets/enums';
-import { getRandomBytes, hash256 } from 'src/core/services/operations/encryption';
+import { generateEncryptionKey, getRandomBytes } from 'src/core/services/operations/encryption';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import BIP85 from 'src/core/wallets/operations/BIP85';
+import config from '../../core/config';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -30,11 +32,20 @@ function* setupKeeperAppWorker({ payload }) {
       level: AppTierLevel.ONE,
     };
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
+
+    const entropy = yield call(
+      BIP85.bip39MnemonicToEntropy,
+      config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+      primaryMnemonic
+    );
+    const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+
     const app: KeeperApp = {
       id,
       appName,
       primaryMnemonic,
       primarySeed: primarySeed.toString('hex'),
+      imageEncryptionKey,
       walletShellInstances: {
         shells: [defaultWalletShell.id],
         activeShell: defaultWalletShell.id,
