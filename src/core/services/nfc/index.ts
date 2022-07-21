@@ -61,8 +61,12 @@ export default class NFC {
             ? Ndef.uri.decodePayload(ndef.payload)
             : rtdName === 'TEXT'
             ? Ndef.text.decodePayload(ndef.payload)
-            : null;
-        return { data: parsed, tnfName, rtdName };
+            : JSON.parse(Buffer.from(ndef.payload).toString());
+        console.log(parsed);
+        const data = rtdName === 'URI' ? parsed : rtdName === 'TEXT' ? parsed : parsed.p2sh_p2wsh;
+        const path = parsed?.p2sh_p2wsh_deriv ?? '';
+        const xfp = parsed?.xfp ?? '';
+        return { data, path, xfp };
       }
     } catch (error) {
       console.log(error);
@@ -79,7 +83,7 @@ export default class NFC {
       if (supported) {
         await NfcManager.start();
         await NfcManager.requestTechnology(techRequest);
-        const data = await NfcManager.nfcVHandler.transceive(bytes);
+        const data = await NfcManager.ndefHandler.writeNdefMessage(bytes);
         if (Platform.OS === 'ios') {
           await NfcManager.setAlertMessageIOS('Success');
         }

@@ -11,6 +11,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import crypto from 'crypto';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 
@@ -23,9 +24,9 @@ const SetupColdCard = () => {
   const scanMK4 = async () => {
     setNfcVisible(true);
     try {
-      const { data: xpub, path } = await NFC.read(NfcTech.NfcV);
+      const { data: xpub, path, xfp } = await NFC.read(NfcTech.NfcV);
       setNfcVisible(false);
-      return { xpub, path };
+      return { xpub, path, xfp };
     } catch (err) {
       console.log(err);
       setNfcVisible(false);
@@ -52,21 +53,37 @@ const SetupColdCard = () => {
   }, []);
 
   const getColdCardDetails = async () => {
-    const { xpub, path: derivationPath } = await scanMK4();
+    let { xpub, path: derivationPath, xfp } = await scanMK4();
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const signer: VaultSigner = {
+    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+    const cc: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
       signerName: 'MK4',
       xpub,
       xpubInfo: {
         derivationPath,
+        xfp,
       },
     };
-    const scheme: VaultScheme = { m: 1, n: 1 };
-    return { signers: [signer], scheme };
+
+    const { xpub: mockxpub, derivationPath: mockDerivationPath } = generateMockExtendedKey();
+    const mockId = WalletUtilities.getFingerprintFromExtendedKey(mockxpub, network);
+    const mockSigner: VaultSigner = {
+      signerId: mockId,
+      type: SignerType.TREZOR,
+      signerName: 'Mock',
+      xpub: mockxpub,
+      xpubInfo: {
+        derivationPath: mockDerivationPath,
+        xfp: mockId,
+      },
+    };
+
+    const scheme: VaultScheme = { m: 1, n: 2 };
+    return { signers: [cc, mockSigner], scheme };
   };
 
   const createVaultWithCC = async () => {

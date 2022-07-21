@@ -1,27 +1,30 @@
-import * as bitcoinJS from 'bitcoinjs-lib';
 import * as bip32 from 'bip32';
-import coinselect from 'coinselect';
-import coinselectSplit from 'coinselect/split';
-import ECPairFactory from 'ecpair';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
-import WalletUtilities from './utils';
+
 import {
   ActiveAddressAssignee,
   ActiveAddresses,
   AverageTxFees,
   Balances,
   InputUTXOs,
+  OutputUTXOs,
+  SerializedPSBTEnvelop,
+  SigningDataHW,
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
-  UTXO,
   TransactionToAddressMapping,
-  SigningDataHW,
-  SerializedPSBTEnvelop,
+  UTXO,
 } from '../interfaces/';
-import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
-import { Wallet } from '../interfaces/wallet';
+import { DerivationPurpose, EntityKind, SignerType, TxPriority, WalletType } from '../enums';
+
+import ECPairFactory from 'ecpair';
 import { Vault } from '../interfaces/vault';
+import { Wallet } from '../interfaces/wallet';
+import WalletUtilities from './utils';
+import coinselect from 'coinselect';
+import coinselectSplit from 'coinselect/split';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -725,13 +728,11 @@ export default class WalletOperations {
       for (const signer of (wallet as Vault).signers) {
         if (signer.type === SignerType.COLDCARD) {
           const derivationPath = signer.xpubInfo?.derivationPath;
+          const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
           const path = derivationPath + `/${subPath.join('/')}`;
           for (const pubkey of pubkeys) {
             bip32Derivation.push({
-              masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(
-                signer.xpub,
-                network
-              ),
+              masterFingerprint,
               path,
               pubkey,
             });
@@ -751,6 +752,35 @@ export default class WalletOperations {
         witnessScript: p2ms.output,
       });
     }
+  };
+
+  static getOutputDataForChange = (
+    wallet: Vault,
+    outputData: OutputUTXOs
+  ): {
+    bip32Derivation: any[];
+  } => {
+    const bip32Derivation = []; // array per each pubkey thats gona be used
+    const { subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+      outputData.address,
+      wallet as Vault
+    );
+    for (const signer of (wallet as Vault).signers) {
+      if (signer.type === SignerType.COLDCARD) {
+        const derivationPath = signer.xpubInfo?.derivationPath;
+        const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
+        const path = derivationPath + `/${subPath.join('/')}`;
+        for (const pubkey of pubkeys) {
+          bip32Derivation.push({
+            masterFingerprint, // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
+            path,
+            pubkey,
+          });
+        }
+      }
+    }
+
+    return { bip32Derivation };
   };
 
   static createTransaction = async (
@@ -778,18 +808,24 @@ export default class WalletOperations {
 
       for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network);
 
-      const sortedOuts = WalletUtilities.sortOutputs(
+      const { outputs: sortedOuts, changeAddress } = WalletUtilities.sortOutputs(
         wallet,
         outputs,
         wallet.specs.nextFreeChangeAddressIndex,
         network
       );
 
-      for (const output of sortedOuts)
-        PSBT.addOutput({
-          address: output.address,
-          value: output.value,
-        });
+      for (let output of sortedOuts) {
+        if (output.address === changeAddress) {
+          const { bip32Derivation } = WalletOperations.getOutputDataForChange(
+            wallet as Vault,
+            output
+          );
+          PSBT.addOutput({ ...output, bip32Derivation });
+        } else {
+          PSBT.addOutput(output);
+        }
+      }
 
       return {
         PSBT,
@@ -991,7 +1027,7 @@ export default class WalletOperations {
       const signingDataHW: SigningDataHW[] = [];
 
       // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
-      const signerType = SignerType.TAPSIGNER;
+      const signerType = (wallet as Vault).signers[0].type;
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
         const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(

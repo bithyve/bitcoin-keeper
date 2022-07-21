@@ -3,23 +3,30 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
-import config from '../../config';
-import _ from 'lodash';
-import idx from 'idx';
 import {
-  WalletType,
+  ActiveAddresses,
+  OutputUTXOs,
+  Transaction,
+  TransactionToAddressMapping,
+} from '../interfaces/';
+import {
   DerivationPurpose,
   NetworkType,
-  TransactionType,
   PaymentInfoKind,
+  TransactionType,
+  WalletType,
 } from '../enums';
-import { ActiveAddresses, Transaction, TransactionToAddressMapping } from '../interfaces/';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+
+import { Vault } from '../interfaces/vault';
+import { Wallet } from '../interfaces/wallet';
+import WalletOperations from '.';
+import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import { Wallet } from '../interfaces/wallet';
-import { Vault } from '../interfaces/vault';
+import config from '../../config';
+import idx from 'idx';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -224,15 +231,18 @@ export default class WalletUtilities {
   };
 
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
+    // generates ypub corresponding to supplied xpub || upub corresponding to tpub
     let data = bs58check.decode(xpub);
-    data = data.slice(4);
-    let versionBytes;
-    if (network == bitcoinJS.networks.bitcoin) {
-      versionBytes = xpub ? '049d7cb2' : '049d7878';
-    } else {
-      versionBytes = xpub ? '044a5262' : '044a4e28';
-    }
-    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data]);
+    let versionBytes = bitcoinJS.networks.bitcoin === network ? '049d7cb2' : '044a5262';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
+    // generates xpub corresponding to supplied ypub || tpub corresponding to upub
+    let data = bs58check.decode(ypub);
+    let versionBytes = bitcoinJS.networks.bitcoin === network ? '0488b21e' : '043587cf';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
   };
 
@@ -511,24 +521,17 @@ export default class WalletUtilities {
 
   static sortOutputs = (
     wallet: Wallet | Vault,
-    outputs: Array<{
-      address: string;
-      value: number;
-    }>,
+    outputs: Array<OutputUTXOs>,
     nextFreeChangeAddressIndex: number,
     network: bitcoinJS.networks.Network
-  ): {
-    address: string;
-    value: number;
-  }[] => {
+  ): { outputs: OutputUTXOs[]; changeAddress: string | undefined } => {
     // const purpose =
     // wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
 
+    let changeAddress: string;
     const purpose = DerivationPurpose.BIP49;
-    for (const output of outputs) {
+    for (let output of outputs) {
       if (!output.address) {
-        let changeAddress: string;
-
         if ((wallet as Vault).isMultiSig) {
           const xpubs = (wallet as Vault).specs.xpubs;
           changeAddress = WalletUtilities.createMultiSig(
@@ -561,7 +564,7 @@ export default class WalletUtilities {
       }
       return 0;
     });
-    return outputs;
+    return { outputs, changeAddress };
   };
 
   static fetchBalanceTransactionsByWallets = async (

@@ -1,12 +1,13 @@
 import {
   ActiveAddresses,
   Balances,
+  Transaction,
   TransactionToAddressMapping,
   UTXO,
   WalletImportedAddresses,
-  Transaction,
 } from '.';
 import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+
 import { WalletPresentationData } from './wallet';
 
 export interface VaultPresentationData extends WalletPresentationData {}
@@ -44,6 +45,7 @@ export interface VaultSigner {
   signerName?: string;
   xpubInfo?: {
     derivationPath?: string;
+    xfp?: string;
   };
 }
 
