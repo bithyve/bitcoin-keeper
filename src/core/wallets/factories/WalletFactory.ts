@@ -1,14 +1,16 @@
-import WalletUtilities from '../operations/utils';
 import * as bip39 from 'bip39';
-import BIP85 from '../operations/BIP85';
-import { WalletType, DerivationPurpose, NetworkType, VisibilityType, EntityKind } from '../enums';
+
+import { DerivationPurpose, EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
 import {
   Wallet,
   WalletDerivationDetails,
   WalletPresentationData,
   WalletSpecs,
 } from '../interfaces/wallet';
+
+import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
+import WalletUtilities from '../operations/utils';
 import { hash256 } from 'src/core/services/operations/encryption';
 
 export const generateWallet = async ({
@@ -121,6 +123,7 @@ export const generateWallet = async ({
 export const generateMockExtendedKey = (): {
   xpriv: string;
   xpub: string;
+  derivationPath: string;
 } => {
   const mockMnemonic = 'dwarf inch wild elephant depart jump cook mind name crop bicycle arrange';
   const seed = bip39.mnemonicToSeedSync(mockMnemonic).toString('hex');
@@ -133,5 +136,5 @@ export const generateMockExtendedKey = (): {
     network,
     xDerivationPath
   );
-  return extendedKeys;
+  return { ...extendedKeys, derivationPath: xDerivationPath };
 };

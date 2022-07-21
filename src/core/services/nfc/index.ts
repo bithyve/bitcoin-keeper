@@ -63,9 +63,10 @@ export default class NFC {
             ? Ndef.text.decodePayload(ndef.payload)
             : JSON.parse(Buffer.from(ndef.payload).toString());
         console.log(parsed);
-        const data = rtdName === 'URI' ? parsed : rtdName === 'TEXT' ? parsed : parsed.p2sh;
-        const path = parsed.p2sh_deriv;
-        return { data, path, tnfName, rtdName };
+        const data = rtdName === 'URI' ? parsed : rtdName === 'TEXT' ? parsed : parsed.p2sh_p2wsh;
+        const path = parsed?.p2sh_p2wsh_deriv ?? '';
+        const xfp = parsed?.xfp ?? '';
+        return { data, path, xfp };
       }
     } catch (error) {
       console.log(error);

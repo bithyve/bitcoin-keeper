@@ -3,7 +3,7 @@ import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 
-import { CKTapCard } from 'coinkite-tap-protocol-js';
+import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -92,18 +92,7 @@ const SigningController = () => {
         case SignerType.COLDCARD: {
           try {
             setNfcVisible(true);
-
-            const justBytes = JSON.parse(
-              JSON.stringify(Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64'))
-            ).data;
-            const enc = Ndef.encodeMessage([
-              Ndef.textRecord(serializedPSBTEnvelop.serializedPSBT, 'en', 'base64'),
-            ]);
-            const bytes = [112, 115, 98, 116, 255].concat(justBytes);
-            // psbt\xff --> initial bytes of psbt [112, 115, 98, 116, 255]
-            // TODO: add this ^ as headers to the filan psbt bytes
-            console.log(serializedPSBTEnvelop.serializedPSBT);
-            console.log(bytes);
+            const enc = Ndef.encodeMessage([Ndef.textRecord(serializedPSBTEnvelop.serializedPSBT)]);
             const { data } = await NFC.send([NfcTech.Ndef], enc);
             setNfcVisible(false);
           } catch (error) {

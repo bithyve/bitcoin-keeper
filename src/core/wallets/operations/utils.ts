@@ -233,7 +233,7 @@ export default class WalletUtilities {
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
     // generates ypub corresponding to supplied xpub || upub corresponding to tpub
     let data = bs58check.decode(xpub);
-    let versionBytes = bitcoinJS.networks.bitcoin ? '049d7cb2' : '044a5262';
+    let versionBytes = bitcoinJS.networks.bitcoin === network ? '049d7cb2' : '044a5262';
     data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
   };
@@ -241,7 +241,7 @@ export default class WalletUtilities {
   static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
     // generates xpub corresponding to supplied ypub || tpub corresponding to upub
     let data = bs58check.decode(ypub);
-    let versionBytes = bitcoinJS.networks.bitcoin ? '0488b21e' : '43587cf';
+    let versionBytes = bitcoinJS.networks.bitcoin === network ? '0488b21e' : '043587cf';
     data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
   };
@@ -524,15 +524,14 @@ export default class WalletUtilities {
     outputs: Array<OutputUTXOs>,
     nextFreeChangeAddressIndex: number,
     network: bitcoinJS.networks.Network
-  ): OutputUTXOs[] => {
+  ): { outputs: OutputUTXOs[]; changeAddress: string | undefined } => {
     // const purpose =
     // wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
 
+    let changeAddress: string;
     const purpose = DerivationPurpose.BIP49;
     for (let output of outputs) {
       if (!output.address) {
-        let changeAddress: string;
-
         if ((wallet as Vault).isMultiSig) {
           const xpubs = (wallet as Vault).specs.xpubs;
           changeAddress = WalletUtilities.createMultiSig(
@@ -542,7 +541,6 @@ export default class WalletUtilities {
             nextFreeChangeAddressIndex,
             true
           ).address;
-          output = WalletOperations.getOutputDataForChange(wallet, output, network);
         } else {
           changeAddress = WalletUtilities.getAddressByIndex(
             (wallet as Wallet).specs.xpub,
@@ -566,7 +564,7 @@ export default class WalletUtilities {
       }
       return 0;
     });
-    return outputs;
+    return { outputs, changeAddress };
   };
 
   static fetchBalanceTransactionsByWallets = async (

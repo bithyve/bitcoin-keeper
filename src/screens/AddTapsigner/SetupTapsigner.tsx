@@ -1,12 +1,14 @@
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutUp } from 'react-native-reanimated';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import { Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { Text, View } from 'native-base';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config, { APP_STAGE } from 'src/core/config';
 
-import { CKTapCard } from 'coinkite-tap-protocol-js';
+import { CKTapCard } from 'cktap-protocol-react-native';
 import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -15,13 +17,11 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import { addNewVault } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { newVaultInfo } from 'src/store/sagas/wallets';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import { addNewVault } from 'src/store/sagaActions/wallets';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import { newVaultInfo } from 'src/store/sagas/wallets';
+import { useDispatch } from 'react-redux';
 
 const StepState = ({ index, active, done }) => {
   const circleStyle = [

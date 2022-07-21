@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-import { CKTapCard } from 'coinkite-tap-protocol-js';
+import { CKTapCard } from 'cktap-protocol-react-native';
 import NfcManager from 'react-native-nfc-manager';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

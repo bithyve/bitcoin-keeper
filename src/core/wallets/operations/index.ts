@@ -728,13 +728,11 @@ export default class WalletOperations {
       for (const signer of (wallet as Vault).signers) {
         if (signer.type === SignerType.COLDCARD) {
           const derivationPath = signer.xpubInfo?.derivationPath;
+          const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
           const path = derivationPath + `/${subPath.join('/')}`;
           for (const pubkey of pubkeys) {
             bip32Derivation.push({
-              masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(
-                signer.xpub,
-                network
-              ),
+              masterFingerprint,
               path,
               pubkey,
             });
@@ -757,25 +755,24 @@ export default class WalletOperations {
   };
 
   static getOutputDataForChange = (
-    wallet: Wallet | Vault,
-    outputData: OutputUTXOs,
-    network: bitcoinJS.networks.Network
-  ) => {
-    if (wallet.entityKind !== EntityKind.VAULT) {
-      return outputData;
-    }
+    wallet: Vault,
+    outputData: OutputUTXOs
+  ): {
+    bip32Derivation: any[];
+  } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { p2ms, p2wsh, subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+    const { subPath, pubkeys } = WalletUtilities.addressToMultiSig(
       outputData.address,
       wallet as Vault
     );
     for (const signer of (wallet as Vault).signers) {
       if (signer.type === SignerType.COLDCARD) {
         const derivationPath = signer.xpubInfo?.derivationPath;
+        const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
         const path = derivationPath + `/${subPath.join('/')}`;
         for (const pubkey of pubkeys) {
           bip32Derivation.push({
-            masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(signer.xpub, network), // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
+            masterFingerprint, // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
             path,
             pubkey,
           });
@@ -783,11 +780,7 @@ export default class WalletOperations {
       }
     }
 
-    outputData.bip32Derivation = bip32Derivation;
-    outputData.redeemScript = p2wsh.output;
-    outputData.witnessScript = p2ms.output;
-
-    return outputData;
+    return { bip32Derivation };
   };
 
   static createTransaction = async (
@@ -815,15 +808,23 @@ export default class WalletOperations {
 
       for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network);
 
-      const sortedOuts = WalletUtilities.sortOutputs(
+      const { outputs: sortedOuts, changeAddress } = WalletUtilities.sortOutputs(
         wallet,
         outputs,
         wallet.specs.nextFreeChangeAddressIndex,
         network
       );
 
-      for (const output of sortedOuts) {
-        PSBT.addOutput(output);
+      for (let output of sortedOuts) {
+        if (output.address === changeAddress) {
+          const { bip32Derivation } = WalletOperations.getOutputDataForChange(
+            wallet as Vault,
+            output
+          );
+          PSBT.addOutput({ ...output, bip32Derivation });
+        } else {
+          PSBT.addOutput(output);
+        }
       }
 
       return {
