@@ -259,7 +259,9 @@
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
-    "initiatetransfer": "Are you sure you want to initiate transfer to"
+    "initiatetransfer": "Are you sure you want to initiate transfer to",
+    "SendSuccess": "Send Successful",
+    "ViewDetails": "View Details"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",

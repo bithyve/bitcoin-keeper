@@ -39,6 +39,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import NewWalletModal from 'src/components/NewWalletModal';
+import SuccessModal from 'src/components/SuccessModal';
+import { walletData } from 'src/common/data/defaultData/defaultData';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -225,6 +227,8 @@ const VaultStatus = (props) => {
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vaultTranslations = translations['vault'];
+  const wallet = translations['wallet'];
+  const common = translations['common'];
 
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
@@ -333,6 +337,7 @@ const VaultStatus = (props) => {
           ) : null}
         </ImageBackground>
       </TouchableOpacity>
+      {/* Vault creation successful modal */}
       {/* <KeeperModal
         visible={visible}
         close={close}

@@ -17,6 +17,7 @@ export const VaultSignerSchema: ObjectSchema = {
     signerId: 'string',
     type: 'string',
     xpub: 'string',
+    xpriv: 'string?',
     signerName: 'string?',
     xpubInfo: {
       type: '{}?',

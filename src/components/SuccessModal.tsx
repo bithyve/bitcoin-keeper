@@ -1,9 +1,11 @@
-import { Image, Link, Modal, Text, View } from 'native-base';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Link, Modal, Text, View, Box } from 'native-base';
+import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
-// import tapsignerLogo from 'src/assets/images/tapsignerLogo.png';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Close from 'src/assets/icons/modal_close.svg';
 
 const SuccessModal = (props) => {
   const {
@@ -14,26 +16,40 @@ const SuccessModal = (props) => {
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = 'Button text',
-    buttonTextColor = 'white',
+    buttonTextColor = '#FAFAFA',
     buttonCallback = props.close || null,
     textColor = '#4F5955',
+    cancelButtonText = 'Cancel',
     cancelButtonColor = '#073E39',
     Content = () => <></>,
   } = props;
+  const { bottom } = useSafeAreaInsets();
+
+  const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
   return (
-    <Modal isOpen={visible} onClose={close} avoidKeyboard size="md">
-      <Modal.Content style={styles.modal}>
+    <Modal
+      isOpen={visible}
+      onClose={close}
+      avoidKeyboard
+      size="xl"
+      _backdrop={{ bg: '#000', opacity: 0.8 }}
+      justifyContent={'flex-end'}
+    >
+      <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           colors={modalBackground}
           style={styles.container}
         >
-          <Modal.CloseButton style={styles.close} size={8} />
+          <TouchableOpacity style={styles.close} onPress={close}>
+            <Close />
+          </TouchableOpacity>
           <Modal.Header
             alignSelf={'flex-start'}
             borderBottomWidth={0}
             backgroundColor={'transparent'}
+            width={'90%'}
           >
             <Text
               style={styles.title}
@@ -49,20 +65,26 @@ const SuccessModal = (props) => {
             </Text>
           </Modal.Header>
           <Modal.Body>
-            <View>
-              <View style={styles.dummy} />
-              <Text color={textColor} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
-                {'incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam'}
-              </Text>
-              <Link>
-                <Text color={'#00836A'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
-                  {'Learn More'}
-                </Text>
-              </Link>
-            </View>
+            <Content />
           </Modal.Body>
-          <Modal.Body>{<Content />}</Modal.Body>
-          <Modal.Footer alignSelf={'flex-end'} bg={'transparent'}>
+          <Box
+            alignItems={'center'}
+            alignSelf={'flex-end'}
+            bg={'transparent'}
+            flexDirection={'row'}
+          >
+            <TouchableOpacity onPress={buttonCallback}>
+              <Text
+                fontSize={13}
+                fontFamily={'body'}
+                fontWeight={'300'}
+                letterSpacing={1}
+                color={cancelButtonColor}
+                mr={wp(18)}
+              >
+                {cancelButtonText}
+              </Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={buttonCallback}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
@@ -81,7 +103,7 @@ const SuccessModal = (props) => {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
-          </Modal.Footer>
+          </Box>
         </LinearGradient>
       </Modal.Content>
     </Modal>
@@ -97,11 +119,6 @@ const styles = StyleSheet.create({
     padding: '4%',
     paddingVertical: '5%',
   },
-  modal: {
-    borderRadius: 10,
-    width: '100%',
-    marginTop: '60%',
-  },
   title: {
     fontSize: 19,
     letterSpacing: 1,
@@ -116,13 +133,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   close: {
-    backgroundColor: '#FAC48B',
-    borderRadius: 100,
-  },
-  dummy: {
-    height: 200,
-    width: '100%',
-    borderRadius: 20,
-    backgroundColor: '#FDF7F0',
+    alignSelf: 'flex-end',
   },
 });
