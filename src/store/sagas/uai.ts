@@ -8,7 +8,7 @@ function* addToUaiStackWorker({ payload }) {
   const { uai } = payload;
   let uaiData = { ...uai, timeStamp: new Date() };
   try {
-    yield call(dbManager.createObject, RealmSchema.UAI, uai);
+    yield call(dbManager.createObject, RealmSchema.UAI, uaiData);
   } catch (err) {
     console.error('Db add failed', err);
   }
