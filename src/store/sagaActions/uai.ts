@@ -17,7 +17,6 @@ export const addToUaiStack = (
     isDisplay,
     displayText,
     displayCount: 0,
-    timeStamp: new Date(),
     uaiType,
     prirority,
   };
