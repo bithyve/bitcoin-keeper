@@ -21,7 +21,7 @@ import {
 } from '../interfaces/';
 import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
 import { Wallet } from '../interfaces/wallet';
-import { Vault } from '../interfaces/vault';
+import { Vault, VaultSigner } from '../interfaces/vault';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -802,8 +802,7 @@ export default class WalletOperations {
   static signTransaction = (
     wallet: Wallet,
     inputs: any,
-    PSBT: bitcoinJS.Psbt,
-    witnessScript?: any
+    PSBT: bitcoinJS.Psbt
   ): {
     signedPSBT: bitcoinJS.Psbt;
     childIndexArray: Array<{
@@ -840,34 +839,72 @@ export default class WalletOperations {
     }
   };
 
-  // static multiSignTransaction = (
-  //   wallet: MultiSigWallet,
-  //   inputs: any,
-  //   PSBT: bitcoinJS.Psbt
-  // ): {
-  //   signedPSBT: bitcoinJS.Psbt;
-  // } => {
-  //   let vin = 0;
+  static signVaultTransaction = (
+    wallet: Vault,
+    inputs: any,
+    PSBT: bitcoinJS.Psbt,
+    signer: VaultSigner
+  ):
+    | {
+        signedPSBT: bitcoinJS.Psbt;
+        serializedPSBTEnvelop?: undefined;
+      }
+    | {
+        signedPSBT?: undefined;
+        serializedPSBTEnvelop: {
+          serializedPSBT: string;
+          signingDataHW: SigningDataHW[];
+        };
+      } => {
+    // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
 
-  //   if (!wallet.specs.xprivs.secondary)
-  //     throw new Error('Multi-sign transaction failed: secondary xpriv missing');
-  //   const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    if (signer.type === SignerType.TAPSIGNER) {
+      if (signer.xpriv) {
+        // case: Mock Vault(Dev app)
+        const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
-  //   inputs.forEach((input) => {
-  //     const { secondaryPriv } = WalletUtilities.signingEssentialsForMultiSig(wallet, input.address);
+        let vin = 0;
+        for (const input of inputs) {
+          let keyPair;
+          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+          const [internal, index] = subPath;
+          const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
+            signer.xpriv,
+            !!internal,
+            index,
+            network
+          );
+          keyPair = WalletUtilities.getKeyPair(privateKey, network);
 
-  //     const keyPair = bip32.fromBase58(secondaryPriv, network);
-  //     // const redeemScript = Buffer.from( multiSig.scripts.redeem, 'hex' )
-  //     // const witnessScript = Buffer.from( multiSig.scripts.witness, 'hex' )
+          PSBT.signInput(vin, keyPair);
+          vin++;
+        }
+        return { signedPSBT: PSBT };
+      }
 
-  //     PSBT.signInput(vin, keyPair);
-  //     vin += 1;
-  //   });
-
-  //   return {
-  //     signedPSBT: PSBT,
-  //   };
-  // };
+      const signingDataHW: SigningDataHW[] = [];
+      const inputsToSign = [];
+      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+        const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(
+          inputs[inputIndex].address,
+          wallet as Vault
+        );
+        const publicKey = pubkeys[0];
+        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
+        inputsToSign.push({
+          digest: hash.toString('hex'),
+          subPath: `/${subPath.join('/')}`,
+          inputIndex,
+          sighashType,
+          publicKey: publicKey.toString('hex'),
+        });
+      }
+      signingDataHW.push({ signerType: signer.type, inputsToSign });
+      const serializedPSBT = PSBT.toBase64();
+      const serializedPSBTEnvelop = { serializedPSBT, signingDataHW };
+      return { serializedPSBTEnvelop };
+    }
+  };
 
   static broadcastTransaction = async (
     wallet: Wallet | Vault,
@@ -987,31 +1024,28 @@ export default class WalletOperations {
     else inputs = txPrerequisites[txnPriority].inputs;
 
     if (wallet.entityKind === EntityKind.VAULT) {
-      // case: xpriv doesn't exist on the device; exporting the unsigned serialized PSBT and signing digest
-      const signingDataHW: SigningDataHW[] = [];
+      const { signedPSBT, serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
+        wallet as Vault,
+        inputs,
+        PSBT,
+        (wallet as Vault).signers[0] // TODO: generalise it for multiple signers
+      );
 
-      // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
-      const signerType = SignerType.TAPSIGNER;
-      const inputsToSign = [];
-      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-        const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(
-          inputs[inputIndex].address,
-          wallet as Vault
+      if (serializedPSBTEnvelop) return { serializedPSBTEnvelop };
+
+      if (signedPSBT) {
+        // Mock Vault(TAP_SIGNER)
+        const txid = await this.broadcastTransaction(
+          wallet,
+          signedPSBT,
+          inputs,
+          recipients,
+          network
         );
-        const publicKey = pubkeys[0];
-        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
-        inputsToSign.push({
-          digest: hash.toString('hex'),
-          subPath: `/${subPath.join('/')}`,
-          inputIndex,
-          sighashType,
-          publicKey: publicKey.toString('hex'),
-        });
+        return {
+          txid,
+        };
       }
-      signingDataHW.push({ signerType, inputsToSign });
-      const serializedPSBT = PSBT.toBase64();
-      const serializedPSBTEnvelop = { serializedPSBT, signingDataHW };
-      return { serializedPSBTEnvelop };
     } else {
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
       const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
