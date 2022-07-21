@@ -121,6 +121,7 @@ export const generateWallet = async ({
 export const generateMockExtendedKey = (): {
   xpriv: string;
   xpub: string;
+  derivationPath: string;
 } => {
   const mockMnemonic = 'dwarf inch wild elephant depart jump cook mind name crop bicycle arrange';
   const seed = bip39.mnemonicToSeedSync(mockMnemonic).toString('hex');
@@ -133,5 +134,5 @@ export const generateMockExtendedKey = (): {
     network,
     xDerivationPath
   );
-  return extendedKeys;
+  return { ...extendedKeys, derivationPath: xDerivationPath };
 };

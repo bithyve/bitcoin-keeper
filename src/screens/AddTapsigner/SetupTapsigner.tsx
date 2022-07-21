@@ -259,13 +259,18 @@ const SetupTapsigner = () => {
 
   const MockVaultCreation = () => {
     if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      const networkType = NetworkType.TESTNET;
+      const network = WalletUtilities.getNetworkByType(networkType);
+
+      const { xpub, xpriv, derivationPath } = generateMockExtendedKey();
       const mockTapSigner: VaultSigner = {
-        signerId: 'ABCD-EFGH-IJKL-MNOP',
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
         type: SignerType.TAPSIGNER,
         signerName: 'Tapsigner',
-        xpub: generateMockExtendedKey().xpub,
+        xpub: xpub,
+        xpriv,
         xpubInfo: {
-          derivationPath: 'm/84h/0h/0h',
+          derivationPath,
         },
       };
 
