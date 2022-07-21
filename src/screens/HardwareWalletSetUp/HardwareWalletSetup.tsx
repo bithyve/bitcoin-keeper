@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import HardwareModalMap from './HardwareModalMap';
@@ -12,6 +12,8 @@ import { SignerType } from 'src/core/wallets/enums';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import VaultDetails from '../HomeScreen/VaultDetails';
 
 type HWProps = {
   type: SignerType;
@@ -20,9 +22,10 @@ type HWProps = {
 };
 
 const HardwareWalletSetup = ({ navigation }: { navigation }) => {
+  const { translations } = useContext(LocalizationContext);
+  const vault = translations['vault'];
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
-
     const onPress = () => {
       open();
     };
@@ -82,8 +85,8 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
       <StatusBarComponent />
       <Box marginX={10}>
         <HeaderTitle
-          title="Select a Signer"
-          subtitle="For your Vault"
+          title={vault.SelectSigner}
+          subtitle={vault.ForVault}
           onPressHandler={() => navigation.navigate('NewHome')}
           headerTitleColor={'light.headerTextTwo'}
         />
@@ -116,8 +119,7 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
           lineHeight={20}
           marginTop={hp(20)}
         >
-          A Signer can be a hardware wallet or a signing device or an app. Most popular ones are
-          listed above. Want support for more.{' '}
+          {vault.VaultInfo}{' '}
           <Text fontStyle={'italic'} fontWeight={'bold'}>
             Contact Us
           </Text>

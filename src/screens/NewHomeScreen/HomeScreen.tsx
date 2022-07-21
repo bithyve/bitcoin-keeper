@@ -197,9 +197,11 @@ const VaultSetupContent = () => {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-        {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
-      </Text> */}
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {
+          'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
+        }
+      </Text>
     </View>
   );
 };
@@ -358,7 +360,7 @@ const VaultStatus = (props) => {
         subTitle={vaultTranslations.VaultDesc}
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vaultTranslations.Addsigner}
+        buttonText={vaultTranslations.AddNow}
         buttonTextColor={'#073E39'}
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
