@@ -224,15 +224,18 @@ export default class WalletUtilities {
   };
 
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
+    // generates ypub corresponding to supplied xpub || upub corresponding to tpub
     let data = bs58check.decode(xpub);
-    data = data.slice(4);
-    let versionBytes;
-    if (network == bitcoinJS.networks.bitcoin) {
-      versionBytes = xpub ? '049d7cb2' : '049d7878';
-    } else {
-      versionBytes = xpub ? '044a5262' : '044a4e28';
-    }
-    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data]);
+    let versionBytes = bitcoinJS.networks.bitcoin ? '049d7cb2' : '044a5262';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
+    // generates xpub corresponding to supplied ypub || tpub corresponding to upub
+    let data = bs58check.decode(ypub);
+    let versionBytes = bitcoinJS.networks.bitcoin ? '0488b21e' : '43587cf';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
   };
 
