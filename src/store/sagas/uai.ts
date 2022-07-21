@@ -6,6 +6,7 @@ import { call } from 'redux-saga/effects';
 
 function* addToUaiStackWorker({ payload }) {
   const { uai } = payload;
+  let uaiData = { ...uai, timeStamp: new Date() };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uai);
   } catch (err) {
