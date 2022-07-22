@@ -61,9 +61,9 @@ const SigningController = ({ nfcVisible, setNfcVisible }) => {
     if (serializedPSBTEnvelop) {
       const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
       const { signerType, signingDataHW } = copySerializedPSBTEnvelop;
-      const { inputsToSign } = signingDataHW[0];
       switch (signerType) {
         case SignerType.TAPSIGNER: {
+          const { inputsToSign } = signingDataHW[0];
           setCvcModalVisible(false);
           withModal(async () => {
             try {

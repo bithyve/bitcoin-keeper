@@ -265,7 +265,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
         </Text>
         <TouchableOpacity
           onPress={async () => {
-            line += `Name: Keeper wallet\n`;
+            line += `Name: Keeper ${new Date().getTime()}\n`;
             line += `Policy: 1 of 2\n`;
             line += `Format: P2SH-P2WSH\n`;
             line += `\n`;
