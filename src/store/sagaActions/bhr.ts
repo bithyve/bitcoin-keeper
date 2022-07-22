@@ -1,4 +1,5 @@
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
+export const GET_APP_IMAGE = 'GET_APP_IMAGE';
 
 export const updateAppImage = (walletId) => {
   return {
@@ -6,5 +7,11 @@ export const updateAppImage = (walletId) => {
     payload: {
       walletId,
     },
+  };
+};
+
+export const getAppImage = () => {
+  return {
+    type: GET_APP_IMAGE,
   };
 };
