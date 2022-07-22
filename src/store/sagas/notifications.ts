@@ -71,20 +71,22 @@ export function* getMessageWorker() {
     )
   );
 
-  newMessageArray.array.forEach((element) => {
-    put(
-      addToUaiStack(
-        element.title,
-        false,
-        element.type,
-        20,
-        Platform.select({
-          ios: element.additionalInfo.notes.ios,
-          android: element.additionalInfo.notes.android,
-        })
-      )
-    );
-  });
+  yield all(
+    newMessageArray.forEach((element) => {
+      put(
+        addToUaiStack(
+          element.title,
+          false,
+          element.type,
+          20,
+          Platform.select({
+            ios: element.additionalInfo.notes.ios,
+            android: element.additionalInfo.notes.android,
+          })
+        )
+      );
+    })
+  );
 
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
