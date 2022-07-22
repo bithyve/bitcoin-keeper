@@ -725,18 +725,17 @@ export default class WalletOperations {
       );
 
       const bip32Derivation = [];
-      for (const signer of (wallet as Vault).signers) {
+      for (let i = 0; i < (wallet as Vault).signers.length; i++) {
+        const signer = (wallet as Vault).signers[i];
         if (signer.type === SignerType.COLDCARD) {
           const derivationPath = signer.xpubInfo?.derivationPath;
           const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
           const path = derivationPath + `/${subPath.join('/')}`;
-          for (const pubkey of pubkeys) {
-            bip32Derivation.push({
-              masterFingerprint,
-              path,
-              pubkey,
-            });
-          }
+          bip32Derivation.push({
+            masterFingerprint,
+            path,
+            pubkey: pubkeys[i],
+          });
         }
       }
 
@@ -759,28 +758,30 @@ export default class WalletOperations {
     outputData: OutputUTXOs
   ): {
     bip32Derivation: any[];
+    redeemScript: Buffer;
+    witnessScript: Buffer;
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+    const { subPath, pubkeys, p2wsh, p2ms } = WalletUtilities.addressToMultiSig(
       outputData.address,
       wallet as Vault
     );
-    for (const signer of (wallet as Vault).signers) {
+
+    for (let i = 0; i < (wallet as Vault).signers.length; i++) {
+      const signer = (wallet as Vault).signers[i];
       if (signer.type === SignerType.COLDCARD) {
         const derivationPath = signer.xpubInfo?.derivationPath;
         const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
         const path = derivationPath + `/${subPath.join('/')}`;
-        for (const pubkey of pubkeys) {
-          bip32Derivation.push({
-            masterFingerprint, // mocking fingerprint(if essentail, then would have to get it from CC as an iput)
-            path,
-            pubkey,
-          });
-        }
+        bip32Derivation.push({
+          masterFingerprint,
+          path,
+          pubkey: pubkeys[i],
+        });
       }
     }
 
-    return { bip32Derivation };
+    return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2ms.output };
   };
 
   static createTransaction = async (
@@ -816,12 +817,10 @@ export default class WalletOperations {
       );
 
       for (let output of sortedOuts) {
-        if (output.address === changeAddress) {
-          const { bip32Derivation } = WalletOperations.getOutputDataForChange(
-            wallet as Vault,
-            output
-          );
-          PSBT.addOutput({ ...output, bip32Derivation });
+        if (output.address === changeAddress && wallet.entityKind === EntityKind.VAULT) {
+          const { bip32Derivation, witnessScript, redeemScript } =
+            WalletOperations.getOutputDataForChange(wallet as Vault, output);
+          PSBT.addOutput({ ...output, bip32Derivation, witnessScript, redeemScript });
         } else {
           PSBT.addOutput(output);
         }
@@ -894,7 +893,7 @@ export default class WalletOperations {
       } => {
     // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
 
-    if (signer.type === SignerType.TAPSIGNER) {
+    if ([SignerType.TAPSIGNER, SignerType.COLDCARD].includes(signer.type)) {
       if (signer.xpriv) {
         // case: Mock Vault(Dev app)
         const network = WalletUtilities.getNetworkByType(wallet.networkType);
@@ -1104,9 +1103,8 @@ export default class WalletOperations {
     txid: string;
   }> => {
     const inputs = txPrerequisites[txnPriority].inputs;
-    const { serializedPSBT, signingDataHW } = serializedPSBTEnvelop;
+    const { serializedPSBT, signingDataHW = [] } = serializedPSBTEnvelop;
     const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
-
     for (const { signerType, inputsToSign } of signingDataHW) {
       if (signerType === SignerType.TAPSIGNER) {
         for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {

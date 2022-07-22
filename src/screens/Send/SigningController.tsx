@@ -1,6 +1,7 @@
 import { Alert, Dimensions, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Ndef, NfcTech } from 'react-native-nfc-manager';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -30,11 +31,11 @@ const InputCvc = ({ textRef }) => {
   );
 };
 
-const SigningController = () => {
+const SigningController = ({ nfcVisible, setNfcVisible }) => {
+  const navigation = useNavigation();
   const serializedPSBTEnvelop = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelop
   );
-  const [nfcVisible, setNfcVisible] = React.useState(false);
   const [cvcModalVisible, setCvcModalVisible] = React.useState(false);
 
   const textRef = useRef(null);
@@ -81,6 +82,7 @@ const SigningController = () => {
                     serializedPSBTEnvelop: copySerializedPSBTEnvelop,
                   })
                 );
+                navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
               } else {
                 Alert.alert('Please setup card before signing!');
               }

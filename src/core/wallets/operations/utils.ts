@@ -308,7 +308,7 @@ export default class WalletUtilities {
     subPath: number[];
   } => {
     const subPath = [internal ? 1 : 0, childIndex];
-    const pubkeys = xpubs.map((xpub) => {
+    let pubkeys = xpubs.map((xpub) => {
       const childExtendedKey = WalletUtilities.generateChildFromExtendedKey(
         xpub,
         network,
@@ -319,7 +319,8 @@ export default class WalletUtilities {
       const pub = xKey.publicKey.toString('hex');
       return Buffer.from(pub, 'hex');
     });
-
+    // bip-67
+    pubkeys = pubkeys.sort((a, b) => (a > b ? 1 : -1));
     const p2ms = bitcoinJS.payments.p2ms({
       m: required,
       pubkeys,

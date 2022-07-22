@@ -24,7 +24,10 @@ const SetupColdCard = () => {
   const scanMK4 = async () => {
     setNfcVisible(true);
     try {
-      const { data: xpub, path, xfp } = await NFC.read(NfcTech.NfcV);
+      const { data, rtdName } = await NFC.read(NfcTech.NfcV)[0];
+      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
+      const path = data?.p2sh_p2wsh_deriv ?? '';
+      const xfp = data?.xfp ?? '';
       setNfcVisible(false);
       return { xpub, path, xfp };
     } catch (err) {
@@ -69,27 +72,15 @@ const SetupColdCard = () => {
       },
     };
 
-    const { xpub: mockxpub, derivationPath: mockDerivationPath } = generateMockExtendedKey();
-    const mockId = WalletUtilities.getFingerprintFromExtendedKey(mockxpub, network);
-    const mockSigner: VaultSigner = {
-      signerId: mockId,
-      type: SignerType.TREZOR,
-      signerName: 'Mock',
-      xpub: mockxpub,
-      xpubInfo: {
-        derivationPath: mockDerivationPath,
-        xfp: mockId,
-      },
-    };
-
-    const scheme: VaultScheme = { m: 1, n: 2 };
-    return { signers: [cc, mockSigner], scheme };
+    return { signer: cc };
   };
 
   const createVaultWithCC = async () => {
     try {
-      const { signers, scheme } = await getColdCardDetails();
-      createVault(signers, scheme);
+      const { signer } = await getColdCardDetails();
+      const { signer: signer2 } = await getColdCardDetails();
+      const scheme: VaultScheme = { m: 1, n: 2 };
+      createVault([signer, signer2], scheme);
       navigation.dispatch(CommonActions.navigate('NewHome'));
     } catch (err) {
       console.log(err);

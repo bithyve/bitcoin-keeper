@@ -9,6 +9,7 @@ import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
+import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
@@ -28,9 +29,9 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
+import SignHardware from 'src/screens/Send/SignHardware';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
-import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -85,6 +86,7 @@ const AppStack = () => {
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
+        <Stack.Screen name="SignHardware" component={SignHardware} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />

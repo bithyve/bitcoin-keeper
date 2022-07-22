@@ -224,5 +224,5 @@ export interface SigningDataHW {
 
 export interface SerializedPSBTEnvelop {
   serializedPSBT: string;
-  signingDataHW: SigningDataHW[];
+  signingDataHW?: SigningDataHW[];
 }
