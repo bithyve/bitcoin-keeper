@@ -1,4 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import {
   UPDATE_FCM_TOKENS,
@@ -12,10 +12,14 @@ import {
   fetchNotificationStarted,
   storeMessagesTimeStamp,
   messageFetched,
-  setFcmToken
+  setFcmToken,
 } from '../reducers/notifications';
 import Relay from 'src/core/services/operations/Relay';
 import { RootState } from '../store';
+import { useDispatch } from 'react-redux';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { Platform } from 'react-native';
 
 function* updateFCMTokensWorker({ payload }) {
   try {
@@ -24,12 +28,13 @@ function* updateFCMTokensWorker({ payload }) {
       throw new Error('No FCM token found');
     }
     const appId = yield select((state: RootState) => state.storage.appId);
+    console.log('bhuuuu ' + appId);
     const { updated } = yield call(Relay.updateFCMTokens, appId, payload.FCMs);
-    if (updated){
-      yield put(setFcmToken(FCMs[0]))
-      } else {
-        console.log('Failed to update FCMs on the server')
-      }
+    if (updated) {
+      yield put(setFcmToken(FCMs[0]));
+    } else {
+      console.log('Failed to update FCMs on the server');
+    }
   } catch (err) {
     console.log('err', err);
   }
@@ -40,6 +45,7 @@ export const updateFCMTokensWatcher = createWatcher(updateFCMTokensWorker, UPDAT
 export function* fetchNotificationsWorker() {
   yield put(fetchNotificationStarted(true));
   const appId = yield select((state: RootState) => state.storage.appId);
+  console.log('appId ' + appId);
   const { notifications } = yield call(Relay.fetchNotifications, appId);
   yield call(notificationsFetched, notifications);
   //yield call( setupNotificationListWorker )
@@ -64,6 +70,21 @@ export function* getMessageWorker() {
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId == notificationId)
     )
   );
+
+  newMessageArray.array.forEach((element) => {
+    put(
+      addToUaiStack(
+        element.title,
+        false,
+        element.type,
+        20,
+        Platform.select({
+          ios: element.additionalInfo.notes.ios,
+          android: element.additionalInfo.notes.android,
+        })
+      )
+    );
+  });
 
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
