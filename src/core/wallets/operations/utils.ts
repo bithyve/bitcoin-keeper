@@ -520,52 +520,56 @@ export default class WalletUtilities {
     };
   };
 
-  static sortOutputs = (
+  static generateChange = (
     wallet: Wallet | Vault,
     outputs: Array<OutputUTXOs>,
     nextFreeChangeAddressIndex: number,
     network: bitcoinJS.networks.Network
-  ): { outputs: OutputUTXOs[]; changeAddress: string | undefined } => {
-    // const purpose =
-    // wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
-
+  ):
+    | {
+        outputs: OutputUTXOs[];
+        changeMultisig: {
+          p2ms: bitcoinJS.payments.Payment;
+          p2wsh: bitcoinJS.payments.Payment;
+          p2sh: bitcoinJS.payments.Payment;
+          pubkeys: Buffer[];
+          address: string;
+          subPath: number[];
+        };
+        changeAddress?: undefined;
+      }
+    | {
+        outputs: OutputUTXOs[];
+        changeAddress: string;
+        changeMultisig?: undefined;
+      } => {
     let changeAddress: string;
     const purpose = DerivationPurpose.BIP49;
     for (let output of outputs) {
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
           const xpubs = (wallet as Vault).specs.xpubs;
-          changeAddress = WalletUtilities.createMultiSig(
+          const changeMultisig = WalletUtilities.createMultiSig(
             xpubs,
             (wallet as Vault).scheme.m,
             network,
             nextFreeChangeAddressIndex,
             true
-          ).address;
+          );
+          output.address = changeMultisig.address;
+          return { outputs, changeMultisig };
         } else {
-          changeAddress = WalletUtilities.getAddressByIndex(
+          output.address = WalletUtilities.getAddressByIndex(
             (wallet as Wallet).specs.xpub,
             true,
             nextFreeChangeAddressIndex,
             network,
             purpose
           );
+          return { outputs, changeAddress };
         }
-
-        output.address = changeAddress;
       }
     }
-
-    outputs.sort((out1, out2) => {
-      if (out1.address < out2.address) {
-        return -1;
-      }
-      if (out1.address > out2.address) {
-        return 1;
-      }
-      return 0;
-    });
-    return { outputs, changeAddress };
   };
 
   static fetchBalanceTransactionsByWallets = async (

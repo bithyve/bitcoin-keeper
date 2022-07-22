@@ -753,20 +753,23 @@ export default class WalletOperations {
     }
   };
 
-  static getOutputDataForChange = (
+  static getPSBTDataForChangeOutput = (
     wallet: Vault,
-    outputData: OutputUTXOs
+    changeMultiSig: {
+      p2ms: bitcoinJS.payments.Payment;
+      p2wsh: bitcoinJS.payments.Payment;
+      p2sh: bitcoinJS.payments.Payment;
+      pubkeys: Buffer[];
+      address: string;
+      subPath: number[];
+    }
   ): {
     bip32Derivation: any[];
     redeemScript: Buffer;
     witnessScript: Buffer;
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { subPath, pubkeys, p2wsh, p2ms } = WalletUtilities.addressToMultiSig(
-      outputData.address,
-      wallet as Vault
-    );
-
+    const { subPath, pubkeys, p2wsh, p2ms } = changeMultiSig;
     for (let i = 0; i < (wallet as Vault).signers.length; i++) {
       const signer = (wallet as Vault).signers[i];
       if (signer.type === SignerType.COLDCARD) {
@@ -809,17 +812,27 @@ export default class WalletOperations {
 
       for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network);
 
-      const { outputs: sortedOuts, changeAddress } = WalletUtilities.sortOutputs(
+      const {
+        outputs: outputsWithChange,
+        changeAddress,
+        changeMultisig,
+      } = WalletUtilities.generateChange(
         wallet,
         outputs,
         wallet.specs.nextFreeChangeAddressIndex,
         network
       );
 
-      for (let output of sortedOuts) {
-        if (output.address === changeAddress && wallet.entityKind === EntityKind.VAULT) {
+      outputsWithChange.sort((out1, out2) => {
+        if (out1.address < out2.address) return -1;
+        if (out1.address > out2.address) return 1;
+        return 0;
+      });
+
+      for (let output of outputsWithChange) {
+        if (wallet.entityKind === EntityKind.VAULT && output.address === changeAddress) {
           const { bip32Derivation, witnessScript, redeemScript } =
-            WalletOperations.getOutputDataForChange(wallet as Vault, output);
+            WalletOperations.getPSBTDataForChangeOutput(wallet as Vault, changeMultisig);
           PSBT.addOutput({ ...output, bip32Derivation, witnessScript, redeemScript });
         } else {
           PSBT.addOutput(output);
