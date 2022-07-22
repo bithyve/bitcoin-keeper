@@ -60,7 +60,8 @@ const SigningController = ({ nfcVisible, setNfcVisible }) => {
   const signTransaction = useCallback(async () => {
     if (serializedPSBTEnvelop) {
       const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
-      const { signerType, inputsToSign } = copySerializedPSBTEnvelop.signingDataHW[0];
+      const { signerType, signingDataHW } = copySerializedPSBTEnvelop;
+      const { inputsToSign } = signingDataHW[0];
       switch (signerType) {
         case SignerType.TAPSIGNER: {
           setCvcModalVisible(false);
@@ -111,7 +112,7 @@ const SigningController = ({ nfcVisible, setNfcVisible }) => {
 
   useEffect(() => {
     if (serializedPSBTEnvelop) {
-      const { signerType } = serializedPSBTEnvelop.signingDataHW[0];
+      const { signerType } = serializedPSBTEnvelop;
       if (signerType === SignerType.TAPSIGNER) {
         setCvcModalVisible(true);
       } else if (signerType === SignerType.COLDCARD) {

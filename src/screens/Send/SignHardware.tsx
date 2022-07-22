@@ -8,7 +8,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SigningController from './SigningController';
-import { TxPriority } from 'src/core/wallets/enums';
+import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
@@ -46,7 +46,7 @@ const SignHardware = () => {
       sendPhaseThree({
         wallet: defaultVault,
         txnPriority: TxPriority.LOW,
-        serializedPSBTEnvelop: { serializedPSBT: payload.psbt },
+        serializedPSBTEnvelop: { signerType: SignerType.COLDCARD, serializedPSBT: payload.psbt },
       })
     );
     navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
