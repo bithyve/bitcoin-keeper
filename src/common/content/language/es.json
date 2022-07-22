@@ -249,11 +249,19 @@
     "WalletImportedSuccessfully": "Wallet Imported Successfully",
     "DailySpend": "Daily Spend",
     "AddWalletDetails": "Add Wallet Details",
+    "CreateNewwallet": "Create New Wallet",
+    "CreateNew": "Create New",
+    "Recoverexisting": "Recover an existing wallet",
+    "UsingSeed": "Using Seed Words",
+    "FromCloud": "From Cloud Backup",
+    "WalletDesc": "Lorem ipsumdolor sit amet,",
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
-    "initiatetransfer": "Are you sure you want to initiate transfer to"
+    "initiatetransfer": "Are you sure you want to initiate transfer to",
+    "SendSuccess": "Send Successful",
+    "ViewDetails": "View Details"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -272,6 +280,11 @@
     "ViewVault": "View Vault"
   },
   "seed": {
+    "EnterSeed": "Enter Seeds",
+    "walletBackup": "Recover wallet from Drive",
+    "InvalidSeeds": "Invalid Seeds Entry",
+    "seedDescription": "Lorem ipsum dolor sit amet, consectetur adip iscing elit",
+    "recoverWallet": "to recover your wallet",
     "ExportSeed": "Export Seed",
     "SeedDesc": "Lorem ipsum dolor sit amet,",
     "longing": "longing",

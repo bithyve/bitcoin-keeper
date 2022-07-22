@@ -253,6 +253,12 @@
     "WalletImportedSuccessfully": "Wallet Imported Successfully",
     "DailySpend": "Daily Spend",
     "AddWalletDetails": "Add Wallet Details",
+    "CreateNewwallet": "Create New Wallet",
+    "CreateNew": "Create New",
+    "Recoverexisting": "Recover an existing wallet",
+    "UsingSeed": "Using Seed Words",
+    "FromCloud": "From Cloud Backup",
+    "WalletDesc": "Lorem ipsumdolor sit amet,",
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
@@ -263,7 +269,9 @@
     "AccountXpub": "Account Xpub",
     "AccountXpubNote": "This xPub is for Maldives Funds only and not for the Wallet. Each account has its own xPub",
     "confirmPassTitle": "Confirm Passcode",
-    "confirmPassSubTitle": "To show seed words for this wallet"
+    "confirmPassSubTitle": "To show seed words for this wallet",
+    "SendSuccess": "Send Successful",
+    "ViewDetails": "View Details"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -279,9 +287,18 @@
     "Setup": "Setup",
     "VaultCreated": "Vault Created",
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
-    "ViewVault": "View Vault"
+    "ViewVault": "View Vault",
+    "AddNow": "Add Now",
+    "SelectSigner": "Select a Signing Devices",
+    "ForVault": "For your Vault",
+    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?"
   },
   "seed": {
+    "EnterSeed": "Enter Seeds",
+    "walletBackup": "Recover wallet from Drive",
+    "InvalidSeeds": "Invalid Seeds Entry",
+    "seedDescription": "Lorem ipsum dolor sit amet, consectetur adip iscing elit",
+    "recoverWallet": "to recover your wallet",
     "ExportSeed": "Seed words",
     "SeedDesc": "Make sure you keep them safe",
     "longing": "longing",

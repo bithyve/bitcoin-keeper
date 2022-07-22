@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, VStack, HStack, View } from 'native-base';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
+import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
@@ -10,12 +10,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SigningController from './SigningController';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import {
-  getTransactionPadding,
-  hp,
-  windowWidth,
-  wp,
-} from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import RadioButton from 'src/components/RadioButton';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -31,6 +26,7 @@ import { timeConvertNear30 } from 'src/common/utilities';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
+import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -49,6 +45,25 @@ const SendConfirmation = ({ route }) => {
   // taken from hexa --> TransactionPriority.tsx - line 98
   const setCustomTransactionPriority = () => {
     // logic for custom transaction priority
+  };
+
+  // Content for "Send is Successful"
+  const SendSuccessfulContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>
+          <SuccessIcon />
+        </Box>
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+        {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {
+            'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
+          }
+        </Text> */}
+      </View>
+    );
   };
 
   const onProceed = () => {
@@ -143,21 +158,23 @@ const SendConfirmation = ({ route }) => {
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority.toLowerCase()].amount : '274 sats'}
-        </Text>
+        {/* <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount : '274 sats'}
+        </Text> */}
       </Box>
     );
   };
 
   const TextValue = ({ amt, unit }) => {
     return (
-      <Text style={{
-        ...styles.priorityTableText,
-        flex: 1,
-      }}>{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
-    )
-  }
+      <Text
+        style={{
+          ...styles.priorityTableText,
+          flex: 1,
+        }}
+      >{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
+    );
+  };
   const SendingPriority = () => {
     return (
       <Box flexDirection={'column'}>
@@ -180,22 +197,23 @@ const SendConfirmation = ({ route }) => {
 
         {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
         <Box mt={hp(1)}>
-          {availableTransactionPriorities.map((priority) => {
+          {availableTransactionPriorities?.map((priority) => {
             return (
               <TouchableOpacity
                 style={styles.priorityRowContainer}
                 key={priority}
                 onPress={() => {
-                  setTransactionPriority(priority)
+                  setTransactionPriority(priority);
                   // onTransactionPriorityChanged(priority)
-                }}>
+                }}
+              >
                 <Box style={styles.priorityBox}>
                   <RadioButton
                     size={20}
                     isChecked={transactionPriority == priority}
                     borderColor={'#E3E3E3'}
                     onpress={() => {
-                      setTransactionPriority(priority)
+                      setTransactionPriority(priority);
                       // onTransactionPriorityChanged(priority)
                     }}
                   />
@@ -210,23 +228,29 @@ const SendConfirmation = ({ route }) => {
                     {String(priority)}
                   </Text>
                 </Box>
-                <Text style={{
-                  ...styles.priorityTableText,
-                  flex: 1,
-                }}>
+                <Text
+                  style={{
+                    ...styles.priorityTableText,
+                    flex: 1,
+                  }}
+                >
                   ~
                   {timeConvertNear30(
-                    (txFeeInfo[priority.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
-                    * 10
+                    (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
                   )}
                 </Text>
-                <TextValue amt={txFeeInfo[priority.toLowerCase()].amount} unit={{
-                  bitcoinUnit: BitcoinUnit.SATS,
-                }} />
+                <TextValue
+                  amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                  unit={{
+                    bitcoinUnit: BitcoinUnit.SATS,
+                  }}
+                />
               </TouchableOpacity>
             );
           })}
-          <TouchableOpacity
+          {/* {Disable custom priority for now } */}
+
+          {/* <TouchableOpacity
             style={styles.customPriorityRowContainer}
             onPress={() => {
               setTransactionPriority(TxPriority.CUSTOM)
@@ -259,14 +283,14 @@ const SendConfirmation = ({ route }) => {
             }}>
               ~
               {timeConvertNear30(
-                (txFeeInfo[TxPriority.CUSTOM.toLowerCase()].estimatedBlocksBeforeConfirmation + 1)
+                (txFeeInfo[TxPriority?.CUSTOM?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1)
                 * 10
               )}
             </Text>
-            <TextValue amt={txFeeInfo[TxPriority.CUSTOM.toLowerCase()].amount} unit={{
+            <TextValue amt={txFeeInfo[TxPriority?.CUSTOM?.toLowerCase()]?.amount} unit={{
               bitcoinUnit: BitcoinUnit.SATS,
             }} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </Box>
       </Box>
     );
@@ -281,14 +305,16 @@ const SendConfirmation = ({ route }) => {
       position={'relative'}
     >
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title="Sending to address"
-        subtitle="Lorem ipsum dolor sit amet,"
-        onPressHandler={() => navigtaion.goBack()}
-      />
+      <Box marginLeft={3}>
+        <Header
+          title="Sending to address"
+          subtitle="Lorem ipsum dolor sit amet,"
+          onPressHandler={() => navigtaion.goBack()}
+        />
+      </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
-        <SendingCard isSend />
+        <SendingCard isSend={false} />
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
@@ -306,9 +332,23 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-
+          primaryCallback={onProceed}
         />
       </Box>
+
+      {/* Success modal for 'Vault - Send Success modal' */}
+      {/* <SuccessModal
+        visible={visible}
+        close={close}
+        title={wallet.SendSuccess}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
+        buttonText={wallet.ViewDetails}
+        buttonTextColor={'#FAFAFA'}
+        cancelButtonText={common.cancel}
+        cancelButtonColor={'#073E39'}
+        Content={SendSuccessfulContent}
+      /> */}
+
       <SigningController />
     </Box>
   );

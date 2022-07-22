@@ -12,7 +12,7 @@ import Basic from 'src/assets/images/svgs/basic.svg';
 // import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
 // import Ledger from 'src/assets/images/svgs/ledger_home.svg';
 // import Trezor from 'src/assets/images/svgs/trezor_home.svg';
-// import Mac from 'src/assets/images/svgs/mac_home.svg';
+import Pleb from 'src/assets/images/svgs/pleb.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -38,9 +38,27 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import NewWalletModal from 'src/components/NewWalletModal';
+import SuccessModal from 'src/components/SuccessModal';
+import { walletData } from 'src/common/data/defaultData/defaultData';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
+
+  const navigateBack = () => {
+    close();
+  };
+  const [visible, setVisible] = useState(false);
+
+  const { translations } = useContext(LocalizationContext);
+  const wallet = translations['wallet'];
+  const seed = translations['seed'];
+  const onPress = () => {
+    open();
+  };
+
+  const close = () => setVisible(false);
+  const open = () => setVisible(true);
 
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
@@ -73,6 +91,33 @@ const InheritanceComponent = () => {
           </Box>
         </Box>
         <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
+        {/* <NextIcon pressHandler={() => onPress()} />
+        <>
+          <NewWalletModal
+            visible={visible}
+            close={close}
+            title={wallet.AddNewWallet}
+            createTitle={wallet.CreateNewwallet}
+            createSubTitle={wallet.WalletDesc}
+            newButton={wallet.CreateNew}
+            newButtonDesc={wallet.WalletDesc}
+            existingButtonTitle={wallet.Recoverexisting}
+            existingButtonSubTitle={wallet.WalletDesc}
+            seedButton={wallet.UsingSeed}
+            seedButtonDesc={wallet.WalletDesc}
+            cloudButton={wallet.FromCloud}
+            cloudButtonDesc={wallet.WalletDesc}
+            mainDesc={wallet.XPubSubTitle}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonCancel={'Cancel'}
+            buttonText={'Next'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCancelColor={'#073E39'}
+            buttonCallback={navigateBack}
+            textColor={'#041513'}
+          />
+        </> */}
       </LinearGradient>
     </Box>
   );
@@ -152,9 +197,11 @@ const VaultSetupContent = () => {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-        {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
-      </Text> */}
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {
+          'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
+        }
+      </Text>
     </View>
   );
 };
@@ -182,6 +229,8 @@ const VaultStatus = (props) => {
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vaultTranslations = translations['vault'];
+  const wallet = translations['wallet'];
+  const common = translations['common'];
 
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
@@ -201,7 +250,7 @@ const VaultStatus = (props) => {
     navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
   };
 
-  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
@@ -290,6 +339,7 @@ const VaultStatus = (props) => {
           ) : null}
         </ImageBackground>
       </TouchableOpacity>
+      {/* Vault creation successful modal */}
       {/* <KeeperModal
         visible={visible}
         close={close}
@@ -310,7 +360,7 @@ const VaultStatus = (props) => {
         subTitle={vaultTranslations.VaultDesc}
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vaultTranslations.Addsigner}
+        buttonText={vaultTranslations.AddNow}
         buttonTextColor={'#073E39'}
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
@@ -367,12 +417,12 @@ const VaultInfo = () => {
           justifyContent={'space-between'}
           width={'100%'}
         >
-          <Pressable onPress={addtoDb}>
-            <ScannerIcon />
-          </Pressable>
           <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
-            <Basic />
+            <Pleb />
           </Pressable>
+          {/* <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
+            <Basic />
+          </Pressable> */}
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
           </Pressable>

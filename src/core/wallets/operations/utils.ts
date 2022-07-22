@@ -27,8 +27,8 @@ const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
 const accAxios: AxiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT * 3,
   headers: {
-    HEXA_ID: config.HEXA_ID
-  }
+    HEXA_ID: config.HEXA_ID,
+  },
 });
 
 export default class WalletUtilities {
@@ -56,14 +56,29 @@ export default class WalletUtilities {
     else return bitcoinJS.networks.bitcoin;
   };
 
-  // static getDerivationPath = ( type: NetworkType, walletType: WalletType, instanceNumber: number, debug?: boolean, purpose: DerivationPurpose = DerivationPurpose.BIP49 ): string => {
-  //   const { series, upperBound } = config.WALLET_INSTANCES[ walletType ]
-  //   if( !debug && instanceNumber > ( upperBound - 1 ) ) throw new Error( `Cannot create new instance of type ${walletType}, instace upper bound exceeds ` )
-  //   const walletNumber = series + instanceNumber
+  static getFingerprintFromNode = (node: bip32.BIP32Interface) => {
+    let fingerprintHex = node.fingerprint.toString('hex');
+    while (fingerprintHex.length < 8) fingerprintHex = '0' + fingerprintHex;
+    return fingerprintHex.toUpperCase();
+  };
 
-  //   if( type === NetworkType.TESTNET ) return `m/${purpose}'/1'/${walletNumber}'`
-  //   else return `m/${purpose}'/0'/${walletNumber}'`
-  // }
+  static getFingerprintFromSeed = (seed: Buffer) => {
+    const root = bip32.fromSeed(seed);
+    return WalletUtilities.getFingerprintFromNode(root);
+  };
+
+  static getFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
+    const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
+    return WalletUtilities.getFingerprintFromSeed(seed);
+  }
+
+  static getFingerprintFromExtendedKey = (
+    extendedKey: string,
+    network: bitcoinJS.networks.Network
+  ) => {
+    const node = bip32.fromBase58(extendedKey, network);
+    return WalletUtilities.getFingerprintFromNode(node);
+  };
 
   static getDerivationPath = (
     type: NetworkType,
@@ -117,12 +132,14 @@ export default class WalletUtilities {
     internal: boolean,
     index: number,
     network: bitcoinJS.networks.Network
-  ): string => {
+  ): {
+    privateKey: string;
+    subPath: number[];
+  } => {
     const node = bip32.fromBase58(xpriv, network);
-    return node
-      .derive(internal ? 1 : 0)
-      .derive(index)
-      .toWIF();
+    const chain = internal ? 1 : 0;
+    const privateKey = node.derive(chain).derive(index).toWIF();
+    return { privateKey, subPath: [chain, index] };
   };
 
   static getPublicKeyByIndex = (
@@ -130,10 +147,12 @@ export default class WalletUtilities {
     internal: boolean,
     index: number,
     network: bitcoinJS.networks.Network
-  ): Buffer => {
+  ): { publicKey: Buffer; subPath: number[] } => {
     const node = bip32.fromBase58(xpub, network);
-    const keyPair = node.derive(internal ? 1 : 0).derive(index);
-    return keyPair.publicKey;
+    const chain = internal ? 1 : 0;
+    const keyPair = node.derive(chain).derive(index);
+    const publicKey = keyPair.publicKey;
+    return { publicKey, subPath: [chain, index] };
   };
 
   static getAddressByIndex = (
@@ -205,15 +224,18 @@ export default class WalletUtilities {
   };
 
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
+    // generates ypub corresponding to supplied xpub || upub corresponding to tpub
     let data = bs58check.decode(xpub);
-    data = data.slice(4);
-    let versionBytes;
-    if (network == bitcoinJS.networks.bitcoin) {
-      versionBytes = xpub ? '049d7cb2' : '049d7878';
-    } else {
-      versionBytes = xpub ? '044a5262' : '044a4e28';
-    }
-    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data]);
+    let versionBytes = bitcoinJS.networks.bitcoin ? '049d7cb2' : '044a5262';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
+    return bs58check.encode(data);
+  };
+
+  static generateXpubFromYpub = (ypub: string, network: bitcoinJS.Network): string => {
+    // generates xpub corresponding to supplied ypub || tpub corresponding to upub
+    let data = bs58check.decode(ypub);
+    let versionBytes = bitcoinJS.networks.bitcoin ? '0488b21e' : '43587cf';
+    data = Buffer.concat([Buffer.from(versionBytes, 'hex'), data.slice(4)]);
     return bs58check.encode(data);
   };
 
@@ -221,7 +243,15 @@ export default class WalletUtilities {
     address: string,
     wallet: Wallet,
     publicKey: boolean = false
-  ): string | Buffer => {
+  ):
+    | {
+        publicKey: Buffer;
+        subPath: number[];
+      }
+    | {
+        privateKey: string;
+        subPath: number[];
+      } => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -247,7 +277,10 @@ export default class WalletUtilities {
     if (!publicKey)
       for (const importedAddress in wallet.specs.importedAddresses) {
         if (address === importedAddress)
-          return wallet.specs.importedAddresses[importedAddress].privateKey;
+          return {
+            privateKey: wallet.specs.importedAddresses[importedAddress].privateKey,
+            subPath: [],
+          };
       }
 
     throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ` + address);

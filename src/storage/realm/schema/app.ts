@@ -8,6 +8,7 @@ export const KeeperAppSchema: ObjectSchema = {
     appName: 'string?',
     primaryMnemonic: 'string',
     primarySeed: 'string',
+    imageEncryptionKey: 'string',
     walletShellInstances: RealmSchema.WalletShellInstances,
     vaultShellInstances: RealmSchema.VaultShellInstances,
     twoFADetails: `${RealmSchema.TwoFADetails}?`,

@@ -15,6 +15,7 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
 
 type Props = {
   title: string;
@@ -136,38 +137,23 @@ const WalletSettings = () => {
       </Box>
       {/* Modals */}
       <Box>
-        <Modal
-          isVisible={xpubVisible}
-          onSwipeComplete={() => setXPubVisible(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
-        >
+        <ModalWrapper visible={xpubVisible} onSwipeComplete={() => setXPubVisible(false)}>
           <ShowXPub
             closeBottomSheet={() => {
               setXPubVisible(false);
             }}
           />
-        </Modal>
-        <Modal
-          isVisible={confirmPassVisible}
+        </ModalWrapper>
+        <ModalWrapper
+          visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
-          swipeDirection={['down']}
-          style={{
-            justifyContent: 'flex-end',
-            marginHorizontal: 15,
-            marginBottom: 25,
-          }}
         >
           <SeedConfirmPasscode
             closeBottomSheet={() => {
               setConfirmPassVisible(false);
             }}
           />
-        </Modal>
+        </ModalWrapper>
       </Box>
       {/* end */}
     </Box>

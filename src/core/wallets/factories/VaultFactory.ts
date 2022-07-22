@@ -7,6 +7,7 @@ import {
   VaultSigner,
   VaultSpecs,
 } from '../interfaces/vault';
+import WalletUtilities from '../operations/utils';
 
 export const generateVault = ({
   type,
@@ -25,8 +26,16 @@ export const generateVault = ({
   signers: VaultSigner[];
   networkType: NetworkType;
 }): Vault => {
+  const network = WalletUtilities.getNetworkByType(networkType);
+
   const xpubs = signers.map((signer) => signer.xpub);
-  const id = hash256(xpubs.join(''));
+  const fingerprints = [];
+  xpubs.forEach((xpub) =>
+    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
+  );
+
+  const hashedFingerprints = hash256(fingerprints.join(''));
+  const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
 
   const presentationData: VaultPresentationData = {
     name: vaultName,
