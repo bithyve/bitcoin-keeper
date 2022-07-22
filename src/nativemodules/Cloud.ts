@@ -178,7 +178,7 @@ const createFile = async ({ payload }) => {
   }
 };
 
-const updateData = async (payload) => {
+const updateData = async ({ payload }) => {
   try {
     const { result1, googleData, appID, data } = payload;
     let arr = [];
@@ -195,10 +195,10 @@ const updateData = async (payload) => {
         const tempData = payload;
         newArray.push(tempData);
       } else {
-        newArray[index].data = data.encryptedCloudDataJson;
-        newArray[index].seed = data.seed ? data.seed : '';
+        newArray[index].data = data;
       }
       if (Platform.OS == 'ios') {
+        console.log('newaww', newArray);
         if (newArray.length) {
           const result = await Cloud.startBackup(JSON.stringify(newArray));
           console.log('startBackup result', result);
@@ -251,6 +251,7 @@ export const uploadData = async (appID: string, data: object) => {
       }
     } else {
       const backedJson = await Cloud.downloadBackup();
+      console.log('backedJson', backedJson);
       const json = backedJson ? JSON.parse(backedJson) : null;
       if (backedJson && json && json.status) {
         return json;
@@ -284,14 +285,11 @@ export const getCloudBackupData = async () => {
   try {
     if (Platform.OS == 'ios') {
       const backed = await Cloud.downloadBackup();
-      const backedJson = backed !== '' ? JSON.parse(backed) : {};
-      if (backedJson.errorCode) {
-        // const message = Platform.OS == 'ios' ? `${getiCloudErrorMessage( backedJson.errorCode )}` : 'Google Drive backup failed'
-        // if( backedJson === 'failure' ) {
-        //   yield put( setCloudBackupStatus( CloudBackupStatus.FAILED ) )
-        //   return false
-        // }
-      }
+      const backedJson = backed !== '' ? JSON.parse(backed) : [];
+      return {
+        status: true,
+        data: backedJson,
+      };
     } else {
       const setup = await Cloud.setup();
       if (setup) {
