@@ -11,5 +11,5 @@ export const generateEncryptionKey = (seed?: string): string =>
 export const encrypt = (key: string, data: string): string =>
   cryptoJS.AES.encrypt(data, key).toString();
 
-export const decrypt = (key: string, encrypted: string): string =>
+export const decrypt = (key: string, encrypted: any): string =>
   cryptoJS.AES.decrypt(encrypted, key).toString(cryptoJS.enc.Utf8);
