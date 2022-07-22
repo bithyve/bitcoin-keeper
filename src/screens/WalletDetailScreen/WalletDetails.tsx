@@ -265,11 +265,13 @@ const WalletDetails = () => {
     >
       <StatusBarComponent padding={50} />
 
-      <Box flexDirection={'row'} justifyContent={'space-between'}>
-        <Pressable onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </Pressable>
-      </Box>
+      <Pressable
+        zIndex={999}
+        onPress={() => navigation.goBack()}
+        width={4}
+      >
+        <BackIcon />
+      </Pressable>
 
       <Box alignItems={'center'} marginTop={-hp(30)}>
         <GradientIcon height={48} Icon={WalletInside} />
