@@ -41,6 +41,7 @@ import { useUaiStack } from 'src/hooks/useUaiStack';
 import NewWalletModal from 'src/components/NewWalletModal';
 import SuccessModal from 'src/components/SuccessModal';
 import { walletData } from 'src/common/data/defaultData/defaultData';
+import CustomPriorityModal from '../Send/CustomPriorityModal';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -353,7 +354,7 @@ const VaultStatus = (props) => {
         textColor={'#5F6965'}
         Content={VaultCreationContent}
       /> */}
-      <KeeperModal
+      {/* <KeeperModal
         visible={visible}
         close={close}
         title={vaultTranslations.SetupyourVault}
@@ -365,6 +366,14 @@ const VaultStatus = (props) => {
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
         Content={VaultSetupContent}
+      /> */}
+      <CustomPriorityModal
+        visible={visible}
+        title="Custom Priority"
+        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+        close={close}
+        buttonText="Confirm"
       />
     </Box>
   );
@@ -455,10 +464,7 @@ const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
-    <Box
-      flex={1}
-      backgroundColor={'light.lightYellow'}
-    >
+    <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, VStack, HStack, View } from 'native-base';
+import { Box, Text, View } from 'native-base';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
@@ -10,7 +10,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SigningController from './SigningController';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import RadioButton from 'src/components/RadioButton';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -27,11 +27,13 @@ import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  // const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -66,33 +68,33 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  const onProceed = () => {
-    if (isVaultTransfer) {
-      if (uaiSetActionFalse) {
-        uaiSetActionFalse();
-      }
-      if (defaultVault) {
-        dispatch(
-          crossTransfer({
-            sender: defaultWallet,
-            recipient: defaultVault,
-            amount: 10e3,
-          })
-        );
-        if (uaiSetActionFalse) {
-          uaiSetActionFalse();
-        }
-        navigtaion.goBack();
-      }
-    } else {
-      dispatch(
-        sendPhaseTwo({
-          wallet,
-          txnPriority: transactionPriority,
-        })
-      );
-    }
-  };
+  // const onProceed = () => {
+  //   if (isVaultTransfer) {
+  //     if (uaiSetActionFalse) {
+  //       uaiSetActionFalse();
+  //     }
+  //     if (defaultVault) {
+  //       dispatch(
+  //         crossTransfer({
+  //           sender: defaultWallet,
+  //           recipient: defaultVault,
+  //           amount: 10e3,
+  //         })
+  //       );
+  //       if (uaiSetActionFalse) {
+  //         uaiSetActionFalse();
+  //       }
+  //       navigtaion.goBack();
+  //     }
+  //   } else {
+  //     dispatch(
+  //       sendPhaseTwo({
+  //         wallet,
+  //         txnPriority: transactionPriority,
+  //       })
+  //     );
+  //   }
+  // };
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -129,21 +131,21 @@ const SendConfirmation = ({ route }) => {
               letterSpacing={1.12}
               fontWeight={200}
             >
-              {isVaultTransfer && !isSend ? 'Vault' : 'Funds'}
+              {/* {isVaultTransfer && !isSend ? 'Vault' : 'Funds'} */}
             </Text>
             <Box flexDirection={'row'}>
               <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`}
+                {/* {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`} */}
               </Text>
               <Box justifyContent={'center'}>
                 <BTC />
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {isVaultTransfer && defaultWallet && isSend
+                {/* {isVaultTransfer && defaultWallet && isSend
                   ? (defaultWallet as Wallet).specs.balances.confirmed / 10e8
                   : ''}
                 {wallet ? (wallet as Wallet).specs.balances.confirmed / 10e8 : ''}
-                {!isSend && isVaultTransfer ? '0.0001' : ''}
+                {!isSend && isVaultTransfer ? '0.0001' : ''} */}
               </Text>
             </Box>
           </Box>
@@ -296,6 +298,39 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
+  const CustomPriorityBox = () => {
+    return (
+      <Box
+        flexDirection={'row'}
+        rounded="lg"
+        background={'#FDF7F0'}
+        justifyContent={'space-between'}
+        alignItems={'center'}
+        marginTop={hp(10)}
+        mx={wp(29)}
+        textAlign={'center'}
+        px="2"
+        py="2"
+      >
+        <Text
+          fontStyle={'italic'}
+          color={'#00715B'}
+          fontSize={12}
+          fontFamily={'body'}
+          fontWeight={'300'}
+          p={2}
+        >
+          Custom Priority
+        </Text>
+        <ArrowIcon />
+      </Box>
+    );
+  };
+
+  const handleCustomPriority = () => {
+    return <CustomPriorityModal />;
+  };
+
   return (
     <Box
       padding={windowHeight * 0.01}
@@ -324,7 +359,9 @@ const SendConfirmation = ({ route }) => {
           <SendingPriority />
         </Box>
       </Box>
-
+      <TouchableOpacity onPress={handleCustomPriority}>
+        <CustomPriorityBox />
+      </TouchableOpacity>
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"
@@ -332,7 +369,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-          primaryCallback={onProceed}
+          // primaryCallback={onProceed}
         />
       </Box>
 
