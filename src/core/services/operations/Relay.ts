@@ -3,6 +3,7 @@ import config from '../../config';
 import idx from 'idx';
 import { INotification } from '../interfaces';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
+import { getAppImage } from 'src/store/sagaActions/bhr';
 
 const { AUTH_ID, HEXA_ID, RELAY_AXIOS } = config;
 export default class Relay {
@@ -269,7 +270,7 @@ export default class Relay {
   };
 
   public static updateAppImage = async (
-    walletImage
+    appImage
   ): Promise<{
     status?: number;
     data?: {
@@ -279,10 +280,22 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      const res: AxiosResponse = await RELAY_AXIOS.post('updateAppImage', walletImage);
+      const res: AxiosResponse = await RELAY_AXIOS.post('updateAppImage', appImage);
       return {
         status: res.status,
       };
+    } catch (err) {
+      throw new Error('Failed to update App Image');
+    }
+  };
+
+  public static getAppImage = async (appId): Promise<any> => {
+    try {
+      const res: AxiosResponse = await RELAY_AXIOS.post('getAppImage', {
+        id: appId,
+      });
+      const { appImageData } = res.data;
+      return appImageData;
     } catch (err) {
       throw new Error('Failed to update App Image');
     }

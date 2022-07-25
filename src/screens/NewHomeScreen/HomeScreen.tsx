@@ -197,9 +197,11 @@ const VaultSetupContent = () => {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-        {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
-      </Text> */}
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {
+          'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
+        }
+      </Text>
     </View>
   );
 };
@@ -256,7 +258,7 @@ const VaultStatus = (props) => {
   } = Vault;
   const vaultBalance = confirmed + unconfirmed;
   return (
-    <Box marginTop={-hp(97.44)} alignItems={'center'}>
+    <Box marginTop={-hp(100)} alignItems={'center'}>
       <TouchableOpacity onPress={open} activeOpacity={0.5}>
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
@@ -358,7 +360,7 @@ const VaultStatus = (props) => {
         subTitle={vaultTranslations.VaultDesc}
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vaultTranslations.Addsigner}
+        buttonText={vaultTranslations.AddNow}
         buttonTextColor={'#073E39'}
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
@@ -453,7 +455,10 @@ const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
-    <Box flex={1} backgroundColor={'light.lightYellow'}>
+    <Box
+      flex={1}
+      backgroundColor={'light.lightYellow'}
+    >
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {
@@ -488,7 +493,7 @@ const styles = ScaledSheet.create({
   bottomCard: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: hp(100),
+    height: hp(95),
     width: wp(335),
     borderRadius: 10,
     flexDirection: 'row',
