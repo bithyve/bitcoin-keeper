@@ -1,6 +1,6 @@
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import React, { useCallback } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
@@ -119,7 +119,7 @@ const SetupTapsigner = () => {
       const networkType = NetworkType.TESTNET;
       const network = WalletUtilities.getNetworkByType(networkType);
 
-      const { xpub, xpriv, derivationPath } = generateMockExtendedKey();
+      const { xpub, xpriv, derivationPath } = generateMockExtendedKey(EntityKind.VAULT);
       const mockTapSigner: VaultSigner = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
         type: SignerType.TAPSIGNER,

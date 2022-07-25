@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-import { DerivationPurpose, EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
+import { EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
 import {
   Wallet,
   WalletDerivationDetails,
@@ -60,7 +60,7 @@ export const generateWallet = async ({
       id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
       // derive extended keys
       const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-      const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
+      const xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
       const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
         seed,
         network,
@@ -120,7 +120,9 @@ export const generateWallet = async ({
   return wallet;
 };
 
-export const generateMockExtendedKey = (): {
+export const generateMockExtendedKey = (
+  entity: EntityKind
+): {
   xpriv: string;
   xpub: string;
   derivationPath: string;
@@ -131,7 +133,7 @@ export const generateMockExtendedKey = (): {
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const networkType = NetworkType.TESTNET;
   const randomWalletNumber = Math.floor(Math.random() * 10e5);
-  const xDerivationPath = WalletUtilities.getDerivationPath(networkType, randomWalletNumber);
+  let xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed.toString('hex'),
