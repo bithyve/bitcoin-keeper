@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import React, { useCallback, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -79,7 +79,7 @@ const SetupColdCard = () => {
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    // const { xpub, masterFingerprint: xfp, derivationPath } = generateMockExtendedKey();
+    // const { xpub, masterFingerprint: xfp, derivationPath } = generateMockExtendedKey(EntityKind.VAULT);
     const xpub =
       'tpubDDEoAesyQmKxmesvarD2w6fcdZKabESDEnQiQjg1U6AnJtRdhEJJVcscRRCELAJa3TmPrQ9Jd2YBmYh1ByWmapogcuA92eiRxNRp92D8b6f';
     const xfp = '73DC8582';

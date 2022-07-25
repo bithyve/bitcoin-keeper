@@ -10,7 +10,9 @@ import {
   TransactionToAddressMapping,
 } from '../interfaces/';
 import {
+  BIP48ScriptTypes,
   DerivationPurpose,
+  EntityKind,
   NetworkType,
   PaymentInfoKind,
   TransactionType,
@@ -88,12 +90,17 @@ export default class WalletUtilities {
   };
 
   static getDerivationPath = (
+    entity: EntityKind,
     type: NetworkType,
-    walletNumber: number = 0,
-    purpose: DerivationPurpose = DerivationPurpose.BIP49
+    accountNumber: number = 0,
+    purpose: DerivationPurpose = DerivationPurpose.BIP49,
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
   ): string => {
-    if (type === NetworkType.TESTNET) return `m/${purpose}'/1'/${walletNumber}'`;
-    else return `m/${purpose}'/0'/${walletNumber}'`;
+    const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
+    if (entity === EntityKind.VAULT) {
+      const scriptNum = scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT ? 1 : 2;
+      return `m/${DerivationPurpose.BIP48}'/${isTestnet}'/${accountNumber}'/${scriptNum}'`;
+    } else return `m/${purpose}'/${isTestnet}'/${accountNumber}'`;
   };
 
   static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
@@ -123,6 +130,38 @@ export default class WalletUtilities {
         network,
       }).address;
     }
+  };
+
+  static deriveMultiSig = (
+    required: number,
+    pubkeys: Buffer[],
+    network: bitcoinJS.Network,
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
+  ): {
+    p2ms: bitcoinJS.payments.Payment;
+    p2wsh: bitcoinJS.payments.Payment;
+    p2sh: bitcoinJS.payments.Payment | undefined;
+  } => {
+    const p2ms = bitcoinJS.payments.p2ms({
+      m: required,
+      pubkeys,
+      network,
+    });
+    const p2wsh = bitcoinJS.payments.p2wsh({
+      redeem: p2ms,
+      network,
+    });
+
+    let p2sh;
+    if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+      // wrap native segwit
+      p2sh = bitcoinJS.payments.p2sh({
+        redeem: p2wsh,
+        network,
+      });
+    }
+
+    return { p2ms, p2wsh, p2sh };
   };
 
   static isValidAddress = (address: string, network: bitcoinJS.Network): boolean => {
@@ -298,7 +337,8 @@ export default class WalletUtilities {
     required: number,
     network: bitcoinJS.Network,
     childIndex: number,
-    internal: boolean
+    internal: boolean,
+    scriptType?: BIP48ScriptTypes
   ): {
     p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
@@ -319,28 +359,21 @@ export default class WalletUtilities {
       const pub = xKey.publicKey.toString('hex');
       return Buffer.from(pub, 'hex');
     });
-    // bip-67
-    pubkeys = pubkeys.sort((a, b) => (a > b ? 1 : -1));
-    const p2ms = bitcoinJS.payments.p2ms({
-      m: required,
+    pubkeys = pubkeys.sort((a, b) => (a > b ? 1 : -1)); // bip-67 compatible
+
+    const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
+      required,
       pubkeys,
       network,
-    });
-    const p2wsh = bitcoinJS.payments.p2wsh({
-      redeem: p2ms,
-      network,
-    });
-    const p2sh = bitcoinJS.payments.p2sh({
-      redeem: p2wsh,
-      network,
-    });
-
+      scriptType
+    );
+    const address = p2sh ? p2sh.address : p2wsh.address;
     return {
       p2ms,
       p2wsh,
       p2sh,
       pubkeys,
-      address: p2sh.address,
+      address: address,
       subPath,
     };
   };
@@ -1199,7 +1232,7 @@ export default class WalletUtilities {
       secondaryMnemonic,
       false,
       network,
-      WalletUtilities.getDerivationPath(NetworkType.MAINNET, 0)
+      WalletUtilities.getDerivationPath(EntityKind.VAULT, NetworkType.MAINNET, 0)
     );
     if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
 
@@ -1226,7 +1259,11 @@ export default class WalletUtilities {
   ): {
     secondaryXpriv: string;
   } => {
-    const derivationPath = WalletUtilities.getDerivationPath(NetworkType.MAINNET, 0);
+    const derivationPath = WalletUtilities.getDerivationPath(
+      EntityKind.VAULT,
+      NetworkType.MAINNET,
+      0
+    );
     const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
       secondaryMnemonic,
       false,
