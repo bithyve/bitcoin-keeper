@@ -187,13 +187,6 @@ const AppSettings = ({ navigation }) => {
             icon={true}
             onPress={() => openLink('https://t.me/HexaWallet')}
           />
-          <TouchableOpacity onPress={backup}>
-            <Text>DRIVE</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={doanload}>
-            <Text>DOWNLOAD</Text>
-          </TouchableOpacity>
         </ScrollView>
         {/* <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
           <Note title={common.note} subtitle={settings.desc} />
