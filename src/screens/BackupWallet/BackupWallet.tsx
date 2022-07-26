@@ -16,7 +16,11 @@ import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponen
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/CloudBackup/SkipHealthCheck';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { initCloudBackup } from 'src/store/sagaActions/bhr';
+import { setBackupError, setBackupLoading } from 'src/store/reducers/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type Props = {
   title: string;
@@ -25,14 +29,17 @@ type Props = {
 };
 
 const BackupWallet = () => {
-  const navigtaion = useNavigation();
+  const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
-  const { backupMethod } = useAppSelector((state) => state.bhr);
+  const { backupMethod, loading, isBackupError, backupError } = useAppSelector(
+    (state) => state.bhr
+  );
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
+  const { showToast } = useToastMessage();
 
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
   const navigation = useNavigation();
@@ -42,9 +49,26 @@ const BackupWallet = () => {
 
   useEffect(() => {
     if (backupMethod !== null) {
-      navigation.replace('WalletBackHistory');
+      // navigation.replace('WalletBackHistory');
     }
   }, [backupMethod]);
+
+  useEffect(() => {
+    if (loading) {
+      setTimeout(() => {
+        setCreateCloudBackupModal(true);
+      }, 100);
+    } else {
+      setCreateCloudBackupModal(false);
+      if (isBackupError) {
+        showToast(backupError);
+      }
+    }
+    return () => {
+      dispatch(setBackupLoading(false));
+      dispatch(setBackupError({ isError: false, error: '' }));
+    };
+  }, [loading, isBackupError]);
 
   const Option = ({ title, subTitle, onPress }: Props) => {
     return (
@@ -106,17 +130,23 @@ const BackupWallet = () => {
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
           onPress={() => {
-            // setCloudBackupModal(true);
+            setCloudBackupModal(true);
             // setCreateCloudBackupModal(true);
             // setHealthCheckModal(true);
             // setHealthCheckSuccessModal(true);
-            setSkipHealthCheckModal(true);
+            // setSkipHealthCheckModal(true);
           }}
         />
       </Box>
       <Box>
         <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>
-          <AppGeneratePass closeBottomSheet={() => setCloudBackupModal(false)} />
+          <AppGeneratePass
+            confirmBtnPress={(password) => {
+              dispatch(initCloudBackup(password, 'App generated strong password'));
+              setCloudBackupModal(false);
+            }}
+            closeBottomSheet={() => setCloudBackupModal(false)}
+          />
         </ModalWrapper>
         <ModalWrapper
           visible={createCloudBackupModal}

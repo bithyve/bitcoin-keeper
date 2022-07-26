@@ -16,8 +16,11 @@ export const KeeperAppSchema: ObjectSchema = {
     uai: `${RealmSchema.UAI}?`,
     userTier: RealmSchema.UserTier,
     version: 'string',
-    agsp: {
-      // app generated strong password
+    backupPassword: {
+      type: 'string?',
+      default: '',
+    },
+    backupPasswordHint: {
       type: 'string?',
       default: '',
     },

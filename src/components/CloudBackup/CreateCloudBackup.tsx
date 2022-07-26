@@ -19,7 +19,7 @@ const CreateCloudBackup = (props) => {
   ]);
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
-      <TouchableOpacity onPress={() => props.closeBottomSheet()}>
+      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
           bg={'#E3BE96'}
@@ -34,7 +34,7 @@ const CreateCloudBackup = (props) => {
             X
           </Text>
         </Box>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <Box p={10}>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
           {BackupWallet.createCloudBackTitle}

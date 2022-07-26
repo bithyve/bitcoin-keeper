@@ -51,10 +51,10 @@ const uplaodFile = async ({ payload }) => {
         };
         newArray.push(tempData);
       } else {
-        newArray[index].data = data;
+        newArray[index] = { appID, ...data };
         newArray[index].dateTime = moment(new Date());
       }
-      console.log('ARR', newArray);
+      // console.log('ARR', newArray);
       if (Platform.OS == 'ios') {
         if (newArray.length) {
           const result = await Cloud.startBackup(JSON.stringify(newArray));
@@ -69,11 +69,10 @@ const uplaodFile = async ({ payload }) => {
         };
         const result = await Cloud.updateFile(JSON.stringify(metaData));
         if (result.eventName == 'successFullyUpdate') {
-          return 'successFullyUpdate';
+          return { status: true };
         } else if (result.eventName == 'failure') {
           return result;
         }
-        console.log('Google Drive.updateFile', result);
       }
     }
   } catch (error) {
@@ -161,7 +160,7 @@ const createFile = async ({ payload }) => {
       };
       const result = await Cloud.uploadFile(JSON.stringify(metaData));
       if (result && result.eventName == 'successFullyUpload') {
-        return result.eventName;
+        return { status: true };
         // this.callBack( share )
       } else if (result && result.eventName === 'UseUserRecoverableAuthIOException') {
         const fileAvailabelStatus = await checkFileIsAvailable({
@@ -192,10 +191,15 @@ const updateData = async ({ payload }) => {
       }
       const index = newArray.findIndex((x) => x.appID == appID);
       if (index === -1) {
-        const tempData = payload;
+        const tempData = {
+          appID,
+          data,
+          dateTime: moment(new Date()),
+        };
         newArray.push(tempData);
       } else {
-        newArray[index].data = data;
+        newArray[index] = { appID, ...data };
+        newArray[index].dateTime = moment(new Date());
       }
       if (Platform.OS == 'ios') {
         console.log('newaww', newArray);
@@ -214,7 +218,7 @@ const updateData = async ({ payload }) => {
       };
       const result = await Cloud.updateFile(JSON.stringify(metaData));
       if (result.eventName == 'successFullyUpdate') {
-        return 'successFullyUpdate';
+        return { status: true };
       } else if (result.eventName == 'failure') {
         throw new Error(result.eventName);
       }
@@ -251,7 +255,6 @@ export const uploadData = async (appID: string, data: object) => {
       }
     } else {
       const backedJson = await Cloud.downloadBackup();
-      console.log('backedJson', backedJson);
       const json = backedJson ? JSON.parse(backedJson) : null;
       if (backedJson && json && json.status) {
         return json;
@@ -262,6 +265,7 @@ export const uploadData = async (appID: string, data: object) => {
             result1: backedJson,
             googleData: '',
             data,
+            appID,
           },
         });
         const res = JSON.parse(isCloudBackupUpdated);
