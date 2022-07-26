@@ -10,6 +10,7 @@ const initialState: {
   seedConfirmed: boolean;
   loading: boolean;
   cloudBackupCompleted: boolean;
+  cloudBackedConfirmed: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -17,6 +18,7 @@ const initialState: {
   seedConfirmed: false,
   loading: false,
   cloudBackupCompleted: false,
+  cloudBackedConfirmed: false,
 };
 
 const bhrSlice = createSlice({
@@ -28,6 +30,14 @@ const bhrSlice = createSlice({
     },
     setSeedConfirmed: (state, action: PayloadAction<boolean>) => {
       state.seedConfirmed = action.payload;
+    },
+    setCloudBackupConfirmed: (state, action: PayloadAction<boolean>) => {
+      state.cloudBackedConfirmed = action.payload;
+      if (action.payload) {
+        state.backupError = '';
+        state.isBackupError = false;
+        state.loading = false;
+      }
     },
     setBackupLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -51,12 +61,20 @@ export const {
   setBackupError,
   setBackupLoading,
   setCloudBackupCompleted,
+  setCloudBackupConfirmed,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
   key: 'bhr',
   storage: reduxStorage,
-  blacklist: ['isBackupError', 'backupError', 'seedConfirmed', 'loading'],
+  blacklist: [
+    'isBackupError',
+    'backupError',
+    'seedConfirmed',
+    'loading',
+    'cloudBackupCompleted',
+    'cloudBackedConfirmed',
+  ],
 };
 
 export default persistReducer(bhrPersistConfig, bhrSlice.reducer);

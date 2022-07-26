@@ -19,6 +19,7 @@ const HealthCheckComponent = (props) => {
   const { words } = props;
   const [index] = useState(Math.floor(Math.random() * words.length));
   const [invalid, setInvalid] = useState(false);
+  console.log(props.password);
 
   const getSeedNumber = (seedNumber) => {
     switch (seedNumber + 1) {
@@ -81,7 +82,13 @@ const HealthCheckComponent = (props) => {
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
       if (seedWord === words[index]) {
-        props.onConfirmed();
+        props.onConfirmed('');
+      } else {
+        setInvalid(true);
+      }
+    } else {
+      if (strongPassword === props.password) {
+        props.onConfirmed(strongPassword);
       } else {
         setInvalid(true);
       }
@@ -102,7 +109,7 @@ const HealthCheckComponent = (props) => {
         <Text fontSize={RFValue(13)} ml={3}>
           {type === BackupType.SEED
             ? `Enter the ${getSeedNumber(index)} word`
-            : BackupWallet.enterStrongPass}
+            : `Hint: ${props.hint}`}
         </Text>
         <Input
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}

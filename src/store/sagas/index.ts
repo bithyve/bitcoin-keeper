@@ -34,6 +34,8 @@ import {
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   initCloudBackupWatcher,
+  cloudBackupSkippedWatcher,
+  confirmCloudBackupWatcher,
 } from './bhr';
 
 export const rootSaga = function* () {
@@ -78,6 +80,8 @@ export const rootSaga = function* () {
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
     initCloudBackupWatcher,
+    cloudBackupSkippedWatcher,
+    confirmCloudBackupWatcher,
   ];
 
   yield all(

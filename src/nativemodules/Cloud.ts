@@ -145,9 +145,8 @@ const createFile = async ({ payload }) => {
   try {
     const { data, appID } = payload;
     const WalletData = [];
-    const tempData = { ...data, appID };
+    const tempData = { ...data, appID, dateTime: moment(new Date()) };
     WalletData.push(tempData);
-
     if (Platform.OS === 'ios') {
       const result = await Cloud.startBackup(JSON.stringify(WalletData));
       return result;

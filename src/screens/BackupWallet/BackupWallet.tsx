@@ -32,9 +32,8 @@ const BackupWallet = () => {
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
-  const { backupMethod, loading, isBackupError, backupError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { backupMethod, loading, isBackupError, backupError, cloudBackupCompleted } =
+    useAppSelector((state) => state.bhr);
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
@@ -49,9 +48,9 @@ const BackupWallet = () => {
 
   useEffect(() => {
     if (backupMethod !== null) {
-      // navigation.replace('WalletBackHistory');
+      navigation.replace('WalletBackHistory');
     }
-  }, [backupMethod]);
+  }, [backupMethod, cloudBackupCompleted]);
 
   useEffect(() => {
     if (loading) {
@@ -68,7 +67,7 @@ const BackupWallet = () => {
       dispatch(setBackupLoading(false));
       dispatch(setBackupError({ isError: false, error: '' }));
     };
-  }, [loading, isBackupError]);
+  }, [loading, isBackupError, cloudBackupCompleted]);
 
   const Option = ({ title, subTitle, onPress }: Props) => {
     return (

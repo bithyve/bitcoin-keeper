@@ -12,6 +12,8 @@ import {
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
   INIT_CLOUD_BACKUP,
+  CLOUD_BACKUP_SKIPPED,
+  CONFIRM_CLOUD_BACKUP,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import DeviceInfo from 'react-native-device-info';
@@ -22,9 +24,10 @@ import {
   setBackupLoading,
   setBackupType,
   setCloudBackupCompleted,
+  setCloudBackupConfirmed,
   setSeedConfirmed,
 } from '../reducers/bhr';
-import { uploadData } from 'src/nativemodules/Cloud';
+import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
 import { translations } from 'src/common/content/LocContext';
 
@@ -61,6 +64,92 @@ function* updateAppImageWorker({ payload }) {
     } catch (err) {
       console.error('update failed', err);
     }
+  }
+}
+
+function getCloudErrorMessage(code) {
+  try {
+    const errorMessages = Platform.select({
+      android: translations['driveErrors'],
+      ios: translations['iCloudErrors'],
+    });
+    return errorMessages[code] || '';
+  } catch (error) {
+    return '';
+  }
+}
+
+function* cloudBackupSkippedWorked() {
+  try {
+    yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+      title: BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED,
+      date: moment().unix(),
+      confirmed: false,
+      subtitle: '',
+    });
+  } catch (error) {}
+}
+
+function* confirmCloudBackupWorked({
+  payload,
+}: {
+  payload: {
+    password: string;
+  };
+}) {
+  try {
+    const { password } = payload;
+    const { id, primaryMnemonic }: KeeperApp = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.KeeperApp
+    );
+    const response = yield call(getCloudBackupData);
+    if (response.status) {
+      const backup = JSON.parse(response.data).find((backup) => backup.appID === id);
+      if (backup) {
+        const dec = decrypt(password, backup.encData);
+        const obj = JSON.parse(dec);
+        if (obj.seed && obj.seed === primaryMnemonic) {
+          yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+            title: BackupAction.CLOUD_BACKUP_CONFIRMED,
+            date: moment().unix(),
+            confirmed: true,
+            subtitle: '',
+          });
+          yield put(setCloudBackupConfirmed(true));
+        }
+      } else {
+        // backup does not exists
+        yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+          title: BackupAction.CLOUD_BACKUP_FAILED,
+          date: moment().unix(),
+          confirmed: false,
+          subtitle: 'Unable to access cloud backup',
+        });
+        yield put(setCloudBackupConfirmed(false));
+      }
+    } else {
+      const errMsg = getCloudErrorMessage(response.code) || '';
+      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+        title: BackupAction.CLOUD_BACKUP_FAILED,
+        date: moment().unix(),
+        confirmed: false,
+        subtitle: `${errMsg} ${response.code ? `(code ${response.code}` : ''})`,
+      });
+      yield put(setCloudBackupConfirmed(false));
+    }
+    yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+      title: BackupAction.CLOUD_BACKUP_CONFIRMED,
+      date: moment().unix(),
+      confirmed: true,
+      subtitle: '',
+    });
+    yield put(setCloudBackupConfirmed(false));
+
+    yield put(setCloudBackupConfirmed(true));
+  } catch (error) {
+    console.log(error);
+    yield put(setCloudBackupConfirmed(false));
   }
 }
 
@@ -123,11 +212,7 @@ function* initCloudBackupWorked({
       });
       yield put(setCloudBackupCompleted());
     } else {
-      const errorMessages = Platform.select({
-        android: translations['driveErrors'],
-        ios: translations['iCloudErrors'],
-      });
-      const errMsg = errorMessages[response.code] || '';
+      const errMsg = getCloudErrorMessage(response.code) || '';
       yield call(dbManager.createObject, RealmSchema.BackupHistory, {
         title: BackupAction.CLOUD_BACKUP_FAILED,
         date: moment().unix(),
@@ -138,7 +223,7 @@ function* initCloudBackupWorked({
       yield put(setBackupLoading(false));
     }
   } catch (error) {
-    yield put(setBackupError({ isError: true, error: 'Unknown error' }));
+    yield put(setBackupError({ isError: true, error: `${error}` }));
     yield put(setBackupLoading(false));
     console.log(error);
   }
@@ -203,6 +288,14 @@ export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);
+export const cloudBackupSkippedWatcher = createWatcher(
+  cloudBackupSkippedWorked,
+  CLOUD_BACKUP_SKIPPED
+);
+export const confirmCloudBackupWatcher = createWatcher(
+  confirmCloudBackupWorked,
+  CONFIRM_CLOUD_BACKUP
+);
 export const seedBackeupConfirmedWatcher = createWatcher(
   seedBackeupConfirmedWorked,
   SEED_BACKEDUP_CONFIRMED

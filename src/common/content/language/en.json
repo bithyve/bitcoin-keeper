@@ -438,7 +438,10 @@
     "SEED_BACKUP_CONFIRMED": "Seed backup confirmed",
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Seed health confirmation skipped",
     "CLOUD_BACKUP_CREATED": "Cloud backup created",
-    "CLOUD_BACKUP_FAILED": "Cloud backup failed"
+    "CLOUD_BACKUP_FAILED": "Cloud backup failed",
+    "CLOUD_BACKUP_CONFIRMATION_SKIPPED": "Cloud backup confirmation skipped",
+    "CLOUD_BACKUP_CONFIRMED": "Cloud backup confirmed",
+    "CLOUD_BACKUP_CONFIRMATION_FAILED": "Cloud backup confirmation failed"
   },
   "iCloudErrors": {
     "36": "iCloud account is temporarily unavailable, please try after sometime.",
