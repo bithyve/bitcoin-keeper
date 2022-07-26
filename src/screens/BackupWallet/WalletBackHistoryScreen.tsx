@@ -7,9 +7,10 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import BackupHealthCheckList from 'src/components/CloudBackup/BackupHealthCheckList';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const MyWalletBackScreen = ({ navigation }) => {
+const WalletBackHistoryScreen = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
+
   return (
     <SafeAreaView
       style={{
@@ -32,12 +33,10 @@ const MyWalletBackScreen = ({ navigation }) => {
           Lorem ipsum dolor sit amet
         </Text>
       </Box>
-      <ScrollView>
-        <Box m={10}>
-          <BackupHealthCheckList />
-        </Box>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, margin: 10 }}>
+        <BackupHealthCheckList />
       </ScrollView>
     </SafeAreaView>
   );
 };
-export default MyWalletBackScreen;
+export default WalletBackHistoryScreen;

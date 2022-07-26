@@ -1,18 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
-
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
-// icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import AppGeneratePass from 'src/components/CloudBackup/AppGeneratePass';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
@@ -20,6 +16,7 @@ import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponen
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/CloudBackup/SkipHealthCheck';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { useAppSelector } from 'src/store/hooks';
 
 type Props = {
   title: string;
@@ -31,20 +28,23 @@ const BackupWallet = () => {
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
-
+  const { backupMethod } = useAppSelector((state) => state.bhr);
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
 
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
-
   const navigation = useNavigation();
-  const [walletIndex, setWalletIndex] = useState<number>(0);
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-  const currentWallet = wallets[walletIndex];
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  useEffect(() => {
+    if (backupMethod !== null) {
+      navigation.replace('WalletBackHistory');
+    }
+  }, [backupMethod]);
 
   const Option = ({ title, subTitle, onPress }: Props) => {
     return (
@@ -96,8 +96,8 @@ const BackupWallet = () => {
           title={BackupWallet.exportAppSeed}
           subTitle={'Lorem ipsum dolor sit amet'}
           onPress={() => {
-            navigation.navigate('ExportSeed', {
-              seed: currentWallet?.derivationDetails?.mnemonic,
+            navigation.replace('ExportSeed', {
+              seed: primaryMnemonic,
               next: true,
             });
           }}
@@ -146,7 +146,7 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setSkipHealthCheckModal(false);
-              navigation.navigate('MyWalletBackScreen');
+              navigation.navigate('WalletBackHistory');
             }}
           />
         </ModalWrapper>
@@ -162,7 +162,7 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setHealthCheckSuccessModal(false);
-              navigation.navigate('MyWalletBackScreen');
+              navigation.navigate('WalletBackHistory');
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}

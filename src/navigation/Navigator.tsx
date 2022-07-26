@@ -16,7 +16,7 @@ import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
 import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import MyWalletBackScreen from 'src/screens/BackupWallet/MyWalletBackScreen';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
@@ -92,7 +92,7 @@ const AppStack = () => {
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
-        <Stack.Screen name="MyWalletBackScreen" component={MyWalletBackScreen} />
+        <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

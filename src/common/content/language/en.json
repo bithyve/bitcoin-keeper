@@ -433,6 +433,9 @@
     "skipHealthCheckSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
     "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
-    "myWalletBackupTitle": "My Wallet Backup"
+    "myWalletBackupTitle": "My Wallet Backup",
+    "SEED_BACKUP_CREATED": "Seed backup created",
+    "SEED_BACKUP_CONFIRMED": "Seed backup confirmed",
+    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Seed health confirmation skipped"
   }
 }
