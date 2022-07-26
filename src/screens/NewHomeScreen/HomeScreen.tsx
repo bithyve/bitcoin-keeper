@@ -354,7 +354,7 @@ const VaultStatus = (props) => {
         textColor={'#5F6965'}
         Content={VaultCreationContent}
       /> */}
-      {/* <KeeperModal
+      <KeeperModal
         visible={visible}
         close={close}
         title={vaultTranslations.SetupyourVault}
@@ -366,14 +366,6 @@ const VaultStatus = (props) => {
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
         Content={VaultSetupContent}
-      /> */}
-      <CustomPriorityModal
-        visible={visible}
-        title="Custom Priority"
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-        info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-        close={close}
-        buttonText="Confirm"
       />
     </Box>
   );

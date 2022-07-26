@@ -29,11 +29,12 @@ import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import CustomPriorityModal from './CustomPriorityModal';
+import { LocalizationContext } from 'src/common/content/LocContext';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  // const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -43,6 +44,10 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
   );
+
+  const [visible, setVisible] = useState(false);
+  const close = () => setVisible(false);
+  const open = () => setVisible(true);
 
   // taken from hexa --> TransactionPriority.tsx - line 98
   const setCustomTransactionPriority = () => {
@@ -59,42 +64,42 @@ const SendConfirmation = ({ route }) => {
         <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
         </Text>
-        {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {
             'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
           }
-        </Text> */}
+        </Text>
       </View>
     );
   };
 
-  // const onProceed = () => {
-  //   if (isVaultTransfer) {
-  //     if (uaiSetActionFalse) {
-  //       uaiSetActionFalse();
-  //     }
-  //     if (defaultVault) {
-  //       dispatch(
-  //         crossTransfer({
-  //           sender: defaultWallet,
-  //           recipient: defaultVault,
-  //           amount: 10e3,
-  //         })
-  //       );
-  //       if (uaiSetActionFalse) {
-  //         uaiSetActionFalse();
-  //       }
-  //       navigtaion.goBack();
-  //     }
-  //   } else {
-  //     dispatch(
-  //       sendPhaseTwo({
-  //         wallet,
-  //         txnPriority: transactionPriority,
-  //       })
-  //     );
-  //   }
-  // };
+  const onProceed = () => {
+    if (isVaultTransfer) {
+      if (uaiSetActionFalse) {
+        uaiSetActionFalse();
+      }
+      if (defaultVault) {
+        dispatch(
+          crossTransfer({
+            sender: defaultWallet,
+            recipient: defaultVault,
+            amount: 10e3,
+          })
+        );
+        if (uaiSetActionFalse) {
+          uaiSetActionFalse();
+        }
+        navigtaion.goBack();
+      }
+    } else {
+      dispatch(
+        sendPhaseTwo({
+          wallet,
+          txnPriority: transactionPriority,
+        })
+      );
+    }
+  };
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -131,21 +136,21 @@ const SendConfirmation = ({ route }) => {
               letterSpacing={1.12}
               fontWeight={200}
             >
-              {/* {isVaultTransfer && !isSend ? 'Vault' : 'Funds'} */}
+              {isVaultTransfer && !isSend ? 'Vault' : 'Funds'}
             </Text>
             <Box flexDirection={'row'}>
               <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                {/* {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`} */}
+                {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`}
               </Text>
               <Box justifyContent={'center'}>
                 <BTC />
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {/* {isVaultTransfer && defaultWallet && isSend
+                {isVaultTransfer && defaultWallet && isSend
                   ? (defaultWallet as Wallet).specs.balances.confirmed / 10e8
                   : ''}
                 {wallet ? (wallet as Wallet).specs.balances.confirmed / 10e8 : ''}
-                {!isSend && isVaultTransfer ? '0.0001' : ''} */}
+                {!isSend && isVaultTransfer ? '0.0001' : ''}
               </Text>
             </Box>
           </Box>
@@ -160,9 +165,11 @@ const SendConfirmation = ({ route }) => {
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        {/* <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount : '274 sats'}
-        </Text> */}
+        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+          {txFeeInfo && !isVaultTransfer
+            ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+            : '274 sats'}
+        </Text>
       </Box>
     );
   };
@@ -299,36 +306,68 @@ const SendConfirmation = ({ route }) => {
   };
 
   const CustomPriorityBox = () => {
+    const [visible, setModalVisible] = useState(false);
+
+    const open = () => {
+      setModalVisible(true);
+    };
+    const close = () => setModalVisible(false);
+
     return (
-      <Box
-        flexDirection={'row'}
-        rounded="lg"
-        background={'#FDF7F0'}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(10)}
-        mx={wp(29)}
-        textAlign={'center'}
-        px="2"
-        py="2"
-      >
-        <Text
-          fontStyle={'italic'}
-          color={'#00715B'}
-          fontSize={12}
-          fontFamily={'body'}
-          fontWeight={'300'}
-          p={2}
-        >
-          Custom Priority
-        </Text>
-        <ArrowIcon />
+      <Box>
+        <TouchableOpacity onPress={open}>
+          <Box
+            flexDirection={'row'}
+            rounded="lg"
+            background={'#FDF7F0'}
+            justifyContent={'space-between'}
+            alignItems={'center'}
+            marginTop={hp(10)}
+            mx={wp(29)}
+            textAlign={'center'}
+            px="2"
+            py="2"
+          >
+            <Text
+              fontStyle={'italic'}
+              color={'#00715B'}
+              fontSize={12}
+              fontFamily={'body'}
+              fontWeight={'300'}
+              p={2}
+            >
+              Custom Priority
+            </Text>
+            <ArrowIcon />
+          </Box>
+        </TouchableOpacity>
+        <CustomPriorityModal
+          visible={visible}
+          close={close}
+          title="Custom Priority"
+          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+          info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+          buttonText="Confirm"
+        />
       </Box>
     );
   };
 
   const handleCustomPriority = () => {
-    return <CustomPriorityModal />;
+    const { translations } = useContext(LocalizationContext);
+    const vault = translations['vault'];
+    const common = translations['common'];
+
+    return (
+      <CustomPriorityModal
+        visible={visible}
+        title={vault.CustomPriority}
+        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+        close={close}
+        buttonText={common.confirm}
+      />
+    );
   };
 
   return (
@@ -359,9 +398,9 @@ const SendConfirmation = ({ route }) => {
           <SendingPriority />
         </Box>
       </Box>
-      <TouchableOpacity onPress={handleCustomPriority}>
-        <CustomPriorityBox />
-      </TouchableOpacity>
+
+      <CustomPriorityBox />
+
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"
