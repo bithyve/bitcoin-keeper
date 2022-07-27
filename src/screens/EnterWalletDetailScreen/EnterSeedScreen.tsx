@@ -58,16 +58,27 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
     } else {
       const seedWord =
         firstValue +
+        ' ' +
         secondValue +
+        ' ' +
         thirdValue +
+        ' ' +
         fourthValue +
+        ' ' +
         fifthValue +
+        ' ' +
         sixthValue +
+        ' ' +
         seventhValue +
+        ' ' +
         eightValue +
+        ' ' +
         ninthValue +
+        ' ' +
         tenthValue +
+        ' ' +
         eleventhValue +
+        ' ' +
         twelvthValue;
       console.log(seedWord);
       openModalLoader();
