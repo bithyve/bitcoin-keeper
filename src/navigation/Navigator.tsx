@@ -33,6 +33,7 @@ import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const defaultTheme = {
@@ -93,6 +94,7 @@ const AppStack = () => {
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="MyWalletBackScreen" component={MyWalletBackScreen} />
+        <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
