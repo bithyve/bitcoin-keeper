@@ -70,7 +70,7 @@ const AppStack = () => {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* <Stack.Screen name="NewKeeperApp" component={NewKeeperApp} /> */}
+        <Stack.Screen name="NewKeeperApp" component={NewKeeperApp} />
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         <Stack.Screen name="Lock Screen" component={LoginScreen} />

@@ -7,6 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import KeeperModal from './KeeperModal';
 import BTC from 'src/assets/images/btc_white.svg';
+import { NavigationContainer } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const PasswordModal = (props) => {
   const {
@@ -24,6 +26,7 @@ const PasswordModal = (props) => {
   } = props;
   const { bottom } = useSafeAreaInsets();
   const [openModal, setOpenModal] = useState(false);
+  const navigation = useNavigation();
 
   const closeRecovery = () => setOpenModal(false);
   const openRecovery = () => {

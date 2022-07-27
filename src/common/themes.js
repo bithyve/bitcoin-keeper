@@ -54,6 +54,7 @@ export const customTheme = extendTheme({
       textColor: '#CDD8D6',
       textColor2: '#4E5C6A',
       headerText: '#00715B',
+      blackHeaderText: '#092C27',
       copyBackground: '#CDD8D6',
       seedText: '#4A4A4A',
       borderSaperator: '#BDB7B1',
@@ -66,7 +67,7 @@ export const customTheme = extendTheme({
       textWallet: '#113834',
       transactionPolicyCard: '#FAD8B4',
       inheritanceBullet: '#E3E3E3',
-      inheritanceTitle: '#055146'
+      inheritanceTitle: '#055146',
     },
     dark: {
       black: '#000000',

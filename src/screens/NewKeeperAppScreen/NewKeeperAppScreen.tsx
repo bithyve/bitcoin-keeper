@@ -1,37 +1,47 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, ScrollView, StatusBar, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, TouchableOpacity, Platform, View } from 'react-native';
 import BackIcon from 'src/assets/icons/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp, SETUP_KEEPER_APP } from 'src/store/sagaActions/storage';
 import { useAppSelector } from 'src/store/hooks';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import { getAppImage } from 'src/store/sagaActions/bhr';
+import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
+import App from 'src/assets/images/svgs/app.svg';
+import Recover from 'src/assets/images/svgs/recover.svg';
+import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import PasswordModal from 'src/components/PasswordModal';
+import GoogleDrive from 'src/assets/images/drive.svg';
+import ICloud from 'src/assets/images/icloud.svg';
 
-const Tile = ({ title, subTitle, onPress }) => {
+const Tile = ({ title, subTitle, onPress, Icon }) => {
   return (
     <Pressable
       onPress={onPress}
       backgroundColor={'light.lightYellow'}
       flexDirection={'row'}
       alignItems={'center'}
-      width={'100%'}
+      width={'90%'}
       style={{ marginTop: hp(10) }}
+      marginLeft={'5%'}
     >
+      <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>
       <Box
         backgroundColor={'light.lightYellow'}
         style={{
-          marginLeft: wp(12),
           paddingVertical: hp(20),
           paddingLeft: wp(24),
           borderRadius: hp(10),
-          width: wp(275),
+          width: wp(250),
         }}
       >
         <Text
-          color={'light.inheritanceTitle'}
+          color={'light.lightBlack'}
           fontFamily={'body'}
           fontWeight={200}
           fontSize={RFValue(13)}
@@ -52,6 +62,7 @@ const Tile = ({ title, subTitle, onPress }) => {
           {subTitle}
         </Text>
       </Box>
+      <ArrowIcon />
     </Pressable>
   );
 };
@@ -59,7 +70,60 @@ const Tile = ({ title, subTitle, onPress }) => {
 const NewKeeperApp = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const inheritence = translations['inheritence'];
+  const seed = translations['seed'];
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(false);
   const dispatch = useDispatch();
+
+  const passwordScreen = () => {
+    setModalVisible(false);
+    setPasswordModal(true);
+  };
+
+  const closePassword = () => {
+    setPasswordModal(false);
+  };
+
+  const close = () => setModalVisible(false);
+
+  const RecoverWalletScreen = () => {
+    const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
+
+    return (
+      <View>
+        <View style={{ backgroundColor: '#FDF7F0', marginVertical: 20 }}>
+          <Box flexDirection={'row'} marginY={5} alignSelf={'center'}>
+            {IconName}
+            <Text color={'#4F5955'} marginLeft={5} marginTop={1}>
+              dastanp@gmail.com
+            </Text>
+          </Box>
+          <Box flexDirection={'row'} justifyContent={'space-between'}>
+            <View>
+              <Text fontSize={12} color={'#4F5955'}>
+                Folder: Blue Wallet Backup
+              </Text>
+              <Text fontSize={12} color={'#4F5955'}>
+                Pro Tier Backup
+              </Text>
+            </View>
+            <View>
+              <Text fontSize={12} color={'#4F5955'}>
+                Backed Up
+              </Text>
+              <Text fontSize={12} color={'#4F5955'}>
+                July 15, 2021
+              </Text>
+            </View>
+          </Box>
+        </View>
+        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView
@@ -76,41 +140,57 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           </TouchableOpacity>
         </Box>
         <Box mx={3}>
-          <Text color={'light.headerText'} fontSize={RFValue(16)} fontFamily={'heading'} pl={10}>
+          <Text
+            color={'light.blackHeaderText'}
+            fontSize={RFValue(20)}
+            fontFamily={'heading'}
+            pl={10}
+          >
             New Keeper App
+          </Text>
+          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+            Use this option if you want to create a new Keeper app
           </Text>
           <Tile
             title={'Start New'}
             subTitle={'New Vault and Wallets'}
+            Icon={<App />}
             onPress={() => {
               dispatch(setupKeeperApp());
-              navigation.replace('App');
+              // navigation.replace('App');
+              navigation.dispatch(CommonActions.navigate('NewHome'));
             }}
           />
           <Text
-            color={'light.headerText'}
-            fontSize={RFValue(16)}
+            color={'light.blackHeaderText'}
+            fontSize={RFValue(20)}
             style={{ marginTop: 50 }}
             fontFamily={'heading'}
             pl={10}
           >
             Exsisting Keeper App
           </Text>
+          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+            If you previously had a Keeper wallet you can recover it
+          </Text>
           <Tile
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
-            onPress={() => console.log('Using Cloud')}
+            Icon={<Recover />}
+            onPress={() => setModalVisible(true)}
           />
           <Tile
             title={'Recover for myself'}
             subTitle={'Using Seed'}
+            Icon={<Recover />}
             onPress={() => {
-              navigation.navigate('LoginStack', { screen: 'RecoveryFromSeed' });
-              dispatch(
-                getAppImage(
-                  'violin material have toddler bomb cake awful left earth goose occur receive'
-                )
-              );
+              navigation.navigate('EnterSeedScreen');
+              // navigation.navigate('LoginStack', { screen: 'RecoveryFromSeed' });
+              // dispatch(
+              //   getAppImage(
+              //     'violin material have toddler bomb cake awful left earth goose occur receive'
+              //   )
+              // );
               console.log('using Seed');
             }}
           />
@@ -118,6 +198,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             title={'Inheritance Keeper Vault'}
             subTitle={'Using Signing Devices'}
             onPress={() => console.log('using Signing Devices')}
+            Icon={<Inheritance />}
           />
           {/* <TouchableOpacity
             onPress={() => {
@@ -135,6 +216,31 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           </TouchableOpacity> */}
         </Box>
       </ScrollView>
+      <KeeperModal
+        visible={modalVisible}
+        close={close}
+        title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
+        subTitle={seed.seedDescription}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Next'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={passwordScreen}
+        textColor={'#041513'}
+        Content={RecoverWalletScreen}
+      />
+      <PasswordModal
+        visible={passwordModal}
+        close={closePassword}
+        title={'Confirm Password'}
+        subTitle={seed.seedDescription}
+        dscription={seed.seedDescription}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Next'}
+        buttonTextColor={'#FAFAFA'}
+        textColor={'#041513'}
+      />
     </SafeAreaView>
   );
 };
