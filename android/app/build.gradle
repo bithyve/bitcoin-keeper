@@ -141,6 +141,10 @@ android {
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
+    lintOptions {
+          checkReleaseBuilds false
+          abortOnError false
+      }
     splits {
         abi {
             reset()
