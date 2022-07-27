@@ -83,7 +83,7 @@ const OnBoardingSlides = ({ navigation }) => {
           <Box justifyContent={'center'} mr={4} mt={10}>
             {currentPosition != 5 && (
               <TouchableOpacity
-                onPress={() => navigation.replace('App')}
+                onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
                 <Text
