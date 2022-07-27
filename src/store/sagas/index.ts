@@ -33,6 +33,9 @@ import {
   updateAppImageWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
+  initCloudBackupWatcher,
+  cloudBackupSkippedWatcher,
+  confirmCloudBackupWatcher,
 } from './bhr';
 
 export const rootSaga = function* () {
@@ -76,6 +79,9 @@ export const rootSaga = function* () {
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
+    initCloudBackupWatcher,
+    cloudBackupSkippedWatcher,
+    confirmCloudBackupWatcher,
   ];
 
   yield all(

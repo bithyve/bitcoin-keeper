@@ -27,4 +27,6 @@ export interface KeeperApp {
   version: string;
   agsp?: string;
   backupMethod?: BackupType;
+  backupPasswordHint?: string;
+  backupPassword?: string;
 }

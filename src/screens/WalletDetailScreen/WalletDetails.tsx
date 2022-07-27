@@ -30,9 +30,9 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
 // icons and images
-import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
+// import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
 import Send from 'src/assets/images/svgs/send.svg';
-import Setting from 'src/assets/images/svgs/settings_small.svg';
+// import Setting from 'src/assets/images/svgs/settings_small.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Transaction } from 'src/core/wallets/interfaces';
@@ -81,7 +81,7 @@ const WalletDetails = () => {
         style={{
           borderRadius: hp(20),
           width: wp(320),
-          height: hp(120),
+          height: hp(130),
           position: 'relative',
         }}
       >
@@ -186,7 +186,7 @@ const WalletDetails = () => {
         borderRadius={10}
         justifyContent={'space-between'}
         alignItems={'center'}
-        marginTop={hp(25)}
+        marginTop={hp(20)}
       >
         <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
           {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
@@ -261,18 +261,17 @@ const WalletDetails = () => {
       flex={1}
       paddingLeft={wp(28)}
       paddingRight={wp(27)}
-      paddingTop={hp(27)}
+      paddingTop={hp(30)}
     >
       <StatusBarComponent padding={50} />
 
-      <Box flexDirection={'row'} justifyContent={'space-between'}>
-        <Pressable onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </Pressable>
-        <Pressable>
-          <ScannerIcon />
-        </Pressable>
-      </Box>
+      <Pressable
+        zIndex={999}
+        onPress={() => navigation.goBack()}
+        width={4}
+      >
+        <BackIcon />
+      </Pressable>
 
       <Box alignItems={'center'} marginTop={-hp(30)}>
         <GradientIcon height={48} Icon={WalletInside} />
@@ -334,7 +333,10 @@ const WalletDetails = () => {
         </Box>
       </Box>
 
-      <Box marginTop={hp(18)} alignItems={'center'}>
+      <Box
+        marginTop={18}
+        alignItems={'center'}
+      >
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -351,7 +353,7 @@ const WalletDetails = () => {
           <Box
             flexDirection={'row'}
             justifyContent={'space-between'}
-            marginTop={hp(15)}
+            marginTop={hp(24)}
             width={'100%'}
           >
             <Text
@@ -394,7 +396,7 @@ const WalletDetails = () => {
             borderColor={'light.GreyText'}
             borderRadius={20}
             opacity={0.2}
-            marginTop={hp(20)}
+            marginTop={hp(-5)}
           />
 
           <Box flexDirection={'row'} marginTop={2} justifyContent={'space-between'} marginX={10}>

@@ -12,8 +12,12 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
-import { setSeedConfirmed } from 'src/store/reducers/bhr';
+import {
+  cloudBackupSkipped,
+  confirmCloudBackup,
+  seedBackedConfirmed,
+} from 'src/store/sagaActions/bhr';
+import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 
@@ -24,30 +28,32 @@ const BackupHealthCheckList = () => {
   const strings = translations['BackupWallet'];
   const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
-  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
-    getJSONFromRealmObject
-  )[0];
-  const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
+  const { primaryMnemonic, backupPassword, backupPasswordHint }: KeeperApp = useQuery(
+    RealmSchema.KeeperApp
+  ).map(getJSONFromRealmObject)[0];
+  const { backupMethod, seedConfirmed, cloudBackedConfirmed } = useAppSelector(
+    (state) => state.bhr
+  );
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const history = useMemo(() => data.sorted('date', true), [data]);
 
   const onPressConfirm = () => {
-    if (backupMethod === BackupType.SEED) {
-      setShowConfirmSeedModal(true);
-    }
+    setShowConfirmSeedModal(true);
   };
 
   useEffect(() => {
-    if (seedConfirmed) {
+    if (seedConfirmed || cloudBackedConfirmed) {
+      setShowConfirmSeedModal(false);
       setTimeout(() => {
         setHealthCheckModal(true);
       }, 100);
     }
     return () => {
       dispatch(setSeedConfirmed(false));
+      dispatch(setCloudBackupConfirmed(false));
     };
-  }, [seedConfirmed]);
+  }, [seedConfirmed, cloudBackedConfirmed]);
 
   return (
     <Box style={{ flexGrow: 1 }}>
@@ -101,13 +107,23 @@ const BackupHealthCheckList = () => {
         <HealthCheckComponent
           closeBottomSheet={() => {
             setShowConfirmSeedModal(false);
-            dispatch(seedBackedConfirmed(false));
+            if (backupMethod === BackupType.SEED) {
+              dispatch(seedBackedConfirmed(false));
+            } else {
+              dispatch(cloudBackupSkipped());
+            }
           }}
           type={backupMethod}
+          password={backupPassword}
+          hint={backupPasswordHint}
           words={primaryMnemonic.split(' ')}
-          onConfirmed={() => {
-            setShowConfirmSeedModal(false);
-            dispatch(seedBackedConfirmed(true));
+          onConfirmed={(password) => {
+            if (backupMethod === BackupType.SEED) {
+              setShowConfirmSeedModal(false);
+              dispatch(seedBackedConfirmed(true));
+            } else {
+              dispatch(confirmCloudBackup(password));
+            }
           }}
         />
       </ModalWrapper>

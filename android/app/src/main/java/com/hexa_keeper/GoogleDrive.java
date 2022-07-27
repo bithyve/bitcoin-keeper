@@ -37,7 +37,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.hexawallet.keeper.BuildConfig;
 
 
 public class GoogleDrive extends ReactContextBaseJavaModule {
@@ -95,7 +94,7 @@ public class GoogleDrive extends ReactContextBaseJavaModule {
                 try{
                     GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                             .requestEmail()
-                            .requestIdToken(BuildConfig.WEB_CLIENT_ID) //Client ID for Web application
+                            .requestIdToken("941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com") //Client ID for Web application
                             .build();
 
                     googleApiClient = GoogleSignIn.getClient(mContext, gso);

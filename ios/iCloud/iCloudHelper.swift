@@ -33,7 +33,7 @@ import CloudKit
     operation.queryCompletionBlock = {(_,err) in
       if let err = err as? CKError{
         print(err)
-        callback("{\"status\": false, \"error\": \"\(err.localizedDescription)\", \"errorCode\": \(err.errorCode)}")
+        callback("{\"status\": false, \"error\": \"\(err.localizedDescription)\", \"code\": \(err.errorCode)}")
         return
       }
       print("FETCH OPERATION COMPLETED & DELETE Scheduled for all")
@@ -42,21 +42,21 @@ import CloudKit
       CKContainer.init(identifier: "iCloud.io.hexawallet.keeper").privateCloudDatabase.save(ckr) { (record, err) in
         if let err = err as? CKError{
           print(err)
-          callback("{\"status\": false, \"error\": \"\(err.localizedDescription)\", \"errorCode\": \(err.errorCode)}")
+          callback("{\"status\": false, \"error\": \"\(err.localizedDescription)\", \"code\": \(err.errorCode)}")
           return
         }
         guard let record = record else{
           print("no records....")
-          callback("{\"status\": false, \"errorCode\": -1}")
+          callback("{\"status\": false, \"code\": -1}")
           return
         }
         guard (record["json"] as? String) != nil else{
           print("no json in record....")
-          callback("{\"status\": false, \"errorCode\": -1}")
+          callback("{\"status\": false, \"code\": -1}")
           return
         }
         print("UPLOADED NEW JSON")
-        callback("{\"status\": true, \"errorCode\": 1111}")
+        callback("{\"status\": true, \"code\": 1111}")
       }
     }
     CKContainer.init(identifier: "iCloud.io.hexawallet.keeper").privateCloudDatabase.add(operation)
@@ -89,7 +89,7 @@ import CloudKit
     operation.queryCompletionBlock = {(_,err) in
       if let err = err as? CKError{
         print(err)
-        callback("{\"status\": false, \"error\": \"\(err.localizedDescription)\", \"errorCode\": \(err.errorCode)}")
+        callback("{\"status\": false, \"error\": \"\(err.localizedDescription)\", \"code\": \(err.errorCode)}")
         return
       }
       callback(jsonFromiCloud)
