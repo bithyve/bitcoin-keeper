@@ -18,7 +18,7 @@ cp ./rnPatchFiles/react-native-netinfo.podspec ./node_modules/@react-native-comm
 rm -rf ./node_modules/react-native-tcp/ios/CocoaAsyncSocket/
 cp ./rnPatchFiles/TcpSockets.podspec ./node_modules/react-native-tcp/TcpSockets.podspec
 # ios dependency installation
-cd ios && pod deintegrate && pod install
+cd ios && pod deintegrate && USE_FABRIC=1 RCT_NEW_ARCH_ENABLED=1 pod install
 
 # android SDK location configuration
 cd ../android && touch local.properties && echo "sdk.dir = /Users/$(whoami)/Library/Android/sdk" >local.properties
