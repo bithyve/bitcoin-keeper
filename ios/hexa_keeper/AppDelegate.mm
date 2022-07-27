@@ -16,6 +16,8 @@
 
 #import <react/config/ReactNativeConfig.h>
 
+static NSString *const kRNConcurrentRoot = @"concurrentRoot";
+
 @interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
   RCTTurboModuleManager *_turboModuleManager;
   RCTSurfacePresenterBridgeAdapter *_bridgeAdapter;
@@ -41,7 +43,8 @@
   bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
 #endif
 
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"hexa_keeper", nil);
+  NSDictionary *initProps = [self prepareInitialProps];
+  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"hexa_keeper", initProps);
 
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
