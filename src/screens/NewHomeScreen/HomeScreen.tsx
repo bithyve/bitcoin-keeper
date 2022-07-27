@@ -258,7 +258,7 @@ const VaultStatus = (props) => {
   } = Vault;
   const vaultBalance = confirmed + unconfirmed;
   return (
-    <Box marginTop={-hp(97.44)} alignItems={'center'}>
+    <Box marginTop={-hp(100)} alignItems={'center'}>
       <TouchableOpacity onPress={open} activeOpacity={0.5}>
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
@@ -455,7 +455,10 @@ const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
-    <Box flex={1} backgroundColor={'light.lightYellow'}>
+    <Box
+      flex={1}
+      backgroundColor={'light.lightYellow'}
+    >
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {
@@ -490,7 +493,7 @@ const styles = ScaledSheet.create({
   bottomCard: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: hp(100),
+    height: hp(95),
     width: wp(335),
     borderRadius: 10,
     flexDirection: 'row',
