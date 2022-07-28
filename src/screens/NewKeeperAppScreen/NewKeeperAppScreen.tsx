@@ -72,12 +72,12 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const inheritence = translations['inheritence'];
   const seed = translations['seed'];
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [cloudModal, setCloudModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const dispatch = useDispatch();
 
   const passwordScreen = () => {
-    setModalVisible(false);
+    setCloudModal(false);
     setPasswordModal(true);
   };
 
@@ -85,7 +85,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
     setPasswordModal(false);
   };
 
-  const close = () => setModalVisible(false);
+  const closeCloudModal = () => setCloudModal(false);
 
   const RecoverWalletScreen = () => {
     const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
@@ -177,21 +177,14 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
             Icon={<Recover />}
-            onPress={() => setModalVisible(true)}
+            onPress={() => setCloudModal(true)}
           />
           <Tile
             title={'Recover for myself'}
             subTitle={'Using Seed'}
             Icon={<Recover />}
             onPress={() => {
-              navigation.navigate('EnterSeedScreen');
-              // navigation.navigate('LoginStack', { screen: 'RecoveryFromSeed' });
-              // dispatch(
-              //   getAppImage(
-              //     'violin material have toddler bomb cake awful left earth goose occur receive'
-              //   )
-              // );
-              console.log('using Seed');
+              navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
             }}
           />
           <Tile
@@ -217,8 +210,8 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         </Box>
       </ScrollView>
       <KeeperModal
-        visible={modalVisible}
-        close={close}
+        visible={cloudModal}
+        close={closeCloudModal}
         title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
         subTitle={seed.seedDescription}
         modalBackground={['#F7F2EC', '#F7F2EC']}
@@ -231,7 +224,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       />
       <PasswordModal
         visible={passwordModal}
-        close={closePassword}
+        closePasswordModal={closePassword}
         title={'Confirm Password'}
         subTitle={seed.seedDescription}
         dscription={seed.seedDescription}

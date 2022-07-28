@@ -11,6 +11,9 @@ const initialState: {
   loading: boolean;
   cloudBackupCompleted: boolean;
   cloudBackedConfirmed: boolean;
+  appRecoveryLoading: boolean;
+  appImageRecoverd: boolean;
+  appRecreated: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -19,6 +22,9 @@ const initialState: {
   loading: false,
   cloudBackupCompleted: false,
   cloudBackedConfirmed: false,
+  appRecoveryLoading: false,
+  appImageRecoverd: false,
+  appRecreated: false,
 };
 
 const bhrSlice = createSlice({
@@ -52,6 +58,15 @@ const bhrSlice = createSlice({
       state.isBackupError = false;
       state.loading = false;
     },
+    setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
+      state.appImageRecoverd = action.payload;
+    },
+    setAppRecreated: (state, action: PayloadAction<boolean>) => {
+      state.appRecreated = action.payload;
+    },
+    setAppRecoveryLoading: (state, action: PayloadAction<boolean>) => {
+      state.appRecoveryLoading = action.payload;
+    },
   },
 });
 
@@ -62,6 +77,9 @@ export const {
   setBackupLoading,
   setCloudBackupCompleted,
   setCloudBackupConfirmed,
+  setAppRecoveryLoading,
+  setAppImageRecoverd,
+  setAppRecreated,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -74,6 +92,8 @@ const bhrPersistConfig = {
     'loading',
     'cloudBackupCompleted',
     'cloudBackedConfirmed',
+    'setAppImageRecoverd',
+    'setAppRecreated',
   ],
 };
 

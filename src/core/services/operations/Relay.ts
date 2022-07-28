@@ -297,7 +297,7 @@ export default class Relay {
       const { appImageData } = res.data;
       return appImageData;
     } catch (err) {
-      throw new Error('Failed to update App Image');
+      throw new Error('Failed get App Image');
     }
   };
 }

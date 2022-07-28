@@ -1,5 +1,5 @@
 import { Box, Image, Pressable, Text, View, Input, ScrollView } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Platform,
   StyleSheet,
@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
 } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import SeedWordsView from 'src/components/SeedWordsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,8 +21,12 @@ import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import BTC from 'src/assets/images/btc_white.svg';
 import Illustration from 'src/assets/images/illustration.svg';
+import { useDispatch } from 'react-redux';
+import { getAppImage } from 'src/store/sagaActions/bhr';
+import { useAppSelector } from 'src/store/hooks';
 
-const EnterSeedScreen = ({ navigation }: { navigation }) => {
+const EnterSeedScreen = () => {
+  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const seed = translations['seed'];
   const [firstValue, setFirstValue] = useState('');
@@ -38,23 +42,24 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
   const [eleventhValue, setElevnthValue] = useState('');
   const [twelvthValue, setTwelthValue] = useState('');
 
-  const [visible, setVisible] = useState(false);
+  const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
-  const close = () => setVisible(false);
-  const open = () => setVisible(true);
-  const openModalLoader = () => setCreateCloudBackupModal(true);
-  const openModalFlow = () => setOpenModal(true);
-  const closeRecovery = () => setOpenModal(false);
+  const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
+  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const openLoaderModal = () => setCreateCloudBackupModal(true);
+  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
+  const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
-  const navigateToHardwareSetup = () => {
-    close();
-  };
+  const dispatch = useDispatch();
+  const { appImageRecoverd, appRecreated, appRecoveryLoading } = useAppSelector(
+    (state) => state.bhr
+  );
 
-  const onPressNext = () => {
+  const onPressNext = async () => {
     if (firstValue === '') {
-      open();
+      openInvalidSeedsModal();
     } else {
       const seedWord =
         firstValue +
@@ -81,50 +86,13 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
         ' ' +
         twelvthValue;
       console.log(seedWord);
-      openModalLoader();
-      // openModalFlow();
+      // openLoaderModal();
+      walletRecoverySuccess();
     }
   };
 
-  const handleChangeFirst = (text) => {
-    setFirstValue(text);
-  };
-  const handleChangeSecond = (text) => {
-    setSecondValue(text);
-  };
-  const handleChangeThird = (text) => {
-    setThirdValue(text);
-  };
-  const handleChangeFourth = (text) => {
-    setFourthValue(text);
-  };
-  const handleChangeFifth = (text) => {
-    setFifthValue(text);
-  };
-  const handleChangeSixth = (text) => {
-    setSixthValue(text);
-  };
-  const handleChangeSeventh = (text) => {
-    setSeventhValue(text);
-  };
-  const handleChangeEighth = (text) => {
-    setEightValue(text);
-  };
-  const handleChangeNinth = (text) => {
-    setNinthValue(text);
-  };
-  const handleChangeTenth = (text) => {
-    setTenthValue(text);
-  };
-  const handleChangeEleventh = (text) => {
-    setElevnthValue(text);
-  };
-  const handleChangeTwelvth = (text) => {
-    setTwelthValue(text);
-  };
-
-  const passwordScreen = () => {
-    setOpenModal(false);
+  const closeWalletSuccessModal = () => {
+    setWalletRecoverySuccessModal(false);
   };
 
   const RecoverWalletScreen = () => {
@@ -180,7 +148,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={firstValue}
-                onChangeText={handleChangeFirst}
+                onChangeText={(text) => setFirstValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -192,7 +160,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={secondValue}
-                onChangeText={handleChangeSecond}
+                onChangeText={(text) => setSecondValue(text)}
               />
             </Box>
           </View>
@@ -206,7 +174,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={thirdValue}
-                onChangeText={handleChangeThird}
+                onChangeText={(text) => setThirdValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -218,7 +186,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={fourthValue}
-                onChangeText={handleChangeFourth}
+                onChangeText={(text) => setFourthValue(text)}
               />
             </Box>
           </View>
@@ -232,7 +200,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={fifthValue}
-                onChangeText={handleChangeFifth}
+                onChangeText={(text) => setFifthValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -244,7 +212,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={sixthValue}
-                onChangeText={handleChangeSixth}
+                onChangeText={(text) => setSixthValue(text)}
               />
             </Box>
           </View>
@@ -258,7 +226,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={seventhValue}
-                onChangeText={handleChangeSeventh}
+                onChangeText={(text) => setSeventhValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -270,7 +238,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={eightValue}
-                onChangeText={handleChangeEighth}
+                onChangeText={(text) => setEightValue(text)}
               />
             </Box>
           </View>
@@ -284,7 +252,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={ninthValue}
-                onChangeText={handleChangeNinth}
+                onChangeText={(text) => setNinthValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -296,7 +264,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={tenthValue}
-                onChangeText={handleChangeTenth}
+                onChangeText={(text) => setTenthValue(text)}
               />
             </Box>
           </View>
@@ -310,7 +278,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={eleventhValue}
-                onChangeText={handleChangeEleventh}
+                onChangeText={(text) => setElevnthValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -322,7 +290,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 w="62%"
                 height={'10'}
                 value={twelvthValue}
-                onChangeText={handleChangeTwelvth}
+                onChangeText={(text) => setTwelthValue(text)}
               />
             </Box>
           </View>
@@ -373,20 +341,20 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
               </TouchableOpacity>
             </Box>
             <KeeperModal
-              visible={visible}
-              close={close}
+              visible={invalidSeedsModal}
+              close={closeInvalidSeedsModal}
               title={seed.InvalidSeeds}
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
               buttonText={'Retry'}
               buttonTextColor={'#FAFAFA'}
-              buttonCallback={navigateToHardwareSetup}
+              buttonCallback={closeInvalidSeedsModal}
               textColor={'#041513'}
               Content={InValidSeedsScreen}
             />
             <KeeperModal
-              visible={openModal}
+              visible={walletRecoverySuccessModal}
               close={closeRecovery}
               title={'Wallet Recovery Successful'}
               subTitle={seed.seedDescription}
@@ -394,7 +362,7 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
               buttonBackground={['#00836A', '#073E39']}
               buttonText={'View Wallet'}
               buttonTextColor={'#FAFAFA'}
-              buttonCallback={passwordScreen}
+              buttonCallback={closeWalletSuccessModal}
               textColor={'#041513'}
               Content={RecoverWalletScreen}
             />

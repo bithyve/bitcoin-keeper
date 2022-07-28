@@ -22,6 +22,9 @@ import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
+  setAppImageRecoverd,
+  setAppRecoveryLoading,
+  setAppRecreated,
   setBackupError,
   setBackupLoading,
   setBackupType,
@@ -32,6 +35,8 @@ import {
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
 import { translations } from 'src/common/content/LocContext';
+import BIP85 from 'src/core/wallets/operations/BIP85';
+import config from 'src/core/config';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -252,36 +257,52 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
+    setAppRecoveryLoading(true);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const appImage: any = yield Relay.getAppImage(id);
-    //Keeper-App Reacreation
-    // const userTier: UserTier = {
-    //   level: AppTierLevel.ONE,
-    // };
-    // const app = {
-    //   id,
-    //   primarySeed,
-    //   walletShellInstances: JSON.parse(appImage.walletShellInstances),
-    //   userTier,
-    //   version: DeviceInfo.getVersion(),
-    // };
-    // yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-    // yield call(dbManager.createObject, RealmSchema.WalletShell, JSON.parse(appImage.walletShells));
+    if (appImage) {
+      setAppImageRecoverd(true);
+    }
+    const userTier: UserTier = {
+      level: AppTierLevel.ONE,
+    };
 
-    // //Wallet recreation
-    // if (appImage) {
-    //   if (appImage.wallets) {
-    //     for (const [key, value] of Object.entries(appImage.wallets)) {
-    //       yield call(
-    //         dbManager.createObject,
-    //         RealmSchema.Wallet,
-    //         JSON.parse(decrypt(encryptionKey, value))
-    //       );
-    //     }
-    //   }
-    // }
+    const entropy = yield call(
+      BIP85.bip39MnemonicToEntropy,
+      config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+      primaryMnemonic
+    );
+    const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+
+    const app = {
+      id,
+      primarySeed: primarySeed.toString('hex'),
+      walletShellInstances: JSON.parse(appImage.walletShellInstances),
+      primaryMnemonic: primaryMnemonic,
+      imageEncryptionKey,
+      userTier,
+      version: DeviceInfo.getVersion(),
+    };
+    yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+    yield call(dbManager.createObject, RealmSchema.WalletShell, JSON.parse(appImage.walletShells));
+
+    //Wallet recreation
+    if (appImage) {
+      if (appImage.wallets) {
+        for (const [key, value] of Object.entries(appImage.wallets)) {
+          console.log(key, decrypt(encryptionKey, value));
+          yield call(
+            dbManager.createObject,
+            RealmSchema.Wallet,
+            JSON.parse(decrypt(encryptionKey, value))
+          );
+        }
+      }
+    }
+    yield put(setAppRecreated(true));
+    yield put(setAppRecoveryLoading(false));
   } catch (err) {
     console.log(err);
   }
