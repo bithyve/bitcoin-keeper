@@ -179,7 +179,7 @@ const PasswordModal = (props) => {
         <KeeperModal
           visible={recoverySuccessModal}
           close={closeRecovery}
-          title={'Wallet Recovery Successful'}
+          title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}

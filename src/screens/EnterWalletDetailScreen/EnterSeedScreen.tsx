@@ -7,6 +7,8 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
+  FlatList,
+  TextInput,
 } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import SeedWordsView from 'src/components/SeedWordsView';
@@ -19,28 +21,68 @@ import KeeperModal from 'src/components/KeeperModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
-import BTC from 'src/assets/images/btc_white.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { useDispatch } from 'react-redux';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const seed = translations['seed'];
-  const [firstValue, setFirstValue] = useState('');
-  const [secondValue, setSecondValue] = useState('');
-  const [thirdValue, setThirdValue] = useState('');
-  const [fourthValue, setFourthValue] = useState('');
-  const [fifthValue, setFifthValue] = useState('');
-  const [sixthValue, setSixthValue] = useState('');
-  const [seventhValue, setSeventhValue] = useState('');
-  const [eightValue, setEightValue] = useState('');
-  const [ninthValue, setNinthValue] = useState('');
-  const [tenthValue, setTenthValue] = useState('');
-  const [eleventhValue, setElevnthValue] = useState('');
-  const [twelvthValue, setTwelthValue] = useState('');
+  const common = translations['common'];
+  const [seedData, setSeedData] = useState([
+    {
+      id: 1,
+      name: '',
+    },
+    {
+      id: 2,
+      name: '',
+    },
+    {
+      id: 3,
+      name: '',
+    },
+    {
+      id: 4,
+      name: '',
+    },
+    {
+      id: 5,
+      name: '',
+    },
+    {
+      id: 6,
+      name: '',
+    },
+    {
+      id: 7,
+      name: '',
+    },
+    {
+      id: 8,
+      name: '',
+    },
+    {
+      id: 9,
+      name: '',
+    },
+    {
+      id: 10,
+      name: '',
+    },
+    {
+      id: 11,
+      name: '',
+    },
+    {
+      id: 12,
+      name: '',
+    },
+  ]);
 
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
@@ -51,13 +93,14 @@ const EnterSeedScreen = () => {
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
-
   const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
     setWalletRecoverySuccessModal(false);
   };
+
+  const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
@@ -78,40 +121,29 @@ const EnterSeedScreen = () => {
     }
   }, [appRecoveryLoading, appImageError]);
 
-  const onPressNext = async () => {
-    if (firstValue === '') {
-      openInvalidSeedsModal();
-    } else {
-      const seedWord =
-        firstValue +
-        ' ' +
-        secondValue +
-        ' ' +
-        thirdValue +
-        ' ' +
-        fourthValue +
-        ' ' +
-        fifthValue +
-        ' ' +
-        sixthValue +
-        ' ' +
-        seventhValue +
-        ' ' +
-        eightValue +
-        ' ' +
-        ninthValue +
-        ' ' +
-        tenthValue +
-        ' ' +
-        eleventhValue +
-        ' ' +
-        twelvthValue;
-      console.log(seedWord);
-      dispatch(getAppImage(seedWord));
-      // dispatch(
-      //   getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
-      // );
+  const emptySeedCheck = () => {
+    for (let i = 0; i < 12; i++) {
+      if (seedData[i].name === '') {
+        showToast('Enter all seeds', <TickIcon />);
+      }
     }
+  };
+
+  const getSeedWord = () => {
+    let seedWord = '';
+    for (let i = 0; i < 12; i++) {
+      seedWord += seedData[i].name + ' ';
+    }
+    return seedWord;
+  };
+
+  const onPressNext = async () => {
+    emptySeedCheck();
+    let seedWord = getSeedWord();
+    dispatch(getAppImage(seedWord));
+    // dispatch(
+    //   getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
+    // );
   };
 
   const RecoverWalletScreen = () => {
@@ -140,6 +172,19 @@ const EnterSeedScreen = () => {
     );
   };
 
+  const getFormattedNumber = (number) => {
+    if (number < 9) return '0' + (number + 1);
+    else return number + 1;
+  };
+
+  const getPlaceholder = (index) => {
+    const mainIndex = index + 1;
+    if (mainIndex == 1) return mainIndex + 'st';
+    else if (mainIndex == 2) return mainIndex + 'nd';
+    else if (mainIndex == 3) return mainIndex + 'rd';
+    else return mainIndex + 'th';
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -157,161 +202,60 @@ const EnterSeedScreen = () => {
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
           </Box>
-          <View flexDirection={'row'} marginY={10} marginLeft={10} marginRight={20}>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>01 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 1st word'}
-                w="62%"
-                height={'10'}
-                value={firstValue}
-                onChangeText={(text) => setFirstValue(text)}
-              />
-            </Box>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>02 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 2nd word'}
-                w="62%"
-                height={'10'}
-                value={secondValue}
-                onChangeText={(text) => setSecondValue(text)}
-              />
-            </Box>
-          </View>
-          <View flexDirection={'row'} marginLeft={10} marginRight={20}>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>03 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 3rd word'}
-                w="62%"
-                height={'10'}
-                value={thirdValue}
-                onChangeText={(text) => setThirdValue(text)}
-              />
-            </Box>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>04 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 4th word'}
-                w="62%"
-                height={'10'}
-                value={fourthValue}
-                onChangeText={(text) => setFourthValue(text)}
-              />
-            </Box>
-          </View>
-          <View flexDirection={'row'} marginY={10} marginLeft={10} marginRight={20}>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>05 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 5th word'}
-                w="62%"
-                height={'10'}
-                value={fifthValue}
-                onChangeText={(text) => setFifthValue(text)}
-              />
-            </Box>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>06 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 6th word'}
-                w="62%"
-                height={'10'}
-                value={sixthValue}
-                onChangeText={(text) => setSixthValue(text)}
-              />
-            </Box>
-          </View>
-          <View flexDirection={'row'} marginLeft={10} marginRight={20}>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>07 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 7th word'}
-                w="62%"
-                height={'10'}
-                value={seventhValue}
-                onChangeText={(text) => setSeventhValue(text)}
-              />
-            </Box>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>08 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 8th word'}
-                w="62%"
-                height={'10'}
-                value={eightValue}
-                onChangeText={(text) => setEightValue(text)}
-              />
-            </Box>
-          </View>
-          <View flexDirection={'row'} marginY={10} marginLeft={10} marginRight={20}>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>09 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 9th word'}
-                w="62%"
-                height={'10'}
-                value={ninthValue}
-                onChangeText={(text) => setNinthValue(text)}
-              />
-            </Box>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>10 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 10th word'}
-                w="62%"
-                height={'10'}
-                value={tenthValue}
-                onChangeText={(text) => setTenthValue(text)}
-              />
-            </Box>
-          </View>
-          <View flexDirection={'row'} marginLeft={10} marginRight={20}>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>11 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 11th word'}
-                w="62%"
-                height={'10'}
-                value={eleventhValue}
-                onChangeText={(text) => setElevnthValue(text)}
-              />
-            </Box>
-            <Box style={styles.inputcontainer}>
-              <Text style={styles.numbers}>12 </Text>
-              <Input
-                placeholderTextColor={'grey'}
-                backgroundColor={'#FDF7F0'}
-                placeholder={'enter 12th word'}
-                w="62%"
-                height={'10'}
-                value={twelvthValue}
-                onChangeText={(text) => setTwelthValue(text)}
-              />
-            </Box>
+          <View>
+            <FlatList
+              keyExtractor={(item, index) => index.toString()}
+              data={seedData}
+              extraData={seedData}
+              showsVerticalScrollIndicator={false}
+              numColumns={2}
+              contentContainerStyle={{
+                marginStart: 15,
+              }}
+              renderItem={({ value, index }) => {
+                return (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginHorizontal: 20,
+                      marginVertical: 10,
+                    }}
+                  >
+                    <Text
+                      style={{ fontSize: 16, color: '#00836A', fontWeight: 'bold', marginTop: 8 }}
+                    >
+                      {getFormattedNumber(index)}
+                    </Text>
+                    <TextInput
+                      style={{
+                        backgroundColor: '#FDF7F0',
+                        shadowColor: 'black',
+                        shadowOpacity: 0.4,
+                        shadowColor: 'rgba(0, 0, 0, 0.05)',
+                        elevation: 6,
+                        shadowRadius: 10,
+                        shadowOffset: { width: 1, height: 10 },
+                        borderRadius: 10,
+                        height: 35,
+                        width: 110,
+                        marginLeft: 10,
+                      }}
+                      placeholder={`  enter ${getPlaceholder(index)} word`}
+                      value={value?.name}
+                      textContentType="none"
+                      returnKeyType="next"
+                      autoCorrect={false}
+                      autoCapitalize="none"
+                      onChangeText={(text) => {
+                        const data = [...seedData];
+                        data[index].name = text.trim();
+                        setSeedData(data);
+                      }}
+                    />
+                  </View>
+                );
+              }}
+            />
           </View>
           <Text color={'#4F5955'} marginX={10} marginY={10} fontSize={12}>
             {seed.seedDescription}
@@ -337,7 +281,7 @@ const EnterSeedScreen = () => {
                   //   color={buttonCancelColor}
                   marginRight={5}
                 >
-                  Need Help?
+                  {common.needHelp}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onPressNext}>
@@ -354,7 +298,7 @@ const EnterSeedScreen = () => {
                     letterSpacing={1}
                     color={'white'}
                   >
-                    Next
+                    {common.next}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -375,7 +319,7 @@ const EnterSeedScreen = () => {
             <KeeperModal
               visible={walletRecoverySuccessModal}
               close={closeRecovery}
-              title={'Wallet Recovery Successful'}
+              title={seed.walletRecoverySuccessful}
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
