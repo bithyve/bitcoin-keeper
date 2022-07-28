@@ -66,7 +66,8 @@ export const customTheme = extendTheme({
       textWallet: '#113834',
       transactionPolicyCard: '#FAD8B4',
       inheritanceBullet: '#E3E3E3',
-      inheritanceTitle: '#055146'
+      inheritanceTitle: '#055146',
+      modalText: '#073B36'
     },
     dark: {
       black: '#000000',
