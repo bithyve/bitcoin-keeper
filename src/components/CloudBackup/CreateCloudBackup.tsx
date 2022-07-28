@@ -35,8 +35,8 @@ const CreateCloudBackup = (props) => {
             X
           </Text>
         </Box>
-      </TouchableOpacity> */}
-      <Box p={10}>
+      </TouchableOpacity>
+      <Box px={10}>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
           {BackupWallet.createCloudBackTitle}
         </Text>
