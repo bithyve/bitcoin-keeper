@@ -91,7 +91,7 @@ const InheritanceComponent = () => {
           </Box>
         </Box>
         <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
-        {/* <NextIcon pressHandler={() => onPress()} />
+        <NextIcon pressHandler={() => onPress()} />
         <>
           <NewWalletModal
             visible={visible}
@@ -117,7 +117,7 @@ const InheritanceComponent = () => {
             buttonCallback={navigateBack}
             textColor={'#041513'}
           />
-        </> */}
+        </>
       </LinearGradient>
     </Box>
   );

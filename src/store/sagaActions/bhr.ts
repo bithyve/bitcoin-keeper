@@ -15,9 +15,12 @@ export const updateAppImage = (walletId) => {
   };
 };
 
-export const getAppImage = () => {
+export const getAppImage = (primaryMnemonic: string) => {
   return {
     type: GET_APP_IMAGE,
+    payload: {
+      primaryMnemonic,
+    },
   };
 };
 

@@ -1,4 +1,4 @@
-import { Box, Image, Pressable, Text, View, Input } from 'native-base';
+import { Box, Image, Pressable, Text, View, Input, ScrollView } from 'native-base';
 import React, { useContext, useState } from 'react';
 import {
   Platform,
@@ -16,7 +16,12 @@ import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import LinearGradient from 'react-native-linear-gradient';
 import KeeperModal from 'src/components/KeeperModal';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import BTC from 'src/assets/images/btc_white.svg';
+import Illustration from 'src/assets/images/illustration.svg';
+
 const EnterSeedScreen = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const seed = translations['seed'];
@@ -26,42 +31,70 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
   const [fourthValue, setFourthValue] = useState('');
   const [fifthValue, setFifthValue] = useState('');
   const [sixthValue, setSixthValue] = useState('');
+  const [seventhValue, setSeventhValue] = useState('');
+  const [eightValue, setEightValue] = useState('');
+  const [ninthValue, setNinthValue] = useState('');
+  const [tenthValue, setTenthValue] = useState('');
+  const [eleventhValue, setElevnthValue] = useState('');
+  const [twelvthValue, setTwelthValue] = useState('');
 
-  const [visible, setVisible] = useState(false);
+  const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
+  const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
+  const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
-  const close = () => setVisible(false);
-  const open = () => setVisible(true);
-
-  const navigateToHardwareSetup = () => {
-    close();
-  };
+  const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
+  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const openLoaderModal = () => setCreateCloudBackupModal(true);
+  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
+  const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const onPressNext = () => {
-    console.log(JSON.stringify(firstValue));
     if (firstValue === '') {
-      open();
+      openInvalidSeedsModal();
     } else {
-      navigation.navigate('NewHome');
+      const seedWord =
+        firstValue +
+        ' ' +
+        secondValue +
+        ' ' +
+        thirdValue +
+        ' ' +
+        fourthValue +
+        ' ' +
+        fifthValue +
+        ' ' +
+        sixthValue +
+        ' ' +
+        seventhValue +
+        ' ' +
+        eightValue +
+        ' ' +
+        ninthValue +
+        ' ' +
+        tenthValue +
+        ' ' +
+        eleventhValue +
+        ' ' +
+        twelvthValue;
+      console.log(seedWord);
+      // openLoaderModal();
+      walletRecoverySuccess();
     }
   };
 
-  const handleChangeFirst = (text) => {
-    setFirstValue(text);
+  const closeWalletSuccessModal = () => {
+    setWalletRecoverySuccessModal(false);
   };
-  const handleChangeSecond = (text) => {
-    setSecondValue(text);
-  };
-  const handleChangeThird = (text) => {
-    setThirdValue(text);
-  };
-  const handleChangeFourth = (text) => {
-    setFourthValue(text);
-  };
-  const handleChangeFifth = (text) => {
-    setFifthValue(text);
-  };
-  const handleChangeSixth = (text) => {
-    setSixthValue(text);
+
+  const RecoverWalletScreen = () => {
+    return (
+      <View>
+        <Illustration />
+        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        </Text>
+      </View>
+    );
   };
 
   const InValidSeedsScreen = () => {
@@ -87,13 +120,13 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <SafeAreaView>
+        <ScrollView marginTop={10}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
               title={seed.EnterSeed}
               subtitle={seed.recoverWallet}
-              onPressHandler={() => navigation.navigate('NewHome')}
+              onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
           </Box>
           <View flexDirection={'row'} marginY={10} marginLeft={10} marginRight={20}>
@@ -103,10 +136,10 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 placeholderTextColor={'grey'}
                 backgroundColor={'#FDF7F0'}
                 placeholder={'enter 1st word'}
-                w="60%"
+                w="62%"
                 height={'10'}
                 value={firstValue}
-                onChangeText={handleChangeFirst}
+                onChangeText={(text) => setFirstValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -115,10 +148,10 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 placeholderTextColor={'grey'}
                 backgroundColor={'#FDF7F0'}
                 placeholder={'enter 2nd word'}
-                w="60%"
+                w="62%"
                 height={'10'}
                 value={secondValue}
-                onChangeText={handleChangeSecond}
+                onChangeText={(text) => setSecondValue(text)}
               />
             </Box>
           </View>
@@ -129,10 +162,10 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 placeholderTextColor={'grey'}
                 backgroundColor={'#FDF7F0'}
                 placeholder={'enter 3rd word'}
-                w="60%"
+                w="62%"
                 height={'10'}
                 value={thirdValue}
-                onChangeText={handleChangeThird}
+                onChangeText={(text) => setThirdValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -141,10 +174,10 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 placeholderTextColor={'grey'}
                 backgroundColor={'#FDF7F0'}
                 placeholder={'enter 4th word'}
-                w="60%"
+                w="62%"
                 height={'10'}
                 value={fourthValue}
-                onChangeText={handleChangeFourth}
+                onChangeText={(text) => setFourthValue(text)}
               />
             </Box>
           </View>
@@ -155,10 +188,10 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 placeholderTextColor={'grey'}
                 backgroundColor={'#FDF7F0'}
                 placeholder={'enter 5th word'}
-                w="60%"
+                w="62%"
                 height={'10'}
                 value={fifthValue}
-                onChangeText={handleChangeFifth}
+                onChangeText={(text) => setFifthValue(text)}
               />
             </Box>
             <Box style={styles.inputcontainer}>
@@ -167,14 +200,92 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
                 placeholderTextColor={'grey'}
                 backgroundColor={'#FDF7F0'}
                 placeholder={'enter 6th word'}
-                w="60%"
+                w="62%"
                 height={'10'}
                 value={sixthValue}
-                onChangeText={handleChangeSixth}
+                onChangeText={(text) => setSixthValue(text)}
               />
             </Box>
           </View>
-          <Text color={'#4F5955'} marginX={10} fontSize={12}>
+          <View flexDirection={'row'} marginLeft={10} marginRight={20}>
+            <Box style={styles.inputcontainer}>
+              <Text style={styles.numbers}>07 </Text>
+              <Input
+                placeholderTextColor={'grey'}
+                backgroundColor={'#FDF7F0'}
+                placeholder={'enter 7th word'}
+                w="62%"
+                height={'10'}
+                value={seventhValue}
+                onChangeText={(text) => setSeventhValue(text)}
+              />
+            </Box>
+            <Box style={styles.inputcontainer}>
+              <Text style={styles.numbers}>08 </Text>
+              <Input
+                placeholderTextColor={'grey'}
+                backgroundColor={'#FDF7F0'}
+                placeholder={'enter 8th word'}
+                w="62%"
+                height={'10'}
+                value={eightValue}
+                onChangeText={(text) => setEightValue(text)}
+              />
+            </Box>
+          </View>
+          <View flexDirection={'row'} marginY={10} marginLeft={10} marginRight={20}>
+            <Box style={styles.inputcontainer}>
+              <Text style={styles.numbers}>09 </Text>
+              <Input
+                placeholderTextColor={'grey'}
+                backgroundColor={'#FDF7F0'}
+                placeholder={'enter 9th word'}
+                w="62%"
+                height={'10'}
+                value={ninthValue}
+                onChangeText={(text) => setNinthValue(text)}
+              />
+            </Box>
+            <Box style={styles.inputcontainer}>
+              <Text style={styles.numbers}>10 </Text>
+              <Input
+                placeholderTextColor={'grey'}
+                backgroundColor={'#FDF7F0'}
+                placeholder={'enter 10th word'}
+                w="62%"
+                height={'10'}
+                value={tenthValue}
+                onChangeText={(text) => setTenthValue(text)}
+              />
+            </Box>
+          </View>
+          <View flexDirection={'row'} marginLeft={10} marginRight={20}>
+            <Box style={styles.inputcontainer}>
+              <Text style={styles.numbers}>11 </Text>
+              <Input
+                placeholderTextColor={'grey'}
+                backgroundColor={'#FDF7F0'}
+                placeholder={'enter 11th word'}
+                w="62%"
+                height={'10'}
+                value={eleventhValue}
+                onChangeText={(text) => setElevnthValue(text)}
+              />
+            </Box>
+            <Box style={styles.inputcontainer}>
+              <Text style={styles.numbers}>12 </Text>
+              <Input
+                placeholderTextColor={'grey'}
+                backgroundColor={'#FDF7F0'}
+                placeholder={'enter 12th word'}
+                w="62%"
+                height={'10'}
+                value={twelvthValue}
+                onChangeText={(text) => setTwelthValue(text)}
+              />
+            </Box>
+          </View>
+          <Text color={'#4F5955'} marginX={10} marginY={10} fontSize={12}>
             {seed.seedDescription}
           </Text>
           <View
@@ -221,20 +332,39 @@ const EnterSeedScreen = ({ navigation }: { navigation }) => {
               </TouchableOpacity>
             </Box>
             <KeeperModal
-              visible={visible}
-              close={close}
+              visible={invalidSeedsModal}
+              close={closeInvalidSeedsModal}
               title={seed.InvalidSeeds}
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
               buttonText={'Retry'}
               buttonTextColor={'#FAFAFA'}
-              buttonCallback={navigateToHardwareSetup}
+              buttonCallback={closeInvalidSeedsModal}
               textColor={'#041513'}
               Content={InValidSeedsScreen}
             />
+            <KeeperModal
+              visible={walletRecoverySuccessModal}
+              close={closeRecovery}
+              title={'Wallet Recovery Successful'}
+              subTitle={seed.seedDescription}
+              modalBackground={['#F7F2EC', '#F7F2EC']}
+              buttonBackground={['#00836A', '#073E39']}
+              buttonText={'View Wallet'}
+              buttonTextColor={'#FAFAFA'}
+              buttonCallback={closeWalletSuccessModal}
+              textColor={'#041513'}
+              Content={RecoverWalletScreen}
+            />
+            <ModalWrapper
+              visible={createCloudBackupModal}
+              onSwipeComplete={() => setCreateCloudBackupModal(false)}
+            >
+              <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+            </ModalWrapper>
           </View>
-        </SafeAreaView>
+        </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -269,6 +399,11 @@ const styles = ScaledSheet.create({
     color: '#00836A',
     fontWeight: 'bold',
     marginTop: 8,
+  },
+  ctabutton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
   },
 });
 

@@ -7,11 +7,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import KeeperModal from './KeeperModal';
 import BTC from 'src/assets/images/btc_white.svg';
+import { NavigationContainer } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const PasswordModal = (props) => {
   const {
     visible,
-    close,
+    closePasswordModal,
     title = 'Title',
     subTitle = null,
     dscription = 'Description',
@@ -19,20 +21,21 @@ const PasswordModal = (props) => {
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = 'Button text',
     buttonTextColor = 'white',
-    buttonCallback = props.close || null,
+    buttonCallback = props.closePasswordModal || null,
     textColor = '#000',
   } = props;
   const { bottom } = useSafeAreaInsets();
-  const [openModal, setOpenModal] = useState(false);
+  const [recoverySuccessModal, setrecoverySuccessModal] = useState(false);
+  const navigation = useNavigation();
 
-  const closeRecovery = () => setOpenModal(false);
+  const closeRecovery = () => setrecoverySuccessModal(false);
   const openRecovery = () => {
-    close();
-    setOpenModal(true);
+    closePasswordModal();
+    setrecoverySuccessModal(true);
   };
 
   const passwordScreen = () => {
-    setOpenModal(false);
+    setrecoverySuccessModal(false);
   };
 
   const { translations } = useContext(LocalizationContext);
@@ -87,7 +90,7 @@ const PasswordModal = (props) => {
   return (
     <Modal
       isOpen={visible}
-      onClose={close}
+      onClose={closePasswordModal}
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
@@ -101,7 +104,7 @@ const PasswordModal = (props) => {
           colors={modalBackground}
           style={styles.container}
         >
-          <TouchableOpacity style={styles.close} onPress={close}>
+          <TouchableOpacity style={styles.close} onPress={closePasswordModal}>
             <Close />
           </TouchableOpacity>
           <Modal.Header
@@ -174,7 +177,7 @@ const PasswordModal = (props) => {
           </Box>
         </LinearGradient>
         <KeeperModal
-          visible={openModal}
+          visible={recoverySuccessModal}
           close={closeRecovery}
           title={'Wallet Recovery Successful'}
           subTitle={seed.seedDescription}

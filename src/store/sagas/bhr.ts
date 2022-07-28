@@ -1,4 +1,5 @@
 import { call, put } from 'redux-saga/effects';
+import * as bip39 from 'bip39';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
 import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
@@ -248,37 +249,38 @@ function* seedBackedUpWorker() {
 }
 
 function* getAppImageWorker({ payload }) {
-  const { id, primarySeed } = payload;
+  const { primaryMnemonic } = payload;
   try {
-    const encryptionKey = generateEncryptionKey(primarySeed);
+    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
+    const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const appImage: any = yield Relay.getAppImage(id);
-
     //Keeper-App Reacreation
-    const userTier: UserTier = {
-      level: AppTierLevel.ONE,
-    };
-    const app = {
-      id,
-      primarySeed,
-      walletShellInstances: JSON.parse(appImage.walletShellInstances),
-      userTier,
-      version: DeviceInfo.getVersion(),
-    };
-    yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-    yield call(dbManager.createObject, RealmSchema.WalletShell, JSON.parse(appImage.walletShells));
+    // const userTier: UserTier = {
+    //   level: AppTierLevel.ONE,
+    // };
+    // const app = {
+    //   id,
+    //   primarySeed,
+    //   walletShellInstances: JSON.parse(appImage.walletShellInstances),
+    //   userTier,
+    //   version: DeviceInfo.getVersion(),
+    // };
+    // yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+    // yield call(dbManager.createObject, RealmSchema.WalletShell, JSON.parse(appImage.walletShells));
 
-    //Wallet recreation
-    if (appImage) {
-      if (appImage.wallets) {
-        for (const [key, value] of Object.entries(appImage.wallets)) {
-          yield call(
-            dbManager.createObject,
-            RealmSchema.Wallet,
-            JSON.parse(decrypt(encryptionKey, value))
-          );
-        }
-      }
-    }
+    // //Wallet recreation
+    // if (appImage) {
+    //   if (appImage.wallets) {
+    //     for (const [key, value] of Object.entries(appImage.wallets)) {
+    //       yield call(
+    //         dbManager.createObject,
+    //         RealmSchema.Wallet,
+    //         JSON.parse(decrypt(encryptionKey, value))
+    //       );
+    //     }
+    //   }
+    // }
   } catch (err) {
     console.log(err);
   }

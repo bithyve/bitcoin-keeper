@@ -263,7 +263,7 @@ const NewWalletModal = (props) => {
         />
         <PasswordModal
           visible={passwordModal}
-          close={closePassword}
+          closePasswordModal={closePassword}
           title={'Confirm Password'}
           subTitle={seed.seedDescription}
           dscription={seed.seedDescription}
