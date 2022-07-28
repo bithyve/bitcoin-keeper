@@ -7,9 +7,9 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp, SETUP_KEEPER_APP } from 'src/store/sagaActions/storage';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { getAppImage, getCloudData, recoverBackup } from 'src/store/sagaActions/bhr';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import App from 'src/assets/images/svgs/app.svg';
 import Recover from 'src/assets/images/svgs/recover.svg';
@@ -71,10 +71,10 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const inheritence = translations['inheritence'];
   const seed = translations['seed'];
-
+  const dispatch = useAppDispatch();
   const [cloudModal, setCloudModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
-  const dispatch = useDispatch();
+  const [selectedBackup, setSelectedBackup] = useState(null);
 
   const passwordScreen = () => {
     setCloudModal(false);
@@ -86,44 +86,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   };
 
   const closeCloudModal = () => setCloudModal(false);
-
-  const RecoverWalletScreen = () => {
-    const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
-
-    return (
-      <View>
-        <View style={{ backgroundColor: '#FDF7F0', marginVertical: 20 }}>
-          <Box flexDirection={'row'} marginY={5} alignSelf={'center'}>
-            {IconName}
-            <Text color={'#4F5955'} marginLeft={5} marginTop={1}>
-              dastanp@gmail.com
-            </Text>
-          </Box>
-          <Box flexDirection={'row'} justifyContent={'space-between'}>
-            <View>
-              <Text fontSize={12} color={'#4F5955'}>
-                Folder: Blue Wallet Backup
-              </Text>
-              <Text fontSize={12} color={'#4F5955'}>
-                Pro Tier Backup
-              </Text>
-            </View>
-            <View>
-              <Text fontSize={12} color={'#4F5955'}>
-                Backed Up
-              </Text>
-              <Text fontSize={12} color={'#4F5955'}>
-                July 15, 2021
-              </Text>
-            </View>
-          </Box>
-        </View>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
-        </Text>
-      </View>
-    );
-  };
 
   return (
     <SafeAreaView
@@ -177,7 +139,10 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
             Icon={<Recover />}
-            onPress={() => setCloudModal(true)}
+            onPress={() => {
+              dispatch(getCloudData());
+              setCloudModal(true);
+            }}
           />
           <Tile
             title={'Recover for myself'}
@@ -227,7 +192,10 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={passwordScreen}
         textColor={'#041513'}
-        Content={RecoverWalletScreen}
+        onPressNext={(backup) => {
+          setSelectedBackup(backup);
+          passwordScreen();
+        }}
       />
       <PasswordModal
         visible={passwordModal}
@@ -240,6 +208,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         buttonText={'Next'}
         buttonTextColor={'#FAFAFA'}
         textColor={'#041513'}
+        backup={selectedBackup}
+        onPressNext={(password) => {
+          console.log(password);
+          dispatch(recoverBackup(password, selectedBackup));
+        }}
       />
     </SafeAreaView>
   );

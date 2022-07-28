@@ -23,9 +23,11 @@ const PasswordModal = (props) => {
     buttonTextColor = 'white',
     buttonCallback = props.closePasswordModal || null,
     textColor = '#000',
+    backup,
   } = props;
   const { bottom } = useSafeAreaInsets();
   const [recoverySuccessModal, setrecoverySuccessModal] = useState(false);
+  const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
   const closeRecovery = () => setrecoverySuccessModal(false);
@@ -132,6 +134,8 @@ const PasswordModal = (props) => {
             placeholder={'Enter Password'}
             w="80%"
             height={'10'}
+            value={password}
+            onChangeText={(text) => setPassword(text)}
             //  value={firstValue}
             //  onChangeText={handleChangeFirst}
           />
@@ -142,21 +146,10 @@ const PasswordModal = (props) => {
             fontWeight={'100'}
             color={textColor}
           >
-            Hint: {dscription}
+            Hint: {backup ? backup.hint : ''}
           </Text>
           <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>
-            <TouchableOpacity onPress={buttonCallback} style={{ marginRight: 20, marginTop: 7 }}>
-              <Text
-                fontSize={13}
-                fontFamily={'body'}
-                fontWeight={'300'}
-                letterSpacing={1}
-                color={'black'}
-              >
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openRecovery}>
+            <TouchableOpacity onPress={() => props.onPressNext(password)}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}

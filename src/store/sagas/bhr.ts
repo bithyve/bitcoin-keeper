@@ -15,6 +15,8 @@ import {
   INIT_CLOUD_BACKUP,
   CLOUD_BACKUP_SKIPPED,
   CONFIRM_CLOUD_BACKUP,
+  GET_CLOUD_DATA,
+  RECOVER_BACKUP,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import DeviceInfo from 'react-native-device-info';
@@ -26,6 +28,8 @@ import {
   setBackupType,
   setCloudBackupCompleted,
   setCloudBackupConfirmed,
+  setCloudData,
+  setDownloadingBackup,
   setSeedConfirmed,
 } from '../reducers/bhr';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
@@ -286,6 +290,45 @@ function* getAppImageWorker({ payload }) {
   }
 }
 
+function* getCloudDataWorker() {
+  try {
+    yield put(setDownloadingBackup(true));
+    const response = yield call(getCloudBackupData);
+    if (response.status) {
+      const backup = JSON.parse(response.data);
+      yield put(setCloudData(backup));
+    } else {
+      yield put(setDownloadingBackup(false));
+      const errMsg = getCloudErrorMessage(response.code) || '';
+      yield put(setBackupError({ isError: true, error: errMsg }));
+    }
+  } catch (error) {
+    console.log(error);
+    yield put(setBackupError({ isError: true, error: 'Unknown error' }));
+    yield put(setDownloadingBackup(false));
+  }
+}
+
+function* recoverBackupWorker({
+  payload,
+}: {
+  payload: {
+    password: string;
+    encData: string;
+  };
+}) {
+  try {
+    const { password, encData } = payload;
+    const dec = decrypt(password, encData);
+    console.log(dec);
+    const obj = JSON.parse(dec);
+    if (obj.seed) {
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
@@ -302,3 +345,5 @@ export const seedBackeupConfirmedWatcher = createWatcher(
   seedBackeupConfirmedWorked,
   SEED_BACKEDUP_CONFIRMED
 );
+export const getCloudDataWatcher = createWatcher(getCloudDataWorker, GET_CLOUD_DATA);
+export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
