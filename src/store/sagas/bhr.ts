@@ -22,6 +22,7 @@ import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
+  appImagerecoveryRetry,
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
@@ -38,6 +39,7 @@ import { Platform } from 'react-native';
 import { translations } from 'src/common/content/LocContext';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import config from 'src/core/config';
+import { refreshWallets } from '../sagaActions/wallets';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -258,6 +260,7 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
+    setAppImageError(false);
     setAppRecoveryLoading(true);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
@@ -265,7 +268,6 @@ function* getAppImageWorker({ payload }) {
     const appImage: any = yield Relay.getAppImage(id);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
-      yield put(setAppRecoveryLoading(true));
     }
     const userTier: UserTier = {
       level: AppTierLevel.ONE,
@@ -294,20 +296,18 @@ function* getAppImageWorker({ payload }) {
     if (appImage) {
       if (appImage.wallets) {
         for (const [key, value] of Object.entries(appImage.wallets)) {
-          console.log(key, decrypt(encryptionKey, value));
-          yield call(
-            dbManager.createObject,
-            RealmSchema.Wallet,
-            JSON.parse(decrypt(encryptionKey, value))
-          );
+          const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+          yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+          yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
         }
       }
+      yield put(setAppRecreated(true));
     }
-    yield put(setAppRecreated(true));
-    yield put(setAppRecoveryLoading(false));
   } catch (err) {
     yield put(setAppImageError(true));
-    console.log(err);
+  } finally {
+    yield put(setAppRecoveryLoading(false));
+    yield put(appImagerecoveryRetry());
   }
 }
 

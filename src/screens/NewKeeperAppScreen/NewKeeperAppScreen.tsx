@@ -133,12 +133,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       }}
     >
       <StatusBar backgroundColor={'light.ReceiveBackground'} barStyle="dark-content" />
-      <ScrollView>
-        <Box mx={10} my={10}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <BackIcon />
-          </TouchableOpacity>
-        </Box>
+      <ScrollView
+        style={{
+          paddingTop: 30,
+        }}
+      >
         <Box mx={3}>
           <Text
             color={'light.blackHeaderText'}

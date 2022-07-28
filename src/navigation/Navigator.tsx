@@ -59,7 +59,11 @@ const LoginStack = () => {
         name="OnBoardingSlides"
         component={OnBoardingSlides}
       />
-      <Stack.Screen name="NewKeeperApp" component={NewKeeperApp} />
+      <Stack.Screen
+        name="NewKeeperApp"
+        options={{ gestureEnabled: false }}
+        component={NewKeeperApp}
+      />
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );

@@ -103,11 +103,16 @@ const EnterSeedScreen = () => {
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const {
+    appImageRecoverd,
+    appRecreated,
+    appRecoveryLoading,
+    appImageError,
+    appImagerecoveryRetry,
+  } = useAppSelector((state) => state.bhr);
 
   useEffect(() => {
+    console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
     if (appImageError) openInvalidSeedsModal();
 
     if (appRecoveryLoading) {
@@ -119,14 +124,16 @@ const EnterSeedScreen = () => {
         navigation.navigate('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appRecoveryLoading, appImageError]);
+  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
 
-  const emptySeedCheck = () => {
+  const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
       if (seedData[i].name === '') {
         showToast('Enter all seeds', <TickIcon />);
+        return true;
       }
     }
+    return true;
   };
 
   const getSeedWord = () => {
@@ -138,12 +145,13 @@ const EnterSeedScreen = () => {
   };
 
   const onPressNext = async () => {
-    emptySeedCheck();
-    let seedWord = getSeedWord();
-    dispatch(getAppImage(seedWord));
-    // dispatch(
-    //   getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
-    // );
+    if (isSeedFilled()) {
+      let seedWord = getSeedWord();
+      // dispatch(getAppImage(seedWord));
+      dispatch(
+        getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
+      );
+    }
   };
 
   const RecoverWalletScreen = () => {
