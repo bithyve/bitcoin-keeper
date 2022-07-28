@@ -46,16 +46,37 @@ const EnterSeedScreen = () => {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
-  const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
+
   const openLoaderModal = () => setCreateCloudBackupModal(true);
+  const closeLoaderModal = () => setCreateCloudBackupModal(false);
+
   const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
+  const closeWalletSuccessModal = () => {
+    setWalletRecoverySuccessModal(false);
+  };
+
   const dispatch = useDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading } = useAppSelector(
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
+
+  useEffect(() => {
+    if (appImageError) openInvalidSeedsModal();
+
+    if (appRecoveryLoading) {
+      openLoaderModal();
+    }
+    if (appRecreated) {
+      setTimeout(() => {
+        closeLoaderModal();
+        navigation.navigate('App', { screen: 'NewHome' });
+      }, 3000);
+    }
+  }, [appRecoveryLoading, appImageError]);
 
   const onPressNext = async () => {
     if (firstValue === '') {
@@ -86,13 +107,11 @@ const EnterSeedScreen = () => {
         ' ' +
         twelvthValue;
       console.log(seedWord);
-      // openLoaderModal();
-      walletRecoverySuccess();
+      dispatch(getAppImage(seedWord));
+      // dispatch(
+      //   getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
+      // );
     }
-  };
-
-  const closeWalletSuccessModal = () => {
-    setWalletRecoverySuccessModal(false);
   };
 
   const RecoverWalletScreen = () => {

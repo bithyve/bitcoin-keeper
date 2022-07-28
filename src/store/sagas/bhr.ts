@@ -22,6 +22,7 @@ import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
+  setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
   setAppRecreated,
@@ -263,7 +264,8 @@ function* getAppImageWorker({ payload }) {
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const appImage: any = yield Relay.getAppImage(id);
     if (appImage) {
-      setAppImageRecoverd(true);
+      yield put(setAppImageRecoverd(true));
+      yield put(setAppRecoveryLoading(true));
     }
     const userTier: UserTier = {
       level: AppTierLevel.ONE,
@@ -304,6 +306,7 @@ function* getAppImageWorker({ payload }) {
     yield put(setAppRecreated(true));
     yield put(setAppRecoveryLoading(false));
   } catch (err) {
+    yield put(setAppImageError(true));
     console.log(err);
   }
 }

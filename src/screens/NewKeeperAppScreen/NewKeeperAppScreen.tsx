@@ -157,8 +157,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             Icon={<App />}
             onPress={() => {
               dispatch(setupKeeperApp());
-              // navigation.replace('App');
-              navigation.dispatch(CommonActions.navigate('NewHome'));
+              navigation.navigate('App', { screen: 'NewHome' });
             }}
           />
           <Text
@@ -193,20 +192,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             onPress={() => console.log('using Signing Devices')}
             Icon={<Inheritance />}
           />
-          {/* <TouchableOpacity
-            onPress={() => {
-              dispatch(setupKeeperApp());
-              navigation.replace('App');
-            }}
-          >
-            <Text>New App</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text>Backup From Seed</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text>Backup From Cloud</Text>
-          </TouchableOpacity> */}
         </Box>
       </ScrollView>
       <KeeperModal
