@@ -14,7 +14,7 @@ const KeeperModal = (props) => {
     subTitle = null,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
-    buttonText = 'Button text',
+    buttonText = null,
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
@@ -64,7 +64,7 @@ const KeeperModal = (props) => {
           <Modal.Body>
             <Content />
           </Modal.Body>
-          <Box alignSelf={'flex-end'} bg={'transparent'}>
+          {buttonText && <Box alignSelf={'flex-end'} bg={'transparent'}>
             <TouchableOpacity onPress={buttonCallback}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
@@ -83,7 +83,7 @@ const KeeperModal = (props) => {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
-          </Box>
+          </Box>}
         </LinearGradient>
       </Modal.Content>
     </Modal>
