@@ -20,7 +20,7 @@ const CreateCloudBackup = (props) => {
   ]);
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
-      <TouchableOpacity onPress={() => props.closeBottomSheet()}>
+      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
           bg={'#E3BE96'}

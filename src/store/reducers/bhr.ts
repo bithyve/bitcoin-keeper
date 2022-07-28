@@ -6,13 +6,19 @@ import { persistReducer } from 'redux-persist';
 const initialState: {
   backupMethod: BackupType | null;
   isBackupError: boolean;
-  backupError: object;
+  backupError: string;
   seedConfirmed: boolean;
+  loading: boolean;
+  cloudBackupCompleted: boolean;
+  cloudBackedConfirmed: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
-  backupError: {},
+  backupError: '',
   seedConfirmed: false,
+  loading: false,
+  cloudBackupCompleted: false,
+  cloudBackedConfirmed: false,
 };
 
 const bhrSlice = createSlice({
@@ -25,19 +31,50 @@ const bhrSlice = createSlice({
     setSeedConfirmed: (state, action: PayloadAction<boolean>) => {
       state.seedConfirmed = action.payload;
     },
-    setBackupError: (state, action: PayloadAction<{ isError: boolean; error: object }>) => {
+    setCloudBackupConfirmed: (state, action: PayloadAction<boolean>) => {
+      state.cloudBackedConfirmed = action.payload;
+      if (action.payload) {
+        state.backupError = '';
+        state.isBackupError = false;
+        state.loading = false;
+      }
+    },
+    setBackupLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setBackupError: (state, action: PayloadAction<{ isError: boolean; error: string }>) => {
       state.backupError = action.payload.error;
       state.isBackupError = action.payload.isError;
+    },
+    setCloudBackupCompleted: (state) => {
+      state.cloudBackupCompleted = true;
+      state.backupError = '';
+      state.isBackupError = false;
+      state.loading = false;
     },
   },
 });
 
-export const { setBackupType, setSeedConfirmed, setBackupError } = bhrSlice.actions;
+export const {
+  setBackupType,
+  setSeedConfirmed,
+  setBackupError,
+  setBackupLoading,
+  setCloudBackupCompleted,
+  setCloudBackupConfirmed,
+} = bhrSlice.actions;
 
 const bhrPersistConfig = {
   key: 'bhr',
   storage: reduxStorage,
-  blacklist: ['isBackupError', 'backupError', 'seedConfirmed'],
+  blacklist: [
+    'isBackupError',
+    'backupError',
+    'seedConfirmed',
+    'loading',
+    'cloudBackupCompleted',
+    'cloudBackedConfirmed',
+  ],
 };
 
 export default persistReducer(bhrPersistConfig, bhrSlice.reducer);

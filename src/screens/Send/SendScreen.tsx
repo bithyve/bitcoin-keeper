@@ -139,7 +139,7 @@ const SendScreen = ({ route }) => {
         </Box>
 
         {/* Send to Wallet options */}
-        <Box marginTop={hp(10)}>
+        <Box marginTop={hp(40)}>
           <Text
             marginX={5}
             color={'light.GreyText'}
@@ -168,7 +168,7 @@ const SendScreen = ({ route }) => {
         </Box>
 
         {/* {Bottom note} */}
-        <Box marginTop={hp(20)} marginX={2}>
+        <Box marginTop={hp(40)} marginX={2}>
           <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
         </Box>
       </ScrollView>
@@ -214,7 +214,7 @@ const styles = ScaledSheet.create({
     padding: 15,
   },
   cameraView: {
-    height: hp(300),
+    height: hp(250),
     width: wp(375),
   },
   qrcontainer: {
