@@ -5,6 +5,8 @@ export const SEED_BACKEDUP_CONFIRMED = 'SEED_BACKEDUP_CONFIRMED';
 export const INIT_CLOUD_BACKUP = 'INIT_CLOUD_BACKUP';
 export const CLOUD_BACKUP_SKIPPED = 'CLOUD_BACKUP_SKIPPED';
 export const CONFIRM_CLOUD_BACKUP = 'CONFIRM_CLOUD_BACKUP';
+export const GET_CLOUD_DATA = 'GET_CLOUD_DATA';
+export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 
 export const updateAppImage = (walletId) => {
   return {
@@ -60,6 +62,22 @@ export const initCloudBackup = (password: string, hint?: string) => {
     payload: {
       password,
       hint,
+    },
+  };
+};
+
+export const getCloudData = () => {
+  return {
+    type: GET_CLOUD_DATA,
+  };
+};
+
+export const recoverBackup = (password: string, encData: string) => {
+  return {
+    type: RECOVER_BACKUP,
+    payload: {
+      password,
+      encData,
     },
   };
 };
