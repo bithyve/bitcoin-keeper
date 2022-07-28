@@ -1,14 +1,15 @@
-import { call } from 'redux-saga/effects';
-import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
-import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
-import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import Relay from 'src/core/services/operations/Relay';
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { GET_APP_IMAGE, UPDATE_APP_IMAGE } from '../sagaActions/bhr';
-import { createWatcher } from '../utilities';
+import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
+import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+
+import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import DeviceInfo from 'react-native-device-info';
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { call } from 'redux-saga/effects';
+import { createWatcher } from '../utilities';
+import dbManager from 'src/storage/realm/dbManager';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -28,9 +29,6 @@ function* updateAppImageWorker({ payload }) {
   if (walletId) {
     const wallet: Wallet = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
     const encryptionKey = generateEncryptionKey(primarySeed);
-    console.log('primary Seed', primarySeed);
-    console.log('nmeomeon', primaryMnemonic);
-    console.log('encryptionKey', encryptionKey);
     const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
     walletObject[wallet.id] = encrytedWallet;
     try {

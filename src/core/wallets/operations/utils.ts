@@ -356,8 +356,7 @@ export default class WalletUtilities {
         internal
       );
       const xKey = bip32.fromBase58(childExtendedKey, network);
-      const pub = xKey.publicKey.toString('hex');
-      return Buffer.from(pub, 'hex');
+      return xKey.publicKey;
     });
     pubkeys = pubkeys.sort((a, b) => (a > b ? 1 : -1)); // bip-67 compatible
 
