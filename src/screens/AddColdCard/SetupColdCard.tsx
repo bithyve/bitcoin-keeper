@@ -79,15 +79,19 @@ const SetupColdCard = () => {
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    // const { xpub, masterFingerprint: xfp, derivationPath } = generateMockExtendedKey(EntityKind.VAULT);
+    // const {
+    //   xpub,
+    //   masterFingerprint: xfp,
+    //   derivationPath,
+    // } = generateMockExtendedKey(EntityKind.VAULT);
     const xpub =
-      'tpubDDEoAesyQmKxmesvarD2w6fcdZKabESDEnQiQjg1U6AnJtRdhEJJVcscRRCELAJa3TmPrQ9Jd2YBmYh1ByWmapogcuA92eiRxNRp92D8b6f';
+      'tpubDEkZvpvzwT62aJUdBCQ9bArtRZ3kDndj5FqFFak3ZqiLg5bFSgWtoTpiiHbmeML4AZVeyQu3LCbd3fcBZbCoRxhBKx9EC37NCEwU3wFaogz';
     const xfp = '73DC8582';
-    const derivationPath = `m/49'/1'/229358'`;
+    const derivationPath = `m/48'/1'/115543'/1'`;
     const cc: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
-      signerName: 'MK4',
+      signerName: 'MK4 (mock)',
       xpub,
       xpubInfo: {
         derivationPath,

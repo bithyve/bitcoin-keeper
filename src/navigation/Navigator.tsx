@@ -29,12 +29,11 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
-import SignHardware from 'src/screens/Send/SignHardware';
+import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
-import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const defaultTheme = {
@@ -87,7 +86,6 @@ const AppStack = () => {
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
-        <Stack.Screen name="SignHardware" component={SignHardware} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />

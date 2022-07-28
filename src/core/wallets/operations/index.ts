@@ -830,7 +830,7 @@ export default class WalletOperations {
       });
 
       for (let output of outputsWithChange) {
-        if (wallet.entityKind === EntityKind.VAULT && output.address === changeAddress) {
+        if (wallet.entityKind === EntityKind.VAULT && output.address === changeMultisig.address) {
           const { bip32Derivation, witnessScript, redeemScript } =
             WalletOperations.getPSBTDataForChangeOutput(wallet as Vault, changeMultisig);
           PSBT.addOutput({ ...output, bip32Derivation, witnessScript, redeemScript });

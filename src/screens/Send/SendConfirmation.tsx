@@ -1,4 +1,4 @@
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -100,7 +100,7 @@ const SendConfirmation = ({ route }) => {
 
   useEffect(() => {
     if (serializedPSBTEnvelop) {
-      navigation.dispatch(CommonActions.navigate('SignHardware'));
+      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
   }, [serializedPSBTEnvelop]);
 

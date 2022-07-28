@@ -357,13 +357,9 @@ const VaultDetails = () => {
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
 
-  const refreshVault = () => {
-    dispatch(refreshWallets([vault], { hardRefresh: true }));
-  };
-
-  const pullDownRefresh = () => {
+  const syncVault = () => {
     setPullRefresh(true);
-    refreshVault();
+    dispatch(refreshWallets([vault], { hardRefresh: true }));
     setPullRefresh(false);
   };
 
@@ -371,7 +367,7 @@ const VaultDetails = () => {
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
-      pullDownRefresh();
+      syncVault();
     });
   }, []);
 
@@ -391,7 +387,7 @@ const VaultDetails = () => {
           <SignerList />
           <TransactionList
             transactions={transactions}
-            pullDownRefresh={pullDownRefresh}
+            pullDownRefresh={syncVault}
             pullRefresh={pullRefresh}
             vault={vault}
           />
