@@ -1,18 +1,19 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import React, { useCallback, useEffect } from 'react';
-import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import { StyleSheet, Text, View } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import config, { APP_STAGE } from 'src/core/config';
 
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { NfcTech } from 'react-native-nfc-manager';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import crypto from 'crypto';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config, { APP_STAGE } from 'src/core/config';
 
 const SetupColdCard = () => {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -23,9 +24,12 @@ const SetupColdCard = () => {
   const scanMK4 = async () => {
     setNfcVisible(true);
     try {
-      const { data: xpub } = await NFC.read(NfcTech.NfcV);
+      const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
+      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
+      const path = data?.p2sh_p2wsh_deriv ?? '';
+      const xfp = data?.xfp ?? '';
       setNfcVisible(false);
-      return xpub;
+      return { xpub, path, xfp };
     } catch (err) {
       console.log(err);
       setNfcVisible(false);
@@ -52,27 +56,59 @@ const SetupColdCard = () => {
   }, []);
 
   const getColdCardDetails = async () => {
-    const xpub = await scanMK4();
+    let { xpub, path: derivationPath, xfp } = await scanMK4();
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const signer: VaultSigner = {
+    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+    const cc: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
       signerName: 'MK4',
       xpub,
       xpubInfo: {
-        derivationPath: xpub.startsWith('t') ? 'm/44h/1h/0h' : 'm/44h/0h/0h',
+        derivationPath,
+        xfp,
       },
     };
-    const scheme: VaultScheme = { m: 1, n: 1 };
-    return { signers: [signer], scheme };
+
+    return { signer: cc };
+  };
+
+  const generateMockColdCard = () => {
+    const networkType =
+      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const {
+      xpub,
+      masterFingerprint: xfp,
+      derivationPath,
+    } = generateMockExtendedKey(EntityKind.VAULT);
+    // console.log(xpub, derivationPath);
+    // const xpub =
+    // 'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf';
+    // const xfp = '73DC8582';
+    // bip48/testnet/account/script/
+    // const derivationPath = `m/48'/1'/966713'/1'`;
+    const cc: VaultSigner = {
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      type: SignerType.COLDCARD,
+      signerName: 'MK4 (mock)',
+      xpub,
+      xpubInfo: {
+        derivationPath,
+        xfp,
+      },
+    };
+    return { signer: cc };
   };
 
   const createVaultWithCC = async () => {
     try {
-      const { signers, scheme } = await getColdCardDetails();
-      createVault(signers, scheme);
+      const { signer } = await getColdCardDetails();
+      const { signer: signer2 } = generateMockColdCard();
+      const scheme: VaultScheme = { m: 1, n: 2 };
+      createVault([signer, signer2], scheme);
       navigation.dispatch(CommonActions.navigate('NewHome'));
     } catch (err) {
       console.log(err);
