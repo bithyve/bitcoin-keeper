@@ -33,6 +33,7 @@ import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
@@ -100,6 +101,7 @@ const AppStack = () => {
         <Stack.Screen name="SetupInheritance" component={NewKeeperApp} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
+        <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
