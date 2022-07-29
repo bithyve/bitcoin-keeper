@@ -108,6 +108,9 @@ export const {
   setAppRecreated,
   setAppImageError,
   appImagerecoveryRetry,
+  setDownloadingBackup,
+  setRecoverBackupFailed,
+  setCloudData,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
