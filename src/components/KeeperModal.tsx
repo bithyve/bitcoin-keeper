@@ -45,7 +45,7 @@ const KeeperModal = (props) => {
     subTitle = null,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
-    buttonText = 'Button text',
+    buttonText = null,
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
