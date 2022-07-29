@@ -79,15 +79,17 @@ const SetupColdCard = () => {
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    // const {
-    //   xpub,
-    //   masterFingerprint: xfp,
-    //   derivationPath,
-    // } = generateMockExtendedKey(EntityKind.VAULT);
-    const xpub =
-      'tpubDEkZvpvzwT62aJUdBCQ9bArtRZ3kDndj5FqFFak3ZqiLg5bFSgWtoTpiiHbmeML4AZVeyQu3LCbd3fcBZbCoRxhBKx9EC37NCEwU3wFaogz';
-    const xfp = '73DC8582';
-    const derivationPath = `m/48'/1'/115543'/1'`;
+    const {
+      xpub,
+      masterFingerprint: xfp,
+      derivationPath,
+    } = generateMockExtendedKey(EntityKind.VAULT);
+    // console.log(xpub, derivationPath);
+    // const xpub =
+    // 'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf';
+    // const xfp = '73DC8582';
+    // bip48/testnet/account/script/
+    // const derivationPath = `m/48'/1'/966713'/1'`;
     const cc: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
