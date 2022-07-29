@@ -3833,7 +3833,7 @@ cjs-module-lexer@^0.6.0:
 
 "cktap-protocol-react-native@git+https://github.com/bithyve/cktap-protocol-react-native.git#main":
   version "0.0.1"
-  resolved "git+https://github.com/bithyve/cktap-protocol-react-native.git#af4bffeadafc183ef2fcc7df51849fadfc100377"
+  resolved "git+https://github.com/bithyve/cktap-protocol-react-native.git#6c6029589d25599b9d3cf0f0f40a7e5eb4560107"
   dependencies:
     "@ellipticoin/cbor" "^1.0.4"
     bech32 "^2.0.0"
@@ -3845,6 +3845,7 @@ cjs-module-lexer@^0.6.0:
     js-sha256 "^0.9.0"
     ripemd160 "^2.0.2"
     secp256k1 "^4.0.3"
+    typescript "^4.7.4"
 
 clang-format@^1.6.0:
   version "1.8.0"
@@ -11057,6 +11058,11 @@ typescript@^4.4.4:
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.2.tgz#1f9aa2ceb9af87cca227813b4310fff0b51593c4"
   integrity sha512-Mamb1iX2FDUpcTRzltPxgWMKy3fhg0TN378ylbktPGPK/99KbDtMQ4W1hwgsbPAsG3a0xKa1vmw4VKZQbkvz5A==
+
+typescript@^4.7.4:
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
+  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
 
 typical@^4.0.0:
   version "4.0.0"
