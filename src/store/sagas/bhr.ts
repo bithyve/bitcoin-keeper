@@ -17,6 +17,7 @@ import {
   CONFIRM_CLOUD_BACKUP,
   GET_CLOUD_DATA,
   RECOVER_BACKUP,
+  getAppImage,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import DeviceInfo from 'react-native-device-info';
@@ -36,6 +37,7 @@ import {
   setCloudBackupConfirmed,
   setCloudData,
   setDownloadingBackup,
+  setInvalidPassword,
   setSeedConfirmed,
 } from '../reducers/bhr';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
@@ -119,7 +121,12 @@ function* confirmCloudBackupWorked({
     );
     const response = yield call(getCloudBackupData);
     if (response.status) {
-      const backup = JSON.parse(response.data).find((backup) => backup.appID === id);
+      let backup;
+      if (Platform.OS === 'android') {
+        backup = JSON.parse(response.data).find((backup) => backup.appID === id);
+      } else {
+        backup = response.data.find((backup) => backup?.appID === id);
+      }
       if (backup) {
         const dec = decrypt(password, backup.encData);
         const obj = JSON.parse(dec);
@@ -269,45 +276,49 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const appImage: any = yield Relay.getAppImage(id);
+    const appImage: any = yield call(Relay.getAppImage, id);
+    console.log('appImage', appImage);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
-    }
-    const userTier: UserTier = {
-      level: AppTierLevel.ONE,
-    };
+      const userTier: UserTier = {
+        level: AppTierLevel.ONE,
+      };
+      const entropy = yield call(
+        BIP85.bip39MnemonicToEntropy,
+        config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+        primaryMnemonic
+      );
+      const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+      const app = {
+        id,
+        primarySeed: primarySeed.toString('hex'),
+        walletShellInstances: JSON.parse(appImage.walletShellInstances),
+        primaryMnemonic: primaryMnemonic,
+        imageEncryptionKey,
+        userTier,
+        version: DeviceInfo.getVersion(),
+      };
+      yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+      yield call(
+        dbManager.createObject,
+        RealmSchema.WalletShell,
+        JSON.parse(appImage.walletShells)
+      );
 
-    const entropy = yield call(
-      BIP85.bip39MnemonicToEntropy,
-      config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
-      primaryMnemonic
-    );
-    const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-
-    const app = {
-      id,
-      primarySeed: primarySeed.toString('hex'),
-      walletShellInstances: JSON.parse(appImage.walletShellInstances),
-      primaryMnemonic: primaryMnemonic,
-      imageEncryptionKey,
-      userTier,
-      version: DeviceInfo.getVersion(),
-    };
-    yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-    yield call(dbManager.createObject, RealmSchema.WalletShell, JSON.parse(appImage.walletShells));
-
-    //Wallet recreation
-    if (appImage) {
-      if (appImage.wallets) {
-        for (const [key, value] of Object.entries(appImage.wallets)) {
-          const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
-          yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-          yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+      //Wallet recreation
+      if (appImage) {
+        if (appImage.wallets) {
+          for (const [key, value] of Object.entries(appImage.wallets)) {
+            const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+            yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+            yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+          }
         }
+        yield put(setAppRecreated(true));
       }
-      yield put(setAppRecreated(true));
     }
   } catch (err) {
+    console.log(err);
     yield put(setAppImageError(true));
   } finally {
     yield put(setAppRecoveryLoading(false));
@@ -319,8 +330,14 @@ function* getCloudDataWorker() {
   try {
     yield put(setDownloadingBackup(true));
     const response = yield call(getCloudBackupData);
+    console.log('response', response);
     if (response.status) {
-      const backup = JSON.parse(response.data);
+      let backup;
+      if (Platform.OS === 'android') {
+        backup = JSON.parse(response.data);
+      } else {
+        backup = response.data;
+      }
       yield put(setCloudData(backup));
     } else {
       yield put(setDownloadingBackup(false));
@@ -348,8 +365,13 @@ function* recoverBackupWorker({
     console.log(dec);
     const obj = JSON.parse(dec);
     if (obj.seed) {
+      yield put(getAppImage(obj.seed));
+      yield put(setInvalidPassword(false));
+    } else {
+      yield put(setInvalidPassword(true));
     }
   } catch (error) {
+    yield put(setInvalidPassword(true));
     console.log(error);
   }
 }

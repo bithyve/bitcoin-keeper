@@ -10,10 +10,9 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import SeedWordsView from 'src/components/SeedWordsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import LinearGradient from 'react-native-linear-gradient';

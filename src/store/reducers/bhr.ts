@@ -19,6 +19,7 @@ const initialState: {
   cloudData: Array<any>;
   downloadingBackup: boolean;
   recoverBackupFailed: boolean;
+  invalidPassword: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -35,6 +36,7 @@ const initialState: {
   cloudData: [],
   downloadingBackup: false,
   recoverBackupFailed: false,
+  invalidPassword: false,
 };
 
 const bhrSlice = createSlice({
@@ -93,6 +95,9 @@ const bhrSlice = createSlice({
       state.cloudData = action.payload;
       state.downloadingBackup = false;
     },
+    setInvalidPassword: (state, action: PayloadAction<boolean>) => {
+      state.invalidPassword = action.payload;
+    },
   },
 });
 
@@ -111,6 +116,7 @@ export const {
   setDownloadingBackup,
   setRecoverBackupFailed,
   setCloudData,
+  setInvalidPassword,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -130,6 +136,7 @@ const bhrPersistConfig = {
     'appImagerecoveryRetry',
     'cloudData',
     'recoverBackupFailed',
+    'invalidPassword',
   ],
 };
 

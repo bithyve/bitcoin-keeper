@@ -9,6 +9,8 @@ import KeeperModal from './KeeperModal';
 import BTC from 'src/assets/images/btc_white.svg';
 import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { setInvalidPassword } from 'src/store/reducers/bhr';
 
 const PasswordModal = (props) => {
   const {
@@ -25,6 +27,8 @@ const PasswordModal = (props) => {
     textColor = '#000',
     backup,
   } = props;
+  const dispatch = useAppDispatch();
+  const { invalidPassword } = useAppSelector((state) => state.bhr);
   const { bottom } = useSafeAreaInsets();
   const [recoverySuccessModal, setrecoverySuccessModal] = useState(false);
   const [password, setPassword] = useState('');
@@ -132,13 +136,24 @@ const PasswordModal = (props) => {
             placeholderTextColor={'grey'}
             backgroundColor={'#FDF7F0'}
             placeholder={'Enter Password'}
-            w="80%"
+            w="90%"
+            marginY={2}
             height={'10'}
             value={password}
-            onChangeText={(text) => setPassword(text)}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (invalidPassword) {
+                dispatch(setInvalidPassword(false));
+              }
+            }}
             //  value={firstValue}
             //  onChangeText={handleChangeFirst}
           />
+          {invalidPassword && (
+            <Text alignSelf="flex-start" mx={4} color={'red.400'}>
+              Invalid password
+            </Text>
+          )}
           <Text
             style={styles.subTitle}
             width={'90%'}
@@ -149,7 +164,10 @@ const PasswordModal = (props) => {
             Hint: {backup ? backup.hint : ''}
           </Text>
           <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>
-            <TouchableOpacity onPress={() => props.onPressNext(password)}>
+            <TouchableOpacity
+              disabled={password.trim() === ''}
+              onPress={() => props.onPressNext(password)}
+            >
               <LinearGradient
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}

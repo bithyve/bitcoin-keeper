@@ -1,23 +1,21 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, ScrollView, StatusBar, Pressable } from 'native-base';
 import { SafeAreaView, TouchableOpacity, Platform, View } from 'react-native';
-import BackIcon from 'src/assets/icons/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
 import { setupKeeperApp, SETUP_KEEPER_APP } from 'src/store/sagaActions/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
-import { getAppImage, getCloudData, recoverBackup } from 'src/store/sagaActions/bhr';
+import { getCloudData, recoverBackup } from 'src/store/sagaActions/bhr';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import App from 'src/assets/images/svgs/app.svg';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import PasswordModal from 'src/components/PasswordModal';
-import GoogleDrive from 'src/assets/images/drive.svg';
-import ICloud from 'src/assets/images/icloud.svg';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const Tile = ({ title, subTitle, onPress, Icon }) => {
   return (
@@ -75,6 +73,36 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const [cloudModal, setCloudModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState(null);
+  const {
+    appImageRecoverd,
+    appRecreated,
+    appRecoveryLoading,
+    appImageError,
+    appImagerecoveryRetry,
+  } = useAppSelector((state) => state.bhr);
+  const openLoaderModal = () => setCreateCloudBackupModal(true);
+  const closeLoaderModal = () => setCreateCloudBackupModal(false);
+  const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
+  const { showToast } = useToastMessage();
+
+  useEffect(() => {
+    if (appImageError) {
+      closePassword();
+      showToast('Failed to get app image');
+    }
+
+    if (appRecoveryLoading) {
+      closePassword();
+      openLoaderModal();
+    }
+    if (appRecreated) {
+      setTimeout(() => {
+        closePassword();
+        closeLoaderModal();
+        navigation.navigate('App', { screen: 'NewHome' });
+      }, 3000);
+    }
+  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
 
   const passwordScreen = () => {
     setCloudModal(false);
@@ -187,10 +215,16 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         textColor={'#041513'}
         backup={selectedBackup}
         onPressNext={(password) => {
-          console.log(password);
-          dispatch(recoverBackup(password, selectedBackup));
+          dispatch(recoverBackup(password, selectedBackup.encData));
         }}
       />
+
+      <ModalWrapper
+        visible={createCloudBackupModal}
+        onSwipeComplete={() => setCreateCloudBackupModal(false)}
+      >
+        <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+      </ModalWrapper>
     </SafeAreaView>
   );
 };
