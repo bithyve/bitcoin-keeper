@@ -62,7 +62,8 @@
     "TermsConditions": "Terms and Conditions",
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
-    "EditDetails": "Edit Details"
+    "EditDetails": "Edit Details",
+    "next": "Next"
   },
   "noInternet": {
     "no": "No Internet",
@@ -137,7 +138,10 @@
     "Addhint": "Add a hint",
     "Makesure": "Make sure you remember the encryption password and keep it safe",
     "AnswerSecurityQuestion": "Answer\na Security Question",
-    "SelectQuestion": "Select Question"
+    "SelectQuestion": "Select Question",
+    "resetSuccess": "Reset Successful!",
+    "ResetPassSubPara1": "Your passcode has been reset successfully",
+    "ResetPassSubPara2": "Your passcode can only be reset if you have your wallet backup safe and accessible"
   },
   "home": {
     "Hello": "Hello,",
@@ -198,7 +202,12 @@
     "amountText1": "0.000024",
     "Fees": "Fees",
     "amountText2": "0.000004",
-    "TransactionConfirmed": "Transaction Confirmed"
+    "TransactionConfirmed": "Transaction Confirmed",
+    "TransactionDetails": "Transaction Details",
+    "TransactionSubTitle": "Lorem ipsum dolor sit amet,",
+    "UserTags": "User Tags",
+    "AddNew": "Add New",
+    "EditTags": "Edit Tags"
   },
   "inheritence": {
     "SetupInheritance": "Setup Inheritance",
@@ -260,6 +269,12 @@
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
+    "XPubTitle": "Account xPub",
+    "XPubSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "AccountXpub": "Account Xpub",
+    "AccountXpubNote": "This xPub is for Maldives Funds only and not for the Wallet. Each account has its own xPub",
+    "confirmPassTitle": "Confirm Passcode",
+    "confirmPassSubTitle": "To show seed words for this wallet",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details"
   },
@@ -277,7 +292,11 @@
     "Setup": "Setup",
     "VaultCreated": "Vault Created",
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
-    "ViewVault": "View Vault"
+    "ViewVault": "View Vault",
+    "AddNow": "Add Now",
+    "SelectSigner": "Select a Signing Devices",
+    "ForVault": "For your Vault",
+    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -285,10 +304,10 @@
     "InvalidSeeds": "Invalid Seeds Entry",
     "seedDescription": "Lorem ipsum dolor sit amet, consectetur adip iscing elit",
     "recoverWallet": "to recover your wallet",
-    "ExportSeed": "Export Seed",
-    "SeedDesc": "Lorem ipsum dolor sit amet,",
+    "ExportSeed": "Seed words",
+    "SeedDesc": "Make sure you keep them safe",
     "longing": "longing",
-    "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
+    "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
   },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
@@ -305,10 +324,15 @@
     "SetupDescription": "Keep your MK4 ready before proceeding"
   },
   "settings": {
-    "UseBiometrics": "Use Biometrics",
+    "selectCurrency": "Select currency",
+    "UseBiometrics": "Face ID",
+    "UseBiometricSubTitle": "Use {0} to login to the app",
     "DarkMode": "Dark Mode",
+    "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
+    "VersionHistorySubTitle": "View the apps version history",
     "LanguageCountry": "Language & Country",
+    "LanguageCountrySubTitle": "Select language and currency",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
     "Questionsfeedbackandmore": "Questions, feedback and more",
     "biometricsDesc": "Lorem ipsum dolor sit amet,",
@@ -347,7 +371,7 @@
     "ChangeCurrency": "Currency & Language",
     "Chooseyourcurrency": "Choose your currency & language",
     "AlternateCurrency": "Alternate Currency",
-    "LanguageSettings": "Ajustes de idioma",
+    "LanguageSettings": "Language Settings",
     "Chooseyourlanguage": "Choose your language preference",
     "HelpUstranslate": "Help us translate better",
     "HelpUstranslateSub": "Did we lose something in translation? You can help us improve your language by proofreading and suggesting better translations.",
@@ -366,6 +390,54 @@
     "ConfirmSecurityQuestion": "Confirm Security Question",
     "ConfirmWalletPin": "Confirm Wallet Pin",
     "ConfirmEncryptionPassword": "Confirm Encryption Password",
-    "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
+    "desc": "It would take some time for the sats to reflect in your account based on the network condition"
+  },
+  "onboarding": {
+    "slide01Title": "Most secure way to\nstore your bitcoin",
+    "slide01Paragraph": "Keeper works with most of the trusted hardware signers which hold your keys in an air-gapped and/ or multisig manner",
+    "slide02Title": "Security should not\ncome at the cost of privacy",
+    "slide02Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
+    "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
+    "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
+    "slide04Title": "All that you will need for\nsecuring your bitcoin",
+    "slide04Paragraph": "BIP 85 hot wallets, auto-transfer to vault, buy bitcoin directly in to your cold storage, and much more",
+    "slide05Title": "Works just with the mobile app,\nno computer needed",
+    "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signers, without any intermediate step",
+    "slide06Title": "Affordable plans\nand a great offer",
+    "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your Vault now."
+  },
+  "choosePlan": {
+    "choosePlantitle": "Choose your plan",
+    "choosePlanSubTitle": "You are currently on the basic plan",
+    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store"
+  },
+  "BackupWallet": {
+    "confirmSeedWord": "Confirm Seed Words",
+    "enterSeedWord": "Enter the second(02) word",
+    "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
+    "startOver": "Start Over",
+    "backupSuccessTitle": "Backup Successful",
+    "backupSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "backupSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "home": "Home",
+    "backupWallet": "Backup Wallet",
+    "backupWalletSubTitle": "Setup backup for Keeper",
+    "exportAppSeed": "Export app individual seeds",
+    "backupOnCloud": "Backup on cloud service",
+    "appGeneratePassTitle": "App Generated Password",
+    "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "createCloudBackTitle": "Creating Cloud Backup",
+    "createCloudBackSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "healthCheck": "Health Check",
+    "enterStrongPass": "Enter App Generated Strong Password",
+    "healthCheckNote": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et ",
+    "healthCheckSuccessTitle": "Health Check Successful",
+    "healthCheckSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
+    "healthCheckSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    "skipHealthCheckTitle": "Skipping Health Check",
+    "skipHealthCheckSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+    "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
+    "myWalletBackupTitle": "My Wallet Backup"
   }
 }
