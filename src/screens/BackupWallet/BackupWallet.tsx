@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -21,11 +21,49 @@ import { initCloudBackup } from 'src/store/sagaActions/bhr';
 import { setBackupError, setBackupLoading } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { SafeAreaView, TouchableOpacity } from 'react-native';
+import BackIcon from 'src/assets/icons/back.svg';
+import BackupHealthCheckList from 'src/components/CloudBackup/BackupHealthCheckList';
 
 type Props = {
   title: string;
   subTitle: string;
   onPress: () => void;
+};
+
+const WalletBackHistory = () => {
+  const { translations } = useContext(LocalizationContext);
+  const BackupWallet = translations['BackupWallet'];
+
+  const navigation = useNavigation();
+
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: '#F7F2EC',
+      }}
+    >
+      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
+      <Box mx={10} my={10}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackIcon />
+        </TouchableOpacity>
+      </Box>
+
+      <Box mx={10} mb={5}>
+        <Text color={'light.headerText'} fontSize={RFValue(16)} fontFamily={'heading'} pl={10}>
+          {BackupWallet.myWalletBackupTitle}
+        </Text>
+        <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+          Lorem ipsum dolor sit amet
+        </Text>
+      </Box>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, margin: 10 }}>
+        <BackupHealthCheckList />
+      </ScrollView>
+    </SafeAreaView>
+  );
 };
 
 const BackupWallet = () => {
@@ -46,11 +84,10 @@ const BackupWallet = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
-  useEffect(() => {
-    if (backupMethod !== null) {
-      navigation.replace('WalletBackHistory');
-    }
-  }, [backupMethod, cloudBackupCompleted]);
+  // useEffect(() => {
+  //   if (backupMethod !== null) {
+  //     navigation.replace('WalletBackHistory');
+  // }, [backupMethod, cloudBackupCompleted]);
 
   useEffect(() => {
     if (loading) {
@@ -105,7 +142,9 @@ const BackupWallet = () => {
       </Pressable>
     );
   };
-  return (
+  return backupMethod !== null ? (
+    <WalletBackHistory />
+  ) : (
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
@@ -115,6 +154,7 @@ const BackupWallet = () => {
         onPressHandler={() => navigation.goBack()}
       />
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
+        {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
           subTitle={'Lorem ipsum dolor sit amet'}
@@ -175,7 +215,8 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setSkipHealthCheckModal(false);
-              navigation.navigate('WalletBackHistory');
+              // navigation.navigate('WalletBackHistory');
+              <WalletBackHistory />;
             }}
           />
         </ModalWrapper>
@@ -191,7 +232,8 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setHealthCheckSuccessModal(false);
-              navigation.navigate('WalletBackHistory');
+              // navigation.navigate('WalletBackHistory');
+              <WalletBackHistory />;
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}
