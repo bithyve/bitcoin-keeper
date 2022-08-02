@@ -1,32 +1,31 @@
+import { Box, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, VStack, HStack, View } from 'native-base';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
-import Buttons from 'src/components/Buttons';
-import BTC from 'src/assets/images/svgs/btc_grey.svg';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import SigningController from './SigningController';
-import { TxPriority } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import BTC from 'src/assets/images/svgs/btc_grey.svg';
+import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import Buttons from 'src/components/Buttons';
+import Header from 'src/components/Header';
 import RadioButton from 'src/components/RadioButton';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import { TxPriority } from 'src/core/wallets/enums';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { timeConvertNear30 } from 'src/common/utilities';
-import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import { useAppSelector } from 'src/store/hooks';
+import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
+import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -93,6 +92,17 @@ const SendConfirmation = ({ route }) => {
       );
     }
   };
+
+  const serializedPSBTEnvelop = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelop
+  );
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (serializedPSBTEnvelop) {
+      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+    }
+  }, [serializedPSBTEnvelop]);
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -348,8 +358,6 @@ const SendConfirmation = ({ route }) => {
         cancelButtonColor={'#073E39'}
         Content={SendSuccessfulContent}
       /> */}
-
-      <SigningController />
     </Box>
   );
 };

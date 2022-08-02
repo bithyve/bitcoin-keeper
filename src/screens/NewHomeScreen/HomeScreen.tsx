@@ -7,24 +7,27 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
-// import Elite from 'src/assets/images/svgs/elite.svg';
-// import Pro from 'src/assets/images/svgs/pro.svg';
-// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
-// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
-// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import NewWalletModal from 'src/components/NewWalletModal';
+// import Elite from 'src/assets/images/svgs/elite.svg';
+// import Pro from 'src/assets/images/svgs/pro.svg';
+// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
+// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
+// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
+import Pleb from 'src/assets/images/svgs/pleb.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import { SignerMap } from './SignerMap';
+import SuccessModal from 'src/components/SuccessModal';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -38,8 +41,6 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import NewWalletModal from 'src/components/NewWalletModal';
-import SuccessModal from 'src/components/SuccessModal';
 import { walletData } from 'src/common/data/defaultData/defaultData';
 
 const InheritanceComponent = () => {
@@ -206,24 +207,6 @@ const VaultSetupContent = () => {
   );
 };
 
-const VaultCreationContent = () => {
-  return (
-    <View>
-      <Box alignSelf={'center'}>
-        <VaultSetupIcon />
-      </Box>
-      <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-        {
-          'For sending out of the Vault you will need the Signer. This means no one can steal your bitcoin in the Vault unless they also have the signer'
-        }
-      </Text>
-      {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-        {'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'}
-      </Text> */}
-    </View>
-  );
-};
-
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
@@ -304,7 +287,9 @@ const VaultStatus = (props) => {
             </Text>
             {!Signers.length ? null : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
-                <TapsignerIcon />
+                {Signers.map((signer) => (
+                  <SignerMap type={signer.type} />
+                ))}
               </Box>
             )}
           </Box>
@@ -455,10 +440,7 @@ const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   return (
-    <Box
-      flex={1}
-      backgroundColor={'light.lightYellow'}
-    >
+    <Box flex={1} backgroundColor={'light.lightYellow'}>
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {

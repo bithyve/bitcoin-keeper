@@ -1,9 +1,10 @@
 import { Box, Text } from 'native-base';
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
+import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -12,8 +13,6 @@ import { SignerType } from 'src/core/wallets/enums';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import VaultDetails from '../HomeScreen/VaultDetails';
 
 type HWProps = {
   type: SignerType;

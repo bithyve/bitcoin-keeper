@@ -211,7 +211,6 @@ export interface TwoFADetails {
 }
 
 export interface SigningDataHW {
-  signerType: SignerType;
   inputsToSign: Array<{
     digest: string;
     subPath: string;
@@ -223,6 +222,7 @@ export interface SigningDataHW {
 }
 
 export interface SerializedPSBTEnvelop {
+  signerType: SignerType;
   serializedPSBT: string;
-  signingDataHW: SigningDataHW[];
+  signingDataHW?: SigningDataHW[];
 }

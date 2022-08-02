@@ -3831,6 +3831,22 @@ cjs-module-lexer@^0.6.0:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-0.6.0.tgz#4186fcca0eae175970aee870b9fe2d6cf8d5655f"
   integrity sha512-uc2Vix1frTfnuzxxu1Hp4ktSvM3QaI4oXl4ZUqL1wjTu/BGki9TrCWoqLTg/drR1KwAEarXuRFCG2Svr1GxPFw==
 
+"cktap-protocol-react-native@git+https://github.com/bithyve/cktap-protocol-react-native.git#main":
+  version "0.0.1"
+  resolved "git+https://github.com/bithyve/cktap-protocol-react-native.git#6c6029589d25599b9d3cf0f0f40a7e5eb4560107"
+  dependencies:
+    "@ellipticoin/cbor" "^1.0.4"
+    bech32 "^2.0.0"
+    bip32 "^2.0.6"
+    bs58 "^5.0.0"
+    buf-b32 "^2.2.0"
+    buffer-xor "^2.0.2"
+    ecpair "^2.0.1"
+    js-sha256 "^0.9.0"
+    ripemd160 "^2.0.2"
+    secp256k1 "^4.0.3"
+    typescript "^4.7.4"
+
 clang-format@^1.6.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/clang-format/-/clang-format-1.8.0.tgz#7779df1c5ce1bc8aac1b0b02b4e479191ef21d46"
@@ -3930,21 +3946,6 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha512-RpAVKQA5T63xEj6/giIbUEtZwJ4UFIc3ZtvEkiaUERylqe8xb5IvqcgOurZLahv93CLKfxcw5YI+DZcUBRyLXA==
-
-"coinkite-tap-protocol-js@git+https://github.com/bithyve/cktap-protocol-react-native.git#main":
-  version "0.0.1"
-  resolved "git+https://github.com/bithyve/cktap-protocol-react-native.git#1a658facd571efcfb60b802db2edf5c723007d39"
-  dependencies:
-    "@ellipticoin/cbor" "^1.0.4"
-    bech32 "^2.0.0"
-    bip32 "^2.0.6"
-    bs58 "^5.0.0"
-    buf-b32 "^2.2.0"
-    buffer-xor "^2.0.2"
-    ecpair "^2.0.1"
-    js-sha256 "^0.9.0"
-    ripemd160 "^2.0.2"
-    secp256k1 "^4.0.3"
 
 coinselect@^3.1.11:
   version "3.1.12"
@@ -8257,9 +8258,9 @@ node-fetch@^2.2.0, node-fetch@^2.6.0, node-fetch@^2.6.1:
     whatwg-url "^5.0.0"
 
 node-gyp-build@^4.2.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.4.0.tgz#42e99687ce87ddeaf3a10b99dc06abc11021f3f4"
-  integrity sha512-amJnQCcgtRVw9SvoebO3BKGESClrfXGCUTX9hSn1OuGQTQBOZmVd0Z0OlecpuRksKvbsUqALE8jls/ErClAPuQ==
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.5.0.tgz#7a64eefa0b21112f89f58379da128ac177f20e40"
+  integrity sha512-2iGbaQBV+ITgCz76ZEjmhUKAKVf7xfY1sRl4UiKQspfZMH2h06SyhNsnSVy50cwkFQDGLyif6m/6uFXHkOZ6rg==
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -11057,6 +11058,11 @@ typescript@^4.4.4:
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.2.tgz#1f9aa2ceb9af87cca227813b4310fff0b51593c4"
   integrity sha512-Mamb1iX2FDUpcTRzltPxgWMKy3fhg0TN378ylbktPGPK/99KbDtMQ4W1hwgsbPAsG3a0xKa1vmw4VKZQbkvz5A==
+
+typescript@^4.7.4:
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
+  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
 
 typical@^4.0.0:
   version "4.0.0"

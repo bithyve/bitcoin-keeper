@@ -49,20 +49,25 @@ export default class NFC {
         await NfcManager.start();
         await NfcManager.requestTechnology(techRequest);
         const { ndefMessage } = await NfcManager.getTag();
-        const ndef: any = ndefMessage[0];
-        const tnfName = tnfValueToName(ndef.tnf);
-        const rtdName = rtdValueToName(ndef.type);
         if (Platform.OS === 'ios') {
           await NfcManager.setAlertMessageIOS('Success');
         }
         await NfcManager.cancelTechnologyRequest();
-        const parsed =
-          rtdName === 'URI'
-            ? Ndef.uri.decodePayload(ndef.payload)
-            : rtdName === 'TEXT'
-            ? Ndef.text.decodePayload(ndef.payload)
-            : null;
-        return { data: parsed, tnfName, rtdName };
+        const records = ndefMessage.map((record) => {
+          const tnfName = tnfValueToName(record.tnf);
+          const rtdName = rtdValueToName(record.type);
+          const data =
+            rtdName === 'URI'
+              ? Ndef.uri.decodePayload(record.payload as any)
+              : rtdName === 'TEXT'
+              ? Ndef.text.decodePayload(record.payload as any)
+              : // ColdCard signed psbt is of type EXTERNAL_TYPE
+              tnfName === 'EXTERNAL_TYPE'
+              ? Buffer.from(record.payload).toString('base64')
+              : JSON.parse(Buffer.from(record.payload).toString());
+          return { data, rtdName, tnfName };
+        });
+        return records;
       }
     } catch (error) {
       console.log(error);
@@ -79,7 +84,7 @@ export default class NFC {
       if (supported) {
         await NfcManager.start();
         await NfcManager.requestTechnology(techRequest);
-        const data = await NfcManager.nfcVHandler.transceive(bytes);
+        const data = await NfcManager.ndefHandler.writeNdefMessage(bytes);
         if (Platform.OS === 'ios') {
           await NfcManager.setAlertMessageIOS('Success');
         }
