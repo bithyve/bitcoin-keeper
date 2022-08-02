@@ -11,7 +11,9 @@ const ModalWrapper = (props: Props) => {
     <Modal
       isVisible={props.visible}
       onSwipeComplete={() => props.onSwipeComplete}
-      swipeDirection={['down']}
+      onDismiss={() => props.onSwipeComplete}
+      onBackButtonPress={() => props.onSwipeComplete}
+      onBackdropPress={() => props.onSwipeComplete}
       style={{
         justifyContent: props.position == 'center' ? 'center' : 'flex-end',
         marginHorizontal: 15,

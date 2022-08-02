@@ -3,6 +3,7 @@ import { Box, Text } from 'native-base';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Check from 'src/assets/images/check.svg';
 
 const CreateCloudBackup = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -19,7 +20,7 @@ const CreateCloudBackup = (props) => {
   ]);
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
-      <TouchableOpacity onPress={() => props.closeBottomSheet()}>
+      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
           bg={'#E3BE96'}
@@ -35,7 +36,7 @@ const CreateCloudBackup = (props) => {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box p={10}>
+      <Box px={10}>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
           {BackupWallet.createCloudBackTitle}
         </Text>
@@ -44,30 +45,24 @@ const CreateCloudBackup = (props) => {
         </Text>
       </Box>
       <Box flexDirection={'row'} px={10} py={5} alignItems={'center'}>
-        <Box w={'26%'}>
-          <Box bg={'#00836A'} h={50} w={50} borderRadius={50} />
-        </Box>
-        <Box>
+        <Check />
+        <Box marginLeft={5}>
           <Text color={'#00715B'} fontSize={RFValue(16)}>
             Lorem ipsum dolor
           </Text>
         </Box>
       </Box>
       <Box flexDirection={'row'} px={10} py={5} alignItems={'center'}>
-        <Box w={'26%'}>
-          <Box bg={'#00836A'} h={50} w={50} borderRadius={50} />
-        </Box>
-        <Box>
+        <Check />
+        <Box marginLeft={5}>
           <Text color={'#00715B'} fontSize={RFValue(16)}>
             Lorem ipsum dolor
           </Text>
         </Box>
       </Box>
       <Box flexDirection={'row'} px={10} py={5} alignItems={'center'}>
-        <Box w={'26%'}>
-          <Box bg={'#00836A'} h={50} w={50} borderRadius={50} />
-        </Box>
-        <Box>
+        <Check />
+        <Box marginLeft={5}>
           <Text color={'#00715B'} fontSize={RFValue(16)}>
             Lorem ipsum dolor
           </Text>
@@ -78,7 +73,7 @@ const CreateCloudBackup = (props) => {
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
-      <Box p={10} flexDirection={'row'}>
+      {/* <Box p={10} flexDirection={'row'}>
         {items.map((item, index) => {
           return (
             <Box
@@ -87,7 +82,7 @@ const CreateCloudBackup = (props) => {
             />
           );
         })}
-      </Box>
+      </Box> */}
     </Box>
   );
 };

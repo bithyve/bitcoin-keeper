@@ -71,7 +71,7 @@ function* credentialsStorageWorker({ payload }) {
     yield call(dbManager.initializeRealm, uint8array);
 
     // setup the application
-    yield put(setupKeeperApp());
+    // yield put(setupKeeperApp());
     yield put(setPinHash(hash));
 
     yield put(setCredStored());
@@ -103,7 +103,7 @@ function* credentialsAuthWorker({ payload }) {
       hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
-      const appId = yield select((state: RootState) => state.storage.appId);
+      conId = yield select((state: RootState) => state.storage.appId);
       const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
       if (!res.success) throw new Error('Biometric Auth Failed');
       hash = res.hash;
