@@ -4,12 +4,19 @@ import Video from 'react-native-video';
 import * as SecureStore from '../../storage/secure-store';
 
 import SplashBackground from 'src/assets/images/SplashBackground.png';
+import RestClient from 'src/core/services/rest/RestClient';
+import { useAppSelector } from 'src/store/hooks';
 
 const SplashScreen = ({ navigation }) => {
+
+  const { torEnbled } = useAppSelector(state => state.settings)
+
   useEffect(() => {
+    RestClient.setUseTor(torEnbled)
     setTimeout(async () => {
       const hasCreds = await SecureStore.hasPin();
       if (hasCreds) {
+        RestClient.setUseTor(true)
         navigation.replace('Login', { relogin: false });
       } else {
         navigation.replace('CreatePin');
