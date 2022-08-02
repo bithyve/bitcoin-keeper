@@ -9,15 +9,13 @@ import { useAppSelector } from 'src/store/hooks';
 import Video from 'react-native-video';
 
 const SplashScreen = ({ navigation }) => {
-
-  const { torEnbled } = useAppSelector(state => state.settings)
+  const { torEnbled } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
-    RestClient.setUseTor(torEnbled)
+    RestClient.setUseTor(torEnbled);
     setTimeout(async () => {
       const hasCreds = await SecureStore.hasPin();
       if (hasCreds) {
-        RestClient.setUseTor(true)
         navigation.replace('Login', { relogin: false });
       } else {
         navigation.replace('CreatePin');
