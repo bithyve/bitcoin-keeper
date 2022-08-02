@@ -1,11 +1,9 @@
-import { call, put } from 'redux-saga/effects';
+import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
+import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 import * as bip39 from 'bip39';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
-import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
-import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import Relay from 'src/core/services/operations/Relay';
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import dbManager from 'src/storage/realm/dbManager';
+import DeviceInfo from 'react-native-device-info';
 import { RealmSchema } from 'src/storage/realm/enum';
 import {
   GET_APP_IMAGE,
@@ -20,7 +18,6 @@ import {
   getAppImage,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
-import DeviceInfo from 'react-native-device-info';
 import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -46,6 +43,9 @@ import { translations } from 'src/common/content/LocContext';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import config from 'src/core/config';
 import { refreshWallets } from '../sagaActions/wallets';
+import Relay from 'src/core/services/operations/Relay';
+import { call, put } from 'redux-saga/effects';
+import dbManager from 'src/storage/realm/dbManager';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -65,9 +65,6 @@ function* updateAppImageWorker({ payload }) {
   if (walletId) {
     const wallet: Wallet = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
     const encryptionKey = generateEncryptionKey(primarySeed);
-    console.log('primary Seed', primarySeed);
-    console.log('nmeomeon', primaryMnemonic);
-    console.log('encryptionKey', encryptionKey);
     const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
     walletObject[wallet.id] = encrytedWallet;
     try {

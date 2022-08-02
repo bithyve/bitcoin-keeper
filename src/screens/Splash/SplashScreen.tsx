@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { StatusBar, ImageBackground } from 'react-native';
-import Video from 'react-native-video';
 import * as SecureStore from '../../storage/secure-store';
+
+import { ImageBackground, StatusBar } from 'react-native';
+import React, { useEffect } from 'react';
 
 import SplashBackground from 'src/assets/images/SplashBackground.png';
 import RestClient from 'src/core/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
+import Video from 'react-native-video';
 
 const SplashScreen = ({ navigation }) => {
 
@@ -21,7 +22,7 @@ const SplashScreen = ({ navigation }) => {
       } else {
         navigation.replace('CreatePin');
       }
-    }, 8000);
+    }, 2000);
   }, []);
 
   return (
@@ -35,7 +36,7 @@ const SplashScreen = ({ navigation }) => {
         muted={true}
         repeat={false}
         resizeMode={'cover'}
-        rate={1.0}
+        rate={4.0}
         ignoreSilentSwitch={'obey'}
       />
     </ImageBackground>
