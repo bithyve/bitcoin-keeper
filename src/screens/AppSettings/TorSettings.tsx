@@ -62,8 +62,8 @@ const TorSettings = ({ navigation }) => {
         {`Status: ${torStatus}`}
       </Text>
       <SettingsSwitchCard
-        title={'Enabled'}
-        description={'Enabled tor daemon'}
+        title={'Enable'}
+        description={'Enable tor daemon'}
         my={2}
         bgColor={`${colorMode}.backgroundColor2`}
         onSwitchToggle={toggleTor}
