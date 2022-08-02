@@ -15,8 +15,8 @@ import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCa
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
-import { Option } from '../WalletDetailScreen/WalletSettings';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import BackupIcon from 'src/assets/images/svgs/backup.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const GoogleDrive = NativeModules.GoogleDrive;
@@ -45,8 +45,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -105,6 +105,61 @@ const AppSettings = ({ navigation }) => {
     }
   };
 
+  const Option = ({ title, subTitle, onPress, Icon }) => {
+    return (
+      <Pressable
+        flexDirection={'row'}
+        alignItems={'center'}
+        width={'100%'}
+        onPress={onPress}
+        backgroundColor={'light.lightYellow'}
+        borderRadius={10}
+        height={hp(116)}
+        paddingLeft={wp(10)}
+      >
+        {Icon && (
+          <Box
+            w={'16%'}
+            position={'relative'}
+          >
+            <Box
+              height={3}
+              width={3}
+              bg={'light.indicator'}
+              borderRadius={10}
+              borderColor={'light.white1'}
+              borderWidth={.3}
+              position={'absolute'}
+              right={wp(10)}
+              zIndex={999}
+            />
+            <BackupIcon />
+          </Box>
+        )}
+        <Box w={Icon ? '80%' : '96%'} marginLeft={wp(10)}>
+          <Text
+            color={'light.lightBlack'}
+            fontFamily={'body'}
+            fontWeight={200}
+            fontSize={RFValue(14)}
+            letterSpacing={1.12}
+          >
+            {title}
+          </Text>
+          <Text
+            color={'light.GreyText'}
+            fontFamily={'body'}
+            fontWeight={200}
+            fontSize={RFValue(12)}
+            letterSpacing={0.6}
+          >
+            {subTitle}
+          </Text>
+        </Box>
+      </Pressable>
+    );
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -136,8 +191,8 @@ const AppSettings = ({ navigation }) => {
         >
           <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={wp(25)}>
             <Option
-              title={'Wallet Backup'}
-              subTitle={'Setup backup for Wallet'}
+              title={'App Backup'}
+              subTitle={'Seed words health check is due'}
               onPress={() => {
                 navigation.navigate('BackupWallet');
               }}
