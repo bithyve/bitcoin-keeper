@@ -20,50 +20,12 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { initCloudBackup } from 'src/store/sagaActions/bhr';
 import { setBackupError, setBackupLoading } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import { SafeAreaView, TouchableOpacity } from 'react-native';
-import BackIcon from 'src/assets/icons/back.svg';
-import BackupHealthCheckList from 'src/components/CloudBackup/BackupHealthCheckList';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 
 type Props = {
   title: string;
   subTitle: string;
   onPress: () => void;
-};
-
-const WalletBackHistory = () => {
-  const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
-
-  const navigation = useNavigation();
-
-  return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#F7F2EC',
-      }}
-    >
-      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={10} my={10}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
-
-      <Box mx={10} mb={5}>
-        <Text color={'light.headerText'} fontSize={RFValue(16)} fontFamily={'heading'} pl={10}>
-          {BackupWallet.myWalletBackupTitle}
-        </Text>
-        <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
-          Lorem ipsum dolor sit amet
-        </Text>
-      </Box>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, margin: 10 }}>
-        <BackupHealthCheckList />
-      </ScrollView>
-    </SafeAreaView>
-  );
 };
 
 const BackupWallet = () => {
@@ -143,7 +105,7 @@ const BackupWallet = () => {
     );
   };
   return backupMethod !== null ? (
-    <WalletBackHistory />
+    <WalletBackHistoryScreen navigation />
   ) : (
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
@@ -216,7 +178,7 @@ const BackupWallet = () => {
             confirmBtnPress={() => {
               setSkipHealthCheckModal(false);
               // navigation.navigate('WalletBackHistory');
-              <WalletBackHistory />;
+              <WalletBackHistoryScreen navigation />;
             }}
           />
         </ModalWrapper>
@@ -233,7 +195,7 @@ const BackupWallet = () => {
             confirmBtnPress={() => {
               setHealthCheckSuccessModal(false);
               // navigation.navigate('WalletBackHistory');
-              <WalletBackHistory />;
+              <WalletBackHistoryScreen navigation />;
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}
