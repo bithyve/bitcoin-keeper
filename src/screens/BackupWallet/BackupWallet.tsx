@@ -46,11 +46,6 @@ const BackupWallet = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
-  // useEffect(() => {
-  //   if (backupMethod !== null) {
-  //     navigation.replace('WalletBackHistory');
-  // }, [backupMethod, cloudBackupCompleted]);
-
   useEffect(() => {
     if (loading) {
       setTimeout(() => {
@@ -105,7 +100,7 @@ const BackupWallet = () => {
     );
   };
   return backupMethod !== null ? (
-    <WalletBackHistoryScreen navigation />
+    <WalletBackHistoryScreen navigation={navigation} />
   ) : (
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
