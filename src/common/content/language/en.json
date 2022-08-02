@@ -63,7 +63,8 @@
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
     "EditDetails": "Edit Details",
-    "next": "Next"
+    "next": "Next",
+    "needHelp": "Need Help?"
   },
   "noInternet": {
     "no": "No Internet",
@@ -302,6 +303,7 @@
     "ExportSeed": "Seed words",
     "SeedDesc": "Make sure you keep them safe",
     "longing": "longing",
+    "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
   },
   "tapsigner": {

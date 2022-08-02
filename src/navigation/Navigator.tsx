@@ -15,7 +15,6 @@ import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletS
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
-import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
@@ -59,8 +58,12 @@ const LoginStack = () => {
         name="OnBoardingSlides"
         component={OnBoardingSlides}
       />
-      <Stack.Screen name="NewKeeperApp" component={NewKeeperApp} />
-      <Stack.Screen name="RecoveryFromSeed" component={RecoveryFromSeed} />
+      <Stack.Screen
+        name="NewKeeperApp"
+        options={{ gestureEnabled: false }}
+        component={NewKeeperApp}
+      />
+      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );
 };
@@ -70,10 +73,8 @@ const AppStack = () => {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewKeeperApp" component={NewKeeperApp} />
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
-        <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
@@ -93,7 +94,6 @@ const AppStack = () => {
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
-        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={NewKeeperApp} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />

@@ -2,10 +2,9 @@ import { call, put } from 'redux-saga/effects';
 import * as bip39 from 'bip39';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
-import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import Relay from 'src/core/services/operations/Relay';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import dbManager from 'src/storage/realm/dbManager';
+import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+import DeviceInfo from 'react-native-device-info';
 import { RealmSchema } from 'src/storage/realm/enum';
 import {
   GET_APP_IMAGE,
@@ -17,12 +16,18 @@ import {
   CONFIRM_CLOUD_BACKUP,
   GET_CLOUD_DATA,
   RECOVER_BACKUP,
+  getAppImage,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
-import DeviceInfo from 'react-native-device-info';
 import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
 import moment from 'moment';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
+  appImagerecoveryRetry,
+  setAppImageError,
+  setAppImageRecoverd,
+  setAppRecoveryLoading,
+  setAppRecreated,
   setBackupError,
   setBackupLoading,
   setBackupType,
@@ -30,11 +35,17 @@ import {
   setCloudBackupConfirmed,
   setCloudData,
   setDownloadingBackup,
+  setInvalidPassword,
   setSeedConfirmed,
 } from '../reducers/bhr';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
 import { translations } from 'src/common/content/LocContext';
+import BIP85 from 'src/core/wallets/operations/BIP85';
+import config from 'src/core/config';
+import { refreshWallets } from '../sagaActions/wallets';
+import Relay from 'src/core/services/operations/Relay';
+import dbManager from 'src/storage/realm/dbManager';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -110,7 +121,12 @@ function* confirmCloudBackupWorked({
     );
     const response = yield call(getCloudBackupData);
     if (response.status) {
-      const backup = JSON.parse(response.data).find((backup) => backup.appID === id);
+      let backup;
+      if (Platform.OS === 'android') {
+        backup = JSON.parse(response.data).find((backup) => backup.appID === id);
+      } else {
+        backup = response.data.find((backup) => backup?.appID === id);
+      }
       if (backup) {
         const dec = decrypt(password, backup.encData);
         const obj = JSON.parse(dec);
@@ -255,38 +271,58 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
+    setAppImageError(false);
+    setAppRecoveryLoading(true);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const appImage: any = yield Relay.getAppImage(id);
-    //Keeper-App Reacreation
-    // const userTier: UserTier = {
-    //   level: AppTierLevel.ONE,
-    // };
-    // const app = {
-    //   id,
-    //   primarySeed,
-    //   walletShellInstances: JSON.parse(appImage.walletShellInstances),
-    //   userTier,
-    //   version: DeviceInfo.getVersion(),
-    // };
-    // yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-    // yield call(dbManager.createObject, RealmSchema.WalletShell, JSON.parse(appImage.walletShells));
+    const appImage: any = yield call(Relay.getAppImage, id);
+    console.log('appImage', appImage);
+    if (appImage) {
+      yield put(setAppImageRecoverd(true));
+      const userTier: UserTier = {
+        level: AppTierLevel.ONE,
+      };
+      const entropy = yield call(
+        BIP85.bip39MnemonicToEntropy,
+        config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+        primaryMnemonic
+      );
+      const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+      const app = {
+        id,
+        primarySeed: primarySeed.toString('hex'),
+        walletShellInstances: JSON.parse(appImage.walletShellInstances),
+        primaryMnemonic: primaryMnemonic,
+        imageEncryptionKey,
+        userTier,
+        version: DeviceInfo.getVersion(),
+      };
+      yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+      yield call(
+        dbManager.createObject,
+        RealmSchema.WalletShell,
+        JSON.parse(appImage.walletShells)
+      );
 
-    // //Wallet recreation
-    // if (appImage) {
-    //   if (appImage.wallets) {
-    //     for (const [key, value] of Object.entries(appImage.wallets)) {
-    //       yield call(
-    //         dbManager.createObject,
-    //         RealmSchema.Wallet,
-    //         JSON.parse(decrypt(encryptionKey, value))
-    //       );
-    //     }
-    //   }
-    // }
+      //Wallet recreation
+      if (appImage) {
+        if (appImage.wallets) {
+          for (const [key, value] of Object.entries(appImage.wallets)) {
+            const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+            yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+            yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+          }
+        }
+        yield put(setAppRecreated(true));
+      }
+    }
   } catch (err) {
     console.log(err);
+    yield put(setAppImageError(true));
+  } finally {
+    yield put(setAppRecoveryLoading(false));
+    yield put(appImagerecoveryRetry());
   }
 }
 
@@ -294,8 +330,14 @@ function* getCloudDataWorker() {
   try {
     yield put(setDownloadingBackup(true));
     const response = yield call(getCloudBackupData);
+    console.log('response', response);
     if (response.status) {
-      const backup = JSON.parse(response.data);
+      let backup;
+      if (Platform.OS === 'android') {
+        backup = JSON.parse(response.data);
+      } else {
+        backup = response.data;
+      }
       yield put(setCloudData(backup));
     } else {
       yield put(setDownloadingBackup(false));
@@ -323,8 +365,13 @@ function* recoverBackupWorker({
     console.log(dec);
     const obj = JSON.parse(dec);
     if (obj.seed) {
+      yield put(getAppImage(obj.seed));
+      yield put(setInvalidPassword(false));
+    } else {
+      yield put(setInvalidPassword(true));
     }
   } catch (error) {
+    yield put(setInvalidPassword(true));
     console.log(error);
   }
 }

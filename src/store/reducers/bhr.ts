@@ -11,9 +11,15 @@ const initialState: {
   loading: boolean;
   cloudBackupCompleted: boolean;
   cloudBackedConfirmed: boolean;
+  appRecoveryLoading: boolean;
+  appImageRecoverd: boolean;
+  appRecreated: boolean;
+  appImageError: boolean;
+  appImagerecoveryRetry: boolean;
   cloudData: Array<any>;
   downloadingBackup: boolean;
   recoverBackupFailed: boolean;
+  invalidPassword: boolean;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -22,9 +28,15 @@ const initialState: {
   loading: false,
   cloudBackupCompleted: false,
   cloudBackedConfirmed: false,
+  appRecoveryLoading: false,
+  appImageRecoverd: false,
+  appRecreated: false,
+  appImageError: false,
+  appImagerecoveryRetry: false,
   cloudData: [],
   downloadingBackup: false,
   recoverBackupFailed: false,
+  invalidPassword: false,
 };
 
 const bhrSlice = createSlice({
@@ -58,6 +70,21 @@ const bhrSlice = createSlice({
       state.isBackupError = false;
       state.loading = false;
     },
+    setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
+      state.appImageRecoverd = action.payload;
+    },
+    setAppRecreated: (state, action: PayloadAction<boolean>) => {
+      state.appRecreated = action.payload;
+    },
+    setAppRecoveryLoading: (state, action: PayloadAction<boolean>) => {
+      state.appRecoveryLoading = action.payload;
+    },
+    setAppImageError: (state, action: PayloadAction<boolean>) => {
+      state.appImageError = action.payload;
+    },
+    appImagerecoveryRetry: (state) => {
+      state.appImagerecoveryRetry = !state.appImagerecoveryRetry;
+    },
     setDownloadingBackup: (state, action: PayloadAction<boolean>) => {
       state.downloadingBackup = action.payload;
     },
@@ -67,6 +94,9 @@ const bhrSlice = createSlice({
     setCloudData: (state, action: PayloadAction<Array<any>>) => {
       state.cloudData = action.payload;
       state.downloadingBackup = false;
+    },
+    setInvalidPassword: (state, action: PayloadAction<boolean>) => {
+      state.invalidPassword = action.payload;
     },
   },
 });
@@ -78,8 +108,15 @@ export const {
   setBackupLoading,
   setCloudBackupCompleted,
   setCloudBackupConfirmed,
-  setCloudData,
+  setAppRecoveryLoading,
+  setAppImageRecoverd,
+  setAppRecreated,
+  setAppImageError,
+  appImagerecoveryRetry,
   setDownloadingBackup,
+  setRecoverBackupFailed,
+  setCloudData,
+  setInvalidPassword,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -92,8 +129,14 @@ const bhrPersistConfig = {
     'loading',
     'cloudBackupCompleted',
     'cloudBackedConfirmed',
+    'appImageError',
+    'appRecoveryLoading',
+    'appRecreated',
+    'appImageRecoverd',
+    'appImagerecoveryRetry',
     'cloudData',
     'recoverBackupFailed',
+    'invalidPassword',
   ],
 };
 

@@ -192,7 +192,7 @@ const updateData = async ({ payload }) => {
       if (index === -1) {
         const tempData = {
           appID,
-          data,
+          ...data,
           dateTime: moment(new Date()),
         };
         newArray.push(tempData);

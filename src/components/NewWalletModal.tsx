@@ -261,7 +261,7 @@ const NewWalletModal = (props) => {
           textColor={'#041513'}
           Content={RecoverWalletScreen}
         />
-        <PasswordModal
+        {/* <PasswordModal
           visible={passwordModal}
           closePasswordModal={closePassword}
           title={'Confirm Password'}
@@ -272,7 +272,7 @@ const NewWalletModal = (props) => {
           buttonText={'Next'}
           buttonTextColor={'#FAFAFA'}
           textColor={'#041513'}
-        />
+        /> */}
       </Modal.Content>
     </Modal>
   );
