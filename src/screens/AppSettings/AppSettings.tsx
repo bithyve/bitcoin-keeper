@@ -17,6 +17,9 @@ import openLink from 'src/utils/OpenLink';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { BackupHistoryItem } from 'src/common/data/enums/BHR';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const GoogleDrive = NativeModules.GoogleDrive;
@@ -27,11 +30,15 @@ const AppSettings = ({ navigation }) => {
   const { appId } = useAppSelector((state) => state.storage);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const { useQuery } = useContext(RealmWrapperContext);
+  let data: BackupHistoryItem = useQuery(RealmSchema.BackupHistory)[useQuery(RealmSchema.BackupHistory).length - 1];
+
   const dispatch = useAppDispatch();
   const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
   const { settings } = translations;
+  const strings = translations['BackupWallet'];
 
   useEffect(() => {
     init();
@@ -122,7 +129,7 @@ const AppSettings = ({ navigation }) => {
             w={'16%'}
             position={'relative'}
           >
-            <Box
+            {!data.confirmed && <Box
               height={3}
               width={3}
               bg={'light.indicator'}
@@ -132,7 +139,7 @@ const AppSettings = ({ navigation }) => {
               position={'absolute'}
               right={wp(10)}
               zIndex={999}
-            />
+            />}
             <BackupIcon />
           </Box>
         )}
@@ -192,7 +199,7 @@ const AppSettings = ({ navigation }) => {
           <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={wp(25)}>
             <Option
               title={'App Backup'}
-              subTitle={'Seed words health check is due'}
+              subTitle={strings[data?.title]}
               onPress={() => {
                 navigation.navigate('BackupWallet');
               }}
