@@ -49,29 +49,9 @@ const KeeperModal = (props) => {
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
-    onPressNext,
   } = props;
   const { bottom } = useSafeAreaInsets();
-  const { downloadingBackup, cloudData, isBackupError, backupError } = useAppSelector(
-    (state) => state.bhr
-  );
-  const [selected, setSelected] = useState(null);
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
-  const { showToast } = useToastMessage();
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (isBackupError) {
-      close();
-      showToast(backupError);
-    }
-  }, [downloadingBackup, isBackupError]);
-
-  const next = () => {
-    if (selected !== null) {
-      onPressNext(selected);
-    }
-  };
 
   return (
     <Modal
@@ -83,81 +63,55 @@ const KeeperModal = (props) => {
       justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-        {downloadingBackup ? (
-          <ActivityIndicator
-            size={'large'}
-            color={Colors.primary}
-            style={{ height: '70%', alignSelf: 'center' }}
-          />
-        ) : (
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            colors={modalBackground}
-            style={styles.container}
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          colors={modalBackground}
+          style={styles.container}
+        >
+          <TouchableOpacity style={styles.close} onPress={close}>
+            <Close />
+          </TouchableOpacity>
+          <Modal.Header
+            alignSelf={'flex-start'}
+            borderBottomWidth={0}
+            backgroundColor={'transparent'}
+            width={'90%'}
           >
-            <TouchableOpacity style={styles.close} onPress={close}>
-              <Close />
-            </TouchableOpacity>
-            <Modal.Header
-              alignSelf={'flex-start'}
-              borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={'90%'}
+            <Text
+              style={styles.title}
+              fontFamily={'body'}
+              fontWeight={'200'}
+              color={textColor}
+              paddingBottom={1}
             >
-              <Text
-                style={styles.title}
-                fontFamily={'body'}
-                fontWeight={'200'}
-                color={textColor}
-                paddingBottom={1}
+              {title}
+            </Text>
+            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
+              {subTitle}
+            </Text>
+          </Modal.Header>
+          <Box alignSelf={'flex-end'} bg={'transparent'}>
+            <TouchableOpacity onPress={buttonCallback}>
+              <LinearGradient
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                colors={buttonBackground}
+                style={styles.cta}
               >
-                {title}
-              </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'100'}
-                color={textColor}
-              >
-                {subTitle}
-              </Text>
-            </Modal.Header>
-            <Modal.Body>
-              {selected ? (
-                <ListItem onPress={() => setSelected(null)} item={selected} />
-              ) : (
-                <FlatList
-                  data={cloudData}
-                  showsVerticalScrollIndicator={false}
-                  renderItem={({ item }) => (
-                    <ListItem onPress={() => setSelected(item)} item={item} />
-                  )}
-                />
-              )}
-            </Modal.Body>
-            <Box alignSelf={'flex-end'} bg={'transparent'}>
-              <TouchableOpacity onPress={next}>
-                <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={buttonBackground}
-                  style={styles.cta}
+                <Text
+                  fontSize={13}
+                  fontFamily={'body'}
+                  fontWeight={'300'}
+                  letterSpacing={1}
+                  color={buttonTextColor}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
-                    letterSpacing={1}
-                    color={buttonTextColor}
-                  >
-                    {buttonText}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Box>
-          </LinearGradient>
-        )}
+                  {buttonText}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Box>
+        </LinearGradient>
       </Modal.Content>
     </Modal>
   );
