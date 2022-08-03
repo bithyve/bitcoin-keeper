@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { initCloudBackup } from 'src/store/sagaActions/bhr';
 import { setBackupError, setBackupLoading } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 
 type Props = {
   title: string;
@@ -45,12 +45,6 @@ const BackupWallet = () => {
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
-  useEffect(() => {
-    if (backupMethod !== null) {
-      navigation.replace('WalletBackHistory');
-    }
-  }, [backupMethod, cloudBackupCompleted]);
 
   useEffect(() => {
     if (loading) {
@@ -105,7 +99,9 @@ const BackupWallet = () => {
       </Pressable>
     );
   };
-  return (
+  return backupMethod !== null ? (
+    <WalletBackHistoryScreen navigation={navigation} />
+  ) : (
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
@@ -115,6 +111,7 @@ const BackupWallet = () => {
         onPressHandler={() => navigation.goBack()}
       />
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
+        {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
           subTitle={'Lorem ipsum dolor sit amet'}
@@ -175,7 +172,7 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setSkipHealthCheckModal(false);
-              navigation.navigate('WalletBackHistory');
+              <WalletBackHistoryScreen navigation={navigation} />;
             }}
           />
         </ModalWrapper>
@@ -191,7 +188,7 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setHealthCheckSuccessModal(false);
-              navigation.navigate('WalletBackHistory');
+              <WalletBackHistoryScreen navigation={navigation} />;
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}
