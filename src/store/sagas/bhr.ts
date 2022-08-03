@@ -1,8 +1,9 @@
+import { call, put } from 'redux-saga/effects';
+import * as bip39 from 'bip39';
+import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import * as bip39 from 'bip39';
-import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import DeviceInfo from 'react-native-device-info';
 import { RealmSchema } from 'src/storage/realm/enum';
 import {
@@ -18,7 +19,7 @@ import {
   getAppImage,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
-import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
+import { BackupAction, BackupType } from '../../common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
@@ -44,7 +45,6 @@ import BIP85 from 'src/core/wallets/operations/BIP85';
 import config from 'src/core/config';
 import { refreshWallets } from '../sagaActions/wallets';
 import Relay from 'src/core/services/operations/Relay';
-import { call, put } from 'redux-saga/effects';
 import dbManager from 'src/storage/realm/dbManager';
 
 function* updateAppImageWorker({ payload }) {

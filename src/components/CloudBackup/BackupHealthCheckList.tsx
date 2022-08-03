@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, Text } from 'native-base';
+import { FlatList, Box, Text, ScrollView } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import DotView from '../DotView';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -20,6 +20,7 @@ import {
 import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const BackupHealthCheckList = () => {
   const { translations } = useContext(LocalizationContext);
@@ -55,47 +56,58 @@ const BackupHealthCheckList = () => {
     };
   }, [seedConfirmed, cloudBackedConfirmed]);
 
+  // style={{ flexGrow: 1, marginHorizontal: wp(2) }}
+
   return (
-    <Box style={{ flexGrow: 1 }}>
-      <FlatList
-        data={history}
-        contentContainerStyle={{ flexGrow: 1 }}
-        renderItem={({ item }) => (
-          <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} position="relative">
+    <Box>
+      <ScrollView height={hp(500)}>
+        <FlatList
+          data={history}
+          contentContainerStyle={{ flexGrow: 1 }}
+          renderItem={({ item }) => (
             <Box
-              zIndex={99}
-              position={'absolute'}
-              left={-8}
-              bg={'light.ReceiveBackground'}
-              p={1}
-              borderRadius={15}
+              borderLeftColor={'#E3BE96'}
+              borderLeftWidth={1}
+              w={'100%'}
+              ml={wp(1)}
+              position="relative"
             >
-              <DotView height={2} width={2} color={'#E3BE96'} />
-            </Box>
-            <Text
-              color={'light.GreyText'}
-              fontSize={RFValue(10)}
-              fontWeight={'300'}
-              ml={5}
-              opacity={0.7}
-            >
-              {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
-            </Text>
-            <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-              <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
-                {strings[item.title]}
+              <Box
+                zIndex={99}
+                position={'absolute'}
+                left={-6}
+                bg={'light.ReceiveBackground'}
+                p={2}
+                borderRadius={15}
+              >
+                <DotView height={2} width={2} color={'#E3BE96'} />
+              </Box>
+              <Text
+                color={'light.GreyText'}
+                fontSize={RFValue(10)}
+                fontWeight={'300'}
+                ml={5}
+                opacity={0.7}
+              >
+                {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
-              {item.subtitle !== '' && (
-                <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-                  {item.subtitle}
+              <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
+                <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                  {strings[item.title]}
                 </Text>
-              )}
+                {item.subtitle !== '' && (
+                  <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                    {item.subtitle}
+                  </Text>
+                )}
+              </Box>
             </Box>
-          </Box>
-        )}
-        keyExtractor={(item) => `${item.date}`}
-      />
-      <Box m={2}>
+          )}
+          keyExtractor={(item) => `${item.date}`}
+        />
+      </ScrollView>
+
+      <Box my={wp(15)} p={2}>
         <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
       </Box>
 

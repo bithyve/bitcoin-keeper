@@ -40,6 +40,8 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { walletData } from 'src/common/data/defaultData/defaultData';
+import CustomPriorityModal from '../Send/CustomPriorityModal';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
