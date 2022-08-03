@@ -1,27 +1,30 @@
-import * as bitcoinJS from 'bitcoinjs-lib';
 import * as bip32 from 'bip32';
-import coinselect from 'coinselect';
-import coinselectSplit from 'coinselect/split';
-import ECPairFactory from 'ecpair';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
-import WalletUtilities from './utils';
+
 import {
   ActiveAddressAssignee,
   ActiveAddresses,
   AverageTxFees,
   Balances,
   InputUTXOs,
+  OutputUTXOs,
+  SerializedPSBTEnvelop,
+  SigningDataHW,
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
-  UTXO,
   TransactionToAddressMapping,
-  SigningDataHW,
-  SerializedPSBTEnvelop,
+  UTXO,
 } from '../interfaces/';
-import { WalletType, DerivationPurpose, TxPriority, EntityKind, SignerType } from '../enums';
-import { Wallet } from '../interfaces/wallet';
+import { DerivationPurpose, EntityKind, SignerType, TxPriority, WalletType } from '../enums';
 import { Vault, VaultSigner } from '../interfaces/vault';
+
+import ECPairFactory from 'ecpair';
+import { Wallet } from '../interfaces/wallet';
+import WalletUtilities from './utils';
+import coinselect from 'coinselect';
+import coinselectSplit from 'coinselect/split';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -722,20 +725,17 @@ export default class WalletOperations {
       );
 
       const bip32Derivation = [];
-      for (const signer of (wallet as Vault).signers) {
+      for (let i = 0; i < (wallet as Vault).signers.length; i++) {
+        const signer = (wallet as Vault).signers[i];
         if (signer.type === SignerType.COLDCARD) {
           const derivationPath = signer.xpubInfo?.derivationPath;
+          const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
           const path = derivationPath + `/${subPath.join('/')}`;
-          for (const pubkey of pubkeys) {
-            bip32Derivation.push({
-              masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(
-                signer.xpub,
-                network
-              ),
-              path,
-              pubkey,
-            });
-          }
+          bip32Derivation.push({
+            masterFingerprint,
+            path,
+            pubkey: pubkeys[i],
+          });
         }
       }
 
@@ -751,6 +751,40 @@ export default class WalletOperations {
         witnessScript: p2ms.output,
       });
     }
+  };
+
+  static getPSBTDataForChangeOutput = (
+    wallet: Vault,
+    changeMultiSig: {
+      p2ms: bitcoinJS.payments.Payment;
+      p2wsh: bitcoinJS.payments.Payment;
+      p2sh: bitcoinJS.payments.Payment;
+      pubkeys: Buffer[];
+      address: string;
+      subPath: number[];
+    }
+  ): {
+    bip32Derivation: any[];
+    redeemScript: Buffer;
+    witnessScript: Buffer;
+  } => {
+    const bip32Derivation = []; // array per each pubkey thats gona be used
+    const { subPath, pubkeys, p2wsh, p2ms } = changeMultiSig;
+    for (let i = 0; i < (wallet as Vault).signers.length; i++) {
+      const signer = (wallet as Vault).signers[i];
+      if (signer.type === SignerType.COLDCARD) {
+        const derivationPath = signer.xpubInfo?.derivationPath;
+        const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
+        const path = derivationPath + `/${subPath.join('/')}`;
+        bip32Derivation.push({
+          masterFingerprint,
+          path,
+          pubkey: pubkeys[i],
+        });
+      }
+    }
+
+    return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2ms.output };
   };
 
   static createTransaction = async (
@@ -778,18 +812,32 @@ export default class WalletOperations {
 
       for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network);
 
-      const sortedOuts = WalletUtilities.sortOutputs(
+      const {
+        outputs: outputsWithChange,
+        changeAddress,
+        changeMultisig,
+      } = WalletUtilities.generateChange(
         wallet,
         outputs,
         wallet.specs.nextFreeChangeAddressIndex,
         network
       );
 
-      for (const output of sortedOuts)
-        PSBT.addOutput({
-          address: output.address,
-          value: output.value,
-        });
+      outputsWithChange.sort((out1, out2) => {
+        if (out1.address < out2.address) return -1;
+        if (out1.address > out2.address) return 1;
+        return 0;
+      });
+
+      for (let output of outputsWithChange) {
+        if (wallet.entityKind === EntityKind.VAULT && output.address === changeMultisig.address) {
+          const { bip32Derivation, witnessScript, redeemScript } =
+            WalletOperations.getPSBTDataForChangeOutput(wallet as Vault, changeMultisig);
+          PSBT.addOutput({ ...output, bip32Derivation, witnessScript, redeemScript });
+        } else {
+          PSBT.addOutput(output);
+        }
+      }
 
       return {
         PSBT,
@@ -851,14 +899,11 @@ export default class WalletOperations {
       }
     | {
         signedPSBT?: undefined;
-        serializedPSBTEnvelop: {
-          serializedPSBT: string;
-          signingDataHW: SigningDataHW[];
-        };
+        serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
     // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
 
-    if (signer.type === SignerType.TAPSIGNER) {
+    if ([SignerType.TAPSIGNER, SignerType.COLDCARD].includes(signer.type)) {
       if (signer.xpriv) {
         // case: Mock Vault(Dev app)
         const network = WalletUtilities.getNetworkByType(wallet.networkType);
@@ -882,26 +927,33 @@ export default class WalletOperations {
         return { signedPSBT: PSBT };
       }
 
-      const signingDataHW: SigningDataHW[] = [];
-      const inputsToSign = [];
-      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-        const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(
-          inputs[inputIndex].address,
-          wallet as Vault
-        );
-        const publicKey = pubkeys[0];
-        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
-        inputsToSign.push({
-          digest: hash.toString('hex'),
-          subPath: `/${subPath.join('/')}`,
-          inputIndex,
-          sighashType,
-          publicKey: publicKey.toString('hex'),
-        });
+      let signingDataHW: SigningDataHW[];
+      if (signer.type === SignerType.TAPSIGNER) {
+        const inputsToSign = [];
+        for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+          const { pubkeys, subPath } = WalletUtilities.addressToMultiSig(
+            inputs[inputIndex].address,
+            wallet as Vault
+          );
+          const publicKey = pubkeys[0];
+          const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
+          inputsToSign.push({
+            digest: hash.toString('hex'),
+            subPath: `/${subPath.join('/')}`,
+            inputIndex,
+            sighashType,
+            publicKey: publicKey.toString('hex'),
+          });
+        }
+        signingDataHW.push({ inputsToSign });
       }
-      signingDataHW.push({ signerType: signer.type, inputsToSign });
+
       const serializedPSBT = PSBT.toBase64();
-      const serializedPSBTEnvelop = { serializedPSBT, signingDataHW };
+      const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
+        signerType: signer.type,
+        serializedPSBT,
+        signingDataHW,
+      };
       return { serializedPSBTEnvelop };
     }
   };
@@ -1068,11 +1120,11 @@ export default class WalletOperations {
     txid: string;
   }> => {
     const inputs = txPrerequisites[txnPriority].inputs;
-    const { serializedPSBT, signingDataHW } = serializedPSBTEnvelop;
+    const { signerType, serializedPSBT, signingDataHW } = serializedPSBTEnvelop;
     const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
 
-    for (const { signerType, inputsToSign } of signingDataHW) {
-      if (signerType === SignerType.TAPSIGNER) {
+    if (signerType === SignerType.TAPSIGNER) {
+      for (const { inputsToSign } of signingDataHW) {
         for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
           PSBT.addSignedDisgest(
             inputIndex,

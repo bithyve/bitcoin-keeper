@@ -1,13 +1,8 @@
 import { Animated, Image, Modal, StyleSheet, Text, View } from 'react-native';
 
-import React, { useContext }from 'react';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import React from 'react';
 
 function NfcPrompt({ visible }) {
-
-  const { translations } = useContext( LocalizationContext )
-  const strings = translations[ 'home' ]
-
   const animation = React.useRef(new Animated.Value(0)).current;
 
   visible
@@ -48,7 +43,8 @@ function NfcPrompt({ visible }) {
               style={{ width: 120, height: 120, padding: 20 }}
               resizeMode="contain"
             />
-            <Text>{strings.AddingTapsigner}</Text>
+            <Text>{'Scanning'}</Text>
+            <Text>{`Please tap until the modal dismisses...`}</Text>
           </View>
         </Animated.View>
         <Animated.View style={[styles.promptBg, bgAnimStyle]} />

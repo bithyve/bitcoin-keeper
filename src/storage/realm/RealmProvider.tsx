@@ -1,10 +1,10 @@
 import React, { createContext, useMemo } from 'react';
 
+import { RealmDatabase } from './realm';
 import { createRealmContext } from '@realm/react';
 import schema from './schema';
-import { useAppSelector } from 'src/store/hooks';
-import { RealmDatabase } from './realm';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
+import { useAppSelector } from 'src/store/hooks';
 
 export const realmConfig = (key) => {
   return {
@@ -15,7 +15,7 @@ export const realmConfig = (key) => {
   };
 };
 
-export const RealmWrapperContext = createContext({});
+export const RealmWrapperContext = createContext({} as any);
 
 export const RealmProvider = ({ children }) => {
   const key = useAppSelector((state) => state?.login?.key);

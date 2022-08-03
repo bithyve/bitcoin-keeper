@@ -4,18 +4,15 @@ import { useToast } from 'native-base';
 import HexaToastMessages from 'src/components/ToastMessages';
 
 const useToastMessage = () => {
-    const Toast = useToast();
+  const Toast = useToast();
 
-    function showToast(title, image){
-        Toast.show({
-            render: () =>  <HexaToastMessages 
-            title={title}
-            Image={image}
-            /> 
-        })
-    }
+  function showToast(title, image?) {
+    Toast.show({
+      render: () => <HexaToastMessages title={title} Image={image} />,
+    });
+  }
 
-    return {showToast};
+  return { showToast };
 };
 
 export default useToastMessage;

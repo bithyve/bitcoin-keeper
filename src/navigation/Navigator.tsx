@@ -9,14 +9,14 @@ import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
+import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
-import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import MyWalletBackScreen from 'src/screens/BackupWallet/MyWalletBackScreen';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
@@ -28,12 +28,14 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
+import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
-import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
+import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -57,6 +59,12 @@ const LoginStack = () => {
         name="OnBoardingSlides"
         component={OnBoardingSlides}
       />
+      <Stack.Screen
+        name="NewKeeperApp"
+        options={{ gestureEnabled: false }}
+        component={NewKeeperApp}
+      />
+      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );
 };
@@ -68,7 +76,6 @@ const AppStack = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
-        <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
@@ -88,11 +95,11 @@ const AppStack = () => {
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
-        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
-        <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
+        <Stack.Screen name="SetupInheritance" component={NewKeeperApp} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
-        <Stack.Screen name="MyWalletBackScreen" component={MyWalletBackScreen} />
+        <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
+        <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

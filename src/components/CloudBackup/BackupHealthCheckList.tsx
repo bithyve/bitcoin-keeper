@@ -1,62 +1,145 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { FlatList, Box, Text } from 'native-base';
-
 import { RFValue } from 'react-native-responsive-fontsize';
 import DotView from '../DotView';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import moment from 'moment';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { BackupHistory, BackupType } from 'src/common/data/enums/BHR';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import {
+  cloudBackupSkipped,
+  confirmCloudBackup,
+  seedBackedConfirmed,
+} from 'src/store/sagaActions/bhr';
+import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
+import HealthCheckComponent from './HealthCheckComponent';
+import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 
 const BackupHealthCheckList = () => {
-  const [data, SetData] = useState([
-    {
-      id: '1',
-      date: '15 March ’21',
-      title: 'Health Check Successful',
-      subTitle: 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit',
-    },
-    {
-      id: '2',
-      date: '15 January ’21',
-      title: 'Health Check Skipped',
-      subTitle: 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit',
-    },
-  ]);
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const dispatch = useAppDispatch();
+  const strings = translations['BackupWallet'];
+  const { useQuery } = useContext(RealmWrapperContext);
+  const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
+  const { primaryMnemonic, backupPassword, backupPasswordHint }: KeeperApp = useQuery(
+    RealmSchema.KeeperApp
+  ).map(getJSONFromRealmObject)[0];
+  const { backupMethod, seedConfirmed, cloudBackedConfirmed } = useAppSelector(
+    (state) => state.bhr
+  );
+  const [healthCheckModal, setHealthCheckModal] = useState(false);
+  const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
+  const history = useMemo(() => data.sorted('date', true), [data]);
+
+  const onPressConfirm = () => {
+    setShowConfirmSeedModal(true);
+  };
+
+  useEffect(() => {
+    if (seedConfirmed || cloudBackedConfirmed) {
+      setShowConfirmSeedModal(false);
+      setTimeout(() => {
+        setHealthCheckModal(true);
+      }, 100);
+    }
+    return () => {
+      dispatch(setSeedConfirmed(false));
+      dispatch(setCloudBackupConfirmed(false));
+    };
+  }, [seedConfirmed, cloudBackedConfirmed]);
 
   return (
-    <FlatList
-      style={{ overflow: 'visible' }}
-      data={data}
-      renderItem={({ item }) => (
-        <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} position="relative">
-          <Box
-            zIndex={99}
-            position={'absolute'}
-            left={-8}
-            bg={'light.ReceiveBackground'}
-            p={1}
-            borderRadius={15}
-          >
-            <DotView height={2} width={2} color={'#E3BE96'} />
-          </Box>
-          <Text
-            color={'light.GreyText'}
-            fontSize={RFValue(10)}
-            fontWeight={'300'}
-            ml={5}
-            opacity={0.7}
-          >
-            {item.date}
-          </Text>
-          <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-            <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
-              {item.title}
+    <Box style={{ flexGrow: 1 }}>
+      <FlatList
+        data={history}
+        contentContainerStyle={{ flexGrow: 1 }}
+        renderItem={({ item }) => (
+          <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} position="relative">
+            <Box
+              zIndex={99}
+              position={'absolute'}
+              left={-8}
+              bg={'light.ReceiveBackground'}
+              p={1}
+              borderRadius={15}
+            >
+              <DotView height={2} width={2} color={'#E3BE96'} />
+            </Box>
+            <Text
+              color={'light.GreyText'}
+              fontSize={RFValue(10)}
+              fontWeight={'300'}
+              ml={5}
+              opacity={0.7}
+            >
+              {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
             </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-              {item.subTitle}
-            </Text>
+            <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
+              <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                {strings[item.title]}
+              </Text>
+              {item.subtitle !== '' && (
+                <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                  {item.subtitle}
+                </Text>
+              )}
+            </Box>
           </Box>
-        </Box>
-      )}
-      keyExtractor={(item) => item.id}
-    />
+        )}
+        keyExtractor={(item) => `${item.date}`}
+      />
+      <Box m={2}>
+        <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
+      </Box>
+
+      <ModalWrapper
+        visible={showConfirmSeedModal}
+        onSwipeComplete={() => setShowConfirmSeedModal(false)}
+        position={'center'}
+      >
+        <HealthCheckComponent
+          closeBottomSheet={() => {
+            setShowConfirmSeedModal(false);
+            if (backupMethod === BackupType.SEED) {
+              dispatch(seedBackedConfirmed(false));
+            } else {
+              dispatch(cloudBackupSkipped());
+            }
+          }}
+          type={backupMethod}
+          password={backupPassword}
+          hint={backupPasswordHint}
+          words={primaryMnemonic.split(' ')}
+          onConfirmed={(password) => {
+            if (backupMethod === BackupType.SEED) {
+              setShowConfirmSeedModal(false);
+              dispatch(seedBackedConfirmed(true));
+            } else {
+              dispatch(confirmCloudBackup(password));
+            }
+          }}
+        />
+      </ModalWrapper>
+
+      <ModalWrapper
+        visible={healthCheckModal}
+        onSwipeComplete={() => setHealthCheckModal(false)}
+        position={'center'}
+      >
+        <BackupSuccessful
+          closeBottomSheet={() => {
+            setHealthCheckModal(false);
+          }}
+        />
+      </ModalWrapper>
+    </Box>
   );
 };
 export default BackupHealthCheckList;

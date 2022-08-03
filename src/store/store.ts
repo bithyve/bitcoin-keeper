@@ -4,6 +4,7 @@ import loginReducer from './reducers/login';
 import storageReducer from './reducers/storage';
 import walletReducer from './reducers/wallets';
 import notificationsReducer from './reducers/notifications';
+import bhrReducer from './reducers/bhr';
 import sendAndReceiveReducer from './reducers/send_and_receive';
 import { combineReducers } from 'redux';
 import {
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   wallet: walletReducer,
   sendAndReceive: sendAndReceiveReducer,
   notifications: notificationsReducer,
+  bhr: bhrReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -35,7 +37,7 @@ export type AppDispatch = typeof store.dispatch;
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  blacklist: ['login'],
+  blacklist: ['login', 'bhr'],
   version: 1,
 };
 
