@@ -6,6 +6,10 @@ import BackIcon from 'src/assets/icons/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackupHealthCheckList from 'src/components/CloudBackup/BackupHealthCheckList';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 const WalletBackHistoryScreen = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
@@ -33,9 +37,9 @@ const WalletBackHistoryScreen = ({ navigation }) => {
           Lorem ipsum dolor sit amet
         </Text>
       </Box>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, margin: 10 }}>
+      <Box mx={wp(5)}>
         <BackupHealthCheckList />
-      </ScrollView>
+      </Box>
     </SafeAreaView>
   );
 };
