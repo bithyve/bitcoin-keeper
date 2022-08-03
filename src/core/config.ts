@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { Platform } from 'react-native';
-import DeviceInfo from 'react-native-device-info';
 
 import axios, { AxiosInstance } from 'axios';
 
+import DeviceInfo from 'react-native-device-info';
 import PersonalNode from '../common/data/models/PersonalNode';
+import { Platform } from 'react-native';
 import { WalletType } from './wallets/enums';
 import _ from 'lodash';
 import config from 'react-native-config';
@@ -23,8 +23,8 @@ export enum BITCOIN_NETWORK {
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.MAINNET,
-  APP_STAGE: APP_STAGE.STAGING,
+  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
+  APP_STAGE: APP_STAGE.DEVELOPMENT,
   TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
   MAINNET_WRAPPER: 'https://api.bithyve.com',
   RELAY: 'https://new-staging-relay.nw.r.appspot.com/',

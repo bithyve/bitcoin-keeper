@@ -6,10 +6,15 @@ import BackIcon from 'src/assets/icons/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackupHealthCheckList from 'src/components/CloudBackup/BackupHealthCheckList';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
-const MyWalletBackScreen = ({ navigation }) => {
+const WalletBackHistoryScreen = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
+
   return (
     <SafeAreaView
       style={{
@@ -32,12 +37,10 @@ const MyWalletBackScreen = ({ navigation }) => {
           Lorem ipsum dolor sit amet
         </Text>
       </Box>
-      <ScrollView>
-        <Box m={10}>
-          <BackupHealthCheckList />
-        </Box>
-      </ScrollView>
+      <Box mx={wp(5)}>
+        <BackupHealthCheckList />
+      </Box>
     </SafeAreaView>
   );
 };
-export default MyWalletBackScreen;
+export default WalletBackHistoryScreen;

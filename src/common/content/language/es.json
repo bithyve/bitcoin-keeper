@@ -62,7 +62,9 @@
     "TermsConditions": "Terms and Conditions",
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
-    "EditDetails": "Edit Details"
+    "EditDetails": "Edit Details",
+    "next": "Next",
+    "needHelp": "Need Help?"
   },
   "noInternet": {
     "no": "No Internet",
@@ -277,7 +279,8 @@
     "Setup": "Setup",
     "VaultCreated": "Vault Created",
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
-    "ViewVault": "View Vault"
+    "ViewVault": "View Vault",
+    "CustomPriority": "Custom Priority"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -288,6 +291,7 @@
     "ExportSeed": "Export Seed",
     "SeedDesc": "Lorem ipsum dolor sit amet,",
     "longing": "longing",
+    "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
   },
   "tapsigner": {

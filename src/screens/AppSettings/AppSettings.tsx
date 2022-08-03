@@ -1,4 +1,4 @@
-import { Alert, SafeAreaView, Platform } from 'react-native';
+import { Alert, SafeAreaView, Platform, TouchableOpacity, NativeModules } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -14,12 +14,17 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
+import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
+import { Option } from '../WalletDetailScreen/WalletSettings';
+import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 const RNBiometrics = new ReactNativeBiometrics();
+const GoogleDrive = NativeModules.GoogleDrive;
 
 const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
+  const { appId } = useAppSelector((state) => state.storage);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -80,6 +85,26 @@ const AppSettings = ({ navigation }) => {
     setDarkMode(!darkMode);
   };
 
+  const backup = async () => {
+    try {
+      const res = await uploadData(appId, {
+        encData: 'vavadv',
+      });
+      console.log('RESSS', res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const doanload = async () => {
+    try {
+      const res = await getCloudBackupData();
+      console.log('CLOUD DATA', JSON.stringify(res));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -109,6 +134,16 @@ const AppSettings = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
+          <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={wp(25)}>
+            <Option
+              title={'Wallet Backup'}
+              subTitle={'Setup backup for Wallet'}
+              onPress={() => {
+                navigation.navigate('BackupWallet');
+              }}
+              Icon={true}
+            />
+          </Box>
           {/* {isBiometicSupported && ( */}
           <SettingsSwitchCard
             title={sensorType}

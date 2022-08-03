@@ -16,8 +16,7 @@ import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletS
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
-import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
-import MyWalletBackScreen from 'src/screens/BackupWallet/MyWalletBackScreen';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
@@ -35,6 +34,8 @@ import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
+import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -58,6 +59,12 @@ const LoginStack = () => {
         name="OnBoardingSlides"
         component={OnBoardingSlides}
       />
+      <Stack.Screen
+        name="NewKeeperApp"
+        options={{ gestureEnabled: false }}
+        component={NewKeeperApp}
+      />
+      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );
 };
@@ -69,7 +76,6 @@ const AppStack = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
-        <Stack.Screen name="Lock Screen" component={LoginScreen} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
@@ -89,11 +95,10 @@ const AppStack = () => {
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
-        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
-        <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
+        <Stack.Screen name="SetupInheritance" component={NewKeeperApp} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
-        <Stack.Screen name="MyWalletBackScreen" component={MyWalletBackScreen} />
+        <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
       </Stack.Navigator>
     </RealmProvider>

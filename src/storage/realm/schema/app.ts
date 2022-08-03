@@ -16,6 +16,18 @@ export const KeeperAppSchema: ObjectSchema = {
     uai: `${RealmSchema.UAI}?`,
     userTier: RealmSchema.UserTier,
     version: 'string',
+    backupPassword: {
+      type: 'string?',
+      default: '',
+    },
+    backupPasswordHint: {
+      type: 'string?',
+      default: '',
+    },
+    backupMethod: {
+      type: 'string?',
+      default: '',
+    },
   },
   primaryKey: 'id',
 };

@@ -42,6 +42,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
+import CustomPriorityModal from '../Send/CustomPriorityModal';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -92,7 +93,7 @@ const InheritanceComponent = () => {
           </Box>
         </Box>
         <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
-        {/* <NextIcon pressHandler={() => onPress()} />
+        <NextIcon pressHandler={() => onPress()} />
         <>
           <NewWalletModal
             visible={visible}
@@ -118,7 +119,7 @@ const InheritanceComponent = () => {
             buttonCallback={navigateBack}
             textColor={'#041513'}
           />
-        </> */}
+        </>
       </LinearGradient>
     </Box>
   );

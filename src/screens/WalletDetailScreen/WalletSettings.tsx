@@ -24,52 +24,52 @@ type Props = {
   Icon: boolean;
 };
 
+const Option = ({ title, subTitle, onPress, Icon }: Props) => {
+  return (
+    <Pressable
+      flexDirection={'row'}
+      alignItems={'center'}
+      width={'100%'}
+      style={{ marginVertical: hp(20) }}
+      onPress={onPress}
+    >
+      {Icon && (
+        <Box w={'16%'}>
+          <BackupIcon />
+        </Box>
+      )}
+      <Box w={Icon ? '80%' : '96%'}>
+        <Text
+          color={'light.lightBlack'}
+          fontFamily={'body'}
+          fontWeight={200}
+          fontSize={RFValue(14)}
+          letterSpacing={1.12}
+        >
+          {title}
+        </Text>
+        <Text
+          color={'light.GreyText'}
+          fontFamily={'body'}
+          fontWeight={200}
+          fontSize={RFValue(12)}
+          letterSpacing={0.6}
+        >
+          {subTitle}
+        </Text>
+      </Box>
+      <Box w={'4%'}>
+        <Arrow />
+      </Box>
+    </Pressable>
+  );
+};
+
 const WalletSettings = () => {
   const navigtaion = useNavigation();
   //
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-
-  const Option = ({ title, subTitle, onPress, Icon }: Props) => {
-    return (
-      <Pressable
-        flexDirection={'row'}
-        alignItems={'center'}
-        width={'100%'}
-        style={{ marginVertical: hp(20) }}
-        onPress={onPress}
-      >
-        {Icon && (
-          <Box w={'16%'}>
-            <BackupIcon />
-          </Box>
-        )}
-        <Box w={Icon ? '80%' : '96%'}>
-          <Text
-            color={'light.lightBlack'}
-            fontFamily={'body'}
-            fontWeight={200}
-            fontSize={RFValue(14)}
-            letterSpacing={1.12}
-          >
-            {title}
-          </Text>
-          <Text
-            color={'light.GreyText'}
-            fontFamily={'body'}
-            fontWeight={200}
-            fontSize={RFValue(12)}
-            letterSpacing={0.6}
-          >
-            {subTitle}
-          </Text>
-        </Box>
-        <Box w={'4%'}>
-          <Arrow />
-        </Box>
-      </Pressable>
-    );
-  };
 
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
@@ -168,3 +168,4 @@ const styles = ScaledSheet.create({
   },
 });
 export default WalletSettings;
+export { Option };
