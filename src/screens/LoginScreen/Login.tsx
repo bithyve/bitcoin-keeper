@@ -29,7 +29,7 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
-const CreatePin = ({ navigation, route }) => {
+const LoginScreen = ({ navigation, route }) => {
   const { relogin } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
@@ -162,8 +162,12 @@ const CreatePin = ({ navigation, route }) => {
       if (relogin) {
         navigation.goBack();
       } else {
-        updateFCM();
-        navigation.replace('App');
+        if (appId !== '') {
+          updateFCM();
+          navigation.replace('App');
+        } else {
+          navigation.replace('NewKeeperApp');
+        }
       }
       dispatch(credsAuthenticated(false));
     }
@@ -354,4 +358,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreatePin;
+export default LoginScreen;

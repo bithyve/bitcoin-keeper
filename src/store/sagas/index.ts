@@ -28,7 +28,17 @@ import {
   feeAndExchangeRatesWatcher,
   sendPhaseThreeWatcher,
 } from './send_and_receive';
-import { getAppImageWatcher, updateAppImageWatcher } from './bhr';
+import {
+  getAppImageWatcher,
+  updateAppImageWatcher,
+  seedBackedUpWatcher,
+  seedBackeupConfirmedWatcher,
+  initCloudBackupWatcher,
+  cloudBackupSkippedWatcher,
+  confirmCloudBackupWatcher,
+  getCloudDataWatcher,
+  recoverBackupWatcher,
+} from './bhr';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -69,6 +79,13 @@ export const rootSaga = function* () {
     //BHR
     updateAppImageWatcher,
     getAppImageWatcher,
+    seedBackedUpWatcher,
+    seedBackeupConfirmedWatcher,
+    initCloudBackupWatcher,
+    cloudBackupSkippedWatcher,
+    confirmCloudBackupWatcher,
+    getCloudDataWatcher,
+    recoverBackupWatcher,
   ];
 
   yield all(

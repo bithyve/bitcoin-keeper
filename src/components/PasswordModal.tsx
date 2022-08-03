@@ -7,11 +7,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import KeeperModal from './KeeperModal';
 import BTC from 'src/assets/images/btc_white.svg';
+import { NavigationContainer } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { setInvalidPassword } from 'src/store/reducers/bhr';
 
 const PasswordModal = (props) => {
   const {
     visible,
-    close,
+    closePasswordModal,
     title = 'Title',
     subTitle = null,
     dscription = 'Description',
@@ -19,20 +23,25 @@ const PasswordModal = (props) => {
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = 'Button text',
     buttonTextColor = 'white',
-    buttonCallback = props.close || null,
+    buttonCallback = props.closePasswordModal || null,
     textColor = '#000',
+    backup,
   } = props;
+  const dispatch = useAppDispatch();
+  const { invalidPassword } = useAppSelector((state) => state.bhr);
   const { bottom } = useSafeAreaInsets();
-  const [openModal, setOpenModal] = useState(false);
+  const [recoverySuccessModal, setrecoverySuccessModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const navigation = useNavigation();
 
-  const closeRecovery = () => setOpenModal(false);
+  const closeRecovery = () => setrecoverySuccessModal(false);
   const openRecovery = () => {
-    close();
-    setOpenModal(true);
+    closePasswordModal();
+    setrecoverySuccessModal(true);
   };
 
   const passwordScreen = () => {
-    setOpenModal(false);
+    setrecoverySuccessModal(false);
   };
 
   const { translations } = useContext(LocalizationContext);
@@ -87,7 +96,7 @@ const PasswordModal = (props) => {
   return (
     <Modal
       isOpen={visible}
-      onClose={close}
+      onClose={closePasswordModal}
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
@@ -101,7 +110,7 @@ const PasswordModal = (props) => {
           colors={modalBackground}
           style={styles.container}
         >
-          <TouchableOpacity style={styles.close} onPress={close}>
+          <TouchableOpacity style={styles.close} onPress={closePasswordModal}>
             <Close />
           </TouchableOpacity>
           <Modal.Header
@@ -127,11 +136,24 @@ const PasswordModal = (props) => {
             placeholderTextColor={'grey'}
             backgroundColor={'#FDF7F0'}
             placeholder={'Enter Password'}
-            w="80%"
+            w="90%"
+            marginY={2}
             height={'10'}
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (invalidPassword) {
+                dispatch(setInvalidPassword(false));
+              }
+            }}
             //  value={firstValue}
             //  onChangeText={handleChangeFirst}
           />
+          {invalidPassword && (
+            <Text alignSelf="flex-start" mx={4} color={'red.400'}>
+              Invalid password
+            </Text>
+          )}
           <Text
             style={styles.subTitle}
             width={'90%'}
@@ -139,21 +161,13 @@ const PasswordModal = (props) => {
             fontWeight={'100'}
             color={textColor}
           >
-            Hint: {dscription}
+            Hint: {backup ? backup.hint : ''}
           </Text>
           <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>
-            <TouchableOpacity onPress={buttonCallback} style={{ marginRight: 20, marginTop: 7 }}>
-              <Text
-                fontSize={13}
-                fontFamily={'body'}
-                fontWeight={'300'}
-                letterSpacing={1}
-                color={'black'}
-              >
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openRecovery}>
+            <TouchableOpacity
+              disabled={password.trim() === ''}
+              onPress={() => props.onPressNext(password)}
+            >
               <LinearGradient
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -174,9 +188,9 @@ const PasswordModal = (props) => {
           </Box>
         </LinearGradient>
         <KeeperModal
-          visible={openModal}
+          visible={recoverySuccessModal}
           close={closeRecovery}
-          title={'Wallet Recovery Successful'}
+          title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
