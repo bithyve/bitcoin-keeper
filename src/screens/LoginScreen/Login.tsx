@@ -113,6 +113,7 @@ const LoginScreen = ({ navigation, route }) => {
               payload: appId,
               cancelButtonText: 'Use PIN',
             });
+            console.log('signature', signature)
             if (success) {
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
