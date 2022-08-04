@@ -1,17 +1,40 @@
 import {
+  ActivityIndicator,
   FlatList,
   PermissionStatus,
   PermissionsAndroid,
   Platform,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Observable, Subscription } from 'rxjs';
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 
-import DeviceItem from './DeviceItem';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
+
+const DeviceItem = ({ device, onSelect, setError }) => {
+  const [pending, setPending] = useState(false);
+
+  const onPress = async () => {
+    setPending(true);
+    try {
+      await onSelect(device);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  return (
+    <TouchableOpacity style={styles.deviceItem} onPress={onPress} disabled={pending}>
+      <Text style={styles.deviceName}>{device.name}</Text>
+      {pending ? <ActivityIndicator /> : null}
+    </TouchableOpacity>
+  );
+};
 
 const DeviceSelectionScreen = ({ onSelectDevice }) => {
   const [devices, setDevices] = useState([]);
@@ -79,18 +102,6 @@ const DeviceSelectionScreen = ({ onSelectDevice }) => {
 
   const keyExtractor = (item) => item.id;
 
-  const _onSelectDevice = async (device) => {
-    try {
-      await onSelectDevice(device);
-    } catch (error) {
-      setError(error);
-    }
-  };
-
-  const renderItem = ({ item }) => {
-    return <DeviceItem device={item} onSelect={_onSelectDevice} />;
-  };
-
   const ListHeader = () => {
     return error ? (
       <View style={styles.header}>
@@ -111,7 +122,9 @@ const DeviceSelectionScreen = ({ onSelectDevice }) => {
         extraData={error}
         style={styles.list}
         data={devices}
-        renderItem={renderItem}
+        renderItem={({ item }) => {
+          return <DeviceItem device={item} onSelect={onSelectDevice} setError={setError} />;
+        }}
         keyExtractor={keyExtractor}
         ListHeaderComponent={ListHeader}
         onRefresh={reload}
@@ -144,5 +157,20 @@ const styles = StyleSheet.create({
     color: '#c00',
     fontSize: 16,
     marginBottom: 16,
+  },
+  deviceItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  deviceName: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });

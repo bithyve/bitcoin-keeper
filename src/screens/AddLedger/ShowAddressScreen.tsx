@@ -1,8 +1,15 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import config, { APP_STAGE } from 'src/core/config';
 
-// import AppEth from '@ledgerhq/hw-app-eth';
+import AppClient from 'src/hardware/ledger';
 import QRCode from 'react-native-qrcode-svg';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { addNewVault } from 'src/store/sagaActions/wallets';
+import { useDispatch } from 'react-redux';
 
 const delay = (ms) => new Promise((success) => setTimeout(success, ms));
 
@@ -11,16 +18,12 @@ const ShowAddressScreen = ({ transport }) => {
   const [address, setAddress] = useState(null);
 
   const unmounted = useRef(false);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const _fetchAddress = async () => {
-    while (!address) {
-      if (unmounted.current) {
-        return;
-      }
-      await fetchAddress(false);
-      await delay(500);
-    }
-    await fetchAddress(true);
+    if (unmounted.current) return;
+    await fetchAddress(false);
   };
 
   useEffect(() => {
@@ -30,14 +33,48 @@ const ShowAddressScreen = ({ transport }) => {
     };
   }, []);
 
+  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
+    try {
+      const newVaultInfo = {
+        vaultType: VaultType.DEFAULT,
+        vaultScheme: scheme,
+        vaultSigners: signers,
+        vaultDetails: {
+          name: 'Vault',
+          description: 'Secure your sats',
+        },
+      };
+      dispatch(addNewVault(newVaultInfo));
+      return true;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }, []);
+
   const fetchAddress = async (verify) => {
     try {
-      console.log(transport);
-      // const eth = new AppEth(transport);
-      // const path = "44'/60'/0'/0/0"; // HD derivation path
-      // const { address } = await eth.getAddress(path, verify);
-      // if (unmounted) return;
-      setAddress('address');
+      const app = new AppClient(transport);
+      const path = "m/44'/1'/0'"; // HD derivation path
+      const xpub = await app.getExtendedPubkey(path, true);
+      if (unmounted.current) return;
+      setAddress(xpub);
+      const networkType =
+        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const network = WalletUtilities.getNetworkByType(networkType);
+
+      const signer: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.LEDGER,
+        signerName: 'Nano X',
+        xpub,
+        xpubInfo: {
+          derivationPath: path,
+        },
+      };
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      const isVaultCreated = createVault([signer], scheme);
+      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
     } catch (error) {
       // in this case, user is likely not on Ethereum app
       if (unmounted) return;
@@ -50,17 +87,17 @@ const ShowAddressScreen = ({ transport }) => {
     <View style={styles.ShowAddressScreen}>
       {!address ? (
         <>
-          <Text style={styles.loading}>Loading your Ethereum address...</Text>
+          <Text style={styles.loading}>Fetching your xpub at path "m/44'/1'/0'" ...</Text>
           {error ? (
             <Text style={styles.error}>
-              A problem occurred, make sure to open the Ethereum application on your Ledger Nano X.
-              ({String((error && error.message) || error)})
+              A problem occurred, make sure to open the Bitcoin application on your Ledger Nano X. (
+              {String((error && error.message) || error)})
             </Text>
           ) : null}
         </>
       ) : (
         <>
-          <Text style={styles.title}>Ledger Live Ethereum Account 1</Text>
+          <Text style={styles.title}>Ledger Live Bitcoin Account 1</Text>
           <QRCode value={address} size={300} />
           <Text style={styles.address}>{address}</Text>
         </>
