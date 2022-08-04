@@ -111,7 +111,6 @@ const BackupWallet = () => {
         onPressHandler={() => navigation.goBack()}
       />
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
-        {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
           subTitle={'Lorem ipsum dolor sit amet'}
@@ -172,7 +171,6 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setSkipHealthCheckModal(false);
-              <WalletBackHistoryScreen navigation={navigation} />;
             }}
           />
         </ModalWrapper>
@@ -188,7 +186,6 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setHealthCheckSuccessModal(false);
-              <WalletBackHistoryScreen navigation={navigation} />;
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}
