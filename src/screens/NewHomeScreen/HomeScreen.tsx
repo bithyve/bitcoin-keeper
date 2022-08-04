@@ -1,11 +1,11 @@
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Box, HStack, Pressable, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Image, ImageBackground, TouchableOpacity } from 'react-native';
-import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
+import Pleb from 'src/assets/images/svgs/pleb.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
@@ -19,7 +19,6 @@ import NewWalletModal from 'src/components/NewWalletModal';
 // import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
 // import Ledger from 'src/assets/images/svgs/ledger_home.svg';
 // import Trezor from 'src/assets/images/svgs/trezor_home.svg';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -34,13 +33,13 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletType } from 'src/core/wallets/enums';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { walletData } from 'src/common/data/defaultData/defaultData';
 import CustomPriorityModal from '../Send/CustomPriorityModal';
 
@@ -241,13 +240,58 @@ const VaultStatus = (props) => {
     },
   } = Vault;
   const vaultBalance = confirmed + unconfirmed;
+
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus())
+  const dispatch = useAppDispatch()
+
+  const onChangeTorStatus = (status: TorStatus) => {
+    settorStatus(status)
+  }
+
+  useEffect(() => {
+    RestClient.subToTorStatus(onChangeTorStatus)
+    return () => {
+      RestClient.unsubscribe(onChangeTorStatus)
+    }
+  }, [])
+
+  const getTorStatusText = useMemo(() => {
+    switch (torStatus) {
+      case TorStatus.OFF:
+        return 'Tor disabled'
+      case TorStatus.CONNECTING:
+        return 'Tor connecting...'
+      case TorStatus.CONNECTED:
+        return 'Tor enabled'
+      case TorStatus.ERROR:
+        return 'Tor error'
+      default:
+        return torStatus
+    }
+  }, [torStatus]);
+
+  const getTorStatusColor = useMemo(() => {
+    switch (torStatus) {
+      case TorStatus.OFF:
+        return 'yellow.400'
+      case TorStatus.CONNECTING:
+        return 'orange.400'
+      case TorStatus.CONNECTED:
+        return 'green.400'
+      case TorStatus.ERROR:
+        return 'red.400'
+      default:
+        return 'yellow.400'
+    }
+  }, [torStatus]);
+
   return (
     <Box marginTop={-hp(100)} alignItems={'center'}>
-      <TouchableOpacity onPress={open} activeOpacity={0.5}>
+      <TouchableOpacity onPress={open} activeOpacity={0.75}>
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
-            backgroundColor={'light.TorLable'}
-            height={hp(15)}
+            backgroundColor={getTorStatusColor}
+            height={hp(16)}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
@@ -256,12 +300,12 @@ const VaultStatus = (props) => {
           >
             <Text
               color={'light.lightBlack'}
-              letterSpacing={0.9}
-              fontSize={hp(9)}
+              letterSpacing={1}
+              fontSize={hp(11)}
               fontWeight={300}
               textAlign={'center'}
             >
-              TOR ENABLED
+              {getTorStatusText}
             </Text>
           </Box>
           <Box marginTop={hp(64.5)} alignItems={'center'}>

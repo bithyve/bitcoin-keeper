@@ -237,6 +237,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
@@ -260,7 +261,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-
+    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     implementation("com.google.android.gms:play-services-drive:17.0.0")
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
     implementation 'com.google.http-client:google-http-client-gson:1.26.0'

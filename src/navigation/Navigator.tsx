@@ -4,6 +4,7 @@ import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
+import TorSettings from 'src/screens/AppSettings/TorSettings';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
@@ -84,6 +85,7 @@ const AppStack = () => {
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
+        <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="InheritanceSetup" component={InheritanceSetup} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />

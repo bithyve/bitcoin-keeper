@@ -13,6 +13,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		187B9D20E0740F5F810F21E2 /* libPods-hexa_keeper_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B9700068E343C34672EAED3 /* libPods-hexa_keeper_dev.a */; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
 		18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
