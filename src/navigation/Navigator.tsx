@@ -16,26 +16,27 @@ import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletS
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
-import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
+import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
+import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
+import SetupLedger from 'src/screens/AddLedger';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
-import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -78,6 +79,7 @@ const AppStack = () => {
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
+        <Stack.Screen name="AddLedger" component={SetupLedger} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
