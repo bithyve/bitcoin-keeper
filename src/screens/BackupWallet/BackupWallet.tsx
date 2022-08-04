@@ -111,6 +111,7 @@ const BackupWallet = () => {
         onPressHandler={() => navigation.goBack()}
       />
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
+        {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
           subTitle={'Lorem ipsum dolor sit amet'}

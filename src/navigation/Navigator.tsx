@@ -19,6 +19,8 @@ import Login from '../screens/LoginScreen/Login';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
+import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
+import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
 import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
@@ -85,6 +87,8 @@ const AppStack = () => {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
+        <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
+        <Stack.Screen name="ViewTransactionDetails" component={ViewTransactionDetails} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
