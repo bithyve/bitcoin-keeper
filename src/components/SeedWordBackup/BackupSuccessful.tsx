@@ -5,10 +5,13 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration from 'src/assets/images/illustration.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import { useNavigation } from '@react-navigation/native';
 
 const BackupSuccessful = (props) => {
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
+  const navigation = useNavigation();
+
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
@@ -44,7 +47,8 @@ const BackupSuccessful = (props) => {
       <Box alignItems={'flex-end'} px={10} mb={5}>
         <CustomGreenButton
           onPress={() => {
-            props.confirmBtnPress();
+            // props.confirmBtnPress();
+            navigation.navigate('NewHome');
           }}
           value={BackupWallet.home}
         />

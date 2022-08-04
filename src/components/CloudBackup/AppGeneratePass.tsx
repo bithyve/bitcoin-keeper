@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity, Clipboard } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -7,10 +7,18 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import { generateKey } from 'src/core/services/operations/encryption';
 
 const AppGeneratePass = (props) => {
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
+  const [agsp] = useState(
+    generateKey(18)
+      .match(/.{1,6}/g)
+      .join('-')
+  );
+  const [copied, setCopied] = useState(false);
+
   const common = translations['common'];
   return (
     <Box bg={'#F7F2EC'} borderRadius={10}>
@@ -30,7 +38,7 @@ const AppGeneratePass = (props) => {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box p={10}>
+      <Box px={10} py={5}>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
           {BackupWallet.appGeneratePassTitle}
         </Text>
@@ -39,28 +47,27 @@ const AppGeneratePass = (props) => {
         </Text>
       </Box>
       {/* {Input Field} */}
-      <Box
-        alignItems={'center'}
-        borderBottomLeftRadius={10}
-        borderTopLeftRadius={10}
-        marginTop={hp(20)}
-      >
-        <Box
-          flexDirection={'row'}
-          width={'80%'}
-          alignItems={'center'}
-          justifyContent={'space-between'}
-          backgroundColor={'light.textInputBackground'}
+      <Box alignItems={'center'} borderBottomLeftRadius={10} borderTopLeftRadius={10}>
+        <TouchableOpacity
+          activeOpacity={0.4}
+          onPress={() => {
+            setCopied(true);
+            setTimeout(() => {
+              setCopied(false);
+            }, 1500);
+            Clipboard.setString(agsp);
+          }}
         >
-          <Text width={'80%'} marginLeft={4} noOfLines={1} fontWeight={200}>
-            {'lk2j3429-85213-5134=50t-934285623…'}
-          </Text>
-          <TouchableOpacity
-            activeOpacity={0.4}
-            onPress={() => {
-              Clipboard.setString('lk2j3429-85213-5134=50t-934285623…');
-            }}
+          <Box
+            flexDirection={'row'}
+            width={'80%'}
+            alignItems={'center'}
+            justifyContent={'space-between'}
+            backgroundColor={'light.textInputBackground'}
           >
+            <Text width={'80%'} marginLeft={4} noOfLines={1} fontSize={18} fontWeight={200}>
+              {agsp}
+            </Text>
             <Box
               backgroundColor={'light.copyBackground'}
               padding={3}
@@ -69,8 +76,19 @@ const AppGeneratePass = (props) => {
             >
               <CopyIcon />
             </Box>
-          </TouchableOpacity>
-        </Box>
+          </Box>
+        </TouchableOpacity>
+        {copied && (
+          <Text
+            color={'gray.400'}
+            style={{
+              textAlign: 'center',
+              marginBottom: 10,
+            }}
+          >
+            Copied to clipboard
+          </Text>
+        )}
       </Box>
       <Box p={10}>
         <Text fontSize={RFValue(13)} color={'light.lightBlack'} fontFamily={'body'}>
@@ -100,7 +118,7 @@ const AppGeneratePass = (props) => {
         <Box w={'40%'}>
           <CustomGreenButton
             onPress={() => {
-              props.confirmBtnPress();
+              props.confirmBtnPress(agsp);
             }}
             value={common.next}
           />

@@ -63,7 +63,8 @@
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
     "EditDetails": "Edit Details",
-    "next": "Next"
+    "next": "Next",
+    "needHelp": "Need Help?"
   },
   "noInternet": {
     "no": "No Internet",
@@ -293,10 +294,7 @@
     "VaultCreated": "Vault Created",
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View Vault",
-    "AddNow": "Add Now",
-    "SelectSigner": "Select a Signing Devices",
-    "ForVault": "For your Vault",
-    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?"
+    "CustomPriority": "Custom Priority"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -307,7 +305,8 @@
     "ExportSeed": "Seed words",
     "SeedDesc": "Make sure you keep them safe",
     "longing": "longing",
-    "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
+    "walletRecoverySuccessful": "Wallet Recovery Successful",
+    "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
   },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
