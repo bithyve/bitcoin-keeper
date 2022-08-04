@@ -26,6 +26,7 @@ import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import * as bip39 from 'bip39';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -36,50 +37,62 @@ const EnterSeedScreen = () => {
     {
       id: 1,
       name: '',
+      invalid: false,
     },
     {
       id: 2,
       name: '',
+      invalid: false,
     },
     {
       id: 3,
       name: '',
+      invalid: false,
     },
     {
       id: 4,
       name: '',
+      invalid: false,
     },
     {
       id: 5,
       name: '',
+      invalid: false,
     },
     {
       id: 6,
       name: '',
+      invalid: false,
     },
     {
       id: 7,
       name: '',
+      invalid: false,
     },
     {
       id: 8,
       name: '',
+      invalid: false,
     },
     {
       id: 9,
       name: '',
+      invalid: false,
     },
     {
       id: 10,
       name: '',
+      invalid: false,
     },
     {
       id: 11,
       name: '',
+      invalid: false,
     },
     {
       id: 12,
       name: '',
+      invalid: false,
     },
   ]);
 
@@ -127,8 +140,8 @@ const EnterSeedScreen = () => {
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
-      if (seedData[i].name === '') {
-        showToast('Enter all seeds', <TickIcon />);
+      if (seedData[i].invalid === true) {
+        showToast('Enter correct seedwords', <TickIcon />);
         return true;
       }
     }
@@ -219,7 +232,7 @@ const EnterSeedScreen = () => {
               contentContainerStyle={{
                 marginStart: 15,
               }}
-              renderItem={({ value, index }) => {
+              renderItem={({ item, index }) => {
                 return (
                   <View
                     style={{
@@ -229,26 +242,42 @@ const EnterSeedScreen = () => {
                     }}
                   >
                     <Text
-                      style={{ fontSize: 16, color: '#00836A', fontWeight: 'bold', marginTop: 8 }}
+                      style={{
+                        width: 22,
+                        fontSize: 16,
+                        color: '#00836A',
+                        fontWeight: 'bold',
+                        marginTop: 8,
+                      }}
                     >
                       {getFormattedNumber(index)}
                     </Text>
                     <TextInput
-                      style={{
-                        backgroundColor: '#FDF7F0',
-                        shadowColor: 'black',
-                        shadowOpacity: 0.4,
-                        shadowColor: 'rgba(0, 0, 0, 0.05)',
-                        elevation: 6,
-                        shadowRadius: 10,
-                        shadowOffset: { width: 1, height: 10 },
-                        borderRadius: 10,
-                        height: 35,
-                        width: 110,
-                        marginLeft: 10,
-                      }}
-                      placeholder={`  enter ${getPlaceholder(index)} word`}
-                      value={value?.name}
+                      style={[
+                        {
+                          backgroundColor: '#FDF7F0',
+                          shadowColor: 'black',
+                          shadowOpacity: 0.4,
+                          shadowColor: 'rgba(0, 0, 0, 0.05)',
+                          elevation: 6,
+                          shadowRadius: 10,
+                          shadowOffset: { width: 1, height: 10 },
+                          borderRadius: 10,
+                          fontSize: 12,
+                          height: 35,
+                          width: 110,
+                          marginLeft: 10,
+                          borderWidth: 1,
+                          paddingHorizontal: 5,
+                        },
+                        item.invalid == true
+                          ? {
+                              borderColor: '#F58E6F',
+                            }
+                          : { borderColor: '#FDF7F0' },
+                      ]}
+                      placeholder={`enter ${getPlaceholder(index)} word`}
+                      value={item?.name}
                       textContentType="none"
                       returnKeyType="next"
                       autoCorrect={false}
@@ -257,6 +286,13 @@ const EnterSeedScreen = () => {
                         const data = [...seedData];
                         data[index].name = text.trim();
                         setSeedData(data);
+                      }}
+                      onBlur={() => {
+                        if (!bip39.wordlists.english.includes(seedData[index].name)) {
+                          const data = [...seedData];
+                          data[index].invalid = true;
+                          setSeedData(data);
+                        }
                       }}
                     />
                   </View>

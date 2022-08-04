@@ -16,6 +16,7 @@ import PasswordModal from 'src/components/PasswordModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import useToastMessage from 'src/hooks/useToastMessage';
+import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 
 const Tile = ({ title, subTitle, onPress, Icon }) => {
   return (
@@ -125,7 +126,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       <StatusBar backgroundColor={'light.ReceiveBackground'} barStyle="dark-content" />
       <ScrollView
         style={{
-          paddingTop: 30,
+          paddingTop: 50,
         }}
       >
         <Box mx={3}>
@@ -137,7 +138,13 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           >
             New Keeper App
           </Text>
-          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+          <Text
+            px={'5%'}
+            color={'light.blackHeaderText'}
+            fontSize={RFValue(12)}
+            fontFamily={'body'}
+            pl={10}
+          >
             Use this option if you want to create a new Keeper app
           </Text>
           <Tile
@@ -186,7 +193,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           />
         </Box>
       </ScrollView>
-      <KeeperModal
+      <Text px={'10%'} color={'light.lightBlack'} fontSize={12}>
+        When you use Signing Devices to restore Keeper, only Vault is restored and the app has new
+        wallets
+      </Text>
+      <CloudRecoveryModal
         visible={cloudModal}
         close={closeCloudModal}
         title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}

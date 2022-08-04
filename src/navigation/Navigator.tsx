@@ -28,6 +28,7 @@ import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
+import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
@@ -95,13 +96,14 @@ const AppStack = () => {
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
-        <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} />
+        {/* <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} /> */}
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="SetupInheritance" component={NewKeeperApp} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
+        <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
       </Stack.Navigator>

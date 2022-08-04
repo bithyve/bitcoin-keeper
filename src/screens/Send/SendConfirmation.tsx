@@ -1,6 +1,7 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
