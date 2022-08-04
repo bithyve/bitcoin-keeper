@@ -172,7 +172,6 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setSkipHealthCheckModal(false);
-              <WalletBackHistoryScreen navigation={navigation} />;
             }}
           />
         </ModalWrapper>
@@ -188,7 +187,6 @@ const BackupWallet = () => {
             }}
             confirmBtnPress={() => {
               setHealthCheckSuccessModal(false);
-              <WalletBackHistoryScreen navigation={navigation} />;
             }}
             title={BackupWallet.healthCheckSuccessTitle}
             subTitle={BackupWallet.healthCheckSuccessSubTitle}

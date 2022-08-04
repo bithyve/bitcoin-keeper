@@ -44,6 +44,7 @@ const renderTransactionElement = ({ item }) => {
 };
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
+  const navigation = useNavigation();
   return (
     <Box
       flexDirection={'row'}
@@ -94,7 +95,15 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
           {transaction.amount}
         </Text>
         <Box>
-          <IconArrowGrey />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('ViewTransactionDetails', {
+                transaction: transaction,
+              });
+            }}
+          >
+            <IconArrowGrey />
+          </TouchableOpacity>
         </Box>
       </Box>
     </Box>
@@ -251,6 +260,8 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
 
 const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) => {
   let line = '# Keeper Multisig setup file\n';
+  const navigation = useNavigation();
+
   return (
     <VStack paddingTop={'25%'}>
       <HStack justifyContent={'space-between'}>
@@ -280,15 +291,24 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
           }}
         >
           <HStack alignItems={'center'}>
-            <Text
-              color={'light.light'}
-              marginRight={1}
-              fontSize={11}
-              fontWeight={300}
-              letterSpacing={0.6}
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('ViewAllTransactions', {
+                  title: 'Vault Transactions',
+                  subtitle: 'Lorem ipsium dolor sit amet,',
+                });
+              }}
             >
-              View All
-            </Text>
+              <Text
+                color={'light.light'}
+                marginRight={1}
+                fontSize={11}
+                fontWeight={300}
+                letterSpacing={0.6}
+              >
+                View All
+              </Text>
+            </TouchableOpacity>
             <IconArrowBlack />
           </HStack>
         </TouchableOpacity>
@@ -310,6 +330,8 @@ const SignerList = () => {
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
   const Signers = vaults[0]?.signers;
   const styles = getStyles(0);
+  const navigation = useNavigation();
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -320,27 +342,36 @@ const SignerList = () => {
       {Signers.map((signer) => {
         return (
           <Box style={styles.signerCard} marginRight={'3'}>
-            <SignerIcon />
-            <VStack pb={2}>
-              <Text
-                color={'light.textBlack'}
-                fontSize={11}
-                fontWeight={200}
-                letterSpacing={0.6}
-                textAlign={'center'}
-              >
-                {signer.signerName}
-              </Text>
-              <Text
-                color={'light.textBlack'}
-                fontSize={8}
-                fontWeight={200}
-                letterSpacing={0.6}
-                textAlign={'center'}
-              >
-                {`Hardware Wallet`}
-              </Text>
-            </VStack>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('SigningDeviceDetails', {
+                  SignerIcon: <SignerIcon />,
+                  SignerName: signer.signerName,
+                });
+              }}
+            >
+              <SignerIcon />
+              <VStack pb={2}>
+                <Text
+                  color={'light.textBlack'}
+                  fontSize={11}
+                  fontWeight={200}
+                  letterSpacing={0.6}
+                  textAlign={'center'}
+                >
+                  {signer.signerName}
+                </Text>
+                <Text
+                  color={'light.textBlack'}
+                  fontSize={8}
+                  fontWeight={200}
+                  letterSpacing={0.6}
+                  textAlign={'center'}
+                >
+                  {`Hardware Wallet`}
+                </Text>
+              </VStack>
+            </TouchableOpacity>
           </Box>
         );
       })}
