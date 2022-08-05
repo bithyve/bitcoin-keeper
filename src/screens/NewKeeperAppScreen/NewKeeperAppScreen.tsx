@@ -193,7 +193,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           />
         </Box>
       </ScrollView>
-      <Text px={'10%'} color={'light.lightBlack'} fontSize={12}>
+      <Text py={'10%'} px={'10%'} color={'light.lightBlack'} fontSize={12}>
         When you use Signing Devices to restore Keeper, only Vault is restored and the app has new
         wallets
       </Text>

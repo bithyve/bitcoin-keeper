@@ -28,7 +28,6 @@ function* updateFCMTokensWorker({ payload }) {
       throw new Error('No FCM token found');
     }
     const appId = yield select((state: RootState) => state.storage.appId);
-    console.log('bhuuuu ' + appId);
     const { updated } = yield call(Relay.updateFCMTokens, appId, payload.FCMs);
     if (updated) {
       yield put(setFcmToken(FCMs[0]));
@@ -45,7 +44,6 @@ export const updateFCMTokensWatcher = createWatcher(updateFCMTokensWorker, UPDAT
 export function* fetchNotificationsWorker() {
   yield put(fetchNotificationStarted(true));
   const appId = yield select((state: RootState) => state.storage.appId);
-  console.log('appId ' + appId);
   const { notifications } = yield call(Relay.fetchNotifications, appId);
   yield call(notificationsFetched, notifications);
   //yield call( setupNotificationListWorker )
@@ -107,7 +105,6 @@ export function* updateMessageStatusInAppWorker({ payload }) {
         }
       : message
   );
-  console.log('messageArray', messageArray);
   yield put(messageFetched(messageArray));
 }
 
