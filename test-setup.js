@@ -2,6 +2,9 @@ import 'react-native-gesture-handler/jestSetup';
 import {
     Dimensions
 } from "react-native";
+import mockRNDeviceInfo from 'react-native-device-info/jest/react-native-device-info-mock';
+
+jest.mock('react-native-device-info', () => mockRNDeviceInfo);
 
 jest.mock("react-native/Libraries/Utilities/Dimensions");
 jest.mock("react-native-iphone-x-helper");
