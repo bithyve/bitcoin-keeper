@@ -7,6 +7,7 @@ export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
+  testID?: string;
 }
 const CustomButton = (props: Props) => {
   return (
@@ -14,6 +15,7 @@ const CustomButton = (props: Props) => {
       style={styles.button}
       disabled={props.disabled}
       underlayColor={'none'}
+      testID={props.testID ? props.testID : 'customButton'}
       onPress={() => {
         props.onPress();
       }}
