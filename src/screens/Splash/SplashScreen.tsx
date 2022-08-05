@@ -4,10 +4,15 @@ import { ImageBackground, StatusBar } from 'react-native';
 import React, { useEffect } from 'react';
 
 import SplashBackground from 'src/assets/images/SplashBackground.png';
+import RestClient from 'src/core/services/rest/RestClient';
+import { useAppSelector } from 'src/store/hooks';
 import Video from 'react-native-video';
 
 const SplashScreen = ({ navigation }) => {
+  const { torEnbled } = useAppSelector((state) => state.settings);
+
   useEffect(() => {
+    RestClient.setUseTor(torEnbled);
     setTimeout(async () => {
       const hasCreds = await SecureStore.hasPin();
       if (hasCreds) {
