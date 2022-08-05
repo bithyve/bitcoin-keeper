@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -11,30 +11,39 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { seedBackedUp } from 'src/store/sagaActions/bhr';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-const ExportSeedScreen = ({ route }) => {
+const ExportSeedScreen = ({ route, navigation }) => {
   const navigtaion = useNavigation();
-
+  const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const BackupWallet = translations['BackupWallet'];
   const login = translations['login'];
-
   const seed = route.params.seed;
+  const [words] = useState(seed.split(' '));
   const next = route.params.next;
-
-  const [showSeedWord, setShowSeedWord] = useState('');
-  const [showHideStatus, setShowHideStatus] = useState(false);
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
-
+  const [showWordIndex, setShowWordIndex] = useState('');
+  const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations['seed'];
+
+  useEffect(() => {
+    if (backupMethod !== null) {
+      setBackupSuccessModal(true);
+      setTimeout(() => {
+        navigation.replace('WalletBackHistory');
+      }, 100);
+    }
+  }, [backupMethod]);
 
   const SeedCard = ({ item, index }: { item; index }) => {
     return (
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowSeedWord(item), setShowHideStatus(!showHideStatus);
+          setShowWordIndex(index);
         }}
       >
         <Box
@@ -44,7 +53,7 @@ const ExportSeedScreen = ({ route }) => {
           borderRadius={10}
           marginX={3}
           marginY={1.5}
-          opacity={showHideStatus && showSeedWord == item ? 1 : 0.5}
+          opacity={showWordIndex === index ? 1 : 0.5}
         >
           <Text
             fontSize={20}
@@ -63,7 +72,7 @@ const ExportSeedScreen = ({ route }) => {
             letterSpacing={1}
             color={'light.seedText'}
           >
-            {showHideStatus && showSeedWord == item ? item : '******'}
+            {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
       </TouchableOpacity>
@@ -86,7 +95,7 @@ const ExportSeedScreen = ({ route }) => {
 
       <Box marginTop={10} height={windowHeight / 1.5}>
         <FlatList
-          data={seed.split(' ')}
+          data={words}
           numColumns={2}
           showsVerticalScrollIndicator={false}
           renderItem={renderSeedCard}
@@ -98,8 +107,8 @@ const ExportSeedScreen = ({ route }) => {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                setBackupSuccessModal(true);
-                // setConfirmSeedModal(true);
+                //setBackupSuccessModal(true);
+                setConfirmSeedModal(true);
               }}
               value={login.Next}
             />
@@ -130,10 +139,10 @@ const ExportSeedScreen = ({ route }) => {
             closeBottomSheet={() => {
               setConfirmSeedModal(false);
             }}
+            words={words}
             confirmBtnPress={() => {
-              setTimeout(() => {
-                setBackupSuccessModal(true);
-              }, 2000);
+              setConfirmSeedModal(false);
+              dispatch(seedBackedUp());
             }}
           />
         </ModalWrapper>

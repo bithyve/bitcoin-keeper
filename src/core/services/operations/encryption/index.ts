@@ -13,3 +13,13 @@ export const encrypt = (key: string, data: string): string =>
 
 export const decrypt = (key: string, encrypted: any): string =>
   cryptoJS.AES.decrypt(encrypted, key).toString(cryptoJS.enc.Utf8);
+
+export const generateKey = (length: number): string => {
+  let result = '';
+  const characters = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'; // base-58
+  const charactersLength = characters.length;
+  for (let itr = 0; itr < length; itr++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};

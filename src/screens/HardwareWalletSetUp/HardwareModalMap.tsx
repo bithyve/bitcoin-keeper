@@ -2,6 +2,7 @@ import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext } from 'react';
 
+import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { SignerType } from 'src/core/wallets/enums';
@@ -26,7 +27,7 @@ const TapsignerSetupContent = () => {
 const ColdCardSetupContent = () => {
   return (
     <View>
-      <TapsignerSetupImage />
+      <ColdCardSetupImage />
       <Box marginTop={'4'}>
         <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
           {`\u2022 Please make sure your mk4 wallet is setup`}

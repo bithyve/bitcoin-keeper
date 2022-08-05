@@ -71,7 +71,7 @@ function* credentialsStorageWorker({ payload }) {
     yield call(dbManager.initializeRealm, uint8array);
 
     // setup the application
-    yield put(setupKeeperApp());
+    // yield put(setupKeeperApp());
     yield put(setPinHash(hash));
 
     yield put(setCredStored());

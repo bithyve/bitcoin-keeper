@@ -1,32 +1,34 @@
+import { Box, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, VStack, HStack, View } from 'native-base';
+import { StyleSheet } from 'react-native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
-import Buttons from 'src/components/Buttons';
-import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import SigningController from './SigningController';
-import { TxPriority } from 'src/core/wallets/enums';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import BTC from 'src/assets/images/svgs/btc_grey.svg';
+import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import Buttons from 'src/components/Buttons';
+import Header from 'src/components/Header';
 import RadioButton from 'src/components/RadioButton';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { TxPriority } from 'src/core/wallets/enums';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { timeConvertNear30 } from 'src/common/utilities';
-import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import { useAppSelector } from 'src/store/hooks';
+import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
+import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import CustomPriorityModal from './CustomPriorityModal';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -41,6 +43,10 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
   );
+
+  const [visible, setVisible] = useState(false);
+  const close = () => setVisible(false);
+  const open = () => setVisible(true);
 
   // taken from hexa --> TransactionPriority.tsx - line 98
   const setCustomTransactionPriority = () => {
@@ -57,11 +63,11 @@ const SendConfirmation = ({ route }) => {
         <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
         </Text>
-        {/* <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {
             'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
           }
-        </Text> */}
+        </Text>
       </View>
     );
   };
@@ -93,6 +99,17 @@ const SendConfirmation = ({ route }) => {
       );
     }
   };
+
+  const serializedPSBTEnvelop = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelop
+  );
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (serializedPSBTEnvelop) {
+      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+    }
+  }, [serializedPSBTEnvelop]);
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -158,9 +175,11 @@ const SendConfirmation = ({ route }) => {
         <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        {/* <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo && !isVaultTransfer ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount : '274 sats'}
-        </Text> */}
+        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+          {txFeeInfo && !isVaultTransfer
+            ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount
+            : '274 sats'}
+        </Text>
       </Box>
     );
   };
@@ -296,6 +315,71 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
+  const CustomPriorityBox = () => {
+    const [visible, setModalVisible] = useState(false);
+
+    const open = () => {
+      setModalVisible(true);
+    };
+    const close = () => setModalVisible(false);
+
+    return (
+      <Box>
+        <TouchableOpacity onPress={open}>
+          <Box
+            flexDirection={'row'}
+            rounded="lg"
+            background={'#FDF7F0'}
+            justifyContent={'space-between'}
+            alignItems={'center'}
+            marginTop={hp(10)}
+            mx={wp(29)}
+            textAlign={'center'}
+            px="2"
+            py="2"
+          >
+            <Text
+              fontStyle={'italic'}
+              color={'#00715B'}
+              fontSize={12}
+              fontFamily={'body'}
+              fontWeight={'300'}
+              p={2}
+            >
+              Custom Priority
+            </Text>
+            <ArrowIcon />
+          </Box>
+        </TouchableOpacity>
+        <CustomPriorityModal
+          visible={visible}
+          close={close}
+          title="Custom Priority"
+          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+          info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+          buttonText="Confirm"
+        />
+      </Box>
+    );
+  };
+
+  const handleCustomPriority = () => {
+    const { translations } = useContext(LocalizationContext);
+    const vault = translations['vault'];
+    const common = translations['common'];
+
+    return (
+      <CustomPriorityModal
+        visible={visible}
+        title={vault.CustomPriority}
+        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+        close={close}
+        buttonText={common.confirm}
+      />
+    );
+  };
+
   return (
     <Box
       padding={windowHeight * 0.01}
@@ -325,6 +409,8 @@ const SendConfirmation = ({ route }) => {
         </Box>
       </Box>
 
+      <CustomPriorityBox />
+
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"
@@ -332,7 +418,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-          primaryCallback={onProceed}
+          // primaryCallback={onProceed}
         />
       </Box>
 
@@ -348,8 +434,6 @@ const SendConfirmation = ({ route }) => {
         cancelButtonColor={'#073E39'}
         Content={SendSuccessfulContent}
       /> */}
-
-      <SigningController />
     </Box>
   );
 };

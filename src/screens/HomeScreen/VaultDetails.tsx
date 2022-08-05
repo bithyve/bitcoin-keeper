@@ -9,8 +9,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useContext, useEffect, useState } from 'react';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BTC from 'src/assets/images/btc_white.svg';
@@ -24,26 +24,27 @@ import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import NFC from 'src/core/services/nfc';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import { Transaction } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { WalletType } from 'src/core/wallets/enums';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Transaction } from 'src/core/wallets/interfaces';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
 };
 
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
+  const navigation = useNavigation();
   return (
     <Box
       flexDirection={'row'}
@@ -94,7 +95,15 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
           {transaction.amount}
         </Text>
         <Box>
-          <IconArrowGrey />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('ViewTransactionDetails', {
+                transaction: transaction,
+              });
+            }}
+          >
+            <IconArrowGrey />
+          </TouchableOpacity>
         </Box>
       </Box>
     </Box>
@@ -249,7 +258,10 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
   );
 };
 
-const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
+const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) => {
+  let line = '# Keeper Multisig setup file\n';
+  const navigation = useNavigation();
+
   return (
     <VStack paddingTop={'25%'}>
       <HStack justifyContent={'space-between'}>
@@ -262,18 +274,44 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh }) => {
         >
           Transactions
         </Text>
-        <HStack alignItems={'center'}>
-          <Text
-            color={'light.light'}
-            marginRight={1}
-            fontSize={11}
-            fontWeight={300}
-            letterSpacing={0.6}
-          >
-            View All
-          </Text>
-          <IconArrowBlack />
-        </HStack>
+        <TouchableOpacity
+          onPress={async () => {
+            line += `Name: Keeper ${new Date().getTime()}\n`;
+            line += `Policy: 1 of 2\n`;
+            line += `Format: P2SH-P2WSH\n`;
+            line += `\n`;
+            vault.signers.forEach((signer) => {
+              line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
+              line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
+            });
+            const enc = Ndef.encodeMessage([Ndef.textRecord(line)]);
+            console.log('scanning...');
+            await NFC.send(NfcTech.Ndef, enc);
+            console.log('Done');
+          }}
+        >
+          <HStack alignItems={'center'}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('ViewAllTransactions', {
+                  title: 'Vault Transactions',
+                  subtitle: 'Lorem ipsium dolor sit amet,',
+                });
+              }}
+            >
+              <Text
+                color={'light.light'}
+                marginRight={1}
+                fontSize={11}
+                fontWeight={300}
+                letterSpacing={0.6}
+              >
+                View All
+              </Text>
+            </TouchableOpacity>
+            <IconArrowBlack />
+          </HStack>
+        </TouchableOpacity>
       </HStack>
       <FlatList
         style={{ height: '75%' }}
@@ -292,6 +330,8 @@ const SignerList = () => {
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
   const Signers = vaults[0]?.signers;
   const styles = getStyles(0);
+  const navigation = useNavigation();
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -302,27 +342,36 @@ const SignerList = () => {
       {Signers.map((signer) => {
         return (
           <Box style={styles.signerCard} marginRight={'3'}>
-            <SignerIcon />
-            <VStack pb={2}>
-              <Text
-                color={'light.textBlack'}
-                fontSize={11}
-                fontWeight={200}
-                letterSpacing={0.6}
-                textAlign={'center'}
-              >
-                {signer.signerName}
-              </Text>
-              <Text
-                color={'light.textBlack'}
-                fontSize={8}
-                fontWeight={200}
-                letterSpacing={0.6}
-                textAlign={'center'}
-              >
-                {`Hardware Wallet`}
-              </Text>
-            </VStack>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('SigningDeviceDetails', {
+                  SignerIcon: <SignerIcon />,
+                  SignerName: signer.signerName,
+                });
+              }}
+            >
+              <SignerIcon />
+              <VStack pb={2}>
+                <Text
+                  color={'light.textBlack'}
+                  fontSize={11}
+                  fontWeight={200}
+                  letterSpacing={0.6}
+                  textAlign={'center'}
+                >
+                  {signer.signerName}
+                </Text>
+                <Text
+                  color={'light.textBlack'}
+                  fontSize={8}
+                  fontWeight={200}
+                  letterSpacing={0.6}
+                  textAlign={'center'}
+                >
+                  {`Hardware Wallet`}
+                </Text>
+              </VStack>
+            </TouchableOpacity>
           </Box>
         );
       })}
@@ -339,13 +388,9 @@ const VaultDetails = () => {
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
 
-  const refreshVault = () => {
-    dispatch(refreshWallets([vault], { hardRefresh: true }));
-  };
-
-  const pullDownRefresh = () => {
+  const syncVault = () => {
     setPullRefresh(true);
-    refreshVault();
+    dispatch(refreshWallets([vault], { hardRefresh: true }));
     setPullRefresh(false);
   };
 
@@ -353,7 +398,7 @@ const VaultDetails = () => {
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
-      pullDownRefresh();
+      syncVault();
     });
   }, []);
 
@@ -373,8 +418,9 @@ const VaultDetails = () => {
           <SignerList />
           <TransactionList
             transactions={transactions}
-            pullDownRefresh={pullDownRefresh}
+            pullDownRefresh={syncVault}
             pullRefresh={pullRefresh}
+            vault={vault}
           />
           <Footer vault={vault} />
         </VStack>

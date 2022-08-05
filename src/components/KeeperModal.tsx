@@ -1,10 +1,41 @@
+import React, { useEffect, useState } from 'react';
 import { Box, Modal, Text } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  View,
+  FlatList,
+} from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import Colors from 'src/theme/Colors';
+import GoogleDrive from 'src/assets/images/drive.svg';
+import ICloud from 'src/assets/images/icloud.svg';
+import moment from 'moment';
+
+const ListItem = ({ item, onPress }) => {
+  const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Box flexDirection="row">
+        {IconName}
+        <Box marginY={2}>
+          <Text color={'#4F5955'} marginLeft={2} marginTop={1}>
+            {`App ID: ${item.appID}`}
+          </Text>
+          <Text fontSize={12} color={'#4F5955'}>
+            {moment(item.dateTime).format('DD MMM YYYY, hh:mmA')}
+          </Text>
+        </Box>
+      </Box>
+    </TouchableOpacity>
+  );
+};
 
 const KeeperModal = (props) => {
   const {
@@ -14,15 +45,14 @@ const KeeperModal = (props) => {
     subTitle = null,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
-    buttonText = 'Button text',
+    buttonText = null,
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
-    Content = () => <></>,
   } = props;
   const { bottom } = useSafeAreaInsets();
-
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
+
   return (
     <Modal
       isOpen={visible}
@@ -61,9 +91,6 @@ const KeeperModal = (props) => {
               {subTitle}
             </Text>
           </Modal.Header>
-          <Modal.Body>
-            <Content />
-          </Modal.Body>
           <Box alignSelf={'flex-end'} bg={'transparent'}>
             <TouchableOpacity onPress={buttonCallback}>
               <LinearGradient
@@ -95,7 +122,6 @@ export default KeeperModal;
 const styles = StyleSheet.create({
   container: {
     borderRadius: 10,
-    alignItems: 'center',
     padding: '4%',
     paddingVertical: '5%',
   },
@@ -109,7 +135,7 @@ const styles = StyleSheet.create({
   },
   cta: {
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 25,
     borderRadius: 10,
   },
   close: {

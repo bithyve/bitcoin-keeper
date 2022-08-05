@@ -1,12 +1,17 @@
 // libraries
-import { Box, Pressable, Text, View } from 'native-base';
-import { FlatList, ScrollView, TextInput } from 'react-native';
+import { Box, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import {
+  FlatList,
+  InteractionManager,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import BlueWallet from 'src/assets/icons/bluewallet.svg';
-// Colors, Images, svgs
 import Colors from 'src/theme/Colors';
 import Header from 'src/components/Header';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
@@ -26,7 +31,6 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 
 const SendScreen = ({ route }) => {
@@ -43,7 +47,9 @@ const SendScreen = ({ route }) => {
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
 
   useEffect(() => {
-    dispatch(sendPhasesReset());
+    InteractionManager.runAfterInteractions(() => {
+      dispatch(sendPhasesReset());
+    });
   }, []);
 
   const navigateToNext = (address: string, amount?: string) => {
@@ -72,6 +78,11 @@ const SendScreen = ({ route }) => {
   };
 
   const renderWallets = ({ item }: { item: Wallet }) => {
+    const onPress = () => {
+      navigation.dispatch(
+        CommonActions.navigate('AddSendAmount', { wallet, address: getNextFreeAddress(item) })
+      );
+    };
     return (
       <Box
         justifyContent={'center'}
@@ -79,19 +90,9 @@ const SendScreen = ({ route }) => {
         style={{ marginRight: wp(10) }}
         width={wp(60)}
       >
-        <Box style={styles.buttonBackground}>
-          <Pressable
-            onPress={() => {
-              navigation.navigate('AddSendAmount', {
-                wallet,
-                address: getNextFreeAddress(item),
-              });
-            }}
-            style={styles.buttonPressable}
-          >
-            <IconWallet />
-          </Pressable>
-        </Box>
+        <TouchableOpacity onPress={onPress} style={styles.buttonBackground}>
+          <IconWallet />
+        </TouchableOpacity>
         <Box>
           <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'} numberOfLines={1}>
             {item.presentationData.name}
@@ -139,7 +140,7 @@ const SendScreen = ({ route }) => {
         </Box>
 
         {/* Send to Wallet options */}
-        <Box marginTop={hp(10)}>
+        <Box marginTop={hp(40)}>
           <Text
             marginX={5}
             color={'light.GreyText'}
@@ -168,7 +169,7 @@ const SendScreen = ({ route }) => {
         </Box>
 
         {/* {Bottom note} */}
-        <Box marginTop={hp(20)} marginX={2}>
+        <Box marginTop={hp(40)} marginX={2}>
           <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
         </Box>
       </ScrollView>
@@ -214,7 +215,7 @@ const styles = ScaledSheet.create({
     padding: 15,
   },
   cameraView: {
-    height: hp(300),
+    height: hp(250),
     width: wp(375),
   },
   qrcontainer: {
@@ -236,11 +237,9 @@ const styles = ScaledSheet.create({
     backgroundColor: '#FAC48B',
     width: 40,
     height: 40,
-    borderRadius: 50,
-  },
-  buttonPressable: {
+    borderRadius: 40,
     alignItems: 'center',
-    marginVertical: 14,
+    justifyContent: 'center',
   },
 });
 export default SendScreen;

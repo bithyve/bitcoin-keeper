@@ -8,13 +8,15 @@ const initialState: {
   themeMode: ThemeMode;
   currencyKind: CurrencyKind;
   currencyCode: string;
-  language : string;
+  language: string;
+  torEnbled: boolean
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
   currencyKind: CurrencyKind.BITCOIN,
   currencyCode: 'USD',
-  language : 'en',
+  language: 'en',
+  torEnbled: false
 }
 
 const settingsSlice = createSlice({
@@ -35,10 +37,13 @@ const settingsSlice = createSlice({
     },
     setLanguage: (state, action: PayloadAction<string>) => {
       state.language = action.payload
-    }
+    },
+    setTorEnabled: (state, action: PayloadAction<boolean>) => {
+      state.torEnbled = action.payload
+    },
   }
 })
 
-export const { setLoginMethod, setThemeMode, setCurrencyKind, setCurrencyCode, setLanguage } = settingsSlice.actions
+export const { setLoginMethod, setThemeMode, setCurrencyKind, setCurrencyCode, setLanguage, setTorEnabled } = settingsSlice.actions
 
 export default settingsSlice.reducer;
