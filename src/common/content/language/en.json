@@ -281,7 +281,7 @@
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
-    "VaultDesc": "A signer is an air gapped device which helps you keep your Vault safe",
+    "VaultDesc": "A Signing Device is an air gapped device which helps you keep your Vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",
     "Vault": "Vault",
@@ -295,9 +295,9 @@
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View Vault",
     "AddNow": "Add Now",
-    "SelectSigner": "Select a Signing Devices",
+    "SelectSigner": "Select Signing Devices",
     "ForVault": "For your Vault",
-    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
+    "VaultInfo": "A Signing Device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority"
   },
   "seed": {
