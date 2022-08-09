@@ -106,7 +106,7 @@ const SetupColdCard = () => {
   const createVaultWithCC = async () => {
     try {
       const { signer } = await getColdCardDetails();
-      const { signer: signer2 } = generateMockColdCard();
+      const { signer: signer2 } = await getColdCardDetails();
       const scheme: VaultScheme = { m: 1, n: 2 };
       createVault([signer, signer2], scheme);
       navigation.dispatch(CommonActions.navigate('NewHome'));
