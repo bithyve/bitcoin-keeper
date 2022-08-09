@@ -358,7 +358,7 @@ export default class WalletUtilities {
       const xKey = bip32.fromBase58(childExtendedKey, network);
       return xKey.publicKey;
     });
-    pubkeys = pubkeys.sort((a, b) => (a > b ? 1 : -1)); // bip-67 compatible
+    pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
 
     const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
       required,
