@@ -77,6 +77,7 @@ export const generateVault = ({
     signers,
     presentationData,
     specs,
+    lastHealthCheck: new Date(),
   };
 
   return vault;

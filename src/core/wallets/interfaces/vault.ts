@@ -62,6 +62,7 @@ export interface Vault {
   signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
+  lastHealthCheck: Date;
 }
 
 export interface InheritancePolicy {

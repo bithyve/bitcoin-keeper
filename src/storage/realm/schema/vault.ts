@@ -74,6 +74,7 @@ export const VaultSchema: ObjectSchema = {
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
+    lastHealthCheck: 'date',
   },
   primaryKey: 'id',
 };
