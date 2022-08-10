@@ -314,6 +314,13 @@
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
   },
+  "healthcheck": {
+    "ChangeSigningDevice": "Change Signing Device",
+    "HealthCheck": "Health Check",
+    "SkippingHealthCheck": "Skipping Health Check",
+    "EnterCVV": "Enter the CVV",
+    "HealthCheckSuccessful": "Health Check Successful"
+  },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",

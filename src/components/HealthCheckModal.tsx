@@ -16,6 +16,7 @@ const HealthCheckModal = (props) => {
     closeHealthCheck,
     title = 'Title',
     subTitle = null,
+    placeHolderName = '',
     SignerName = '',
     SignerIcon = '',
     modalBackground = ['#F7F2EC', '#F7F2EC'],
@@ -85,7 +86,7 @@ const HealthCheckModal = (props) => {
           <Input
             placeholderTextColor={'grey'}
             backgroundColor={'#FDF7F0'}
-            placeholder={'Add Description'}
+            placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}
             w="90%"
