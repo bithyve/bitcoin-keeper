@@ -36,6 +36,7 @@
     "browserify-zlib": "~0.1.4",
     "buffer": "^6.0.3",
     "cktap-protocol-react-native": "git+https://github.com/bithyve/cktap-protocol-react-native.git#main",
+    "electrum-client": "https://github.com/bithyve/rn-electrum-client",
     "coinselect": "^3.1.11",
     "console-browserify": "^1.1.0",
     "constants-browserify": "^1.0.0",
