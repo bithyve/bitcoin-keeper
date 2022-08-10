@@ -1,6 +1,7 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
@@ -16,7 +17,6 @@ import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { StyleSheet } from 'react-native';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -418,7 +418,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-          // primaryCallback={onProceed}
+          primaryCallback={onProceed}
         />
       </Box>
 

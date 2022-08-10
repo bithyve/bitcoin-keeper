@@ -16,6 +16,7 @@ import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { CKTapCard } from 'cktap-protocol-react-native';
+import DeviceSelectionScreen from '../AddLedger/DeviceSelectionScreen';
 import Header from 'src/components/Header';
 import KeeperModal from 'src/components/KeeperModal';
 import NFC from 'src/core/services/nfc';
@@ -92,7 +93,7 @@ const PSTBCard = ({ message, buttonText, buttonCallBack }) => {
     </Box>
   );
 };
-const ModalContent = ({ broadcast, send }) => {
+const ColdCardContent = ({ broadcast, send }) => {
   return (
     <Box>
       <PSTBCard
@@ -110,6 +111,14 @@ const ModalContent = ({ broadcast, send }) => {
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
         </Text>
       </Box>
+    </Box>
+  );
+};
+
+const LedgerContent = () => {
+  return (
+    <Box>
+      <DeviceSelectionScreen onSelectDevice={console.log} />
     </Box>
   );
 };
@@ -157,8 +166,9 @@ const SignTransactionScreen = () => {
   const { signers } = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
-  const [tapsignerModal, setTapsignerModal] = React.useState(false);
-  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const [tapsignerModal, setTapsignerModal] = useState(false);
+  const [ledgerModal, setLedgerModal] = useState(false);
+  const [nfcVisible, setNfcVisible] = useState(false);
 
   const navigation = useNavigation();
   const serializedPSBTEnvelop = useAppSelector(
@@ -167,7 +177,7 @@ const SignTransactionScreen = () => {
   const textRef = useRef(null);
   const dispatch = useDispatch();
   const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
-  const card = React.useRef(new CKTapCard()).current;
+  const card = useRef(new CKTapCard()).current;
 
   const receiveAndBroadCast = async () => {
     setNfcVisible(true);
@@ -274,6 +284,9 @@ const SignTransactionScreen = () => {
       case SignerType.COLDCARD:
         setColdCardModal(true);
         break;
+      case SignerType.LEDGER:
+        setLedgerModal(true);
+        break;
       default:
         Alert.alert(`action not set for ${type}`);
         break;
@@ -316,7 +329,7 @@ const SignTransactionScreen = () => {
         title={'Upload Multi-sig data'}
         subTitle={'Keep your ColdCard ready before proceeding'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        Content={() => <ModalContent broadcast={receiveAndBroadCast} send={signTransaction} />}
+        Content={() => <ColdCardContent broadcast={receiveAndBroadCast} send={signTransaction} />}
       />
       <KeeperModal
         visible={tapsignerModal}
@@ -330,6 +343,19 @@ const SignTransactionScreen = () => {
         buttonCallback={signTransaction}
         textColor={'#FFF'}
         Content={() => InputCvc({ textRef })}
+      />
+      <KeeperModal
+        visible={ledgerModal}
+        close={() => setLedgerModal(false)}
+        title={'Looking for Nano X'}
+        subTitle={'Power up your Ledger Nano X and open the BTC app...'}
+        modalBackground={['#00836A', '#073E39']}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={'SIGN'}
+        buttonTextColor={'#073E39'}
+        buttonCallback={signTransaction}
+        textColor={'#FFF'}
+        Content={() => <LedgerContent />}
       />
       <NfcPrompt visible={nfcVisible} />
     </SafeAreaView>
