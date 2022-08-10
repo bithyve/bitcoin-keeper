@@ -12,7 +12,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
-
+import config, { APP_STAGE } from 'src/core/config';
 import BackIcon from 'src/assets/icons/back.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -24,6 +24,10 @@ import HealthCheckModal from 'src/components/HealthCheckModal';
 import SuccessModal from 'src/components/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import Illustration from 'src/assets/images/illustration.svg';
+import { CKTapCard } from 'cktap-protocol-react-native';
+import { NetworkType } from 'src/core/wallets/enums';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -60,13 +64,49 @@ const SigningDeviceDetails = ({ route }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
-  const SignerIcon = route.params.SignerIcon;
-  const SignerName = route.params.SignerName;
+  const { SignerIcon, signer } = route.params;
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
   const [healthCheckView, setHealthCheckView] = useState(false);
   const [healthCheckSkipModal, setHealthCheckSkipModal] = useState(false);
   const [healthCheckSuccess, setHealthCheckSuccess] = useState(false);
+  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const [description, setDescription] = useState('');
+  const [cvc, setCvc] = useState('');
+  const card = React.useRef(new CKTapCard()).current;
+
+  const modalHandler = (callback) => {
+    return Platform.select({
+      android: async () => {
+        setNfcVisible(true);
+        const resp = await card.nfcWrapper(callback);
+        setNfcVisible(false);
+        return resp;
+      },
+      ios: async () => card.nfcWrapper(callback),
+    });
+  };
+
+  const healthCheckTapSigner = React.useCallback(() => {
+    modalHandler(async () => {
+      const isLegit = await card.certificate_check();
+      if (isLegit) {
+        console.log('cvc', cvc);
+        console.log('signerId', signer.signerId);
+        const xpub = await card.get_xpub(cvc);
+        return { xpub };
+      }
+    })()
+      .then((resp) => {
+        const { xpub } = resp;
+        const networkType =
+          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+        const network = WalletUtilities.getNetworkByType(networkType);
+        setHealthCheckSuccess(true);
+        const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+      })
+      .catch(console.log);
+  }, []);
 
   const closeHealthCheckSuccessView = () => setHealthCheckSuccess(false);
 
@@ -97,8 +137,8 @@ const SigningDeviceDetails = ({ route }) => {
   };
 
   const onPressCVV = () => {
+    healthCheckTapSigner();
     setconfirmHealthCheckModal(false);
-    setHealthCheckSuccess(true);
   };
 
   const confirm = () => {
@@ -158,7 +198,7 @@ const SigningDeviceDetails = ({ route }) => {
       <StatusBarComponent padding={50} />
       <Box>
         <Header />
-        <SigningDevice SignerIcon={SignerIcon} SignerName={SignerName} />
+        <SigningDevice SignerIcon={SignerIcon} SignerName={signer.SignerName} />
       </Box>
       <ScrollView>
         <Box m={10}>
@@ -206,7 +246,7 @@ const SigningDeviceDetails = ({ route }) => {
           closeHealthCheck={closeHealthCheck}
           title={vault.EditDescription}
           subTitle={vault.Description}
-          SignerName={SignerName}
+          SignerName={signer.SignerName}
           SignerIcon={SignerIcon}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
@@ -214,6 +254,8 @@ const SigningDeviceDetails = ({ route }) => {
           buttonTextColor={'#FAFAFA'}
           textColor={'#041513'}
           onPress={onPress}
+          inputText={description}
+          setInputText={setDescription}
         />
         <SuccessModal
           visible={healthCheckView}
@@ -253,6 +295,8 @@ const SigningDeviceDetails = ({ route }) => {
           buttonTextColor={'#FAFAFA'}
           textColor={'#041513'}
           onPress={onPressCVV}
+          inputText={cvc}
+          setInputText={setCvc}
         />
         <SuccessModal
           visible={healthCheckSuccess}

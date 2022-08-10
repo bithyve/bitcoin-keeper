@@ -346,7 +346,7 @@ const SignerList = () => {
               onPress={() => {
                 navigation.navigate('SigningDeviceDetails', {
                   SignerIcon: <SignerIcon />,
-                  SignerName: signer.signerName,
+                  signer,
                 });
               }}
             >
