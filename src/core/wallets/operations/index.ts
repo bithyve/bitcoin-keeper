@@ -719,7 +719,7 @@ export default class WalletOperations {
         redeemScript: p2wpkh.output,
       });
     } else if (wallet.entityKind === EntityKind.VAULT) {
-      const { p2ms, p2wsh, p2sh, subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+      const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
       );
@@ -734,7 +734,7 @@ export default class WalletOperations {
           bip32Derivation.push({
             masterFingerprint,
             path,
-            pubkey: pubkeys[i],
+            pubkey: signerPubkeyMap.get(signer.xpub),
           });
         }
       }

@@ -346,6 +346,7 @@ export default class WalletUtilities {
     pubkeys: Buffer[];
     address: string;
     subPath: number[];
+    signerPubkeyMap: Map<string, Buffer>;
   } => {
     const subPath = [internal ? 1 : 0, childIndex];
     let pubkeys = xpubs.map((xpub) => {
@@ -358,6 +359,11 @@ export default class WalletUtilities {
       const xKey = bip32.fromBase58(childExtendedKey, network);
       return xKey.publicKey;
     });
+    const signerPubkeyMap = new Map<string, Buffer>();
+    xpubs.forEach((xpub, i) => {
+      signerPubkeyMap.set(xpub, pubkeys[i]);
+    });
+    // pubkeys = pubkeys.sort(Buffer.compare); // bip-67 compatible
     pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
 
     const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
@@ -374,6 +380,7 @@ export default class WalletUtilities {
       pubkeys,
       address: address,
       subPath,
+      signerPubkeyMap,
     };
   };
 
@@ -387,6 +394,7 @@ export default class WalletUtilities {
     pubkeys: Buffer[];
     address: string;
     subPath: number[];
+    signerPubkeyMap: Map<string, Buffer>;
   } => {
     const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpubs } = wallet.specs;
