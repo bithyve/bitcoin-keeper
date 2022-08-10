@@ -575,6 +575,7 @@ export default class WalletUtilities {
           pubkeys: Buffer[];
           address: string;
           subPath: number[];
+          signerPubkeyMap: Map<string, Buffer>;
         };
         changeAddress?: undefined;
       }
