@@ -294,7 +294,9 @@
     "VaultCreated": "Vault Created",
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View Vault",
-    "CustomPriority": "Custom Priority"
+    "CustomPriority": "Custom Priority",
+    "EditDescription": "Edit Description",
+    "Description": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
