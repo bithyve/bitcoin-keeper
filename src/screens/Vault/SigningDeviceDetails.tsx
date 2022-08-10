@@ -1,4 +1,4 @@
-import { Box, HStack, Text, VStack } from 'native-base';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -20,6 +20,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
+import HealthCheckModal from 'src/components/HealthCheckModal';
+import SuccessModal from 'src/components/SuccessModal';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import Illustration from 'src/assets/images/illustration.svg';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -55,9 +59,99 @@ const SigningDeviceDetails = ({ route }) => {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
-  const wallet = translations['wallet'];
+  const vault = translations['vault'];
   const SignerIcon = route.params.SignerIcon;
   const SignerName = route.params.SignerName;
+  const [healthCheckModal, setHealthCheckModal] = useState(false);
+  const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
+  const [healthCheckView, setHealthCheckView] = useState(false);
+  const [healthCheckSkipModal, setHealthCheckSkipModal] = useState(false);
+  const [healthCheckSuccess, setHealthCheckSuccess] = useState(false);
+
+  const closeHealthCheckSuccessView = () => setHealthCheckSuccess(false);
+
+  const closeHealthCheck = () => {
+    setHealthCheckModal(false);
+  };
+
+  const closeCVVModal = () => {
+    setconfirmHealthCheckModal(false);
+  };
+
+  const closeHealthCheckView = () => setHealthCheckView(false);
+
+  const healthCheckSkip = () => {
+    setHealthCheckView(false);
+    setHealthCheckSkipModal(true);
+  };
+
+  const closehealthCheckSkip = () => {
+    setHealthCheckSkipModal(false);
+  };
+
+  const SkipHealthCheck = () => setHealthCheckSkipModal(false);
+
+  const onPress = () => {
+    setHealthCheckModal(false);
+    setHealthCheckView(true);
+  };
+
+  const onPressCVV = () => {
+    setconfirmHealthCheckModal(false);
+    setHealthCheckSuccess(true);
+  };
+
+  const confirm = () => {
+    setHealthCheckView(false);
+    setconfirmHealthCheckModal(true);
+  };
+
+  const confirmHealthCheck = () => {
+    setHealthCheckSuccess(false);
+  };
+
+  const HealthCheckContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>{/* <SuccessIcon /> */}</Box>
+        <TapsignerSetupImage />
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+      </View>
+    );
+  };
+
+  const HealthCheckSkipContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>{/* <SuccessIcon /> */}</Box>
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+      </View>
+    );
+  };
+
+  const HealthCheckSuccessContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>{/* <SuccessIcon /> */}</Box>
+        <Illustration />
+        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {
+            'You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,'
+          }
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
@@ -99,11 +193,82 @@ const SigningDeviceDetails = ({ route }) => {
               fontWeight={300}
               fontSize={14}
               marginTop={3}
+              onPress={() => {
+                setHealthCheckModal(true);
+              }}
             >
               Health Check
             </Text>
           </LinearGradient>
         </Box>
+        <HealthCheckModal
+          visible={healthCheckModal}
+          closeHealthCheck={closeHealthCheck}
+          title={vault.EditDescription}
+          subTitle={vault.Description}
+          SignerName={SignerName}
+          SignerIcon={SignerIcon}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText={'Proceed'}
+          buttonTextColor={'#FAFAFA'}
+          textColor={'#041513'}
+          onPress={onPress}
+        />
+        <SuccessModal
+          visible={healthCheckView}
+          close={closeHealthCheckView}
+          title={'Health Check'}
+          subTitle={'Keep your TAPSIGNER ready before proceeding'}
+          buttonText={'Proceed'}
+          buttonTextColor={'#FAFAFA'}
+          cancelButtonText={'Skip'}
+          cancelButtonColor={'#073E39'}
+          cancelButtonPressed={healthCheckSkip}
+          buttonPressed={confirm}
+          Content={HealthCheckContent}
+        />
+        <SuccessModal
+          visible={healthCheckSkipModal}
+          close={closehealthCheckSkip}
+          title={'Skipping Health Check'}
+          subTitle={
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
+          }
+          buttonText={'Confirm Now'}
+          buttonTextColor={'#FAFAFA'}
+          cancelButtonText={'Skip'}
+          cancelButtonColor={'#073E39'}
+          cancelButtonPressed={SkipHealthCheck}
+          Content={HealthCheckSkipContent}
+        />
+        <HealthCheckModal
+          visible={confirmHealthCheckModal}
+          closeHealthCheck={closeCVVModal}
+          title={'Setting up TapSigner'}
+          subTitle={'Enter the CVV'}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText={'Proceed'}
+          buttonTextColor={'#FAFAFA'}
+          textColor={'#041513'}
+          onPress={onPressCVV}
+        />
+        <SuccessModal
+          visible={healthCheckSuccess}
+          close={closeHealthCheckSuccessView}
+          title={'Health Check Successful'}
+          subTitle={
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
+          }
+          buttonText={'Confirm Now'}
+          buttonTextColor={'#FAFAFA'}
+          cancelButtonText={''}
+          cancelButtonColor={'#073E39'}
+          cancelButtonPressed={SkipHealthCheck}
+          buttonPressed={confirmHealthCheck}
+          Content={HealthCheckSuccessContent}
+        />
       </Box>
     </Box>
   );
