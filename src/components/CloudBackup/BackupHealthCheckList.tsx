@@ -66,16 +66,16 @@ const BackupHealthCheckList = () => {
           contentContainerStyle={{ flexGrow: 1 }}
           renderItem={({ item }) => (
             <Box
-              borderLeftColor={'#E3BE96'}
-              borderLeftWidth={1}
-              w={'100%'}
-              ml={wp(1)}
-              position="relative"
+            // borderLeftColor={'#E3BE96'}
+            // borderLeftWidth={10}
+            // w={'100%'}
+            // ml={wp(1)}
+            // position="relative"
             >
               <Box
                 zIndex={99}
                 position={'absolute'}
-                left={-6}
+                left={-8}
                 bg={'light.ReceiveBackground'}
                 p={2}
                 borderRadius={15}
@@ -91,7 +91,17 @@ const BackupHealthCheckList = () => {
               >
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
-              <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
+              <Box
+                bg={'light.lightYellow'}
+                p={5}
+                borderRadius={1}
+                my={2}
+                borderLeftColor={'#E3BE96'}
+                borderLeftWidth={1}
+                w={'100%'}
+                ml={wp(3.5)}
+                position="relative"
+              >
                 <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
                   {strings[item.title]}
                 </Text>
