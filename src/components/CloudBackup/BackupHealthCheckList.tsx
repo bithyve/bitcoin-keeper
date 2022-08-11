@@ -56,8 +56,6 @@ const BackupHealthCheckList = () => {
     };
   }, [seedConfirmed, cloudBackedConfirmed]);
 
-  // style={{ flexGrow: 1, marginHorizontal: wp(2) }}
-
   return (
     <Box>
       <ScrollView height={hp(500)}>
@@ -65,13 +63,7 @@ const BackupHealthCheckList = () => {
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
           renderItem={({ item }) => (
-            <Box
-            // borderLeftColor={'#E3BE96'}
-            // borderLeftWidth={10}
-            // w={'100%'}
-            // ml={wp(1)}
-            // position="relative"
-            >
+            <Box>
               <Box
                 zIndex={99}
                 position={'absolute'}
