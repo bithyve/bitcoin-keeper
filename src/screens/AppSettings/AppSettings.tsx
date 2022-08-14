@@ -45,8 +45,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -170,6 +170,14 @@ const AppSettings = ({ navigation }) => {
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
+          />
+          <SettingsCard
+            title={'Tor'}
+            description={'Tor daemon settings'}
+            my={2}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('TorSettings')}
           />
           <SettingsCard
             title={settings.LanguageCountry}

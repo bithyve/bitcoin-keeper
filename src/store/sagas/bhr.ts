@@ -19,7 +19,7 @@ import {
   getAppImage,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
-import { BackupAction, BackupType } from 'src/common/data/enums/BHR';
+import { BackupAction, BackupType } from '../../common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {

@@ -13,12 +13,7 @@ type Props = {
   onPressHandler?: () => void;
   enableBack?: boolean;
 };
-const SeedWordsView = ({
-  title = '',
-  subtitle = '',
-  onPressHandler,
-  enableBack = true,
-}: Props) => {
+const SeedWordsView = ({ title = '', subtitle = '', onPressHandler, enableBack = true }: Props) => {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
@@ -69,12 +64,14 @@ const styles = ScaledSheet.create({
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
     paddingHorizontal: '10@s',
+    paddingTop: '15@s',
   },
   addWalletDescription: {
     fontSize: RFValue(12),
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
     paddingHorizontal: '10@s',
+    paddingBottom: '25@s',
   },
   back: {
     paddingHorizontal: '5@s',
