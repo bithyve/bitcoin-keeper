@@ -1,20 +1,16 @@
 import {
   ActivityIndicator,
   FlatList,
-  PermissionStatus,
-  PermissionsAndroid,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Observable, Subscription } from 'rxjs';
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
+import useScanLedger from './useScanLedger';
 
-const DeviceItem = ({ device, onSelect, setError }) => {
+const DeviceItem = ({ device, onSelect }) => {
   const [pending, setPending] = useState(false);
 
   const onPress = async () => {
@@ -22,7 +18,8 @@ const DeviceItem = ({ device, onSelect, setError }) => {
     try {
       await onSelect(device);
     } catch (error) {
-      setError(error);
+      console.log(error);
+      // setError(error);
     } finally {
       setPending(false);
     }
@@ -37,71 +34,8 @@ const DeviceItem = ({ device, onSelect, setError }) => {
 };
 
 const DeviceSelectionScreen = ({ onSelectDevice }) => {
-  const [devices, setDevices] = useState([]);
-  const [error, setError] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const subscribed = useRef<Subscription>();
-
-  const select = () => {
-    let previousAvailable = false;
-    new Observable(TransportBLE.observeState).subscribe((e: any) => {
-      if (e.available !== previousAvailable) {
-        previousAvailable = e.available;
-        if (e.available) {
-          reload();
-        }
-      }
-    });
-    startScan();
-  };
-
-  useEffect(() => {
-    // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
-    if (Platform.OS === 'android') {
-      PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION).then(
-        (status: PermissionStatus) => {
-          if (status === 'granted') select();
-        }
-      );
-    } else {
-      select();
-    }
-    return () => {
-      if (subscribed.current) subscribed.current.unsubscribe();
-    };
-  }, []);
-
-  const startScan = async () => {
-    setRefreshing(true);
-    subscribed.current = new Observable(TransportBLE.listen).subscribe({
-      complete: () => {
-        setRefreshing(false);
-      },
-      next: (e: any) => {
-        if (e.type === 'add') {
-          const device = e.descriptor;
-          setDevices(devices.some((i) => i.id === device.id) ? devices : devices.concat(device));
-          // NB there is no "remove" case in BLE.
-        }
-      },
-      error: (error) => {
-        setError(error);
-        setRefreshing(false);
-      },
-    });
-  };
-
-  const reload = async () => {
-    if (subscribed.current) subscribed.current.unsubscribe();
-    setDevices([]);
-    setError(null);
-    setRefreshing(false);
-    startScan();
-  };
-
+  const { error, devices, reload, scanning } = useScanLedger();
   const keyExtractor = (item) => item.id;
-
   const ListHeader = () => {
     return error ? (
       <View style={styles.header}>
@@ -117,20 +51,18 @@ const DeviceSelectionScreen = ({ onSelectDevice }) => {
   };
 
   return (
-    <Fragment>
-      <FlatList
-        extraData={error}
-        style={styles.list}
-        data={devices}
-        renderItem={({ item }) => {
-          return <DeviceItem device={item} onSelect={onSelectDevice} setError={setError} />;
-        }}
-        keyExtractor={keyExtractor}
-        ListHeaderComponent={ListHeader}
-        onRefresh={reload}
-        refreshing={refreshing}
-      />
-    </Fragment>
+    <FlatList
+      extraData={error}
+      style={styles.list}
+      data={devices}
+      renderItem={({ item }) => {
+        return <DeviceItem device={item} onSelect={onSelectDevice} />;
+      }}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeader}
+      onRefresh={reload}
+      refreshing={scanning}
+    />
   );
 };
 

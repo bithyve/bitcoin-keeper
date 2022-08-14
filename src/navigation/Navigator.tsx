@@ -28,7 +28,7 @@ import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
-import SetupLedger from 'src/screens/AddLedger';
+import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SplashScreen from 'src/screens/Splash/SplashScreen';

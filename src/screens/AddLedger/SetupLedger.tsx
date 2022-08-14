@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import DeviceSelectionScreen from './DeviceSelectionScreen';
+import { SafeAreaView } from 'react-native';
 import ShowAddressScreen from './ShowAddressScreen';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 
@@ -16,11 +17,15 @@ const AddLedger = () => {
     });
     setTransport(transport);
   };
-
-  if (!transport) {
-    return <DeviceSelectionScreen onSelectDevice={onSelectDevice} />;
-  }
-  return <ShowAddressScreen transport={transport} />;
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      {!transport ? (
+        <DeviceSelectionScreen onSelectDevice={onSelectDevice} />
+      ) : (
+        <ShowAddressScreen transport={transport} />
+      )}
+    </SafeAreaView>
+  );
 };
 
 export default AddLedger;
