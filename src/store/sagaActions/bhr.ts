@@ -7,7 +7,7 @@ export const CLOUD_BACKUP_SKIPPED = 'CLOUD_BACKUP_SKIPPED';
 export const CONFIRM_CLOUD_BACKUP = 'CONFIRM_CLOUD_BACKUP';
 export const GET_CLOUD_DATA = 'GET_CLOUD_DATA';
 export const RECOVER_BACKUP = 'RECOVER_BACKUP';
-
+export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const updateAppImage = (walletId) => {
   return {
     type: UPDATE_APP_IMAGE,
@@ -78,6 +78,18 @@ export const recoverBackup = (password: string, encData: string) => {
     payload: {
       password,
       encData,
+    },
+  };
+};
+
+//HealthChecks
+
+export const healthCheckSigner = (vaultId: string, signerId: string) => {
+  return {
+    type: UPADTE_HEALTH_CHECK_SIGNER,
+    payload: {
+      vaultId,
+      signerId,
     },
   };
 };

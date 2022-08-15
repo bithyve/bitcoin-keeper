@@ -25,10 +25,11 @@ const HealthCheckModal = (props) => {
     buttonCallback = props.closeHealthCheck || null,
     textColor = '#000',
     onPress,
+    inputText,
+    setInputText,
   } = props;
   const dispatch = useAppDispatch();
   const { bottom } = useSafeAreaInsets();
-  const [healthCheckDescription, setHealthCheckDescription] = useState('');
   const navigation = useNavigation();
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
@@ -91,9 +92,9 @@ const HealthCheckModal = (props) => {
             w="90%"
             marginY={2}
             height={'10'}
-            value={healthCheckDescription}
+            value={inputText}
             onChangeText={(text) => {
-              setHealthCheckDescription(text);
+              setInputText(text);
             }}
           />
           <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>

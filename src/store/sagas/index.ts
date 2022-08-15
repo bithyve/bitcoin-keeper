@@ -38,6 +38,7 @@ import {
   confirmCloudBackupWatcher,
   getCloudDataWatcher,
   recoverBackupWatcher,
+  healthCheckSignerWatcher,
 } from './bhr';
 
 export const rootSaga = function* () {
@@ -86,6 +87,7 @@ export const rootSaga = function* () {
     confirmCloudBackupWatcher,
     getCloudDataWatcher,
     recoverBackupWatcher,
+    healthCheckSignerWatcher,
   ];
 
   yield all(
