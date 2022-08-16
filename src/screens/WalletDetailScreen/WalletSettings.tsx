@@ -8,6 +8,7 @@ import Modal from 'react-native-modal';
 //components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import Header from 'src/components/Header';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
@@ -70,6 +71,7 @@ const WalletSettings = () => {
   //
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
 
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
@@ -123,6 +125,14 @@ const WalletSettings = () => {
           }}
           Icon={false}
         />
+        <Option
+          title={'Transfer Policy'}
+          subTitle={'Secure to Vault after 0.1 btc'}
+          onPress={() => {
+            setTransferPolicyVisible(true);
+          }}
+          Icon={false}
+        />
       </Box>
 
       {/* {Bottom note} */}
@@ -151,6 +161,16 @@ const WalletSettings = () => {
           <SeedConfirmPasscode
             closeBottomSheet={() => {
               setConfirmPassVisible(false);
+            }}
+          />
+        </ModalWrapper>
+        <ModalWrapper
+          visible={transferPolicyVisible}
+          onSwipeComplete={() => setTransferPolicyVisible(false)}
+        >
+          <TransferPolicy
+            closeBottomSheet={() => {
+              setTransferPolicyVisible(false);
             }}
           />
         </ModalWrapper>

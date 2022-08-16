@@ -277,7 +277,8 @@
     "confirmPassTitle": "Confirm Passcode",
     "confirmPassSubTitle": "To show seed words for this wallet",
     "SendSuccess": "Send Successful",
-    "ViewDetails": "View Details"
+    "ViewDetails": "View Details",
+    "EditTransferPolicy": "Edit Transfer Policy"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
