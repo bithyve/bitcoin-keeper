@@ -18,7 +18,7 @@ import {
   updateWalletSettingsWatcher,
 } from './wallets';
 import { updateFCMTokensWatcher, getMessageWatcher } from './notifications';
-import { addUaiStackWatcher, updateUaiStackWatcher } from './uai';
+import { addUaiStackWatcher, uaiChecksWatcher, updateUaiStackWatcher } from './uai';
 import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
@@ -74,6 +74,7 @@ export const rootSaga = function* () {
     calculateCustomFeeWatcher,
 
     // UAI
+    uaiChecksWatcher,
     addUaiStackWatcher,
     updateUaiStackWatcher,
 
