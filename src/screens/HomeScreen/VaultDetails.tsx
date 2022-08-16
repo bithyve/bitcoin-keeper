@@ -328,7 +328,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
 const SignerList = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
-  const Signers = vaults[0]?.signers;
+  const Signers = vaults[0]?.signers; //To-Do: Vault should be pased as prop
   const styles = getStyles(0);
   const navigation = useNavigation();
 
@@ -347,6 +347,7 @@ const SignerList = () => {
                 navigation.navigate('SigningDeviceDetails', {
                   SignerIcon: <SignerIcon />,
                   signer,
+                  vaultId: vaults[0].id,
                 });
               }}
             >

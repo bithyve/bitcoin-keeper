@@ -105,6 +105,7 @@ const SetupTapsigner = () => {
           xpubInfo: {
             derivationPath: status.path,
           },
+          lastHealthCheck: new Date(),
         };
 
         const scheme: VaultScheme = { m: 1, n: 1 };
@@ -129,6 +130,7 @@ const SetupTapsigner = () => {
         xpubInfo: {
           derivationPath,
         },
+        lastHealthCheck: new Date(),
       };
 
       const scheme: VaultScheme = { m: 1, n: 1 };

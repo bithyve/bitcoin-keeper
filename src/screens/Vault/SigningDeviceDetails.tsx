@@ -28,6 +28,8 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import { NetworkType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -70,7 +72,7 @@ const SigningDeviceDetails = ({ route }) => {
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];
   const tapsigner = translations['tapsigner'];
-  const { SignerIcon, signer } = route.params;
+  const { SignerIcon, signer, vaultId } = route.params;
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
   const [healthCheckView, setHealthCheckView] = useState(false);
@@ -95,24 +97,31 @@ const SigningDeviceDetails = ({ route }) => {
 
   const healthCheckTapSigner = React.useCallback(() => {
     modalHandler(async () => {
+      await card.first_look();
       const isLegit = await card.certificate_check();
       if (isLegit) {
-        console.log('cvc', cvc);
-        console.log('signerId', signer.signerId);
         const xpub = await card.get_xpub(cvc);
         return { xpub };
       }
     })()
       .then((resp) => {
         const { xpub } = resp;
+        console.log(xpub);
         const networkType =
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
         const network = WalletUtilities.getNetworkByType(networkType);
         setHealthCheckSuccess(true);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+        if (signerIdDerived === signer.signerId) {
+          console.log('verified');
+          dispatch(healthCheckSigner(vaultId, signer.signerId));
+          setHealthCheckSuccess(true);
+        } else {
+          console.log('verifivation failed');
+        }
       })
       .catch(console.log);
-  }, []);
+  }, [cvc]);
 
   const closeHealthCheckSuccessView = () => setHealthCheckSuccess(false);
 
