@@ -1,7 +1,13 @@
 export enum DerivationPurpose {
-  BIP44 = 44,
-  BIP49 = 49,
-  BIP84 = 84,
+  BIP44 = 44, // P2PKH: legacy, single-sig
+  BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
+  BIP49 = 49, // P2SH-P2WPKH: wrapped segwit, single-sg
+  BIP84 = 84, // P2WPKH: native segwit, single-sig
+}
+
+export enum BIP48ScriptTypes {
+  WRAPPED_SEGWIT = 'WRAPPED_SEGWIT',
+  NATIVE_SEGWIT = 'NATIVE_SEGWIT',
 }
 
 export enum BIP85Languages {

@@ -35,31 +35,32 @@ const Header = ({
           <BackButton />
         </TouchableOpacity>
       )}
-      <Box marginLeft={5}>
-        {title && (
-          <Text
-            numberOfLines={1}
-            style={styles.addWalletText}
-            color={headerTitleColor}
-            fontFamily={'body'}
-            fontWeight={'200'}
-            fontSize={RFValue(fontSize)}
-          >
-            {title}
-          </Text>
-        )}
-        {subtitle && (
-          <Text
-            numberOfLines={1}
-            style={styles.addWalletDescription}
-            color={'light.lightBlack'}
-            fontFamily={'body'}
-            fontWeight={'100'}
-          >
-            {subtitle}
-          </Text>
-        )}
-      </Box>
+      {(title || subtitle) &&
+        <Box marginLeft={5} marginTop={hp(30)}>
+          {title && (
+            <Text
+              numberOfLines={1}
+              style={styles.addWalletText}
+              color={headerTitleColor}
+              fontFamily={'body'}
+              fontWeight={'200'}
+              fontSize={RFValue(fontSize)}
+            >
+              {title}
+            </Text>
+          )}
+          {subtitle && (
+            <Text
+              numberOfLines={1}
+              style={styles.addWalletDescription}
+              color={'light.lightBlack'}
+              fontFamily={'body'}
+              fontWeight={'100'}
+            >
+              {subtitle}
+            </Text>
+          )}
+        </Box>}
     </Box>
   );
 };
@@ -82,7 +83,7 @@ const styles = ScaledSheet.create({
   },
   back: {
     paddingHorizontal: wp(5),
-    marginBottom: hp(30)
+    // marginBottom: hp(30)
   },
 });
 export default Header;

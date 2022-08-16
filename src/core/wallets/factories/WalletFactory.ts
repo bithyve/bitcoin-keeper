@@ -1,14 +1,16 @@
-import WalletUtilities from '../operations/utils';
 import * as bip39 from 'bip39';
-import BIP85 from '../operations/BIP85';
-import { WalletType, DerivationPurpose, NetworkType, VisibilityType, EntityKind } from '../enums';
+
+import { EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
 import {
   Wallet,
   WalletDerivationDetails,
   WalletPresentationData,
   WalletSpecs,
 } from '../interfaces/wallet';
+
+import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
+import WalletUtilities from '../operations/utils';
 import { hash256 } from 'src/core/services/operations/encryption';
 
 export const generateWallet = async ({
@@ -58,7 +60,7 @@ export const generateWallet = async ({
       id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
       // derive extended keys
       const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-      const xDerivationPath = WalletUtilities.getDerivationPath(networkType);
+      const xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
       const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
         seed,
         network,
@@ -118,21 +120,25 @@ export const generateWallet = async ({
   return wallet;
 };
 
-export const generateMockExtendedKey = (): {
+export const generateMockExtendedKey = (
+  entity: EntityKind
+): {
   xpriv: string;
   xpub: string;
   derivationPath: string;
+  masterFingerprint: string;
 } => {
   const mockMnemonic = 'dwarf inch wild elephant depart jump cook mind name crop bicycle arrange';
-  const seed = bip39.mnemonicToSeedSync(mockMnemonic).toString('hex');
+  const seed = bip39.mnemonicToSeedSync(mockMnemonic);
+  const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const networkType = NetworkType.TESTNET;
   const randomWalletNumber = Math.floor(Math.random() * 10e5);
-  const xDerivationPath = WalletUtilities.getDerivationPath(networkType, randomWalletNumber);
+  let xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
-    seed,
+    seed.toString('hex'),
     network,
     xDerivationPath
   );
-  return { ...extendedKeys, derivationPath: xDerivationPath };
+  return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };

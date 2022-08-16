@@ -14,7 +14,7 @@ const KeeperModal = (props) => {
     subTitle = null,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
-    buttonText = 'Button text',
+    buttonText = null,
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
@@ -64,26 +64,28 @@ const KeeperModal = (props) => {
           <Modal.Body>
             <Content />
           </Modal.Body>
-          <Box alignSelf={'flex-end'} bg={'transparent'}>
-            <TouchableOpacity onPress={buttonCallback}>
-              <LinearGradient
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                colors={buttonBackground}
-                style={styles.cta}
-              >
-                <Text
-                  fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
-                  letterSpacing={1}
-                  color={buttonTextColor}
+          {buttonText && (
+            <Box alignSelf={'flex-end'} bg={'transparent'}>
+              <TouchableOpacity onPress={buttonCallback}>
+                <LinearGradient
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  colors={buttonBackground}
+                  style={styles.cta}
                 >
-                  {buttonText}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Box>
+                  <Text
+                    fontSize={13}
+                    fontFamily={'body'}
+                    fontWeight={'300'}
+                    letterSpacing={1}
+                    color={buttonTextColor}
+                  >
+                    {buttonText}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Box>
+          )}
         </LinearGradient>
       </Modal.Content>
     </Modal>
