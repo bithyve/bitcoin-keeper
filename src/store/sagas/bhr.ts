@@ -1,7 +1,7 @@
 import { call, put } from 'redux-saga/effects';
 import * as bip39 from 'bip39';
-import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
-import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 import DeviceInfo from 'react-native-device-info';
@@ -277,9 +277,6 @@ function* getAppImageWorker({ payload }) {
     console.log('appImage', appImage);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
-      const userTier: UserTier = {
-        level: AppTierLevel.ONE,
-      };
       const entropy = yield call(
         BIP85.bip39MnemonicToEntropy,
         config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -292,7 +289,7 @@ function* getAppImageWorker({ payload }) {
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic: primaryMnemonic,
         imageEncryptionKey,
-        userTier,
+        subscriptionPlan: SubscriptionTier.PLEB, // todo retrive valid sub plan
         version: DeviceInfo.getVersion(),
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);

@@ -21,7 +21,7 @@ import { reduxStorage } from 'src/storage';
 import createSagaMiddleware from 'redux-saga';
 import { rootSaga } from './sagas';
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   settings: settingsReducer,
   login: loginReducer,
   storage: storageReducer,
