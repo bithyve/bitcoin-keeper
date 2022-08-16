@@ -1,18 +1,18 @@
 import {
   ActivityIndicator,
-  FlatList,
+  RefreshControl,
+  ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import React, { useState } from 'react';
 
+import { Text } from 'native-base';
 import useScanLedger from './useScanLedger';
 
 const DeviceItem = ({ device, onSelect }) => {
   const [pending, setPending] = useState(false);
-
   const onPress = async () => {
     setPending(true);
     try {
@@ -35,7 +35,7 @@ const DeviceItem = ({ device, onSelect }) => {
 
 const DeviceSelectionScreen = ({ onSelectDevice }) => {
   const { error, devices, reload, scanning } = useScanLedger();
-  const keyExtractor = (item) => item.id;
+
   const ListHeader = () => {
     return error ? (
       <View style={styles.header}>
@@ -51,18 +51,15 @@ const DeviceSelectionScreen = ({ onSelectDevice }) => {
   };
 
   return (
-    <FlatList
-      extraData={error}
+    <ScrollView
       style={styles.list}
-      data={devices}
-      renderItem={({ item }) => {
-        return <DeviceItem device={item} onSelect={onSelectDevice} />;
-      }}
-      keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeader}
-      onRefresh={reload}
-      refreshing={scanning}
-    />
+      refreshControl={<RefreshControl refreshing={scanning} onRefresh={reload} />}
+    >
+      <ListHeader />
+      {devices.map((device) => {
+        return <DeviceItem device={device} onSelect={onSelectDevice} key={device.id} />;
+      })}
+    </ScrollView>
   );
 };
 

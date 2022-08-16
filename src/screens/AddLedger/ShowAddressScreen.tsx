@@ -72,8 +72,17 @@ const ShowAddressScreen = ({ transport }) => {
           derivationPath: path,
         },
       };
-      const scheme: VaultScheme = { m: 1, n: 1 };
-      const isVaultCreated = createVault([signer], scheme);
+      const signer2: VaultSigner = {
+        signerId: '73DC8582',
+        type: SignerType.LEDGER,
+        signerName: 'Nano X (Mock)',
+        xpub: 'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf',
+        xpubInfo: {
+          derivationPath: `m/48'/1'/966713'/1'`,
+        },
+      };
+      const scheme: VaultScheme = { m: 1, n: 2 };
+      const isVaultCreated = createVault([signer, signer2], scheme);
       if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
     } catch (error) {
       // in this case, user is likely not on Ethereum app

@@ -1,5 +1,5 @@
 import { Observable, Subscription } from 'rxjs';
-import { PermissionStatus, PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
@@ -10,27 +10,33 @@ const useScanLedger = () => {
   const [scanning, setScanning] = useState(false);
   const subscribed = useRef<Subscription>();
 
-  const hasBLEPermission = () => {
-    return Platform.select({
-      ios: () => true,
-      android: () => {
-        PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION)
-          .then((status: PermissionStatus) => {
-            if (status === 'granted') return true;
-            return false;
-          })
-          .catch(console.log);
-      },
-    });
+  const hasBLEPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const status = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+        );
+        console.log(status);
+        if (status === 'granted') return true;
+        return false;
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      return true;
+    }
   };
 
-  useEffect(() => {
-    // NB: this is the bare minimal. We recommend to implement a screen to explain to user.
-    if (hasBLEPermission()) {
-      select();
+  const scanLedger = async () => {
+    if (await hasBLEPermission()) {
+      startScan();
     } else {
       console.log('No BLE permission!');
     }
+  };
+
+  useEffect(() => {
+    scanLedger();
     return () => {
       console.log('Ledger scanning done!');
       if (subscribed.current) subscribed.current.unsubscribe();
@@ -52,8 +58,13 @@ const useScanLedger = () => {
   const nextCallback = (event: any) => {
     if (event.type === 'add') {
       const device = event.descriptor;
+      if (device.name.includes('Nano X')) {
+        console.log('Found Nano X!');
+        setScanning(false);
+        subscribed.current.unsubscribe();
+      }
       setDevices(devices.some((i) => i.id === device.id) ? devices : devices.concat(device));
-    } // NB there is no "remove" case in BLE.
+    }
   };
 
   const onError = (error) => {
@@ -68,19 +79,6 @@ const useScanLedger = () => {
       next: nextCallback,
       error: onError,
     });
-  };
-
-  const select = () => {
-    let previousAvailable = false;
-    new Observable(TransportBLE.observeState).subscribe((e: any) => {
-      if (e.available !== previousAvailable) {
-        previousAvailable = e.available;
-        if (e.available) {
-          reload();
-        }
-      }
-    });
-    startScan();
   };
 
   return { error, devices, scanning, reload };
