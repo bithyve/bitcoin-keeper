@@ -84,7 +84,7 @@ const ChoosePlanCarousel = (props) => {
           </Text>
           {item.upgrade ? (
             <Box mt={10}>
-              <CustomYellowButton value={'Upgrade'} />
+              <CustomYellowButton onPress={props.onPress} value={'Upgrade'} />
             </Box>
           ) : null}
         </Box>

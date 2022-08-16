@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, Text, StatusBar } from 'native-base';
 import { SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import { useIAP } from 'react-native-iap';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -9,6 +10,12 @@ import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import Note from 'src/components/Note/Note';
 import DotView from 'src/components/DotView';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import RNIap, {
+  requestSubscription,
+  getSubscriptions,
+  purchaseErrorListener,
+  purchaseUpdatedListener,
+} from 'react-native-iap';
 
 const ChoosePlan = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -46,6 +53,49 @@ const ChoosePlan = (props) => {
       point5: 'Dedicated email support',
     },
   ]);
+
+  useEffect(() => {
+    let purchaseUpdateSubscription;
+    let purchaseErrorSubscription;
+    RNIap.initConnection()
+      .then((connected) => {
+        purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
+          console.log('purchaseUpdatedListener', purchase);
+          const receipt = purchase.transactionReceipt;
+          console.log('receipt', receipt);
+        });
+        purchaseErrorSubscription = purchaseErrorListener((error) => {
+          console.log('purchaseErrorListener', error);
+        });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    return () => {
+      if (purchaseUpdateSubscription) {
+        purchaseUpdateSubscription.remove();
+      }
+      if (purchaseErrorSubscription) {
+        purchaseErrorSubscription.remove();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    init()
+  }, [])
+
+  async function init() {
+    try {
+      const subscriptions = await getSubscriptions(['io.hexawallet.keeper.development.hodler'])
+      console.log('subscriptions', JSON.stringify(subscriptions))
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
+
+
+
   return (
     <SafeAreaView
       style={{
@@ -72,7 +122,23 @@ const ChoosePlan = (props) => {
         </Box>
       </Box>
       <ScrollView style={{ height: '70%' }}>
-        <ChoosePlanCarousel onChange={(item) => setCurrentPosition(item)} />
+        <ChoosePlanCarousel onPress={async () => {
+          try {
+            console.log('init')
+            await requestSubscription({
+              sku: 'io.hexawallet.keeper.development.hodler',
+              purchaseTokenAndroid: "AUj/YhhKjEkywRa7lw8TLw1WdTWEDuzHN7kGvmpMJR+YFGkeOYQgeO+zp4xD6whNYErNNfLl15vK4Vp0CXN1O9NdIkOaelW+F4WAE8K1stHRC17ZXgf9MVfq1Xg4xQ+Ubd+Hq5QA0ZSU8SX65CSV",
+              subscriptionOffers: [{
+                sku: 'io.hexawallet.keeper.development.hodler',
+                offerToken: "AUj/YhhKjEkywRa7lw8TLw1WdTWEDuzHN7kGvmpMJR+YFGkeOYQgeO+zp4xD6whNYErNNfLl15vK4Vp0CXN1O9NdIkOaelW+F4WAE8K1stHRC17ZXgf9MVfq1Xg4xQ+Ubd+Hq5QA0ZSU8SX65CSV",
+              }]
+            })
+          } catch (err) {
+            console.log(err.code, err.message);
+          }
+        }
+        }
+          onChange={(item) => setCurrentPosition(item)} />
         <Box mx={10} my={5}>
           <Text
             fontSize={RFValue(14)}
