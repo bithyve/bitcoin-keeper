@@ -20,7 +20,8 @@ import {
 import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { StyleSheet } from 'react-native';
 
 const BackupHealthCheckList = () => {
   const { translations } = useContext(LocalizationContext);
@@ -58,7 +59,7 @@ const BackupHealthCheckList = () => {
 
   return (
     <Box>
-      <ScrollView height={hp(500)}>
+      <ScrollView height={windowHeight >= 800 ? hp(500) : hp(570)}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
