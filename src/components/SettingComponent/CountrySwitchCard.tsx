@@ -14,10 +14,10 @@ const CountrySwitchCard = (props) => {
       {...props}
     >
       <Box flex={1.5}>
-        <Text color={'#00715B'} fontFamily={'body'} fontWeight={'bold'} fontSize={14}>
+        <Text color={'#00715B'} fontFamily={'body'} fontWeight={200} letterSpacing={1.12} fontSize={14}>
           {props.title}
         </Text>
-        <Text color={'#4F5955'} fontFamily={'body'} fontSize={12}>
+        <Text color={'#4F5955'} fontFamily={'body'} fontWeight={200} letterSpacing={0.6} fontSize={12}>
           {props.description}
         </Text>
       </Box>

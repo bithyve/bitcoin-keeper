@@ -48,7 +48,7 @@ const AddSendAmount = ({ route }) => {
   };
 
   return (
-    <Box flex={1} padding={2} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
@@ -163,6 +163,10 @@ const AddSendAmount = ({ route }) => {
   );
 };
 const styles = ScaledSheet.create({
+  Container: {
+    flex: 1,
+    padding: '20@s',
+  },
   textInput: {
     width: '100%',
     backgroundColor: Colors?.textInputBackground,

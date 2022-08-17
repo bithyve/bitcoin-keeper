@@ -281,13 +281,7 @@ const SignTransactionScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: 'light.ReceiveBackground',
-        paddingTop: 40,
-      }}
-    >
+    <SafeAreaView style={styles.Container}>
       <Box paddingX={5} marginTop={hp(5)}>
         <Box marginY={5}>
           <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
@@ -337,6 +331,11 @@ const SignTransactionScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  Container: {
+    flex: 1,
+    backgroundColor: 'light.ReceiveBackground',
+    padding: '20@s',
+  },
   input: {
     paddingHorizontal: 20,
     marginVertical: '3%',
