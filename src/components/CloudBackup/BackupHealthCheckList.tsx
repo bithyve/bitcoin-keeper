@@ -21,7 +21,6 @@ import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bh
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { StyleSheet } from 'react-native';
 
 const BackupHealthCheckList = () => {
   const { translations } = useContext(LocalizationContext);
