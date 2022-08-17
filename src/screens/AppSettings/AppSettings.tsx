@@ -17,6 +17,7 @@ import openLink from 'src/utils/OpenLink';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Option } from '../WalletDetailScreen/WalletSettings';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import LinkIcon from 'src/assets/icons/link.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const GoogleDrive = NativeModules.GoogleDrive;
@@ -118,8 +119,8 @@ const AppSettings = ({ navigation }) => {
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
-          <Text fontSize={RFValue(20)}>{common.settings}</Text>
-          <Text fontSize={RFValue(12)}>{settings.selectCurrency}</Text>
+          <Text fontSize={RFValue(20)} fontWeight={200} letterSpacing={1}>{common.settings}</Text>
+          <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6}>{settings.selectCurrency}</Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
@@ -187,28 +188,55 @@ const AppSettings = ({ navigation }) => {
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
-          <SettingsCard
-            title={settings.KeeperCommunityTelegramGroup}
-            description={settings.Questionsfeedbackandmore}
-            my={2}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={true}
-            onPress={() => openLink('https://t.me/HexaWallet')}
-          />
+
         </ScrollView>
-        {/* <Box flex={0.3} justifyContent={'flex-end'} mb={5}>
-          <Note title={common.note} subtitle={settings.desc} />
-        </Box> */}
-        <Box flex={0.1} mx={7}>
+
+        <Pressable onPress={() => openLink('https://t.me/HexaWallet')}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
+            mx={7}
+            p={3}
+            height={hp(45)}
+            borderRadius={8}
+            marginBottom={hp(8)}
+            backgroundColor={'light.lightYellow'}
+          >
+            <Box flex={0.9}>
+              <Text
+                color={'light.textColor2'}
+                fontWeight={200}
+                fontSize={RFValue(13)}
+                letterSpacing={0.79}
+                fontFamily={'body'}
+              >
+                {settings.KeeperCommunityTelegramGroup}
+              </Text>
+            </Box>
+            <Box flex={0.1} justifyContent={'center'} alignItems={'center'}>
+              <LinkIcon />
+            </Box>
+          </Box>
+        </Pressable>
+
+        <Box flex={0.1} mx={7} >
+          <Box
+            flexDirection={'row'}
+            justifyContent={'space-evenly'}
+            alignItems={'center'}
             borderRadius={8}
             p={2}
+            height={hp(45)}
             bg={'light.lightYellow'}
           >
             <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text
+                fontSize={RFValue(13)}
+                fontWeight={200}
+                letterSpacing={0.79}
+                fontFamily={'body'}
+                color={`${colorMode}.textColor2`}
+              >
                 {common.FAQs}
               </Text>
             </Pressable>
@@ -216,7 +244,13 @@ const AppSettings = ({ navigation }) => {
               |
             </Text>
             <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text
+                fontSize={RFValue(13)}
+                fontWeight={200}
+                letterSpacing={0.79}
+                fontFamily={'body'}
+                color={`${colorMode}.textColor2`}
+              >
                 {common.TermsConditions}
               </Text>
             </Pressable>
@@ -224,7 +258,13 @@ const AppSettings = ({ navigation }) => {
               |
             </Text>
             <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
-              <Text fontSize={RFValue(13)} fontFamily={'body'} color={`${colorMode}.gray2`}>
+              <Text
+                fontSize={RFValue(13)}
+                fontWeight={200}
+                letterSpacing={0.79}
+                fontFamily={'body'}
+                color={`${colorMode}.textColor2`}
+              >
                 {common.PrivacyPolicy}
               </Text>
             </Pressable>
