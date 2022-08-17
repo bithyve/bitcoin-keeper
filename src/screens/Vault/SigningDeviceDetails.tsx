@@ -30,6 +30,10 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import Edit from 'src/assets/images/svgs/edit.svg';
+import EditDescriptionModal from 'src/components/XPub/EditDescriptionModal';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -50,20 +54,6 @@ const Header = () => {
   );
 };
 
-const SigningDevice = (SignerIcon, SignerName) => {
-  console.log('SignerName ' + JSON.stringify(SignerIcon));
-  const navigation = useNavigation();
-  return (
-    <Box flexDirection={'row'} px={'10%'} py={'5%'}>
-      {SignerIcon.SignerIcon}
-      <Box marginTop={2}>
-        <Text fontSize={15}>{SignerIcon.SignerName.signerName}</Text>
-        <Text fontSize={13}>Lorem ipsum dolor</Text>
-      </Box>
-    </Box>
-  );
-};
-
 const SigningDeviceDetails = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -73,7 +63,7 @@ const SigningDeviceDetails = ({ route }) => {
   const healthcheck = translations['healthcheck'];
   const tapsigner = translations['tapsigner'];
   const { SignerIcon, signer, vaultId } = route.params;
-  const [healthCheckModal, setHealthCheckModal] = useState(false);
+  const [editDescriptionModal, setEditDescriptionModal] = useState(false);
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
   const [healthCheckView, setHealthCheckView] = useState(false);
   const [healthCheckSkipModal, setHealthCheckSkipModal] = useState(false);
@@ -125,8 +115,8 @@ const SigningDeviceDetails = ({ route }) => {
 
   const closeHealthCheckSuccessView = () => setHealthCheckSuccess(false);
 
-  const closeHealthCheck = () => {
-    setHealthCheckModal(false);
+  const closeEditDescription = () => {
+    setEditDescriptionModal(false);
   };
 
   const closeCVVModal = () => {
@@ -150,8 +140,7 @@ const SigningDeviceDetails = ({ route }) => {
   };
 
   const onPress = () => {
-    setHealthCheckModal(false);
-    setHealthCheckView(true);
+    setEditDescriptionModal(false);
   };
 
   const onPressCVV = () => {
@@ -251,7 +240,26 @@ const SigningDeviceDetails = ({ route }) => {
       <StatusBarComponent padding={50} />
       <Box>
         <Header />
-        <SigningDevice SignerIcon={SignerIcon} SignerName={signer} />
+        <Box>
+          <Box flexDirection={'row'} px={'10%'} py={'5%'}>
+            {SignerIcon}
+            <Box marginTop={2} width={'75%'} flexDirection={'row'} justifyContent={'space-between'}>
+              <Box flexDirection={'column'}>
+                <Text fontSize={15}>{signer.signerName}</Text>
+                <Text fontSize={13}>Lorem ipsum dolor</Text>
+              </Box>
+              <Box marginTop={3}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setEditDescriptionModal(true);
+                  }}
+                >
+                  <Edit />
+                </TouchableOpacity>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
       </Box>
       <ScrollView>
         <Box m={10}>
@@ -287,19 +295,20 @@ const SigningDeviceDetails = ({ route }) => {
               fontSize={14}
               marginTop={3}
               onPress={() => {
-                setHealthCheckModal(true);
+                setHealthCheckView(true);
               }}
             >
               {healthcheck.HealthCheck}
             </Text>
           </LinearGradient>
         </Box>
-        <HealthCheckModal
-          visible={healthCheckModal}
-          closeHealthCheck={closeHealthCheck}
+        <EditDescriptionModal
+          visible={editDescriptionModal}
+          closeHealthCheck={closeEditDescription}
           title={vault.EditDescription}
           subTitle={vault.Description}
-          SignerName={signer.SignerName}
+          SignerName={signer.signerName}
+          SignerDate={signer.lastHealthCheck}
           placeHolderName={'Add Description'}
           SignerIcon={SignerIcon}
           modalBackground={['#F7F2EC', '#F7F2EC']}
@@ -339,7 +348,7 @@ const SigningDeviceDetails = ({ route }) => {
           buttonPressed={confirm}
           Content={HealthCheckSkipContent}
         />
-        <HealthCheckModal
+        {/* <HealthCheckModal
           visible={confirmHealthCheckModal}
           closeHealthCheck={closeCVVModal}
           title={tapsigner.SetupTitle}
@@ -353,7 +362,21 @@ const SigningDeviceDetails = ({ route }) => {
           onPress={onPressCVV}
           inputText={cvc}
           setInputText={setCvc}
-        />
+        /> */}
+        <ModalWrapper
+          visible={confirmHealthCheckModal}
+          onSwipeComplete={() => setconfirmHealthCheckModal(false)}
+        >
+          <SettingUpTapsigner
+            closeBottomSheet={() => {
+              setconfirmHealthCheckModal(false);
+            }}
+            buttonText={'Proceed'}
+            onPress={onPressCVV}
+            inputText={cvc}
+            setInputText={setCvc}
+          />
+        </ModalWrapper>
         <SuccessModal
           visible={healthCheckSuccess}
           close={closeHealthCheckSuccessView}
@@ -380,11 +403,11 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   knowMore: {
-    backgroundColor: 'light.brown',
+    backgroundColor: 'light.brownborder',
     paddingHorizontal: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'light.brownborder',
+    borderColor: 'light.lightBlack',
   },
   buttonContainer: {
     height: 50,
