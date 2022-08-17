@@ -76,9 +76,9 @@ const WalletDetails = () => {
 
     return (
       <Shadow
-        distance={10}
+        distance={4}
         startColor={'#e4e4e4'}
-        offset={[10, 5]}
+        offset={[4, 0]}
         viewStyle={{
           height: hp(140),
         }}
