@@ -904,7 +904,7 @@ export default class WalletOperations {
       } => {
     // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
 
-    if ([SignerType.TAPSIGNER, SignerType.COLDCARD].includes(signer.type)) {
+    if ([SignerType.TAPSIGNER, SignerType.COLDCARD, SignerType.LEDGER].includes(signer.type)) {
       if (signer.xpriv) {
         // case: Mock Vault(Dev app)
         const network = WalletUtilities.getNetworkByType(wallet.networkType);

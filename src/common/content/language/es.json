@@ -335,6 +335,13 @@
     "SetupTitle": "Keep your ColdCard ready",
     "SetupDescription": "Keep your ColdCard ready before proceeding"
   },
+  "ledger": {
+    "Setupandassociate": "Setup and associate",
+    "Associate": "Associate",
+    "CardStatus": "Card Status",
+    "SetupTitle": "Setting up Ledger",
+    "SetupDescription": "Keep your Nano X ready before proceeding"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
