@@ -45,6 +45,8 @@ import {
   generateEncryptionKey,
   hash512,
 } from 'src/core/services/operations/encryption';
+import { setBackupWarning } from '../reducers/bhr';
+import { BackupHistory, BackupAction, BackupHistoryItem } from 'src/common/data/enums/BHR';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   const byteArray = new Uint8Array(byteString.length);
@@ -129,6 +131,12 @@ function* credentialsAuthWorker({ payload }) {
     yield put(autoSyncWallets());
     yield put(fetchFeeAndExchangeRates());
     yield put(getMessages());
+
+    const history = yield call(
+      dbManager.getCollection,
+      RealmSchema.BackupHistory
+    );
+    yield put(setBackupWarning(isBackedUP(history)));
   }
   // check if the app has been upgraded
   const appVersion = yield select((state: RootState) => state.storage.appVersion);
@@ -255,4 +263,27 @@ function* applicationUpdateWorker({
   }
 }
 
+function isBackedUP(record: BackupHistory): boolean {
+
+  const currentDate = new Date();
+  const lastRecord = record[record.length - 1]
+  const lastBackup = new Date(record[record.length - 1].date);
+  const differenceInDays = (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24); // difference between dates in days 
+
+  if (lastRecord && differenceInDays > 30 &&
+    (
+      lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
+      lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
+      lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
+      lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED
+    )
+  ) {
+    // UAI update here
+    return true
+  }
+  return false
+}
+
 export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);
+
+
