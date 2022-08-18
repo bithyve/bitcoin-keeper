@@ -25,6 +25,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 const { width, height } = Dimensions.get('window');
+import { hp } from 'src/common/data/responsiveness/responsive';
 
 const OnBoardingSlides = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
@@ -121,7 +122,7 @@ const OnBoardingSlides = ({ navigation }) => {
               )}
             />
           </Box>
-          <Box flex={0.1} flexDirection={'row'} m={5} alignItems={'center'}>
+          <Box flex={0.2} flexDirection={'row'} m={5} alignItems={'center'}>
             <Box w={'70%'}>
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
@@ -133,7 +134,7 @@ const OnBoardingSlides = ({ navigation }) => {
                   alignItems={'center'}
                   justifyContent={'center'}
                 >
-                  <Text color={'light.borderColor2'} fontSize={RFValue(14)}>
+                  <Text color={'light.borderColor2'} fontSize={RFValue(14)} fontWeight={300}>
                     {common.learnMore}
                   </Text>
                 </Box>
