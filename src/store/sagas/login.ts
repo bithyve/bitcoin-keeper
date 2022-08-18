@@ -46,7 +46,8 @@ import {
   hash512,
 } from 'src/core/services/operations/encryption';
 import { setBackupWarning } from '../reducers/bhr';
-import { BackupHistory, BackupAction, BackupHistoryItem } from 'src/common/data/enums/BHR';
+import { BackupHistory, BackupAction } from 'src/common/data/enums/BHR';
+import { uaiChecks } from '../sagaActions/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   const byteArray = new Uint8Array(byteString.length);
@@ -137,6 +138,7 @@ function* credentialsAuthWorker({ payload }) {
       RealmSchema.BackupHistory
     );
     yield put(setBackupWarning(isBackedUP(history)));
+    yield put(uaiChecks());
   }
   // check if the app has been upgraded
   const appVersion = yield select((state: RootState) => state.storage.appVersion);

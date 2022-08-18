@@ -64,6 +64,17 @@ const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => 
 };
 
 /**
+ * generic :: fetched the object corresponding to the fieldName and Value
+ * @param  {RealmSchema} schema
+ * @param  {any} value
+ * @param  {string} fieldName
+ */
+const getObjectByField = (schema: RealmSchema, value: string, fieldName: string) => {
+  const objects = realm.get(schema);
+  return objects.filtered(`${fieldName} == '${value}'`);
+};
+
+/**
  * generic :: fetches an object corresponding to provided schema and the supplied id
  * @param  {RealmSchema} schema
  */
@@ -78,5 +89,6 @@ export default {
   getObjectByIndex,
   getObjectById,
   updateObjectById,
-  getCollection
+  getCollection,
+  getObjectByField,
 };
