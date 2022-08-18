@@ -26,6 +26,7 @@ const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
   const { appId } = useAppSelector((state) => state.storage);
+  const { backupWarning } = useAppSelector((state) => state.bhr);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -124,7 +125,7 @@ const AppSettings = ({ navigation }) => {
             position={'relative'}
           >
             {/* { Notification indicator } */}
-            {/* <Box
+            {backupWarning && <Box
               height={3}
               width={3}
               bg={'light.indicator'}
@@ -134,7 +135,7 @@ const AppSettings = ({ navigation }) => {
               position={'absolute'}
               right={wp(10)}
               zIndex={999}
-            /> */}
+            />}
             <BackupIcon />
           </Box>
         )}
