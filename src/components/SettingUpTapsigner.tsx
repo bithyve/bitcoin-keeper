@@ -33,7 +33,9 @@ const SettingUpTapsigner = (props) => {
   const onPressNumber = (text) => {
     let tmpPasscode = inputText;
     tmpPasscode += text;
-    setInputText(tmpPasscode);
+    if (inputText.length <= 5) {
+      setInputText(tmpPasscode);
+    }
     console.log(inputText);
   };
 

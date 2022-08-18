@@ -18,7 +18,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
-    if (passCode.length == 6) {
+    if (passCode.length <= 6) {
       setTimeout(() => {
         setHide(true);
       }, 2000);
@@ -83,7 +83,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               >
                 {passCode[1]}
               </Text>
-            ) : passCode.length >= 2 ? (
+            ) : passCode.length >= 3 ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 1 ? (
               <Text
@@ -117,7 +117,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               >
                 {passCode[2]}
               </Text>
-            ) : passCode.length >= 3 ? (
+            ) : passCode.length >= 4 ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 2 ? (
               <Text
@@ -219,7 +219,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               >
                 {passCode[5]}
               </Text>
-            ) : passCode.length >= 5 && hide ? (
+            ) : passCode.length >= 6 && hide ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 5 ? (
               <Text
