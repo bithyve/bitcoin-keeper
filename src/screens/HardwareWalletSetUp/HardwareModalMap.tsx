@@ -8,6 +8,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { SignerType } from 'src/core/wallets/enums';
 import { StyleSheet } from 'react-native';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const TapsignerSetupContent = () => {
   return (
@@ -27,14 +28,26 @@ const TapsignerSetupContent = () => {
 const ColdCardSetupContent = () => {
   return (
     <View>
-      <ColdCardSetupImage />
+      <Box ml={wp(21)}>
+        <ColdCardSetupImage />
+      </Box>
       <Box marginTop={'4'}>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-          {`\u2022 Please make sure your mk4 wallet is setup`}
-        </Text>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-          {'\u2022 Make sure that COLDCARD is not used as a Signer on other apps'}
-        </Text>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mx={wp(10)}>
+            <Text>{'\u2022 Step 1'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </Text>
+        </Box>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mx={wp(10)}>
+            <Text>{'\u2022 Step 2'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
+          </Text>
+        </Box>
       </Box>
     </View>
   );
@@ -82,7 +95,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={coldcard.SetupDescription}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Setup'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToColdCardSetup}
         textColor={'#041513'}

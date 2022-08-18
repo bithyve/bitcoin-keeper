@@ -14,6 +14,7 @@ export const UAISchema: ObjectSchema = {
     timeStamp: 'date',
     uaiType: 'string',
     prirority: 'int',
+    entityId: 'string?',
   },
   primaryKey: 'id',
 };

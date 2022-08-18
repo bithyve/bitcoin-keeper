@@ -25,6 +25,7 @@ export const VaultSignerSchema: ObjectSchema = {
         derivationPath: 'string?',
       },
     },
+    lastHealthCheck: 'date',
   },
 };
 

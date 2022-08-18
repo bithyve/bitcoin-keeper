@@ -164,7 +164,7 @@ const LinkedWallets = (props) => {
             </Text>
           </Box>
         </Box>
-        <Pressable onPress={() => props.onAmountPress()}>
+        <Pressable onPress={() => props.onAmountPress()} marginRight={wp(15)}>
           {props.showHideAmounts ? (
             <Box flexDirection={'row'} alignItems={'center'}>
               <Box padding={1} marginBottom={-1}>

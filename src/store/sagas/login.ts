@@ -45,6 +45,7 @@ import {
   generateEncryptionKey,
   hash512,
 } from 'src/core/services/operations/encryption';
+import { uaiChecks } from '../sagaActions/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   const byteArray = new Uint8Array(byteString.length);
@@ -129,6 +130,7 @@ function* credentialsAuthWorker({ payload }) {
     yield put(autoSyncWallets());
     yield put(fetchFeeAndExchangeRates());
     yield put(getMessages());
+    yield put(uaiChecks());
   }
   // check if the app has been upgraded
   const appVersion = yield select((state: RootState) => state.storage.appVersion);

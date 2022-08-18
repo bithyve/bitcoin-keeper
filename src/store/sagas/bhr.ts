@@ -1,4 +1,5 @@
-import { call, put } from 'redux-saga/effects';
+import { all, call, put } from 'redux-saga/effects';
+import _ from 'lodash';
 import * as bip39 from 'bip39';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
 import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
@@ -17,6 +18,7 @@ import {
   GET_CLOUD_DATA,
   RECOVER_BACKUP,
   getAppImage,
+  UPADTE_HEALTH_CHECK_SIGNER,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import { BackupAction, BackupType } from '../../common/data/enums/BHR';
@@ -46,6 +48,8 @@ import config from 'src/core/config';
 import { refreshWallets } from '../sagaActions/wallets';
 import Relay from 'src/core/services/operations/Relay';
 import dbManager from 'src/storage/realm/dbManager';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { uaiActionedEntity } from '../sagaActions/uai';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -373,6 +377,36 @@ function* recoverBackupWorker({
   }
 }
 
+function* healthCheckSignerWorker({
+  payload,
+}: {
+  payload: {
+    vaultId: string;
+    signerId: string;
+  };
+}) {
+  try {
+    const { vaultId, signerId } = payload;
+    console.log(vaultId, signerId);
+    const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
+
+    let signers = [];
+    for (let signer of vault.signers) {
+      if (signer.signerId === signerId) {
+        let updatedSigner = JSON.parse(JSON.stringify(signer));
+        updatedSigner.lastHealthCheck = new Date();
+        yield put(uaiActionedEntity(signer.signerId));
+        signers.push(updatedSigner);
+      }
+    }
+    let updatedVault: Vault = JSON.parse(JSON.stringify(vault));
+    updatedVault.signers = signers;
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
@@ -391,3 +425,7 @@ export const seedBackeupConfirmedWatcher = createWatcher(
 );
 export const getCloudDataWatcher = createWatcher(getCloudDataWorker, GET_CLOUD_DATA);
 export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
+export const healthCheckSignerWatcher = createWatcher(
+  healthCheckSignerWorker,
+  UPADTE_HEALTH_CHECK_SIGNER
+);

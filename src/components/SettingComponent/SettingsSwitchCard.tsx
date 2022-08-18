@@ -17,12 +17,19 @@ const SettingsSwitchCard = (props) => {
         <Text
           color={'light.lightBlack'}
           fontFamily={'body'}
-          fontWeight={'bold'}
           fontSize={RFValue(14)}
+          fontWeight={200}
+          letterSpacing={1.04}
         >
           {props.title}
         </Text>
-        <Text color={'light.GreyText'} fontFamily={'body'} fontSize={RFValue(12)}>
+        <Text
+          color={'light.GreyText'}
+          fontFamily={'body'}
+          fontWeight={200}
+          letterSpacing={0.36}
+          fontSize={RFValue(12)}
+        >
           {props.description}
         </Text>
       </Box>
