@@ -268,7 +268,8 @@ function isBackedUP(record: BackupHistory): boolean {
   const currentDate = new Date();
   const lastRecord = record[record.length - 1]
   const lastBackup = new Date(record[record.length - 1].date);
-  const differenceInDays = (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24); // difference between dates in days 
+  // difference between dates in days 
+  const differenceInDays = (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24);
 
   if (lastRecord && differenceInDays > 30 &&
     (
@@ -279,6 +280,7 @@ function isBackedUP(record: BackupHistory): boolean {
     )
   ) {
     // UAI update here
+
     return true
   }
   return false
