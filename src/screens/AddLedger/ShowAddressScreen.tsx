@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -9,6 +9,7 @@ import AppClient from 'src/hardware/ledger';
 import QRCode from 'react-native-qrcode-svg';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
 import { useDispatch } from 'react-redux';
 
 const delay = (ms) => new Promise((success) => setTimeout(success, ms));
@@ -54,9 +55,11 @@ const ShowAddressScreen = ({ transport }) => {
 
   const fetchAddress = async (verify) => {
     try {
+      // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
       const app = new AppClient(transport);
-      const path = "m/44'/1'/0'"; // HD derivation path
-      const xpub = await app.getExtendedPubkey(path, true);
+      const path = "m/48'/1'/0'/1'"; // HD derivation path
+      const xpub = await app.getExtendedPubkey(path);
+      const masterfp = await app.getMasterFingerprint();
       if (unmounted.current) return;
       setAddress(xpub);
       const networkType =
@@ -70,15 +73,28 @@ const ShowAddressScreen = ({ transport }) => {
         xpub,
         xpubInfo: {
           derivationPath: path,
+          xfp: masterfp,
         },
       };
+      // const {
+      //   xpub: xpub2,
+      //   masterFingerprint: xfp,
+      //   derivationPath,
+      // } = generateMockExtendedKey(EntityKind.VAULT);
+
+      const xpubMock =
+        'tpubDEiaCA6jkvH9MTdbuqbFXrcZfKhyixmdXcSJKhoR742PdCPzXqdLTfrg6TdJPzus38Pap78CWgxm5Fx9N5kUr5FxNr6JnAb8ZD163zHiZ6q';
+      const derivationPath =
+        'tpubDEiaCA6jkvH9MTdbuqbFXrcZfKhyixmdXcSJKhoR742PdCPzXqdLTfrg6TdJPzus38Pap78CWgxm5Fx9N5kUr5FxNr6JnAb8ZD163zHiZ6q';
+      const xfp = '73DC8582';
       const signer2: VaultSigner = {
-        signerId: '73DC8582',
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpubMock, network),
         type: SignerType.LEDGER,
         signerName: 'Nano X (Mock)',
-        xpub: 'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf',
+        xpub: xpubMock,
         xpubInfo: {
-          derivationPath: `m/48'/1'/966713'/1'`,
+          derivationPath,
+          xfp,
         },
       };
       const scheme: VaultScheme = { m: 1, n: 2 };
@@ -96,7 +112,7 @@ const ShowAddressScreen = ({ transport }) => {
     <View style={styles.ShowAddressScreen}>
       {!address ? (
         <>
-          <Text style={styles.loading}>Fetching your xpub at path "m/44'/1'/0'" ...</Text>
+          <Text style={styles.loading}>Fetching your xpub at path m/48'/1'/0'/1' ...</Text>
           {error ? (
             <Text style={styles.error}>
               A problem occurred, make sure to open the Bitcoin application on your Ledger Nano X. (

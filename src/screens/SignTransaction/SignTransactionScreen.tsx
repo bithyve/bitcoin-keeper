@@ -202,7 +202,9 @@ const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) 
 };
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const { signers } = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const { signers }: { signers: VaultSigner[] } = useQuery(RealmSchema.Vault).map(
+    getJSONFromRealmObject
+  )[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
@@ -326,28 +328,22 @@ const SignTransactionScreen = () => {
             setLedgerModal(false);
             const app = new AppClient(LedgerCom.current);
             const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
-            const mfp = await app.getMasterFingerprint();
-            const path = `${mfp}/44'/1'/0'`; // HD derivation path
-            const walletPolicy = new DefaultWalletPolicy(
-              'wpkh(@0)',
-              `[${path}]${signers[0].xpub}/**`
+            const multisigWalletPolicy = new WalletPolicy(
+              'ColdStorage',
+              'sh(wsh(sortedmulti(1,@0,@1)))',
+              signers.map((signer) => {
+                const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
+                  signer.xpubInfo.derivationPath.indexOf('/')
+                )}`;
+                return `[${path}]${signer.xpub}/**`;
+              })
             );
-            const change = 0;
-            const addressIndex = 0;
-            const firstAccountAddress = await app.getWalletAddress(
-              walletPolicy,
-              null,
-              change,
-              addressIndex,
-              true // show address on the wallet's screen
-            );
-            // WIP
-            console.log('First account receive address:', firstAccountAddress);
-            console.log(`[${path}]${signers[0].xpub}/**`);
+            const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
             const psbt = new PsbtV2(); //??
             psbt.deserialize(buff);
             console.log({ psbt });
-            await app.signPsbt(psbt, walletPolicy, null);
+            const signed = await app.signPsbt(psbt, multisigWalletPolicy, null);
+            console.log(signed);
           } catch (error) {
             switch (error.message) {
               case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
@@ -402,7 +398,7 @@ const SignTransactionScreen = () => {
         </Box>
         <FlatList
           data={signers}
-          keyExtractor={({ item }) => item?.id}
+          keyExtractor={(item) => item.signerId}
           renderItem={({ item }) => (
             <SignWith signer={item} callback={() => callbackForSigners(item.type)} />
           )}
