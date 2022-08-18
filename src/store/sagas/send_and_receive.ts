@@ -39,7 +39,7 @@ import {
   setExchangeRates,
 } from '../reducers/send_and_receive';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
+import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
@@ -125,7 +125,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid, serializedPSBTEnvelop } = yield call(
+    const { txid, serializedPSBTEnvelops } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -151,12 +151,12 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       case EntityKind.VAULT:
-        if (!serializedPSBTEnvelop)
+        if (!serializedPSBTEnvelops.length)
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
-            serializedPSBTEnvelop,
+            serializedPSBTEnvelops,
           })
         );
         break;
@@ -177,15 +177,28 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, serializedPSBTEnvelop } = payload;
+  const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = yield select(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  const { wallet, txnPriority } = payload;
 
   try {
+    const threshold = (wallet as Vault).scheme.m;
+    let availableSignatures = 0;
+    for (let serializedPSBTEnvelop of serializedPSBTEnvelops) {
+      if (serializedPSBTEnvelop.isSigned) availableSignatures++;
+    }
+    if (availableSignatures < threshold)
+      throw new Error(
+        `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
+      );
+
     const { txid } = yield call(
       WalletOperations.transferST3,
       wallet,
-      serializedPSBTEnvelop,
+      serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
       recipients

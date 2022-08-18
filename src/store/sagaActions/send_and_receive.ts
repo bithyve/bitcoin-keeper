@@ -198,14 +198,12 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
-    serializedPSBTEnvelop: SerializedPSBTEnvelop;
   };
 }
 
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
-  serializedPSBTEnvelop: SerializedPSBTEnvelop;
 }): SendPhaseThreeAction => {
   return {
     type: SEND_PHASE_THREE,
