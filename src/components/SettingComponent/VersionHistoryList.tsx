@@ -33,17 +33,18 @@ const VersionHistoryList = () => {
             fontWeight={'300'}
             ml={5}
             opacity={0.7}
+            letterSpacing={0.3}
           >
             {item.date}
           </Text>
           <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-            <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+            <Text color={'light.headerText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(14)} fontFamily={'heading'}>
               {item.title}
             </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+            <Text color={'light.GreyText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily={'body'}>
               {item.version}
             </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+            <Text color={'light.GreyText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily={'body'}>
               {item.releaseNote}
             </Text>
           </Box>
