@@ -36,7 +36,12 @@ const SettingUpTapsigner = (props) => {
     if (inputText.length <= 5) {
       setInputText(tmpPasscode);
     }
-    console.log(inputText);
+  };
+
+  const onDeletePressed = (text) => {
+    let str = inputText;
+    str = str.substring(0, str.length - 1);
+    setInputText(str);
   };
 
   return (
@@ -83,7 +88,12 @@ const SettingUpTapsigner = (props) => {
         </Box>
       </Box>
       {/* keyboardview start */}
-      <KeyPadView onPressNumber={onPressNumber} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
+      <KeyPadView
+        onPressNumber={onPressNumber}
+        onDeletePressed={onDeletePressed}
+        keyColor={'#041513'}
+        ClearIcon={<DeleteIcon />}
+      />
     </Box>
   );
 };

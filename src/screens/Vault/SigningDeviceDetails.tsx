@@ -368,6 +368,7 @@ const SigningDeviceDetails = ({ route }) => {
           <SettingUpTapsigner
             closeBottomSheet={() => {
               setconfirmHealthCheckModal(false);
+              setCvc('');
             }}
             buttonText={'Proceed'}
             onPress={onPressCVV}

@@ -9,12 +9,14 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 export interface Props {
   onPressNumber;
+  onDeletePressed;
   disabled?;
   keyColor?: string;
   ClearIcon?: JSX.Element;
 }
 const KeyPadView: React.FC<Props> = ({
   onPressNumber,
+  onDeletePressed,
   disabled = false,
   keyColor = '#F4F4F4',
   ClearIcon = <DeleteIcon />,
@@ -56,7 +58,7 @@ const KeyPadView: React.FC<Props> = ({
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => onPressNumber('x')}
+          onPress={() => onDeletePressed()}
           activeOpacity={1}
           style={styles.keyPadElementTouchable}
         >
