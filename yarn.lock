@@ -4732,9 +4732,9 @@ electron-to-chromium@^1.4.202:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.208.tgz#ecb5b47c8cc212a43172ffc5ce50178a638a5d74"
   integrity sha512-diMr4t69FigAGUk2KovP0bygEtN/9AkqEVkzjEp0cu+zFFbZMVvwACpTTfuj1mAmFR5kNoSW8wGKDFWIvmThiQ==
 
-"electrum-client@https://github.com/BlueWallet/rn-electrum-client":
+"electrum-client@https://github.com/bithyve/rn-electrum-client":
   version "2.0.0"
-  resolved "https://github.com/BlueWallet/rn-electrum-client#76c0ea35e1a50c47f3a7f818d529ebd100161496"
+  resolved "https://github.com/bithyve/rn-electrum-client#76c0ea35e1a50c47f3a7f818d529ebd100161496"
 
 elliptic@^6.4.0, elliptic@^6.5.3, elliptic@^6.5.4:
   version "6.5.4"
