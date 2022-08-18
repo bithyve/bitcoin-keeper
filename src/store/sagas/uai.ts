@@ -43,7 +43,7 @@ function* uaiChecksWorker({ payload }) {
   for (var vault of vaults) {
     for (var signer of vault.signers) {
       const lastHealthCheckDays = healthCheckRemider(signer);
-      if (lastHealthCheckDays >= 0) {
+      if (lastHealthCheckDays >= 1) {
         const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
         if (!uais.length) {
           yield put(
