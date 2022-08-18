@@ -58,32 +58,12 @@ const UaiDisplay = ({ uaiStack }) => {
             navigtaion.navigate('HardwareSetup');
           },
         };
-      // case uaiType.WARNING:
-      //   return {
-      //     btnText: 'Ok',
-      //     cta: () => {
-      //       setShowModal(true);
-      //     },
-      //     primaryCallback: () => {
-      //       uaiSetActionFalse();
-      //       setShowModal(false);
-      //     },
-      //   };
-      // case uaiType.REMINDER: {
-      //   return {
-      //     btnText: 'Take Action',
-      //     cta: () => {
-      //       setShowModal(true);
-      //     },
-      //   };
-      // }
-      // default:
-      //   return {
-      //     btnText: 'Ok',
-      //     cta: () => {
-      //       setShowModal(true);
-      //     },
-      //   };
+      case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
+        return {
+          cta: () => {
+            navigtaion.navigate('VaultDetails');
+          },
+        };
     }
   };
 

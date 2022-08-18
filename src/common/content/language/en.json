@@ -297,8 +297,10 @@
     "AddNow": "Add Now",
     "SelectSigner": "Select Signing Devices",
     "ForVault": "For your Vault",
-    "VaultInfo": "A Signing Device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
-    "CustomPriority": "Custom Priority"
+    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
+    "CustomPriority": "Custom Priority",
+    "EditDescription": "Edit Description",
+    "Description": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -311,6 +313,13 @@
     "longing": "longing",
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
+  },
+  "healthcheck": {
+    "ChangeSigningDevice": "Change Signing Device",
+    "HealthCheck": "Health Check",
+    "SkippingHealthCheck": "Skipping Health Check",
+    "EnterCVV": "Enter the CVV",
+    "HealthCheckSuccessful": "Health Check Successful"
   },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
