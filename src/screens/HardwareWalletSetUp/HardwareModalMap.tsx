@@ -57,6 +57,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const { translations } = useContext(LocalizationContext);
   const tapsigner = translations['tapsigner'];
   const coldcard = translations['coldcard'];
+  const ledger = translations['ledger'];
   const navigation = useNavigation();
   const navigateToTapsignerSetup = () => {
     close();
@@ -66,6 +67,11 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const navigateToColdCardSetup = () => {
     close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddColdCard', params: {} }));
+  };
+
+  const navigateToLedgerSetup = () => {
+    close();
+    navigation.dispatch(CommonActions.navigate({ name: 'AddLedger', params: {} }));
   };
   return (
     <>
@@ -92,6 +98,19 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToColdCardSetup}
+        textColor={'#041513'}
+        Content={ColdCardSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.LEDGER}
+        close={close}
+        title={ledger.SetupTitle}
+        subTitle={ledger.SetupDescription}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Setup'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToLedgerSetup}
         textColor={'#041513'}
         Content={ColdCardSetupContent}
       />

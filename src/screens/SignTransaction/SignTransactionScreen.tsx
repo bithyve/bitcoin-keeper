@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   FlatList,
@@ -6,8 +7,10 @@ import {
   SafeAreaView,
   StyleSheet,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import AppClient, { DefaultWalletPolicy, PsbtV2, WalletPolicy } from 'src/hardware/ledger';
 import { Box, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Ndef, NfcTech } from 'react-native-nfc-manager';
@@ -26,7 +29,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SignerMap } from '../NewHomeScreen/SignerMap';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { cloneDeep } from 'lodash';
@@ -34,6 +37,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import useScanLedger from '../AddLedger/useScanLedger';
 
 const { width } = Dimensions.get('screen');
 
@@ -92,7 +96,7 @@ const PSTBCard = ({ message, buttonText, buttonCallBack }) => {
     </Box>
   );
 };
-const ModalContent = ({ broadcast, send }) => {
+const ColdCardContent = ({ broadcast, send }) => {
   return (
     <Box>
       <PSTBCard
@@ -111,6 +115,50 @@ const ModalContent = ({ broadcast, send }) => {
         </Text>
       </Box>
     </Box>
+  );
+};
+
+const DeviceItem = ({ device, onSelectDevice }) => {
+  const [pending, setPending] = useState(false);
+  const onPress = async () => {
+    setPending(true);
+    try {
+      await onSelectDevice(device);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setPending(false);
+    }
+  };
+  return (
+    <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
+      <Text
+        color={'light.textLight'}
+        fontSize={RFValue(14)}
+        fontWeight={200}
+        fontFamily={'heading'}
+        letterSpacing={1.12}
+      >
+        {device.name}
+      </Text>
+      {pending ? <ActivityIndicator /> : null}
+    </TouchableOpacity>
+  );
+};
+
+const LedgerContent = ({ onSelectDevice }) => {
+  const { error, devices, scanning } = useScanLedger();
+
+  if (error) {
+    <Text style={styles.errorTitle}>{String(error.message)}</Text>;
+  }
+  return (
+    <>
+      {scanning ? <ActivityIndicator /> : null}
+      {devices.map((device) => (
+        <DeviceItem device={device} onSelectDevice={onSelectDevice} key={device.id} />
+      ))}
+    </>
   );
 };
 
@@ -154,11 +202,27 @@ const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) 
 };
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const { signers } = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const { signers }: { signers: VaultSigner[] } = useQuery(RealmSchema.Vault).map(
+    getJSONFromRealmObject
+  )[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
-  const [tapsignerModal, setTapsignerModal] = React.useState(false);
-  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const [tapsignerModal, setTapsignerModal] = useState(false);
+  const [ledgerModal, setLedgerModal] = useState(false);
+  const [nfcVisible, setNfcVisible] = useState(false);
+  const LedgerCom = useRef();
+  const onSelectDevice = useCallback(async (device) => {
+    try {
+      const transport = await TransportBLE.open(device);
+      transport.on('disconnect', () => {
+        LedgerCom.current = null;
+      });
+      LedgerCom.current = transport;
+      signTransaction();
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
 
   const navigation = useNavigation();
   const serializedPSBTEnvelop = useAppSelector(
@@ -167,7 +231,7 @@ const SignTransactionScreen = () => {
   const textRef = useRef(null);
   const dispatch = useDispatch();
   const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
-  const card = React.useRef(new CKTapCard()).current;
+  const card = useRef(new CKTapCard()).current;
 
   const receiveAndBroadCast = async () => {
     setNfcVisible(true);
@@ -259,6 +323,43 @@ const SignTransactionScreen = () => {
             console.log({ error });
           }
         }
+        case SignerType.LEDGER: {
+          try {
+            setLedgerModal(false);
+            const app = new AppClient(LedgerCom.current);
+            const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
+            const multisigWalletPolicy = new WalletPolicy(
+              'ColdStorage',
+              'sh(wsh(sortedmulti(1,@0,@1)))',
+              signers.map((signer) => {
+                const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
+                  signer.xpubInfo.derivationPath.indexOf('/')
+                )}`;
+                return `[${path}]${signer.xpub}/**`;
+              })
+            );
+            const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
+            const psbt = new PsbtV2(); //??
+            psbt.deserialize(buff);
+            console.log({ psbt });
+            const signed = await app.signPsbt(psbt, multisigWalletPolicy, null);
+            console.log(signed);
+          } catch (error) {
+            switch (error.message) {
+              case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
+                Alert.alert('Unlock the device to connect.');
+              case 'Ledger device: UNKNOWN_ERROR (0x6a15)':
+                Alert.alert('Navigate to the correct app in the Ledger.');
+              case 'Ledger device: UNKNOWN_ERROR (0x6511)':
+                Alert.alert('Open up the correct app in the Ledger.'); // no app selected
+              // unknown error
+              default:
+                break;
+            }
+            console.log({ error });
+            Alert.alert(error.toString());
+          }
+        }
         default: {
           break;
         }
@@ -274,6 +375,9 @@ const SignTransactionScreen = () => {
       case SignerType.COLDCARD:
         setColdCardModal(true);
         break;
+      case SignerType.LEDGER:
+        setLedgerModal(true);
+        break;
       default:
         Alert.alert(`action not set for ${type}`);
         break;
@@ -288,7 +392,7 @@ const SignTransactionScreen = () => {
         </Box>
         <FlatList
           data={signers}
-          keyExtractor={({ item }) => item?.id}
+          keyExtractor={(item) => item.signerId}
           renderItem={({ item }) => (
             <SignWith signer={item} callback={() => callbackForSigners(item.type)} />
           )}
@@ -310,7 +414,7 @@ const SignTransactionScreen = () => {
         title={'Upload Multi-sig data'}
         subTitle={'Keep your ColdCard ready before proceeding'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        Content={() => <ModalContent broadcast={receiveAndBroadCast} send={signTransaction} />}
+        Content={() => <ColdCardContent broadcast={receiveAndBroadCast} send={signTransaction} />}
       />
       <KeeperModal
         visible={tapsignerModal}
@@ -324,6 +428,19 @@ const SignTransactionScreen = () => {
         buttonCallback={signTransaction}
         textColor={'#FFF'}
         Content={() => InputCvc({ textRef })}
+      />
+      <KeeperModal
+        visible={ledgerModal}
+        close={() => setLedgerModal(false)}
+        title={'Looking for Nano X'}
+        subTitle={'Power up your Ledger Nano X and open the BTC app...'}
+        modalBackground={['#00836A', '#073E39']}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={LedgerCom.current ? 'SIGN' : false}
+        buttonTextColor={'#073E39'}
+        buttonCallback={signTransaction}
+        textColor={'#FFF'}
+        Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />
     </SafeAreaView>
@@ -354,6 +471,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginRight: 20,
     alignSelf: 'center',
+  },
+
+  errorTitle: {
+    color: '#c00',
+    fontSize: 16,
   },
 });
 
