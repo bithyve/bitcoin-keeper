@@ -18,7 +18,12 @@ import {
   updateWalletSettingsWatcher,
 } from './wallets';
 import { updateFCMTokensWatcher, getMessageWatcher } from './notifications';
-import { addUaiStackWatcher, uaiChecksWatcher, updateUaiStackWatcher } from './uai';
+import {
+  addUaiStackWatcher,
+  uaiActionedEntityWatcher,
+  uaiChecksWatcher,
+  updateUaiStackWatcher,
+} from './uai';
 import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
@@ -77,6 +82,7 @@ export const rootSaga = function* () {
     uaiChecksWatcher,
     addUaiStackWatcher,
     updateUaiStackWatcher,
+    uaiActionedEntityWatcher,
 
     //BHR
     updateAppImageWatcher,

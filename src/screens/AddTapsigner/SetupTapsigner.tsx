@@ -1,7 +1,7 @@
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import React, { useCallback } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -112,7 +112,7 @@ const SetupTapsigner = () => {
         const isVaultCreated = createVault([signer], scheme);
         if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
       })
-      .catch(console.log);
+      .catch(Alert.alert);
   }, [cvc]);
 
   const MockVaultCreation = () => {

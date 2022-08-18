@@ -1,4 +1,4 @@
-import { call, put } from 'redux-saga/effects';
+import { all, call, put } from 'redux-saga/effects';
 import _ from 'lodash';
 import * as bip39 from 'bip39';
 import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
@@ -49,6 +49,7 @@ import { refreshWallets } from '../sagaActions/wallets';
 import Relay from 'src/core/services/operations/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { uaiActionedEntity } from '../sagaActions/uai';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -388,14 +389,16 @@ function* healthCheckSignerWorker({
     const { vaultId, signerId } = payload;
     console.log(vaultId, signerId);
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
-    const signers = vault.signers.map((signer: VaultSigner) => {
+
+    let signers = [];
+    for (let signer of vault.signers) {
       if (signer.signerId === signerId) {
         let updatedSigner = JSON.parse(JSON.stringify(signer));
         updatedSigner.lastHealthCheck = new Date();
-        return updatedSigner;
+        yield put(uaiActionedEntity(signer.signerId));
+        signers.push(updatedSigner);
       }
-      return signer;
-    });
+    }
     let updatedVault: Vault = JSON.parse(JSON.stringify(vault));
     updatedVault.signers = signers;
     yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);

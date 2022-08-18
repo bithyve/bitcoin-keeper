@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const ADD_TO_UAI_STACK = 'ADD_TO_UAI_STACK';
 export const UPADTE_UAI_STACK = 'UPADTE_UAI_STACK';
 export const UAI_CHECKS = 'UAI_CHECKS';
+export const UAI_ACTIONED_ENTITY = 'UAI_ACTIONED_ENTITY';
 
 export const addToUaiStack = (
   title: string,
@@ -10,7 +11,7 @@ export const addToUaiStack = (
   uaiType: uaiType,
   prirority: number,
   displayText: string | null,
-  entityId: string | null
+  entityId: string | null = null
 ) => {
   const uai = {
     id: uuidv4(),
@@ -46,6 +47,15 @@ export const uaiChecks = (isFirstLogin: boolean = false) => {
     type: UAI_CHECKS,
     payload: {
       isFirstLogin,
+    },
+  };
+};
+
+export const uaiActionedEntity = (entityId: string) => {
+  return {
+    type: UAI_ACTIONED_ENTITY,
+    payload: {
+      entityId,
     },
   };
 };

@@ -100,7 +100,6 @@ const SigningDeviceDetails = ({ route }) => {
         const networkType =
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
         const network = WalletUtilities.getNetworkByType(networkType);
-        setHealthCheckSuccess(true);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
         if (signerIdDerived === signer.signerId) {
           console.log('verified');
@@ -135,6 +134,7 @@ const SigningDeviceDetails = ({ route }) => {
   };
 
   const SkipHealthCheck = () => {
+    dispatch(healthCheckSigner(vaultId, signer.signerId));
     setHealthCheckSkipModal(false);
     navigation.goBack();
   };
@@ -146,7 +146,6 @@ const SigningDeviceDetails = ({ route }) => {
   const onPressCVV = () => {
     healthCheckTapSigner();
     setconfirmHealthCheckModal(false);
-    setHealthCheckSuccess(true);
   };
 
   const confirm = () => {
@@ -155,7 +154,6 @@ const SigningDeviceDetails = ({ route }) => {
   };
 
   const confirmHealthCheck = () => {
-    setHealthCheckSuccess(false);
     navigation.goBack();
   };
 
