@@ -1,4 +1,5 @@
 import { ObjectSchema } from 'realm';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { RealmSchema } from '../enum';
 
 export const KeeperAppSchema: ObjectSchema = {
@@ -14,7 +15,10 @@ export const KeeperAppSchema: ObjectSchema = {
     twoFADetails: `${RealmSchema.TwoFADetails}?`,
     nodeConnect: `${RealmSchema.NodeConnect}?`,
     uai: `${RealmSchema.UAI}?`,
-    userTier: RealmSchema.UserTier,
+    subscriptionPlan: {
+      type: 'string?',
+      default: SubscriptionTier.PLEB,
+    },
     version: 'string',
     backupPassword: {
       type: 'string?',
