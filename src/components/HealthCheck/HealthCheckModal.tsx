@@ -83,7 +83,7 @@ const HealthCheckModal = (props) => {
           </Box>
           <Input
             placeholderTextColor={'grey'}
-            backgroundColor={'#FDF7F0'}
+            backgroundColor={'light.lightYellow'}
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}

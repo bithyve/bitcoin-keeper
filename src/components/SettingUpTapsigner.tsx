@@ -49,7 +49,7 @@ const SettingUpTapsigner = (props) => {
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
-          bg={'#E3BE96'}
+          bg={'light.yellow2'}
           borderRadius={32}
           h={8}
           w={8}
@@ -57,7 +57,7 @@ const SettingUpTapsigner = (props) => {
           justifyContent={'center'}
           alignSelf={'flex-end'}
         >
-          <Text fontSize={18} color={'#FFF'}>
+          <Text fontSize={18} color={'light.white1'}>
             X
           </Text>
         </Box>
@@ -91,7 +91,7 @@ const SettingUpTapsigner = (props) => {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor={'#041513'}
+        keyColor={'light.lightBlack'}
         ClearIcon={<DeleteIcon />}
       />
     </Box>

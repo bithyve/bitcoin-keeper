@@ -285,7 +285,7 @@ const SigningDeviceDetails = ({ route }) => {
           >
             <Text
               justifyContent={'center'}
-              color={'white'}
+              color={'light.white'}
               textAlign={'center'}
               letterSpacing={0.8}
               fontWeight={300}
@@ -311,8 +311,8 @@ const SigningDeviceDetails = ({ route }) => {
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
+          buttonTextColor={'light.white'}
+          textColor={'light.lightBlack'}
           onPress={onPress}
           inputText={description}
           setInputText={setDescription}
@@ -323,9 +323,9 @@ const SigningDeviceDetails = ({ route }) => {
           title={healthcheck.HealthCheck}
           subTitle={tapsigner.SetupDescription}
           buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor={'light.white'}
           cancelButtonText={'Skip'}
-          cancelButtonColor={'#073E39'}
+          cancelButtonColor={'light.greenText'}
           cancelButtonPressed={healthCheckSkip}
           buttonPressed={confirm}
           Content={HealthCheckContent}
@@ -338,9 +338,9 @@ const SigningDeviceDetails = ({ route }) => {
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
           }
           buttonText={'Confirm Now'}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor={'light.white'}
           cancelButtonText={'Skip'}
-          cancelButtonColor={'#073E39'}
+          cancelButtonColor={'light.greenText'}
           cancelButtonPressed={SkipHealthCheck}
           buttonPressed={confirm}
           Content={HealthCheckSkipContent}
@@ -368,9 +368,9 @@ const SigningDeviceDetails = ({ route }) => {
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
           }
           buttonText={'Home'}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor={'light.white'}
           cancelButtonText={''}
-          cancelButtonColor={'#073E39'}
+          cancelButtonColor={'light.greenText'}
           cancelButtonPressed={SkipHealthCheck}
           buttonPressed={confirmHealthCheck}
           Content={HealthCheckSuccessContent}

@@ -81,10 +81,10 @@ const EditDescriptionModal = (props) => {
                 {SignerName}
               </Text>
               <Box flexDirection={'row'}>
-                <Text fontSize={12} color={'#4F5955'}>
+                <Text fontSize={12} color={'light.greyText'}>
                   Added on{' '}
                 </Text>
-                <Text fontSize={12} color={'#4F5955'}>
+                <Text fontSize={12} color={'light.greyText'}>
                   {moment(SignerDate).format('DD MMM YYYY')}
                 </Text>
               </Box>
@@ -92,7 +92,7 @@ const EditDescriptionModal = (props) => {
           </Box>
           <Input
             placeholderTextColor={'grey'}
-            backgroundColor={'#FDF7F0'}
+            backgroundColor={'light.lightYellow'}
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}
