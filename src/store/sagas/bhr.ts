@@ -419,8 +419,6 @@ function* isBackedUP({
   const { history } = payload;
   const lastRecord = history[history.length - 1]
 
-  console.log('getting there');
-
   if (lastRecord) {
     const currentDate = new Date();
     const lastBackup = new Date(history[history.length - 1].date);
