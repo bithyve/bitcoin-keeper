@@ -9,32 +9,30 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
-import config, { APP_STAGE } from 'src/core/config';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
-
-import BackIcon from 'src/assets/icons/back.svg';
-import { CKTapCard } from 'cktap-protocol-react-native';
-import Edit from 'src/assets/images/svgs/edit.svg';
-import EditDescriptionModal from 'src/components/XPub/EditDescriptionModal';
-import HealthCheckModal from 'src/components/HealthCheckModal';
-import Illustration from 'src/assets/images/illustration.svg';
 import LinearGradient from 'react-native-linear-gradient';
+import React, { useContext, useEffect, useState } from 'react';
+import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+import config, { APP_STAGE } from 'src/core/config';
+import BackIcon from 'src/assets/icons/back.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { NetworkType } from 'src/core/wallets/enums';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScrollView } from 'react-native-gesture-handler';
-import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import SuccessModal from 'src/components/SuccessModal';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useDispatch } from 'react-redux';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import Illustration from 'src/assets/images/illustration.svg';
+import { CKTapCard } from 'cktap-protocol-react-native';
+import { NetworkType } from 'src/core/wallets/enums';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import Edit from 'src/assets/images/svgs/edit.svg';
+import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -287,7 +285,7 @@ const SigningDeviceDetails = ({ route }) => {
           >
             <Text
               justifyContent={'center'}
-              color={'white'}
+              color={'light.white'}
               textAlign={'center'}
               letterSpacing={0.8}
               fontWeight={300}
@@ -313,8 +311,8 @@ const SigningDeviceDetails = ({ route }) => {
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
+          buttonTextColor={'light.white'}
+          textColor={'light.lightBlack'}
           onPress={onPress}
           inputText={description}
           setInputText={setDescription}
@@ -325,9 +323,9 @@ const SigningDeviceDetails = ({ route }) => {
           title={healthcheck.HealthCheck}
           subTitle={tapsigner.SetupDescription}
           buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor={'light.white'}
           cancelButtonText={'Skip'}
-          cancelButtonColor={'#073E39'}
+          cancelButtonColor={'light.greenText'}
           cancelButtonPressed={healthCheckSkip}
           buttonPressed={confirm}
           Content={HealthCheckContent}
@@ -340,28 +338,13 @@ const SigningDeviceDetails = ({ route }) => {
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
           }
           buttonText={'Confirm Now'}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor={'light.white'}
           cancelButtonText={'Skip'}
-          cancelButtonColor={'#073E39'}
+          cancelButtonColor={'light.greenText'}
           cancelButtonPressed={SkipHealthCheck}
           buttonPressed={confirm}
           Content={HealthCheckSkipContent}
         />
-        {/* <HealthCheckModal
-          visible={confirmHealthCheckModal}
-          closeHealthCheck={closeCVVModal}
-          title={tapsigner.SetupTitle}
-          subTitle={healthcheck.EnterCVV}
-          placeHolderName={'Enter CVV'}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
-          onPress={onPressCVV}
-          inputText={cvc}
-          setInputText={setCvc}
-        /> */}
         <ModalWrapper
           visible={confirmHealthCheckModal}
           onSwipeComplete={() => setconfirmHealthCheckModal(false)}
@@ -369,6 +352,7 @@ const SigningDeviceDetails = ({ route }) => {
           <SettingUpTapsigner
             closeBottomSheet={() => {
               setconfirmHealthCheckModal(false);
+              setCvc('');
             }}
             buttonText={'Proceed'}
             onPress={onPressCVV}
@@ -384,9 +368,9 @@ const SigningDeviceDetails = ({ route }) => {
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
           }
           buttonText={'Home'}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor={'light.white'}
           cancelButtonText={''}
-          cancelButtonColor={'#073E39'}
+          cancelButtonColor={'light.greenText'}
           cancelButtonPressed={SkipHealthCheck}
           buttonPressed={confirmHealthCheck}
           Content={HealthCheckSuccessContent}
