@@ -46,7 +46,7 @@ import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
 import { translations } from 'src/common/content/LocContext';
 import BIP85 from 'src/core/wallets/operations/BIP85';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { refreshWallets } from '../sagaActions/wallets';
 import Relay from 'src/core/services/operations/Relay';
 import dbManager from 'src/storage/realm/dbManager';
@@ -422,9 +422,11 @@ function* isBackedUP({
   if (lastRecord) {
     const currentDate = new Date();
     const lastBackup = new Date(history[history.length - 1].date);
-    const differenceInDays = (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24);
+    const devWarning = (currentDate.getTime() - lastBackup.getTime()) > 30 ? true : false;
+    const ProductionWarning = ((currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24)) > 30 ? true : false;
+    const selectedWarning = config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning
 
-    if (differenceInDays > 30 &&
+    if (selectedWarning &&
       (
         lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
         lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
