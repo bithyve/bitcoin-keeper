@@ -75,6 +75,7 @@ const ShowAddressScreen = ({ transport }) => {
           derivationPath: path,
           xfp: masterfp,
         },
+        lastHealthCheck: new Date(),
       };
       // const {
       //   xpub: xpub2,
@@ -96,6 +97,7 @@ const ShowAddressScreen = ({ transport }) => {
           derivationPath,
           xfp,
         },
+        lastHealthCheck: new Date(),
       };
       const scheme: VaultScheme = { m: 1, n: 2 };
       const isVaultCreated = createVault([signer, signer2], scheme);
