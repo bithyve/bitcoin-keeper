@@ -142,6 +142,7 @@ android {
         versionCode 38
         versionName "0.0.5"
         missingDimensionStrategy 'react-native-camera', 'general'
+        missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
         if (isNewArchitectureEnabled()) {
@@ -211,7 +212,6 @@ android {
                 }
             }
         }
-        missingDimensionStrategy 'store', 'play'
     }
     lintOptions {
           checkReleaseBuilds false
