@@ -5,39 +5,6 @@ import Carousel from 'react-native-snap-carousel';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList, Dimensions } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import Elite from 'src/assets/images/svgs/elitePlan.svg';
-import Pro from 'src/assets/images/svgs/expert.svg';
-
-const planData = [
-  {
-    id: 1,
-    title: 'Basic',
-    subTitle: 'Always free',
-    amount: '0',
-    upgrade: false,
-    icon: <Basic />,
-    activate: true,
-  },
-  {
-    id: 2,
-    title: 'Pro',
-    subTitle: 'Multi-sig security',
-    amount: '5',
-    upgrade: true,
-    icon: <Pro />,
-    activate: false,
-  },
-  {
-    id: 3,
-    title: 'Elite',
-    subTitle: 'Includes Inheritance',
-    amount: '10',
-    upgrade: false,
-    icon: <Elite />,
-    activate: false,
-  },
-];
 
 const ChoosePlanCarousel = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
@@ -71,7 +38,7 @@ const ChoosePlanCarousel = (props) => {
             mt={2}
             fontFamily={'body'}
           >
-            {item.title}
+            {item.name}
           </Text>
           <Text fontSize={RFValue(10)} color={'light.textLight'} mb={2} fontFamily={'body'}>
             {item.subTitle}
@@ -96,7 +63,7 @@ const ChoosePlanCarousel = (props) => {
       <Carousel
         onSnapToItem={_onSnapToItem}
         ref={carasualRef}
-        data={planData}
+        data={props.data}
         renderItem={_renderItem}
         sliderWidth={Dimensions.get('screen').width}
         itemWidth={150}
