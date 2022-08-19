@@ -70,6 +70,7 @@ const SetupColdCard = () => {
         derivationPath,
         xfp,
       },
+      lastHealthCheck: new Date(),
     };
 
     return { signer: cc };
