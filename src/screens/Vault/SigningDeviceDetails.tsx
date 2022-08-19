@@ -20,8 +20,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import HealthCheckModal from 'src/components/HealthCheckModal';
-import SuccessModal from 'src/components/SuccessModal';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -31,7 +30,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import Edit from 'src/assets/images/svgs/edit.svg';
-import EditDescriptionModal from 'src/components/XPub/EditDescriptionModal';
+import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 
@@ -346,21 +345,6 @@ const SigningDeviceDetails = ({ route }) => {
           buttonPressed={confirm}
           Content={HealthCheckSkipContent}
         />
-        {/* <HealthCheckModal
-          visible={confirmHealthCheckModal}
-          closeHealthCheck={closeCVVModal}
-          title={tapsigner.SetupTitle}
-          subTitle={healthcheck.EnterCVV}
-          placeHolderName={'Enter CVV'}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
-          onPress={onPressCVV}
-          inputText={cvc}
-          setInputText={setCvc}
-        /> */}
         <ModalWrapper
           visible={confirmHealthCheckModal}
           onSwipeComplete={() => setconfirmHealthCheckModal(false)}

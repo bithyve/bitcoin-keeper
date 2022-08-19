@@ -14,7 +14,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import CVVInputsView from './CVVInputsView';
+import CVVInputsView from './HealthCheck/CVVInputsView';
 
 const SettingUpTapsigner = (props) => {
   const { translations } = useContext(LocalizationContext);
