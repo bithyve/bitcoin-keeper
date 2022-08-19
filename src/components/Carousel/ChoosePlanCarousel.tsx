@@ -44,7 +44,7 @@ const ChoosePlanCarousel = (props) => {
             {item.subTitle}
           </Text>
           <Text fontSize={RFValue(24)} color={'light.textLight'} fontFamily={'body'}>
-            $ {item.amount}
+            {item.productType === 'free' ? '0' : item.price}
           </Text>
           <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
             / month
