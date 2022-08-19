@@ -41,6 +41,7 @@ export const customTheme = extendTheme({
       textLight: '#FAFCFC',
       textDark: '#30292F',
       yellow1: '#FAC48B',
+      yellow2: '#E3BE96',
       QrCode: '#E8E0D9',
       recieverAddress: '#6C6C6C',
       textInputBackground: '#FCF6EF',

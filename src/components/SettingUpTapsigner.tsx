@@ -14,7 +14,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import CVVInputsView from './CVVInputsView';
+import CVVInputsView from './HealthCheck/CVVInputsView';
 
 const SettingUpTapsigner = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -36,7 +36,12 @@ const SettingUpTapsigner = (props) => {
     if (inputText.length <= 5) {
       setInputText(tmpPasscode);
     }
-    console.log(inputText);
+  };
+
+  const onDeletePressed = (text) => {
+    let str = inputText;
+    str = str.substring(0, str.length - 1);
+    setInputText(str);
   };
 
   return (
@@ -44,7 +49,7 @@ const SettingUpTapsigner = (props) => {
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
-          bg={'#E3BE96'}
+          bg={'light.yellow2'}
           borderRadius={32}
           h={8}
           w={8}
@@ -52,7 +57,7 @@ const SettingUpTapsigner = (props) => {
           justifyContent={'center'}
           alignSelf={'flex-end'}
         >
-          <Text fontSize={18} color={'#FFF'}>
+          <Text fontSize={18} color={'light.white1'}>
             X
           </Text>
         </Box>
@@ -83,7 +88,12 @@ const SettingUpTapsigner = (props) => {
         </Box>
       </Box>
       {/* keyboardview start */}
-      <KeyPadView onPressNumber={onPressNumber} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
+      <KeyPadView
+        onPressNumber={onPressNumber}
+        onDeletePressed={onDeletePressed}
+        keyColor={'light.lightBlack'}
+        ClearIcon={<DeleteIcon />}
+      />
     </Box>
   );
 };

@@ -46,6 +46,7 @@ import {
   hash512,
 } from 'src/core/services/operations/encryption';
 import { uaiChecks } from '../sagaActions/uai';
+import { setWarning } from '../sagaActions/bhr';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   const byteArray = new Uint8Array(byteString.length);
@@ -127,9 +128,15 @@ function* credentialsAuthWorker({ payload }) {
   yield put(setKey(key));
   if (!payload.reLogin) {
     // case: login
+    const history = yield call(
+      dbManager.getCollection,
+      RealmSchema.BackupHistory
+    );
+
     yield put(autoSyncWallets());
     yield put(fetchFeeAndExchangeRates());
     yield put(getMessages());
+    yield put(setWarning(history));
     yield put(uaiChecks());
   }
   // check if the app has been upgraded
@@ -258,3 +265,5 @@ function* applicationUpdateWorker({
 }
 
 export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);
+
+

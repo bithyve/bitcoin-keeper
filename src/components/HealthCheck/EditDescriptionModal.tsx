@@ -5,12 +5,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import KeeperModal from './KeeperModal';
 import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import moment from 'moment';
 
-const HealthCheckModal = (props) => {
+const EditDescriptionModal = (props) => {
   const {
     visible,
     closeHealthCheck,
@@ -18,6 +18,7 @@ const HealthCheckModal = (props) => {
     subTitle = null,
     placeHolderName = '',
     SignerName = 'SignerName',
+    SignerDate = '',
     SignerIcon = '',
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
@@ -79,11 +80,19 @@ const HealthCheckModal = (props) => {
               <Text color={'light.lightBlack'} fontSize={14}>
                 {SignerName}
               </Text>
+              <Box flexDirection={'row'}>
+                <Text fontSize={12} color={'light.greyText'}>
+                  Added on{' '}
+                </Text>
+                <Text fontSize={12} color={'light.greyText'}>
+                  {moment(SignerDate).format('DD MMM YYYY')}
+                </Text>
+              </Box>
             </Box>
           </Box>
           <Input
             placeholderTextColor={'grey'}
-            backgroundColor={'#FDF7F0'}
+            backgroundColor={'light.lightYellow'}
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}
@@ -121,7 +130,7 @@ const HealthCheckModal = (props) => {
   );
 };
 
-export default HealthCheckModal;
+export default EditDescriptionModal;
 
 const styles = StyleSheet.create({
   container: {

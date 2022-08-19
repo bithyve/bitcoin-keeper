@@ -12,6 +12,7 @@ import { Provider } from 'react-redux';
 import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import { customTheme } from './src/common/themes';
+import { withIAPContext } from 'react-native-iap';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -41,12 +42,11 @@ const App = () => {
   );
 };
 
-export default function AppWrapper() {
-  return (
-    <PersistGate persistor={persistor} loading={null}>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </PersistGate>
-  );
-}
+
+const AppWrapper = () => <PersistGate persistor={persistor} loading={null}>
+  <Provider store={store}>
+    <App />
+  </Provider>
+</PersistGate>;
+
+export default withIAPContext(AppWrapper);
