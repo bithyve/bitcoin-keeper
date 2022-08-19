@@ -4,7 +4,6 @@ import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
-import TorSettings from 'src/screens/AppSettings/TorSettings';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
@@ -17,29 +16,32 @@ import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletS
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
-import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
+import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
-import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
-import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
 import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
+import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
-import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
+import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
+import Signers from 'src/screens/Signers/Signers';
+import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
+import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
+import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
+import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
-import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -82,6 +84,7 @@ const AppStack = () => {
         <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
+        <Stack.Screen name="AddLedger" component={SetupLedger} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
@@ -108,6 +111,7 @@ const AppStack = () => {
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
+        <Stack.Screen name="Signers" component={Signers} />
       </Stack.Navigator>
     </RealmProvider>
   );

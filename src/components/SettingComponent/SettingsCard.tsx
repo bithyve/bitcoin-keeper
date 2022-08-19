@@ -16,10 +16,22 @@ const SettingsCard = (props) => {
         {...props}
       >
         <Box flex={0.9}>
-          <Text color={'#041513'} fontWeight={'bold'} fontSize={RFValue(14)} fontFamily={'body'}>
+          <Text
+            color={'#041513'}
+            fontWeight={200}
+            fontSize={RFValue(14)}
+            letterSpacing={1.04}
+            fontFamily={'body'}
+          >
             {props.title}
           </Text>
-          <Text color={'#4F5955'} fontFamily={'body'} fontSize={RFValue(12)}>
+          <Text
+            color={'#4F5955'}
+            fontFamily={'body'}
+            fontWeight={200}
+            letterSpacing={0.36}
+            fontSize={RFValue(12)}
+          >
             {props.description}
           </Text>
         </Box>

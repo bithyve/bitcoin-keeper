@@ -95,12 +95,12 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
           <Box paddingY={'4'}>
             {[
               'COLDCARD',
-              'JADE',
-              'KEYSTONE',
               'TAPSIGNER',
-              'PASSPORT',
               'LEDGER',
               'TREZOR',
+              'KEYSTONE',
+              'PASSPORT',
+              'JADE',
               // 'KEEPER',
               // 'POLICY_SERVER',
               // 'MOBILE_KEY',

@@ -9,31 +9,26 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import React, { useContext, useEffect, useState } from 'react';
+import config, { APP_STAGE } from 'src/core/config';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 import config, { APP_STAGE } from 'src/core/config';
 import BackIcon from 'src/assets/icons/back.svg';
+import { CKTapCard } from 'cktap-protocol-react-native';
+import Edit from 'src/assets/images/svgs/edit.svg';
+import EditDescriptionModal from 'src/components/XPub/EditDescriptionModal';
+import HealthCheckModal from 'src/components/HealthCheckModal';
+import Illustration from 'src/assets/images/illustration.svg';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
+import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import HealthCheckModal from 'src/components/HealthCheckModal';
-import SuccessModal from 'src/components/SuccessModal';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import Illustration from 'src/assets/images/illustration.svg';
-import { CKTapCard } from 'cktap-protocol-react-native';
-import { NetworkType } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import Edit from 'src/assets/images/svgs/edit.svg';
-import EditDescriptionModal from 'src/components/XPub/EditDescriptionModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -300,97 +295,6 @@ const SigningDeviceDetails = ({ route }) => {
             </Text>
           </LinearGradient>
         </Box>
-        <EditDescriptionModal
-          visible={editDescriptionModal}
-          closeHealthCheck={closeEditDescription}
-          title={vault.EditDescription}
-          subTitle={vault.Description}
-          SignerName={signer.signerName}
-          SignerDate={signer.lastHealthCheck}
-          placeHolderName={'Add Description'}
-          SignerIcon={SignerIcon}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
-          onPress={onPress}
-          inputText={description}
-          setInputText={setDescription}
-        />
-        <SuccessModal
-          visible={healthCheckView}
-          close={closeHealthCheckView}
-          title={healthcheck.HealthCheck}
-          subTitle={tapsigner.SetupDescription}
-          buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          cancelButtonText={'Skip'}
-          cancelButtonColor={'#073E39'}
-          cancelButtonPressed={healthCheckSkip}
-          buttonPressed={confirm}
-          Content={HealthCheckContent}
-        />
-        <SuccessModal
-          visible={healthCheckSkipModal}
-          close={closehealthCheckSkip}
-          title={healthcheck.SkippingHealthCheck}
-          subTitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-          }
-          buttonText={'Confirm Now'}
-          buttonTextColor={'#FAFAFA'}
-          cancelButtonText={'Skip'}
-          cancelButtonColor={'#073E39'}
-          cancelButtonPressed={SkipHealthCheck}
-          buttonPressed={confirm}
-          Content={HealthCheckSkipContent}
-        />
-        {/* <HealthCheckModal
-          visible={confirmHealthCheckModal}
-          closeHealthCheck={closeCVVModal}
-          title={tapsigner.SetupTitle}
-          subTitle={healthcheck.EnterCVV}
-          placeHolderName={'Enter CVV'}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Proceed'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
-          onPress={onPressCVV}
-          inputText={cvc}
-          setInputText={setCvc}
-        /> */}
-        <ModalWrapper
-          visible={confirmHealthCheckModal}
-          onSwipeComplete={() => setconfirmHealthCheckModal(false)}
-        >
-          <SettingUpTapsigner
-            closeBottomSheet={() => {
-              setconfirmHealthCheckModal(false);
-              setCvc('');
-            }}
-            buttonText={'Proceed'}
-            onPress={onPressCVV}
-            inputText={cvc}
-            setInputText={setCvc}
-          />
-        </ModalWrapper>
-        <SuccessModal
-          visible={healthCheckSuccess}
-          close={closeHealthCheckSuccessView}
-          title={healthcheck.HealthCheckSuccessful}
-          subTitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-          }
-          buttonText={'Home'}
-          buttonTextColor={'#FAFAFA'}
-          cancelButtonText={''}
-          cancelButtonColor={'#073E39'}
-          cancelButtonPressed={SkipHealthCheck}
-          buttonPressed={confirmHealthCheck}
-          Content={HealthCheckSuccessContent}
-        />
       </Box>
     </Box>
   );

@@ -70,6 +70,7 @@ export const customTheme = extendTheme({
       inheritanceBullet: '#E3E3E3',
       inheritanceTitle: '#055146',
       modalText: '#073B36',
+      indicator: '#F86B50',
     },
     dark: {
       black: '#000000',

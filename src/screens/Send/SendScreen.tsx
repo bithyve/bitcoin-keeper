@@ -42,7 +42,7 @@ const SendScreen = ({ route }) => {
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  // const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
 
@@ -180,7 +180,7 @@ const SendScreen = ({ route }) => {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: 8,
+    padding: '20@s',
     backgroundColor: 'light.ReceiveBackground',
   },
   linearGradient: {

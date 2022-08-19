@@ -8,7 +8,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 import AppNumPad from 'src/components/AppNumPad';
 import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
 import Colors from 'src/theme/Colors';
@@ -48,7 +48,7 @@ const AddSendAmount = ({ route }) => {
   };
 
   return (
-    <Box flex={1} padding={2} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
@@ -139,15 +139,26 @@ const AddSendAmount = ({ route }) => {
         >
           <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
-        <Box marginTop={3} marginBottom={5}>
-          <Buttons
-            secondaryText={'Cancel'}
-            secondaryCallback={() => {
-              console.log('Cancel');
-            }}
-            primaryText={'Send'}
-            primaryCallback={executeSendPhaseOne}
-          />
+        <Box marginTop={3} marginBottom={5} flexDirection={'row'}>
+          <Box ml={windowWidth * -0.1}>
+            <Buttons
+              secondaryText={'Add Recipient'}
+              secondaryCallback={() => {
+                // navigation.navigate('SendConfirmation');
+                console.log('Batch Send');
+              }}
+            />
+          </Box>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              secondaryText={'Cancel'}
+              secondaryCallback={() => {
+                console.log('Cancel');
+              }}
+              primaryText={'Send'}
+              primaryCallback={executeSendPhaseOne}
+            />
+          </Box>
         </Box>
       </Box>
       <AppNumPad
@@ -157,12 +168,16 @@ const AddSendAmount = ({ route }) => {
         }}
         clear={() => setAmount('')}
         color={'#073E39'}
-        height={windowHeight >= 850 ? 80 : 55}
+        height={windowHeight >= 850 ? 80 : 60}
       />
     </Box>
   );
 };
 const styles = ScaledSheet.create({
+  Container: {
+    flex: 1,
+    padding: '20@s',
+  },
   textInput: {
     width: '100%',
     backgroundColor: Colors?.textInputBackground,
