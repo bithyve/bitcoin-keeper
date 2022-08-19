@@ -435,10 +435,11 @@ function* isBackedUP({
       )
     ) {
       // UAI update here
-      setBackupWarning(true)
+
+      yield put(setBackupWarning(true))
     }
   }
-  setBackupWarning(false)
+  yield put(setBackupWarning(true))
 }
 
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
