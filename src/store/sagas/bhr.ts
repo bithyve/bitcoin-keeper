@@ -439,7 +439,7 @@ function* isBackedUP({
       yield put(setBackupWarning(true))
     }
   }
-  yield put(setBackupWarning(true))
+  yield put(setBackupWarning(false))
 }
 
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
