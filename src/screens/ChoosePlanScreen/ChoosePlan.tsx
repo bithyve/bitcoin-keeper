@@ -8,7 +8,6 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import BackIcon from 'src/assets/icons/back.svg';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import Note from 'src/components/Note/Note';
-import DotView from 'src/components/DotView';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RNIap, {
   requestSubscription,
@@ -177,11 +176,11 @@ const ChoosePlan = (props) => {
             fontWeight={'bold'}
             fontFamily={'body'}
           >
-            {items[currentPosition].name}
+            {`Benefits of going ${items[currentPosition].name}`}
           </Text>
-          <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
+          {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
             {items[currentPosition].subTitle}
-          </Text>
+          </Text> */}
         </Box>
         <Box mx={12}>
           {items[currentPosition].benifits.map((i) => (
