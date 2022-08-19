@@ -45,9 +45,8 @@ import {
   generateEncryptionKey,
   hash512,
 } from 'src/core/services/operations/encryption';
-import { setBackupWarning } from '../reducers/bhr';
-import { BackupHistory, BackupAction } from 'src/common/data/enums/BHR';
 import { uaiChecks } from '../sagaActions/uai';
+import { setWarning } from '../sagaActions/bhr';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   const byteArray = new Uint8Array(byteString.length);
@@ -129,15 +128,15 @@ function* credentialsAuthWorker({ payload }) {
   yield put(setKey(key));
   if (!payload.reLogin) {
     // case: login
-    yield put(autoSyncWallets());
-    yield put(fetchFeeAndExchangeRates());
-    yield put(getMessages());
-
     const history = yield call(
       dbManager.getCollection,
       RealmSchema.BackupHistory
     );
-    yield put(setBackupWarning(isBackedUP(history)));
+
+    yield put(autoSyncWallets());
+    yield put(fetchFeeAndExchangeRates());
+    yield put(getMessages());
+    yield put(setWarning(history));
     yield put(uaiChecks());
   }
   // check if the app has been upgraded
@@ -263,29 +262,6 @@ function* applicationUpdateWorker({
   } catch (error) {
     console.log(error);
   }
-}
-
-function isBackedUP(record: BackupHistory): boolean {
-
-  const currentDate = new Date();
-  const lastRecord = record[record.length - 1]
-  const lastBackup = new Date(record[record.length - 1].date);
-  // difference between dates in days 
-  const differenceInDays = (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24);
-
-  if (lastRecord && differenceInDays > 30 &&
-    (
-      lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
-      lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
-      lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
-      lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED
-    )
-  ) {
-    // UAI update here
-
-    return true
-  }
-  return false
 }
 
 export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);

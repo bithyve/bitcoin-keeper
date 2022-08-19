@@ -19,9 +19,10 @@ import {
   RECOVER_BACKUP,
   getAppImage,
   UPADTE_HEALTH_CHECK_SIGNER,
+  SET_BACKUP_WARNING
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
-import { BackupAction, BackupType } from '../../common/data/enums/BHR';
+import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
@@ -39,6 +40,7 @@ import {
   setDownloadingBackup,
   setInvalidPassword,
   setSeedConfirmed,
+  setBackupWarning
 } from '../reducers/bhr';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
@@ -104,7 +106,7 @@ function* cloudBackupSkippedWorked() {
       confirmed: false,
       subtitle: '',
     });
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* confirmCloudBackupWorked({
@@ -193,7 +195,7 @@ function* seedBackeupConfirmedWorked({
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* initCloudBackupWorked({
@@ -407,10 +409,44 @@ function* healthCheckSignerWorker({
   }
 }
 
+function* isBackedUP({
+  payload,
+}: {
+  payload: {
+    history: BackupHistory;
+  };
+}) {
+  const { history } = payload;
+  const lastRecord = history[history.length - 1]
+
+  console.log('getting there');
+
+  if (lastRecord) {
+    const currentDate = new Date();
+    const lastBackup = new Date(history[history.length - 1].date);
+    const differenceInDays = (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24);
+
+    if (differenceInDays > 30 &&
+      (
+        lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
+        lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
+        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
+        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED
+      )
+    ) {
+      // UAI update here
+      setBackupWarning(true)
+    }
+  }
+  setBackupWarning(false)
+}
+
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);
+export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
+
 export const cloudBackupSkippedWatcher = createWatcher(
   cloudBackupSkippedWorked,
   CLOUD_BACKUP_SKIPPED
