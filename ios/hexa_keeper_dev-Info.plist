@@ -39,6 +39,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app uses BLE to communicate with Sensor Tag</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -77,7 +79,5 @@
 		<string>D2760000850100</string>
 		<string>D2760000850101</string>
 	</array>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This app uses BLE to communicate with Sensor Tag</string>
 </dict>
 </plist>
