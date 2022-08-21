@@ -1,3 +1,5 @@
+import JSBI from 'jsbi';
+
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';
 if (typeof process === 'undefined') {
@@ -13,7 +15,9 @@ if (typeof process === 'undefined') {
 
 process.browser = false;
 if (typeof Buffer === 'undefined') global.Buffer = require('buffer').Buffer;
-if (typeof BigInt === 'undefined') global.BigInt = require('big-integer');
+if (typeof BigInt === 'undefined') {
+  global.BigInt = JSBI.BigInt;
+}
 
 // global.location = global.location || { port: 80 }
 const isDev = typeof __DEV__ === 'boolean' && __DEV__;

@@ -1,10 +1,14 @@
+import JSBI from 'jsbi';
+
+const BigInt = JSBI.BigInt;
+
 function bigintToSmallEndian(value: bigint, length: number, buffer: Buffer, offset: number): void {
   for (let i = 0; i < length; i++) {
     if (buffer[i + offset] == undefined) {
       throw Error('Buffer too small');
     }
-    buffer[i + offset] = Number(value % BigInt(256));
-    value = value >> BigInt(8);
+    buffer[i + offset] = JSBI.toNumber(JSBI.remainder(BigInt(value), BigInt(256)));
+    value = JSBI.toNumber(JSBI.signedRightShift(BigInt(value), BigInt(8)));
   }
 }
 
@@ -14,9 +18,10 @@ function smallEndianToBigint(buffer: Buffer, offset: number, length: number): bi
     if (buffer[i + offset] == undefined) {
       throw Error('Buffer too small');
     }
-    result += BigInt(buffer[i + offset]) << BigInt(i * 8);
+
+    result = JSBI.add(result, JSBI.leftShift(BigInt(buffer[i + offset]), BigInt(i * 8)));
   }
-  return result;
+  return JSBI.toNumber(result);
 }
 
 /**
@@ -39,17 +44,17 @@ function getVarintSize(value: number | bigint): 1 | 3 | 5 | 9 {
     value = sanitizeBigintToNumber(value);
   }
 
-  if (value < BigInt(0)) {
+  if (JSBI.lessThan(BigInt(value), BigInt(0))) {
     throw new RangeError('Negative numbers are not supported');
   }
 
-  if (value >= BigInt(1) << BigInt(64)) {
+  if (JSBI.greaterThanOrEqual(BigInt(value), JSBI.leftShift(BigInt(1), BigInt(64)))) {
     throw new RangeError('Too large for a Bitcoin-style varint');
   }
 
-  if (value < BigInt(0xfd)) return 1;
-  else if (value <= BigInt(0xffff)) return 3;
-  else if (value <= BigInt(0xffffffff)) return 5;
+  if (JSBI.lessThan(BigInt(value), BigInt(0xfd))) return 1;
+  else if (JSBI.lessThanOrEqual(BigInt(value), BigInt(0xffff))) return 3;
+  else if (JSBI.lessThanOrEqual(BigInt(value), BigInt(0xffffffff))) return 5;
   else return 9;
 }
 
@@ -74,14 +79,14 @@ export function parseVarint(data: Buffer, offset: number): readonly [bigint, num
   }
 
   if (data[offset] < 0xfd) {
-    return [BigInt(data[offset]), 1];
+    return BigInt(data[offset]).concat(1);
   } else {
     let size: number;
     if (data[offset] === 0xfd) size = 2;
     else if (data[offset] === 0xfe) size = 4;
     else size = 8;
 
-    return [smallEndianToBigint(data, offset + 1, size), size + 1];
+    return smallEndianToBigint(data, offset + 1, size), size + 1;
   }
 }
 
@@ -91,12 +96,11 @@ export function createVarint(value: number | bigint): Buffer {
   }
 
   const size = getVarintSize(value);
-
   value = BigInt(value);
 
   const buffer = Buffer.alloc(size);
   if (size == 1) {
-    buffer[0] = Number(value);
+    buffer[0] = JSBI.toNumber(value);
   } else {
     if (size == 3) buffer[0] = 0xfd;
     else if (size === 5) buffer[0] = 0xfe;

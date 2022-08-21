@@ -329,8 +329,8 @@ const SignTransactionScreen = () => {
             const app = new AppClient(LedgerCom.current);
             const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
             const multisigWalletPolicy = new WalletPolicy(
-              'ColdStorage',
-              'sh(wsh(sortedmulti(1,@0,@1)))',
+              'Cold storage',
+              'wsh(sortedmulti(1,@0,@1))',
               signers.map((signer) => {
                 const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
                   signer.xpubInfo.derivationPath.indexOf('/')
@@ -338,7 +338,9 @@ const SignTransactionScreen = () => {
                 return `[${path}]${signer.xpub}/**`;
               })
             );
+            console.log(multisigWalletPolicy);
             const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
+            console.log(policyId, policyHmac);
             const psbt = new PsbtV2(); //??
             psbt.deserialize(buff);
             console.log({ psbt });

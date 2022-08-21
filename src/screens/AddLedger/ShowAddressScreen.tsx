@@ -78,15 +78,16 @@ const ShowAddressScreen = ({ transport }) => {
         lastHealthCheck: new Date(),
       };
       // const {
-      //   xpub: xpub2,
+      //   xpub: xpubMock,
       //   masterFingerprint: xfp,
       //   derivationPath,
       // } = generateMockExtendedKey(EntityKind.VAULT);
 
+      // console.log({ xpubMock, xfp, derivationPath });
+
       const xpubMock =
-        'tpubDEiaCA6jkvH9MTdbuqbFXrcZfKhyixmdXcSJKhoR742PdCPzXqdLTfrg6TdJPzus38Pap78CWgxm5Fx9N5kUr5FxNr6JnAb8ZD163zHiZ6q';
-      const derivationPath =
-        'tpubDEiaCA6jkvH9MTdbuqbFXrcZfKhyixmdXcSJKhoR742PdCPzXqdLTfrg6TdJPzus38Pap78CWgxm5Fx9N5kUr5FxNr6JnAb8ZD163zHiZ6q';
+        'tpubDFYVwkYjCwgScWbu1o7ygEhDyYJkRdTQre5pCKvxRJj25y7WNZFFk8g3CYRkUQ9ifQTQT6f3uptMei77xNTbZPF2vUeP4phqyzSZucCWHTZ';
+      const derivationPath = `m/48'/1'/58336'/1'`;
       const xfp = '73DC8582';
       const signer2: VaultSigner = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(xpubMock, network),
