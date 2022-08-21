@@ -21,7 +21,7 @@ import { reduxStorage } from 'src/storage';
 import createSagaMiddleware from 'redux-saga';
 import { rootSaga } from './sagas';
 
-const rootReducer = combineReducers({
+export const rootReducer = combineReducers({
   settings: settingsReducer,
   login: loginReducer,
   storage: storageReducer,
@@ -54,9 +54,7 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
+      serializableCheck: false,
     }).concat(middlewars),
 });
 

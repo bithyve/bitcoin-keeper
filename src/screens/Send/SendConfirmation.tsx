@@ -5,7 +5,6 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
-
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';

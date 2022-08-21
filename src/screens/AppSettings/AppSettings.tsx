@@ -1,10 +1,14 @@
-import { Alert, SafeAreaView, Platform, TouchableOpacity, NativeModules } from 'react-native';
+import { Alert, NativeModules, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-
+import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+
+import BackupIcon from 'src/assets/images/svgs/backup.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import HeaderTitle from 'src/components/HeaderTitle';
+import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import Note from 'src/components/Note/Note';
@@ -14,10 +18,6 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
-import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
-import LinkIcon from 'src/assets/icons/link.svg';
-import BackupIcon from 'src/assets/images/svgs/backup.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const GoogleDrive = NativeModules.GoogleDrive;
@@ -26,6 +26,7 @@ const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
   const { appId } = useAppSelector((state) => state.storage);
+  const { backupWarning } = useAppSelector((state) => state.bhr);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -46,8 +47,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -119,12 +120,9 @@ const AppSettings = ({ navigation }) => {
         paddingLeft={wp(10)}
       >
         {Icon && (
-          <Box
-            w={'16%'}
-            position={'relative'}
-          >
+          <Box w={'16%'} position={'relative'}>
             {/* { Notification indicator } */}
-            {/* <Box
+            {backupWarning && <Box
               height={3}
               width={3}
               bg={'light.indicator'}
@@ -134,7 +132,7 @@ const AppSettings = ({ navigation }) => {
               position={'absolute'}
               right={wp(10)}
               zIndex={999}
-            /> */}
+            />}
             <BackupIcon />
           </Box>
         )}
@@ -175,8 +173,12 @@ const AppSettings = ({ navigation }) => {
       </Box>
       <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
-          <Text fontSize={RFValue(20)} fontWeight={200} letterSpacing={1}>{common.settings}</Text>
-          <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6}>{settings.selectCurrency}</Text>
+          <Text fontSize={RFValue(20)} fontWeight={200} letterSpacing={1}>
+            {common.settings}
+          </Text>
+          <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6}>
+            {settings.selectCurrency}
+          </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
           <CurrencyTypeSwitch />
@@ -244,7 +246,6 @@ const AppSettings = ({ navigation }) => {
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
-
         </ScrollView>
 
         <Pressable onPress={() => openLink('https://t.me/HexaWallet')}>
@@ -275,7 +276,7 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Pressable>
 
-        <Box flex={0.1} mx={7} >
+        <Box flex={0.1} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
