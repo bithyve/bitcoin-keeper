@@ -47,8 +47,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -112,15 +112,17 @@ const AppSettings = ({ navigation }) => {
       <Pressable
         flexDirection={'row'}
         alignItems={'center'}
-        width={'100%'}
         onPress={onPress}
         backgroundColor={'light.lightYellow'}
-        borderRadius={10}
-        height={hp(116)}
-        paddingLeft={wp(10)}
+        style={{
+          borderRadius: 10,
+          height: hp(116),
+          paddingLeft: wp(20),
+          width: '100%'
+        }}
       >
         {Icon && (
-          <Box w={'16%'} position={'relative'}>
+          <Box position={'relative'} style={{ width: wp(40) }}>
             {/* { Notification indicator } */}
             {backupWarning && <Box
               height={3}
@@ -136,7 +138,7 @@ const AppSettings = ({ navigation }) => {
             <BackupIcon />
           </Box>
         )}
-        <Box w={Icon ? '80%' : '96%'} marginLeft={wp(10)}>
+        <Box style={{ marginLeft: wp(20) }}>
           <Text
             color={'light.lightBlack'}
             fontFamily={'body'}
@@ -193,7 +195,7 @@ const AppSettings = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
-          <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={wp(25)}>
+          <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={25}>
             <Option
               title={'App Backup'}
               subTitle={'Seed words health check is due'}
@@ -253,13 +255,14 @@ const AppSettings = ({ navigation }) => {
             flexDirection={'row'}
             justifyContent={'space-evenly'}
             mx={7}
-            p={3}
-            height={hp(45)}
+            // p={2}
+            height={hp(40)}
             borderRadius={8}
             marginBottom={hp(8)}
             backgroundColor={'light.lightYellow'}
+            alignItems={'center'}
           >
-            <Box flex={0.9}>
+            <Box>
               <Text
                 color={'light.textColor2'}
                 fontWeight={200}
@@ -276,7 +279,7 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Pressable>
 
-        <Box flex={0.1} mx={7}>
+        <Box style={{ flex: hp(0.17) }} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
