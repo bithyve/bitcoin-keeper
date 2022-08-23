@@ -28,6 +28,7 @@ import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { ScaledSheet } from 'react-native-size-matters';
 import { SignerMap } from '../NewHomeScreen/SignerMap';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -447,7 +448,7 @@ const SignTransactionScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     backgroundColor: 'light.ReceiveBackground',
