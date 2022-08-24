@@ -96,9 +96,6 @@ const AddSendAmount = ({ route }) => {
       </Box>
 
       <Box marginX={3}>
-
-
-
         <Box
           flexDirection={'row'}
           width={'100%'}
@@ -137,6 +134,7 @@ const AddSendAmount = ({ route }) => {
           </Box>
           <Pressable
             backgroundColor={'light.yellow1'}
+            onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
             style={{
               paddingHorizontal: 10,
               paddingVertical: 3,
@@ -148,16 +146,10 @@ const AddSendAmount = ({ route }) => {
               letterSpacing={0.6}
               fontWeight={200}
             >
-              Max Send
+              Send Max
             </Text>
           </Pressable>
-
         </Box>
-
-
-
-
-
 
         <Box
           flexDirection={'row'}
