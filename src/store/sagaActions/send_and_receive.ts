@@ -1,13 +1,15 @@
-import { Action } from 'redux';
-import { Satoshis } from '../../common/data/typealiases/UnitAliases';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { TxPriority } from 'src/core/wallets/enums';
-import { Recipient } from 'src/common/data/models/interfaces/Recipient';
 import {
   SerializedPSBTEnvelop,
+  SigningPayload,
   TransactionPrerequisiteElements,
 } from 'src/core/wallets/interfaces';
+
+import { Action } from 'redux';
+import { Recipient } from 'src/common/data/models/interfaces/Recipient';
+import { Satoshis } from '../../common/data/typealiases/UnitAliases';
+import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';
@@ -24,6 +26,7 @@ export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
+export const UPDATE_PSBT_SIGNATURES = 'UPDATE_PSBT_SIGNATURES';
 export const SEND_PHASE_THREE = 'SEND_PHASE_THREE';
 export const SENDING_FAILED = 'SENDING_FAILED';
 export const SENDING_SUCCEEDED = 'SENDING_SUCCEEDED';
@@ -200,6 +203,26 @@ export interface SendPhaseThreeAction extends Action {
     txnPriority: TxPriority;
   };
 }
+
+export interface UpdatePSBTAction extends Action {
+  type: typeof UPDATE_PSBT_SIGNATURES;
+  payload: {
+    signedSerializedPSBT?: string;
+    signingPayload?: SigningPayload[];
+    signerId: string;
+  };
+}
+
+export const updatePSBTSignatures = (payload: {
+  signedSerializedPSBT?: string;
+  signingPayload?: SigningPayload[];
+  signerId: string;
+}): UpdatePSBTAction => {
+  return {
+    type: UPDATE_PSBT_SIGNATURES,
+    payload,
+  };
+};
 
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;

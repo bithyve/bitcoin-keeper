@@ -902,7 +902,7 @@ export default class WalletOperations {
         signedPSBT?: undefined;
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
-    let signingPayload: SigningPayload[]; // in case of TapSigner, we'll require a signingPayload
+    let signingPayload: SigningPayload[] = []; // in case of TapSigner, we'll require a signingPayload
     let isSigned = false;
     // case: if signer has an xpriv attached to it(for ex: Mock Signer), we'll sign the PSBT right away
     if (signer.xpriv) {
@@ -934,7 +934,7 @@ export default class WalletOperations {
             inputs[inputIndex].address,
             wallet as Vault
           );
-          const publicKey = signerPubkeyMap[signer.xpub];
+          const publicKey = signerPubkeyMap.get(signer.xpub);
           const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
           inputsToSign.push({
             digest: hash.toString('hex'),
@@ -950,7 +950,7 @@ export default class WalletOperations {
 
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
-      singerId: signer.signerId,
+      signerId: signer.signerId,
       signerType: signer.type,
       serializedPSBT,
       signingPayload,
@@ -1116,7 +1116,6 @@ export default class WalletOperations {
     for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
       const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
       const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
-
       if (signerType === SignerType.TAPSIGNER) {
         for (const { inputsToSign } of signingPayload) {
           for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
@@ -1133,7 +1132,6 @@ export default class WalletOperations {
       if (!combinedPSBT) combinedPSBT = PSBT;
       else combinedPSBT.combine(PSBT);
     }
-
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const txid = await this.broadcastTransaction(wallet, combinedPSBT, inputs, recipients, network);
     return {

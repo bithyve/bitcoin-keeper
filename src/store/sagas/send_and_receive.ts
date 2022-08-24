@@ -1,46 +1,49 @@
-import { put, call, select } from 'redux-saga/effects';
+import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import {
-  CalculateCustomFeeAction,
-  CalculateSendMaxFeeAction,
   CALCULATE_CUSTOM_FEE,
   CALCULATE_SEND_MAX_FEE,
-  customFeeCalculated,
-  customSendMaxUpdated,
-  SendPhaseOneAction,
-  SendPhaseTwoAction,
-  SEND_PHASE_ONE,
-  SEND_PHASE_TWO,
-  feeIntelMissing,
-  sendMaxFeeCalculated,
-  SEND_TX_NOTIFICATION,
   CROSS_TRANSFER,
+  CalculateCustomFeeAction,
+  CalculateSendMaxFeeAction,
   CrossTransferAction,
   FETCH_FEE_AND_EXCHANGE_RATES,
-  SendPhaseThreeAction,
+  SEND_PHASE_ONE,
   SEND_PHASE_THREE,
+  SEND_PHASE_TWO,
+  SEND_TX_NOTIFICATION,
+  SendPhaseOneAction,
+  SendPhaseThreeAction,
+  SendPhaseTwoAction,
+  UPDATE_PSBT_SIGNATURES,
+  UpdatePSBTAction,
+  customFeeCalculated,
+  customSendMaxUpdated,
+  feeIntelMissing,
+  sendMaxFeeCalculated,
 } from '../sagaActions/send_and_receive';
-import RecipientKind from '../../common/data/enums/RecipientKind';
-import idx from 'idx';
-import _ from 'lodash';
-import dbManager from '../../storage/realm/dbManager';
-import WalletOperations from 'src/core/wallets/operations';
-import { createWatcher } from '../utilities';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, TxPriority, WalletType } from 'src/core/wallets/enums';
-import Relay from 'src/core/services/operations/Relay';
 import {
-  sendPhaseOneExecuted,
   SendPhaseOneExecutedPayload,
+  sendPhaseOneExecuted,
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setAverageTxFee,
   setExchangeRates,
+  updatePSBTEnvelops,
 } from '../reducers/send_and_receive';
-import * as bitcoinJS from 'bitcoinjs-lib';
-import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
+import { call, put, select } from 'redux-saga/effects';
+
+import { RealmSchema } from 'src/storage/realm/enum';
+import RecipientKind from '../../common/data/enums/RecipientKind';
+import Relay from 'src/core/services/operations/Relay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
+import { createWatcher } from '../utilities';
+import dbManager from '../../storage/realm/dbManager';
+import idx from 'idx';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return '';
@@ -173,6 +176,22 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
+function* updatePSBTSignaturesWorker({ payload }: UpdatePSBTAction) {
+  const { signerId, signedSerializedPSBT, signingPayload } = payload;
+  yield put(
+    updatePSBTEnvelops({
+      signerId,
+      signedSerializedPSBT,
+      signingPayload,
+    })
+  );
+}
+
+export const updatePSBTSignaturesWatcher = createWatcher(
+  updatePSBTSignaturesWorker,
+  UPDATE_PSBT_SIGNATURES
+);
+
 function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
@@ -183,7 +202,6 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const { wallet, txnPriority } = payload;
-
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
@@ -194,7 +212,6 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       throw new Error(
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
-
     const { txid } = yield call(
       WalletOperations.transferST3,
       wallet,
@@ -203,7 +220,6 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       txnPriority,
       recipients
     );
-
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
     yield put(
       sendPhaseThreeExecuted({
@@ -211,7 +227,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
         txid,
       })
     );
-    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
   } catch (err) {

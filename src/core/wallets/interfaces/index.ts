@@ -222,7 +222,7 @@ export interface SigningPayload {
 }
 
 export interface SerializedPSBTEnvelop {
-  singerId: string;
+  signerId: string;
   signerType: SignerType;
   serializedPSBT: string;
   signingPayload?: SigningPayload[];

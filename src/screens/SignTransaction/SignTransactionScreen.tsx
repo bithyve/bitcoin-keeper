@@ -17,6 +17,7 @@ import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 
 import { CKTapCard } from 'cktap-protocol-react-native';
 import Header from 'src/components/Header';
@@ -28,14 +29,15 @@ import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { ScaledSheet } from 'react-native-size-matters';
 import { SignerMap } from '../NewHomeScreen/SignerMap';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { cloneDeep } from 'lodash';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
+import useDebouncedEffect from 'src/hooks/useDebouncedEffect';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
 
@@ -210,6 +212,7 @@ const SignTransactionScreen = () => {
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
   const [nfcVisible, setNfcVisible] = useState(false);
+  const [activeSignerId, setActiveSignerId] = useState<string>();
   const LedgerCom = useRef();
   const onSelectDevice = useCallback(async (device) => {
     try {
@@ -225,8 +228,8 @@ const SignTransactionScreen = () => {
   }, []);
 
   const navigation = useNavigation();
-  const serializedPSBTEnvelop = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelop
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const textRef = useRef(null);
   const dispatch = useDispatch();
@@ -254,21 +257,53 @@ const SignTransactionScreen = () => {
       }
     });
     dispatch(
-      sendPhaseThree({
-        wallet: defaultVault,
-        txnPriority: TxPriority.LOW,
-        serializedPSBTEnvelop: { signerType: SignerType.COLDCARD, serializedPSBT: payload.psbt },
-      })
+      updatePSBTSignatures({ signedSerializedPSBT: payload.psbt, signerId: activeSignerId })
     );
-    navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
   };
 
+  let dispatched = false;
+  const areSignaturesSufficient = () => {
+    let signedTxCount = 0;
+    serializedPSBTEnvelops.forEach((envelop) => {
+      if (envelop.isSigned) {
+        signedTxCount++;
+      }
+    });
+    // modify this in dev builds for mock signers
+    if (signedTxCount >= defaultVault.scheme.m) {
+      dispatch(
+        sendPhaseThree({
+          wallet: defaultVault,
+          txnPriority: TxPriority.LOW,
+        })
+      );
+      dispatched = true;
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      return true;
+    }
+    return false;
+  };
+
+  useDebouncedEffect(
+    () => {
+      if (!dispatched) {
+        areSignaturesSufficient();
+      }
+    },
+    {
+      timeout: 500,
+    },
+    [serializedPSBTEnvelops]
+  );
+
   const signTransaction = useCallback(async () => {
-    if (serializedPSBTEnvelop) {
-      const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
-      const { signerType, signingDataHW } = copySerializedPSBTEnvelop;
-      switch (signerType) {
-        case SignerType.TAPSIGNER: {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
+      for (let i = 0; i < serializedPSBTEnvelops.length; i++) {
+        const serializedPSBTEnvelop = serializedPSBTEnvelops[i];
+        const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
+        const { signerType, signingPayload, signerId } = copySerializedPSBTEnvelop;
+        setActiveSignerId(signerId);
+        if (SignerType.TAPSIGNER === signerType) {
           setTapsignerModal(false);
           const withModal = (callback) => {
             return Platform.select({
@@ -281,8 +316,8 @@ const SignTransactionScreen = () => {
               ios: async () => card.nfcWrapper(callback),
             });
           };
-          const { inputsToSign } = signingDataHW[0];
-          withModal(async () => {
+          const { inputsToSign } = signingPayload[0];
+          await withModal(async () => {
             try {
               const status = await card.first_look();
               if (status.path) {
@@ -293,14 +328,7 @@ const SignTransactionScreen = () => {
                   const signature = await card.sign_digest(textRef.current, 0, digest, subpath);
                   input.signature = signature.slice(1).toString('hex');
                 }
-                dispatch(
-                  sendPhaseThree({
-                    wallet: defaultVault,
-                    txnPriority: TxPriority.LOW,
-                    serializedPSBTEnvelop: copySerializedPSBTEnvelop,
-                  })
-                );
-                navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+                dispatch(updatePSBTSignatures({ signingPayload, signerId }));
               } else {
                 Alert.alert('Please setup card before signing!');
               }
@@ -308,8 +336,7 @@ const SignTransactionScreen = () => {
               console.log(e);
             }
           })().catch(console.log);
-        }
-        case SignerType.COLDCARD: {
+        } else if (SignerType.COLDCARD === signerType) {
           try {
             setColdCardModal(false);
             setNfcVisible(true);
@@ -322,8 +349,7 @@ const SignTransactionScreen = () => {
             setNfcVisible(false);
             console.log({ error });
           }
-        }
-        case SignerType.LEDGER: {
+        } else if (SignerType.LEDGER === signerType) {
           try {
             setLedgerModal(false);
             const app = new AppClient(LedgerCom.current);
@@ -359,13 +385,12 @@ const SignTransactionScreen = () => {
             console.log({ error });
             Alert.alert(error.toString());
           }
-        }
-        default: {
+        } else {
           break;
         }
       }
     }
-  }, [serializedPSBTEnvelop]);
+  }, [serializedPSBTEnvelops, activeSignerId]);
 
   const callbackForSigners = (type: SignerType) => {
     switch (type) {
@@ -447,7 +472,7 @@ const SignTransactionScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     backgroundColor: 'light.ReceiveBackground',

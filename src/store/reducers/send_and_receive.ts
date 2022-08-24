@@ -1,13 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
   SerializedPSBTEnvelop,
+  SigningPayload,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
 } from 'src/core/wallets/interfaces/';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+
+import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { TxPriority } from 'src/core/wallets/enums';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;
@@ -27,6 +29,12 @@ export interface SendPhaseTwoExecutedPayload {
   serializedPSBTEnvelops?: SerializedPSBTEnvelop[];
   txid?: string;
   err?: string;
+}
+
+export interface UpdatePSBTPayload {
+  signedSerializedPSBT?: string;
+  signingPayload?: SigningPayload[];
+  signerId: string;
 }
 
 export interface SendPhaseThreeExecutedPayload {
@@ -181,6 +189,23 @@ const sendAndReceiveSlice = createSlice({
       };
     },
 
+    updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
+      const { signerId, signingPayload, signedSerializedPSBT } = action.payload;
+      state.sendPhaseTwo = {
+        ...state.sendPhaseTwo,
+        serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
+          if (envelop.signerId === signerId) {
+            envelop.serializedPSBT = signedSerializedPSBT
+              ? signedSerializedPSBT
+              : envelop.serializedPSBT;
+            envelop.isSigned = true;
+            envelop.signingPayload = signingPayload ? signingPayload : envelop.signingPayload;
+          }
+          return envelop;
+        }),
+      };
+    },
+
     sendPhaseThreeExecuted: (state, action: PayloadAction<SendPhaseThreeExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
       state.sendPhaseThree = {
@@ -207,5 +232,6 @@ export const {
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
   sendPhasesReset,
+  updatePSBTEnvelops,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

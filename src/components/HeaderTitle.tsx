@@ -46,7 +46,6 @@ const HeaderTitle = ({
         )}
         {subtitle && (
           <Text
-            numberOfLines={1}
             style={styles.addWalletDescription}
             color={'light.lightBlack'}
             fontFamily={'body'}
