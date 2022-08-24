@@ -609,6 +609,9 @@ export default class WalletUtilities {
           );
           return { outputs, changeAddress };
         }
+      } else {
+        // when there's no change
+        return { outputs, changeAddress: '' };
       }
     }
   };
