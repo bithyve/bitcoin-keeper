@@ -1,7 +1,7 @@
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import React, { useCallback } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -80,19 +80,21 @@ const SetupTapsigner = () => {
         if (status.path) {
           console.log(status.path);
           const xpub = await card.get_xpub(cvc);
+          const xfp = await card.get_xfp(cvc);
           console.log(xpub);
-          return { xpub, status };
+          return { xpub, status, xfp };
         } else {
           await card.setup(cvc);
           const newCard = await card.first_look();
           const xpub = await card.get_xpub(cvc);
-          return { xpub, status: newCard };
+          const xfp = await card.get_xfp(cvc);
+          return { xpub, status: newCard, xfp };
         }
       }
     })()
       .then((resp) => {
         console.log(resp);
-        const { xpub, status } = resp;
+        const { xpub, status, xfp } = resp;
         const networkType =
           config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
         const network = WalletUtilities.getNetworkByType(networkType);
@@ -104,6 +106,7 @@ const SetupTapsigner = () => {
           xpub,
           xpubInfo: {
             derivationPath: status.path,
+            xfp,
           },
           lastHealthCheck: new Date(),
         };
@@ -120,7 +123,9 @@ const SetupTapsigner = () => {
       const networkType = NetworkType.TESTNET;
       const network = WalletUtilities.getNetworkByType(networkType);
 
-      const { xpub, xpriv, derivationPath } = generateMockExtendedKey(EntityKind.VAULT);
+      const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
+        EntityKind.VAULT
+      );
       const mockTapSigner: VaultSigner = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
         type: SignerType.TAPSIGNER,
@@ -129,6 +134,7 @@ const SetupTapsigner = () => {
         xpriv,
         xpubInfo: {
           derivationPath,
+          xfp: masterFingerprint,
         },
         lastHealthCheck: new Date(),
       };
