@@ -15,9 +15,12 @@ import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
 } from 'react-native-iap';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import Elite from 'src/assets/images/svgs/elitePlan.svg';
-import Pro from 'src/assets/images/svgs/expert.svg';
+import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import Hodler from 'src/assets/images/svgs/ic_hodler.svg';
+import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
+import Whale from 'src/assets/images/svgs/ic_whale.svg';
+import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
 
 const plans = [
   {
@@ -33,7 +36,8 @@ const plans = [
     productId: 'pleb',
     productType: 'free',
     subTitle: 'Always free',
-    icon: <Basic />,
+    icon: <Pleb />,
+    iconFocused: <PlebFocused />,
   },
   {
     benifits: [
@@ -44,7 +48,8 @@ const plans = [
       'Email support',
     ],
     subTitle: 'Multi-sig security',
-    icon: <Pro />,
+    icon: <Hodler />,
+    iconFocused: <HodlerFocused />,
   },
   {
     benifits: [
@@ -55,7 +60,8 @@ const plans = [
       'Dedicated email support',
     ],
     subTitle: 'Includes Inheritance',
-    icon: <Elite />,
+    icon: <Whale />,
+    iconFocused: <WhaleFocused />,
   },
 ];
 
@@ -110,6 +116,8 @@ const ChoosePlan = (props) => {
         data.push({
           ...subscription,
           ...plans[index + 1],
+          price: subscription.localizedPrice,
+          name: subscription.title,
         });
       });
       setItems([...data]);

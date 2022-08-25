@@ -9,10 +9,12 @@ import CustomYellowButton from '../CustomButton/CustomYellowButton';
 const ChoosePlanCarousel = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const carasualRef = useRef<Carousel<FlatList>>(null);
+
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
     props.onChange(index);
   };
+
   const _renderItem = ({ item, index }) => {
     return (
       <LinearGradient
@@ -30,7 +32,7 @@ const ChoosePlanCarousel = (props) => {
               <Text fontSize={RFValue(8)}>Current</Text>
             </Box>
           )}
-          <Box my={15}>{item.icon}</Box>
+          <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
           <Text
             fontSize={RFValue(13)}
             fontWeight={'300'}
