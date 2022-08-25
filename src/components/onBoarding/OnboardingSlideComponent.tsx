@@ -21,6 +21,8 @@ const OnboardingSlideComponent = (props) => {
           color={'light.white'}
           fontFamily={'heading'}
           textAlign={'center'}
+          fontWeight={200}
+          letterSpacing={1.8}
         >
           {props.title}
         </Text>
@@ -29,7 +31,14 @@ const OnboardingSlideComponent = (props) => {
         {props.illustration}
       </Box>
       <Box flex={0.2} justifyContent={'center'}>
-        <Text fontSize={RFValue(14)} color={'light.white'} fontFamily={'body'} textAlign={'center'}>
+        <Text
+          fontSize={RFValue(14)}
+          color={'light.white'}
+          fontFamily={'body'}
+          textAlign={'center'}
+          fontWeight={200}
+          letterSpacing={1.4}
+        >
           {props.paragraph}
         </Text>
       </Box>

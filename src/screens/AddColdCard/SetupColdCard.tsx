@@ -70,6 +70,7 @@ const SetupColdCard = () => {
         derivationPath,
         xfp,
       },
+      lastHealthCheck: new Date(),
     };
 
     return { signer: cc };
@@ -79,17 +80,16 @@ const SetupColdCard = () => {
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const {
-      xpub,
-      masterFingerprint: xfp,
-      derivationPath,
-    } = generateMockExtendedKey(EntityKind.VAULT);
+    // const {
+    //   xpub,
+    //   masterFingerprint: xfp,
+    //   derivationPath,
+    // } = generateMockExtendedKey(EntityKind.VAULT);
     // console.log(xpub, derivationPath);
-    // const xpub =
-    // 'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf';
-    // const xfp = '73DC8582';
-    // bip48/testnet/account/script/
-    // const derivationPath = `m/48'/1'/966713'/1'`;
+    const xpub =
+      'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf';
+    const xfp = '73DC8582';
+    const derivationPath = `m/48'/1'/966713'/1'`; // bip48/testnet/account/script/
     const cc: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
@@ -99,6 +99,7 @@ const SetupColdCard = () => {
         derivationPath,
         xfp,
       },
+      lastHealthCheck: new Date(),
     };
     return { signer: cc };
   };

@@ -1,7 +1,7 @@
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import React, { useCallback } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -105,13 +105,14 @@ const SetupTapsigner = () => {
           xpubInfo: {
             derivationPath: status.path,
           },
+          lastHealthCheck: new Date(),
         };
 
         const scheme: VaultScheme = { m: 1, n: 1 };
         const isVaultCreated = createVault([signer], scheme);
         if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
       })
-      .catch(console.log);
+      .catch(Alert.alert);
   }, [cvc]);
 
   const MockVaultCreation = () => {
@@ -129,6 +130,7 @@ const SetupTapsigner = () => {
         xpubInfo: {
           derivationPath,
         },
+        lastHealthCheck: new Date(),
       };
 
       const scheme: VaultScheme = { m: 1, n: 1 };

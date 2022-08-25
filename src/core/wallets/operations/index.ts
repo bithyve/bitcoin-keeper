@@ -719,7 +719,7 @@ export default class WalletOperations {
         redeemScript: p2wpkh.output,
       });
     } else if (wallet.entityKind === EntityKind.VAULT) {
-      const { p2ms, p2wsh, p2sh, subPath, pubkeys } = WalletUtilities.addressToMultiSig(
+      const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
       );
@@ -734,7 +734,7 @@ export default class WalletOperations {
           bip32Derivation.push({
             masterFingerprint,
             path,
-            pubkey: pubkeys[i],
+            pubkey: signerPubkeyMap.get(signer.xpub),
           });
         }
       }
@@ -762,6 +762,7 @@ export default class WalletOperations {
       pubkeys: Buffer[];
       address: string;
       subPath: number[];
+      signerPubkeyMap: Map<string, Buffer>;
     }
   ): {
     bip32Derivation: any[];
@@ -769,7 +770,7 @@ export default class WalletOperations {
     witnessScript: Buffer;
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
-    const { subPath, pubkeys, p2wsh, p2ms } = changeMultiSig;
+    const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
     for (let i = 0; i < (wallet as Vault).signers.length; i++) {
       const signer = (wallet as Vault).signers[i];
       if (signer.type === SignerType.COLDCARD) {
@@ -779,7 +780,7 @@ export default class WalletOperations {
         bip32Derivation.push({
           masterFingerprint,
           path,
-          pubkey: pubkeys[i],
+          pubkey: signerPubkeyMap.get(signer.xpub),
         });
       }
     }
@@ -903,7 +904,7 @@ export default class WalletOperations {
       } => {
     // TODO: To be generalized, intially for multiple tap-signers all the way to various Signer types
 
-    if ([SignerType.TAPSIGNER, SignerType.COLDCARD].includes(signer.type)) {
+    if ([SignerType.TAPSIGNER, SignerType.COLDCARD, SignerType.LEDGER].includes(signer.type)) {
       if (signer.xpriv) {
         // case: Mock Vault(Dev app)
         const network = WalletUtilities.getNetworkByType(wallet.networkType);

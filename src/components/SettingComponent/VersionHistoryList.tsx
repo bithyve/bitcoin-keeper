@@ -13,41 +13,45 @@ const VersionHistoryList = () => {
 
   return (
     <FlatList
-      style={{ overflow: 'visible' }}
+      style={{ overflow: 'visible', }}
       data={VersionHistoryData.reverse()}
       renderItem={({ item }) => (
-        <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} position="relative">
+        <Box p={1} position="relative">
           <Box
             zIndex={99}
             position={'absolute'}
-            left={-8}
+            left={-3}
+            top={0}
             bg={'light.ReceiveBackground'}
             p={1}
             borderRadius={15}
           >
             <DotView height={2} width={2} color={'#E3BE96'} />
           </Box>
-          <Text
-            color={'light.GreyText'}
-            fontSize={RFValue(10)}
-            fontWeight={'300'}
-            ml={5}
-            opacity={0.7}
-          >
-            {item.date}
-          </Text>
-          <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-            <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
-              {item.title}
+          <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} >
+            <Text
+              color={'light.GreyText'}
+              fontSize={RFValue(10)}
+              fontWeight={'300'}
+              ml={5}
+              opacity={0.7}
+              letterSpacing={0.3}
+            >
+              {item.date}
             </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-              {item.version}
-            </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-              {item.releaseNote}
-            </Text>
+            <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
+              <Text color={'light.headerText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(14)} fontFamily={'heading'}>
+                {item.title}
+              </Text>
+              <Text color={'light.GreyText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily={'body'}>
+                {item.version}
+              </Text>
+              <Text color={'light.GreyText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily={'body'}>
+                {item.releaseNote}
+              </Text>
+            </Box>
           </Box>
-        </Box>
+        </Box >
       )}
       keyExtractor={(item) => item.version}
     />
