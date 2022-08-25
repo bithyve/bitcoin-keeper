@@ -195,7 +195,7 @@ const AppSettings = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           py={3}
         >
-          <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={25}>
+          <Box paddingX={25}>
             <Option
               title={'App Backup'}
               subTitle={'Seed words health check is due'}
@@ -205,7 +205,7 @@ const AppSettings = ({ navigation }) => {
               Icon={true}
             />
           </Box>
-          {/* {isBiometicSupported && ( */}
+
           <SettingsSwitchCard
             title={sensorType}
             description={formatString(settings.UseBiometricSubTitle, sensorType)}
@@ -214,7 +214,6 @@ const AppSettings = ({ navigation }) => {
             onSwitchToggle={() => onChangeLoginMethod()}
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
-          {/* )} */}
 
           <SettingsSwitchCard
             title={settings.DarkMode}
