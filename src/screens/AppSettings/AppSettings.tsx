@@ -194,8 +194,9 @@ const AppSettings = ({ navigation }) => {
           pb={20}
           showsVerticalScrollIndicator={false}
           py={3}
+          marginBottom={hp(20)}
         >
-          <Box borderBottomColor={'light.divider'} borderBottomWidth={0.2} paddingX={25}>
+          <Box paddingX={25}>
             <Option
               title={'App Backup'}
               subTitle={'Seed words health check is due'}
@@ -205,7 +206,7 @@ const AppSettings = ({ navigation }) => {
               Icon={true}
             />
           </Box>
-          {/* {isBiometicSupported && ( */}
+
           <SettingsSwitchCard
             title={sensorType}
             description={formatString(settings.UseBiometricSubTitle, sensorType)}
@@ -214,7 +215,6 @@ const AppSettings = ({ navigation }) => {
             onSwitchToggle={() => onChangeLoginMethod()}
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
-          {/* )} */}
 
           <SettingsSwitchCard
             title={settings.DarkMode}
@@ -279,7 +279,7 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Pressable>
 
-        <Box style={{ flex: hp(0.17) }} mx={7}>
+        <Box style={{ flex: hp(0.15) }} mx={7}>
           <Box
             flexDirection={'row'}
             justifyContent={'space-evenly'}
@@ -291,7 +291,7 @@ const AppSettings = ({ navigation }) => {
           >
             <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
               <Text
-                fontSize={RFValue(13)}
+                fontSize={13}
                 fontWeight={200}
                 letterSpacing={0.79}
                 fontFamily={'body'}
@@ -305,7 +305,7 @@ const AppSettings = ({ navigation }) => {
             </Text>
             <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
               <Text
-                fontSize={RFValue(13)}
+                fontSize={13}
                 fontWeight={200}
                 letterSpacing={0.79}
                 fontFamily={'body'}
@@ -319,7 +319,7 @@ const AppSettings = ({ navigation }) => {
             </Text>
             <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
               <Text
-                fontSize={RFValue(13)}
+                fontSize={13}
                 fontWeight={200}
                 letterSpacing={0.79}
                 fontFamily={'body'}
