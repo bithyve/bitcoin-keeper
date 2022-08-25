@@ -1,14 +1,20 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Carousel from 'react-native-snap-carousel';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList, Dimensions } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 const ChoosePlanCarousel = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const carasualRef = useRef<Carousel<FlatList>>(null);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
@@ -27,7 +33,7 @@ const ChoosePlanCarousel = (props) => {
         }}
       >
         <Box py={3} alignItems={'center'} justifyContent={'center'}>
-          {item.activate && (
+          {subscription.productId === item.productId && (
             <Box bg={'light.white'} borderRadius={10} px={2}>
               <Text fontSize={RFValue(8)}>Current</Text>
             </Box>
@@ -51,9 +57,9 @@ const ChoosePlanCarousel = (props) => {
           <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
             / month
           </Text>
-          {item.upgrade ? (
+          {subscription.productId !== item.productId || item.productId !== SubscriptionTier.PLEB ? (
             <Box mt={10}>
-              <CustomYellowButton onPress={props.onPress} value={'Upgrade'} />
+              <CustomYellowButton onPress={() => props.onPress(item)} value={'Upgrade'} />
             </Box>
           ) : null}
         </Box>
