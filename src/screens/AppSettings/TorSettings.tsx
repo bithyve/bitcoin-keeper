@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { SafeAreaView, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, TouchableOpacity } from 'react-native';
 import BackIcon from 'src/assets/icons/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
@@ -9,41 +9,47 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppDispatch } from 'src/store/hooks';
 import { setTorEnabled } from 'src/store/reducers/settings';
 
-
 const TorSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus())
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const { showToast } = useToastMessage();
-  const dispatch = useAppDispatch()
+  const [message, setMessage] = useState('');
+  const dispatch = useAppDispatch();
 
-  const onChangeTorStatus = (status: TorStatus) => {
-    settorStatus(status)
-  }
+  const onChangeTorStatus = (status: TorStatus, message) => {
+    settorStatus(status);
+    if (status === TorStatus.ERROR) {
+      setMessage(message);
+    } else {
+      setMessage('');
+    }
+  };
 
   useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus)
+    RestClient.subToTorStatus(onChangeTorStatus);
     return () => {
-      RestClient.unsubscribe(onChangeTorStatus)
-    }
-  }, [])
+      RestClient.unsubscribe(onChangeTorStatus);
+    };
+  }, []);
 
   const toggleTor = () => {
     if (torStatus === TorStatus.CONNECTED) {
-      RestClient.setUseTor(false)
-      dispatch(setTorEnabled(false))
+      RestClient.setUseTor(false);
+      dispatch(setTorEnabled(false));
     } else {
-      RestClient.setUseTor(true)
+      RestClient.setUseTor(true);
       showToast('Connecting to Tor');
-      dispatch(setTorEnabled(true))
+      dispatch(setTorEnabled(true));
     }
-  }
+  };
 
   return (
     <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: '#F7F2EC',
-      }}>
+      }}
+    >
       <Box mx={10} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
@@ -61,6 +67,9 @@ const TorSettings = ({ navigation }) => {
       <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
         {`Status: ${torStatus}`}
       </Text>
+      <Text color={'light.GreyText'} fontSize={RFValue(11)} fontFamily={'body'} pl={10}>
+        {message}
+      </Text>
       <SettingsSwitchCard
         title={'Enable'}
         description={'Enable tor daemon'}
@@ -69,10 +78,8 @@ const TorSettings = ({ navigation }) => {
         onSwitchToggle={toggleTor}
         value={torStatus === TorStatus.CONNECTED}
       />
-
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default TorSettings
-
+export default TorSettings;

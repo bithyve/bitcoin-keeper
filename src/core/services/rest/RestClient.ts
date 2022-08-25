@@ -32,8 +32,8 @@ class RestClient {
     this.subscribers = this.subscribers.filter((ob) => ob !== observer);
   }
 
-  notify(status: TorStatus) {
-    this.subscribers.forEach((observer) => observer(status));
+  notify(status: TorStatus, message) {
+    this.subscribers.forEach((observer) => observer(status, message));
   }
 
   constructor() {
@@ -56,9 +56,9 @@ class RestClient {
     }
   }
 
-  private updateTorStatus(status: TorStatus) {
+  private updateTorStatus(status: TorStatus, message = '') {
     RestClient.torStatus = status;
-    this.notify(status);
+    this.notify(status, message);
   }
 
   getCommonHeaders(): object {
@@ -80,13 +80,13 @@ class RestClient {
       if (port) {
         console.log('Tor started on PORT: ', port);
         RestClient.torPort = port;
-        this.updateTorStatus(TorStatus.CONNECTED);
+        this.updateTorStatus(TorStatus.CONNECTED, `Tor started on PORT: ${port}`);
       } else {
-        this.updateTorStatus(TorStatus.ERROR);
+        this.updateTorStatus(TorStatus.ERROR, 'Failed to connect to tor daemon');
       }
     } catch (error) {
       await tor.stopIfRunning();
-      this.updateTorStatus(TorStatus.ERROR);
+      this.updateTorStatus(TorStatus.ERROR, error.message);
     }
   }
 
@@ -109,10 +109,10 @@ class RestClient {
     headers?: object
   ): Promise<AxiosResponse | RequestResponse> {
     if (RestClient.useTor && RestClient.torStatus === TorStatus.CONNECTED) {
-      console.log(
-        `using tor to connect  ${path}`,
-        JSON.stringify(body, this.getCircularReplacer())
-      );
+      // console.log(
+      //   `using tor to connect  ${path}`,
+      //   JSON.stringify(body, this.getCircularReplacer())
+      // );
       return tor.post(
         path,
         JSON.stringify(body, this.getCircularReplacer()),
@@ -123,10 +123,6 @@ class RestClient {
         true
       );
     } else {
-      console.log(
-        `not using tor to connect  ${path}`,
-        JSON.stringify(body, this.getCircularReplacer())
-      );
       return axios.post(path, body, {
         headers: {
           ...RestClient.headers,
