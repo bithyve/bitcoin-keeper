@@ -51,7 +51,10 @@ function* setupKeeperAppWorker({ payload }) {
         shells: [],
         activeShell: null,
       },
-      subscriptionPlan: SubscriptionTier.PLEB,
+      subscription: {
+        productId: SubscriptionTier.PLEB,
+        name: SubscriptionTier.PLEB.toUpperCase(),
+      },
       version: DeviceInfo.getVersion(),
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);

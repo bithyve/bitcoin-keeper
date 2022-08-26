@@ -1,4 +1,4 @@
-import { Box, Image, Pressable, Text, View, Input, ScrollView } from 'native-base';
+import { Box, Text, View, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Platform,
@@ -254,22 +254,7 @@ const EnterSeedScreen = () => {
                     </Text>
                     <TextInput
                       style={[
-                        {
-                          backgroundColor: '#FDF7F0',
-                          shadowColor: 'black',
-                          shadowOpacity: 0.4,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          elevation: 6,
-                          shadowRadius: 10,
-                          shadowOffset: { width: 1, height: 10 },
-                          borderRadius: 10,
-                          fontSize: 12,
-                          height: 35,
-                          width: 110,
-                          marginLeft: 10,
-                          borderWidth: 1,
-                          paddingHorizontal: 5,
-                        },
+                        styles.input,
                         item.invalid == true
                           ? {
                               borderColor: '#F58E6F',
@@ -282,6 +267,9 @@ const EnterSeedScreen = () => {
                       returnKeyType="next"
                       autoCorrect={false}
                       autoCapitalize="none"
+                      keyboardType={
+                        Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
+                      }
                       onChangeText={(text) => {
                         const data = [...seedData];
                         data[index].name = text.trim();
@@ -419,6 +407,21 @@ const styles = ScaledSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 10,
+  },
+  input: {
+    backgroundColor: '#FDF7F0',
+    shadowOpacity: 0.4,
+    shadowColor: 'rgba(0, 0, 0, 0.05)',
+    elevation: 6,
+    shadowRadius: 10,
+    shadowOffset: { width: 1, height: 10 },
+    borderRadius: 10,
+    fontSize: 12,
+    height: 35,
+    width: 110,
+    marginLeft: 10,
+    borderWidth: 1,
+    paddingHorizontal: 5,
   },
 });
 

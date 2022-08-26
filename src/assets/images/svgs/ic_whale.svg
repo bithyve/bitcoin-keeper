@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g id="whale" transform="translate(650 1778)">
+    <g id="Rectangle_7984" data-name="Rectangle 7984" transform="translate(-650 -1778)" fill="#5c5c5c" stroke="#fff" stroke-width="0.4">
+      <rect width="40" height="40" rx="20" stroke="none"/>
+      <rect x="0.2" y="0.2" width="39.6" height="39.6" rx="19.8" fill="none"/>
+    </g>
+    <g id="whale-2" data-name="whale" transform="translate(-653.048 -1780.879)">
+      <path id="Path_28742" data-name="Path 28742" d="M20.975,66.214a12.634,12.634,0,0,1-9.9-4.629,10.216,10.216,0,0,0,19.8,0A12.633,12.633,0,0,1,20.975,66.214Z" transform="translate(-0.744 -33.443)" fill="#fff"/>
+      <path id="Path_28743" data-name="Path 28743" d="M24.322,13.333V15.38a4.091,4.091,0,0,0,4.093,4.091,2.046,2.046,0,0,1-2.046,2.046H10c0,5.076,4.59,9.207,10.23,9.207s10.231-4.131,10.231-9.207V19.471a4.092,4.092,0,0,0,4.092-4.092V13.333ZM15.115,25.61a1.023,1.023,0,1,1,1.023-1.024A1.023,1.023,0,0,1,15.115,25.61Z" fill="#fff"/>
+    </g>
+  </g>
+</svg>

@@ -122,7 +122,7 @@ const BackupWallet = () => {
             });
           }}
         />
-        <Option
+        {/* <Option
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
           onPress={() => {
@@ -132,7 +132,7 @@ const BackupWallet = () => {
             // setHealthCheckSuccessModal(true);
             // setSkipHealthCheckModal(true);
           }}
-        />
+        /> */}
       </Box>
       <Box>
         <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>

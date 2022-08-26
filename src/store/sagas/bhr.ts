@@ -19,7 +19,7 @@ import {
   RECOVER_BACKUP,
   getAppImage,
   UPADTE_HEALTH_CHECK_SIGNER,
-  SET_BACKUP_WARNING
+  SET_BACKUP_WARNING,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
@@ -40,7 +40,7 @@ import {
   setDownloadingBackup,
   setInvalidPassword,
   setSeedConfirmed,
-  setBackupWarning
+  setBackupWarning,
 } from '../reducers/bhr';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
@@ -106,7 +106,7 @@ function* cloudBackupSkippedWorked() {
       confirmed: false,
       subtitle: '',
     });
-  } catch (error) { }
+  } catch (error) {}
 }
 
 function* confirmCloudBackupWorked({
@@ -195,7 +195,7 @@ function* seedBackeupConfirmedWorked({
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) { }
+  } catch (error) {}
 }
 
 function* initCloudBackupWorked({
@@ -295,7 +295,10 @@ function* getAppImageWorker({ payload }) {
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic: primaryMnemonic,
         imageEncryptionKey,
-        subscriptionPlan: SubscriptionTier.PLEB, // todo retrive valid sub plan
+        subscription: {
+          productId: SubscriptionTier.PLEB, // todo retrive valid sub plan
+          name: SubscriptionTier.PLEB.toUpperCase(),
+        },
         version: DeviceInfo.getVersion(),
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
@@ -414,29 +417,30 @@ function* isBackedUP({
   };
 }) {
   const { history } = payload;
-  const lastRecord = history[history.length - 1]
+  const lastRecord = history[history.length - 1];
 
   if (lastRecord) {
     const currentDate = new Date();
     const lastBackup = new Date(history[history.length - 1].date);
-    const devWarning = (currentDate.getTime() - lastBackup.getTime()) > 30 ? true : false;
-    const ProductionWarning = ((currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24)) > 30 ? true : false;
-    const selectedWarning = config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning
+    const devWarning = currentDate.getTime() - lastBackup.getTime() > 30 ? true : false;
+    const ProductionWarning =
+      (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30 ? true : false;
+    const selectedWarning =
+      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
-    if (selectedWarning &&
-      (
-        lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
+    if (
+      selectedWarning &&
+      (lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
         lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
         lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED
-      )
+        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED)
     ) {
       // UAI update here
 
-      yield put(setBackupWarning(true))
+      yield put(setBackupWarning(true));
     }
   }
-  yield put(setBackupWarning(false))
+  yield put(setBackupWarning(false));
 }
 
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);

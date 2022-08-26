@@ -1,5 +1,6 @@
 import { NodeConnect, TwoFADetails } from 'src/core/wallets/interfaces';
 import { BackupType } from '../../enums/BHR';
+import SubScription from './Subscription';
 
 export interface KeeperApp {
   id: string;
@@ -23,5 +24,5 @@ export interface KeeperApp {
   backupMethod?: BackupType;
   backupPasswordHint?: string;
   backupPassword?: string;
-  subscriptionPlan: string;
+  subscription: SubScription;
 }
