@@ -17,6 +17,7 @@ import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import LinearGradient from 'react-native-linear-gradient';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 type Props = {
   title: string;
@@ -66,13 +67,14 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
   );
 };
 
-const WalletSettings = () => {
+const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   //
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const wallet: Wallet = route?.params?.wallet;
 
-  const WalletCard = () => {
+  const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
     return (
       <LinearGradient
         colors={['#00836A', '#073E39']}
@@ -103,7 +105,7 @@ const WalletSettings = () => {
               fontSize={RFValue(14)}
               fontWeight={200}
             >
-              {'walletName'}
+              {walletName}
             </Text>
             <Text
               color={'light.white'}
@@ -111,11 +113,11 @@ const WalletSettings = () => {
               fontSize={RFValue(12)}
               fontWeight={100}
             >
-              {'walletDescription'}
+              {walletDescription}
             </Text>
           </Box>
           <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
-            {1000}
+            {walletBalance}
           </Text>
         </Box>
       </LinearGradient>
@@ -139,7 +141,11 @@ const WalletSettings = () => {
         marginTop={hp(60)}
         paddingX={wp(25)}
       >
-        <WalletCard />
+        <WalletCard
+          walletName={wallet.presentationData?.name}
+          walletDescription={wallet?.presentationData?.description}
+          walletBalance={wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed}
+        />
         {/* <Option
           title={'Wallet Backup'}
           subTitle={'Setup backup for Wallet'}
