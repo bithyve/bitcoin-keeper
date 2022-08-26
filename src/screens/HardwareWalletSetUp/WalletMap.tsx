@@ -14,6 +14,10 @@ import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
 import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
+import APP from 'src/assets/images/app.svg';
+import SERVER from 'src/assets/images/server.svg';
+
+import { Text } from 'native-base';
 
 export const WalletMap = (type: SignerType) => {
   switch (type) {
@@ -44,8 +48,14 @@ export const WalletMap = (type: SignerType) => {
       };
     case SignerType.MOBILE_KEY:
       return {
-        Icon: null,
-        Logo: null,
+        Icon: <APP />,
+        Logo: <Text
+          letterSpacing={1.5}
+          fontWeight={200}
+          fontSize={14}
+          color={'light.lightBlack2'}>
+          Mobile Key
+        </Text>,
       };
     case SignerType.PASSPORT:
       return {
@@ -54,8 +64,14 @@ export const WalletMap = (type: SignerType) => {
       };
     case SignerType.POLICY_SERVER:
       return {
-        Icon: null,
-        Logo: null,
+        Icon: <SERVER />,
+        Logo: <Text
+          letterSpacing={1.5}
+          fontWeight={200}
+          fontSize={14}
+          color={'light.lightBlack2'}>
+          Signing Server
+        </Text>,
       };
     case SignerType.TAPSIGNER:
       return {
