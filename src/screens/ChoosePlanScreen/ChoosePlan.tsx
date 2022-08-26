@@ -18,6 +18,7 @@ import RNIap, {
 import Basic from 'src/assets/images/svgs/basic.svg';
 import Elite from 'src/assets/images/svgs/elitePlan.svg';
 import Pro from 'src/assets/images/svgs/expert.svg';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const plans = [
   {
@@ -169,12 +170,28 @@ const ChoosePlan = (props) => {
           }}
           onChange={(item) => setCurrentPosition(item)}
         />
+        <Box
+          alignItems={'center'}
+          style={{
+            marginTop: hp(30),
+            marginBottom: hp(10),
+            opacity: 0.1
+          }}
+        >
+          <Box
+            borderBottomColor={'light.Border'}
+            borderBottomWidth={hp(1)}
+            width={wp(318)}
+          />
+        </Box>
+
         <Box mx={10} my={5}>
           <Text
             fontSize={RFValue(14)}
             color={'light.lightBlack'}
-            fontWeight={'bold'}
+            fontWeight={200}
             fontFamily={'body'}
+            letterSpacing={1.12}
           >
             {`Benefits of going ${items[currentPosition].name}`}
           </Text>
@@ -184,7 +201,7 @@ const ChoosePlan = (props) => {
         </Box>
         <Box mx={12}>
           {items[currentPosition].benifits.map((i) => (
-            <Box flexDirection={'row'} alignItems={'center'}>
+            <Box flexDirection={'row'} alignItems={'center'} marginY={hp(0.7)}>
               <Text
                 fontSize={RFValue(13)}
                 color={'light.GreyText'}
