@@ -102,8 +102,8 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
               'PASSPORT',
               'JADE',
               // 'KEEPER',
-              // 'POLICY_SERVER',
-              // 'MOBILE_KEY',
+              'POLICY_SERVER',
+              'MOBILE_KEY',
             ].map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
