@@ -1,7 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Text, StatusBar } from 'native-base';
-import { SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
-import { useIAP } from 'react-native-iap';
+import {
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
+import { Subscription } from 'react-native-iap';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -15,9 +21,16 @@ import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
 } from 'react-native-iap';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import Elite from 'src/assets/images/svgs/elitePlan.svg';
-import Pro from 'src/assets/images/svgs/expert.svg';
+import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import Hodler from 'src/assets/images/svgs/ic_hodler.svg';
+import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
+import Whale from 'src/assets/images/svgs/ic_whale.svg';
+import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const plans = [
@@ -34,7 +47,9 @@ const plans = [
     productId: 'pleb',
     productType: 'free',
     subTitle: 'Always free',
-    icon: <Basic />,
+    icon: <Pleb />,
+    iconFocused: <PlebFocused />,
+    price: '',
   },
   {
     benifits: [
@@ -45,7 +60,9 @@ const plans = [
       'Email support',
     ],
     subTitle: 'Multi-sig security',
-    icon: <Pro />,
+    icon: <Hodler />,
+    iconFocused: <HodlerFocused />,
+    price: '',
   },
   {
     benifits: [
@@ -56,7 +73,9 @@ const plans = [
       'Dedicated email support',
     ],
     subTitle: 'Includes Inheritance',
-    icon: <Elite />,
+    icon: <Whale />,
+    iconFocused: <WhaleFocused />,
+    price: '',
   },
 ];
 
@@ -65,18 +84,26 @@ const ChoosePlan = (props) => {
   const choosePlan = translations['choosePlan'];
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [subscriptions, setSubscriptions] = useState([]);
   const [items, setItems] = useState([plans[0]]);
 
   useEffect(() => {
     let purchaseUpdateSubscription;
     let purchaseErrorSubscription;
     RNIap.initConnection()
-      .then((connected) => {
+      .then(async (connected) => {
         purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
+          RNIap.finishTransaction(purchase, false);
           console.log('receipt', receipt);
+          const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+          const subscription: SubScription = {
+            productId: purchase.productId,
+            receipt: receipt,
+          };
+          dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+            subscription,
+          });
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
@@ -99,6 +126,19 @@ const ChoosePlan = (props) => {
     init();
   }, []);
 
+  function getAmt(subscription: Subscription) {
+    try {
+      if (Platform.OS === 'ios') {
+        return subscription.localizedPrice;
+      } else {
+        return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
+          .formattedPrice;
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  }
+
   async function init() {
     try {
       const subscriptions = await getSubscriptions([
@@ -111,13 +151,48 @@ const ChoosePlan = (props) => {
         data.push({
           ...subscription,
           ...plans[index + 1],
+          price: getAmt(subscription),
+          name: subscription.title,
         });
       });
       setItems([...data]);
       setLoading(false);
-      console.log('subscriptions', JSON.stringify(subscriptions));
+      console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
+    }
+  }
+
+  async function processSubscription(subscription: Subscription) {
+    try {
+      if (Platform.OS === 'android') {
+        console.log({
+          sku: subscription.productId,
+          purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
+          subscriptionOffers: [
+            {
+              sku: subscription.productId,
+              offerToken: subscription.subscriptionOfferDetails[0].offerToken,
+            },
+          ],
+        });
+        await requestSubscription({
+          sku: subscription.productId,
+          purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
+          subscriptionOffers: [
+            {
+              sku: subscription.productId,
+              offerToken: subscription.subscriptionOfferDetails[0].offerToken,
+            },
+          ],
+        });
+      } else {
+        await requestSubscription({
+          sku: subscription.productId,
+        });
+      }
+    } catch (err) {
+      console.log(err.code, err.message);
     }
   }
 
@@ -201,7 +276,7 @@ const ChoosePlan = (props) => {
         </Box>
         <Box mx={12}>
           {items[currentPosition].benifits.map((i) => (
-            <Box flexDirection={'row'} alignItems={'center'} marginY={hp(0.7)}>
+            <Box flexDirection={'row'} alignItems={'center'}>
               <Text
                 fontSize={RFValue(13)}
                 color={'light.GreyText'}
@@ -215,10 +290,12 @@ const ChoosePlan = (props) => {
           ))}
         </Box>
       </ScrollView>
+      )}
+
       <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
         <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
       </Box>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 export default ChoosePlan;

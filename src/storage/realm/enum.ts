@@ -24,4 +24,5 @@ export enum RealmSchema {
   UAI = 'UAI',
   VersionHistory = 'VersionHistory',
   BackupHistory = 'BackupHistory',
+  StoreSubscription = 'StoreSubscription',
 }
