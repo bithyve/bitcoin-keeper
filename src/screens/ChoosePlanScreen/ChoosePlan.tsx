@@ -31,7 +31,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const plans = [
   {
@@ -221,81 +220,50 @@ const ChoosePlan = (props) => {
           </Box>
         </Box>
       </Box>
-      <ScrollView style={{ height: '70%' }}>
-        <ChoosePlanCarousel
-          data={items}
-          onPress={async () => {
-            try {
-              console.log('init');
-              await requestSubscription({
-                sku: 'io.hexawallet.keeper.development.hodler',
-                purchaseTokenAndroid:
-                  'AUj/YhhKjEkywRa7lw8TLw1WdTWEDuzHN7kGvmpMJR+YFGkeOYQgeO+zp4xD6whNYErNNfLl15vK4Vp0CXN1O9NdIkOaelW+F4WAE8K1stHRC17ZXgf9MVfq1Xg4xQ+Ubd+Hq5QA0ZSU8SX65CSV',
-                subscriptionOffers: [
-                  {
-                    sku: 'io.hexawallet.keeper.development.hodler',
-                    offerToken:
-                      'AUj/YhhKjEkywRa7lw8TLw1WdTWEDuzHN7kGvmpMJR+YFGkeOYQgeO+zp4xD6whNYErNNfLl15vK4Vp0CXN1O9NdIkOaelW+F4WAE8K1stHRC17ZXgf9MVfq1Xg4xQ+Ubd+Hq5QA0ZSU8SX65CSV',
-                  },
-                ],
-              });
-            } catch (err) {
-              console.log(err.code, err.message);
-            }
-          }}
-          onChange={(item) => setCurrentPosition(item)}
-        />
-        <Box
-          alignItems={'center'}
-          style={{
-            marginTop: hp(30),
-            marginBottom: hp(10),
-            opacity: 0.1
-          }}
-        >
-          <Box
-            borderBottomColor={'light.Border'}
-            borderBottomWidth={hp(1)}
-            width={wp(318)}
+      {loading ? (
+        <ActivityIndicator style={{ height: '70%' }} size="large" />
+      ) : (
+        <ScrollView style={{ height: '70%' }}>
+          <ChoosePlanCarousel
+            data={items}
+            onPress={async (item) => processSubscription(item)}
+            onChange={(item) => setCurrentPosition(item)}
           />
-        </Box>
-
-        <Box mx={10} my={5}>
-          <Text
-            fontSize={RFValue(14)}
-            color={'light.lightBlack'}
-            fontWeight={200}
-            fontFamily={'body'}
-            letterSpacing={1.12}
-          >
-            {`Benefits of going ${items[currentPosition].name}`}
-          </Text>
-          {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
+          <Box mx={10} my={5}>
+            <Text
+              fontSize={RFValue(14)}
+              color={'light.lightBlack'}
+              fontWeight={'bold'}
+              fontFamily={'body'}
+            >
+              {`Benefits of going ${items[currentPosition].name}`}
+            </Text>
+            {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
             {items[currentPosition].subTitle}
           </Text> */}
-        </Box>
-        <Box mx={12}>
-          {items[currentPosition].benifits.map((i) => (
-            <Box flexDirection={'row'} alignItems={'center'}>
-              <Text
-                fontSize={RFValue(13)}
-                color={'light.GreyText'}
-                mb={2}
-                ml={3}
-                fontFamily={'body'}
-              >
-                {`• ${i}`}
-              </Text>
-            </Box>
-          ))}
-        </Box>
-      </ScrollView>
+          </Box>
+          <Box mx={12}>
+            {items[currentPosition].benifits.map((i) => (
+              <Box flexDirection={'row'} alignItems={'center'}>
+                <Text
+                  fontSize={RFValue(13)}
+                  color={'light.GreyText'}
+                  mb={2}
+                  ml={3}
+                  fontFamily={'body'}
+                >
+                  {`• ${i}`}
+                </Text>
+              </Box>
+            ))}
+          </Box>
+        </ScrollView>
       )}
 
       <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
         <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
       </Box>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 };
 export default ChoosePlan;
