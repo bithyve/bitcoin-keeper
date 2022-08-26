@@ -1,51 +1,26 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Carousel from 'react-native-snap-carousel';
 import LinearGradient from 'react-native-linear-gradient';
 import { FlatList, Dimensions } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import Elite from 'src/assets/images/svgs/elitePlan.svg';
-import Pro from 'src/assets/images/svgs/expert.svg';
-
-const planData = [
-  {
-    id: 1,
-    title: 'Basic',
-    subTitle: 'Always free',
-    amount: '0',
-    upgrade: false,
-    icon: <Basic />,
-    activate: true,
-  },
-  {
-    id: 2,
-    title: 'Pro',
-    subTitle: 'Multi-sig security',
-    amount: '5',
-    upgrade: true,
-    icon: <Pro />,
-    activate: false,
-  },
-  {
-    id: 3,
-    title: 'Elite',
-    subTitle: 'Includes Inheritance',
-    amount: '10',
-    upgrade: false,
-    icon: <Elite />,
-    activate: false,
-  },
-];
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 const ChoosePlanCarousel = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const carasualRef = useRef<Carousel<FlatList>>(null);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
     props.onChange(index);
   };
+
   const _renderItem = ({ item, index }) => {
     return (
       <LinearGradient
@@ -58,12 +33,12 @@ const ChoosePlanCarousel = (props) => {
         }}
       >
         <Box py={3} alignItems={'center'} justifyContent={'center'}>
-          {item.activate && (
+          {subscription.productId === item.productId && (
             <Box bg={'light.white'} borderRadius={10} px={2}>
               <Text fontSize={RFValue(8)}>Current</Text>
             </Box>
           )}
-          <Box my={15}>{item.icon}</Box>
+          <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
           <Text
             fontSize={RFValue(13)}
             fontWeight={'300'}
@@ -71,20 +46,20 @@ const ChoosePlanCarousel = (props) => {
             mt={2}
             fontFamily={'body'}
           >
-            {item.title}
+            {item.name}
           </Text>
           <Text fontSize={RFValue(10)} color={'light.textLight'} mb={2} fontFamily={'body'}>
             {item.subTitle}
           </Text>
           <Text fontSize={RFValue(24)} color={'light.textLight'} fontFamily={'body'}>
-            $ {item.amount}
+            {item.productType === 'free' ? '0' : item.price}
           </Text>
           <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
             / month
           </Text>
-          {item.upgrade ? (
+          {subscription.productId !== item.productId || item.productId !== SubscriptionTier.PLEB ? (
             <Box mt={10}>
-              <CustomYellowButton value={'Upgrade'} />
+              <CustomYellowButton onPress={() => props.onPress(item)} value={'Upgrade'} />
             </Box>
           ) : null}
         </Box>
@@ -96,7 +71,7 @@ const ChoosePlanCarousel = (props) => {
       <Carousel
         onSnapToItem={_onSnapToItem}
         ref={carasualRef}
-        data={planData}
+        data={props.data}
         renderItem={_renderItem}
         sliderWidth={Dimensions.get('screen').width}
         itemWidth={150}

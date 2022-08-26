@@ -22,6 +22,7 @@ import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import LinearGradient from 'react-native-linear-gradient';
+import { Shadow } from 'react-native-shadow-2';
 // import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -74,97 +75,109 @@ const WalletDetails = () => {
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
 
     return (
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          borderRadius: hp(20),
-          width: wp(320),
-          height: hp(130),
-          position: 'relative',
+      <Shadow
+        distance={4}
+        startColor={'#e4e4e4'}
+        offset={[4, 0]}
+        viewStyle={{
+          height: hp(140),
         }}
-      >
-        {!(item?.presentationData && item?.specs) ? (
-          <TouchableOpacity
-            style={styles.addWalletContainer}
-            onPress={() => navigation.navigate('EnterWalletDetail')}
-          >
-            <AddSCardIcon />
-            <Text
-              color={'light.white'}
-              fontFamily={'body'}
-              fontWeight={'200'}
-              fontSize={RFValue(14)}
-            >
-              {wallet.AddNewWallet}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <>
-            <Box
-              marginTop={hp(21)}
-              justifyContent={'flex-start'}
-              flexDirection={'row'}
-              style={{
-                marginHorizontal: wp(20),
-              }}
-            >
-              <Pressable
-                height={hp(20)}
-                width={wp(60)}
-                borderRadius={hp(5)}
-                borderColor={'white'}
-                borderWidth={0.5}
-                justifyContent={'center'}
-                alignItems={'center'}
-                onPress={() => BackHandler.exitApp()}
-              >
-                <Text
-                  color={'light.white'}
-                  letterSpacing={0.6}
-                  fontSize={RFValue(8)}
-                  fontWeight={100}
-                >
-                  Know More
-                </Text>
-              </Pressable>
-            </Box>
 
-            <Box
-              marginTop={hp(21)}
-              flexDirection={'row'}
-              alignItems={'center'}
-              justifyContent={'space-between'}
-              style={{
-                marginHorizontal: wp(20),
-              }}
+      >
+        <LinearGradient
+          colors={['#00836A', '#073E39']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            borderRadius: hp(20),
+            width: wp(320),
+            height: hp(130),
+            position: 'relative',
+            marginLeft: 0
+          }}
+        >
+          {!(item?.presentationData && item?.specs) ? (
+            <TouchableOpacity
+              style={styles.addWalletContainer}
+              onPress={() => navigation.navigate('EnterWalletDetail')}
             >
-              <Box>
-                <Text
-                  color={'light.white'}
-                  letterSpacing={0.28}
-                  fontSize={RFValue(14)}
-                  fontWeight={200}
+              <AddSCardIcon />
+              <Text
+                color={'light.white'}
+                fontFamily={'body'}
+                fontWeight={'200'}
+                fontSize={RFValue(14)}
+              >
+                {wallet.AddNewWallet}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <Box
+                marginTop={hp(21)}
+                justifyContent={'flex-start'}
+                flexDirection={'row'}
+                style={{
+                  marginHorizontal: wp(20),
+                }}
+              >
+                <Pressable
+                  height={hp(20)}
+                  width={wp(60)}
+                  borderRadius={hp(5)}
+                  borderColor={'white'}
+                  borderWidth={0.5}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                  onPress={() => BackHandler.exitApp()}
                 >
-                  {walletName}
-                </Text>
-                <Text
-                  color={'light.white'}
-                  letterSpacing={0.24}
-                  fontSize={RFValue(12)}
-                  fontWeight={100}
-                >
-                  {walletDescription}
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={0.6}
+                    fontSize={RFValue(8)}
+                    fontWeight={100}
+                  >
+                    Know More
+                  </Text>
+                </Pressable>
+              </Box>
+
+              <Box
+                marginTop={hp(21)}
+                flexDirection={'row'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+                style={{
+                  marginHorizontal: wp(20),
+                }}
+              >
+                <Box>
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={0.28}
+                    fontSize={RFValue(14)}
+                    fontWeight={200}
+                  >
+                    {walletName}
+                  </Text>
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={0.24}
+                    fontSize={RFValue(12)}
+                    fontWeight={100}
+                  >
+                    {walletDescription}
+                  </Text>
+                </Box>
+                <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+                  {walletBalance}
                 </Text>
               </Box>
-              <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
-                {walletBalance}
-              </Text>
-            </Box>
-          </>
-        )}
-      </LinearGradient>
+            </>
+          )}
+        </LinearGradient>
+      </Shadow>
+
     );
   };
 
@@ -344,7 +357,7 @@ const WalletDetails = () => {
           renderItem={_renderItem}
           sliderWidth={windowWidth}
           itemWidth={wp(320)}
-          itemHeight={hp(20)}
+          itemHeight={hp(100)}
           layout={'default'}
         />
       </Box>

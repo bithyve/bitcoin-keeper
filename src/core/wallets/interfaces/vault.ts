@@ -48,6 +48,7 @@ export interface VaultSigner {
     derivationPath?: string;
     xfp?: string;
   };
+  lastHealthCheck: Date;
 }
 
 export interface Vault {

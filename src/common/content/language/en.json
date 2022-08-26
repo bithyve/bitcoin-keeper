@@ -281,7 +281,7 @@
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
-    "VaultDesc": "A signer is an air gapped device which helps you keep your Vault safe",
+    "VaultDesc": "A Signing Device is an air gapped device which helps you keep your Vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",
     "Vault": "Vault",
@@ -295,10 +295,12 @@
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View Vault",
     "AddNow": "Add Now",
-    "SelectSigner": "Select a Signing Devices",
+    "SelectSigner": "Select Signing Devices",
     "ForVault": "For your Vault",
     "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
-    "CustomPriority": "Custom Priority"
+    "CustomPriority": "Custom Priority",
+    "EditDescription": "Edit Description",
+    "Description": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -312,6 +314,13 @@
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
   },
+  "healthcheck": {
+    "ChangeSigningDevice": "Change Signing Device",
+    "HealthCheck": "Health Check",
+    "SkippingHealthCheck": "Skipping Health Check",
+    "EnterCVV": "Enter the CVV",
+    "HealthCheckSuccessful": "Health Check Successful"
+  },
   "tapsigner": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
@@ -323,8 +332,15 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up ColdCard",
-    "SetupDescription": "Keep your MK4 ready before proceeding"
+    "SetupTitle": "Keep your ColdCard ready",
+    "SetupDescription": "Keep your ColdCard ready before proceeding"
+  },
+  "ledger": {
+    "Setupandassociate": "Setup and associate",
+    "Associate": "Associate",
+    "CardStatus": "Card Status",
+    "SetupTitle": "Setting up Ledger",
+    "SetupDescription": "Keep your Nano X ready before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",
@@ -412,7 +428,7 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store"
+    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store. After trail period the subscription auto renews monthly"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Seed Words",

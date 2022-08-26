@@ -4,8 +4,8 @@ import { SETUP_KEEPER_APP } from '../sagaActions/storage';
 import { setAppId } from '../reducers/storage';
 import { call, put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
-import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
-import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { WalletShell } from 'src/core/wallets/interfaces/wallet';
@@ -28,9 +28,6 @@ function* setupKeeperAppWorker({ payload }) {
       walletInstances: {},
     };
 
-    const userTier: UserTier = {
-      level: AppTierLevel.ONE,
-    };
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
 
     const entropy = yield call(
@@ -54,7 +51,10 @@ function* setupKeeperAppWorker({ payload }) {
         shells: [],
         activeShell: null,
       },
-      userTier,
+      subscription: {
+        productId: SubscriptionTier.PLEB,
+        name: SubscriptionTier.PLEB.toUpperCase(),
+      },
       version: DeviceInfo.getVersion(),
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);

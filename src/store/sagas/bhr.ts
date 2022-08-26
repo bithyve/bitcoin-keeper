@@ -1,7 +1,8 @@
-import { call, put } from 'redux-saga/effects';
+import { all, call, put } from 'redux-saga/effects';
+import _ from 'lodash';
 import * as bip39 from 'bip39';
-import { AppTierLevel } from 'src/common/data/enums/AppTierLevel';
-import { KeeperApp, UserTier } from 'src/common/data/models/interfaces/KeeperApp';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 import DeviceInfo from 'react-native-device-info';
@@ -17,9 +18,11 @@ import {
   GET_CLOUD_DATA,
   RECOVER_BACKUP,
   getAppImage,
+  UPADTE_HEALTH_CHECK_SIGNER,
+  SET_BACKUP_WARNING,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
-import { BackupAction, BackupType } from '../../common/data/enums/BHR';
+import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
@@ -37,15 +40,18 @@ import {
   setDownloadingBackup,
   setInvalidPassword,
   setSeedConfirmed,
+  setBackupWarning,
 } from '../reducers/bhr';
 import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
 import { Platform } from 'react-native';
 import { translations } from 'src/common/content/LocContext';
 import BIP85 from 'src/core/wallets/operations/BIP85';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { refreshWallets } from '../sagaActions/wallets';
 import Relay from 'src/core/services/operations/Relay';
 import dbManager from 'src/storage/realm/dbManager';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { uaiActionedEntity } from '../sagaActions/uai';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -277,9 +283,6 @@ function* getAppImageWorker({ payload }) {
     console.log('appImage', appImage);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
-      const userTier: UserTier = {
-        level: AppTierLevel.ONE,
-      };
       const entropy = yield call(
         BIP85.bip39MnemonicToEntropy,
         config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -292,7 +295,10 @@ function* getAppImageWorker({ payload }) {
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic: primaryMnemonic,
         imageEncryptionKey,
-        userTier,
+        subscription: {
+          productId: SubscriptionTier.PLEB, // todo retrive valid sub plan
+          name: SubscriptionTier.PLEB.toUpperCase(),
+        },
         version: DeviceInfo.getVersion(),
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
@@ -373,10 +379,76 @@ function* recoverBackupWorker({
   }
 }
 
+function* healthCheckSignerWorker({
+  payload,
+}: {
+  payload: {
+    vaultId: string;
+    signerId: string;
+  };
+}) {
+  try {
+    const { vaultId, signerId } = payload;
+    console.log(vaultId, signerId);
+    const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
+
+    let signers = [];
+    for (let signer of vault.signers) {
+      if (signer.signerId === signerId) {
+        let updatedSigner = JSON.parse(JSON.stringify(signer));
+        updatedSigner.lastHealthCheck = new Date();
+        yield put(uaiActionedEntity(signer.signerId));
+        signers.push(updatedSigner);
+      }
+    }
+    let updatedVault: Vault = JSON.parse(JSON.stringify(vault));
+    updatedVault.signers = signers;
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+function* isBackedUP({
+  payload,
+}: {
+  payload: {
+    history: BackupHistory;
+  };
+}) {
+  const { history } = payload;
+  const lastRecord = history[history.length - 1];
+
+  if (lastRecord) {
+    const currentDate = new Date();
+    const lastBackup = new Date(history[history.length - 1].date);
+    const devWarning = currentDate.getTime() - lastBackup.getTime() > 30 ? true : false;
+    const ProductionWarning =
+      (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30 ? true : false;
+    const selectedWarning =
+      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
+
+    if (
+      selectedWarning &&
+      (lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
+        lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
+        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
+        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED)
+    ) {
+      // UAI update here
+
+      yield put(setBackupWarning(true));
+    }
+  }
+  yield put(setBackupWarning(false));
+}
+
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);
+export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
+
 export const cloudBackupSkippedWatcher = createWatcher(
   cloudBackupSkippedWorked,
   CLOUD_BACKUP_SKIPPED
@@ -391,3 +463,7 @@ export const seedBackeupConfirmedWatcher = createWatcher(
 );
 export const getCloudDataWatcher = createWatcher(getCloudDataWorker, GET_CLOUD_DATA);
 export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
+export const healthCheckSignerWatcher = createWatcher(
+  healthCheckSignerWorker,
+  UPADTE_HEALTH_CHECK_SIGNER
+);
