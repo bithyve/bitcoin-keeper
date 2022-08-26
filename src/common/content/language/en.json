@@ -86,7 +86,7 @@
     "MismatchPasscode": "Mismatch Passcode",
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot your passcode?",
-    "forgotPasscodeDesc": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor",
+    "forgotPasscodeDesc": "Key in the word exactly like it was displayed",
     "Invalidword": "Invalid word",
     "ResetPasscode": "Reset Passcode",
     "Createpasscode": "Create a passcode",
