@@ -11,7 +11,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import crypto from 'crypto';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 

@@ -1,4 +1,5 @@
-import { hash256 } from 'src/core/services/operations/encryption';
+import { generateEncryptionKey, hash256 } from 'src/core/services/operations/encryption';
+import * as bip39 from 'bip39';
 import { EntityKind, NetworkType, VaultType, VisibilityType } from '../enums';
 import {
   Vault,
@@ -80,4 +81,37 @@ export const generateVault = ({
   };
 
   return vault;
+};
+
+export const generateMockExtendedKey = (
+  entity: EntityKind
+): {
+  xpriv: string;
+  xpub: string;
+  derivationPath: string;
+  masterFingerprint: string;
+} => {
+  const mockMnemonic = 'dwarf inch wild elephant depart jump cook mind name crop bicycle arrange';
+  const seed = bip39.mnemonicToSeedSync(mockMnemonic);
+  const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
+  const networkType = NetworkType.TESTNET;
+  const randomWalletNumber = Math.floor(Math.random() * 10e5);
+  let xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed.toString('hex'),
+    network,
+    xDerivationPath
+  );
+  return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
+};
+
+export const generateIDForVACs = (str: string) => {
+  return hash256(str);
+};
+
+export const generateVAC = (entropy?: string): { vac: string; vacId: string } => {
+  const vac = generateEncryptionKey(entropy);
+  const vacId = generateIDForVACs(vac);
+  return { vac, vacId };
 };
