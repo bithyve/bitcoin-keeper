@@ -584,19 +584,30 @@ export default class WalletUtilities {
         changeAddress: string;
         changeMultisig?: undefined;
       } => {
-    let changeAddress: string;
+    let changeAddress: string = '';
+    let changeMultisig: {
+      p2ms: bitcoinJS.payments.Payment;
+      p2wsh: bitcoinJS.payments.Payment;
+      p2sh: bitcoinJS.payments.Payment;
+      pubkeys: Buffer[];
+      address: string;
+      subPath: number[];
+      signerPubkeyMap: Map<string, Buffer>;
+    };
+    if ((wallet as Vault).isMultiSig) {
+      const xpubs = (wallet as Vault).specs.xpubs;
+      changeMultisig = WalletUtilities.createMultiSig(
+        xpubs,
+        (wallet as Vault).scheme.m,
+        network,
+        nextFreeChangeAddressIndex,
+        true
+      );
+    }
     const purpose = DerivationPurpose.BIP49;
     for (let output of outputs) {
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
-          const xpubs = (wallet as Vault).specs.xpubs;
-          const changeMultisig = WalletUtilities.createMultiSig(
-            xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            nextFreeChangeAddressIndex,
-            true
-          );
           output.address = changeMultisig.address;
           return { outputs, changeMultisig };
         } else {
@@ -609,10 +620,13 @@ export default class WalletUtilities {
           );
           return { outputs, changeAddress };
         }
-      } else {
-        // when there's no change
-        return { outputs, changeAddress: '' };
       }
+    }
+    // when there's no change
+    if ((wallet as Vault).isMultiSig) {
+      return { outputs, changeMultisig };
+    } else {
+      return { outputs, changeAddress };
     }
   };
 

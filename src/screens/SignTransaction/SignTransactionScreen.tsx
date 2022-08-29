@@ -300,6 +300,9 @@ const SignTransactionScreen = () => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
       for (let i = 0; i < serializedPSBTEnvelops.length; i++) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops[i];
+        if (serializedPSBTEnvelop.isSigned === true) {
+          continue;
+        }
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
         const { signerType, signingPayload, signerId } = copySerializedPSBTEnvelop;
         setActiveSignerId(signerId);
