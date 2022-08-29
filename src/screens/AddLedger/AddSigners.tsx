@@ -1,29 +1,13 @@
-import { Alert, NativeModules, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
+import { Platform, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Box, Pressable, ScrollView, StatusBar, Text } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-
-import BackupIcon from 'src/assets/images/svgs/backup.svg';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import HeaderTitle from 'src/components/HeaderTitle';
 import Header from 'src/components/Header';
-import LinkIcon from 'src/assets/icons/link.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import SettingsCard from 'src/components/SettingComponent/SettingsCard';
-import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
-import { changeLoginMethod } from '../../store/sagaActions/login';
-import openLink from 'src/utils/OpenLink';
 import { useNavigation } from '@react-navigation/native';
 import TsIcon from 'src/assets/icons/icon_vault_mac.svg';
-import ColdCardIcon from 'src/assets/icons/coldCardIcon.svg';
-import Buttons from './Buttons';
+import ColdCardIcon from 'src/assets/icons/coldcard.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import React from 'react';
 
 const AddSigners = () => {
   const navigtaion = useNavigation();

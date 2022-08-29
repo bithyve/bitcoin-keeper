@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.215" y1="0.137" x2="0.815" y2="0.883" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#b17f44"/>
+      <stop offset="1" stop-color="#6e4a35"/>
+    </linearGradient>
+  </defs>
+  <g id="phone" transform="translate(-40 -559)">
+    <circle id="Ellipse_1941" data-name="Ellipse 1941" cx="15" cy="15" r="15" transform="translate(40 559)" fill="url(#linear-gradient)"/>
+    <path id="Mobile_Phone_iPhone_Shape_" data-name="Mobile Phone (iPhone Shape)" d="M14.2,0H7.273A2.037,2.037,0,0,0,5.26,2.053V14.887a2.037,2.037,0,0,0,2.013,2.053H14.2a2.044,2.044,0,0,0,2.021-2.053V2.053A2.044,2.044,0,0,0,14.2,0ZM10.73,15.058A1.355,1.355,0,1,1,12.086,13.7,1.358,1.358,0,0,1,10.73,15.058Z" transform="translate(44.262 565.529)" fill="#fff"/>
+  </g>
+</svg>
