@@ -1,11 +1,8 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import React, { useCallback } from 'react';
+import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import config, { APP_STAGE } from 'src/core/config';
 
 import Buttons from 'src/components/Buttons';
@@ -14,10 +11,12 @@ import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
-import { newVaultInfo } from 'src/store/sagas/wallets';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
@@ -55,25 +54,6 @@ const SetupTapsigner = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
   const dispatch = useDispatch();
-
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
-    try {
-      const newVaultInfo: newVaultInfo = {
-        vaultType: VaultType.DEFAULT,
-        vaultScheme: scheme,
-        vaultSigners: signers,
-        vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
-        },
-      };
-      dispatch(addNewVault(newVaultInfo));
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }, []);
 
   const getTapsignerDetails = async () => {
     const signerDetails = await withModal(async () => {
