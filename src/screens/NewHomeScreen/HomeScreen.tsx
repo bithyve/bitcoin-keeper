@@ -45,7 +45,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletMap } from '../HardwareWalletSetUp/WalletMap';
+import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
@@ -240,7 +240,7 @@ const VaultStatus = (props) => {
 
   const navigateToHardwareSetup = () => {
     close();
-    navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'SigningDeviceList', params: {} }));
   };
 
   const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];

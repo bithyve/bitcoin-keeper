@@ -34,7 +34,7 @@ import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { WalletMap } from '../HardwareWalletSetUp/WalletMap';
+import { WalletMap } from '../Vault/WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -344,7 +344,7 @@ const SignerList = ({ plan }) => {
         >
           <TouchableOpacity
             onPress={() => {
-              navigation.dispatch(CommonActions.navigate('Signers'));
+              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
             }}
           >
             <Box

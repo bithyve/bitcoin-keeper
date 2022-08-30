@@ -33,7 +33,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { WalletMap } from '../HardwareWalletSetUp/WalletMap';
+import { WalletMap } from '../Vault/WalletMap';
 import { cloneDeep } from 'lodash';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';

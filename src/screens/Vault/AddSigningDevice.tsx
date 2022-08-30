@@ -1,52 +1,47 @@
-// libraries
-import React from 'react';
 import { Box, FlatList, Text } from 'native-base';
-import { SafeAreaView } from 'react-native';
 //Asserts, functions
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import Icon from 'src/assets/images/svgs/icon_vault_mac.svg'
+
+import Buttons from 'src/components/Buttons';
 // components
 import Header from 'src/components/Header';
+import Icon from 'src/assets/images/svgs/icon_vault_mac.svg';
+// libraries
+import React from 'react';
+import { SafeAreaView } from 'react-native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Buttons from 'src/components/Buttons';
 
-
-const Signers = () => {
-
+const AddSigningDevice = () => {
   const signers = [
     {
       Icon: Icon,
       name: 'Tap Signer',
-      date: 'Added on 12 January 2022'
+      date: 'Added on 12 January 2022',
     },
     {
       Icon: Icon,
       name: 'ColdCard',
-      date: 'Added on 20 July 2022'
+      date: 'Added on 20 July 2022',
     },
     {
       Icon: Icon,
       name: 'Trezor',
-      date: 'Added on 20 July 2022'
+      date: 'Added on 20 July 2022',
     },
     {
       Icon: Icon,
       name: 'Ledger',
-      date: 'Added on 20 July 2022'
+      date: 'Added on 20 July 2022',
     },
     {
       Icon: Icon,
       name: 'Mobile Device',
-      date: 'Added on 20 July 2022'
-    }
-  ]
+      date: 'Added on 20 July 2022',
+    },
+  ];
   const InheritancePoint = ({ title, description, Icon }) => {
     return (
-      <Box
-        flexDir={'row'}
-        alignItems={'center'}
-        marginBottom={hp(30)}
-      >
+      <Box flexDir={'row'} alignItems={'center'} marginBottom={hp(30)}>
         <Icon />
         <Box style={{ marginLeft: wp(2) }}>
           <Text
@@ -58,21 +53,17 @@ const Signers = () => {
           >
             {title}
           </Text>
-          <Text
-            color={'light.GreyText'}
-            fontSize={13}
-            letterSpacing={0.6}
-          >
+          <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
             {description}
           </Text>
         </Box>
       </Box>
-    )
-  }
+    );
+  };
 
   const renderSigner = ({ item }) => {
-    return (<InheritancePoint title={item?.name} description={item?.date} Icon={item?.Icon} />)
-  }
+    return <InheritancePoint title={item?.name} description={item?.date} Icon={item?.Icon} />;
+  };
   return (
     <SafeAreaView
       style={{
@@ -82,10 +73,10 @@ const Signers = () => {
     >
       <StatusBarComponent padding={20} />
       <Box
-        position='relative'
+        position="relative"
         flex={1}
         style={{
-          paddingHorizontal: wp(20)
+          paddingHorizontal: wp(20),
         }}
       >
         <Header
@@ -96,19 +87,15 @@ const Signers = () => {
 
         <FlatList
           data={signers}
-          keyExtractor={(item => item)}
+          keyExtractor={(item) => item}
           renderItem={renderSigner}
           style={{
-            marginTop: hp(52)
-          }} />
-
-        <Box
-          position={'absolute'}
-          bottom={0}
-          width={'100%'}
-        >
+            marginTop: hp(52),
+          }}
+        />
+        <Box position={'absolute'} bottom={0} width={'100%'}>
           <Buttons
-            primaryText='Next'
+            primaryText="Next"
             primaryCallback={() => console.log('next')}
             secondaryText={'Cancel'}
             secondaryCallback={() => console.log('Cancel')}
@@ -116,9 +103,7 @@ const Signers = () => {
         </Box>
       </Box>
     </SafeAreaView>
-
-
   );
 };
 
-export default Signers;
+export default AddSigningDevice;

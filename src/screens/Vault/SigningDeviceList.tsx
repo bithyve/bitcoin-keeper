@@ -20,7 +20,7 @@ type HWProps = {
   last?: boolean;
 };
 
-const HardwareWalletSetup = ({ navigation }: { navigation }) => {
+const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
@@ -139,4 +139,4 @@ const styles = ScaledSheet.create({
   },
 });
 
-export default HardwareWalletSetup;
+export default SigningDeviceList;
