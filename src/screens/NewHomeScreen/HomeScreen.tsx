@@ -646,11 +646,12 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <InheritanceComponent />
+      <Pressable onPress={askPermission}>
+        <InheritanceComponent />
+      </Pressable>
       <LinkedWallets
         onAmountPress={() => {
-          // setShowHideAmounts(!showHideAmounts);
-          askPermission();
+          setShowHideAmounts(!showHideAmounts);
         }}
         showHideAmounts={showHideAmounts}
       />
