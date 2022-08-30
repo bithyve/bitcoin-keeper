@@ -277,7 +277,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
         <TouchableOpacity
           onPress={async () => {
             line += `Name: Keeper ${new Date().getTime()}\n`;
-            line += `Policy: 1 of 2\n`;
+            line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
             line += `Format: P2SH-P2WSH\n`;
             line += `\n`;
             vault.signers.forEach((signer) => {
@@ -285,7 +285,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
               line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
             });
             const enc = Ndef.encodeMessage([Ndef.textRecord(line)]);
-            console.log('scanning...');
+            console.log('scanning...', line);
             await NFC.send(NfcTech.Ndef, enc);
             console.log('Done');
           }}

@@ -1,7 +1,7 @@
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import React, { useCallback } from 'react';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -33,6 +33,7 @@ const SetupTapsigner = () => {
         setNfcVisible(true);
         const resp = await card.nfcWrapper(callback);
         setNfcVisible(false);
+        await card.endNfcSession();
         return resp;
       },
       ios: async () => card.nfcWrapper(callback),
@@ -48,6 +49,10 @@ const SetupTapsigner = () => {
     if (cvc && digit == 'x') {
       setCvc(cvc.slice(0, -1));
     }
+  };
+
+  const onDeletePressed = () => {
+    setCvc(cvc.slice(0, cvc.length - 1));
   };
   const dispatch = useDispatch();
 
@@ -70,49 +75,61 @@ const SetupTapsigner = () => {
     }
   }, []);
 
-  const integrateTapsigner = React.useCallback(() => {
-    withModal(async () => {
+  const getTapsignerDetails = async () => {
+    const signerDetails = await withModal(async () => {
       const status = await card.first_look();
-      console.log(status);
       const isLegit = await card.certificate_check();
-      console.log(isLegit);
       if (isLegit) {
         if (status.path) {
-          console.log(status.path);
           const xpub = await card.get_xpub(cvc);
-          console.log(xpub);
-          return { xpub, status };
+          const xfp = await card.get_xfp(cvc);
+          return { xpub, status, xfp: xfp.toString('hex') };
         } else {
           await card.setup(cvc);
           const newCard = await card.first_look();
           const xpub = await card.get_xpub(cvc);
-          return { xpub, status: newCard };
+          const xfp = await card.get_xfp(cvc);
+          return { xpub, status: newCard, xfp: xfp.toString('hex') };
         }
       }
-    })()
-      .then((resp) => {
-        console.log(resp);
-        const { xpub, status } = resp;
-        const networkType =
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
-        const network = WalletUtilities.getNetworkByType(networkType);
+    })();
+    return signerDetails;
+  };
 
-        const signer: VaultSigner = {
-          signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-          type: SignerType.TAPSIGNER,
-          signerName: 'Tapsigner',
-          xpub,
-          xpubInfo: {
-            derivationPath: status.path,
-          },
-          lastHealthCheck: new Date(),
-        };
+  const makeVaultData = (signersData: any[], scheme) => {
+    const signers = signersData.map((signerData) => {
+      console.log(signerData);
+      const { xpub, status, xfp } = signerData;
+      const networkType =
+        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const network = WalletUtilities.getNetworkByType(networkType);
 
-        const scheme: VaultScheme = { m: 1, n: 1 };
-        const isVaultCreated = createVault([signer], scheme);
-        if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
-      })
-      .catch(Alert.alert);
+      const signer: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.TAPSIGNER,
+        signerName: 'Tapsigner',
+        xpub,
+        xpubInfo: {
+          derivationPath: status.path,
+          xfp,
+        },
+        lastHealthCheck: new Date(),
+      };
+      return signer;
+    });
+
+    const isVaultCreated = createVault(signers, scheme);
+    if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
+  };
+
+  const integrateTapsigner = React.useCallback(async () => {
+    try {
+      const signer = await getTapsignerDetails();
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      makeVaultData([signer], scheme);
+    } catch (err) {
+      Alert.alert(err.toString());
+    }
   }, [cvc]);
 
   const MockVaultCreation = () => {
@@ -120,7 +137,9 @@ const SetupTapsigner = () => {
       const networkType = NetworkType.TESTNET;
       const network = WalletUtilities.getNetworkByType(networkType);
 
-      const { xpub, xpriv, derivationPath } = generateMockExtendedKey(EntityKind.VAULT);
+      const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
+        EntityKind.VAULT
+      );
       const mockTapSigner: VaultSigner = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
         type: SignerType.TAPSIGNER,
@@ -129,6 +148,7 @@ const SetupTapsigner = () => {
         xpriv,
         xpubInfo: {
           derivationPath,
+          xfp: masterFingerprint,
         },
         lastHealthCheck: new Date(),
       };
@@ -168,6 +188,7 @@ const SetupTapsigner = () => {
           onPressNumber={onPressHandler}
           keyColor={'#041513'}
           ClearIcon={<DeleteIcon />}
+          onDeletePressed={onDeletePressed}
         />
         <NfcPrompt visible={nfcVisible} />
       </Box>

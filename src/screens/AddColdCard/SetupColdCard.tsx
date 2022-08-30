@@ -82,19 +82,23 @@ const SetupColdCard = () => {
     const network = WalletUtilities.getNetworkByType(networkType);
     // const {
     //   xpub,
+    //   xpriv,
     //   masterFingerprint: xfp,
     //   derivationPath,
     // } = generateMockExtendedKey(EntityKind.VAULT);
-    // console.log(xpub, derivationPath);
+    // console.log({ xpub, xpriv, xfp, derivationPath });
     const xpub =
-      'tpubDFAUqbtRiCbeKgCG3rSjDPVPwbb41hk2DSHvrnejZF9WDyCieGejSRBxNepzJscga2Lr8yPMMhUhJMWHnhBMjJ8VptpZyC1xXBK73ZxYBFf';
+      'tpubDEz4E4PRhw6hjJqFGDG9GTVKzVd7QpMKz4BpY3V85qZKgwTvrLKR5k15fxDJGbfeoepEHuJGt8FovvrCdk2ZAYRSPE9ivfD9rMWRbiVwczM';
+    const xpriv =
+      'tprv8iJ25eMBZZR2qqoTNZbYs3qDRU7BFVARQkb3FXSpfZkvrTDADwVpuFPDVobsy8fHqVCtg5tvPEiQtSgZPvijDVgA6BTv73X8kqZXXDdvCcf';
     const xfp = '73DC8582';
-    const derivationPath = `m/48'/1'/966713'/1'`; // bip48/testnet/account/script/
+    const derivationPath = "m/48'/1'/521304'/1'"; // bip48/testnet/account/script/
     const cc: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
       signerName: 'MK4 (mock)',
       xpub,
+      xpriv,
       xpubInfo: {
         derivationPath,
         xfp,
@@ -108,7 +112,7 @@ const SetupColdCard = () => {
     try {
       const { signer } = await getColdCardDetails();
       const { signer: signer2 } = generateMockColdCard();
-      const scheme: VaultScheme = { m: 1, n: 2 };
+      const scheme: VaultScheme = { m: 2, n: 2 };
       createVault([signer, signer2], scheme);
       navigation.dispatch(CommonActions.navigate('NewHome'));
     } catch (err) {
