@@ -16,6 +16,8 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import LinearGradient from 'react-native-linear-gradient';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 type Props = {
   title: string;
@@ -65,12 +67,62 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
   );
 };
 
-const WalletSettings = () => {
+const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   //
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const wallet: Wallet = route?.params?.wallet;
 
+  const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
+    return (
+      <LinearGradient
+        colors={['#00836A', '#073E39']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          borderRadius: hp(20),
+          width: wp(320),
+          height: hp(75),
+          position: 'relative',
+          marginLeft: -wp(20),
+          marginBottom: hp(30)
+        }}
+      >
+        <Box
+          marginTop={hp(17)}
+          flexDirection={'row'}
+          alignItems={'center'}
+          justifyContent={'space-between'}
+          style={{
+            marginHorizontal: wp(20),
+          }}
+        >
+          <Box>
+            <Text
+              color={'light.white'}
+              letterSpacing={0.28}
+              fontSize={RFValue(14)}
+              fontWeight={200}
+            >
+              {walletName}
+            </Text>
+            <Text
+              color={'light.white'}
+              letterSpacing={0.24}
+              fontSize={RFValue(12)}
+              fontWeight={100}
+            >
+              {walletDescription}
+            </Text>
+          </Box>
+          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+            {walletBalance}
+          </Text>
+        </Box>
+      </LinearGradient>
+    );
+  }
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -89,14 +141,19 @@ const WalletSettings = () => {
         marginTop={hp(60)}
         paddingX={wp(25)}
       >
-        <Option
+        <WalletCard
+          walletName={wallet.presentationData?.name}
+          walletDescription={wallet?.presentationData?.description}
+          walletBalance={wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed}
+        />
+        {/* <Option
           title={'Wallet Backup'}
           subTitle={'Setup backup for Wallet'}
           onPress={() => {
             navigtaion.navigate('BackupWallet');
           }}
           Icon={true}
-        />
+        /> */}
       </Box>
       <Box alignItems={'center'} paddingX={wp(25)}>
         <Option
