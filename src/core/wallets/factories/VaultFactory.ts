@@ -1,4 +1,9 @@
-import { generateEncryptionKey, hash256 } from 'src/core/services/operations/encryption';
+import {
+  decrypt,
+  encrypt,
+  generateEncryptionKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
 import * as bip39 from 'bip39';
 import { EntityKind, NetworkType, VaultType, VisibilityType } from '../enums';
 import {
@@ -9,6 +14,8 @@ import {
   VaultSpecs,
 } from '../interfaces/vault';
 import WalletUtilities from '../operations/utils';
+import * as bitcoinJS from 'bitcoinjs-lib';
+import config from './../../config';
 
 export const generateVault = ({
   type,
@@ -106,12 +113,37 @@ export const generateMockExtendedKey = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateIDForVACs = (str: string) => {
+export const generateIDForVAC = (str: string) => {
   return hash256(str);
 };
 
 export const generateVAC = (entropy?: string): { vac: string; vacId: string } => {
   const vac = generateEncryptionKey(entropy);
-  const vacId = generateIDForVACs(vac);
+  const vacId = generateIDForVAC(vac);
   return { vac, vacId };
 };
+
+export const generateKeyFromXpub = (
+  xpub: string,
+  network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
+) => {
+  const child = WalletUtilities.generateChildFromExtendedKey(
+    xpub,
+    network,
+    config.VAC_CHILD_INDEX,
+    true
+  );
+  return generateEncryptionKey(child);
+};
+
+export const encryptVAC = (
+  vac: string,
+  xpub: string,
+  network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
+) => encrypt(generateKeyFromXpub(xpub, network), vac);
+
+export const decryptVAC = (
+  encryptedVac: string,
+  xpub: string,
+  network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
+) => decrypt(generateKeyFromXpub(xpub, network), encryptedVac);
