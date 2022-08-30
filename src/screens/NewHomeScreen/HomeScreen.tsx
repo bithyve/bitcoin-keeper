@@ -224,13 +224,18 @@ const VaultStatus = (props) => {
   const vaultTranslations = translations['vault'];
   const wallet = translations['wallet'];
   const common = translations['common'];
-
   const { useQuery } = useContext(RealmWrapperContext);
-  const vaults: Vault[] = useQuery(RealmSchema.Vault);
-  const Signers = vaults[0]?.signers || [];
+  const Vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
+  const {
+    specs: { balances: { confirmed, unconfirmed } } = {
+      balances: { confirmed: 0, unconfirmed: 0 },
+    },
+    signers = [],
+  } = Vault;
+  const vaultBalance = confirmed + unconfirmed;
 
   const open = () => {
-    if (Signers.length) {
+    if (signers.length) {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
     } else {
       setModalVisible(true);
@@ -240,16 +245,8 @@ const VaultStatus = (props) => {
 
   const navigateToHardwareSetup = () => {
     close();
-    navigation.dispatch(CommonActions.navigate({ name: 'SigningDeviceList', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
-
-  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
-  const {
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-  } = Vault;
-  const vaultBalance = confirmed + unconfirmed;
 
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const dispatch = useAppDispatch();
@@ -336,13 +333,13 @@ const VaultStatus = (props) => {
               opacity={0.8}
               paddingBottom={1}
             >
-              {!Signers.length
+              {!signers.length
                 ? 'Activate Now '
-                : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
+                : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`}
             </Text>
-            {!Signers.length ? null : (
+            {!signers.length ? null : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
-                {Signers.map((signer) => (
+                {signers.map((signer) => (
                   <Box
                     width={30}
                     height={30}
@@ -358,7 +355,7 @@ const VaultStatus = (props) => {
               </Box>
             )}
           </Box>
-          {!Signers.length ? (
+          {!signers.length ? (
             <Box marginTop={hp(31.5)}>
               <Image
                 source={require('src/assets/images/illustration.png')}
@@ -367,7 +364,7 @@ const VaultStatus = (props) => {
               />
             </Box>
           ) : null}
-          {Signers.length ? (
+          {signers.length ? (
             <HStack alignItems={'center'} marginTop={'10%'}>
               <BTC style={{ height: '20%' }} />
               <Pressable onPress={() => props.onAmountPress()}>

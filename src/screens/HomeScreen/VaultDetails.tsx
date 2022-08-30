@@ -13,6 +13,7 @@ import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
@@ -28,6 +29,7 @@ import NFC from 'src/core/services/nfc';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
+import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
@@ -326,7 +328,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 };
 
-const SignerList = ({ plan }) => {
+const SignerList = ({ upgradeStatus }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
   const Signers = vaults[0]?.signers; //To-Do: Vault should be pased as prop
@@ -334,7 +336,7 @@ const SignerList = ({ plan }) => {
   const navigation = useNavigation();
 
   const AddSigner = () => {
-    if (plan === 'UPGRADE') {
+    if (upgradeStatus === 'UPGRADE') {
       return (
         <LinearGradient
           start={{ x: 0, y: 0 }}
@@ -353,13 +355,12 @@ const SignerList = ({ plan }) => {
               width={'12'}
               height={'12'}
               borderRadius={30}
-              bg={'#EBB67A'}
               justifyContent={'center'}
               alignItems={'center'}
               marginX={1}
               alignSelf={'center'}
             >
-              {null}
+              {<AddIcon />}
             </Box>
             <VStack pb={2}>
               <Text
@@ -406,7 +407,6 @@ const SignerList = ({ plan }) => {
                 bg={'#725436'}
                 justifyContent={'center'}
                 alignItems={'center'}
-                marginX={1}
                 alignSelf={'center'}
               >
                 {WalletMap(signer.type, true).Icon}
@@ -440,11 +440,6 @@ const SignerList = ({ plan }) => {
   );
 };
 
-const subscriptionSchemeMap = {
-  PLEB: { m: 1, n: 1 },
-  HODLER: { m: 2, n: 3 },
-  WHALE: { m: 3, n: 5 },
-};
 const VaultDetails = () => {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -458,8 +453,8 @@ const VaultDetails = () => {
 
   const hasPlanChanged = () => {
     const currentScheme = vault.scheme;
-    // const subscriptionScheme = subscriptionSchemeMap[keeper.subscriptionPlan];
-    const subscriptionScheme = subscriptionSchemeMap.HODLER;
+    // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.HODLER;
     if (currentScheme.m > subscriptionScheme.m) {
       return 'DOWNGRADE';
     } else if (currentScheme.m < subscriptionScheme.m) {
@@ -496,7 +491,7 @@ const VaultDetails = () => {
       </VStack>
       <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
         <VStack justifyContent={'space-between'}>
-          <SignerList plan={hasPlanChanged()} />
+          <SignerList upgradeStatus={hasPlanChanged()} />
           <TransactionList
             transactions={transactions}
             pullDownRefresh={syncVault}

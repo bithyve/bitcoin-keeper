@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -8,8 +8,7 @@ import config, { APP_STAGE } from 'src/core/config';
 import AppClient from 'src/hardware/ledger';
 import QRCode from 'react-native-qrcode-svg';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { addNewVault } from 'src/store/sagaActions/wallets';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import { addNewVault } from 'src/store/sagaActions/vaults';
 import { useDispatch } from 'react-redux';
 
 const delay = (ms) => new Promise((success) => setTimeout(success, ms));
