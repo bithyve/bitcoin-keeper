@@ -28,6 +28,9 @@ import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
+import AddSigningDevice from 'src/screens/AddSigner/AddSigningDevice';
+import AddNewSigner from 'src/screens/AddSigner/AddNewSigner';
+import ListSigningDevice from 'src/screens/AddSigner/ListSigningDevice';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
@@ -111,6 +114,9 @@ const AppStack = () => {
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
+        <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="AddNewSigner" component={AddNewSigner} />
+        <Stack.Screen name="ListSigningDevice" component={ListSigningDevice} />
         <Stack.Screen name="Signers" component={Signers} />
       </Stack.Navigator>
     </RealmProvider>
