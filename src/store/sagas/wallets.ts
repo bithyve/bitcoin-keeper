@@ -1,39 +1,43 @@
-import { call, put } from 'redux-saga/effects';
-import _ from 'lodash';
-import { createWatcher } from 'src/store/utilities';
 import {
+  ADD_NEW_WALLETS,
+  AUTO_SYNC_WALLETS,
+  IMPORT_NEW_WALLET,
+  REFRESH_WALLETS,
   SYNC_WALLETS,
   UPDATE_WALLET_SETTINGS,
-  walletSettingsUpdated,
-  walletSettingsUpdateFailed,
-  IMPORT_NEW_WALLET,
   refreshWallets,
-  REFRESH_WALLETS,
-  AUTO_SYNC_WALLETS,
-  ADD_NEW_WALLETS,
-  ADD_NEW_VAULT,
+  walletSettingsUpdateFailed,
+  walletSettingsUpdated,
 } from '../sagaActions/wallets';
-import config, { APP_STAGE } from 'src/core/config';
-import { setNetBalance } from 'src/store/reducers/wallets';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import {
-  WalletType,
-  NetworkType,
-  VisibilityType,
-  VaultType,
   EntityKind,
+  NetworkType,
+  VaultType,
+  VisibilityType,
+  WalletType,
 } from 'src/core/wallets/enums';
+import { Storage, getString, setItem } from 'src/storage';
+import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { call, put } from 'redux-saga/effects';
+import config, { APP_STAGE } from 'src/core/config';
+
+import { ADD_NEW_VAULT } from '../sagaActions/vaults';
+import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
+import { addSigningDevice } from '../reducers/vaults';
+import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { updateAppImage } from '../sagaActions/bhr';
+import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
+import { setNetBalance } from 'src/store/reducers/wallets';
+import { updateAppImage } from '../sagaActions/bhr';
 
 export interface newWalletDetails {
   name?: string;
@@ -225,6 +229,13 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
 }
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
+
+function* addSigningDeviceWorker({ payload: signer }: { payload: VaultSigner }) {
+  console.log(signer);
+  yield put(addSigningDevice(signer));
+}
+
+export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
 
 export function* importNewWalletWorker({
   payload,

@@ -1,6 +1,7 @@
 import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
+  addSigningDeviceWatcher,
   autoWalletsSyncWatcher,
   importNewWalletWatcher,
   refreshWalletsWatcher,
@@ -65,12 +66,15 @@ export const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
-    addNewVaultWatcher,
     autoWalletsSyncWatcher,
     importNewWalletWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
+
+    // vaults
+    addNewVaultWatcher,
+    addSigningDeviceWatcher,
 
     // send and receive
     feeAndExchangeRatesWatcher,
