@@ -45,7 +45,7 @@ const OnboardingSlideComponent = (props) => {
       {props.currentPosition == 5 && (
         <Box justifyContent={'center'} mt={15}>
           <TouchableOpacity
-            onPress={() => props.navigation.replace('App')}
+            onPress={() => props.navigation.replace('NewKeeperApp')}
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
           >
             <Text
