@@ -1,16 +1,23 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Box, HStack, Pressable, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Image, ImageBackground, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
-import FileViewer from 'react-native-file-viewer';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import { Alert } from 'react-native';
-
+import {
+  Image,
+  ImageBackground,
+  PermissionsAndroid,
+  Platform,
+  TouchableOpacity,
+} from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+
+import { Alert } from 'react-native';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
+import CustomPriorityModal from '../Send/CustomPriorityModal';
+import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -18,18 +25,19 @@ import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
+import Pleb from 'src/assets/images/svgs/pleb.svg';
 // import Elite from 'src/assets/images/svgs/elite.svg';
 // import Pro from 'src/assets/images/svgs/pro.svg';
 // import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
 // import Ledger from 'src/assets/images/svgs/ledger_home.svg';
 // import Trezor from 'src/assets/images/svgs/trezor_home.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import { SignerMap } from './SignerMap';
 import SuccessModal from 'src/components/SuccessModal';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
@@ -37,15 +45,13 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletMap } from '../HardwareWalletSetUp/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-import CustomPriorityModal from '../Send/CustomPriorityModal';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -245,47 +251,47 @@ const VaultStatus = (props) => {
   } = Vault;
   const vaultBalance = confirmed + unconfirmed;
 
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus())
-  const dispatch = useAppDispatch()
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+  const dispatch = useAppDispatch();
 
   const onChangeTorStatus = (status: TorStatus) => {
-    settorStatus(status)
-  }
+    settorStatus(status);
+  };
 
   useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus)
+    RestClient.subToTorStatus(onChangeTorStatus);
     return () => {
-      RestClient.unsubscribe(onChangeTorStatus)
-    }
-  }, [])
+      RestClient.unsubscribe(onChangeTorStatus);
+    };
+  }, []);
 
   const getTorStatusText = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'Tor disabled'
+        return 'Tor disabled';
       case TorStatus.CONNECTING:
-        return 'Tor connecting...'
+        return 'Tor connecting...';
       case TorStatus.CONNECTED:
-        return 'Tor enabled'
+        return 'Tor enabled';
       case TorStatus.ERROR:
-        return 'Tor error'
+        return 'Tor error';
       default:
-        return torStatus
+        return torStatus;
     }
   }, [torStatus]);
 
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'yellow.400'
+        return 'yellow.400';
       case TorStatus.CONNECTING:
-        return 'orange.400'
+        return 'orange.400';
       case TorStatus.CONNECTED:
-        return 'green.400'
+        return 'green.400';
       case TorStatus.ERROR:
-        return 'red.400'
+        return 'red.400';
       default:
-        return 'yellow.400'
+        return 'yellow.400';
     }
   }, [torStatus]);
 
@@ -337,7 +343,17 @@ const VaultStatus = (props) => {
             {!Signers.length ? null : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
                 {Signers.map((signer) => (
-                  <SignerMap type={signer.type} />
+                  <Box
+                    width={30}
+                    height={30}
+                    borderRadius={30}
+                    bg={'#FAC48B'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    marginX={1}
+                  >
+                    {WalletMap(signer.type).Icon}
+                  </Box>
                 ))}
               </Box>
             )}
@@ -495,7 +511,7 @@ const HomeScreen = () => {
     company: 'Xyz Company',
     amount: '46899.50',
     amt: '53100.50',
-  }
+  };
   const htmlContent = `
           <html>
             <head>
@@ -586,7 +602,7 @@ const HomeScreen = () => {
           {
             title: 'Pdf creator needs External Storage Write Permission',
             message: 'Pdf creator needs access to Storage data in your SD Card',
-            buttonPositive: ''
+            buttonPositive: '',
           }
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -604,7 +620,7 @@ const HomeScreen = () => {
     } else {
       createPDF();
     }
-  }
+  };
   const createPDF = async () => {
     let options = {
       //Content to print
@@ -614,28 +630,28 @@ const HomeScreen = () => {
       //File directory
       directory: 'Download',
 
-      base64: true
+      base64: true,
     };
 
-    let file = await RNHTMLtoPDF.convert(options)
+    let file = await RNHTMLtoPDF.convert(options);
     // console.log(file.filePath);
     // Alert.alert('Successfully Exported', 'Path:' + file.filePath, [
     //   { text: 'Cancel', style: 'cancel' },
     //   { text: 'Open', onPress: () => openFile(file.filePath) }
     // ], { cancelable: true });
-    openFile(file.filePath)
-  }
+    openFile(file.filePath);
+  };
 
   const openFile = (filepath) => {
-    const path = filepath;// absolute-path-to-my-local-file.
+    const path = filepath; // absolute-path-to-my-local-file.
     FileViewer.open(path)
       .then(() => {
         // success
       })
-      .catch(error => {
+      .catch((error) => {
         // error
       });
-  }
+  };
 
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>

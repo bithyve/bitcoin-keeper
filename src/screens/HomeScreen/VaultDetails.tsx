@@ -34,6 +34,7 @@ import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
+import { WalletMap } from '../HardwareWalletSetUp/WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -325,13 +326,58 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 };
 
-const SignerList = () => {
+const SignerList = ({ plan }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
   const Signers = vaults[0]?.signers; //To-Do: Vault should be pased as prop
   const styles = getStyles(0);
   const navigation = useNavigation();
 
+  const AddSigner = () => {
+    if (plan === 'UPGRADE') {
+      return (
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          colors={['#B17F44', '#6E4A35']}
+          style={[styles.signerCard]}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              navigation.dispatch(CommonActions.navigate('Signers'));
+            }}
+          >
+            <Box
+              margin={'1'}
+              marginBottom={'3'}
+              width={'12'}
+              height={'12'}
+              borderRadius={30}
+              bg={'#EBB67A'}
+              justifyContent={'center'}
+              alignItems={'center'}
+              marginX={1}
+              alignSelf={'center'}
+            >
+              {null}
+            </Box>
+            <VStack pb={2}>
+              <Text
+                color={'light.white'}
+                fontSize={11}
+                fontWeight={300}
+                letterSpacing={0.6}
+                textAlign={'center'}
+              >
+                {'Add Signers to Upgrade'}
+              </Text>
+            </VStack>
+          </TouchableOpacity>
+        </LinearGradient>
+      );
+    }
+    return null;
+  };
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -351,7 +397,20 @@ const SignerList = () => {
                 });
               }}
             >
-              <SignerIcon />
+              <Box
+                margin={'1'}
+                marginBottom={'3'}
+                width={'12'}
+                height={'12'}
+                borderRadius={30}
+                bg={'#725436'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                marginX={1}
+                alignSelf={'center'}
+              >
+                {WalletMap(signer.type, true).Icon}
+              </Box>
               <VStack pb={2}>
                 <Text
                   color={'light.textBlack'}
@@ -376,8 +435,15 @@ const SignerList = () => {
           </Box>
         );
       })}
+      {<AddSigner />}
     </ScrollView>
   );
+};
+
+const subscriptionSchemeMap = {
+  PLEB: { m: 1, n: 1 },
+  HODLER: { m: 2, n: 3 },
+  WHALE: { m: 3, n: 5 },
 };
 const VaultDetails = () => {
   const dispatch = useDispatch();
@@ -386,8 +452,22 @@ const VaultDetails = () => {
   const wallet = translations['wallet'];
   const { top } = useSafeAreaInsets();
   const vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const keeper = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
+
+  const hasPlanChanged = () => {
+    const currentScheme = vault.scheme;
+    // const subscriptionScheme = subscriptionSchemeMap[keeper.subscriptionPlan];
+    const subscriptionScheme = subscriptionSchemeMap.HODLER;
+    if (currentScheme.m > subscriptionScheme.m) {
+      return 'DOWNGRADE';
+    } else if (currentScheme.m < subscriptionScheme.m) {
+      return 'UPGRADE';
+    } else {
+      return 'CHANGE';
+    }
+  };
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -416,7 +496,7 @@ const VaultDetails = () => {
       </VStack>
       <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
         <VStack justifyContent={'space-between'}>
-          <SignerList />
+          <SignerList plan={hasPlanChanged()} />
           <TransactionList
             transactions={transactions}
             pullDownRefresh={syncVault}

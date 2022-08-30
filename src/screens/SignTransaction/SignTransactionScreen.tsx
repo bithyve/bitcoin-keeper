@@ -30,10 +30,10 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
-import { SignerMap } from '../NewHomeScreen/SignerMap';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { WalletMap } from '../HardwareWalletSetUp/WalletMap';
 import { cloneDeep } from 'lodash';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
@@ -171,7 +171,17 @@ const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) 
         <Box flexDirection={'row'} borderRadius={10} justifyContent={'space-between'}>
           <Box flexDirection={'row'}>
             <View style={styles.inheritenceView}>
-              <SignerMap type={signer.type} />
+              <Box
+                width={30}
+                height={30}
+                borderRadius={30}
+                bg={'#FAC48B'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                marginX={1}
+              >
+                {WalletMap(signer.type).Icon}
+              </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
               <Text
