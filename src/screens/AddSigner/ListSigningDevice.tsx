@@ -97,7 +97,7 @@ const SigningFooter = () => {
   };
 
   const onClick = () => {
-    setModalVisible(false);
+    navigation.navigate('VaultDetails');
   };
 
   return (

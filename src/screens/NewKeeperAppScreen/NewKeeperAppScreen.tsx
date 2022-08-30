@@ -188,8 +188,10 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           <Tile
             title={'Inheritance Keeper Vault'}
             subTitle={'Using Signing Devices'}
-            onPress={() => console.log('using Signing Devices')}
             Icon={<Inheritance />}
+            onPress={() => {
+              navigation.navigate('AddSigningDevice');
+            }}
           />
         </Box>
       </ScrollView>
