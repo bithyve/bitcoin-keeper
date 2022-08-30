@@ -1,13 +1,17 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import React, { useCallback, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config, { APP_STAGE } from 'src/core/config';
 
+import { Box } from 'native-base';
+import Buttons from 'src/components/Buttons';
+import HeaderTitle from 'src/components/HeaderTitle';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { NfcTech } from 'react-native-nfc-manager';
+import { TapGestureHandler } from 'react-native-gesture-handler';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
 import crypto from 'crypto';
@@ -120,16 +124,64 @@ const SetupColdCard = () => {
     }
   };
 
-  useEffect(() => {
-    createVaultWithCC();
-  }, []);
+  const MockVaultCreation = () => {
+    if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      const networkType = NetworkType.TESTNET;
+      const network = WalletUtilities.getNetworkByType(networkType);
+
+      const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
+        EntityKind.VAULT
+      );
+      const mockColdCard: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.COLDCARD,
+        signerName: 'ColdCard',
+        xpub: xpub,
+        xpriv,
+        xpubInfo: {
+          derivationPath,
+          xfp: masterFingerprint,
+        },
+        lastHealthCheck: new Date(),
+      };
+
+      const scheme: VaultScheme = { m: 1, n: 1 };
+      const isVaultCreated = createVault([mockColdCard], scheme);
+      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
+    }
+  };
 
   return (
-    <View>
-      <Text>SetupColdCard</Text>
-      <NfcPrompt visible={nfcVisible} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <TapGestureHandler numberOfTaps={3} onActivated={MockVaultCreation}>
+        <Box flex={1}>
+          <Box style={styles.header}>
+            <HeaderTitle
+              title="Setting up ColdCard"
+              subtitle="Go to Settings > Multisig wallets > Export xPub on your ColdCard"
+              onPressHandler={() => navigation.goBack()}
+            />
+            <Box style={{ padding: 30 }}>
+              <Buttons primaryText="Proceed" primaryCallback={createVaultWithCC} />
+            </Box>
+          </Box>
+          <NfcPrompt visible={nfcVisible} />
+        </Box>
+      </TapGestureHandler>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 10,
+    paddingTop: 30,
+  },
+  header: {
+    flex: 1,
+    padding: '5%',
+  },
+});
 
 export default SetupColdCard;
