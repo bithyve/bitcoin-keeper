@@ -9,12 +9,17 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
 import WalletIcon from 'src/assets/icons/icon_wallet.svg';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 
 const onPressNumber = () => {
   console.log('Number pressed');
+};
+
+const onDeletePressed = () => {
+  console.log('Delete Pressed');
 };
 
 const SendToWallet = ({ navigation }) => {
@@ -84,7 +89,12 @@ const SendToWallet = ({ navigation }) => {
         />
       </Box>
       <Box style={styles.keypadView}>
-        <KeyPadView onPressNumber={onPressNumber} />
+        <KeyPadView
+          onDeletePressed={onDeletePressed}
+          onPressNumber={onPressNumber}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
       </Box>
     </Box>
   );

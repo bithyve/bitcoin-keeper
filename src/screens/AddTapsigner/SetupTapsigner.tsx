@@ -50,11 +50,11 @@ const SetupTapsigner = () => {
       setCvc(cvc.slice(0, -1));
     }
   };
+  const dispatch = useDispatch();
 
   const onDeletePressed = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
-  const dispatch = useDispatch();
 
   const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
@@ -186,9 +186,9 @@ const SetupTapsigner = () => {
         </TapGestureHandler>
         <KeyPadView
           onPressNumber={onPressHandler}
-          keyColor={'#041513'}
-          ClearIcon={<DeleteIcon />}
           onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
         />
         <NfcPrompt visible={nfcVisible} />
       </Box>
