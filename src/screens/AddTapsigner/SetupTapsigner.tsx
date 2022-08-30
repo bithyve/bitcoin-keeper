@@ -16,7 +16,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
