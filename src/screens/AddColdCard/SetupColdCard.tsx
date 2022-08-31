@@ -44,10 +44,11 @@ const SetupColdCard = () => {
   };
 
   const saveColdCard = (coldCardData) => {
-    const { xpub, derivationPath, xfp } = coldCardData;
+    let { xpub, derivationPath, xfp } = coldCardData;
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
+    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
     const signer: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.COLDCARD,
