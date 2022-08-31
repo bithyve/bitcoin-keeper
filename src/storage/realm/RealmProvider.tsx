@@ -20,6 +20,7 @@ export const RealmWrapperContext = createContext({} as any);
 export const RealmProvider = ({ children }) => {
   const key = useAppSelector((state) => state?.login?.key);
   const bufferKey = stringToArrayBuffer(key);
+  // console.log(Buffer.from(bufferKey).toString('hex'));
   const RealmContext = useMemo(() => createRealmContext(realmConfig(bufferKey)), [key]);
   if (key) {
     const { useQuery, useRealm, useObject } = RealmContext;

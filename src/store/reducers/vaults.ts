@@ -22,7 +22,6 @@ const vaultSlice = createSlice({
   initialState,
   reducers: {
     addSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      console.log(action);
       state.signers = [...state.signers, action.payload];
     },
   },
@@ -32,6 +31,7 @@ const vaultSlice = createSlice({
     });
     builder.addCase(ADD_NEW_VAULT, (state) => {
       state.isGeneratingNewVault = false;
+      state.signers = [];
     });
   },
 });

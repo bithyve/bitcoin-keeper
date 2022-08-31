@@ -454,7 +454,7 @@ const VaultDetails = () => {
   const hasPlanChanged = () => {
     const currentScheme = vault.scheme;
     // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.HODLER;
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
     if (currentScheme.m > subscriptionScheme.m) {
       return 'DOWNGRADE';
     } else if (currentScheme.m < subscriptionScheme.m) {

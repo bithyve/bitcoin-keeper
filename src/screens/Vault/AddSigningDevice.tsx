@@ -25,13 +25,17 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp) => {
-  const currentScheme = vault.scheme;
-  // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
-  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.HODLER;
-  if (currentScheme.m > subscriptionScheme.m) {
-    return 'DOWNGRADE';
-  } else if (currentScheme.m < subscriptionScheme.m) {
-    return 'UPGRADE';
+  if (vault) {
+    const currentScheme = vault.scheme;
+    // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
+    if (currentScheme.m > subscriptionScheme.m) {
+      return 'DOWNGRADE';
+    } else if (currentScheme.m < subscriptionScheme.m) {
+      return 'UPGRADE';
+    } else {
+      return 'CHANGE';
+    }
   } else {
     return 'CHANGE';
   }
@@ -41,7 +45,7 @@ const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   // const signerLimit = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name].n;
-  const subscriptionSchemeLimit = SUBSCRIPTION_SCHEME_MAP.HODLER.n;
+  const subscriptionSchemeLimit = SUBSCRIPTION_SCHEME_MAP.WHALE.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
   const navigation = useNavigation();
@@ -67,6 +71,12 @@ const AddSigningDevice = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setSignersState(
+      vaultSigners.concat(new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null))
+    );
+  }, [vaultSigners]);
+
   const SignerItem = ({
     signer,
     index,
@@ -79,7 +89,7 @@ const AddSigningDevice = () => {
     if (!signer) {
       return (
         <Pressable onPress={navigateToSignerList}>
-          <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'8'}>
+          <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'12'}>
             <HStack style={styles.signerItem}>
               <HStack alignItems={'center'}>
                 <AddIcon />
@@ -107,7 +117,7 @@ const AddSigningDevice = () => {
       );
     }
     return (
-      <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'8'}>
+      <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'12'}>
         <HStack style={styles.signerItem}>
           <HStack>
             <Box
@@ -199,9 +209,9 @@ const AddSigningDevice = () => {
       {signersState.every((signer) => {
         return !!signer;
       }) && (
-        <Box position={'absolute'} bottom={0} width={'100%'}>
+        <Box position={'absolute'} bottom={10} width={'100%'}>
           <Buttons
-            primaryText="Next"
+            primaryText="Create Vault"
             primaryCallback={onProceed}
             secondaryText={'Cancel'}
             secondaryCallback={navigation.goBack}

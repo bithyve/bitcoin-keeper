@@ -213,7 +213,7 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
     let presentVaultInstances = { ...vaultShell.vaultInstances };
     presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
 
-    yield call(dbManager.updateObjectById, RealmSchema.WalletShell, vaultShell.id, {
+    yield call(dbManager.updateObjectById, RealmSchema.VaultShell, vaultShell.id, {
       vaultInstances: presentVaultInstances,
     });
   } else {

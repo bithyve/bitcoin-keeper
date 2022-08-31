@@ -110,9 +110,15 @@ const SetupTapsigner = () => {
       if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
         const networkType = NetworkType.TESTNET;
         const network = WalletUtilities.getNetworkByType(networkType);
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-          EntityKind.VAULT
-        );
+        // const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
+        //   EntityKind.VAULT
+        // );
+        const xpub =
+          'tpubDF6L55YJ8AkuwkWwpdY87eJyUUHNu2PGHkXCNj7BuJQWcj2toFBDhAZJTU248AXMcMgi7fACLidVt9j35SfsANLensD5uUdQuPxjZvGDNWZ';
+        const xpriv =
+          'tprv8iQHvfW3yo5F4HV9vysXiEeruSmSjhCMiSvR6D4tV2c7nEn8ArMdWfwSHJTiZNqH2TqgzJmj8EhJJf3BQwPhHs4qSuieY63Vc2QxRnmbu2d';
+        const masterFingerprint = '7A5C570E';
+        const derivationPath = "m/48'/1'/800859'/1'"; // bip48/testnet/account/script/
         const tapsigner: VaultSigner = {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.TAPSIGNER,
