@@ -210,7 +210,7 @@ export interface TwoFADetails {
   twoFAValidated?: boolean;
 }
 
-export interface SigningDataHW {
+export interface SigningPayload {
   inputsToSign: Array<{
     digest: string;
     subPath: string;
@@ -222,7 +222,9 @@ export interface SigningDataHW {
 }
 
 export interface SerializedPSBTEnvelop {
+  signerId: string;
   signerType: SignerType;
   serializedPSBT: string;
-  signingDataHW?: SigningDataHW[];
+  signingPayload?: SigningPayload[];
+  isSigned: boolean;
 }

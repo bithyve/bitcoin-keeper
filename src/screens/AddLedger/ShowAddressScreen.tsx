@@ -9,7 +9,7 @@ import AppClient from 'src/hardware/ledger';
 import QRCode from 'react-native-qrcode-svg';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addNewVault } from 'src/store/sagaActions/wallets';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const delay = (ms) => new Promise((success) => setTimeout(success, ms));

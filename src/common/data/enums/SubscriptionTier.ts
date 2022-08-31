@@ -1,5 +1,5 @@
 export enum SubscriptionTier {
-  PLEB = 'PLEB',
+  PLEB = 'pleb',
   HODLER = 'HODLER',
   WHALE = 'WHALE',
 }

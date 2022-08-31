@@ -42,11 +42,12 @@ const App = () => {
   );
 };
 
-
-const AppWrapper = () => <PersistGate persistor={persistor} loading={null}>
-  <Provider store={store}>
-    <App />
-  </Provider>
-</PersistGate>;
+const AppWrapper = () => (
+  <PersistGate persistor={persistor} loading={null}>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </PersistGate>
+);
 
 export default withIAPContext(AppWrapper);
