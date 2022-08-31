@@ -651,7 +651,8 @@ export default class WalletOperations {
     PSBT: bitcoinJS.Psbt,
     wallet: Wallet | Vault,
     input: InputUTXOs,
-    network: bitcoinJS.networks.Network
+    network: bitcoinJS.networks.Network,
+    derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84
   ) => {
     if (wallet.entityKind === EntityKind.WALLET) {
       const { publicKey, subPath } = WalletUtilities.addressToKey(
@@ -663,9 +664,12 @@ export default class WalletOperations {
         pubkey: publicKey,
         network,
       });
-      const p2sh = bitcoinJS.payments.p2sh({
-        redeem: p2wpkh,
-      });
+
+      let p2sh;
+      if (derivationPurpose === DerivationPurpose.BIP49)
+        p2sh = bitcoinJS.payments.p2sh({
+          redeem: p2wpkh,
+        });
 
       const path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
       const masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
@@ -680,16 +684,28 @@ export default class WalletOperations {
         },
       ];
 
-      PSBT.addInput({
-        hash: input.txId,
-        index: input.vout,
-        bip32Derivation,
-        witnessUtxo: {
-          script: p2sh.output,
-          value: input.value,
-        },
-        redeemScript: p2wpkh.output,
-      });
+      if (derivationPurpose === DerivationPurpose.BIP84) {
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          bip32Derivation,
+          witnessUtxo: {
+            script: p2wpkh.output,
+            value: input.value,
+          },
+        });
+      } else if (derivationPurpose === DerivationPurpose.BIP49) {
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          bip32Derivation,
+          witnessUtxo: {
+            script: p2sh.output,
+            value: input.value,
+          },
+          redeemScript: p2wpkh.output,
+        });
+      }
     } else if (wallet.entityKind === EntityKind.VAULT) {
       const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
