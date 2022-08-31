@@ -14,7 +14,7 @@ import { TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/WalletFactory';
+import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const SetupColdCard = () => {
