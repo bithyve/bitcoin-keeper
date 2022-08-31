@@ -4,10 +4,18 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
 
-const ScreenWrapper = ({ children, barStyle }: { children: any; barStyle?: StatusBarStyle }) => {
+const ScreenWrapper = ({
+  children,
+  barStyle,
+  backgroundColor = 'transparent',
+}: {
+  children: any;
+  barStyle?: StatusBarStyle;
+  backgroundColor?: string;
+}) => {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={barStyle || 'dark-content'} />
+      <StatusBar barStyle={barStyle || 'dark-content'} backgroundColor={backgroundColor} />
       {children}
     </SafeAreaView>
   );

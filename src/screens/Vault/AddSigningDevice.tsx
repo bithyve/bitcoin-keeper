@@ -1,7 +1,7 @@
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -18,54 +18,89 @@ import { VaultType } from 'src/core/wallets/enums';
 import { WalletMap } from './WalletMap';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getString } from 'src/storage';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import moment from 'moment';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 
+const hasPlanChanged = (vault: Vault, keeper: KeeperApp) => {
+  const currentScheme = vault.scheme;
+  // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
+  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.HODLER;
+  if (currentScheme.m > subscriptionScheme.m) {
+    return 'DOWNGRADE';
+  } else if (currentScheme.m < subscriptionScheme.m) {
+    return 'UPGRADE';
+  } else {
+    return 'CHANGE';
+  }
+};
+
 const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
   // const signerLimit = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name].n;
-  const signerLimit = SUBSCRIPTION_SCHEME_MAP.HODLER.n;
+  const subscriptionSchemeLimit = SUBSCRIPTION_SCHEME_MAP.HODLER.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
-  const [signersState, setSignersState] = useState(
-    vaultSigners.concat(new Array(signerLimit - vaultSigners.length).fill(null))
-  );
+  const [signersState, setSignersState] = useState(vaultSigners);
   const navigation = useNavigation();
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
+  const activeVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+
+  const planStatus = hasPlanChanged(activeVault, keeper);
 
   useEffect(() => {
-    console.log(vaultSigners);
-    setSignersState(vaultSigners.concat(new Array(signerLimit - vaultSigners.length).fill(null)));
-  }, [vaultSigners]);
+    switch (planStatus) {
+      case 'DOWNGRADE':
+        break;
+      case 'UPGRADE':
+        setSignersState(
+          signersState.concat(new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null))
+        );
+        break;
+      case 'CHANGE':
+        break;
+      default:
+        break;
+    }
+  }, []);
 
-  const SignerItem = ({ signer, index }: { signer: VaultSigner | undefined; index: number }) => {
+  const SignerItem = ({
+    signer,
+    index,
+    planStatus,
+  }: {
+    signer: VaultSigner | undefined;
+    index: number;
+    planStatus: 'DOWNGRADE' | 'UPGRADE' | 'CHANGE';
+  }) => {
     if (!signer) {
       return (
         <Pressable onPress={navigateToSignerList}>
           <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'8'}>
             <HStack style={styles.signerItem}>
-              <AddIcon />
-              <VStack marginX={'4'} maxW={'80%'}>
-                <Text
-                  color={'light.lightBlack'}
-                  fontSize={15}
-                  numberOfLines={2}
-                  alignItems={'center'}
-                  letterSpacing={1.12}
-                >
-                  {`Add Signer ${index + 1}`}
-                </Text>
-                <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-                  {`Lorem ipsum dolor sit amet, consectetur`}
-                </Text>
-              </VStack>
-              <IconArrowBlack />
+              <HStack alignItems={'center'}>
+                <AddIcon />
+                <VStack marginX={'4'} maxW={'64'}>
+                  <Text
+                    color={'light.lightBlack'}
+                    fontSize={15}
+                    numberOfLines={2}
+                    alignItems={'center'}
+                    letterSpacing={1.12}
+                  >
+                    {`Add Signer ${index + 1}`}
+                  </Text>
+                  <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
+                    {`Lorem ipsum dolor sit amet, consectetur`}
+                  </Text>
+                </VStack>
+              </HStack>
+              <Box w={'15%'} alignItems={'center'}>
+                <IconArrowBlack />
+              </Box>
             </HStack>
           </Box>
         </Pressable>
@@ -74,37 +109,48 @@ const AddSigningDevice = () => {
     return (
       <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'8'}>
         <HStack style={styles.signerItem}>
-          <Box
-            width={'8'}
-            height={'8'}
-            borderRadius={30}
-            bg={'#725436'}
-            justifyContent={'center'}
-            alignItems={'center'}
-            alignSelf={'center'}
-          >
-            {WalletMap(signer.type, true).Icon}
-          </Box>
-          <VStack marginX={'4'} maxW={'80%'}>
-            <Text
-              color={'light.lightBlack'}
-              fontSize={15}
-              numberOfLines={2}
+          <HStack>
+            <Box
+              width={'8'}
+              height={'8'}
+              borderRadius={30}
+              bg={'#725436'}
+              justifyContent={'center'}
               alignItems={'center'}
-              letterSpacing={1.12}
+              alignSelf={'center'}
             >
-              {signer.signerName}
-            </Text>
-            <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-              {`Added ${moment(signer.lastHealthCheck).calendar()}`}
-            </Text>
-          </VStack>
+              {WalletMap(signer.type, true).Icon}
+            </Box>
+            <VStack marginX={'4'} maxW={'80%'}>
+              <Text
+                color={'light.lightBlack'}
+                fontSize={15}
+                numberOfLines={2}
+                alignItems={'center'}
+                letterSpacing={1.12}
+              >
+                {signer.signerName}
+              </Text>
+              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+                {`Added ${moment(signer.lastHealthCheck).calendar()}`}
+              </Text>
+            </VStack>
+          </HStack>
+          {planStatus !== 'UPGRADE' && (
+            <Pressable style={styles.remove}>
+              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+                {`Remove`}
+              </Text>
+            </Pressable>
+          )}
         </HStack>
       </Box>
     );
   };
 
-  const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
+  const renderSigner = ({ item, index }) => (
+    <SignerItem signer={item} index={index} planStatus={planStatus} />
+  );
 
   const dispatch = useDispatch();
   const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
@@ -169,6 +215,15 @@ const AddSigningDevice = () => {
 const styles = ScaledSheet.create({
   signerItem: {
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  remove: {
+    height: 26,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    backgroundColor: '#FAC48B',
+    justifyContent: 'center',
   },
 });
 
