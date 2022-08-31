@@ -2,6 +2,8 @@ import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
+import { addNewVault, migrateVault } from 'src/store/sagaActions/vaults';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -14,9 +16,8 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { VaultType } from 'src/core/wallets/enums';
 import { WalletMap } from './WalletMap';
-import { addNewVault } from 'src/store/sagaActions/vaults';
+import { addSigningDevice } from 'src/store/reducers/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import moment from 'moment';
@@ -24,31 +25,32 @@ import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 
-const hasPlanChanged = (vault: Vault, keeper: KeeperApp) => {
+const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
     const currentScheme = vault.scheme;
     // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
     if (currentScheme.m > subscriptionScheme.m) {
-      return 'DOWNGRADE';
+      return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
-      return 'UPGRADE';
+      return VaultMigrationType.UPGRADE;
     } else {
-      return 'CHANGE';
+      return VaultMigrationType.CHANGE;
     }
   } else {
-    return 'CHANGE';
+    return VaultMigrationType.CHANGE;
   }
 };
 
 const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  // const signerLimit = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name].n;
+  // const currentSignerLimit = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name].n;
   const subscriptionSchemeLimit = SUBSCRIPTION_SCHEME_MAP.WHALE.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
   const activeVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
@@ -56,26 +58,63 @@ const AddSigningDevice = () => {
   const planStatus = hasPlanChanged(activeVault, keeper);
 
   useEffect(() => {
-    switch (planStatus) {
-      case 'DOWNGRADE':
-        break;
-      case 'UPGRADE':
-        setSignersState(
-          signersState.concat(new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null))
-        );
-        break;
-      case 'CHANGE':
-        break;
-      default:
-        break;
+    if (activeVault) {
+      dispatch(addSigningDevice(activeVault.signers));
     }
   }, []);
 
   useEffect(() => {
-    setSignersState(
-      vaultSigners.concat(new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null))
-    );
+    const fills =
+      planStatus !== 'UPGRADE'
+        ? []
+        : new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null);
+    setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
+
+  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
+    try {
+      const newVaultInfo: newVaultInfo = {
+        vaultType: VaultType.DEFAULT,
+        vaultScheme: scheme,
+        vaultSigners: signers,
+        vaultDetails: {
+          name: 'Vault',
+          description: 'Secure your sats',
+        },
+      };
+      dispatch(addNewVault(newVaultInfo));
+      return newVaultInfo;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  }, []);
+
+  const sweepVaultFunds = (address: string, amount?: string) => {
+    navigation.dispatch(
+      CommonActions.navigate('AddSendAmount', {
+        activeVault,
+        address,
+        amount,
+      })
+    );
+  };
+
+  const onProceed = () => {
+    // const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const scheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
+    if (activeVault) {
+      const freshVault = createVault(signersState, scheme);
+      if (freshVault) {
+        dispatch(migrateVault(freshVault, planStatus));
+      }
+    } else {
+      const freshVault = createVault(signersState, scheme);
+      if (freshVault && !activeVault) {
+        navigation.dispatch(CommonActions.navigate('NewHome'));
+      }
+    }
+  };
 
   const SignerItem = ({
     signer,
@@ -161,35 +200,6 @@ const AddSigningDevice = () => {
   const renderSigner = ({ item, index }) => (
     <SignerItem signer={item} index={index} planStatus={planStatus} />
   );
-
-  const dispatch = useDispatch();
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
-    try {
-      const newVaultInfo: newVaultInfo = {
-        vaultType: VaultType.DEFAULT,
-        vaultScheme: scheme,
-        vaultSigners: signers,
-        vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
-        },
-      };
-      dispatch(addNewVault(newVaultInfo));
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }, []);
-
-  const onProceed = () => {
-    const scheme = SUBSCRIPTION_SCHEME_MAP.HODLER;
-    const isVaultCreated = createVault(signersState, scheme);
-    if (isVaultCreated) {
-      navigation.dispatch(CommonActions.navigate('NewHome'));
-    }
-  };
-
   return (
     <ScreenWrapper>
       <Header

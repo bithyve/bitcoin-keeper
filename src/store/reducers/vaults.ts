@@ -2,6 +2,7 @@ import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import _ from 'lodash';
 
 export type VaultState = {
   signers: VaultSigner[];
@@ -21,8 +22,9 @@ const vaultSlice = createSlice({
   name: 'vault',
   initialState,
   reducers: {
-    addSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      state.signers = [...state.signers, action.payload];
+    addSigningDevice: (state, action: PayloadAction<VaultSigner[]>) => {
+      const newSigners = action.payload.filter((signer) => !!signer && !!signer.signerId);
+      state.signers = _.uniqBy([...state.signers, ...newSigners], 'signerId');
     },
   },
   extraReducers: (builder) => {

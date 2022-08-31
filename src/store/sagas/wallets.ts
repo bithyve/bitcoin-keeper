@@ -1,3 +1,4 @@
+import { ADD_NEW_VAULT, MIGRATE_VAULT } from '../sagaActions/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -12,6 +13,7 @@ import {
 import {
   EntityKind,
   NetworkType,
+  VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
@@ -22,7 +24,6 @@ import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { call, put } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
 
-import { ADD_NEW_VAULT } from '../sagaActions/vaults';
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -231,11 +232,22 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
 function* addSigningDeviceWorker({ payload: signer }: { payload: VaultSigner }) {
-  console.log(signer);
-  yield put(addSigningDevice(signer));
+  yield put(addSigningDevice([signer]));
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
+
+function* migrateVaultWorker({
+  payload: { payload },
+}: {
+  payload: { payload: { newVaultData: newVaultInfo; migrationType: VaultMigrationType } };
+}) {
+  const oldVault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0);
+  const newVault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 1);
+  console.log({ oldVault, newVault });
+}
+
+export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
 
 export function* importNewWalletWorker({
   payload,

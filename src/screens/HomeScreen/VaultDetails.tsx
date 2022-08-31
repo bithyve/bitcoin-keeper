@@ -36,6 +36,7 @@ import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
+import { VaultMigrationType } from 'src/core/wallets/enums';
 import { WalletMap } from '../Vault/WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -100,9 +101,11 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
         <Box>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('ViewTransactionDetails', {
-                transaction: transaction,
-              });
+              navigation.dispatch(
+                CommonActions.navigate('ViewTransactionDetails', {
+                  transaction,
+                })
+              );
             }}
           >
             <IconArrowGrey />
@@ -296,10 +299,12 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
           <HStack alignItems={'center'}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('ViewAllTransactions', {
-                  title: 'Vault Transactions',
-                  subtitle: 'Lorem ipsium dolor sit amet,',
-                });
+                navigation.dispatch(
+                  CommonActions.navigate('ViewAllTransactions', {
+                    title: 'Vault Transactions',
+                    subtitle: 'Lorem ipsium dolor sit amet,',
+                  })
+                );
               }}
             >
               <Text
@@ -328,7 +333,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 };
 
-const SignerList = ({ upgradeStatus }) => {
+const SignerList = ({ upgradeStatus }: { upgradeStatus: VaultMigrationType }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const vaults: Vault[] = useQuery(RealmSchema.Vault);
   const Signers = vaults[0]?.signers; //To-Do: Vault should be pased as prop
@@ -336,7 +341,7 @@ const SignerList = ({ upgradeStatus }) => {
   const navigation = useNavigation();
 
   const AddSigner = () => {
-    if (upgradeStatus === 'UPGRADE') {
+    if (upgradeStatus === VaultMigrationType.UPGRADE) {
       return (
         <LinearGradient
           start={{ x: 0, y: 0 }}
@@ -391,11 +396,13 @@ const SignerList = ({ upgradeStatus }) => {
           <Box style={styles.signerCard} marginRight={'3'}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('SigningDeviceDetails', {
-                  SignerIcon: <SignerIcon />,
-                  signer,
-                  vaultId: vaults[0].id,
-                });
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceDetails', {
+                    SignerIcon: <SignerIcon />,
+                    signer,
+                    vaultId: vaults[0].id,
+                  })
+                );
               }}
             >
               <Box
@@ -451,16 +458,16 @@ const VaultDetails = () => {
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
 
-  const hasPlanChanged = () => {
+  const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
     // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
     if (currentScheme.m > subscriptionScheme.m) {
-      return 'DOWNGRADE';
+      return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
-      return 'UPGRADE';
+      return VaultMigrationType.UPGRADE;
     } else {
-      return 'CHANGE';
+      return VaultMigrationType.CHANGE;
     }
   };
 
