@@ -9,7 +9,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -26,6 +25,7 @@ import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -287,7 +287,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
               line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
               line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
             });
-            const enc = Ndef.encodeMessage([Ndef.textRecord(line)]);
+            const enc = NFC.encodeForColdCard(line);
             console.log('scanning...', line);
             await NFC.send(NfcTech.Ndef, enc);
             console.log('Done');

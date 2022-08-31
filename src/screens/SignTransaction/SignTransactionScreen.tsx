@@ -4,8 +4,6 @@ import {
   Dimensions,
   FlatList,
   Platform,
-  SafeAreaView,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
@@ -13,23 +11,27 @@ import {
 import AppClient, { DefaultWalletPolicy, PsbtV2, WalletPolicy } from 'src/hardware/ledger';
 import { Box, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 
+import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
+import CheckIcon from 'src/assets/images/checked.svg';
 import Header from 'src/components/Header';
 import KeeperModal from 'src/components/KeeperModal';
 import NFC from 'src/core/services/nfc';
 import Next from 'src/assets/images/svgs/icon_arrow.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import { NfcTech } from 'react-native-nfc-manager';
 import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -37,7 +39,6 @@ import { WalletMap } from '../Vault/WalletMap';
 import { cloneDeep } from 'lodash';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
-import useDebouncedEffect from 'src/hooks/useDebouncedEffect';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
 
@@ -164,7 +165,18 @@ const LedgerContent = ({ onSelectDevice }) => {
   );
 };
 
-const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) => {
+const SignWith = ({
+  signer,
+  callback,
+  envelops,
+}: {
+  signer: VaultSigner;
+  callback: any;
+  envelops: SerializedPSBTEnvelop[];
+}) => {
+  const hasSignerSigned = !!envelops.filter(
+    (psbt) => psbt.signerId === signer.signerId && psbt.isSigned
+  ).length;
   return (
     <TouchableOpacity onPress={callback}>
       <Box m={5}>
@@ -205,7 +217,7 @@ const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) 
             </View>
           </Box>
           <Box alignItems={'center'} justifyContent={'center'}>
-            <Next />
+            {hasSignerSigned ? <CheckIcon /> : <Next />}
           </Box>
         </Box>
       </Box>
@@ -271,7 +283,6 @@ const SignTransactionScreen = () => {
     );
   };
 
-  let dispatched = false;
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
     serializedPSBTEnvelops.forEach((envelop) => {
@@ -281,30 +292,10 @@ const SignTransactionScreen = () => {
     });
     // modify this in dev builds for mock signers
     if (signedTxCount >= defaultVault.scheme.m) {
-      dispatch(
-        sendPhaseThree({
-          wallet: defaultVault,
-          txnPriority: TxPriority.LOW,
-        })
-      );
-      dispatched = true;
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
       return true;
     }
     return false;
   };
-
-  useDebouncedEffect(
-    () => {
-      if (!dispatched) {
-        areSignaturesSufficient();
-      }
-    },
-    {
-      timeout: 500,
-    },
-    [serializedPSBTEnvelops]
-  );
 
   const signTransaction = useCallback(async () => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -353,9 +344,7 @@ const SignTransactionScreen = () => {
           try {
             setColdCardModal(false);
             setNfcVisible(true);
-            const psbtBytes = Ndef.encodeMessage([
-              Ndef.textRecord(serializedPSBTEnvelop.serializedPSBT),
-            ]);
+            const psbtBytes = NFC.encodeForColdCard(serializedPSBTEnvelop.serializedPSBT);
             await NFC.send([NfcTech.Ndef], psbtBytes);
             setNfcVisible(false);
           } catch (error) {
@@ -423,20 +412,36 @@ const SignTransactionScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.Container}>
-      <Box paddingX={5} marginTop={hp(5)}>
-        <Box marginY={5}>
-          <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
-        </Box>
-        <FlatList
-          data={signers}
-          keyExtractor={(item) => item.signerId}
-          renderItem={({ item }) => (
-            <SignWith signer={item} callback={() => callbackForSigners(item.type)} />
-          )}
+    <ScreenWrapper>
+      <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
+      <FlatList
+        data={signers}
+        keyExtractor={(item) => item.signerId}
+        renderItem={({ item }) => (
+          <SignWith
+            signer={item}
+            callback={() => callbackForSigners(item.type)}
+            envelops={serializedPSBTEnvelops}
+          />
+        )}
+      />
+      <Box alignItems={'flex-end'} marginY={5}>
+        <Buttons
+          primaryText={'Boradcast'}
+          primaryCallback={() => {
+            if (areSignaturesSufficient()) {
+              dispatch(
+                sendPhaseThree({
+                  wallet: defaultVault,
+                  txnPriority: TxPriority.LOW,
+                })
+              );
+              navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+            } else {
+              Alert.alert(`Sorry there aren't enough signatures!`);
+            }
+          }}
         />
-      </Box>
-      <Box alignItems={'flex-start'} marginY={5}>
         <Note
           title={'Note'}
           subtitle={
@@ -481,7 +486,7 @@ const SignTransactionScreen = () => {
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 
