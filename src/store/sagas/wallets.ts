@@ -31,8 +31,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { updateAppImage } from '../sagaActions/bhr';
+import { generateVAC, generateVault } from 'src/core/wallets/factories/VaultFactory';
+import { updateAppImage, updatVaultImage } from '../sagaActions/bhr';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 
 export interface newWalletDetails {
@@ -194,6 +194,7 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
   const networkType =
     config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
 
+  const { vac } = generateVAC();
   const vault: Vault = yield call(generateVault, {
     type: vaultType,
     vaultShellId: vaultShell.id,
@@ -202,9 +203,10 @@ function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }
     scheme: vaultScheme,
     signers: vaultSigners,
     networkType,
+    VAC: vac,
   });
   yield call(dbManager.createObject, RealmSchema.Vault, vault);
-
+  yield put(updatVaultImage());
   if (!newVaultShell) {
     let presentVaultInstances = { ...vaultShell.vaultInstances };
     presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;

@@ -34,6 +34,7 @@ import {
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
+  updateVaultImageWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -90,6 +91,7 @@ export const rootSaga = function* () {
 
     //BHR
     updateAppImageWatcher,
+    updateVaultImageWatcher,
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,

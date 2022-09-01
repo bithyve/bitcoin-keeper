@@ -25,6 +25,7 @@ export const generateVault = ({
   scheme,
   signers,
   networkType,
+  VAC,
 }: {
   type: VaultType;
   vaultShellId: string;
@@ -33,6 +34,7 @@ export const generateVault = ({
   scheme: VaultScheme;
   signers: VaultSigner[];
   networkType: NetworkType;
+  VAC: string;
 }): Vault => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
@@ -85,6 +87,7 @@ export const generateVault = ({
     signers,
     presentationData,
     specs,
+    VAC,
   };
 
   return vault;
