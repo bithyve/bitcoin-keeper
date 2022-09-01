@@ -41,6 +41,7 @@ import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import AddSigners from 'src/screens/AddLedger/AddSigners';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const defaultTheme = {
@@ -111,6 +112,7 @@ const AppStack = () => {
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="AddSigners" component={AddSigners} />
       </Stack.Navigator>
     </RealmProvider>
   );

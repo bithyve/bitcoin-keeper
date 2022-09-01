@@ -1,59 +1,24 @@
 import { Platform, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Box, Pressable, ScrollView, StatusBar, Text } from 'native-base';
+import { Box, Pressable, ScrollView, StatusBar, Text, VStack } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Header from 'src/components/Header';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
-import TsIcon from 'src/assets/icons/icon_vault_mac.svg';
-import ColdCardIcon from 'src/assets/icons/coldcard.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import React from 'react';
+import React, { useContext, useState } from 'react';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { WalletMap } from '../Vault/WalletMap';
 
-const AddSigners = () => {
-  const navigtaion = useNavigation();
+const AddSigners = ({ props }) => {
+  const navigation = useNavigation();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault);
+  const Signers = vaults[0]?.signers;
+  console.log(JSON.stringify(Signers));
 
-  const SignersCard = (props) => {
-    return (
-      <Box
-        flexDirection={'row'}
-        justifyContent={'space-evenly'}
-        alignItems={'center'}
-        mx={7}
-        p={3}
-        borderRadius={10}
-        {...props}
-      >
-        <Box flex={0.1} justifyContent={'center'} alignItems={'center'} mr={wp(20)}>
-          {props.iconLeft}
-        </Box>
-        <Box flex={0.9}>
-          <Text
-            color={'#041513'}
-            fontWeight={200}
-            fontSize={RFValue(13)}
-            letterSpacing={1.04}
-            fontFamily={'body'}
-          >
-            {props.title}
-          </Text>
-          <Text
-            color={'#4F5955'}
-            fontFamily={'body'}
-            fontWeight={200}
-            letterSpacing={0.36}
-            fontSize={RFValue(12)}
-          >
-            {props.description}
-          </Text>
-        </Box>
-        <Pressable>
-          <Box flex={1} justifyContent={'center'} alignItems={'center'} ml={wp(10)}>
-            {<RemoveIcon />}
-          </Box>
-        </Pressable>
-      </Box>
-    );
-  };
+  const [list, setList] = useState(Signers);
 
   const RemoveIcon = () => {
     return (
@@ -78,6 +43,16 @@ const AddSigners = () => {
     );
   };
 
+  const removeSigner = (signer) => {
+    // console.log('--> signer');
+    // const newList = list.filter((item) => item != signer.signerId);
+    // return setList(newList);
+    const newList = list.findIndex(({ signerId }) => signerId === signer.xpubInfo);
+    if (newList !== -1) {
+      setList([...list.slice(0, newList), ...list.slice(newList + 1)]);
+    }
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -87,81 +62,84 @@ const AddSigners = () => {
     >
       <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
       <Box ml={3} mt={Platform.OS == 'ios' ? 3 : 10}>
-        <Header
-          title={'Add Signers'}
-          subtitle={'Lorem ipsum dolor sit amet'}
-          //   onPressHandler={() => navigtaion.goBack()}
-        />
+        <Header title={'Add Signers'} subtitle={'Lorem ipsum dolor sit amet'} />
       </Box>
-      <Box flex={1}>
-        <ScrollView
-          overScrollMode="never"
-          bounces={false}
-          flex={1}
-          pb={20}
-          showsVerticalScrollIndicator={false}
-          py={1}
-        >
-          <Box paddingX={wp(5)}>
-            <SignersCard
-              title={'TapSigner'}
-              description={'Added on 12 January 2022'}
-              my={2}
-              iconLeft={<TsIcon />}
-              iconRight={<RemoveIcon />}
-            />
-            <SignersCard
-              title={'ColdCard'}
-              description={'Added on 12 January 2022'}
-              my={2}
-              iconLeft={<ColdCardIcon />}
-              iconRight={<RemoveIcon />}
-            />
-            <SignersCard
-              title={'Trezor'}
-              description={'Added on 12 January 2022'}
-              my={2}
-              iconLeft={<TsIcon />}
-              iconRight={<RemoveIcon />}
-            />
-            <SignersCard
-              title={'Ledger'}
-              description={'Added on 12 January 2022'}
-              my={2}
-              iconLeft={<TsIcon />}
-              iconRight={<RemoveIcon />}
-            />
-            <SignersCard
-              title={'Mobile Device'}
-              description={'Added on 12 January 2022'}
-              my={2}
-              iconLeft={<TsIcon />}
-              iconRight={<RemoveIcon />}
-            />
-          </Box>
-        </ScrollView>
-        <Box
-          alignSelf={'flex-end'}
-          flex={0.1}
-          flexDirection={'row'}
-          mx={wp(10)}
-          alignItems={'center'}
-          justifyContent={'center'}
-        >
-          <TouchableOpacity>
-            <Text
-              mx={'7%'}
-              fontSize={13}
-              fontFamily={'body'}
-              fontWeight={'300'}
-              letterSpacing={1}
-              color={'#073E39'}
-            >
-              Cancel
-            </Text>
-          </TouchableOpacity>
-          <CustomGreenButton value={'Next'} />
+      <ScrollView>
+        <Box mx={wp(18)} my={hp(10)}>
+          {Signers.map((signer) => {
+            return (
+              <Box
+                flex={1}
+                flexDirection={'row'}
+                justifyContent={'space-between'}
+                alignItems={'center'}
+                p={4}
+                {...props}
+              >
+                <Box
+                  height={9}
+                  width={9}
+                  borderRadius={18}
+                  bg={'#725436'}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                  alignSelf={'center'}
+                  mr={wp(20)}
+                >
+                  {WalletMap(signer.type, true).Icon}
+                </Box>
+                <VStack flex={1}>
+                  <Text
+                    color={'#041513'}
+                    fontWeight={200}
+                    fontSize={RFValue(13)}
+                    letterSpacing={1.04}
+                    fontFamily={'body'}
+                  >
+                    {signer.signerName}
+                  </Text>
+                  <Text
+                    color={'#4F5955'}
+                    fontFamily={'body'}
+                    fontWeight={200}
+                    letterSpacing={0.36}
+                    fontSize={RFValue(12)}
+                    justifyContent={'space-between'}
+                  >
+                    {signer.type}
+                  </Text>
+                </VStack>
+                <TouchableOpacity onPress={() => removeSigner(signer)}>
+                  <Box flex={1} justifyContent={'center'} alignItems={'center'} ml={wp(10)}>
+                    <RemoveIcon />
+                  </Box>
+                </TouchableOpacity>
+              </Box>
+            );
+          })}
         </Box>
+      </ScrollView>
+      <Box
+        alignSelf={'flex-end'}
+        flex={0.1}
+        flexDirection={'row'}
+        mx={wp(10)}
+        alignItems={'center'}
+        justifyContent={'center'}
+      >
+        <TouchableOpacity>
+          <Text
+            mx={'7%'}
+            fontSize={13}
+            fontFamily={'body'}
+            fontWeight={'300'}
+            letterSpacing={1}
+            color={'#073E39'}
+          >
+            Cancel
+          </Text>
+        </TouchableOpacity>
+        <CustomGreenButton value={'Next'} />
       </Box>
     </SafeAreaView>
   );
