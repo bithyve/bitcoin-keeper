@@ -4,13 +4,12 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Image, ImageBackground, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
 import FileViewer from 'react-native-file-viewer';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import { Alert } from 'react-native';
-
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
-import Basic from 'src/assets/images/svgs/basic.svg';
+import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -27,11 +26,8 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
-import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import { SignerMap } from './SignerMap';
-import SuccessModal from 'src/components/SuccessModal';
-import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
@@ -45,7 +41,7 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-import CustomPriorityModal from '../Send/CustomPriorityModal';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -408,6 +404,9 @@ const VaultInfo = () => {
   const navigation = useNavigation();
   const { uaiStack } = useUaiStack();
   const dispatch = useDispatch();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
   const addtoDb = () => {
     dispatch(
       addToUaiStack(
@@ -437,6 +436,17 @@ const VaultInfo = () => {
       )
     );
   };
+
+  function getPlanIcon() {
+    if (subscription.name.toLowerCase().includes('whale')) {
+      return <WhaleFocused />
+    } else if (subscription.name.toLowerCase().includes('hodler')) {
+      return <HodlerFocused />
+    } else {
+      return <PlebFocused />
+    }
+  }
+
   return (
     <LinearGradient
       colors={['#00836A', '#073E39']}
@@ -451,8 +461,30 @@ const VaultInfo = () => {
           justifyContent={'space-between'}
           width={'100%'}
         >
-          <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
-            <Pleb />
+          <Pressable
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="row"
+            onPress={() => navigation.navigate('ChoosePlan')}>
+            {getPlanIcon()}
+            <Box
+              backgroundColor="#015A53"
+              borderWidth={0.4}
+              borderRightRadius={15}
+              paddingX={1}
+              marginX={-2}
+              zIndex={-10}
+              borderColor="light.white1">
+              <Text
+                p={1}
+                color={'light.white1'}
+                fontSize={hp(14)}
+                fontWeight={200}
+              >
+                {subscription.name}
+              </Text>
+            </Box>
+
           </Pressable>
           {/* <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
             <Basic />
