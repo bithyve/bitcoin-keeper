@@ -93,15 +93,13 @@ const ChoosePlan = (props) => {
         purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
-          RNIap.finishTransaction({
-            purchase,
-            isConsumable: false,
-          });
+          RNIap.finishTransaction(purchase, false);
           console.log('receipt', receipt);
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
           const subscription: SubScription = {
             productId: purchase.productId,
             receipt: receipt,
+            name: ''
           };
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
@@ -159,7 +157,7 @@ const ChoosePlan = (props) => {
       });
       setItems([...data]);
       setLoading(false);
-      console.log('subscriptions', JSON.stringify(data));
+      // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
     }
@@ -172,6 +170,7 @@ const ChoosePlan = (props) => {
         const sub: SubScription = {
           productId: subscription.productId,
           receipt: 'free',
+          name: subscription.name
         };
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription: sub,
