@@ -54,6 +54,7 @@ export const generateVault = ({
     description: vaultDescription,
     visibility: VisibilityType.DEFAULT,
   };
+  const { vac } = generateVAC();
 
   const specs: VaultSpecs = {
     xpubs: xpubs,
@@ -89,6 +90,7 @@ export const generateVault = ({
     signers,
     presentationData,
     specs,
+    VAC: vac,
     archived: false,
   };
 
@@ -144,12 +146,28 @@ export const generateKeyFromXpub = (
 
 export const encryptVAC = (
   vac: string,
-  xpub: string,
+  xpubs: string[],
   network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
-) => encrypt(generateKeyFromXpub(xpub, network), vac);
+) => {
+  let encrytedVac = vac;
+  xpubs = xpubs.sort();
+  xpubs.forEach((xpub) => {
+    const key = generateKeyFromXpub(xpub, network);
+    encrytedVac = encrypt(key, encrytedVac);
+  });
+  return encrytedVac;
+};
 
 export const decryptVAC = (
   encryptedVac: string,
-  xpub: string,
+  xpubs: string[],
   network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
-) => decrypt(generateKeyFromXpub(xpub, network), encryptedVac);
+) => {
+  let decryptedVAC = encryptedVac;
+  xpubs = xpubs.sort().reverse();
+  xpubs.forEach((xpub) => {
+    const key = generateKeyFromXpub(xpub, network);
+    decryptedVAC = decrypt(key, encryptedVac);
+  });
+  return decryptedVAC;
+};

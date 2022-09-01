@@ -159,10 +159,7 @@ const EnterSeedScreen = () => {
   const onPressNext = async () => {
     if (isSeedFilled()) {
       let seedWord = getSeedWord();
-      // dispatch(getAppImage(seedWord));
-      dispatch(
-        getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
-      );
+      dispatch(getAppImage(seedWord));
     }
   };
 

@@ -39,12 +39,13 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
+
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
+import { updateAppImage, updatVaultImage } from '../sagaActions/bhr';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 import { setNetBalance } from 'src/store/reducers/wallets';
-import { updateAppImage } from '../sagaActions/bhr';
 
 export interface newWalletDetails {
   name?: string;
@@ -301,6 +302,7 @@ function* migrateVaultWorker({
       networkType,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
+    yield put(updatVaultImage());
   } catch (error) {
     yield put(
       vaultMigrationCompleted({
