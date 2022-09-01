@@ -64,6 +64,7 @@ export interface Vault {
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
+  VAC: string;
 }
 
 export interface InheritancePolicy {

@@ -40,8 +40,7 @@ import _ from 'lodash';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 
-import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateVAC, generateVault } from 'src/core/wallets/factories/VaultFactory';
+import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { updateAppImage, updatVaultImage } from '../sagaActions/bhr';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -293,7 +292,6 @@ function* migrateVaultWorker({
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
 
-    const { vac } = generateVAC();
     const vault: Vault = yield call(generateVault, {
       type: vaultType,
       vaultShellId: vaultShell.id,
@@ -302,7 +300,6 @@ function* migrateVaultWorker({
       scheme: vaultScheme,
       signers: vaultSigners,
       networkType,
-      VAC: vac,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
     yield put(updatVaultImage());
