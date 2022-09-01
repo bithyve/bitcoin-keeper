@@ -11,22 +11,23 @@ import {
   View,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
-import { ScaledSheet } from 'react-native-size-matters';
-import { useDispatch } from 'react-redux';
-import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { Transaction } from 'src/core/wallets/interfaces';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+
+import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
+import Header from 'src/components/Header';
+import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
 import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { ScaledSheet } from 'react-native-size-matters';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { Transaction } from 'src/core/wallets/interfaces';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import VaultIcon from 'src/assets/images/icon_vault.svg';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { useDispatch } from 'react-redux';
 
 const Title = (title, subtitle) => {
   console.log(JSON.stringify(title));
@@ -120,7 +121,9 @@ const ViewAllTransactions = ({ route }) => {
   const navigtaion = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const [pullRefresh, setPullRefresh] = useState(false);
-  const vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const vault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const transactions = vault?.specs?.transactions || [];
   const title = route.params.title;
   const subtitle = route.params.subtitle;

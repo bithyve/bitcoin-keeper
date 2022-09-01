@@ -89,6 +89,7 @@ export const generateVault = ({
     signers,
     presentationData,
     specs,
+    archived: false,
   };
 
   return vault;

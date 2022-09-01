@@ -116,7 +116,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   );
 };
 
-const Footer = ({ vault }) => {
+const Footer = ({ vault }: { vault: Vault }) => {
   const navigation = useNavigation();
   const styles = getStyles(0);
   return (
@@ -333,10 +333,14 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 };
 
-const SignerList = ({ upgradeStatus }: { upgradeStatus: VaultMigrationType }) => {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const vaults: Vault[] = useQuery(RealmSchema.Vault);
-  const Signers = vaults[0]?.signers; //To-Do: Vault should be pased as prop
+const SignerList = ({
+  upgradeStatus,
+  vault,
+}: {
+  upgradeStatus: VaultMigrationType;
+  vault: Vault;
+}) => {
+  const Signers = vault.signers;
   const styles = getStyles(0);
   const navigation = useNavigation();
 
@@ -400,7 +404,7 @@ const SignerList = ({ upgradeStatus }: { upgradeStatus: VaultMigrationType }) =>
                   CommonActions.navigate('SigningDeviceDetails', {
                     SignerIcon: <SignerIcon />,
                     signer,
-                    vaultId: vaults[0].id,
+                    vaultId: vault.id,
                   })
                 );
               }}
@@ -453,7 +457,9 @@ const VaultDetails = () => {
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const vault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const keeper = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
@@ -479,12 +485,6 @@ const VaultDetails = () => {
 
   const styles = getStyles(top);
 
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      syncVault();
-    });
-  }, []);
-
   return (
     <LinearGradient
       colors={['#B17F44', '#6E4A35']}
@@ -498,7 +498,7 @@ const VaultDetails = () => {
       </VStack>
       <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
         <VStack justifyContent={'space-between'}>
-          <SignerList upgradeStatus={hasPlanChanged()} />
+          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
           <TransactionList
             transactions={transactions}
             pullDownRefresh={syncVault}

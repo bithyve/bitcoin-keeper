@@ -47,6 +47,7 @@ import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
+import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
@@ -225,7 +226,10 @@ const VaultStatus = (props) => {
   const wallet = translations['wallet'];
   const common = translations['common'];
   const { useQuery } = useContext(RealmWrapperContext);
-  const Vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
+  const Vault: Vault =
+    useQuery(RealmSchema.Vault)
+      .map(getJSONFromRealmObject)
+      .filter((vault) => !vault.archived)[0] || [];
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },

@@ -3,7 +3,12 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
-import { addNewVault, migrateVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
+import {
+  addSigningDevice,
+  removeSigningDevice,
+  updateIntrimVault,
+} from 'src/store/reducers/vaults';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -17,7 +22,7 @@ import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { WalletMap } from './WalletMap';
-import { addSigningDevice } from 'src/store/reducers/vaults';
+import WalletOperations from 'src/core/wallets/operations';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import moment from 'moment';
@@ -48,12 +53,15 @@ const AddSigningDevice = () => {
   // const currentSignerLimit = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name].n;
   const subscriptionSchemeLimit = SUBSCRIPTION_SCHEME_MAP.WHALE.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const [signersState, setSignersState] = useState(vaultSigners);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
-  const activeVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const activeVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
 
   const planStatus = hasPlanChanged(activeVault, keeper);
 
@@ -65,11 +73,17 @@ const AddSigningDevice = () => {
 
   useEffect(() => {
     const fills =
-      planStatus !== 'UPGRADE'
+      planStatus === VaultMigrationType.DOWNGRADE
         ? []
         : new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null);
     setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
+
+  useEffect(() => {
+    if (temporaryVault) {
+      sweepVaultFunds(activeVault, temporaryVault, activeVault.specs.balances.confirmed.toString());
+    }
+  }, [temporaryVault]);
 
   const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
@@ -82,7 +96,7 @@ const AddSigningDevice = () => {
           description: 'Secure your sats',
         },
       };
-      dispatch(addNewVault(newVaultInfo));
+      dispatch(addNewVault({ newVaultInfo }));
       return newVaultInfo;
     } catch (err) {
       console.log(err);
@@ -90,11 +104,21 @@ const AddSigningDevice = () => {
     }
   }, []);
 
-  const sweepVaultFunds = (address: string, amount?: string) => {
+  const sweepVaultFunds = (oldVault: Vault, newVault: Vault, amount?: string) => {
+    const { confirmed, unconfirmed } = activeVault.specs.balances;
+    const netBanalce = confirmed + unconfirmed;
+    if (netBanalce === 0) {
+      dispatch(finaliseVaultMigration(oldVault.id));
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      return;
+    }
+    const { updatedWallet, receivingAddress } =
+      WalletOperations.getNextFreeExternalAddress(newVault);
+    dispatch(updateIntrimVault(updatedWallet as Vault));
     navigation.dispatch(
       CommonActions.navigate('AddSendAmount', {
-        activeVault,
-        address,
+        wallet: oldVault,
+        address: receivingAddress,
         amount,
       })
     );
@@ -104,10 +128,16 @@ const AddSigningDevice = () => {
     // const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
     const scheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
     if (activeVault) {
-      const freshVault = createVault(signersState, scheme);
-      if (freshVault) {
-        dispatch(migrateVault(freshVault, planStatus));
-      }
+      const newVaultInfo: newVaultInfo = {
+        vaultType: VaultType.DEFAULT,
+        vaultScheme: scheme,
+        vaultSigners: signersState,
+        vaultDetails: {
+          name: 'Vault',
+          description: 'Secure your sats',
+        },
+      };
+      dispatch(migrateVault(newVaultInfo, planStatus));
     } else {
       const freshVault = createVault(signersState, scheme);
       if (freshVault && !activeVault) {
@@ -116,15 +146,11 @@ const AddSigningDevice = () => {
     }
   };
 
-  const SignerItem = ({
-    signer,
-    index,
-    planStatus,
-  }: {
-    signer: VaultSigner | undefined;
-    index: number;
-    planStatus: 'DOWNGRADE' | 'UPGRADE' | 'CHANGE';
-  }) => {
+  const removeSigner = (signer) => {
+    dispatch(removeSigningDevice(signer));
+  };
+
+  const SignerItem = ({ signer, index }: { signer: VaultSigner | undefined; index: number }) => {
     if (!signer) {
       return (
         <Pressable onPress={navigateToSignerList}>
@@ -185,21 +211,17 @@ const AddSigningDevice = () => {
               </Text>
             </VStack>
           </HStack>
-          {planStatus !== 'UPGRADE' && (
-            <Pressable style={styles.remove}>
-              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
-                {`Remove`}
-              </Text>
-            </Pressable>
-          )}
+          <Pressable style={styles.remove} onPress={() => removeSigner(signer)}>
+            <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+              {`Remove`}
+            </Text>
+          </Pressable>
         </HStack>
       </Box>
     );
   };
 
-  const renderSigner = ({ item, index }) => (
-    <SignerItem signer={item} index={index} planStatus={planStatus} />
-  );
+  const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
       <Header

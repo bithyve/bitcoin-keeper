@@ -11,7 +11,7 @@ import {
 import AppClient, { DefaultWalletPolicy, PsbtV2, WalletPolicy } from 'src/hardware/ledger';
 import { Box, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
@@ -37,6 +37,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { WalletMap } from '../Vault/WalletMap';
 import { cloneDeep } from 'lodash';
+import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -226,9 +227,9 @@ const SignWith = ({
 };
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const { signers }: { signers: VaultSigner[] } = useQuery(RealmSchema.Vault).map(
-    getJSONFromRealmObject
-  )[0];
+  const { signers, id: vaultId }: { signers: VaultSigner[]; id: string } = useQuery(
+    RealmSchema.Vault
+  ).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
@@ -253,9 +254,13 @@ const SignTransactionScreen = () => {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
+  const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const textRef = useRef(null);
   const dispatch = useDispatch();
-  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const card = useRef(new CKTapCard()).current;
 
   const receiveAndBroadCast = async () => {
@@ -282,6 +287,18 @@ const SignTransactionScreen = () => {
       updatePSBTSignatures({ signedSerializedPSBT: payload.psbt, signerId: activeSignerId })
     );
   };
+
+  useEffect(() => {
+    if (isMigratingNewVault && sendSuccessful) {
+      dispatch(finaliseVaultMigration(vaultId));
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+    } else {
+      return;
+    }
+    if (sendSuccessful) {
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+    }
+  }, [sendSuccessful, isMigratingNewVault]);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -436,7 +453,6 @@ const SignTransactionScreen = () => {
                   txnPriority: TxPriority.LOW,
                 })
               );
-              navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
             } else {
               Alert.alert(`Sorry there aren't enough signatures!`);
             }
