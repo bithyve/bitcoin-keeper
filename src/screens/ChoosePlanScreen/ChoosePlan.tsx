@@ -89,23 +89,21 @@ const ChoosePlan = (props) => {
     let purchaseUpdateSubscription;
     let purchaseErrorSubscription;
     RNIap.initConnection()
-      .then(async (connected) => {
-        purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
+      .then((connected) => {
+        purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
-          RNIap.finishTransaction({
-            purchase,
-            isConsumable: false,
-          });
-          console.log('receipt', receipt);
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+          const sub = await getSubscriptions([purchase.productId])
           const subscription: SubScription = {
             productId: purchase.productId,
             receipt: receipt,
+            name: sub[0].title
           };
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
+          const finish = await RNIap.finishTransaction(purchase, false);
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
@@ -159,7 +157,7 @@ const ChoosePlan = (props) => {
       });
       setItems([...data]);
       setLoading(false);
-      console.log('subscriptions', JSON.stringify(data));
+      // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
     }
@@ -172,31 +170,18 @@ const ChoosePlan = (props) => {
         const sub: SubScription = {
           productId: subscription.productId,
           receipt: 'free',
+          name: subscription.name
         };
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription: sub,
         });
       } else {
         if (Platform.OS === 'android') {
-          console.log({
-            sku: subscription.productId,
-            purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
-            subscriptionOffers: [
-              {
-                sku: subscription.productId,
-                offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-              },
-            ],
-          });
           await requestSubscription({
             sku: subscription.productId,
-            purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
-            subscriptionOffers: [
-              {
-                sku: subscription.productId,
-                offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-              },
-            ],
+            ...(subscription.subscriptionOfferDetails[0].offerToken && {
+              subscriptionOffers: [{ sku: subscription.productId, offerToken: subscription.subscriptionOfferDetails[0].offerToken }],
+            }),
           });
         } else {
           await requestSubscription({
