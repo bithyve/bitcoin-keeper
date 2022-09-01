@@ -22,6 +22,7 @@ import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
 import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
@@ -460,14 +461,13 @@ const VaultDetails = () => {
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const keeper = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
 
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
-    // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {

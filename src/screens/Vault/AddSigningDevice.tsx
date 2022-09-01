@@ -33,8 +33,7 @@ import { useDispatch } from 'react-redux';
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
     const currentScheme = vault.scheme;
-    // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
@@ -50,8 +49,8 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
 const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  // const currentSignerLimit = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name].n;
-  const subscriptionSchemeLimit = SUBSCRIPTION_SCHEME_MAP.WHALE.n;
+  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+  const currentSignerLimit = subscriptionScheme.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const [signersState, setSignersState] = useState(vaultSigners);
@@ -75,7 +74,7 @@ const AddSigningDevice = () => {
     const fills =
       planStatus === VaultMigrationType.DOWNGRADE
         ? []
-        : new Array(subscriptionSchemeLimit - vaultSigners.length).fill(null);
+        : new Array(currentSignerLimit - vaultSigners.length).fill(null);
     setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
 
@@ -125,12 +124,11 @@ const AddSigningDevice = () => {
   };
 
   const onProceed = () => {
-    // const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
-    const scheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
+    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
     if (activeVault) {
       const newVaultInfo: newVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: scheme,
+        vaultScheme: currentScheme,
         vaultSigners: signersState,
         vaultDetails: {
           name: 'Vault',
@@ -139,7 +137,7 @@ const AddSigningDevice = () => {
       };
       dispatch(migrateVault(newVaultInfo, planStatus));
     } else {
-      const freshVault = createVault(signersState, scheme);
+      const freshVault = createVault(signersState, currentScheme);
       if (freshVault && !activeVault) {
         navigation.dispatch(CommonActions.navigate('NewHome'));
       }
