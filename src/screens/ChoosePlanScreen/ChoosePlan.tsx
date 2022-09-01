@@ -93,19 +93,17 @@ const ChoosePlan = (props) => {
         purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
-          console.log('receipt', receipt);
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+          const sub = await getSubscriptions([purchase.productId])
           const subscription: SubScription = {
             productId: purchase.productId,
             receipt: receipt,
-            name: ''
+            name: sub[0].title
           };
-          const finish = await RNIap.finishTransaction(purchase, false);
-          console.log('finish', finish);
-
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
+          const finish = await RNIap.finishTransaction(purchase, false);
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
