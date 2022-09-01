@@ -89,11 +89,10 @@ const ChoosePlan = (props) => {
     let purchaseUpdateSubscription;
     let purchaseErrorSubscription;
     RNIap.initConnection()
-      .then(async (connected) => {
-        purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
+      .then((connected) => {
+        purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
-          RNIap.finishTransaction(purchase, false);
           console.log('receipt', receipt);
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
           const subscription: SubScription = {
@@ -101,6 +100,9 @@ const ChoosePlan = (props) => {
             receipt: receipt,
             name: ''
           };
+          const finish = await RNIap.finishTransaction(purchase, false);
+          console.log('finish', finish);
+
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
@@ -177,25 +179,11 @@ const ChoosePlan = (props) => {
         });
       } else {
         if (Platform.OS === 'android') {
-          console.log({
-            sku: subscription.productId,
-            purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
-            subscriptionOffers: [
-              {
-                sku: subscription.productId,
-                offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-              },
-            ],
-          });
           await requestSubscription({
             sku: subscription.productId,
-            purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
-            subscriptionOffers: [
-              {
-                sku: subscription.productId,
-                offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-              },
-            ],
+            ...(subscription.subscriptionOfferDetails[0].offerToken && {
+              subscriptionOffers: [{ sku: subscription.productId, offerToken: subscription.subscriptionOfferDetails[0].offerToken }],
+            }),
           });
         } else {
           await requestSubscription({
