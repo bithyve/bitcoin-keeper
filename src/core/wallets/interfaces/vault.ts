@@ -63,6 +63,7 @@ export interface Vault {
   signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
+  archived: boolean;
 }
 
 export interface InheritancePolicy {

@@ -1,29 +1,33 @@
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
+import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
 import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
 import JADEICON from 'src/assets/images/jade_icon.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
+import LEDGERICONLIGHT from 'src/assets/icons/ledger_light.svg';
 import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
 import { SignerType } from 'src/core/wallets/enums';
 import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
+import TAPSIGNERICONLIGHT from 'src/assets/icons/tapsigner_light.svg';
 import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
+import TREZORICONLIGHT from 'src/assets/icons/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
 import APP from 'src/assets/images/app.svg';
 import SERVER from 'src/assets/images/server.svg';
 
 import { Text } from 'native-base';
 
-export const WalletMap = (type: SignerType) => {
+export const WalletMap = (type: SignerType, light = false) => {
   switch (type) {
     case SignerType.COLDCARD:
       return {
-        Icon: <COLDCARDICON />,
+        Icon: light ? <COLDCARDICONLIGHT /> : <COLDCARDICON />,
         Logo: <COLDCARDLOGO />,
       };
     case SignerType.JADE:
@@ -43,7 +47,7 @@ export const WalletMap = (type: SignerType) => {
       };
     case SignerType.LEDGER:
       return {
-        Icon: <LEDGERICON />,
+        Icon: light ? <LEDGERICONLIGHT /> : <LEDGERICON />,
         Logo: <LEDGERLOGO />,
       };
     case SignerType.MOBILE_KEY:
@@ -75,12 +79,12 @@ export const WalletMap = (type: SignerType) => {
       };
     case SignerType.TAPSIGNER:
       return {
-        Icon: <TAPSIGNERICON />,
+        Icon: light ? <TAPSIGNERICONLIGHT /> : <TAPSIGNERICON />,
         Logo: <TAPSIGNERLOGO />,
       };
     case SignerType.TREZOR:
       return {
-        Icon: <TREZORICON />,
+        Icon: light ? <TREZORICONLIGHT /> : <TREZORICON />,
         Logo: <TREZORLOGO />,
       };
     default:

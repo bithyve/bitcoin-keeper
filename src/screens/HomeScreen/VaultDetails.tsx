@@ -9,10 +9,10 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Ndef, NfcTech } from 'react-native-nfc-manager';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
@@ -25,15 +25,19 @@ import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
+import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
+import { VaultMigrationType } from 'src/core/wallets/enums';
+import { WalletMap } from '../Vault/WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -97,9 +101,11 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
         <Box>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('ViewTransactionDetails', {
-                transaction: transaction,
-              });
+              navigation.dispatch(
+                CommonActions.navigate('ViewTransactionDetails', {
+                  transaction,
+                })
+              );
             }}
           >
             <IconArrowGrey />
@@ -110,7 +116,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   );
 };
 
-const Footer = ({ vault }) => {
+const Footer = ({ vault }: { vault: Vault }) => {
   const navigation = useNavigation();
   const styles = getStyles(0);
   return (
@@ -284,7 +290,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
               line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
               line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
             });
-            const enc = Ndef.encodeMessage([Ndef.textRecord(line)]);
+            const enc = NFC.encodeForColdCard(line);
             console.log('scanning...', line);
             await NFC.send(NfcTech.Ndef, enc);
             console.log('Done');
@@ -293,10 +299,12 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
           <HStack alignItems={'center'}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('ViewAllTransactions', {
-                  title: 'Vault Transactions',
-                  subtitle: 'Lorem ipsium dolor sit amet,',
-                });
+                navigation.dispatch(
+                  CommonActions.navigate('ViewAllTransactions', {
+                    title: 'Vault Transactions',
+                    subtitle: 'Lorem ipsium dolor sit amet,',
+                  })
+                );
               }}
             >
               <Text
@@ -325,13 +333,61 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 };
 
-const SignerList = () => {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const vaults: Vault[] = useQuery(RealmSchema.Vault);
-  const Signers = vaults[0]?.signers; //To-Do: Vault should be pased as prop
+const SignerList = ({
+  upgradeStatus,
+  vault,
+}: {
+  upgradeStatus: VaultMigrationType;
+  vault: Vault;
+}) => {
+  const Signers = vault.signers;
   const styles = getStyles(0);
   const navigation = useNavigation();
 
+  const AddSigner = () => {
+    if (upgradeStatus === VaultMigrationType.UPGRADE) {
+      return (
+        <LinearGradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          colors={['#B17F44', '#6E4A35']}
+          style={[styles.signerCard]}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+            }}
+          >
+            <Box
+              margin={'1'}
+              marginBottom={'3'}
+              width={'12'}
+              height={'12'}
+              borderRadius={30}
+              justifyContent={'center'}
+              alignItems={'center'}
+              marginX={1}
+              alignSelf={'center'}
+            >
+              {<AddIcon />}
+            </Box>
+            <VStack pb={2}>
+              <Text
+                color={'light.white'}
+                fontSize={11}
+                fontWeight={300}
+                letterSpacing={0.6}
+                textAlign={'center'}
+              >
+                {'Add Signers to Upgrade'}
+              </Text>
+            </VStack>
+          </TouchableOpacity>
+        </LinearGradient>
+      );
+    }
+    return null;
+  };
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -344,14 +400,28 @@ const SignerList = () => {
           <Box style={styles.signerCard} marginRight={'3'}>
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('SigningDeviceDetails', {
-                  SignerIcon: <SignerIcon />,
-                  signer,
-                  vaultId: vaults[0].id,
-                });
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceDetails', {
+                    SignerIcon: <SignerIcon />,
+                    signer,
+                    vaultId: vault.id,
+                  })
+                );
               }}
             >
-              <SignerIcon />
+              <Box
+                margin={'1'}
+                marginBottom={'3'}
+                width={'12'}
+                height={'12'}
+                borderRadius={30}
+                bg={'#725436'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                alignSelf={'center'}
+              >
+                {WalletMap(signer.type, true).Icon}
+              </Box>
               <VStack pb={2}>
                 <Text
                   color={'light.textBlack'}
@@ -376,18 +446,36 @@ const SignerList = () => {
           </Box>
         );
       })}
+      {<AddSigner />}
     </ScrollView>
   );
 };
+
 const VaultDetails = () => {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const vault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
+  const keeper = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const transactions = vault?.specs?.transactions || [];
+
+  const hasPlanChanged = (): VaultMigrationType => {
+    const currentScheme = vault.scheme;
+    // const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscriptionPlan];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP.WHALE;
+    if (currentScheme.m > subscriptionScheme.m) {
+      return VaultMigrationType.DOWNGRADE;
+    } else if (currentScheme.m < subscriptionScheme.m) {
+      return VaultMigrationType.UPGRADE;
+    } else {
+      return VaultMigrationType.CHANGE;
+    }
+  };
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -396,12 +484,6 @@ const VaultDetails = () => {
   };
 
   const styles = getStyles(top);
-
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      syncVault();
-    });
-  }, []);
 
   return (
     <LinearGradient
@@ -416,7 +498,7 @@ const VaultDetails = () => {
       </VStack>
       <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
         <VStack justifyContent={'space-between'}>
-          <SignerList />
+          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
           <TransactionList
             transactions={transactions}
             pullDownRefresh={syncVault}
