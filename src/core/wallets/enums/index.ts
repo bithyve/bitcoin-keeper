@@ -77,6 +77,12 @@ export enum VaultType {
   DEFAULT = 'DEFAULT',
 }
 
+export enum VaultMigrationType {
+  UPGRADE = 'UPGRADE',
+  DOWNGRADE = 'DOWNGRADE',
+  CHANGE = 'CHANGE',
+}
+
 export enum SignerType {
   TAPSIGNER = 'TAPSIGNER',
   KEEPER = 'KEEPER',

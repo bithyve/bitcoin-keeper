@@ -100,4 +100,7 @@ export default class NFC {
       throw error;
     }
   };
+  public static encodeForColdCard = (message) => {
+    return Ndef.encodeMessage([Ndef.textRecord(message)]);
+  };
 }

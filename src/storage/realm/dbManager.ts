@@ -80,7 +80,7 @@ const getObjectByField = (schema: RealmSchema, value: string, fieldName: string)
  */
 const getCollection = (schema: RealmSchema) => {
   const objects = realm.get(schema);
-  return objects.toJSON()
+  return objects.toJSON();
 };
 
 export default {

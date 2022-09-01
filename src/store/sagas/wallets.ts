@@ -1,39 +1,51 @@
-import { call, put } from 'redux-saga/effects';
-import _ from 'lodash';
-import { createWatcher } from 'src/store/utilities';
+import { ADD_NEW_VAULT, FINALISE_VAULT_MIGRATION, MIGRATE_VAULT } from '../sagaActions/vaults';
 import {
+  ADD_NEW_WALLETS,
+  AUTO_SYNC_WALLETS,
+  IMPORT_NEW_WALLET,
+  REFRESH_WALLETS,
   SYNC_WALLETS,
   UPDATE_WALLET_SETTINGS,
-  walletSettingsUpdated,
-  walletSettingsUpdateFailed,
-  IMPORT_NEW_WALLET,
   refreshWallets,
-  REFRESH_WALLETS,
-  AUTO_SYNC_WALLETS,
-  ADD_NEW_WALLETS,
-  ADD_NEW_VAULT,
+  walletSettingsUpdateFailed,
+  walletSettingsUpdated,
 } from '../sagaActions/wallets';
-import config, { APP_STAGE } from 'src/core/config';
-import { setNetBalance } from 'src/store/reducers/wallets';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import {
+  EntityKind,
+  NetworkType,
+  VaultMigrationType,
+  VaultType,
+  VisibilityType,
+  WalletType,
+} from 'src/core/wallets/enums';
+import { Storage, getString, setItem } from 'src/storage';
+import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import {
-  WalletType,
-  NetworkType,
-  VisibilityType,
-  VaultType,
-  EntityKind,
-} from 'src/core/wallets/enums';
+  addSigningDevice,
+  initiateVaultMigration,
+  vaultCreated,
+  vaultMigrationCompleted,
+} from '../reducers/vaults';
+import { call, put, select } from 'redux-saga/effects';
+import config, { APP_STAGE } from 'src/core/config';
+
+import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { RootState } from '../store';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
+import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
+
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { updateAppImage } from '../sagaActions/bhr';
+import { updateAppImage, updatVaultImage } from '../sagaActions/bhr';
+import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
+import { setNetBalance } from 'src/store/reducers/wallets';
 
 export interface newWalletDetails {
   name?: string;
@@ -167,64 +179,179 @@ export interface newVaultInfo {
   vaultDetails?: newVaultDetails;
 }
 
-function* addNewVaultWorker({ payload: newVaultInfo }: { payload: newVaultInfo }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const { vaultShellInstances } = app;
-  const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
-
-  if (vaultScheme.n !== vaultSigners.length)
-    throw new Error('Vault schema(n) and signers mismatch');
-
-  let vaultShell: VaultShell;
-  let newVaultShell: boolean = false;
-  if (vaultShellInstances.shells.length === 0) {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-    newVaultShell = true;
-  } else {
+function* addNewVaultWorker({
+  payload,
+}: {
+  payload: { newVaultInfo?: newVaultInfo; vault?: Vault };
+}) {
+  try {
+    let { newVaultInfo, vault } = payload;
+    let vaultShell: VaultShell;
+    let newVaultShell: boolean = false;
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { vaultShellInstances } = app;
+    console.log({ vaultShellInstances });
     vaultShell = yield call(
       dbManager.getObjectById,
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
     );
-  }
+    console.log({ vaultShell });
+    // When the vault is passed directly during upgrade/downgrade process
+    if (!vault) {
+      const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
+      if (vaultScheme.n !== vaultSigners.length)
+        throw new Error('Vault schema(n) and signers mismatch');
 
-  const networkType =
-    config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      if (vaultShellInstances.shells.length === 0) {
+        vaultShell = {
+          id: getRandomBytes(12),
+          vaultInstances: {},
+        };
+        newVaultShell = true;
+      } else {
+        vaultShell = yield call(
+          dbManager.getObjectById,
+          RealmSchema.VaultShell,
+          vaultShellInstances.activeShell
+        );
+      }
+      console.log({ vaultShell });
+      const networkType =
+        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      vault = yield call(generateVault, {
+        type: vaultType,
+        vaultShellId: vaultShell.id,
+        vaultName: vaultDetails.name,
+        vaultDescription: vaultDetails.description,
+        scheme: vaultScheme,
+        signers: vaultSigners,
+        networkType,
+      });
+    }
+    console.log({ vault });
 
-  const vault: Vault = yield call(generateVault, {
-    type: vaultType,
-    vaultShellId: vaultShell.id,
-    vaultName: vaultDetails.name,
-    vaultDescription: vaultDetails.description,
-    scheme: vaultScheme,
-    signers: vaultSigners,
-    networkType,
-  });
-  yield call(dbManager.createObject, RealmSchema.Vault, vault);
+    yield call(dbManager.createObject, RealmSchema.Vault, vault);
 
-  if (!newVaultShell) {
-    let presentVaultInstances = { ...vaultShell.vaultInstances };
-    presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
+    if (!newVaultShell) {
+      let presentVaultInstances = { ...vaultShell.vaultInstances };
+      presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
 
-    yield call(dbManager.updateObjectById, RealmSchema.WalletShell, vaultShell.id, {
-      vaultInstances: presentVaultInstances,
-    });
-  } else {
-    vaultShell.vaultInstances[vault.type] = 1;
-    yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
-    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-      vaultShellInstances: {
-        shells: [vaultShell.id],
-        activeShell: vaultShell.id,
-      },
-    });
+      yield call(dbManager.updateObjectById, RealmSchema.VaultShell, vaultShell.id, {
+        vaultInstances: presentVaultInstances,
+      });
+      yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
+    } else {
+      vaultShell.vaultInstances[vault.type] = 1;
+      yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
+      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+        vaultShellInstances: {
+          shells: [vaultShell.id],
+          activeShell: vaultShell.id,
+        },
+      });
+    }
+    yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
+  } catch (err) {
+    yield put(
+      vaultCreated({
+        hasNewVaultGenerationFailed: true,
+        hasNewVaultGenerationSucceeded: false,
+        error: err.toString(),
+      })
+    );
   }
 }
 
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
+
+function* addSigningDeviceWorker({ payload: signer }: { payload: VaultSigner }) {
+  yield put(addSigningDevice([signer]));
+}
+
+export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);
+
+function* migrateVaultWorker({
+  payload,
+}: {
+  payload: { newVaultData: newVaultInfo; migrationType: VaultMigrationType };
+}) {
+  try {
+    const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const { vaultShellInstances } = app;
+
+    if (vaultScheme.n !== vaultSigners.length)
+      throw new Error('Vault schema(n) and signers mismatch');
+
+    let vaultShell: VaultShell = yield call(
+      dbManager.getObjectById,
+      RealmSchema.VaultShell,
+      vaultShellInstances.activeShell
+    );
+    const networkType =
+      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+
+    const vault: Vault = yield call(generateVault, {
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme: vaultScheme,
+      signers: vaultSigners,
+      networkType,
+    });
+    yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
+    yield put(updatVaultImage());
+  } catch (error) {
+    yield put(
+      vaultMigrationCompleted({
+        isMigratingNewVault: true,
+        hasMigrationSucceeded: false,
+        hasMigrationFailed: true,
+        error: error.toString(),
+      })
+    );
+  }
+}
+
+export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAULT);
+
+function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
+  try {
+    const { vaultId } = payload;
+    console.log('started finalising', { vaultId }, payload);
+    const hasUpdated = yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
+      archived: true,
+    });
+    console.log('done updating', hasUpdated);
+    const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    console.log({ migratedVault });
+    yield call(addNewVaultWorker, { payload: { vault: migratedVault } });
+    yield put(
+      vaultMigrationCompleted({
+        isMigratingNewVault: false,
+        hasMigrationSucceeded: true,
+        hasMigrationFailed: false,
+        error: null,
+      })
+    );
+  } catch (error) {
+    yield put(
+      vaultMigrationCompleted({
+        isMigratingNewVault: true,
+        hasMigrationSucceeded: false,
+        hasMigrationFailed: true,
+        error: error.toString(),
+      })
+    );
+  }
+}
+
+export const finaliseVaultMigrationWatcher = createWatcher(
+  finaliseVaultMigrationWorker,
+  FINALISE_VAULT_MIGRATION
+);
 
 export function* importNewWalletWorker({
   payload,
