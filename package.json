@@ -38,8 +38,8 @@
     "bitcoinjs-lib": "^5.1.6",
     "browserify-zlib": "~0.1.4",
     "buffer": "^6.0.3",
+    "buffer-reverse": "^1.0.1",
     "cktap-protocol-react-native": "git+https://github.com/bithyve/cktap-protocol-react-native.git#main",
-    "electrum-client": "https://github.com/bithyve/rn-electrum-client",
     "coinselect": "^3.1.11",
     "console-browserify": "^1.1.0",
     "constants-browserify": "^1.0.0",
@@ -47,6 +47,7 @@
     "dns.js": "^1.0.1",
     "domain-browser": "^1.1.1",
     "ecpair": "^2.0.1",
+    "electrum-client": "https://github.com/bithyve/rn-electrum-client",
     "events": "^1.0.0",
     "https-browserify": "~0.0.0",
     "idx": "^2.5.6",
@@ -95,7 +96,8 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "^12.3.0",
     "react-native-svg-transformer": "^1.0.0",
-    "react-native-tcp": "^4.0.0",
+    "react-native-tcp": "^3.2.1",
+    "react-native-tcp-socket": "^6.0.1",
     "react-native-tor": "^0.1.8",
     "react-native-udp": "^4.1.5",
     "react-native-uuid": "^2.0.1",
@@ -164,7 +166,6 @@
     "constants": "constants-browserify",
     "crypto": "react-native-crypto",
     "dns": "dns.js",
-    "net": "react-native-tcp",
     "domain": "domain-browser",
     "http": "@tradle/react-native-http",
     "https": "https-browserify",
@@ -182,7 +183,8 @@
     "timers": "timers-browserify",
     "tty": "tty-browserify",
     "vm": "vm-browserify",
-    "tls": false
+    "tls": false,
+    "net": "react-native-tcp"
   },
   "browser": {
     "zlib": "browserify-zlib",
@@ -190,7 +192,6 @@
     "constants": "constants-browserify",
     "crypto": "react-native-crypto",
     "dns": "dns.js",
-    "net": "react-native-tcp",
     "domain": "domain-browser",
     "http": "@tradle/react-native-http",
     "https": "https-browserify",
@@ -208,6 +209,7 @@
     "timers": "timers-browserify",
     "tty": "tty-browserify",
     "vm": "vm-browserify",
-    "tls": false
+    "tls": false,
+    "net": "react-native-tcp"
   }
 }
