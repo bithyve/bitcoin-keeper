@@ -20,6 +20,7 @@ import {
   getAppImage,
   UPADTE_HEALTH_CHECK_SIGNER,
   SET_BACKUP_WARNING,
+  UPDATE_VAULT_IMAGE,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
@@ -52,6 +53,7 @@ import Relay from 'src/core/services/operations/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { uaiActionedEntity } from '../sagaActions/uai';
+import { generateVAC } from 'src/core/wallets/factories/VaultFactory';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -66,7 +68,6 @@ function* updateAppImageWorker({ payload }) {
     0,
     true
   );
-
   let walletObject = {};
   if (walletId) {
     const wallet: Wallet = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
@@ -83,6 +84,45 @@ function* updateAppImageWorker({ payload }) {
     } catch (err) {
       console.error('update failed', err);
     }
+  }
+}
+
+// function combinationUtil(arr, n, r, index, data, i) {
+//   if (i >= n) return data;
+//   data[index] = arr[i];
+//   combinationUtil(arr, n, r, index + 1, data, i + 1);
+//   combinationUtil(arr, n, r, index, data, i + 1);
+// }
+
+function* updateVaultImageWorker({ payload }) {
+  const { primarySeed, id, vaultShellInstances, primaryMnemonic }: KeeperApp = yield call(
+    dbManager.getObjectByIndex,
+    RealmSchema.KeeperApp
+  );
+  const vault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, false);
+  const m = vault.scheme.m;
+  let signersId = [];
+  let xpubs = [];
+  for (let signer of vault.signers) {
+    xpubs.push(signer.xpub);
+    signersId.push(signer.signerId);
+  }
+  const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
+  const encryptionKey = generateEncryptionKey(primarySeed);
+  const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
+  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
+  try {
+    Relay.updateVaultImage({
+      appId: id,
+      vaultId: vault.id,
+      m,
+      vacEncryptedApp,
+      signersId,
+      vaultEncryptedVAC,
+      vaultShellInstances: vaultShellInstancesString,
+    });
+  } catch (err) {
+    console.error('update failed', err);
   }
 }
 
@@ -279,8 +319,9 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const appImage: any = yield call(Relay.getAppImage, id);
+    const { appImage, vaultImage } = yield call(Relay.getAppImage, id);
     console.log('appImage', appImage);
+    console.log('vaultImage', vaultImage);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -295,11 +336,9 @@ function* getAppImageWorker({ payload }) {
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic: primaryMnemonic,
         imageEncryptionKey,
-        subscription: {
-          productId: SubscriptionTier.PLEB, // todo retrive valid sub plan
-          name: SubscriptionTier.PLEB.toUpperCase(),
-        },
+        subscriptionPlan: SubscriptionTier.PLEB, // todo retrive valid sub plan
         version: DeviceInfo.getVersion(),
+        vaultShellInstances: JSON.parse(appImage.vaultShellInstances),
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
       yield call(
@@ -319,6 +358,12 @@ function* getAppImageWorker({ payload }) {
         }
         yield put(setAppRecreated(true));
       }
+    }
+    //Vault recreation
+    if (vaultImage) {
+      const vac = decrypt(encryptionKey, vaultImage.vac);
+      const vault = JSON.parse(decrypt(vac, vaultImage.vault));
+      yield call(dbManager.createObject, RealmSchema.Vault, vault);
     }
   } catch (err) {
     console.log(err);
@@ -444,6 +489,8 @@ function* isBackedUP({
 }
 
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
+export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
+
 export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);

@@ -2,6 +2,7 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
+import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
@@ -12,7 +13,6 @@ import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScre
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
@@ -31,8 +31,8 @@ import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
-import Signers from 'src/screens/Signers/Signers';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
+import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
@@ -81,7 +81,7 @@ const AppStack = () => {
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHome" component={HomeScreen} />
-        <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
+        <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="AddLedger" component={SetupLedger} />
@@ -101,7 +101,6 @@ const AppStack = () => {
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
-        {/* <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} /> */}
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
@@ -111,7 +110,7 @@ const AppStack = () => {
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
-        <Stack.Screen name="Signers" component={Signers} />
+        <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
       </Stack.Navigator>
     </RealmProvider>
   );
