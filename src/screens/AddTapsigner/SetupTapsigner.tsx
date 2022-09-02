@@ -49,11 +49,11 @@ const SetupTapsigner = () => {
       setCvc(cvc.slice(0, -1));
     }
   };
+  const dispatch = useDispatch();
 
   const onDeletePressed = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
-  const dispatch = useDispatch();
 
   const getTapsignerDetails = async () => {
     const signerDetails = await withModal(async () => {
