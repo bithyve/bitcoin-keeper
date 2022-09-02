@@ -14,6 +14,7 @@ import { credsAuth } from '../../store/sagaActions/login';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import FogotPassword from './components/FogotPassword';
@@ -137,6 +138,10 @@ const LoginScreen = ({ navigation, route }) => {
       setPasscode(passcode.slice(0, -1));
       setLoginError(false);
     }
+  };
+
+  const onDeletePressed = (text) => {
+    setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
   useEffect(() => {
@@ -275,7 +280,12 @@ const LoginScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           )}
           {/* keyboardview start */}
-          <KeyPadView disabled={!canLogin} onPressNumber={onPressNumber} />
+          <KeyPadView
+            disabled={!canLogin}
+            onDeletePressed={onDeletePressed}
+            onPressNumber={onPressNumber}
+            ClearIcon={<DeleteIcon />}
+          />
         </Box>
         {/* forgot modal */}
         <ModalContainer

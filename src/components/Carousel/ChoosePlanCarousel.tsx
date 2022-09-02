@@ -57,7 +57,7 @@ const ChoosePlanCarousel = (props) => {
           <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
             / month
           </Text>
-          {subscription.productId !== item.productId || item.productId !== SubscriptionTier.PLEB ? (
+          {(subscription.productId !== item.productId && item.productId !== SubscriptionTier.PLEB) ? (
             <Box mt={10}>
               <CustomYellowButton onPress={() => props.onPress(item)} value={'Upgrade'} />
             </Box>

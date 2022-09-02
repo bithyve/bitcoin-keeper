@@ -42,7 +42,7 @@ const SendScreen = ({ route }) => {
   const common = translations['common'];
   const home = translations['home'];
   const [paymentInfo, setPaymentInfo] = useState('');
-  // const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
 
