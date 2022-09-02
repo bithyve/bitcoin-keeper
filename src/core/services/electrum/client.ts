@@ -1,12 +1,22 @@
 import ElectrumClient from 'electrum-client';
-import net from 'react-native-tcp';
+import * as bitcoinJS from 'bitcoinjs-lib';
+import reverse from 'buffer-reverse';
+const net = require('./net');
+const tls = require('./tls');
 
 export const testElectrumClient = async () => {
-  const client = new ElectrumClient(net, false, 50001, 'api.bithyve.com', 'tcp');
-  const ver = await client.initElectrum({ client: 'bluewallet', version: '1.4' });
-  const balance = await client.blockchainScripthash_getBalanceBatch([
-    '716decbe1660861c3d93906cb1d98ee68b154fd4d23aed9783859c1271b52a9c',
-    '716decbe1660861c3d93906cb1d98ee68b154fd4d23aed9783859c1271b52a9c',
-  ]);
-  balance.forEach(console.log);
+  const client = new ElectrumClient(net, tls, 50002, '35.177.105.175', 'tls');
+  const ver = await client.initElectrum({ client: 'bitcoin-keeper', version: '1.4' });
+  return client;
+};
+
+export const getBalanceByAddress = async (
+  address: string = '1FxFfPngpPi8CGhjqRzsJMMDaSG8HbaTzX'
+) => {
+  const client = await testElectrumClient();
+  const script = bitcoinJS.address.toOutputScript(address);
+  const hash = bitcoinJS.crypto.sha256(script);
+  const reversedHash = Buffer.from(reverse(hash));
+  const balance = await client.blockchainScripthash_getBalanceBatch([reversedHash.toString('hex')]);
+  balance.addr = address;
 };
