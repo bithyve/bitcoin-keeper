@@ -32,6 +32,7 @@ const DEFAULT_CONFIG = {
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
   AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
+  SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
 };
 
 class Configuration {
@@ -52,6 +53,10 @@ class Configuration {
   public ENC_KEY_STORAGE_IDENTIFIER: string = config.ENC_KEY_STORAGE_IDENTIFIER
     ? config.ENC_KEY_STORAGE_IDENTIFIER.trim()
     : DEFAULT_CONFIG.ENC_KEY_STORAGE_IDENTIFIER;
+
+  public SENTRY_DNS: string = config.SENTRY_DNS
+    ? config.SENTRY_DNS.trim()
+    : DEFAULT_CONFIG.SENTRY_DNS;
 
   public WALLET_INSTANCES = {
     [WalletType.CHECKING]: {
