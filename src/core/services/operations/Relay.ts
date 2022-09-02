@@ -288,14 +288,36 @@ export default class Relay {
     }
   };
 
+  public static updateVaultImage = async (
+    vaultData
+  ): Promise<{
+    status?: number;
+    data?: {
+      updated: boolean;
+    };
+    err?: undefined;
+    message?: undefined;
+  }> => {
+    try {
+      let res;
+      res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      res = res.json || res.data;
+      return {
+        status: res.status,
+      };
+    } catch (err) {
+      throw new Error('Failed to update Vault Image');
+    }
+  };
+
   public static getAppImage = async (appId): Promise<any> => {
     try {
       let res;
       res = await RestClient.post(`${RELAY}getAppImage`, {
         id: appId,
       });
-      const { appImageData } = res.data || res.json;
-      return appImageData;
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       throw new Error('Failed get App Image');
     }

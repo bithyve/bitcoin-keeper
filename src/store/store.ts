@@ -1,25 +1,27 @@
-import { configureStore } from '@reduxjs/toolkit';
-import settingsReducer from './reducers/settings';
-import loginReducer from './reducers/login';
-import storageReducer from './reducers/storage';
-import walletReducer from './reducers/wallets';
-import notificationsReducer from './reducers/notifications';
-import bhrReducer from './reducers/bhr';
-import sendAndReceiveReducer from './reducers/send_and_receive';
-import { combineReducers } from 'redux';
 import {
-  persistStore,
-  persistReducer,
   FLUSH,
-  REHYDRATE,
   PAUSE,
   PERSIST,
   PURGE,
   REGISTER,
+  REHYDRATE,
+  persistReducer,
+  persistStore,
 } from 'redux-persist';
-import { reduxStorage } from 'src/storage';
+
+import bhrReducer from './reducers/bhr';
+import { combineReducers } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
+import loginReducer from './reducers/login';
+import notificationsReducer from './reducers/notifications';
+import { reduxStorage } from 'src/storage';
 import { rootSaga } from './sagas';
+import sendAndReceiveReducer from './reducers/send_and_receive';
+import settingsReducer from './reducers/settings';
+import storageReducer from './reducers/storage';
+import vaultReducer from './reducers/vaults';
+import walletReducer from './reducers/wallets';
 
 export const rootReducer = combineReducers({
   settings: settingsReducer,
@@ -29,6 +31,7 @@ export const rootReducer = combineReducers({
   sendAndReceive: sendAndReceiveReducer,
   notifications: notificationsReducer,
   bhr: bhrReducer,
+  vault: vaultReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

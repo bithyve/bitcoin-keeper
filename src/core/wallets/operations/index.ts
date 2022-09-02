@@ -30,7 +30,8 @@ const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
   static getNextFreeExternalAddress = (
-    wallet: Wallet | Vault
+    wallet: Wallet | Vault,
+    purpose?: DerivationPurpose
   ): { updatedWallet: Wallet | Vault; receivingAddress: string } => {
     // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
@@ -45,11 +46,6 @@ export default class WalletOperations {
         false
       ).address;
     } else {
-      const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
-        (wallet as Wallet).type
-      )
-        ? DerivationPurpose.BIP84
-        : DerivationPurpose.BIP49;
       receivingAddress = WalletUtilities.getAddressByIndex(
         (wallet as Wallet).specs.xpub,
         false,
@@ -72,12 +68,6 @@ export default class WalletOperations {
     const hardGapLimit = 10;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
-    const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
-      (wallet as Wallet).type
-    )
-      ? DerivationPurpose.BIP84
-      : DerivationPurpose.BIP49;
-
     let externalAddress: string;
     if ((wallet as Vault).isMultiSig) {
       externalAddress = WalletUtilities.createMultiSig(
@@ -92,8 +82,7 @@ export default class WalletOperations {
         (wallet as Wallet).specs.xpub,
         false,
         wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
-        network,
-        purpose
+        network
       );
     }
 
@@ -111,8 +100,7 @@ export default class WalletOperations {
         (wallet as Wallet).specs.xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
-        network,
-        purpose
+        network
       );
     }
 
@@ -191,11 +179,6 @@ export default class WalletOperations {
       };
     } = {};
     for (const wallet of wallets) {
-      const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
-        (wallet as Wallet).type
-      )
-        ? DerivationPurpose.BIP84
-        : DerivationPurpose.BIP49;
       const ownedAddresses = []; // owned address mapping
       // owned addresses are used for apt tx categorization and transfer amount calculation
 
@@ -217,8 +200,7 @@ export default class WalletOperations {
             (wallet as Wallet).specs.xpub,
             false,
             itr,
-            network,
-            purpose
+            network
           );
         }
 
@@ -250,8 +232,7 @@ export default class WalletOperations {
             (wallet as Wallet).specs.xpub,
             true,
             itr,
-            network,
-            purpose
+            network
           );
         }
 
@@ -395,12 +376,6 @@ export default class WalletOperations {
       }),
     };
 
-    const purpose = [WalletType.SWAN, WalletType.IMPORTED, WalletType.READ_ONLY].includes(
-      (wallet as Wallet).type
-    )
-      ? DerivationPurpose.BIP84
-      : DerivationPurpose.BIP49;
-
     for (const consumedUTXO of Object.values(consumedUTXOs)) {
       let found = false;
       // is out of bound external address?
@@ -419,8 +394,7 @@ export default class WalletOperations {
             (wallet as Wallet).specs.xpub,
             false,
             itr,
-            network,
-            purpose
+            network
           );
         }
 
@@ -450,8 +424,7 @@ export default class WalletOperations {
               (wallet as Wallet).specs.xpub,
               true,
               itr,
-              network,
-              purpose
+              network
             );
           }
 
@@ -481,8 +454,7 @@ export default class WalletOperations {
         (wallet as Wallet).specs.xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex,
-        network,
-        purpose
+        network
       );
     }
 
@@ -679,7 +651,8 @@ export default class WalletOperations {
     PSBT: bitcoinJS.Psbt,
     wallet: Wallet | Vault,
     input: InputUTXOs,
-    network: bitcoinJS.networks.Network
+    network: bitcoinJS.networks.Network,
+    derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84
   ) => {
     if (wallet.entityKind === EntityKind.WALLET) {
       const { publicKey, subPath } = WalletUtilities.addressToKey(
@@ -691,9 +664,12 @@ export default class WalletOperations {
         pubkey: publicKey,
         network,
       });
-      const p2sh = bitcoinJS.payments.p2sh({
-        redeem: p2wpkh,
-      });
+
+      let p2sh;
+      if (derivationPurpose === DerivationPurpose.BIP49)
+        p2sh = bitcoinJS.payments.p2sh({
+          redeem: p2wpkh,
+        });
 
       const path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
       const masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
@@ -708,16 +684,28 @@ export default class WalletOperations {
         },
       ];
 
-      PSBT.addInput({
-        hash: input.txId,
-        index: input.vout,
-        bip32Derivation,
-        witnessUtxo: {
-          script: p2sh.output,
-          value: input.value,
-        },
-        redeemScript: p2wpkh.output,
-      });
+      if (derivationPurpose === DerivationPurpose.BIP84) {
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          bip32Derivation,
+          witnessUtxo: {
+            script: p2wpkh.output,
+            value: input.value,
+          },
+        });
+      } else if (derivationPurpose === DerivationPurpose.BIP49) {
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          bip32Derivation,
+          witnessUtxo: {
+            script: p2sh.output,
+            value: input.value,
+          },
+          redeemScript: p2wpkh.output,
+        });
+      }
     } else if (wallet.entityKind === EntityKind.VAULT) {
       const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
@@ -1090,7 +1078,9 @@ export default class WalletOperations {
       }
       return { serializedPSBTEnvelops };
     } else {
+      console.log('signing');
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+      console.log({ signedPSBT });
       const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
       return {
         txid,

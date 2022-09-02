@@ -10,6 +10,7 @@ import { resetPin } from '../../store/sagaActions/login';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import DotView from 'src/components/DotView';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -67,6 +68,10 @@ export default function ResetPin(props) {
       }
     }
   }
+
+  const onDeletePressed = (text) => {
+    setPasscode(passcode.slice(0, passcode.length - 1));
+  };
 
   useEffect(() => {
     if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length == 4) {
@@ -174,7 +179,11 @@ export default function ResetPin(props) {
               </Box>
             </Box>
           </Box>
-          <KeyPadView onPressNumber={onPressNumber} />
+          <KeyPadView
+            onDeletePressed={onDeletePressed}
+            onPressNumber={onPressNumber}
+            ClearIcon={<DeleteIcon />}
+          />
         </Box>
       </Box>
     </LinearGradient>
