@@ -1,36 +1,35 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, StatusBar } from 'native-base';
 import {
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
   ActivityIndicator,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
-import { Subscription } from 'react-native-iap';
-
-import { RFValue } from 'react-native-responsive-fontsize';
-
-import BackIcon from 'src/assets/icons/back.svg';
-import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
-import Note from 'src/components/Note/Note';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { Box, StatusBar, Text } from 'native-base';
 import RNIap, {
-  requestSubscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
+  requestSubscription,
 } from 'react-native-iap';
-import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
-import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import React, { useContext, useEffect, useState } from 'react';
+
+import BackIcon from 'src/assets/icons/back.svg';
+import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import Hodler from 'src/assets/images/svgs/ic_hodler.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
-import Whale from 'src/assets/images/svgs/ic_whale.svg';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import dbManager from 'src/storage/realm/dbManager';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
+import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
+import { Subscription } from 'react-native-iap';
+import Whale from 'src/assets/images/svgs/ic_whale.svg';
+import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
+import dbManager from 'src/storage/realm/dbManager';
 
 const plans = [
   {
@@ -94,12 +93,13 @@ const ChoosePlan = (props) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-          const sub = await getSubscriptions([purchase.productId])
+          const sub = await getSubscriptions([purchase.productId]);
           const subscription: SubScription = {
             productId: purchase.productId,
             receipt: receipt,
-            name: sub[0].title
+            name: sub[0].title.split(' ')[0],
           };
+
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
@@ -170,7 +170,7 @@ const ChoosePlan = (props) => {
         const sub: SubScription = {
           productId: subscription.productId,
           receipt: 'free',
-          name: subscription.name
+          name: subscription.name.split(' ')[0],
         };
         dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
           subscription: sub,
@@ -180,7 +180,12 @@ const ChoosePlan = (props) => {
           await requestSubscription({
             sku: subscription.productId,
             ...(subscription.subscriptionOfferDetails[0].offerToken && {
-              subscriptionOffers: [{ sku: subscription.productId, offerToken: subscription.subscriptionOfferDetails[0].offerToken }],
+              subscriptionOffers: [
+                {
+                  sku: subscription.productId,
+                  offerToken: subscription.subscriptionOfferDetails[0].offerToken,
+                },
+              ],
             }),
           });
         } else {

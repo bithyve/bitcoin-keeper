@@ -29,6 +29,7 @@ import {
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
+import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -39,9 +40,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
-
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { updateAppImage, updatVaultImage } from '../sagaActions/bhr';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
@@ -190,13 +189,11 @@ function* addNewVaultWorker({
     let newVaultShell: boolean = false;
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const { vaultShellInstances } = app;
-    console.log({ vaultShellInstances });
     vaultShell = yield call(
       dbManager.getObjectById,
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
     );
-    console.log({ vaultShell });
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
@@ -216,7 +213,6 @@ function* addNewVaultWorker({
           vaultShellInstances.activeShell
         );
       }
-      console.log({ vaultShell });
       const networkType =
         config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
       vault = yield call(generateVault, {
@@ -229,7 +225,6 @@ function* addNewVaultWorker({
         networkType,
       });
     }
-    console.log({ vault });
 
     yield call(dbManager.createObject, RealmSchema.Vault, vault);
 
@@ -252,6 +247,7 @@ function* addNewVaultWorker({
       });
     }
     yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
+    yield put(updatVaultImage());
   } catch (err) {
     yield put(
       vaultCreated({
@@ -302,7 +298,6 @@ function* migrateVaultWorker({
       networkType,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
-    yield put(updatVaultImage());
   } catch (error) {
     yield put(
       vaultMigrationCompleted({
@@ -320,13 +315,10 @@ export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAU
 function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
   try {
     const { vaultId } = payload;
-    console.log('started finalising', { vaultId }, payload);
-    const hasUpdated = yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
       archived: true,
     });
-    console.log('done updating', hasUpdated);
     const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
-    console.log({ migratedVault });
     yield call(addNewVaultWorker, { payload: { vault: migratedVault } });
     yield put(
       vaultMigrationCompleted({
