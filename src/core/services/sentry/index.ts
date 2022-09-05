@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 
-import { CaptureContext, SeverityLevel } from '@sentry/types';
+import { CaptureContext, SeverityLevel, User } from '@sentry/types';
 
 import config from 'src/core/config';
 
@@ -11,10 +11,15 @@ export const sentryConfig = {
   environment: config.APP_STAGE,
 };
 
+export const identifyUser = (id: string) => {
+  const user: User = { id };
+  return Sentry.setUser(user);
+};
+
 export const captureError = (error: Error, context?: CaptureContext) => {
-  Sentry.captureException(error, context);
+  return Sentry.captureException(error, context);
 };
 
 export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => {
-  Sentry.captureMessage(message, captureContext);
+  return Sentry.captureMessage(message, captureContext);
 };
