@@ -177,7 +177,7 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient testID="main" colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
         <Box pt={50}>
           <StatusBar barStyle={'light-content'} />
@@ -226,6 +226,7 @@ export default function CreatePin(props) {
                 <Box alignSelf={'flex-end'} mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
+                    testID="button"
                     onPress={() => {
                       dispatch(storeCreds(passcode));
                     }}

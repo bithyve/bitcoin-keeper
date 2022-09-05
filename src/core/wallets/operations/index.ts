@@ -1078,9 +1078,7 @@ export default class WalletOperations {
       }
       return { serializedPSBTEnvelops };
     } else {
-      console.log('signing');
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
-      console.log({ signedPSBT });
       const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
       return {
         txid,

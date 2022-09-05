@@ -16,6 +16,7 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor }: Props
       activeOpacity={1}
       onPress={() => onPressNumber(title)}
       style={styles.keyPadElementTouchable}
+      testID={`key_${title}`}
     >
       <Text
         style={styles.keyPadElementText}
