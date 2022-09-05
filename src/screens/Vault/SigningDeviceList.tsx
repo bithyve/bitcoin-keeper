@@ -216,9 +216,9 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={nfcAlertConternt}
         />
         <KeeperModal
-          visible={true}
+          visible={false}
           close={() => { }}
-          title={'Set up a Mobile Key'}
+          title={'Setting up a Signing Server'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
