@@ -5,13 +5,14 @@ import Relay from 'src/core/services/operations/Relay';
 import config, { APP_STAGE } from '../../config';
 import WalletOperations from '../operations';
 import WalletUtilities from '../operations/utils';
+import * as bip39 from 'bip39';
 
 describe('Testing wallet primitives', () => {
   let primaryMnemonic, walletShell, wallet, averageTxFees, txPrerequisites, txnPriority, PSBT;
 
   beforeAll(() => {
     primaryMnemonic =
-      'will arrive forget true master similar another eyebrow between sword word object';
+      'such suffer age grid picture ordinary endorse danger coffee shrimp nose zone';
     walletShell = {
       id: getRandomBytes(12),
       walletInstances: {},
@@ -32,7 +33,7 @@ describe('Testing wallet primitives', () => {
         config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
     });
     expect(wallet.derivationDetails.mnemonic).toEqual(
-      'update lawsuit canal dress limb swift session need humble swear heavy approve'
+      'tragic water gloom vocal quick culture gasp comfort gas human valley warm'
     );
     expect(wallet.walletShellId).toEqual(walletShell.id);
   });
@@ -40,7 +41,7 @@ describe('Testing wallet primitives', () => {
   test('wallet operations: generating a receive address', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(wallet);
     wallet = updatedWallet;
-    expect(receivingAddress).toEqual('tb1q5trmuj2eqmehllwrgumdn04fp2x27r4nr6qu42');
+    expect(receivingAddress).toEqual('tb1qnjlm26z5vkuw9452t4k5rrluda59s84tumyq7y');
   });
 
   test('wallet operations: fetching balance, utxos & transactions', async () => {
@@ -54,9 +55,9 @@ describe('Testing wallet primitives', () => {
     confirmedUTXOs.forEach((utxo) => (netBalance += utxo.value));
     unconfirmedUTXOs.forEach((utxo) => (netBalance += utxo.value));
 
-    expect(balances.confirmed + balances.unconfirmed).toEqual(20000);
+    expect(balances.confirmed + balances.unconfirmed).toEqual(10000);
     expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
-    expect(transactions.length).toEqual(2);
+    expect(transactions.length).toEqual(1);
   });
 
   test('wallet operations: transaction fee fetch', async () => {
@@ -87,8 +88,8 @@ describe('Testing wallet primitives', () => {
     txnPriority = TxPriority.LOW;
     const res = await WalletOperations.createTransaction(wallet, txPrerequisites, txnPriority);
     PSBT = res.PSBT;
-    expect(PSBT.inputs).toBeTruthy();
-    expect(PSBT.outputs).toBeTruthy();
+    expect(PSBT.data.inputs.length).toBeGreaterThan(0);
+    expect(PSBT.data.outputs.length).toBeGreaterThan(0);
   });
 
   test('wallet operations: transaction signing(PSBT)', async () => {
@@ -99,7 +100,7 @@ describe('Testing wallet primitives', () => {
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     expect(txHex).toEqual(
-      '02000000000101bebacb14b7d1ee616ba88a82af4b64d8e046bf2fafa283fc5e434b73a73a2df90000000000ffffffff028813000000000000160014ff9da567e62f30ea8654fa1d5fbd47bef8e3be13a61200000000000016001401a93fdabaff067b5d06f914f520e205b7f9c3660247304402206d89be0097be6bd5fb91eeaa0117db3969f3735528273be5bbb749c929f3323402207518e6270db0d2f45dccffb5f00c39e3d7398c68c3eb9421de6775637ad1b27a0121021f57d4d68b3a350426fb4c686aef4c884f417b1b86d102cc64a0efbc007d81b000000000'
+      '020000000001010f2842dba0604af53f32203e9933b36d12a28f466dca23361766a17e8b21faae0000000000ffffffff02a612000000000000160014af6bf42be5406002a7711188b5c68dd78b0fc1118813000000000000160014ff9da567e62f30ea8654fa1d5fbd47bef8e3be13024730440220231becd53d99ece600551ed7ed42bdf01acef5f5c5d9af5787a180087644ad2f0220647ef7008df0aea18fb61a230bb5b5a4bf9b7419788ac5a90d9b4b33383f571f0121026d45cd4a4256307bd1f93d0e855d501ac8bd855c13471a8f274c618ad756532f00000000'
     );
   });
 });
