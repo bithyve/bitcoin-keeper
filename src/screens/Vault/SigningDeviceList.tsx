@@ -162,6 +162,16 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     )
   }
 
+  const setUpMobileKey = () => {
+    return (
+      <Box>
+        {/* { this assert needs to be updated  } */}
+        <Alert />
+        <BulletPoint description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'} />
+        <BulletPoint description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'} />
+      </Box>
+    )
+  }
   const otpContent = () => {
     const [otp, setOtp] = useState('')
 
@@ -189,6 +199,63 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         <Box>
           <CVVInputsView
             passCode={otp}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton onPress={() => { }} value={'proceed'} />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    )
+  }
+  const passwordEnter = () => {
+    const [password, setPassword] = useState('')
+
+    console.log(password);
+
+    const onPressNumber = (text) => {
+      let tmpPasscode = password;
+      if (password.length < 6) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setPassword(tmpPasscode);
+        }
+      }
+      if (password && text == 'x') {
+        setPassword(password.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setPassword(password.slice(0, password.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)} >
+        <Box>
+          <CVVInputsView
+            passCode={password}
             passcodeFlag={false}
             backgroundColor={true}
             textColor={true}
@@ -289,13 +356,34 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={settingSigningServer}
         />
         <KeeperModal
+          visible={true}
+          close={() => { }}
+          title={'Set up a Mobile Key'}
+          subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText={'Continue'}
+          buttonTextColor={'#FAFAFA'}
+          textColor={'#041513'}
+          Content={setUpMobileKey}
+        />
+        <KeeperModal
+          visible={false}
+          close={() => { }}
+          title={'Confirm OTP to setup 2FA'}
+          subTitle={'Lorem ipsum dolor sit amet, '}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor={'#041513'}
+          Content={otpContent}
+        />
+        <KeeperModal
           visible={false}
           close={() => { }}
           title={'Enter your password'}
           subTitle={'Lorem ipsum dolor sit amet, '}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={otpContent}
+          Content={passwordEnter}
         />
       </Box>
     </Box>
