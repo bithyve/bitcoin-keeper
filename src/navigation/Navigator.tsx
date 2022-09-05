@@ -1,4 +1,7 @@
+import * as Sentry from '@sentry/react-native';
+
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import React, { useRef } from 'react';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -19,7 +22,6 @@ import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
-import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
@@ -42,6 +44,7 @@ import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryS
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { routingInstrumentation } from 'src/core/services/sentry';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -117,8 +120,14 @@ const AppStack = () => {
 };
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
+  const navigation = useRef();
+
+  // Register the navigation container with the instrumentation
+  const onReady = () => {
+    routingInstrumentation.registerNavigationContainer(navigation);
+  };
   return (
-    <NavigationContainer theme={defaultTheme}>
+    <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />
