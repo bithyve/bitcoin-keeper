@@ -1,28 +1,33 @@
 import { Box, HStack, Pressable, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Image, ImageBackground, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
+import {
+  Image,
+  ImageBackground,
+  PermissionsAndroid,
+  Platform,
+  TouchableOpacity,
+} from 'react-native';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { Alert } from 'react-native';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
-import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
-import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
 import CustomPriorityModal from '../Send/CustomPriorityModal';
 import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
+import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
 import Pleb from 'src/assets/images/svgs/pleb.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 // import Elite from 'src/assets/images/svgs/elite.svg';
 // import Pro from 'src/assets/images/svgs/pro.svg';
 // import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
@@ -41,14 +46,15 @@ import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
+import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -222,6 +228,7 @@ const VaultStatus = (props) => {
   const wallet = translations['wallet'];
   const common = translations['common'];
   const { useQuery } = useContext(RealmWrapperContext);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
@@ -257,6 +264,7 @@ const VaultStatus = (props) => {
 
   useEffect(() => {
     RestClient.subToTorStatus(onChangeTorStatus);
+    identifyUser(keeper.appID);
     return () => {
       RestClient.unsubscribe(onChangeTorStatus);
     };
@@ -456,11 +464,11 @@ const VaultInfo = () => {
 
   function getPlanIcon() {
     if (subscription.name.toLowerCase().includes('whale')) {
-      return <WhaleFocused />
+      return <WhaleFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
-      return <HodlerFocused />
+      return <HodlerFocused />;
     } else {
-      return <PlebFocused />
+      return <PlebFocused />;
     }
   }
 
@@ -482,7 +490,8 @@ const VaultInfo = () => {
             justifyContent="center"
             alignItems="center"
             flexDirection="row"
-            onPress={() => navigation.navigate('ChoosePlan')}>
+            onPress={() => navigation.navigate('ChoosePlan')}
+          >
             {getPlanIcon()}
             <Box
               backgroundColor="#015A53"
@@ -491,17 +500,12 @@ const VaultInfo = () => {
               paddingX={1}
               marginX={-2}
               zIndex={-10}
-              borderColor="light.white1">
-              <Text
-                p={1}
-                color={'light.white1'}
-                fontSize={hp(14)}
-                fontWeight={200}
-              >
+              borderColor="light.white1"
+            >
+              <Text p={1} color={'light.white1'} fontSize={hp(14)} fontWeight={200}>
                 {subscription.name}
               </Text>
             </Box>
-
           </Pressable>
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
