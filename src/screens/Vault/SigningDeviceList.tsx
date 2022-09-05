@@ -119,6 +119,45 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     )
   }
 
+  const BulletPoint = ({ description }: { description: string }) => {
+    return (
+      <Box
+        flexDirection={'row'}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
+        <Box
+          width={2}
+          height={2}
+          borderRadius={10}
+          backgroundColor={'light.modalText'}
+        />
+        <Text
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          width={wp(260)}
+          color={'light.modalText'}
+          marginY={2}
+          marginLeft={3}
+        >
+          {description}
+        </Text>
+      </Box>
+    )
+  }
+
+  const settingSigningServer = () => {
+    return (
+      <Box>
+        {/* { this assert needs to be updated  } */}
+        <Alert />
+        <BulletPoint description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'} />
+        <BulletPoint description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'} />
+      </Box>
+    )
+  }
+
   return (
     <Box style={styles.container}>
       <StatusBarComponent padding={50} />
@@ -175,6 +214,19 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           textColor={'#041513'}
           butt
           Content={nfcAlertConternt}
+        />
+        <KeeperModal
+          visible={true}
+          close={() => { }}
+          title={'Set up a Mobile Key'}
+          subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText={'Continue'}
+          buttonTextColor={'#FAFAFA'}
+          textColor={'#041513'}
+          butt
+          Content={settingSigningServer}
         />
       </Box>
     </Box>
