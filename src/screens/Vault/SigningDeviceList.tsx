@@ -1,21 +1,25 @@
+import { TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-
+import nfcManager from 'react-native-nfc-manager';
+import { ScaledSheet } from 'react-native-size-matters';
+import { ScrollView } from 'react-native-gesture-handler';
+import { RFValue } from 'react-native-responsive-fontsize';
+//components
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScaledSheet } from 'react-native-size-matters';
-import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { StatusBar, TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
 import KeeperModal from 'src/components/KeeperModal';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+//asserts
 import Alert from 'src/assets/images/alert_illustration.svg'
-import nfcManager from 'react-native-nfc-manager';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 
 type HWProps = {
   type: SignerType;
@@ -158,6 +162,63 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     )
   }
 
+  const otpContent = () => {
+    const [otp, setOtp] = useState('')
+
+    console.log(otp);
+
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text == 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)} >
+        <Box>
+          <CVVInputsView
+            passCode={otp}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton onPress={() => { }} value={'proceed'} />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    )
+  }
   return (
     <Box style={styles.container}>
       <StatusBarComponent padding={50} />
@@ -225,8 +286,16 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           buttonText={'Continue'}
           buttonTextColor={'#FAFAFA'}
           textColor={'#041513'}
-          butt
           Content={settingSigningServer}
+        />
+        <KeeperModal
+          visible={false}
+          close={() => { }}
+          title={'Enter your password'}
+          subTitle={'Lorem ipsum dolor sit amet, '}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor={'#041513'}
+          Content={otpContent}
         />
       </Box>
     </Box>
