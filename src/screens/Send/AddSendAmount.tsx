@@ -154,7 +154,6 @@ const AddSendAmount = ({ route }) => {
             />
           </Box>
           <Pressable
-            backgroundColor={'light.yellow1'}
             onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
             style={{
               paddingHorizontal: 10,
@@ -163,10 +162,10 @@ const AddSendAmount = ({ route }) => {
             }}
           >
             <Text
-              color={'light.textDark'}
-              fontSize={RFValue(11)}
+              color={'light.sendMax'}
+              fontSize={RFValue(12)}
               letterSpacing={0.6}
-              fontWeight={200}
+              fontWeight={300}
             >
               Send Max
             </Text>
