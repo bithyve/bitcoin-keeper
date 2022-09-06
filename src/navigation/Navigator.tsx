@@ -43,6 +43,7 @@ import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 
@@ -114,6 +115,7 @@ const AppStack = () => {
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name='SetupSigningServer' component={SetupSigningServer} />
       </Stack.Navigator>
     </RealmProvider>
   );
