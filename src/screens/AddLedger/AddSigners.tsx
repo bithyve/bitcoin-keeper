@@ -42,15 +42,29 @@ const AddSigners = ({ props }) => {
       </Box>
     );
   };
+  const removeSigner = ({ signer }) => {
+    console.log('--> signer');
+    const newList = list.filter((item) => item.signerId !== signer.signerId);
+    setList(newList);
 
-  const removeSigner = (signer) => {
-    // console.log('--> signer');
-    // const newList = list.filter((item) => item != signer.signerId);
-    // return setList(newList);
-    const newList = list.findIndex(({ signerId }) => signerId === signer.xpubInfo);
-    if (newList !== -1) {
-      setList([...list.slice(0, newList), ...list.slice(newList + 1)]);
-    }
+    // setList((list) => list.filter((item) => item.signerId !== Signers.signerId));
+
+    // const newList = list.filter(({ signerId }) => signerId === signer.xpubInfo);
+    // if (newList !== -1) {
+    //   setList([...list.slice(0, newList), ...list.slice(newList + 1)]);
+    // }
+
+    // setList([...list.slice(0, Signers.signersId), ...list.slice(Signers.signerId, list.length)]);
+
+    // const newList = [...list.splice(Signers.signerId, 1)];
+    // setList(newList);
+    // return newList;
+
+    // setList((list) =>
+    //   list.filter((item) => {
+    //     item.signerId !== Signers.signerId;
+    //   })
+    // );
   };
 
   return (
@@ -107,9 +121,11 @@ const AddSigners = ({ props }) => {
                     justifyContent={'space-between'}
                   >
                     {signer.type}
+                    {/* {signer.signerId} */}
                   </Text>
                 </VStack>
-                <TouchableOpacity onPress={() => removeSigner(signer)}>
+
+                <TouchableOpacity onPress={() => removeSigner({ signer })}>
                   <Box flex={1} justifyContent={'center'} alignItems={'center'} ml={wp(10)}>
                     <RemoveIcon />
                   </Box>
