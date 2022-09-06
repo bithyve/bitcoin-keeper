@@ -77,38 +77,42 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
               </Text>
             </Box>
           </Box>
-          <Box marginRight={wp(5)}>
+          <TouchableOpacity style={{
+            marginRight: wp(5)
+          }} >
             {/* { Do not have right assert in xd} */}
             <Close />
-          </Box>
+          </TouchableOpacity>
         </Box>
 
         {index == transactions.length - 1 &&
-          <Box
-            alignItems={'center'}
-            style={{ marginRight: wp(10) }}
-            flexDirection={'row'}
-            backgroundColor={'light.yellow1'}
-            width={wp(215)}
-            height={hp(54)}
-            borderRadius={10}
-          >
-            <TouchableOpacity onPress={addTransaction} style={styles.buttonBackground}>
-              <GradientIcon Icon={AddIcon} height={hp(30)} />
-            </TouchableOpacity>
-            <Box marginLeft={wp(10)}>
-              <Text
-                fontWeight={200}
-                fontSize={14}
-                mt={'1'}
-                numberOfLines={1}
-                letterSpacing={0.6}
-                color={'light.addTransactionText'}
-              >
-                Add Transaction
-              </Text>
+          <TouchableOpacity onPress={addTransaction} activeOpacity={0.5}>
+            <Box
+              alignItems={'center'}
+              style={{ marginRight: wp(10) }}
+              flexDirection={'row'}
+              backgroundColor={'light.yellow1'}
+              width={wp(215)}
+              height={hp(54)}
+              borderRadius={10}
+            >
+              <Box style={styles.buttonBackground}>
+                <GradientIcon Icon={AddIcon} height={hp(30)} />
+              </Box>
+              <Box marginLeft={wp(10)}>
+                <Text
+                  fontWeight={200}
+                  fontSize={14}
+                  mt={'1'}
+                  numberOfLines={1}
+                  letterSpacing={0.6}
+                  color={'light.addTransactionText'}
+                >
+                  Add Transaction
+                </Text>
+              </Box>
             </Box>
-          </Box>
+          </TouchableOpacity>
         }
       </>
     );
