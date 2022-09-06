@@ -1,51 +1,57 @@
-import { all, call, spawn } from 'redux-saga/effects';
-import {
-  credentialsAuthWatcher,
-  changeAuthCredWatcher,
-  changeLoginMethodWatcher,
-  credentialStorageWatcher,
-  resetPinCredWatcher,
-  applicationUpdateWatcher,
-} from './login';
-import { setupKeeperAppWatcher } from './storage';
 import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
+  addSigningDeviceWatcher,
   autoWalletsSyncWatcher,
+  finaliseVaultMigrationWatcher,
   importNewWalletWatcher,
+  migrateVaultWatcher,
   refreshWalletsWatcher,
   syncWalletsWatcher,
   updateWalletSettingsWatcher,
 } from './wallets';
-import { updateFCMTokensWatcher, getMessageWatcher } from './notifications';
 import {
   addUaiStackWatcher,
   uaiActionedEntityWatcher,
   uaiChecksWatcher,
   updateUaiStackWatcher,
 } from './uai';
+import { all, call, spawn } from 'redux-saga/effects';
+import {
+  applicationUpdateWatcher,
+  changeAuthCredWatcher,
+  changeLoginMethodWatcher,
+  credentialStorageWatcher,
+  credentialsAuthWatcher,
+  resetPinCredWatcher,
+} from './login';
+import {
+  backupWarningWatcher,
+  cloudBackupSkippedWatcher,
+  confirmCloudBackupWatcher,
+  getAppImageWatcher,
+  getCloudDataWatcher,
+  healthCheckSignerWatcher,
+  initCloudBackupWatcher,
+  recoverBackupWatcher,
+  seedBackedUpWatcher,
+  seedBackeupConfirmedWatcher,
+  updateAppImageWatcher,
+  updateVaultImageWatcher,
+} from './bhr';
 import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
-  sendPhaseOneWatcher,
-  sendPhaseTwoWatcher,
   corssTransferWatcher,
   feeAndExchangeRatesWatcher,
+  sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
+  sendPhaseTwoWatcher,
+  updatePSBTSignaturesWatcher,
 } from './send_and_receive';
-import {
-  getAppImageWatcher,
-  updateAppImageWatcher,
-  seedBackedUpWatcher,
-  seedBackeupConfirmedWatcher,
-  initCloudBackupWatcher,
-  cloudBackupSkippedWatcher,
-  confirmCloudBackupWatcher,
-  getCloudDataWatcher,
-  recoverBackupWatcher,
-  healthCheckSignerWatcher,
-  backupWarningWatcher,
-} from './bhr';
+import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
+
+import { setupKeeperAppWatcher } from './storage';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -63,12 +69,17 @@ export const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
-    addNewVaultWatcher,
     autoWalletsSyncWatcher,
     importNewWalletWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
+
+    // vaults
+    addNewVaultWatcher,
+    addSigningDeviceWatcher,
+    migrateVaultWatcher,
+    finaliseVaultMigrationWatcher,
 
     // send and receive
     feeAndExchangeRatesWatcher,
@@ -78,6 +89,7 @@ export const rootSaga = function* () {
     corssTransferWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
+    updatePSBTSignaturesWatcher,
 
     // UAI
     uaiChecksWatcher,
@@ -87,6 +99,7 @@ export const rootSaga = function* () {
 
     //BHR
     updateAppImageWatcher,
+    updateVaultImageWatcher,
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
@@ -96,7 +109,7 @@ export const rootSaga = function* () {
     getCloudDataWatcher,
     recoverBackupWatcher,
     healthCheckSignerWatcher,
-    backupWarningWatcher
+    backupWarningWatcher,
   ];
 
   yield all(

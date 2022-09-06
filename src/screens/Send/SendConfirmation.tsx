@@ -5,6 +5,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
@@ -37,7 +38,9 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
-  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const availableTransactionPriorities = useAvailableTransactionPriorities();
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
@@ -99,16 +102,16 @@ const SendConfirmation = ({ route }) => {
     }
   };
 
-  const serializedPSBTEnvelop = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelop
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (serializedPSBTEnvelop) {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
-  }, [serializedPSBTEnvelop]);
+  }, [serializedPSBTEnvelops]);
 
   const SendingCard = ({ isSend }) => {
     return (

@@ -16,6 +16,7 @@ import { generateEncryptionKey, getRandomBytes } from 'src/core/services/operati
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import config from '../../core/config';
+import crypto from 'crypto'
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -28,7 +29,8 @@ function* setupKeeperAppWorker({ payload }) {
       walletInstances: {},
     };
 
-    const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const id = crypto.createHash('sha256').update(primarySeed).digest('hex')
 
     const entropy = yield call(
       BIP85.bip39MnemonicToEntropy,
@@ -39,6 +41,7 @@ function* setupKeeperAppWorker({ payload }) {
 
     const app: KeeperApp = {
       id,
+      appID,
       appName,
       primaryMnemonic,
       primarySeed: primarySeed.toString('hex'),
@@ -51,7 +54,10 @@ function* setupKeeperAppWorker({ payload }) {
         shells: [],
         activeShell: null,
       },
-      subscriptionPlan: SubscriptionTier.PLEB,
+      subscription: {
+        productId: SubscriptionTier.PLEB,
+        name: SubscriptionTier.PLEB.toUpperCase(),
+      },
       version: DeviceInfo.getVersion(),
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
@@ -67,7 +73,7 @@ function* setupKeeperAppWorker({ payload }) {
     };
     yield put(addNewWallets([defaultWallet]));
 
-    yield put(setAppId(id));
+    yield put(setAppId(appID));
   } catch (error) {
     console.log({ error });
   }

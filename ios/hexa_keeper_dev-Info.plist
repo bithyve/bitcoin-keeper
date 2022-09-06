@@ -40,7 +40,9 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This app uses BLE to communicate with Sensor Tag</string>
+	<string>Allow $(PRODUCT_NAME) to uses BLE communicate with Sensor Tag</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to uses BLE communicate with Sensor Tag</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>

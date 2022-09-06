@@ -1,13 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
   SerializedPSBTEnvelop,
+  SigningPayload,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
 } from 'src/core/wallets/interfaces/';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+
+import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { TxPriority } from 'src/core/wallets/enums';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;
@@ -24,9 +26,15 @@ export interface SendPhaseOneExecutedPayload {
 
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
-  serializedPSBTEnvelop?: SerializedPSBTEnvelop;
+  serializedPSBTEnvelops?: SerializedPSBTEnvelop[];
   txid?: string;
   err?: string;
+}
+
+export interface UpdatePSBTPayload {
+  signedSerializedPSBT?: string;
+  signingPayload?: SigningPayload[];
+  signerId: string;
 }
 
 export interface SendPhaseThreeExecutedPayload {
@@ -62,7 +70,7 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
-    serializedPSBTEnvelop: SerializedPSBTEnvelop;
+    serializedPSBTEnvelops: SerializedPSBTEnvelop[];
     txid: string | null;
   };
   sendPhaseThree: {
@@ -97,7 +105,7 @@ const initialState: {
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
-    serializedPSBTEnvelop: null,
+    serializedPSBTEnvelops: null,
     txid: null,
   },
   sendPhaseThree: {
@@ -170,14 +178,31 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
-      const { successful, txid, serializedPSBTEnvelop, err } = action.payload;
+      const { successful, txid, serializedPSBTEnvelops, err } = action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
-        serializedPSBTEnvelop: successful ? serializedPSBTEnvelop : null,
+        serializedPSBTEnvelops: successful ? serializedPSBTEnvelops : null,
         txid: successful ? txid : null,
+      };
+    },
+
+    updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
+      const { signerId, signingPayload, signedSerializedPSBT } = action.payload;
+      state.sendPhaseTwo = {
+        ...state.sendPhaseTwo,
+        serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
+          if (envelop.signerId === signerId) {
+            envelop.serializedPSBT = signedSerializedPSBT
+              ? signedSerializedPSBT
+              : envelop.serializedPSBT;
+            envelop.isSigned = true;
+            envelop.signingPayload = signingPayload ? signingPayload : envelop.signingPayload;
+          }
+          return envelop;
+        }),
       };
     },
 
@@ -207,5 +232,6 @@ export const {
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
   sendPhasesReset,
+  updatePSBTEnvelops,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

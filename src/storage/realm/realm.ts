@@ -5,7 +5,7 @@ import schema from './schema';
 export class RealmDatabase {
   private realm: Realm;
   public static file = 'keeper.realm';
-  public static schemaVersion = 22;
+  public static schemaVersion = 25;
 
   /**
    * initializes/opens realm w/ appropriate configuration

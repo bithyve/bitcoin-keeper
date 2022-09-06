@@ -86,7 +86,7 @@
     "MismatchPasscode": "Mismatch Passcode",
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot your passcode?",
-    "forgotPasscodeDesc": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor",
+    "forgotPasscodeDesc": "Key in the word exactly like it was displayed",
     "Invalidword": "Invalid word",
     "ResetPasscode": "Reset Passcode",
     "Createpasscode": "Create a passcode",
@@ -297,7 +297,7 @@
     "AddNow": "Add Now",
     "SelectSigner": "Select Signing Devices",
     "ForVault": "For your Vault",
-    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
+    "VaultInfo": "A Signing Device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
     "Description": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor"
@@ -316,7 +316,7 @@
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change Signing Device",
-    "HealthCheck": "Health Check",
+    "HealthCheck": "Perform Health Check",
     "SkippingHealthCheck": "Skipping Health Check",
     "EnterCVV": "Enter the CVV",
     "HealthCheckSuccessful": "Health Check Successful"
@@ -428,7 +428,7 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store"
+    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store. After trail period the subscription auto renews monthly"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Seed Words",
