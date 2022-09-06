@@ -356,7 +356,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={settingSigningServer}
         />
         <KeeperModal
-          visible={true}
+          visible={false}
           close={() => { }}
           title={'Set up a Mobile Key'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
