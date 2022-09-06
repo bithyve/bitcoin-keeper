@@ -10,6 +10,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
 import { TxPriority } from 'src/core/wallets/enums';
+import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;
@@ -149,6 +150,10 @@ const sendAndReceiveSlice = createSlice({
       state.averageTxFees = action.payload;
     },
 
+    setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
+      state.sendMaxFee = action.payload;
+    },
+
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
       const transactionFeeInfo: TransactionFeeInfo = state.transactionFeeInfo;
       let txPrerequisites: TransactionPrerequisite;
@@ -218,6 +223,7 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhasesReset: (state) => {
+      state.sendMaxFee = 0;
       state.sendPhaseOne = initialState.sendPhaseOne;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
@@ -228,6 +234,7 @@ const sendAndReceiveSlice = createSlice({
 export const {
   setExchangeRates,
   setAverageTxFee,
+  setSendMaxFee,
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
