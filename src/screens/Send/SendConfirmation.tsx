@@ -29,6 +29,7 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
+import Transactions from './Transactions';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -399,8 +400,48 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <SendingCard isSend />
-        <SendingCard isSend={false} />
+
+        <Box marginTop={hp(32)} marginBottom={hp(32)}>
+          <Transactions transactions={[1, 2, 3]} addTransaction={() => { }} />
+        </Box>
+
+        <Box
+          flexDirection={'row'}
+          justifyContent={'space-between'}
+        >
+          <Text
+            color={'light.lightBlack'}
+            fontSize={14}
+            fontWeight={200}
+            letterSpacing={0.24}
+            width={wp(48)}
+            noOfLines={2}
+          >
+            Total Amount
+          </Text>
+          <Text
+            color={'light.sendCardHeading'}
+            fontSize={24}
+            fontWeight={200}
+            letterSpacing={0.24}
+          >
+            0.024
+          </Text>
+        </Box>
+        <Box
+          alignItems={'center'}
+          style={{
+            marginTop: hp(30),
+            marginBottom: hp(10)
+          }}
+        >
+          <Box
+            borderBottomColor={'light.Border'}
+            borderBottomWidth={1}
+            width={wp(280)}
+            opacity={0.1}
+          />
+        </Box>
 
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
