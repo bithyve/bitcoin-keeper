@@ -307,18 +307,6 @@ export const clearSendMaxFee = () => {
   };
 };
 
-export interface SendMaxFeeCalculatedAction extends Action {
-  type: typeof SEND_MAX_FEE_CALCULATED;
-  payload: Satoshis;
-}
-
-export const sendMaxFeeCalculated = (payload: Satoshis): SendMaxFeeCalculatedAction => {
-  return {
-    type: SEND_MAX_FEE_CALCULATED,
-    payload,
-  };
-};
-
 export interface CalculateCustomFeeAction extends Action {
   type: typeof CALCULATE_CUSTOM_FEE;
   payload: {
