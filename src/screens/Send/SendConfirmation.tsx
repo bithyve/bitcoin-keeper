@@ -105,6 +105,7 @@ const SendConfirmation = ({ route }) => {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -112,6 +113,12 @@ const SendConfirmation = ({ route }) => {
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
   }, [serializedPSBTEnvelops]);
+
+  useEffect(() => {
+    if (walletSendSuccessful) {
+      navigation.dispatch(CommonActions.navigate('WalletDetails'));
+    }
+  }, [walletSendSuccessful]);
 
   const SendingCard = ({ isSend }) => {
     return (
