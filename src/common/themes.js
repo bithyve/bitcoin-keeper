@@ -72,6 +72,7 @@ export const customTheme = extendTheme({
       inheritanceTitle: '#055146',
       modalText: '#073B36',
       indicator: '#F86B50',
+      addTransactionText: '#252C23'
     },
     dark: {
       black: '#000000',
