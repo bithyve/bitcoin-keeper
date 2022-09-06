@@ -25,6 +25,7 @@ export const VaultSignerSchema: ObjectSchema = {
         derivationPath: 'string?',
       },
     },
+    lastHealthCheck: 'date',
   },
 };
 
@@ -74,6 +75,8 @@ export const VaultSchema: ObjectSchema = {
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
+    VAC: 'string',
+    archived: 'bool',
   },
   primaryKey: 'id',
 };

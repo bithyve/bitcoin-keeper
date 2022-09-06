@@ -1,6 +1,4 @@
-import {
-  extendTheme
-} from 'native-base';
+import { extendTheme } from 'native-base';
 import Fonts from './Fonts';
 export const customTheme = extendTheme({
   fontConfig: {
@@ -34,6 +32,7 @@ export const customTheme = extendTheme({
       lightBlack: '#041513',
       lightBlack2: '#5F6965',
       brown: '#D8A572',
+      brownborder: '#725436',
       textBlack: '#092C27',
       greenText: '#073E39',
       greenText2: '#017963',
@@ -42,6 +41,7 @@ export const customTheme = extendTheme({
       textLight: '#FAFCFC',
       textDark: '#30292F',
       yellow1: '#FAC48B',
+      yellow2: '#E3BE96',
       QrCode: '#E8E0D9',
       recieverAddress: '#6C6C6C',
       textInputBackground: '#FCF6EF',
@@ -70,7 +70,8 @@ export const customTheme = extendTheme({
       transactionPolicyCard: '#FAD8B4',
       inheritanceBullet: '#E3E3E3',
       inheritanceTitle: '#055146',
-      modalText: '#073B36'
+      modalText: '#073B36',
+      indicator: '#F86B50',
     },
     dark: {
       black: '#000000',

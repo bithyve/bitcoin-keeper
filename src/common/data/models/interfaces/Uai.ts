@@ -9,6 +9,7 @@ export interface UAI {
   timeStamp: Date;
   uaiType: uaiType;
   prirority: number;
+  entityId?: string;
 }
 
 export enum uaiType {
@@ -19,4 +20,5 @@ export enum uaiType {
   VAULT_TRANSFER = 'VAULT_TRANSFER',
   SECURE_VAULT = 'SECURE_VAULT',
   RELEASE = 'RELEASE',
+  SIGNING_DEVICES_HEALTH_CHECK = 'SIGNING_DEVICES_HEALTH_CHECK',
 }

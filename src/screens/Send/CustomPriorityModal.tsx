@@ -28,6 +28,10 @@ const CustomPriorityModal = (props) => {
     return console.log('onPressHandler');
   };
 
+  const onDeletePressed = (text) => {
+    return console.log('onDeletePressed');
+  };
+
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
   return (
     <Box flex={1}>
@@ -122,7 +126,8 @@ const CustomPriorityModal = (props) => {
             </Box>
             <KeyPadView
               onPressNumber={onPressHandler}
-              keyColor={'#073E39'}
+              onDeletePressed={onDeletePressed}
+              keyColor={'light.lightBlack'}
               ClearIcon={<DeleteIcon />}
             />
           </Box>

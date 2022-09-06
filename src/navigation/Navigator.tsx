@@ -1,10 +1,13 @@
+import * as Sentry from '@sentry/react-native';
+
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import React, { useRef } from 'react';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
+import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
-import TorSettings from 'src/screens/AppSettings/TorSettings';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
@@ -13,33 +16,35 @@ import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScre
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import HardwareWalletSetup from 'src/screens/HardwareWalletSetUp/HardwareWalletSetup';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
-import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
+import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
-import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
-import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
-import React from 'react';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
+import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
-import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
+import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
+import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
+import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
+import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
+import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
+import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
+import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
-import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
+import { routingInstrumentation } from 'src/core/services/sentry';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -79,9 +84,10 @@ const AppStack = () => {
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHome" component={HomeScreen} />
-        <Stack.Screen name="HardwareWallet" component={HardwareWalletSetup} />
+        <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
+        <Stack.Screen name="AddLedger" component={SetupLedger} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
@@ -98,7 +104,6 @@ const AppStack = () => {
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
-        {/* <Stack.Screen name="HardwareSetup" component={HardwareWalletSetup} /> */}
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
@@ -108,14 +113,21 @@ const AppStack = () => {
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
+        <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
       </Stack.Navigator>
     </RealmProvider>
   );
 };
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
+  const navigation = useRef();
+
+  // Register the navigation container with the instrumentation
+  const onReady = () => {
+    routingInstrumentation.registerNavigationContainer(navigation);
+  };
   return (
-    <NavigationContainer theme={defaultTheme}>
+    <NavigationContainer theme={defaultTheme} ref={navigation} onReady={onReady}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />

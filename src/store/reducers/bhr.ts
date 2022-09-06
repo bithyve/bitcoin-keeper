@@ -20,6 +20,7 @@ const initialState: {
   downloadingBackup: boolean;
   recoverBackupFailed: boolean;
   invalidPassword: boolean;
+  backupWarning: boolean
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -37,6 +38,7 @@ const initialState: {
   downloadingBackup: false,
   recoverBackupFailed: false,
   invalidPassword: false,
+  backupWarning: false
 };
 
 const bhrSlice = createSlice({
@@ -98,6 +100,9 @@ const bhrSlice = createSlice({
     setInvalidPassword: (state, action: PayloadAction<boolean>) => {
       state.invalidPassword = action.payload;
     },
+    setBackupWarning: (state, action: PayloadAction<boolean>) => {
+      state.backupWarning = action.payload;
+    },
   },
 });
 
@@ -117,6 +122,7 @@ export const {
   setRecoverBackupFailed,
   setCloudData,
   setInvalidPassword,
+  setBackupWarning
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -137,6 +143,7 @@ const bhrPersistConfig = {
     'cloudData',
     'recoverBackupFailed',
     'invalidPassword',
+    'backupWarning'
   ],
 };
 

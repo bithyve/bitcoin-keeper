@@ -39,6 +39,10 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to uses BLE communicate with Sensor Tag</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to uses BLE communicate with Sensor Tag</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -56,6 +60,7 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>bluetooth-central</string>
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>

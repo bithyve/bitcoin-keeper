@@ -48,6 +48,7 @@ export interface VaultSigner {
     derivationPath?: string;
     xfp?: string;
   };
+  lastHealthCheck: Date;
 }
 
 export interface Vault {
@@ -62,6 +63,8 @@ export interface Vault {
   signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
+  archived: boolean;
+  VAC: string;
 }
 
 export interface InheritancePolicy {

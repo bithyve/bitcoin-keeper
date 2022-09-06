@@ -168,7 +168,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
             If you previously had a Keeper wallet you can recover it
           </Text>
-          <Tile
+          {/* <Tile
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
             Icon={<Recover />}
@@ -176,7 +176,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               dispatch(getCloudData());
               setCloudModal(true);
             }}
-          />
+          /> */}
           <Tile
             title={'Recover for myself'}
             subTitle={'Using Seed'}

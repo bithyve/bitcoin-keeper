@@ -55,8 +55,8 @@ const CurrencyTypeSwitch = () => {
           alignItems={'center'}
         >
           <Box
-            height={8}
-            width={8}
+            height={7}
+            width={7}
             borderRadius={!prefersBitcoin ? 16 : 0}
             backgroundColor={!prefersBitcoin ? '#fcfcfc' : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
@@ -72,8 +72,8 @@ const CurrencyTypeSwitch = () => {
             />
           </Box>
           <Box
-            height={8}
-            width={8}
+            height={7}
+            width={7}
             borderRadius={prefersBitcoin ? 16 : 0}
             backgroundColor={prefersBitcoin ? '#fcfcfc' : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}

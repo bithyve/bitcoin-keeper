@@ -1,18 +1,23 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
+import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
+import CustomPriorityModal from './CustomPriorityModal';
 import Header from 'src/components/Header';
+import { LocalizationContext } from 'src/common/content/LocContext';
 import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -24,11 +29,6 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
-import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
-import CustomPriorityModal from './CustomPriorityModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -38,7 +38,9 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
-  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const availableTransactionPriorities = useAvailableTransactionPriorities();
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
@@ -100,16 +102,16 @@ const SendConfirmation = ({ route }) => {
     }
   };
 
-  const serializedPSBTEnvelop = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelop
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (serializedPSBTEnvelop) {
+    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
-  }, [serializedPSBTEnvelop]);
+  }, [serializedPSBTEnvelops]);
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -418,7 +420,7 @@ const SendConfirmation = ({ route }) => {
           secondaryCallback={() => {
             console.log('Cancel');
           }}
-          // primaryCallback={onProceed}
+          primaryCallback={onProceed}
         />
       </Box>
 

@@ -2,7 +2,7 @@ import { Image, Link, Modal, Text, View, Box } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
-import React from 'react';
+import React, { useState } from 'react';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Close from 'src/assets/icons/modal_close.svg';
@@ -21,11 +21,14 @@ const SuccessModal = (props) => {
     textColor = '#4F5955',
     cancelButtonText = 'Cancel',
     cancelButtonColor = '#073E39',
+    cancelButtonPressed,
+    buttonPressed,
     Content = () => <></>,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
+
   return (
     <Modal
       isOpen={visible}
@@ -73,7 +76,7 @@ const SuccessModal = (props) => {
             bg={'transparent'}
             flexDirection={'row'}
           >
-            <TouchableOpacity onPress={buttonCallback}>
+            <TouchableOpacity onPress={cancelButtonPressed}>
               <Text
                 fontSize={13}
                 fontFamily={'body'}
@@ -85,7 +88,7 @@ const SuccessModal = (props) => {
                 {cancelButtonText}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={buttonCallback}>
+            <TouchableOpacity onPress={buttonPressed}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}

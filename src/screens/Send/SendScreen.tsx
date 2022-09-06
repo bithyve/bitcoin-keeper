@@ -180,7 +180,7 @@ const SendScreen = ({ route }) => {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: 8,
+    padding: '20@s',
     backgroundColor: 'light.ReceiveBackground',
   },
   linearGradient: {

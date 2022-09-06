@@ -19,17 +19,17 @@ import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
 
 import { InheritancePolicySchema } from './inheritancePolicy';
-import { KeeperAppSchema } from './app';
+import { KeeperAppSchema, StoreSubscriptionSchema } from './app';
 import { NodeConnectSchema } from './nodeConnect';
 import { TriggerPolicySchema } from './triggerPolicy';
 import { TwoFADetailsSchema } from './twoFADetails';
 import { UAISchema } from './uai';
-import { UserTierSchema } from './userTier';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 
 export default [
   KeeperAppSchema,
+  StoreSubscriptionSchema,
   WalletSchema,
   WalletDerivationDetailsSchema,
   WalletPresentationDataSchema,
@@ -50,7 +50,6 @@ export default [
   InheritancePolicySchema,
   TwoFADetailsSchema,
   NodeConnectSchema,
-  UserTierSchema,
   UAISchema,
   VaultSignerSchema,
   VersionHistorySchema,

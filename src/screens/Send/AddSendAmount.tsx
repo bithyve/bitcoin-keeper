@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Box, Input, Text } from 'native-base';
+import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { ScaledSheet } from 'react-native-size-matters';
-import { RFValue } from 'react-native-responsive-fontsize';
+import React, { useState } from 'react';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
-import Buttons from 'src/components/Buttons';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import AppNumPad from 'src/components/AppNumPad';
-import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
+import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
+import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
+import Header from 'src/components/Header';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { useDispatch } from 'react-redux';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -48,7 +48,7 @@ const AddSendAmount = ({ route }) => {
   };
 
   return (
-    <Box flex={1} padding={2} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
@@ -95,41 +95,63 @@ const AddSendAmount = ({ route }) => {
         <DollarInput />
       </Box>
 
-      <Box marginX={8}>
+      <Box marginX={3}>
         <Box
           flexDirection={'row'}
           width={'100%'}
-          justifyContent={'center'}
+          justifyContent={'space-between'}
           alignItems={'center'}
           borderRadius={10}
           backgroundColor={'light.lightYellow'}
           marginY={2}
           padding={3}
         >
-          <Box marginLeft={10} marginRight={2}>
-            <DollarInput />
+          <Box flexDirection={'row'} alignItems={'center'}>
+            <Box marginRight={2}>
+              <DollarInput />
+            </Box>
+            <Box
+              marginLeft={2}
+              width={0.5}
+              backgroundColor={'light.borderSaperator'}
+              opacity={0.3}
+              height={7}
+            />
+            <Input
+              placeholder="Enter Amount"
+              placeholderTextColor={'light.greenText'}
+              color={'light.greenText'}
+              opacity={0.5}
+              width={'70%'}
+              fontSize={RFValue(12)}
+              letterSpacing={1.04}
+              fontWeight={300}
+              borderWidth={'0'}
+              value={amount}
+              onChangeText={(value) => setAmount(value)}
+              onFocus={() => Keyboard.dismiss()}
+            />
           </Box>
-          <Box
-            marginLeft={2}
-            width={0.5}
-            backgroundColor={'light.borderSaperator'}
-            opacity={0.3}
-            height={7}
-          />
-          <Input
-            placeholder="Enter Amount"
-            placeholderTextColor={'light.greenText'}
-            color={'light.greenText'}
-            opacity={0.5}
-            fontSize={RFValue(12)}
-            letterSpacing={1.04}
-            fontWeight={300}
-            borderWidth={'0'}
-            value={amount}
-            onChangeText={(value) => setAmount(value)}
-            onFocus={() => Keyboard.dismiss()}
-          />
+          <Pressable
+            backgroundColor={'light.yellow1'}
+            onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
+            style={{
+              paddingHorizontal: 10,
+              paddingVertical: 3,
+              borderRadius: 5,
+            }}
+          >
+            <Text
+              color={'light.textDark'}
+              fontSize={RFValue(11)}
+              letterSpacing={0.6}
+              fontWeight={200}
+            >
+              Send Max
+            </Text>
+          </Pressable>
         </Box>
+
         <Box
           flexDirection={'row'}
           marginY={2}
@@ -139,15 +161,26 @@ const AddSendAmount = ({ route }) => {
         >
           <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
-        <Box marginTop={3} marginBottom={5}>
-          <Buttons
-            secondaryText={'Cancel'}
-            secondaryCallback={() => {
-              console.log('Cancel');
-            }}
-            primaryText={'Send'}
-            primaryCallback={executeSendPhaseOne}
-          />
+        <Box marginTop={3} marginBottom={5} flexDirection={'row'} justifyContent={'flex-end'}>
+          <Box ml={windowWidth * -0.1}>
+            <Buttons
+              secondaryText={'Add Recipient'}
+              secondaryCallback={() => {
+                // navigation.navigate('SendConfirmation');
+                console.log('Batch Send');
+              }}
+            />
+          </Box>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              secondaryText={'Cancel'}
+              secondaryCallback={() => {
+                console.log('Cancel');
+              }}
+              primaryText={'Send'}
+              primaryCallback={executeSendPhaseOne}
+            />
+          </Box>
         </Box>
       </Box>
       <AppNumPad
@@ -157,12 +190,16 @@ const AddSendAmount = ({ route }) => {
         }}
         clear={() => setAmount('')}
         color={'#073E39'}
-        height={windowHeight >= 850 ? 80 : 55}
+        height={windowHeight >= 850 ? 80 : 60}
       />
     </Box>
   );
 };
 const styles = ScaledSheet.create({
+  Container: {
+    flex: 1,
+    padding: '20@s',
+  },
   textInput: {
     width: '100%',
     backgroundColor: Colors?.textInputBackground,

@@ -1,13 +1,10 @@
 import { NodeConnect, TwoFADetails } from 'src/core/wallets/interfaces';
-import { AppTierLevel } from '../../enums/AppTierLevel';
 import { BackupType } from '../../enums/BHR';
-
-export interface UserTier {
-  level: AppTierLevel;
-}
+import SubScription from './Subscription';
 
 export interface KeeperApp {
   id: string;
+  appID: string;
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;
@@ -23,10 +20,10 @@ export interface KeeperApp {
   twoFADetails?: TwoFADetails;
   nodeConnect?: NodeConnect;
   uai?: any;
-  userTier: UserTier;
   version: string;
   agsp?: string;
   backupMethod?: BackupType;
   backupPasswordHint?: string;
   backupPassword?: string;
+  subscription: SubScription;
 }
