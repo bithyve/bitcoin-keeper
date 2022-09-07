@@ -23,8 +23,8 @@ export interface WalletPresentationData {
 }
 
 export interface WalletSpecs {
-  xpub: string | null; // wallet's xpub (primary for multi-sig wallets)
-  xpriv?: string | null; // wallet's xpriv (primary for multi-sig wallets)
+  xpub: string | null; // wallet's xpub
+  xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   activeAddresses: ActiveAddresses; // addresses being actively used by this wallet

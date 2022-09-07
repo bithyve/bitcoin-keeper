@@ -75,6 +75,10 @@ class Configuration {
       series: 50,
       upperBound: 1,
     },
+    [WalletType.MOBILE_KEY]: {
+      series: 70,
+      upperBound: 10,
+    },
   };
 
   public REQUEST_TIMEOUT: number = 15000;
