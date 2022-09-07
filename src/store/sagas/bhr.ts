@@ -53,7 +53,12 @@ import Relay from 'src/core/services/operations/Relay';
 import dbManager from 'src/storage/realm/dbManager';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { uaiActionedEntity } from '../sagaActions/uai';
-import { generateVAC } from 'src/core/wallets/factories/VaultFactory';
+import {
+  decryptVAC,
+  encryptVAC,
+  generateIDForVAC,
+  generateVAC,
+} from 'src/core/wallets/factories/VaultFactory';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -87,12 +92,27 @@ function* updateAppImageWorker({ payload }) {
   }
 }
 
-// function combinationUtil(arr, n, r, index, data, i) {
-//   if (i >= n) return data;
-//   data[index] = arr[i];
-//   combinationUtil(arr, n, r, index + 1, data, i + 1);
-//   combinationUtil(arr, n, r, index, data, i + 1);
-// }
+const getPermutations = (a, n, s = [], t = []) => {
+  return a.reduce((p, c, i, a) => {
+    n > 1
+      ? getPermutations(a.slice(0, i).concat(a.slice(i + 1)), n - 1, p, (t.push(c), t))
+      : p.push((t.push(c), t).slice(0));
+    t.pop();
+    return p;
+  }, s);
+};
+
+const createVACMap = (signerIds, m, vac) => {
+  let vacMap: any = {};
+  const allPermutations = getPermutations(signerIds, m);
+  console.log('all Permuation', allPermutations[0]);
+  for (let index in allPermutations) {
+    const key = allPermutations[index].sort().toString();
+    const hashKey = generateIDForVAC(key);
+    vacMap[hashKey] = vac;
+  }
+  return vacMap;
+};
 
 function* updateVaultImageWorker({ payload }) {
   const { primarySeed, id, vaultShellInstances, primaryMnemonic }: KeeperApp = yield call(
@@ -101,25 +121,33 @@ function* updateVaultImageWorker({ payload }) {
   );
   const vault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, false);
   const m = vault.scheme.m;
-  let signersId = [];
-  let xpubs = [];
+  var signersIds = [];
+  var xpubs = [];
   for (let signer of vault.signers) {
     xpubs.push(signer.xpub);
-    signersId.push(signer.signerId);
+    signersIds.push(signer.signerId);
   }
   const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
   const encryptionKey = generateEncryptionKey(primarySeed);
   const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
   const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
+
+  // const encryptyVAC = encryptVAC(vault.VAC, xpubs);
+  // const decryptedVAC = decryptVAC(encryptyVAC, xpubs);
+  // const allPermuartions = getPermutations(signersIds, m);
+  // console.log(JSON.stringify(allcombination));
+  const vacMap = createVACMap(signersIds, m, vault.VAC);
+
   try {
     Relay.updateVaultImage({
       appId: id,
       vaultId: vault.id,
       m,
       vacEncryptedApp,
-      signersId,
+      signersId: signersIds,
       vaultEncryptedVAC,
       vaultShellInstances: vaultShellInstancesString,
+      vacMap,
     });
   } catch (err) {
     console.error('update failed', err);
