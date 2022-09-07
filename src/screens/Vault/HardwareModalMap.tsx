@@ -15,10 +15,10 @@ const TapsignerSetupContent = () => {
     <View>
       <TapsignerSetupImage />
       <Box marginTop={'4'}>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
+        <Text color={'light.modalText'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
           {`\u2022 You will need the Pin/CVC at the back of TAPSIGNER`}
         </Text>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
+        <Text color={'light.modalText'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
           {'\u2022 Make sure that TAPSIGNER is not used as a Signer on other apps'}
         </Text>
       </Box>
