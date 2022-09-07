@@ -88,7 +88,7 @@ export default class WalletUtilities {
     entity: EntityKind,
     type: NetworkType,
     accountNumber: number = 0,
-    purpose: DerivationPurpose = DerivationPurpose.BIP49,
+    purpose: DerivationPurpose = DerivationPurpose.BIP84,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
   ): string => {
     const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
@@ -104,10 +104,10 @@ export default class WalletUtilities {
   static deriveAddressFromKeyPair = (
     keyPair: bip32.BIP32Interface | ECPairInterface,
     network: bitcoinJS.Network,
-    purpose: DerivationPurpose = DerivationPurpose.BIP49
+    purpose: DerivationPurpose = DerivationPurpose.BIP84
   ): string => {
-    if (purpose === DerivationPurpose.BIP44) {
-      return bitcoinJS.payments.p2pkh({
+    if (purpose === DerivationPurpose.BIP84) {
+      return bitcoinJS.payments.p2wpkh({
         pubkey: keyPair.publicKey,
         network,
       }).address;
@@ -119,8 +119,8 @@ export default class WalletUtilities {
         }),
         network,
       }).address;
-    } else if (purpose === DerivationPurpose.BIP84) {
-      return bitcoinJS.payments.p2wpkh({
+    } else if (purpose === DerivationPurpose.BIP44) {
+      return bitcoinJS.payments.p2pkh({
         pubkey: keyPair.publicKey,
         network,
       }).address;
@@ -297,11 +297,9 @@ export default class WalletUtilities {
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const purpose =
-      wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
+      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network) === address)
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
@@ -309,7 +307,7 @@ export default class WalletUtilities {
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
+      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network) === address)
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
@@ -599,7 +597,7 @@ export default class WalletUtilities {
         true
       );
     }
-    const purpose = DerivationPurpose.BIP49;
+
     for (let output of outputs) {
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
@@ -610,8 +608,7 @@ export default class WalletUtilities {
             (wallet as Wallet).specs.xpub,
             true,
             nextFreeChangeAddressIndex,
-            network,
-            purpose
+            network
           );
           return { outputs, changeAddress };
         }

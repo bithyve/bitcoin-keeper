@@ -1,5 +1,5 @@
 import { BackHandler, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, Text } from 'native-base';
+import { Box, Pressable, Text, VStack } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
 import {
   getTransactionPadding,
@@ -22,7 +22,6 @@ import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import { Shadow } from 'react-native-shadow-2';
 // import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -33,6 +32,7 @@ import Recieve from 'src/assets/images/svgs/receive.svg';
 // icons and images
 // import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
 import Send from 'src/assets/images/svgs/send.svg';
+import { Shadow } from 'react-native-shadow-2';
 // import Setting from 'src/assets/images/svgs/settings_small.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -73,6 +73,7 @@ const WalletDetails = () => {
     const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
+    const confirmedBalance = balances?.confirmed;
 
     return (
       <Shadow
@@ -82,7 +83,6 @@ const WalletDetails = () => {
         viewStyle={{
           height: hp(140),
         }}
-
       >
         <LinearGradient
           colors={['#00836A', '#073E39']}
@@ -93,7 +93,7 @@ const WalletDetails = () => {
             width: wp(320),
             height: hp(130),
             position: 'relative',
-            marginLeft: 0
+            marginLeft: 0,
           }}
         >
           {!(item?.presentationData && item?.specs) ? (
@@ -169,15 +169,24 @@ const WalletDetails = () => {
                     {walletDescription}
                   </Text>
                 </Box>
-                <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
-                  {walletBalance}
-                </Text>
+                <VStack alignItems={'center'}>
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={1.2}
+                    fontSize={hp(24)}
+                    fontWeight={200}
+                  >
+                    {walletBalance}
+                  </Text>
+                  <Text color={'light.white'} fontSize={hp(11)} fontWeight={200}>
+                    {confirmedBalance + ' confirmed'}
+                  </Text>
+                </VStack>
               </Box>
             </>
           )}
         </LinearGradient>
       </Shadow>
-
     );
   };
 
@@ -348,10 +357,7 @@ const WalletDetails = () => {
         </Box>
       </Box>
 
-      <Box
-        marginTop={18}
-        alignItems={'center'}
-      >
+      <Box marginTop={18} alignItems={'center'}>
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}

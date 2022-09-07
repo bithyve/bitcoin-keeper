@@ -4,6 +4,7 @@ import SubScription from './Subscription';
 
 export interface KeeperApp {
   id: string;
+  appID: string;
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;

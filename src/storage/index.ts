@@ -1,6 +1,6 @@
 //https://github.com/mrousavy/react-native-mmkv#documentation
-import {MMKV} from 'react-native-mmkv';
-import {Storage as ReduxPersisStorate} from 'redux-persist';
+import { MMKV } from 'react-native-mmkv';
+import { Storage as ReduxPersisStorate } from 'redux-persist';
 
 export const Storage = new MMKV();
 

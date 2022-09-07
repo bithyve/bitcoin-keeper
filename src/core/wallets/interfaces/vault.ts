@@ -63,6 +63,8 @@ export interface Vault {
   signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
+  archived: boolean;
+  VAC: string;
 }
 
 export interface InheritancePolicy {

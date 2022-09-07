@@ -38,7 +38,9 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
-  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const availableTransactionPriorities = useAvailableTransactionPriorities();
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
@@ -103,6 +105,7 @@ const SendConfirmation = ({ route }) => {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -110,6 +113,12 @@ const SendConfirmation = ({ route }) => {
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
   }, [serializedPSBTEnvelops]);
+
+  useEffect(() => {
+    if (walletSendSuccessful) {
+      navigation.dispatch(CommonActions.navigate('WalletDetails'));
+    }
+  }, [walletSendSuccessful]);
 
   const SendingCard = ({ isSend }) => {
     return (
