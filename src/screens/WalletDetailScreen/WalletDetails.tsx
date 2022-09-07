@@ -287,7 +287,13 @@ const WalletDetails = () => {
     >
       <StatusBarComponent padding={50} />
 
-      <Pressable zIndex={999} onPress={() => navigation.goBack()} width={4}>
+      <Pressable
+        zIndex={999}
+        onPress={() => navigation.goBack()}
+        width={5}
+        padding={2}
+        alignItems={'center'}
+      >
         <BackIcon />
       </Pressable>
 
