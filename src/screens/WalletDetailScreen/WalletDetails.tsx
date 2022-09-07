@@ -281,7 +281,9 @@ const WalletDetails = () => {
       <Pressable
         zIndex={999}
         onPress={() => navigation.goBack()}
-        width={4}
+        width={5}
+        padding={2}
+        alignItems={'center'}
       >
         <BackIcon />
       </Pressable>
