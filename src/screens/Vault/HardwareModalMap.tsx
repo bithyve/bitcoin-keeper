@@ -150,7 +150,7 @@ const otpContent = () => {
         </Text>
         <Box mt={10} alignSelf={'flex-end'} mr={2}>
           <Box>
-            <CustomGreenButton onPress={() => {}} value={'proceed'} />
+            <CustomGreenButton onPress={() => { }} value={'proceed'} />
           </Box>
         </Box>
       </Box>
@@ -276,6 +276,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
             passcodeFlag={false}
             backgroundColor={true}
             textColor={true}
+            length={4}
           />
           <Text
             fontSize={13}
@@ -382,7 +383,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       />
       <KeeperModal
         visible={false}
-        close={() => {}}
+        close={() => { }}
         title={'Confirm OTP to setup 2FA'}
         subTitle={'Lorem ipsum dolor sit amet, '}
         modalBackground={['#F7F2EC', '#F7F2EC']}

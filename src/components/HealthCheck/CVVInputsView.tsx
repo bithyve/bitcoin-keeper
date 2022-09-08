@@ -13,8 +13,9 @@ export interface Props {
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
   textColor?: boolean;
+  length?: number
 }
-const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: Props) => {
+const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, length = 6 }: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           height={wp('9%')}
           width={wp('9%')}
           borderRadius={7}
-          ml={3}
+          ml={4}
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
@@ -68,7 +69,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           height={wp('9%')}
           width={wp('9%')}
           borderRadius={7}
-          ml={3}
+          ml={4}
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
@@ -102,7 +103,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           height={wp('9%')}
           width={wp('9%')}
           borderRadius={7}
-          ml={3}
+          ml={4}
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
@@ -136,7 +137,7 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           height={wp('9%')}
           width={wp('9%')}
           borderRadius={7}
-          ml={3}
+          ml={4}
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
@@ -166,74 +167,78 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
             )}
           </Box>
         </Box>
-        <Box
-          height={wp('9%')}
-          width={wp('9%')}
-          borderRadius={7}
-          ml={3}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-        >
-          <Box>
-            {passCode.length == 5 && !hide ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[4]}
-              </Text>
-            ) : passCode.length >= 5 && hide ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 4 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
-          </Box>
-        </Box>
-        <Box
-          height={wp('9%')}
-          width={wp('9%')}
-          borderRadius={7}
-          ml={3}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-        >
-          <Box>
-            {passCode.length == 6 && !hide ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[5]}
-              </Text>
-            ) : passCode.length >= 6 && hide ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 5 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
-          </Box>
-        </Box>
+        {length === 6 &&
+          <>
+            <Box
+              height={wp('9%')}
+              width={wp('9%')}
+              borderRadius={7}
+              ml={4}
+              alignItems={'center'}
+              justifyContent={'center'}
+              backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+            >
+              <Box>
+                {passCode.length == 5 && !hide ? (
+                  <Text
+                    color={textColor ? 'light.textBlack' : 'light.white'}
+                    fontWeight={'300'}
+                    fontSize={RFValue(20)}
+                    fontFamily={'body'}
+                  >
+                    {passCode[4]}
+                  </Text>
+                ) : passCode.length >= 5 && hide ? (
+                  <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+                ) : passCode.length == 4 ? (
+                  <Text
+                    color={textColor ? 'light.textBlack' : 'light.white'}
+                    fontWeight={'300'}
+                    fontSize={RFValue(13)}
+                  >
+                    {'|'}
+                  </Text>
+                ) : (
+                  ''
+                )}
+              </Box>
+            </Box>
+            <Box
+              height={wp('9%')}
+              width={wp('9%')}
+              borderRadius={7}
+              ml={4}
+              alignItems={'center'}
+              justifyContent={'center'}
+              backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+            >
+              <Box>
+                {passCode.length == 6 && !hide ? (
+                  <Text
+                    color={textColor ? 'light.textBlack' : 'light.white'}
+                    fontWeight={'300'}
+                    fontSize={RFValue(20)}
+                    fontFamily={'body'}
+                  >
+                    {passCode[5]}
+                  </Text>
+                ) : passCode.length >= 6 && hide ? (
+                  <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
+                ) : passCode.length == 5 ? (
+                  <Text
+                    color={textColor ? 'light.textBlack' : 'light.white'}
+                    fontWeight={'300'}
+                    fontSize={RFValue(13)}
+                  >
+                    {'|'}
+                  </Text>
+                ) : (
+                  ''
+                )}
+              </Box>
+            </Box>
+          </>
+        }
       </Box>
     </Box>
   );
