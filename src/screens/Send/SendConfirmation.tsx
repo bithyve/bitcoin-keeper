@@ -98,7 +98,6 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      open();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -122,11 +121,13 @@ const SendConfirmation = ({ route }) => {
 
   const viewDetails = () => {
     close();
-    navigation.dispatch(CommonActions.navigate('WalletDetails'));
+    navigation.navigate('WalletDetails');
   };
   useEffect(() => {
     if (walletSendSuccessful) {
-      navigation.dispatch(CommonActions.navigate('WalletDetails'));
+      open();
+    } else {
+      // sending failed & pending logic will go here
     }
   }, [walletSendSuccessful]);
 
