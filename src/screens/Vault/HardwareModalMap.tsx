@@ -3,6 +3,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { Alert } from 'react-native';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
@@ -61,6 +62,33 @@ const ColdCardSetupContent = () => {
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Box mb={hp(19)} mx={wp(10)}>
             <Text>{'\u2022 Step 2'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
+          </Text>
+        </Box>
+      </Box>
+    </View>
+  );
+};
+const LedgerSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <LedgerImage />
+      </Box>
+      <Box marginTop={'4'} flex={1} alignItems={'center'} justifyContent={'center'}>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mr={wp(19)}>
+            <Text>{'\u2022'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </Text>
+        </Box>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mr={wp(10)}>
+            <Text>{'\u2022'}</Text>
           </Box>
           <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
             Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
@@ -336,11 +364,11 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={ledger.SetupDescription}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Setup'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToLedgerSetup}
         textColor={'#041513'}
-        Content={ColdCardSetupContent}
+        Content={LedgerSetupContent}
       />
       <KeeperModal
         visible={visible && type === SignerType.POLICY_SERVER}
