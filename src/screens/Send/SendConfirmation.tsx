@@ -30,6 +30,7 @@ import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import Transactions from './Transactions';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -46,6 +47,9 @@ const SendConfirmation = ({ route }) => {
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
   );
+  const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
+  const walletTransactions = translations['wallet'];
 
   const [visible, setVisible] = useState(false);
   const close = () => setVisible(false);
@@ -66,7 +70,7 @@ const SendConfirmation = ({ route }) => {
         <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
         </Text>
-        <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        <Text color={'5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {
             'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
           }
@@ -94,6 +98,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
+      open();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -113,6 +118,11 @@ const SendConfirmation = ({ route }) => {
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
   }, [serializedPSBTEnvelops]);
+
+  const viewDetails = () => {
+    close();
+    navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+  };
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -400,15 +410,11 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-
         <Box marginTop={hp(32)} marginBottom={hp(32)}>
-          <Transactions transactions={[1, 2, 3]} addTransaction={() => { }} />
+          <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
         </Box>
 
-        <Box
-          flexDirection={'row'}
-          justifyContent={'space-between'}
-        >
+        <Box flexDirection={'row'} justifyContent={'space-between'}>
           <Text
             color={'light.lightBlack'}
             fontSize={14}
@@ -419,12 +425,7 @@ const SendConfirmation = ({ route }) => {
           >
             Total Amount
           </Text>
-          <Text
-            color={'light.sendCardHeading'}
-            fontSize={24}
-            fontWeight={200}
-            letterSpacing={0.24}
-          >
+          <Text color={'light.sendCardHeading'} fontSize={24} fontWeight={200} letterSpacing={0.24}>
             0.024
           </Text>
         </Box>
@@ -432,7 +433,7 @@ const SendConfirmation = ({ route }) => {
           alignItems={'center'}
           style={{
             marginTop: hp(30),
-            marginBottom: hp(10)
+            marginBottom: hp(10),
           }}
         >
           <Box
@@ -466,17 +467,19 @@ const SendConfirmation = ({ route }) => {
       </Box>
 
       {/* Success modal for 'Vault - Send Success modal' */}
-      {/* <SuccessModal
+      <SuccessModal
         visible={visible}
         close={close}
-        title={wallet.SendSuccess}
+        title={walletTransactions.SendSuccess}
         subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
-        buttonText={wallet.ViewDetails}
+        buttonText={walletTransactions.ViewDetails}
+        textColor={'#073B36'}
         buttonTextColor={'#FAFAFA'}
         cancelButtonText={common.cancel}
         cancelButtonColor={'#073E39'}
         Content={SendSuccessfulContent}
-      /> */}
+        buttonPressed={viewDetails}
+      />
     </Box>
   );
 };
