@@ -157,8 +157,18 @@ const SetupTapsigner = () => {
               onChangeText={setCvc}
               secureTextEntry={true}
               showSoftInputOnFocus={false}
+
             />
-            <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+            <Text
+              padding={5}
+              fontWeight={200}
+              width={wp(250)}
+              fontSize={13}
+              letterSpacing={0.65}
+              color={'light.modalText'}
+            >
+              Lorem ipsum dolor sit amet, consectetur eiusmod tempor
+            </Text>
             <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
@@ -218,7 +228,7 @@ const styles = StyleSheet.create({
   input: {
     paddingHorizontal: 20,
     margin: '5%',
-    width: '100%',
+    width: wp(305),
     height: 50,
     borderRadius: 10,
     backgroundColor: '#f0e7dd',
