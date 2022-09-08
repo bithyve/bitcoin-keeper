@@ -55,7 +55,7 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-
+import Chain from 'src/assets/icons/illustration_homescreen.svg'
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -365,11 +365,13 @@ const VaultStatus = (props) => {
           </Box>
           {!signers.length ? (
             <Box marginTop={hp(31.5)}>
-              <Image
+              {/* <Image
                 source={require('src/assets/images/illustration.png')}
                 style={{ width: wp(123.95), height: hp(122.3) }}
                 resizeMode="contain"
-              />
+              /> */}
+
+              <Chain />
             </Box>
           ) : null}
           {signers.length ? (
