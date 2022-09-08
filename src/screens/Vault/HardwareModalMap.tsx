@@ -1,39 +1,36 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
-import { Alert } from 'react-native';
-import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import { StyleSheet } from 'react-native';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
+import { APP_STAGE } from 'src/core/config';
+import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { StyleSheet } from 'react-native';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { useDispatch } from 'react-redux';
-import { APP_STAGE } from 'src/core/config';
-import { useAppSelector } from 'src/store/hooks';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
+import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { hash512 } from 'src/core/services/operations/encryption';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
 
 const BulletPoint = ({ text }) => {
   return (
-    <Box
-      marginTop={'4'}
-      flexDirection={'row'}
-      alignItems={'center'}
-    >
+    <Box marginTop={'4'} flexDirection={'row'} alignItems={'center'}>
       <Box
         height={hp(5)}
         width={wp(5)}
@@ -52,8 +49,8 @@ const BulletPoint = ({ text }) => {
         {text}
       </Text>
     </Box>
-  )
-}
+  );
+};
 
 const TapsignerSetupContent = () => {
   return (
@@ -72,7 +69,7 @@ const ColdCardSetupContent = () => {
         <ColdCardSetupImage />
       </Box>
       <Box marginTop={'4'}>
-        <Box flex={1} flexDirection={'row'} >
+        <Box flex={1} flexDirection={'row'}>
           <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 1'}</Text>
           </Box>
@@ -83,12 +80,13 @@ const ColdCardSetupContent = () => {
             letterSpacing={0.65}
             style={{
               marginLeft: wp(10),
-              width: wp(210)
-            }}>
+              width: wp(210),
+            }}
+          >
             Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
           </Text>
         </Box>
-        <Box flex={1} flexDirection={'row'} marginTop={2} >
+        <Box flex={1} flexDirection={'row'} marginTop={2}>
           <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 2'}</Text>
           </Box>
@@ -99,32 +97,14 @@ const ColdCardSetupContent = () => {
             letterSpacing={0.65}
             style={{
               marginLeft: wp(10),
-              width: wp(200)
-            }}>
+              width: wp(200),
+            }}
+          >
             Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
           </Text>
         </Box>
       </Box>
     </View>
-  );
-};
-
-const BulletPoint = ({ description }: { description: string }) => {
-  return (
-    <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-      <Box width={2} height={2} borderRadius={10} backgroundColor={'light.modalText'} />
-      <Text
-        fontSize={13}
-        fontWeight={200}
-        letterSpacing={0.65}
-        width={wp(260)}
-        color={'light.modalText'}
-        marginY={2}
-        marginLeft={3}
-      >
-        {description}
-      </Text>
-    </Box>
   );
 };
 
@@ -189,14 +169,10 @@ const SettingSigningServer = () => {
     <Box>
       <AlertIllustration />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
     </Box>
   );
@@ -207,14 +183,10 @@ const SetUpMobileKey = () => {
     <Box>
       <AlertIllustration />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
     </Box>
   );
