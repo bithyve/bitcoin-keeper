@@ -420,6 +420,7 @@ const VaultStatus = (props) => {
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
         Content={VaultSetupContent}
+        DarkCloseIcon={true}
       />
     </Box>
   );
