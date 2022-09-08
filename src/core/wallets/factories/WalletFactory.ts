@@ -11,7 +11,6 @@ import {
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
-import { hash256 } from 'src/core/services/operations/encryption';
 
 export const generateWallet = async ({
   type,
