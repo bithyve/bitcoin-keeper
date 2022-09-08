@@ -5,6 +5,7 @@ import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const KeeperModal = (props) => {
   const {
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
   },
   cta: {
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: wp(20),
     borderRadius: 10,
   },
   close: {

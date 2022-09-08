@@ -27,18 +27,40 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { hash512 } from 'src/core/services/operations/encryption';
 
+const BulletPoint = ({ text }) => {
+  return (
+    <Box
+      marginTop={'4'}
+      flexDirection={'row'}
+      alignItems={'center'}
+    >
+      <Box
+        height={hp(5)}
+        width={wp(5)}
+        backgroundColor={'light.modalText'}
+        borderRadius={10}
+        marginRight={wp(5)}
+      />
+      <Text
+        color={'light.modalText'}
+        fontSize={13}
+        fontFamily={'body'}
+        fontWeight={'200'}
+        p={1}
+        letterSpacing={1.65}
+      >
+        {text}
+      </Text>
+    </Box>
+  )
+}
+
 const TapsignerSetupContent = () => {
   return (
     <View>
       <TapsignerSetupImage />
-      <Box marginTop={'4'}>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-          {`\u2022 You will need the Pin/CVC at the back of TAPSIGNER`}
-        </Text>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-          {'\u2022 Make sure that TAPSIGNER is not used as a Signer on other apps'}
-        </Text>
-      </Box>
+      <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
+      <BulletPoint text={`Make sure that TAPSIGNER is not used as a Signer on other apps`} />
     </View>
   );
 };
@@ -50,19 +72,35 @@ const ColdCardSetupContent = () => {
         <ColdCardSetupImage />
       </Box>
       <Box marginTop={'4'}>
-        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mx={wp(10)}>
+        <Box flex={1} flexDirection={'row'} >
+          <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 1'}</Text>
           </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+          <Text
+            color={'#073B36'}
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            style={{
+              marginLeft: wp(10),
+              width: wp(210)
+            }}>
             Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
           </Text>
         </Box>
-        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mx={wp(10)}>
+        <Box flex={1} flexDirection={'row'} marginTop={2} >
+          <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 2'}</Text>
           </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+          <Text
+            color={'#073B36'}
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            style={{
+              marginLeft: wp(10),
+              width: wp(200)
+            }}>
             Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
           </Text>
         </Box>
