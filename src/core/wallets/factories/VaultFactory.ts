@@ -144,29 +144,21 @@ export const generateKeyFromXpub = (
   return generateEncryptionKey(child);
 };
 
-export const encryptVAC = (
-  vac: string,
-  xpubs: string[],
-  network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
-) => {
+export const encryptVAC = (vac: string, xpubs: string[]) => {
   let encrytedVac = vac;
   xpubs = xpubs.sort();
   xpubs.forEach((xpub) => {
-    const key = generateKeyFromXpub(xpub, network);
+    const key = generateKeyFromXpub(xpub, config.NETWORK);
     encrytedVac = encrypt(key, encrytedVac);
   });
   return encrytedVac;
 };
 
-export const decryptVAC = (
-  encryptedVac: string,
-  xpubs: string[],
-  network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
-) => {
+export const decryptVAC = (encryptedVac: string, xpubs: string[]) => {
   let decryptedVAC = encryptedVac;
   xpubs = xpubs.sort().reverse();
   xpubs.forEach((xpub) => {
-    const key = generateKeyFromXpub(xpub, network);
+    const key = generateKeyFromXpub(xpub, config.NETWORK);
     decryptedVAC = decrypt(key, encryptedVac);
   });
   return decryptedVAC;
