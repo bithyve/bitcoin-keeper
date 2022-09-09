@@ -188,7 +188,9 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           <Tile
             title={'Inheritance Keeper Vault'}
             subTitle={'Using Signing Devices'}
-            onPress={() => console.log('using Signing Devices')}
+            onPress={() => {
+              navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+            }}
             Icon={<Inheritance />}
           />
         </Box>

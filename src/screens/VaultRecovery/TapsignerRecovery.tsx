@@ -1,0 +1,169 @@
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Box, Text } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
+import config, { APP_STAGE } from 'src/core/config';
+
+import Buttons from 'src/components/Buttons';
+import { CKTapCard } from 'cktap-protocol-react-native';
+import DeleteIcon from 'src/assets/images/delete.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { wp } from 'src/common/data/responsiveness/responsive';
+
+const TapSignerRecovery = () => {
+  const [cvc, setCvc] = React.useState('');
+  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const navigation = useNavigation();
+  const card = React.useRef(new CKTapCard()).current;
+
+  const withModal = (callback) => {
+    return Platform.select({
+      android: async () => {
+        setNfcVisible(true);
+        const resp = await card.nfcWrapper(callback);
+        setNfcVisible(false);
+        await card.endNfcSession();
+        return resp;
+      },
+      ios: async () => card.nfcWrapper(callback),
+    });
+  };
+
+  const onPressHandler = (digit) => {
+    let temp = cvc;
+    if (digit != 'x') {
+      temp += digit;
+      setCvc(temp);
+    }
+    if (cvc && digit == 'x') {
+      setCvc(cvc.slice(0, -1));
+    }
+  };
+
+  const onDeletePressed = () => {
+    setCvc(cvc.slice(0, cvc.length - 1));
+  };
+  const verifyTapsigner = React.useCallback(async () => {
+    try {
+      const tapsigner = await getTapsignerDetails();
+      console.log(tapsigner);
+    } catch (err) {
+      Alert.alert(err.toString());
+    }
+  }, [cvc]);
+
+  const getTapsignerDetails = async () => {
+    const signerDetails = await withModal(async () => {
+      const status = await card.first_look();
+      const isLegit = await card.certificate_check();
+      if (isLegit) {
+        if (status.path) {
+          const xpub = await card.get_xpub(cvc);
+          const xfp = await card.get_xfp(cvc);
+          return { xpub, status, xfp: xfp.toString('hex') };
+        } else {
+          await card.setup(cvc);
+          const newCard = await card.first_look();
+          const xpub = await card.get_xpub(cvc);
+          const xfp = await card.get_xfp(cvc);
+          return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
+        }
+      }
+    })();
+    return signerDetails;
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <TapGestureHandler>
+        <Box flex={1}>
+          <Box style={styles.header}>
+            <HeaderTitle
+              title="Recover using Tapsigner"
+              subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+              onPressHandler={() => navigation.goBack()}
+            />
+          </Box>
+          <ScrollView>
+            <TextInput
+              style={styles.input}
+              value={cvc}
+              onChangeText={setCvc}
+              secureTextEntry={true}
+              showSoftInputOnFocus={false}
+            />
+            <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+            <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
+              <Buttons primaryText="Proceed" primaryCallback={verifyTapsigner} />
+            </Box>
+          </ScrollView>
+          <KeyPadView
+            onPressNumber={onPressHandler}
+            keyColor={'#041513'}
+            ClearIcon={<DeleteIcon />}
+            onDeletePressed={onDeletePressed}
+          />
+          <NfcPrompt visible={nfcVisible} />
+        </Box>
+      </TapGestureHandler>
+    </SafeAreaView>
+  );
+};
+
+export default TapSignerRecovery;
+
+const styles = StyleSheet.create({
+  container: {
+    height: '100%',
+    backgroundColor: '#F7F2EC',
+    flex: 1,
+    padding: 10,
+  },
+  header: {
+    flex: 1,
+    padding: '5%',
+  },
+  stepContainer: {
+    flexDirection: 'row',
+    marginBottom: '4%',
+    marginHorizontal: '4%',
+  },
+  stepBodyContainer: {
+    width: '80%',
+  },
+  circle: {
+    margin: '5%',
+    marginTop: 0,
+    width: 25,
+    height: 25,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  doneCircle: {
+    backgroundColor: '#055146',
+  },
+  activeCircle: {
+    backgroundColor: '#FAC48B',
+  },
+  inactiveCircle: {
+    backgroundColor: '#E3E3E3',
+  },
+  input: {
+    paddingHorizontal: 20,
+    margin: '5%',
+    width: '100%',
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#f0e7dd',
+    letterSpacing: 5,
+  },
+  inputContainer: {
+    alignItems: 'flex-end',
+  },
+});
