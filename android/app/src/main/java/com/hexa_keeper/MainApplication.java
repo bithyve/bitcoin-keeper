@@ -11,6 +11,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.hexa_keeper.GoogleDrivePackage;
 import com.facebook.react.config.ReactFeatureFlags;
+import io.hexawallet.keeper.newarchitecture.MainApplicationReactNativeHost;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -40,12 +41,16 @@ public class MainApplication extends Application implements ReactApplication {
         }
       };
 
-  //private final ReactNativeHost mNewArchitectureNativeHost = new MainApplicationReactNativeHost(this);
+  private final ReactNativeHost mNewArchitectureNativeHost = new MainApplicationReactNativeHost(this);
 
   @Override
-  public ReactNativeHost getReactNativeHost() {
-    return mReactNativeHost;
-  }
+    public ReactNativeHost getReactNativeHost() {
+      if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+        return mNewArchitectureNativeHost;
+      } else {
+        return mReactNativeHost;
+      }
+    }
 
   @Override
   public void onCreate() {
