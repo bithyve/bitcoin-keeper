@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { useAppSelector } from 'src/store/hooks';
-import { addToUaiStack, updateUaiStack } from 'src/store/sagaActions/uai';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import { useDispatch } from 'react-redux';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { addToUaiStack, updateUaiStack } from 'src/store/sagaActions/uai';
+import { useContext, useEffect, useState } from 'react';
+
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
 
 export const useUaiStack = () => {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -15,7 +16,9 @@ export const useUaiStack = () => {
   const dispatch = useDispatch();
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
 
   //creation of default stack
   useEffect(() => {

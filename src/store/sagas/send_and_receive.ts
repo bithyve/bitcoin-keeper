@@ -17,9 +17,7 @@ import {
   UPDATE_PSBT_SIGNATURES,
   UpdatePSBTAction,
   customFeeCalculated,
-  customSendMaxUpdated,
   feeIntelMissing,
-  sendMaxFeeCalculated,
 } from '../sagaActions/send_and_receive';
 import { EntityKind, TxPriority, WalletType } from 'src/core/wallets/enums';
 import {
@@ -30,6 +28,7 @@ import {
   setAverageTxFee,
   setExchangeRates,
   updatePSBTEnvelops,
+  setSendMaxFee,
 } from '../reducers/send_and_receive';
 import { call, put, select } from 'redux-saga/effects';
 
@@ -313,7 +312,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     network
   );
 
-  yield put(sendMaxFeeCalculated(fee));
+  yield put(setSendMaxFee(fee));
 }
 
 export const calculateSendMaxFeeWatcher = createWatcher(

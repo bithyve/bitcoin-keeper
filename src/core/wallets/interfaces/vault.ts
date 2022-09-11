@@ -1,6 +1,7 @@
 import {
   ActiveAddresses,
   Balances,
+  BIP85Config,
   Transaction,
   TransactionToAddressMapping,
   UTXO,
@@ -48,6 +49,7 @@ export interface VaultSigner {
     derivationPath?: string;
     xfp?: string;
   };
+  bip85Config?: BIP85Config; // configuration for mobile keys
   lastHealthCheck: Date;
 }
 
@@ -63,6 +65,8 @@ export interface Vault {
   signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
+  archived: boolean;
+  VAC: string;
 }
 
 export interface InheritancePolicy {

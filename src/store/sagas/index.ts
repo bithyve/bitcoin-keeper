@@ -1,8 +1,11 @@
 import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
+  addSigningDeviceWatcher,
   autoWalletsSyncWatcher,
+  finaliseVaultMigrationWatcher,
   importNewWalletWatcher,
+  migrateVaultWatcher,
   refreshWalletsWatcher,
   syncWalletsWatcher,
   updateWalletSettingsWatcher,
@@ -34,6 +37,7 @@ import {
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
+  updateVaultImageWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -65,12 +69,17 @@ export const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
-    addNewVaultWatcher,
     autoWalletsSyncWatcher,
     importNewWalletWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
+
+    // vaults
+    addNewVaultWatcher,
+    addSigningDeviceWatcher,
+    migrateVaultWatcher,
+    finaliseVaultMigrationWatcher,
 
     // send and receive
     feeAndExchangeRatesWatcher,
@@ -90,6 +99,7 @@ export const rootSaga = function* () {
 
     //BHR
     updateAppImageWatcher,
+    updateVaultImageWatcher,
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,

@@ -491,7 +491,7 @@ PODS:
     - React-Core
   - RNGestureHandler (2.5.0):
     - React-Core
-  - RNIap (9.0.4):
+  - RNIap (9.0.1):
     - React-Core
   - RNKeychain (8.1.1):
     - React-Core
@@ -529,10 +529,16 @@ PODS:
   - RNScreens (3.15.0):
     - React-Core
     - React-RCTImage
+  - RNSentry (4.2.4):
+    - React-Core
+    - Sentry (= 7.23.0)
   - RNSVG (12.4.4):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
+  - Sentry (7.23.0):
+    - Sentry/Core (= 7.23.0)
+  - Sentry/Core (7.23.0)
   - SocketRocket (0.6.0)
   - TcpSockets (4.0.0):
     - CocoaAsyncSocket
@@ -628,6 +634,7 @@ DEPENDENCIES:
   - RNOS (from `../node_modules/react-native-os`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - TcpSockets (from `../node_modules/react-native-tcp`)
@@ -661,6 +668,7 @@ SPEC REPOS:
     - nanopb
     - OpenSSL-Universal
     - PromisesObjC
+    - Sentry
     - SocketRocket
     - YogaKit
 
@@ -785,6 +793,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -875,14 +885,16 @@ SPEC CHECKSUMS:
   RNFBMessaging: 3e2682ea5e15fe86da24d16d16019395a881f33c
   RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
-  RNIap: 77ec4fb16e0d6fa0617daf896a8d82bd36cc55b0
+  RNIap: 73f0114671e9a3879bde4b9b3914359e96ba1493
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: a64514b46a01375fdfae9349036b4dc7130333b5
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNReanimated: 5c8c17e26787fd8984cd5accdc70fef2ca70aafd
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
+  RNSentry: 7495ba091f09f12902d8cf916024efd99b058efe
   RNSVG: ecd661f380a07ba690c9c5929c475a44f432d674
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
+  Sentry: a0d4563fa4ddacba31fdcc35daaa8573d87224d6
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   TcpSockets: a8eb6b5867fe643e6cfed5db2e4de62f4d1e8fd0
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952

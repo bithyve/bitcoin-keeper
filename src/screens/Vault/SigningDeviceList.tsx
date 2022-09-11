@@ -1,12 +1,14 @@
 import { Box, Text } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
+import Alert from 'src/assets/images/alert_illustration.svg';
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import NFC from 'src/core/services/nfc';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
@@ -20,9 +22,20 @@ type HWProps = {
   last?: boolean;
 };
 
-const HardwareWalletSetup = ({ navigation }: { navigation }) => {
+const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
+  const [nfcAlert, setNfcAlert] = useState(false);
   const vault = translations['vault'];
+
+  useEffect(() => {
+    getNfcSupport();
+  }, []);
+
+  const getNfcSupport = async () => {
+    const isSupported = await NFC.isNFCSupported();
+    setNfcAlert(!isSupported);
+  };
+
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
     const onPress = () => {
@@ -79,9 +92,29 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
     );
   };
 
+  const nfcAlertConternt = () => {
+    return (
+      <Box>
+        <Box justifyContent={'center'} alignItems={'center'}>
+          <Alert />
+        </Box>
+        <Text
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          width={wp(260)}
+          color={'light.modalText'}
+          marginY={4}
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        </Text>
+      </Box>
+    );
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBarComponent />
+    <Box style={styles.container}>
+      <StatusBarComponent padding={50} />
       <Box marginX={10}>
         <HeaderTitle
           title={vault.SelectSigner}
@@ -123,20 +156,30 @@ const HardwareWalletSetup = ({ navigation }: { navigation }) => {
             Contact Us
           </Text>
         </Text>
+        <KeeperModal
+          visible={nfcAlert}
+          close={() => {
+            setNfcAlert(false);
+          }}
+          title={'NFC Not supported'}
+          subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText={'  CTA  '}
+          buttonTextColor={'#FAFAFA'}
+          textColor={'#041513'}
+          butt
+          Content={nfcAlertConternt}
+        />
       </Box>
-    </SafeAreaView>
+    </Box>
   );
 };
 
 const styles = ScaledSheet.create({
-  container: {},
-  dummy: {
-    height: 200,
-    width: '100%',
-    borderRadius: 20,
-    backgroundColor: '#092C27',
-    opacity: 0.15,
+  container: {
+    flex: 1,
   },
 });
 
-export default HardwareWalletSetup;
+export default SigningDeviceList;

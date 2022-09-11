@@ -71,10 +71,17 @@ export enum WalletType {
   READ_ONLY = 'READ_ONLY',
   SWAN = 'SWAN',
   LIGHTNING = 'LIGHTNING',
+  MOBILE_KEY = 'MOBILE_KEY',
 }
 
 export enum VaultType {
   DEFAULT = 'DEFAULT',
+}
+
+export enum VaultMigrationType {
+  UPGRADE = 'UPGRADE',
+  DOWNGRADE = 'DOWNGRADE',
+  CHANGE = 'CHANGE',
 }
 
 export enum SignerType {
