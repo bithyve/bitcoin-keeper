@@ -62,6 +62,7 @@ import {
 } from 'src/core/wallets/factories/VaultFactory';
 import { RootState } from '../store';
 import { setupKeeperApp, setupKeeperAppVaultReovery } from '../sagaActions/storage';
+import { captureError } from 'src/core/services/sentry';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -157,7 +158,9 @@ function* updateVaultImageWorker({ payload }) {
       vacMap,
       subscription: subscriptionStrings,
     });
-  } catch (err) {}
+  } catch (err) {
+    captureError(err);
+  }
 }
 
 function getCloudErrorMessage(code) {
