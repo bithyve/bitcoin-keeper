@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-
-import { EntityKind, NetworkType, VaultType, VisibilityType } from '../enums';
+import BIP85 from '../operations/BIP85';
+import { EntityKind, NetworkType, VaultType, VisibilityType, WalletType } from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -18,6 +18,7 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import config from './../../config';
+import { BIP85Config } from '../interfaces';
 
 const crypto = require('crypto');
 
@@ -95,6 +96,45 @@ export const generateVault = ({
   };
 
   return vault;
+};
+
+export const generateMobileKey = async (
+  primaryMnemonic: string,
+  networkType: NetworkType
+): Promise<{
+  bip85Config: BIP85Config;
+  xpub: string;
+  xpriv: string;
+  derivationPath: string;
+  masterFingerprint: string;
+}> => {
+  const DEFAULT_INSTNACE = 0;
+  const bip85Config = BIP85.generateBIP85Configuration(WalletType.MOBILE_KEY, DEFAULT_INSTNACE);
+  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
+  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
+
+  const DEFAULT_CHILD_PATH = 0;
+  let xDerivationPath = WalletUtilities.getDerivationPath(
+    EntityKind.WALLET,
+    networkType,
+    DEFAULT_CHILD_PATH
+  );
+
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed.toString('hex'),
+    network,
+    xDerivationPath
+  );
+  return {
+    bip85Config,
+    xpub: extendedKeys.xpub,
+    xpriv: extendedKeys.xpriv,
+    derivationPath: xDerivationPath,
+    masterFingerprint,
+  };
 };
 
 export const generateMockExtendedKey = (
