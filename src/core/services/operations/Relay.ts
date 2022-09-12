@@ -5,6 +5,7 @@ import { INotification } from '../interfaces';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import RestClient from '../rest/RestClient';
+import { captureError } from '../sentry';
 
 const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
@@ -285,6 +286,7 @@ export default class Relay {
       };
     } catch (err) {
       throw new Error('Failed to update App Image');
+      captureError(err);
     }
   };
 
@@ -309,6 +311,7 @@ export default class Relay {
       };
     } catch (err) {
       throw new Error('Failed to update Vault Image');
+      captureError(err);
     }
   };
 
@@ -322,6 +325,7 @@ export default class Relay {
       return data;
     } catch (err) {
       throw new Error('Failed get App Image');
+      captureError(err);
     }
   };
 
@@ -335,6 +339,7 @@ export default class Relay {
       return data;
     } catch (err) {
       throw new Error('Failed get Vault Meta Data');
+      captureError(err);
     }
   };
 
@@ -348,6 +353,7 @@ export default class Relay {
       return data.encryptedVac;
     } catch (err) {
       throw new Error('Failed get Vac');
+      captureError(err);
     }
   };
 }
