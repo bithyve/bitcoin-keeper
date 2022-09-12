@@ -108,7 +108,6 @@ const VaultRecovery = () => {
   };
 
   useEffect(() => {
-    console.log(signingDevices);
     if (signingDevices && signingDevices.length === 1) {
       getVaultMetaDataRelay(signingDevices[0].signerId);
     }
