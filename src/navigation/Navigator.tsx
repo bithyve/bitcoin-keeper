@@ -141,7 +141,7 @@ const AppStack = () => {
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
-        <Stack.Screen name='SetupSigningServer' component={SetupSigningServer} />
+        <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
       </Stack.Navigator>
     </RealmProvider>
