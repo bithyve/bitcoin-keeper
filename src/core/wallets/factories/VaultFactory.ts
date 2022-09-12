@@ -159,7 +159,7 @@ export const decryptVAC = (encryptedVac: string, xpubs: string[]) => {
   xpubs = xpubs.sort().reverse();
   xpubs.forEach((xpub) => {
     const key = generateKeyFromXpub(xpub, config.NETWORK);
-    decryptedVAC = decrypt(key, encryptedVac);
+    decryptedVAC = decrypt(key, decryptedVAC);
   });
   return decryptedVAC;
 };

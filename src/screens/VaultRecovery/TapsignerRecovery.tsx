@@ -14,12 +14,17 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { useDispatch } from 'react-redux';
 
 const TapSignerRecovery = () => {
   const [cvc, setCvc] = React.useState('');
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
+  const dispatch = useDispatch();
 
   const withModal = (callback) => {
     return Platform.select({
@@ -51,7 +56,16 @@ const TapSignerRecovery = () => {
   const verifyTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      console.log(tapsigner);
+      const networkType =
+        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const network = WalletUtilities.getNetworkByType(networkType);
+      const sigingDeivceDetails: SigningDeviceRecovery = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(tapsigner.xpub, network),
+        xpub: tapsigner.xpub,
+        type: SignerType.TAPSIGNER,
+      };
+      dispatch(setSigningDevices(sigingDeivceDetails));
+      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
       Alert.alert(err.toString());
     }

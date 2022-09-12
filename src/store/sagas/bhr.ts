@@ -1,4 +1,4 @@
-import { all, call, put } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 import _ from 'lodash';
 import * as bip39 from 'bip39';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -21,6 +21,7 @@ import {
   UPADTE_HEALTH_CHECK_SIGNER,
   SET_BACKUP_WARNING,
   UPDATE_VAULT_IMAGE,
+  RECOVER_VAULT,
 } from '../sagaActions/bhr';
 import { createWatcher } from '../utilities';
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
@@ -59,6 +60,8 @@ import {
   generateIDForVAC,
   generateVAC,
 } from 'src/core/wallets/factories/VaultFactory';
+import { RootState } from '../store';
+import { setupKeeperApp, setupKeeperAppVaultReovery } from '../sagaActions/storage';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -102,41 +105,45 @@ const getPermutations = (a, n, s = [], t = []) => {
   }, s);
 };
 
-const createVACMap = (signerIds, m, vac) => {
+const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
+  console.log(signerIdXpubMap, signerIds);
   let vacMap: any = {};
   const allPermutations = getPermutations(signerIds, m);
-  console.log('all Permuation', allPermutations[0]);
   for (let index in allPermutations) {
-    const key = allPermutations[index].sort().toString();
+    const signerIdsPermutaions = allPermutations[index];
+    let xpubs = [];
+    signerIdsPermutaions.forEach((signerId) => {
+      xpubs.push(signerIdXpubMap[signerId]);
+    });
+    const key = signerIdsPermutaions.sort().toString();
+    const encryptyVAC = encryptVAC(vac, xpubs);
     const hashKey = generateIDForVAC(key);
-    vacMap[hashKey] = vac;
+    vacMap[hashKey] = encryptyVAC;
   }
   return vacMap;
 };
 
 function* updateVaultImageWorker({ payload }) {
-  const { primarySeed, id, vaultShellInstances, primaryMnemonic }: KeeperApp = yield call(
+  const { primarySeed, id, vaultShellInstances, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const vault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, false);
   const m = vault.scheme.m;
+
   var signersIds = [];
-  var xpubs = [];
+  var signerIdXpubMap = {};
   for (let signer of vault.signers) {
-    xpubs.push(signer.xpub);
+    signerIdXpubMap[signer.signerId] = signer.xpub;
     signersIds.push(signer.signerId);
   }
   const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
+  const subscriptionStrings = JSON.stringify(subscription);
   const encryptionKey = generateEncryptionKey(primarySeed);
+
   const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
   const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
-
-  // const encryptyVAC = encryptVAC(vault.VAC, xpubs);
-  // const decryptedVAC = decryptVAC(encryptyVAC, xpubs);
-  // const allPermuartions = getPermutations(signersIds, m);
-  // console.log(JSON.stringify(allcombination));
-  const vacMap = createVACMap(signersIds, m, vault.VAC);
+  const vacMap = createVACMap(signersIds, signerIdXpubMap, m, vault.VAC);
 
   try {
     Relay.updateVaultImage({
@@ -148,10 +155,9 @@ function* updateVaultImageWorker({ payload }) {
       vaultEncryptedVAC,
       vaultShellInstances: vaultShellInstancesString,
       vacMap,
+      subscription: subscriptionStrings,
     });
-  } catch (err) {
-    console.error('update failed', err);
-  }
+  } catch (err) {}
 }
 
 function getCloudErrorMessage(code) {
@@ -348,8 +354,6 @@ function* getAppImageWorker({ payload }) {
     const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const { appImage, vaultImage } = yield call(Relay.getAppImage, id);
-    console.log('appImage', appImage);
-    console.log('vaultImage', vaultImage);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -516,6 +520,33 @@ function* isBackedUP({
   yield put(setBackupWarning(false));
 }
 
+function* recoverVaultWorker() {
+  const signingDevices = yield select((state: RootState) => state.bhr.signingDevices); // UI m
+  const vaultMetaData = yield select((state: RootState) => state.bhr.vaultMetaData); // Api Call for 1st Vault
+  let signerIds = [];
+  let xpubs = [];
+  for (let signer of signingDevices) {
+    signerIds.push(signer.signerId);
+    xpubs.push(signer.xpub);
+  }
+  const key = signerIds.sort().toString();
+  const hashKey = generateIDForVAC(key);
+  const encrytedVac = yield call(Relay.getVac, hashKey); // API encryted of m combination
+
+  if (encrytedVac) {
+    console.log({ xpubs, encrytedVac });
+    const vac = decryptVAC(encrytedVac, xpubs);
+    const vault = decrypt(vac, vaultMetaData.vault);
+    yield put(
+      setupKeeperAppVaultReovery(
+        JSON.parse(vaultMetaData.vaultShellInstances),
+        JSON.parse(vaultMetaData.subscription)
+      )
+    );
+    yield call(dbManager.createObject, RealmSchema.Vault, JSON.parse(vault));
+  }
+}
+
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
 
@@ -523,19 +554,23 @@ export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);
 export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
+export const recoverVaultWatcher = createWatcher(recoverVaultWorker, RECOVER_VAULT);
 
 export const cloudBackupSkippedWatcher = createWatcher(
   cloudBackupSkippedWorked,
   CLOUD_BACKUP_SKIPPED
 );
+
 export const confirmCloudBackupWatcher = createWatcher(
   confirmCloudBackupWorked,
   CONFIRM_CLOUD_BACKUP
 );
+
 export const seedBackeupConfirmedWatcher = createWatcher(
   seedBackeupConfirmedWorked,
   SEED_BACKEDUP_CONFIRMED
 );
+
 export const getCloudDataWatcher = createWatcher(getCloudDataWorker, GET_CLOUD_DATA);
 export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
 export const healthCheckSignerWatcher = createWatcher(

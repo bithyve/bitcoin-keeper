@@ -300,7 +300,9 @@ export default class Relay {
   }> => {
     try {
       let res;
+
       res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+
       res = res.json || res.data;
       return {
         status: res.status,
@@ -320,6 +322,32 @@ export default class Relay {
       return data;
     } catch (err) {
       throw new Error('Failed get App Image');
+    }
+  };
+
+  public static getVaultMetaData = async (signerId): Promise<any> => {
+    try {
+      let res;
+      res = await RestClient.post(`${RELAY}getVaultMetaData`, {
+        signerId,
+      });
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      throw new Error('Failed get Vault Meta Data');
+    }
+  };
+
+  public static getVac = async (signerIdsHash): Promise<any> => {
+    try {
+      let res;
+      res = await RestClient.post(`${RELAY}getVac`, {
+        signerIdsHash,
+      });
+      const data = res.data || res.json;
+      return data.encryptedVac;
+    } catch (err) {
+      throw new Error('Failed get Vac');
     }
   };
 }
