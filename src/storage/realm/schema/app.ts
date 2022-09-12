@@ -34,6 +34,7 @@ export const KeeperAppSchema: ObjectSchema = {
     twoFADetails: `${RealmSchema.TwoFADetails}?`,
     nodeConnect: `${RealmSchema.NodeConnect}?`,
     uai: `${RealmSchema.UAI}?`,
+    notification: `${RealmSchema.Notification}?`,
     subscription: {
       type: RealmSchema.StoreSubscription,
     },

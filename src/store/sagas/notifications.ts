@@ -20,6 +20,9 @@ import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { Platform } from 'react-native';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 
 function* updateFCMTokensWorker({ payload }) {
   try {
@@ -69,26 +72,35 @@ export function* getMessageWorker() {
     )
   );
 
-  yield all(
-    newMessageArray.forEach((element) => {
-      put(
-        addToUaiStack(
-          element.title,
-          false,
-          element.type,
-          20,
-          Platform.select({
-            ios: element.additionalInfo.notes.ios,
-            android: element.additionalInfo.notes.android,
-          })
-        )
-      );
-    })
-  );
+  yield messages.forEach((notification) => {
+    call(dbManager.createObject, RealmSchema.Notification, {
+      ...notification,
+      additionalInfo: {
+        notes: Platform.select({
+          ios: notification.additionalInfo.notes.ios,
+          android: notification.additionalInfo.notes.android,
+        }),
+      },
+    });
+  });
+
+  const storedNotifications = yield call(dbManager.getCollection, RealmSchema.Notification);
+  console.log('storedNotifications', storedNotifications);
+
+  yield storedNotifications.forEach((notification) => {
+    put(
+      addToUaiStack(
+        notification.title,
+        false,
+        notification.type,
+        20,
+        notification.additionalInfo.notes
+      )
+    );
+  });
 
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
-
   yield put(fetchNotificationStarted(false));
 }
 

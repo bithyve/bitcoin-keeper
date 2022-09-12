@@ -20,6 +20,7 @@ export interface KeeperApp {
   twoFADetails?: TwoFADetails;
   nodeConnect?: NodeConnect;
   uai?: any;
+  notification?: any;
   version: string;
   agsp?: string;
   backupMethod?: BackupType;
