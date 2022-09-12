@@ -19,9 +19,10 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
+import com.hexa_keeper.newarchitecture.components.MainComponentsRegistry;
+import com.hexa_keeper.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+
 import io.hexawallet.keeper.BuildConfig;
-import io.hexawallet.keeper.newarchitecture.components.MainComponentsRegistry;
-import io.hexawallet.keeper.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
