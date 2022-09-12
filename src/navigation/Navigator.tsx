@@ -47,6 +47,10 @@ import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
+import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
+import SignersList from 'src/screens/VaultRecovery/SignersList';
+import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
+import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -65,6 +69,27 @@ const LoginStack = () => {
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="VaultRecoveryAddSigner"
+        component={VaultRecovery}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="ColdCardReocvery"
+        component={ColdCardReocvery}
+      />
+
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="SignersList"
+        component={SignersList}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="TapSignerRecovery"
+        component={TapSignerRecovery}
+      />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
