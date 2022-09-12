@@ -156,8 +156,6 @@ const bhrPersistConfig = {
     'recoverBackupFailed',
     'invalidPassword',
     'backupWarning',
-    // 'signingDevices',
-    // 'vaultMetaData',
   ],
 };
 
