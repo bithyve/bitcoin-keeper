@@ -46,6 +46,10 @@ import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
+import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
+import SignersList from 'src/screens/VaultRecovery/SignersList';
+import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
+import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -64,6 +68,27 @@ const LoginStack = () => {
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="VaultRecoveryAddSigner"
+        component={VaultRecovery}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="ColdCardReocvery"
+        component={ColdCardReocvery}
+      />
+
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="SignersList"
+        component={SignersList}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="TapSignerRecovery"
+        component={TapSignerRecovery}
+      />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
@@ -115,7 +140,7 @@ const AppStack = () => {
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
-        <Stack.Screen name='SetupSigningServer' component={SetupSigningServer} />
+        <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
       </Stack.Navigator>
     </RealmProvider>
   );
