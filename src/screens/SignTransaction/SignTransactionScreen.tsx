@@ -42,6 +42,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
+import moment from 'moment';
 
 const { width } = Dimensions.get('screen');
 
@@ -213,7 +214,7 @@ const SignWith = ({
                 fontFamily={'body'}
                 letterSpacing={0.6}
               >
-                {`Added on 4th of July`}
+                {`Added on ${moment(signer.lastHealthCheck).calendar()}`}
               </Text>
             </View>
           </Box>
