@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Pressable, FlatList, Box, Text } from 'native-base';
-import moment from 'moment';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -16,13 +15,11 @@ import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
 const ArchivedVault = () => {
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const vault: Vault = useQuery(RealmSchema.Vault)
+  const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
-    .filter((vault) => vault.archived)[0];
+    .filter((vault) => vault.archived);
 
-  console.log('sdfsd', vault);
-
-  const SignerItem = ({ signer, index }: { signer: any | undefined; index: number }) => {
+  const VaultItem = ({ vaultItem, index }: { vaultItem: Vault; index: number }) => {
     return (
       <Pressable
         backgroundColor={'light.lightYellow'}
@@ -51,7 +48,7 @@ const ArchivedVault = () => {
               fontWeight={300}
               fontFamily={'body'}
             >
-              12
+              {vaultItem?.specs?.transactions?.length}
             </Text>
             <Text
               color={'light.textBlack'}
@@ -80,7 +77,7 @@ const ArchivedVault = () => {
                 marginLeft: wp(4)
               }}
             >
-              0.00
+              {vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed}
             </Text>
           </Box>
           <Box
@@ -111,7 +108,7 @@ const ArchivedVault = () => {
     );
   };
 
-  const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
+  const renderArchiveVaults = ({ item, index }) => <VaultItem vaultItem={item} index={index} />;
 
   return (
     <ScreenWrapper>
@@ -125,11 +122,13 @@ const ArchivedVault = () => {
 
       <Box alignItems={'center'}>
         <FlatList
-          data={[1, 2, 3]}
-          keyExtractor={(item, index) => item}
-          renderItem={renderSigner}
+          data={vault}
+          keyExtractor={(item, index) => item.id}
+          renderItem={renderArchiveVaults}
+          showsVerticalScrollIndicator={false}
           style={{
             marginTop: hp(44),
+            marginBottom: hp(100)
           }}
         />
       </Box>
