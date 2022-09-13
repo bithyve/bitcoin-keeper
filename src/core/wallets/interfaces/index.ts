@@ -211,13 +211,21 @@ export interface TwoFADetails {
 }
 
 export interface SigningPayload {
-  inputsToSign: Array<{
+  payloadTarget: SignerType;
+  inputsToSign?: Array<{
     digest: string;
     subPath: string;
     inputIndex: number;
     sighashType: number;
     publicKey: string;
     signature?: string;
+  }>;
+  childIndexArray?: Array<{
+    childIndex: number;
+    inputIdentifier: {
+      txId: string;
+      vout: number;
+    };
   }>;
 }
 
