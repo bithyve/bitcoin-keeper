@@ -205,12 +205,12 @@ const VaultSetupContent = () => {
       <Box alignSelf={'center'}>
         <VaultSetupIcon />
       </Box>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
         {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
         {
           'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
         }

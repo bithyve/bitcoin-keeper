@@ -33,8 +33,10 @@ const BulletPoint = ({ text }) => {
   return (
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'center'}>
       <Box
-        height={hp(5)}
-        width={wp(5)}
+        style={{
+          height: hp(5),
+          width: wp(5)
+        }}
         backgroundColor={'light.modalText'}
         borderRadius={10}
         marginRight={wp(5)}
@@ -248,7 +250,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
                   if (currentPinHash === pinHash) setupMobileKey();
                   else Alert.alert('Incorrect password. Try again!');
                 }}
-                value={'proceed'}
+                value={'Confirm'}
               />
             </Box>
           </Box>
