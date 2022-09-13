@@ -13,6 +13,8 @@ type Props = {
   onPressHandler?: () => void;
   enableBack?: boolean;
   headerTitleColor?: string;
+  paddingLeft?: number
+  paddingTop?: number
 };
 const HeaderTitle = ({
   title = '',
@@ -20,6 +22,8 @@ const HeaderTitle = ({
   onPressHandler,
   enableBack = true,
   headerTitleColor = 'light.headerText',
+  paddingLeft = 0,
+  paddingTop = 0
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -32,7 +36,7 @@ const HeaderTitle = ({
           <BackButton />
         </TouchableOpacity>
       )}
-      <Box>
+      <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
         {title && (
           <Text
             numberOfLines={1}

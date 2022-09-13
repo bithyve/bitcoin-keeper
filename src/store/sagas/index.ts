@@ -36,6 +36,7 @@ import {
   healthCheckSignerWatcher,
   initCloudBackupWatcher,
   recoverBackupWatcher,
+  recoverVaultWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
@@ -53,7 +54,7 @@ import {
 } from './send_and_receive';
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
-import { setupKeeperAppWatcher } from './storage';
+import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -114,6 +115,8 @@ export const rootSaga = function* () {
     recoverBackupWatcher,
     healthCheckSignerWatcher,
     backupWarningWatcher,
+    recoverVaultWatcher,
+    setupKeeperVaultRecoveryAppWatcher,
   ];
 
   yield all(
