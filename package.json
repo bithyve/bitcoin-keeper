@@ -8,7 +8,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "chmod +x setup.sh && sh ./setup.sh",
-    "postinstall": "patch-package && jetify",
+    "postinstall": "patch-package",
     "androidDevelopmentDebug": "ENVFILE=.env react-native run-android --variant=developmentDebug --appIdSuffix=development",
     "androidDevelopmentRelease": "ENVFILE=.env react-native run-android --variant=developmentRelease --appIdSuffix=development",
     "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
