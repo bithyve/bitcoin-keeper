@@ -27,6 +27,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 
 const BulletPoint = ({ text }) => {
   return (
@@ -108,62 +109,6 @@ const ColdCardSetupContent = () => {
   );
 };
 
-const otpContent = () => {
-  const [otp, setOtp] = useState('');
-
-  const onPressNumber = (text) => {
-    let tmpPasscode = otp;
-    if (otp.length < 6) {
-      if (text != 'x') {
-        tmpPasscode += text;
-        setOtp(tmpPasscode);
-      }
-    }
-    if (otp && text == 'x') {
-      setOtp(otp.slice(0, -1));
-    }
-  };
-
-  const onDeletePressed = (text) => {
-    setOtp(otp.slice(0, otp.length - 1));
-  };
-
-  return (
-    <Box width={hp(280)}>
-      <Box>
-        <CVVInputsView
-          passCode={otp}
-          passcodeFlag={false}
-          backgroundColor={true}
-          textColor={true}
-        />
-        <Text
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          width={wp(290)}
-          color={'light.modalText'}
-          marginTop={2}
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
-        </Text>
-        <Box mt={10} alignSelf={'flex-end'} mr={2}>
-          <Box>
-            <CustomGreenButton onPress={() => { }} value={'proceed'} />
-          </Box>
-        </Box>
-      </Box>
-      <KeyPadView
-        onPressNumber={onPressNumber}
-        onDeletePressed={onDeletePressed}
-        keyColor={'light.lightBlack'}
-        ClearIcon={<DeleteIcon />}
-      />
-    </Box>
-  );
-};
-
 const SettingSigningServer = () => {
   return (
     <Box>
@@ -222,6 +167,12 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const navigateToLedgerSetup = () => {
     close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddLedger', params: {} }));
+  };
+
+  const navigateToSigningServerSetup = () => {
+    close();
+    dispatch(registerWithSigningServer());
+    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: {} }));
   };
 
   const setupMobileKey = async () => {
@@ -362,6 +313,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonBackground={['#00836A', '#073E39']}
         buttonText={'Continue'}
         buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToSigningServerSetup}
         textColor={'#041513'}
         Content={SettingSigningServer}
       />
@@ -380,15 +332,6 @@ const HardwareModalMap = ({ type, visible, close }) => {
         }}
         textColor={'#041513'}
         Content={SetUpMobileKey}
-      />
-      <KeeperModal
-        visible={false}
-        close={() => { }}
-        title={'Confirm OTP to setup 2FA'}
-        subTitle={'Lorem ipsum dolor sit amet, '}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#041513'}
-        Content={otpContent}
       />
       <KeeperModal
         visible={passwordModal}
