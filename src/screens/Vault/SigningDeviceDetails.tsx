@@ -23,8 +23,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { NetworkType } from 'src/core/wallets/enums';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
@@ -73,7 +75,7 @@ const SigningDeviceDetails = ({ route }) => {
   const [description, setDescription] = useState('');
   const [cvc, setCvc] = useState('');
   const card = React.useRef(new CKTapCard()).current;
-
+  console.log(route.params);
   const modalHandler = (callback) => {
     return Platform.select({
       android: async () => {
@@ -263,6 +265,25 @@ const SigningDeviceDetails = ({ route }) => {
       <ScrollView>
         <Box m={10}>
           <SigningDeviceChecklist />
+          <TouchableOpacity
+            onPress={() =>
+              navigation.dispatch(CommonActions.navigate('RigisterToSD', { type: signer.type }))
+            }
+          >
+            <VStack maxWidth={'90%'} paddingTop={'4'}>
+              <HStack alignItems={'center'}>
+                <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                  {'Register Vault to this device'}
+                </Text>
+                <Box paddingLeft={'2'}>
+                  <RightArrowIcon />
+                </Box>
+              </HStack>
+              <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                {'Register the multisig wallet to this signing device'}
+              </Text>
+            </VStack>
+          </TouchableOpacity>
         </Box>
       </ScrollView>
       <Box px={'10%'} py={'10%'}>

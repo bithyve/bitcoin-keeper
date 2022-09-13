@@ -281,22 +281,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
         >
           Transactions
         </Text>
-        <TouchableOpacity
-          onPress={async () => {
-            line += `Name: Keeper ${new Date().getTime()}\n`;
-            line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-            line += `Format: P2SH-P2WSH\n`;
-            line += `\n`;
-            vault.signers.forEach((signer) => {
-              line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
-              line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
-            });
-            const enc = NFC.encodeForColdCard(line);
-            console.log('scanning...', line);
-            await NFC.send(NfcTech.Ndef, enc);
-            console.log('Done');
-          }}
-        >
+        <TouchableOpacity>
           <HStack alignItems={'center'}>
             <TouchableOpacity
               onPress={() => {
