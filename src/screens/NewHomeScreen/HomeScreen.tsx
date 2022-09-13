@@ -55,7 +55,7 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-import Chain from 'src/assets/icons/illustration_homescreen.svg'
+import Chain from 'src/assets/icons/illustration_homescreen.svg';
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -104,7 +104,6 @@ const InheritanceComponent = () => {
             </Text>
           </Box>
         </Box>
-        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
         <NextIcon pressHandler={() => onPress()} />
         <>
           <NewWalletModal
