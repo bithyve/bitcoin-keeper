@@ -270,6 +270,7 @@ const EnterSeedScreen = () => {
                       onChangeText={(text) => {
                         const data = [...seedData];
                         data[index].name = text.trim();
+                        data[index].invalid = false;
                         setSeedData(data);
                       }}
                       onBlur={() => {
