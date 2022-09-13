@@ -299,7 +299,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
                   if (currentPinHash === pinHash) setupMobileKey();
                   else Alert.alert('Incorrect password. Try again!');
                 }}
-                value={'proceed'}
+                value={'Confirm'}
               />
             </Box>
           </Box>
