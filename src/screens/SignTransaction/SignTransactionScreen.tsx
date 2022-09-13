@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import AppClient, { DefaultWalletPolicy, PsbtV2, WalletPolicy } from 'src/hardware/ledger';
-import { Box, Pressable, Text } from 'native-base';
+import { Box, DeleteIcon, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
@@ -42,6 +42,10 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import SigningServer from 'src/core/services/operations/SigningServer';
 
 const { width } = Dimensions.get('screen');
 
@@ -235,6 +239,8 @@ const SignTransactionScreen = () => {
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
   const [nfcVisible, setNfcVisible] = useState(false);
+  const [otpModal, showOTPModal] = useState(false);
+
   const [activeSignerId, setActiveSignerId] = useState<string>();
   const LedgerCom = useRef();
   const onSelectDevice = useCallback(async (device) => {
@@ -415,6 +421,62 @@ const SignTransactionScreen = () => {
     }
   }, [serializedPSBTEnvelops, activeSignerId]);
 
+  const otpContent = useCallback(() => {
+    const [otp, setOtp] = useState('');
+
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text == 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)}>
+        <Box>
+          <CVVInputsView
+            passCode={otp}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton onPress={async () => {}} value={'proceed'} />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  }, []);
+
   const callbackForSigners = (type: SignerType) => {
     switch (type) {
       case SignerType.TAPSIGNER:
@@ -425,6 +487,9 @@ const SignTransactionScreen = () => {
         break;
       case SignerType.LEDGER:
         setLedgerModal(true);
+        break;
+      case SignerType.POLICY_SERVER:
+        showOTPModal(true);
         break;
       default:
         Alert.alert(`action not set for ${type}`);
@@ -513,6 +578,17 @@ const SignTransactionScreen = () => {
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />
+      <KeeperModal
+        visible={otpModal}
+        close={() => {
+          showOTPModal(false);
+        }}
+        title={'Confirm OTP to setup 2FA'}
+        subTitle={'Lorem ipsum dolor sit amet, '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#041513'}
+        Content={otpContent}
+      />
     </ScreenWrapper>
   );
 };
