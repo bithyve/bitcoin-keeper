@@ -104,7 +104,7 @@ const InheritanceComponent = () => {
             </Text>
           </Box>
         </Box>
-        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
+        {/* <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} /> */}
         <NextIcon pressHandler={() => onPress()} />
         <>
           <NewWalletModal
