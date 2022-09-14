@@ -932,7 +932,24 @@ export default class WalletOperations {
             publicKey: publicKey.toString('hex'),
           });
         }
-        signingPayload.push({ inputsToSign });
+        signingPayload.push({ payloadTarget: SignerType.TAPSIGNER, inputsToSign });
+      } else if (signer.type === SignerType.POLICY_SERVER) {
+        const childIndexArray = [];
+        for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+          const { subPath } = WalletUtilities.addressToMultiSig(
+            inputs[inputIndex].address,
+            wallet as Vault
+          );
+          childIndexArray.push({
+            subPath,
+            inputIdentifier: {
+              txId: inputs[inputIndex].txId,
+              vout: inputs[inputIndex].vout,
+              value: inputs[inputIndex].value,
+            },
+          });
+        }
+        signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray });
       }
     }
 
