@@ -72,7 +72,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const seed = translations['seed'];
   const dispatch = useAppDispatch();
   const [cloudModal, setCloudModal] = useState(false);
-  const [startNew, setStartNew] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState(null);
   const {
@@ -111,8 +110,8 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
 
   useEffect(() => {
-    startNew && appId && navigation.navigate('App', { screen: 'NewHome' });
-  }, [appId, startNew])
+    appId && navigation.navigate('App', { screen: 'NewHome' });
+  }, [appId])
   const passwordScreen = () => {
     setCloudModal(false);
     setPasswordModal(true);
@@ -161,7 +160,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             Icon={<App />}
             onPress={() => {
               dispatch(setupKeeperApp());
-              setStartNew(true);
             }}
           />
           <Text
