@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType } from 'src/common/data/enums/BHR';
+import { BackupType, SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 
@@ -20,7 +20,9 @@ const initialState: {
   downloadingBackup: boolean;
   recoverBackupFailed: boolean;
   invalidPassword: boolean;
-  backupWarning: boolean
+  backupWarning: boolean;
+  signingDevices: SigningDeviceRecovery[];
+  vaultMetaData: Object;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -38,7 +40,9 @@ const initialState: {
   downloadingBackup: false,
   recoverBackupFailed: false,
   invalidPassword: false,
-  backupWarning: false
+  backupWarning: false,
+  signingDevices: [],
+  vaultMetaData: {},
 };
 
 const bhrSlice = createSlice({
@@ -103,6 +107,12 @@ const bhrSlice = createSlice({
     setBackupWarning: (state, action: PayloadAction<boolean>) => {
       state.backupWarning = action.payload;
     },
+    setSigningDevices: (state, action: PayloadAction<any>) => {
+      state.signingDevices = [...state.signingDevices, action.payload];
+    },
+    setVaultMetaData: (state, action: PayloadAction<any>) => {
+      state.vaultMetaData = action.payload;
+    },
   },
 });
 
@@ -122,7 +132,9 @@ export const {
   setRecoverBackupFailed,
   setCloudData,
   setInvalidPassword,
-  setBackupWarning
+  setBackupWarning,
+  setSigningDevices,
+  setVaultMetaData,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -143,7 +155,7 @@ const bhrPersistConfig = {
     'cloudData',
     'recoverBackupFailed',
     'invalidPassword',
-    'backupWarning'
+    'backupWarning',
   ],
 };
 

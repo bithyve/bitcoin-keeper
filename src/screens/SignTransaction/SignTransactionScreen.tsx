@@ -496,6 +496,7 @@ const SignTransactionScreen = () => {
         buttonCallback={signTransaction}
         textColor={'#FFF'}
         Content={() => InputCvc({ textRef })}
+        DarkCloseIcon={true}
       />
       <KeeperModal
         visible={ledgerModal}
@@ -508,6 +509,7 @@ const SignTransactionScreen = () => {
         buttonTextColor={'#073E39'}
         buttonCallback={signTransaction}
         textColor={'#FFF'}
+        DarkCloseIcon={true}
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />

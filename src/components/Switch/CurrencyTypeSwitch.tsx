@@ -6,8 +6,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-// import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-// import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
+import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
+import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
+import IconDollerWhite from 'src/assets/icons/Wallets/icon_dollar_white.svg';
+import IconBitcoinWhite from 'src/assets/icons/Wallets/icon_bitcoin_white.svg';
+
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
@@ -65,11 +68,12 @@ const CurrencyTypeSwitch = () => {
             justifyContent={'center'}
             alignItems={'center'}
           >
-            <FontAwesome
+            {/* <FontAwesome
               name={'dollar'}
               size={16}
               color={prefersBitcoin ? 'lightgray' : '#00836A'}
-            />
+            /> */}
+            {prefersBitcoin ? <IconDollerWhite /> : <IconDoller />}
           </Box>
           <Box
             height={7}
@@ -82,11 +86,12 @@ const CurrencyTypeSwitch = () => {
             justifyContent={'center'}
             alignItems={'center'}
           >
-            <FontAwesome
+            {/* <FontAwesome
               name={'bitcoin'}
               size={16}
               color={prefersBitcoin ? '#00836A' : 'lightgray'}
-            />
+            /> */}
+            {prefersBitcoin ? <IconBitcoin /> : <IconBitcoinWhite />}
           </Box>
         </Box>
       </LinearGradient>

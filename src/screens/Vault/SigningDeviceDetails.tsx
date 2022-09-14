@@ -9,30 +9,34 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import React, { useContext, useEffect, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 import config, { APP_STAGE } from 'src/core/config';
+import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+
 import BackIcon from 'src/assets/icons/back.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useDispatch } from 'react-redux';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
-import SuccessModal from 'src/components/HealthCheck/SuccessModal';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import Illustration from 'src/assets/images/illustration.svg';
+import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import { NetworkType } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
+import Illustration from 'src/assets/images/illustration.svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { useDispatch } from 'react-redux';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -71,7 +75,7 @@ const SigningDeviceDetails = ({ route }) => {
   const [description, setDescription] = useState('');
   const [cvc, setCvc] = useState('');
   const card = React.useRef(new CKTapCard()).current;
-
+  console.log(route.params);
   const modalHandler = (callback) => {
     return Platform.select({
       android: async () => {
@@ -261,44 +265,43 @@ const SigningDeviceDetails = ({ route }) => {
       <ScrollView>
         <Box m={10}>
           <SigningDeviceChecklist />
+          <TouchableOpacity
+            onPress={() =>
+              navigation.dispatch(CommonActions.navigate('RigisterToSD', { type: signer.type }))
+            }
+          >
+            <VStack maxWidth={'90%'} paddingTop={'4'}>
+              <HStack alignItems={'center'}>
+                <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                  {'Register Vault to this device'}
+                </Text>
+                <Box paddingLeft={'2'}>
+                  <RightArrowIcon />
+                </Box>
+              </HStack>
+              <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                {'Register the multisig wallet to this signing device'}
+              </Text>
+            </VStack>
+          </TouchableOpacity>
         </Box>
       </ScrollView>
       <Box px={'10%'} py={'10%'}>
         <Text fontSize={13}>
           You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,
         </Text>
-        <Box marginTop={10} flexDirection={'row'} justifyContent={'space-between'}>
-          <Text
-            marginTop={3}
-            color={'light.greenText'}
-            letterSpacing={0.8}
-            fontWeight={300}
-            fontSize={14}
-          >
-            {healthcheck.ChangeSigningDevice}
-          </Text>
-          <LinearGradient
-            colors={['#00836A', '#073E39']}
-            style={styles.buttonContainer}
-            start={{ x: -0.5, y: 1 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text
-              justifyContent={'center'}
-              color={'light.white'}
-              textAlign={'center'}
-              letterSpacing={0.8}
-              fontWeight={300}
-              fontSize={14}
-              marginTop={3}
-              onPress={() => {
-                setHealthCheckView(true);
-              }}
-            >
-              {healthcheck.HealthCheck}
-            </Text>
-          </LinearGradient>
-        </Box>
+        <Buttons
+          primaryText={healthcheck.HealthCheck}
+          secondaryText={healthcheck.ChangeSigningDevice}
+          primaryCallback={() => {
+            setHealthCheckView(true);
+          }}
+          secondaryCallback={() => {
+            navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          }}
+          primaryDisable={false}
+          secondaryDisable={false}
+        />
         <EditDescriptionModal
           visible={editDescriptionModal}
           closeHealthCheck={closeEditDescription}

@@ -4,10 +4,9 @@ import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 export type WalletsState = {
   walletsSynched: boolean;
   netBalance: number;
-  twoFAHelpFlags: {
-    xprivGenerated: boolean | null;
-    twoFAValid: boolean | null;
-    twoFAResetted: boolean | null;
+  signingServer: {
+    verified: boolean | null;
+    resetted: boolean | null;
   };
 
   isGeneratingNewWallet: boolean;
@@ -25,10 +24,9 @@ export type WalletsState = {
 const initialState: WalletsState = {
   walletsSynched: false,
   netBalance: 0,
-  twoFAHelpFlags: {
-    xprivGenerated: null,
-    twoFAValid: null,
-    twoFAResetted: null,
+  signingServer: {
+    verified: null,
+    resetted: null,
   },
   isGeneratingNewWallet: false,
   hasNewWalletsGenerationSucceeded: false,
@@ -55,6 +53,9 @@ const walletSlice = createSlice({
     setNetBalance: (state, action: PayloadAction<number>) => {
       state.netBalance = action.payload;
     },
+    signingServerRegistrationVerified: (state, action: PayloadAction<boolean>) => {
+      state.signingServer.verified = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -65,7 +66,12 @@ const walletSlice = createSlice({
   },
 });
 
-export const { testcoinsReceived, walletsSynched, setNetBalance } = walletSlice.actions;
+export const {
+  testcoinsReceived,
+  walletsSynched,
+  setNetBalance,
+  signingServerRegistrationVerified,
+} = walletSlice.actions;
 
 export default walletSlice.reducer;
 

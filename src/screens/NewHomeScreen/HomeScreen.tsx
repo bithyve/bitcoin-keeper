@@ -55,7 +55,7 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-
+import Chain from 'src/assets/icons/illustration_homescreen.svg';
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -104,7 +104,6 @@ const InheritanceComponent = () => {
             </Text>
           </Box>
         </Box>
-        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
         <NextIcon pressHandler={() => onPress()} />
         <>
           <NewWalletModal
@@ -206,12 +205,12 @@ const VaultSetupContent = () => {
       <Box alignSelf={'center'}>
         <VaultSetupIcon />
       </Box>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
         {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
         {
           'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
         }
@@ -365,11 +364,13 @@ const VaultStatus = (props) => {
           </Box>
           {!signers.length ? (
             <Box marginTop={hp(31.5)}>
-              <Image
+              {/* <Image
                 source={require('src/assets/images/illustration.png')}
                 style={{ width: wp(123.95), height: hp(122.3) }}
                 resizeMode="contain"
-              />
+              /> */}
+
+              <Chain />
             </Box>
           ) : null}
           {signers.length ? (
@@ -420,6 +421,7 @@ const VaultStatus = (props) => {
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
         Content={VaultSetupContent}
+        DarkCloseIcon={true}
       />
     </Box>
   );
