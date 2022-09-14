@@ -423,19 +423,17 @@ const SignTransactionScreen = () => {
             }
           } else if (SignerType.POLICY_SERVER === signerType) {
             try {
+              showOTPModal(false);
               const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
               if (!childIndexArray) throw new Error('Invalid signing payload');
-              const { signedTxHex } = await SigningServer.signPSBT(
+              const { signedPSBT } = await SigningServer.signPSBT(
                 keeper.id,
                 Number(signingServerOTP),
                 serializedPSBT,
                 childIndexArray
               );
-              const { txid } = await WalletUtilities.broadcastTransaction(
-                signedTxHex,
-                config.NETWORK
-              );
-              if (!txid) throw new Error('Tx broadcast failed');
+              if (!signedPSBT) throw new Error('signing server: failed to sign');
+              dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));
             } catch (err) {
               Alert.alert(err);
             }
