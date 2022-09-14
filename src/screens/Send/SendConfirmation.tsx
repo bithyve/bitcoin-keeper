@@ -2,7 +2,7 @@ import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import { crossTransfer, sendingFailed, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
@@ -51,16 +51,26 @@ const SendConfirmation = ({ route }) => {
   const common = translations['common'];
   const walletTransactions = translations['wallet'];
 
+  // Sending process is still not executed
+  const [sendingModal, setSendingModal] = useState(false);
+  const openSendModal = () => setSendingModal(true);
+  const closeSendModal = () => setSendingModal(false);
+
+  // Send is Successful
   const [visible, setVisible] = useState(false);
-  const close = () => setVisible(false);
   const open = () => setVisible(true);
+  const close = () => setVisible(false);
+
+  // Send Failed
+  const [sendFailed, setSendFailed] = useState(false);
+  const openFailedModal = () => setSendFailed(true);
+  const closeFailModal = () => setSendFailed(false);
 
   // taken from hexa --> TransactionPriority.tsx - line 98
   const setCustomTransactionPriority = () => {
     // logic for custom transaction priority
   };
 
-  // Content for "Send is Successful"
   const SendSuccessfulContent = () => {
     return (
       <View>
@@ -110,7 +120,10 @@ const SendConfirmation = ({ route }) => {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
+  const sendUnderProgress = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.inProgress);
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -123,13 +136,16 @@ const SendConfirmation = ({ route }) => {
     close();
     navigation.navigate('WalletDetails');
   };
+
   useEffect(() => {
-    if (walletSendSuccessful) {
+    if (sendUnderProgress) {
+      openSendModal();
+    } else if (!walletSendSuccessful) {
+      openFailedModal();
+    } else if (!sendUnderProgress || walletSendSuccessful) {
       open();
-    } else {
-      // sending failed & pending logic will go here
     }
-  }, [walletSendSuccessful]);
+  }, [walletSendSuccessful, sendUnderProgress]);
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -473,7 +489,7 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
 
-      {/* Success modal for 'Vault - Send Success modal' */}
+      {/* Success modal for Send Successful */}
       <SuccessModal
         visible={visible}
         close={close}
@@ -486,6 +502,30 @@ const SendConfirmation = ({ route }) => {
         cancelButtonColor={'#073E39'}
         Content={SendSuccessfulContent}
         buttonPressed={viewDetails}
+      />
+
+      {/* waiting loader after sending */}
+      <SuccessModal
+        visible={sendingModal}
+        close={closeSendModal}
+        title={'Sending Loader Modal'}
+        subTitle={'this is the sending loader'}
+        textColor={'#073B36'}
+        buttonTextColor={'#FAFAFA'}
+        // Content={SendSuccessfulContent}
+        buttonPressed={viewDetails}
+      />
+
+      {/* Send failed modal  */}
+      <SuccessModal
+        visible={sendFailed}
+        close={closeFailModal}
+        title={'this is sending Failed Modal'}
+        subTitle={'Sending Failed'}
+        textColor={'#073B36'}
+        // buttonTextColor={'#FAFAFA'}
+        // Content={SendSuccessfulContent}
+        // buttonPressed={viewDetails}
       />
     </Box>
   );
