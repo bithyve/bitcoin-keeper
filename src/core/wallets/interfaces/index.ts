@@ -221,10 +221,11 @@ export interface SigningPayload {
     signature?: string;
   }>;
   childIndexArray?: Array<{
-    childIndex: number;
+    subPath: number[];
     inputIdentifier: {
       txId: string;
       vout: number;
+      value: number;
     };
   }>;
 }

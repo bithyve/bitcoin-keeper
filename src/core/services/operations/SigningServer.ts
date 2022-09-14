@@ -61,14 +61,15 @@ export default class SigningServer {
     token: number,
     serializedPSBT: string,
     childIndexArray: Array<{
-      childIndex: number;
+      subPath: number[];
       inputIdentifier: {
         txId: string;
         vout: number;
+        value: number;
       };
     }>
   ): Promise<{
-    signedTxHex: string;
+    signedPSBT: string;
   }> => {
     let res: AxiosResponse;
 
@@ -85,9 +86,9 @@ export default class SigningServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const signedTxHex = res.data.txHex;
+    const signedPSBT = res.data.signedPSBT;
     return {
-      signedTxHex,
+      signedPSBT,
     };
   };
 }

@@ -940,9 +940,8 @@ export default class WalletOperations {
             inputs[inputIndex].address,
             wallet as Vault
           );
-
           childIndexArray.push({
-            childIndex: subPath[1],
+            subPath,
             inputIdentifier: {
               txId: inputs[inputIndex].txId,
               vout: inputs[inputIndex].vout,
