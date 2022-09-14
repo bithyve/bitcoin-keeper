@@ -1,8 +1,12 @@
-import { Animated, Image, Modal, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, Modal, Platform, StyleSheet, Text, View } from 'react-native';
 
 import React from 'react';
 
 function NfcPrompt({ visible }) {
+  if (Platform.OS === 'ios') {
+    return null;
+  }
+
   const animation = React.useRef(new Animated.Value(0)).current;
 
   visible

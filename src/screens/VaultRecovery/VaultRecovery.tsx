@@ -1,23 +1,23 @@
-import { View, Text, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import ScreenWrapper from 'src/components/ScreenWrapper';
-import Header from 'src/components/Header';
 import { Alert, Box, HStack, Pressable, VStack } from 'native-base';
-import AddSignerIcon from 'src/assets/icons/addSigner.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { useNavigation } from '@react-navigation/native';
-import { useAppSelector } from 'src/store/hooks';
-import { ScaledSheet } from 'react-native-size-matters';
-import { WalletMap } from '../Vault/WalletMap';
-import AddIcon from 'src/assets/images/green_add.svg';
+import { FlatList, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import { useDispatch } from 'react-redux';
-import Relay from 'src/core/services/operations/Relay';
-import { setVaultMetaData } from 'src/store/reducers/bhr';
-import { reoverVault } from 'src/store/sagaActions/bhr';
+import AddIcon from 'src/assets/images/green_add.svg';
+import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import Buttons from 'src/components/Buttons';
+import Header from 'src/components/Header';
+import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import Relay from 'src/core/services/operations/Relay';
+import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { WalletMap } from '../Vault/WalletMap';
+import { hp } from 'src/common/data/responsiveness/responsive';
+import { reoverVault } from 'src/store/sagaActions/bhr';
+import { setVaultMetaData } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const SignerItem = ({ signer, index }: { signer: any | undefined; index: number }) => {
   const { navigate } = useNavigation();

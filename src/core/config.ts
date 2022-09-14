@@ -23,8 +23,8 @@ export enum BITCOIN_NETWORK {
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
-  APP_STAGE: APP_STAGE.DEVELOPMENT,
+  BITCOIN_NETWORK: BITCOIN_NETWORK.MAINNET,
+  APP_STAGE: APP_STAGE.STAGING,
   TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
   MAINNET_WRAPPER: 'https://api.bithyve.com',
   RELAY: 'https://dev-relay.bithyve.com/',
