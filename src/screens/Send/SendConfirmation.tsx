@@ -94,6 +94,7 @@ const SendConfirmation = ({ route }) => {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
+      openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
@@ -108,6 +109,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
+      openSendModal();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -122,7 +124,18 @@ const SendConfirmation = ({ route }) => {
   );
 
   const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
-  const sendUnderProgress = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.inProgress);
+  const sendHasFailed = useAppSelector(
+    (state) =>
+      state.sendAndReceive.sendPhaseOne.hasFailed || state.sendAndReceive.sendPhaseTwo.hasFailed
+  );
+  const failedMsg = useAppSelector(
+    (state) =>
+      state.sendAndReceive.sendPhaseOne.failedErrorMessage ||
+      state.sendAndReceive.sendPhaseTwo.failedErrorMessage
+  );
+
+  const onBlockChainMsg = () =>
+    useAppSelector((state) => state.sendAndReceive.sendPhaseOne.failedErrorMessage);
 
   const navigation = useNavigation();
 
@@ -138,14 +151,18 @@ const SendConfirmation = ({ route }) => {
   };
 
   useEffect(() => {
-    if (sendUnderProgress) {
-      openSendModal();
-    } else if (!walletSendSuccessful) {
+    if (sendHasFailed) {
+      closeSendModal();
       openFailedModal();
-    } else if (!sendUnderProgress || walletSendSuccessful) {
+    }
+  }, [sendHasFailed]);
+
+  useEffect(() => {
+    if (walletSendSuccessful) {
+      closeSendModal();
       open();
     }
-  }, [walletSendSuccessful, sendUnderProgress]);
+  }, [walletSendSuccessful]);
 
   const SendingCard = ({ isSend }) => {
     return (
@@ -508,8 +525,8 @@ const SendConfirmation = ({ route }) => {
       <SuccessModal
         visible={sendingModal}
         close={closeSendModal}
-        title={'Sending Loader Modal'}
-        subTitle={'this is the sending loader'}
+        title={'Send Loader'}
+        subTitle={'Sending...'}
         textColor={'#073B36'}
         buttonTextColor={'#FAFAFA'}
         // Content={SendSuccessfulContent}
@@ -520,8 +537,8 @@ const SendConfirmation = ({ route }) => {
       <SuccessModal
         visible={sendFailed}
         close={closeFailModal}
-        title={'this is sending Failed Modal'}
-        subTitle={'Sending Failed'}
+        title={'Sending Failed'}
+        subTitle={failedMsg}
         textColor={'#073B36'}
         // buttonTextColor={'#FAFAFA'}
         // Content={SendSuccessfulContent}
