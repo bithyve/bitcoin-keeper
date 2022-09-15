@@ -22,7 +22,6 @@ const healthCheckRemider = (signer: VaultSigner) => {
 
 function* addToUaiStackWorker({ payload }) {
   const { uai } = payload;
-  console.log('uai to be added', uai);
   let uaiData = { ...uai, timeStamp: new Date() };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uaiData);

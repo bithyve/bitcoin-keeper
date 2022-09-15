@@ -55,6 +55,7 @@
     "moment": "^2.29.4",
     "native-base": "^3.3.7",
     "node-rsa": "^1.1.1",
+    "otplib": "^12.0.1",
     "patch-package": "^6.4.7",
     "path-browserify": "0.0.0",
     "process": "^0.11.0",

@@ -56,7 +56,6 @@ const KeeperModal = (props) => {
               fontFamily={'body'}
               fontWeight={'200'}
               color={textColor}
-              paddingBottom={1}
             >
               {title}
             </Text>
@@ -102,7 +101,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     padding: '4%',
-    paddingVertical: '5%',
   },
   title: {
     fontSize: 19,

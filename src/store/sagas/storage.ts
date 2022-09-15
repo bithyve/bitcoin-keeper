@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import DeviceInfo from 'react-native-device-info';
-import { SETUP_KEEPER_APP } from '../sagaActions/storage';
+import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { setAppId } from '../reducers/storage';
 import { call, put } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
@@ -16,7 +16,7 @@ import { generateEncryptionKey, getRandomBytes } from 'src/core/services/operati
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import config from '../../core/config';
-import crypto from 'crypto'
+import crypto from 'crypto';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -30,7 +30,7 @@ function* setupKeeperAppWorker({ payload }) {
     };
 
     const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex')
+    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
     const entropy = yield call(
       BIP85.bip39MnemonicToEntropy,
@@ -80,3 +80,67 @@ function* setupKeeperAppWorker({ payload }) {
 }
 
 export const setupKeeperAppWatcher = createWatcher(setupKeeperAppWorker, SETUP_KEEPER_APP);
+
+function* setupKeeperVaultRecoveryAppWorker({ payload }) {
+  try {
+    const { appName, vaultShellInstances, subscription } = payload;
+    console.log({ appName, vaultShellInstances, subscription });
+    const primaryMnemonic = bip39.generateMnemonic();
+    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
+
+    const defaultWalletShell: WalletShell = {
+      id: getRandomBytes(12),
+      walletInstances: {},
+    };
+
+    const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+
+    const entropy = yield call(
+      BIP85.bip39MnemonicToEntropy,
+      config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+      primaryMnemonic
+    );
+    const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+
+    const app: KeeperApp = {
+      id,
+      appID,
+      appName,
+      primaryMnemonic,
+      primarySeed: primarySeed.toString('hex'),
+      imageEncryptionKey,
+      walletShellInstances: {
+        shells: [defaultWalletShell.id],
+        activeShell: defaultWalletShell.id,
+      },
+      vaultShellInstances: vaultShellInstances,
+      subscription: {
+        productId: subscription.productId,
+        name: subscription.name,
+      },
+      version: DeviceInfo.getVersion(),
+    };
+    yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+    yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
+
+    // create default wallet
+    const defaultWallet: newWalletInfo = {
+      walletType: WalletType.CHECKING,
+      walletDetails: {
+        name: 'Mobile Wallet',
+        description: 'Single-sig bitcoin wallet',
+      },
+    };
+    yield put(addNewWallets([defaultWallet]));
+
+    yield put(setAppId(appID));
+  } catch (error) {
+    console.log({ error });
+  }
+}
+
+export const setupKeeperVaultRecoveryAppWatcher = createWatcher(
+  setupKeeperVaultRecoveryAppWorker,
+  SETUP_KEEPER_APP_VAULT_RECOVERY
+);

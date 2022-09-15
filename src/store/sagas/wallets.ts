@@ -9,6 +9,8 @@ import {
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
+  VALIDATE_SIGNING_SERVER_REGISTRATION,
+  REGISTER_WITH_SIGNING_SERVER,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -21,6 +23,8 @@ import {
 import { Storage, getString, setItem } from 'src/storage';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { TwoFADetails } from 'src/core/wallets/interfaces/';
+
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -44,7 +48,8 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import { setNetBalance } from 'src/store/reducers/wallets';
+import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
+import SigningServer from 'src/core/services/operations/SigningServer';
 
 export interface newWalletDetails {
   name?: string;
@@ -559,4 +564,43 @@ function* updateWalletSettingsWorker({
 export const updateWalletSettingsWatcher = createWatcher(
   updateWalletSettingsWorker,
   UPDATE_WALLET_SETTINGS
+);
+
+export function* registerWithSigningServerWorker() {
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  if (app.twoFADetails && app.twoFADetails.signingServerXpub)
+    throw new Error('registration already in progress');
+
+  const { setupData } = yield call(SigningServer.register, app.id);
+  const twoFADetails: TwoFADetails = {
+    signingServerXpub: setupData.bhXpub,
+    twoFAKey: setupData.secret,
+  };
+  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+}
+
+export const registerWithSigningServerWatcher = createWatcher(
+  registerWithSigningServerWorker,
+  REGISTER_WITH_SIGNING_SERVER
+);
+
+function* validateSigningServerRegistrationWorker({ payload }: { payload: { token: number } }) {
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const { token } = payload;
+  try {
+    const { valid } = yield call(SigningServer.validate, app.id, token);
+    if (valid) {
+      yield put(signingServerRegistrationVerified(true));
+      const twoFADetails = { ...app.twoFADetails };
+      twoFADetails.twoFAValidated = true;
+      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+    } else yield put(signingServerRegistrationVerified(false));
+  } catch (error) {
+    yield put(signingServerRegistrationVerified(false));
+  }
+}
+
+export const validateSigningServerRegistrationWatcher = createWatcher(
+  validateSigningServerRegistrationWorker,
+  VALIDATE_SIGNING_SERVER_REGISTRATION
 );
