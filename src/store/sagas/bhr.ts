@@ -126,8 +126,8 @@ function* updateVaultImageWorker({ payload }) {
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
-  const vault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, false);
-  const m = vault.scheme.m;
+  const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
+  const vault: Vault = vaults[vaults.length - 1];
 
   var signersIds = [];
   var signerIdXpubMap = {};

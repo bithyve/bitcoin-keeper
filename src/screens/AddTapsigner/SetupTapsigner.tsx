@@ -19,6 +19,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 const SetupTapsigner = () => {
   const [cvc, setCvc] = React.useState('');
@@ -76,7 +77,7 @@ const SetupTapsigner = () => {
     return signerDetails;
   };
 
-  const saveTapsigner = (tapsignerData) => {
+  const saveTapsigner = async (tapsignerData) => {
     const { xpub, derivationPath, xfp } = tapsignerData;
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
@@ -93,6 +94,8 @@ const SetupTapsigner = () => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
     };
+    const exsists = await checkSigningDevice(signer.signerId);
+    if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     dispatch(addSigningDevice(signer));
   };
 

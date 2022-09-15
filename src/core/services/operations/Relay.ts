@@ -285,8 +285,8 @@ export default class Relay {
         status: res.status,
       };
     } catch (err) {
-      throw new Error('Failed to update App Image');
       captureError(err);
+      throw new Error('Failed to update App Image');
     }
   };
 
@@ -310,8 +310,8 @@ export default class Relay {
         status: res.status,
       };
     } catch (err) {
-      throw new Error('Failed to update Vault Image');
       captureError(err);
+      throw new Error('Failed to update Vault Image');
     }
   };
 
@@ -338,8 +338,22 @@ export default class Relay {
       const data = res.data || res.json;
       return data;
     } catch (err) {
-      throw new Error('Failed get Vault Meta Data');
       captureError(err);
+      throw new Error('Failed get Vault Meta Data');
+    }
+  };
+
+  public static getSignerIdInfo = async (signerId): Promise<any> => {
+    try {
+      let res;
+      res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
+        signerId,
+      });
+      const data = res.data || res.json;
+      return data.exsists;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get SignerId Info');
     }
   };
 
@@ -352,8 +366,8 @@ export default class Relay {
       const data = res.data || res.json;
       return data.encryptedVac;
     } catch (err) {
-      throw new Error('Failed get Vac');
       captureError(err);
+      throw new Error('Failed get Vac');
     }
   };
 }
