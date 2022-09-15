@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { Box } from 'native-base';
@@ -16,6 +16,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 const SetupColdCard = () => {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -43,7 +44,7 @@ const SetupColdCard = () => {
     return { xpub, derivationPath, xfp };
   };
 
-  const saveColdCard = (coldCardData) => {
+  const saveColdCard = async (coldCardData) => {
     let { xpub, derivationPath, xfp } = coldCardData;
     const networkType =
       config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
@@ -61,6 +62,8 @@ const SetupColdCard = () => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
     };
+    const exsists = await checkSigningDevice(signer.signerId);
+    if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     dispatch(addSigningDevice(signer));
   };
 
