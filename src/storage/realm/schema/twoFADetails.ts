@@ -5,7 +5,7 @@ export const TwoFADetailsSchema: ObjectSchema = {
   name: RealmSchema.TwoFADetails,
   embedded: true,
   properties: {
-    bithyveXpub: 'string?',
+    signingServerXpub: 'string?',
     twoFAKey: 'string?',
     twoFAValidated: 'bool?',
   },
