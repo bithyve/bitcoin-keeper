@@ -55,6 +55,7 @@ const ShowAddressScreen = ({ transport }) => {
           xfp: masterfp,
         },
         lastHealthCheck: new Date(),
+        addedOn: new Date(),
       };
       // const {
       //   xpub: xpub2,
