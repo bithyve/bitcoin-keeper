@@ -91,6 +91,7 @@ const SetupTapsigner = () => {
         xfp,
       },
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
     dispatch(addSigningDevice(signer));
   };
@@ -123,6 +124,7 @@ const SetupTapsigner = () => {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.TAPSIGNER,
           signerName: 'Tapsigner (Mock)',
+          isMock: true,
           xpub,
           xpriv,
           xpubInfo: {
@@ -130,6 +132,7 @@ const SetupTapsigner = () => {
             xfp: masterFingerprint,
           },
           lastHealthCheck: new Date(),
+          addedOn: new Date(),
         };
         dispatch(addSigningDevice(tapsigner));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
@@ -157,7 +160,6 @@ const SetupTapsigner = () => {
               onChangeText={setCvc}
               secureTextEntry={true}
               showSoftInputOnFocus={false}
-
             />
             <Text
               padding={5}

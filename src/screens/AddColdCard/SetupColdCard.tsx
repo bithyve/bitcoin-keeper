@@ -59,6 +59,7 @@ const SetupColdCard = () => {
         xfp,
       },
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
     dispatch(addSigningDevice(signer));
   };
@@ -90,6 +91,7 @@ const SetupColdCard = () => {
         const cc: VaultSigner = {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.COLDCARD,
+          isMock: true,
           signerName: 'Mk4 (Mock)',
           xpub,
           xpriv,
@@ -98,6 +100,7 @@ const SetupColdCard = () => {
             xfp: masterFingerprint,
           },
           lastHealthCheck: new Date(),
+          addedOn: new Date(),
         };
         dispatch(addSigningDevice(cc));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));

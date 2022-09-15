@@ -203,7 +203,7 @@ const sendAndReceiveSlice = createSlice({
             envelop.serializedPSBT = signedSerializedPSBT
               ? signedSerializedPSBT
               : envelop.serializedPSBT;
-            envelop.isSigned = true;
+            envelop.isSigned = signedSerializedPSBT ? true : envelop.isSigned;
             envelop.signingPayload = signingPayload ? signingPayload : envelop.signingPayload;
           }
           return envelop;

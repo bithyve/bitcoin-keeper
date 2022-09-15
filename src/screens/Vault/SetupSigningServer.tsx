@@ -1,33 +1,33 @@
 import { Box, DeleteIcon, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import Header from 'src/components/Header';
-import InfoBox from '../../components/InfoBox';
-import QRCode from 'react-native-qrcode-svg';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { APP_STAGE } from 'src/core/config';
 import Buttons from 'src/components/Buttons';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import idx from 'idx';
-import { authenticator } from 'otplib';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import KeeperModal from 'src/components/KeeperModal';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import Header from 'src/components/Header';
+import InfoBox from '../../components/InfoBox';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import QRCode from 'react-native-qrcode-svg';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { ScaledSheet } from 'react-native-size-matters';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { authenticator } from 'otplib';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import idx from 'idx';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
-import { useAppSelector } from 'src/store/hooks';
-import { APP_STAGE } from 'src/core/config';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
 
 const SetupSigningServer = ({ route }: { route }) => {
   const dispatch = useDispatch();
@@ -68,6 +68,7 @@ const SetupSigningServer = ({ route }: { route }) => {
       signerName: 'Signing Server',
       xpub: signingServerXpub,
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
 
     dispatch(addSigningDevice(signingServerKey));

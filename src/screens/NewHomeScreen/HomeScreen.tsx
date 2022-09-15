@@ -46,7 +46,7 @@ import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -436,7 +436,7 @@ const VaultInfo = () => {
 
   function getPlanIcon() {
     if (subscription.name.toLowerCase().includes('whale')) {
-      return <WhaleFocused />;
+      return <DiamondHandsFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;
     } else {

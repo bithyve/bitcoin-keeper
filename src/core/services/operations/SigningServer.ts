@@ -55,4 +55,40 @@ export default class SigningServer {
       valid,
     };
   };
+
+  static signPSBT = async (
+    walletId: string,
+    token: number,
+    serializedPSBT: string,
+    childIndexArray: Array<{
+      subPath: number[];
+      inputIdentifier: {
+        txId: string;
+        vout: number;
+        value: number;
+      };
+    }>
+  ): Promise<{
+    signedPSBT: string;
+  }> => {
+    let res: AxiosResponse;
+
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}securePSBTTransaction`, {
+        HEXA_ID: config.HEXA_ID,
+        walletID: walletId,
+        token,
+        serializedPSBT,
+        childIndexArray,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const signedPSBT = res.data.signedPSBT;
+    return {
+      signedPSBT,
+    };
+  };
 }

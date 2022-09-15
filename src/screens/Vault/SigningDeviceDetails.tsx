@@ -33,7 +33,6 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useDispatch } from 'react-redux';

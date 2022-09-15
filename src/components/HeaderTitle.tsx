@@ -13,8 +13,8 @@ type Props = {
   onPressHandler?: () => void;
   enableBack?: boolean;
   headerTitleColor?: string;
-  paddingLeft?: number
-  paddingTop?: number
+  paddingLeft?: number;
+  paddingTop?: number;
 };
 const HeaderTitle = ({
   title = '',
@@ -23,7 +23,7 @@ const HeaderTitle = ({
   enableBack = true,
   headerTitleColor = 'light.headerText',
   paddingLeft = 0,
-  paddingTop = 0
+  paddingTop = 0,
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -71,13 +71,13 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(16),
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    paddingHorizontal: '10@s',
+    paddingHorizontal: '20@s',
   },
   addWalletDescription: {
     fontSize: RFValue(12),
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    paddingHorizontal: '10@s',
+    paddingHorizontal: '20@s',
   },
   back: {
     paddingHorizontal: '5@s',

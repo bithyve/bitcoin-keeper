@@ -23,7 +23,7 @@ const Buttons = ({
     <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20 }}>
       {secondaryText != '' && (
         <TouchableOpacity
-          style={{ ...styles.cancelBtn, opacity: secondaryDisable ? 0.5 : 1 }}
+          style={[styles.cancelBtn, { opacity: secondaryDisable ? 0.5 : 1 }]}
           onPress={secondaryCallback}
           disabled={secondaryDisable}
           activeOpacity={0.5}
@@ -44,14 +44,10 @@ const Buttons = ({
         </TouchableOpacity>
       )}
       {primaryText != '' && (
-        <TouchableOpacity
-          onPress={primaryCallback}
-          disabled={primaryDisable}
-          style={{ maxWidth: '50%' }}
-        >
+        <TouchableOpacity onPress={primaryCallback} disabled={primaryDisable}>
           <Shadow distance={10} startColor={'#073E3926'} offset={[3, 4]}>
             <LinearGradient
-              style={{ ...styles.createBtn, opacity: primaryDisable ? 0.5 : 1 }}
+              style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1 }]}
               start={{ x: 0, y: 0.75 }}
               end={{ x: 1, y: 0.25 }}
               colors={['#00836A', '#073E39']}

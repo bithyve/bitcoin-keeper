@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import AppClient, { DefaultWalletPolicy, PsbtV2, WalletPolicy } from 'src/hardware/ledger';
-import { Box, Pressable, Text } from 'native-base';
+import { Box, DeleteIcon, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
@@ -42,6 +42,18 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
+import moment from 'moment';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import SigningServer from 'src/core/services/operations/SigningServer';
+import idx from 'idx';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { hash512 } from 'src/core/services/operations/encryption';
+import WalletOperations from 'src/core/wallets/operations';
+
 
 const { width } = Dimensions.get('screen');
 
@@ -213,7 +225,7 @@ const SignWith = ({
                 fontFamily={'body'}
                 letterSpacing={0.6}
               >
-                {`Added on 4th of July`}
+                {`Added on ${moment(signer.addedOn).calendar()}`}
               </Text>
             </View>
           </Box>
@@ -230,11 +242,17 @@ const SignTransactionScreen = () => {
   const { signers, id: vaultId }: { signers: VaultSigner[]; id: string } = useQuery(
     RealmSchema.Vault
   ).map(getJSONFromRealmObject)[0];
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
   const [nfcVisible, setNfcVisible] = useState(false);
+  const [otpModal, showOTPModal] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const { pinHash } = useAppSelector((state) => state.storage);
+
   const [activeSignerId, setActiveSignerId] = useState<string>();
   const LedgerCom = useRef();
   const onSelectDevice = useCallback(async (device) => {
@@ -318,102 +336,260 @@ const SignTransactionScreen = () => {
     return false;
   };
 
-  const signTransaction = useCallback(async () => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      for (let i = 0; i < serializedPSBTEnvelops.length; i++) {
-        const serializedPSBTEnvelop = serializedPSBTEnvelops[i];
-        if (serializedPSBTEnvelop.isSigned === true) {
-          continue;
-        }
-        const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
-        const { signerType, signingPayload, signerId } = copySerializedPSBTEnvelop;
-        setActiveSignerId(signerId);
-        if (SignerType.TAPSIGNER === signerType) {
-          setTapsignerModal(false);
-          const withModal = (callback) => {
-            return Platform.select({
-              android: async () => {
-                setNfcVisible(true);
-                const resp = await card.nfcWrapper(callback);
-                setNfcVisible(false);
-                return resp;
-              },
-              ios: async () => card.nfcWrapper(callback),
-            });
-          };
-          const { inputsToSign } = signingPayload[0];
-          await withModal(async () => {
-            try {
-              const status = await card.first_look();
-              if (status.path) {
-                for (let i = 0; i < inputsToSign.length; i++) {
-                  const input = inputsToSign[i];
-                  const digest = Buffer.from(input.digest, 'hex');
-                  const subpath = input.subPath;
-                  const signature = await card.sign_digest(textRef.current, 0, digest, subpath);
-                  input.signature = signature.slice(1).toString('hex');
+  const signTransaction = useCallback(
+    async (signingServerOTP?: string) => {
+      if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
+        for (let i = 0; i < serializedPSBTEnvelops.length; i++) {
+          const serializedPSBTEnvelop = serializedPSBTEnvelops[i];
+          if (serializedPSBTEnvelop.isSigned === true) {
+            continue;
+          }
+          const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
+          const { signerType, serializedPSBT, signingPayload, signerId } =
+            copySerializedPSBTEnvelop;
+          setActiveSignerId(signerId);
+
+          if (SignerType.TAPSIGNER === signerType) {
+            setTapsignerModal(false);
+            const withModal = (callback) => {
+              return Platform.select({
+                android: async () => {
+                  setNfcVisible(true);
+                  const resp = await card.nfcWrapper(callback);
+                  setNfcVisible(false);
+                  return resp;
+                },
+                ios: async () => card.nfcWrapper(callback),
+              });
+            };
+            const { inputsToSign } = signingPayload[0];
+            await withModal(async () => {
+              try {
+                const status = await card.first_look();
+                if (status.path) {
+                  for (let i = 0; i < inputsToSign.length; i++) {
+                    const input = inputsToSign[i];
+                    const digest = Buffer.from(input.digest, 'hex');
+                    const subpath = input.subPath;
+                    const signature = await card.sign_digest(textRef.current, 0, digest, subpath);
+                    input.signature = signature.slice(1).toString('hex');
+                  }
+                  dispatch(updatePSBTSignatures({ signingPayload, signerId }));
+                } else {
+                  Alert.alert('Please setup card before signing!');
                 }
-                dispatch(updatePSBTSignatures({ signingPayload, signerId }));
-              } else {
-                Alert.alert('Please setup card before signing!');
+              } catch (e) {
+                console.log(e);
               }
-            } catch (e) {
-              console.log(e);
+            })().catch(console.log);
+          } else if (SignerType.COLDCARD === signerType) {
+            try {
+              setColdCardModal(false);
+              setNfcVisible(true);
+              const psbtBytes = NFC.encodeForColdCard(serializedPSBTEnvelop.serializedPSBT);
+              await NFC.send([NfcTech.Ndef], psbtBytes);
+              setNfcVisible(false);
+            } catch (error) {
+              setNfcVisible(false);
+              console.log({ error });
             }
-          })().catch(console.log);
-        } else if (SignerType.COLDCARD === signerType) {
-          try {
-            setColdCardModal(false);
-            setNfcVisible(true);
-            const psbtBytes = NFC.encodeForColdCard(serializedPSBTEnvelop.serializedPSBT);
-            await NFC.send([NfcTech.Ndef], psbtBytes);
-            setNfcVisible(false);
-          } catch (error) {
-            setNfcVisible(false);
-            console.log({ error });
-          }
-        } else if (SignerType.LEDGER === signerType) {
-          try {
-            setLedgerModal(false);
-            const app = new AppClient(LedgerCom.current);
-            const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
-            const multisigWalletPolicy = new WalletPolicy(
-              'ColdStorage',
-              'sh(wsh(sortedmulti(1,@0,@1)))',
-              signers.map((signer) => {
-                const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
-                  signer.xpubInfo.derivationPath.indexOf('/')
-                )}`;
-                return `[${path}]${signer.xpub}/**`;
-              })
+          } else if (SignerType.LEDGER === signerType) {
+            try {
+              setLedgerModal(false);
+              const app = new AppClient(LedgerCom.current);
+              const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
+              const multisigWalletPolicy = new WalletPolicy(
+                'ColdStorage',
+                'sh(wsh(sortedmulti(1,@0,@1)))',
+                signers.map((signer) => {
+                  const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
+                    signer.xpubInfo.derivationPath.indexOf('/')
+                  )}`;
+                  return `[${path}]${signer.xpub}/**`;
+                })
+              );
+              const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
+              const psbt = new PsbtV2(); //??
+              psbt.deserialize(buff);
+              console.log({ psbt });
+              const signed = await app.signPsbt(psbt, multisigWalletPolicy, null);
+              console.log(signed);
+            } catch (error) {
+              switch (error.message) {
+                case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
+                  Alert.alert('Unlock the device to connect.');
+                case 'Ledger device: UNKNOWN_ERROR (0x6a15)':
+                  Alert.alert('Navigate to the correct app in the Ledger.');
+                case 'Ledger device: UNKNOWN_ERROR (0x6511)':
+                  Alert.alert('Open up the correct app in the Ledger.'); // no app selected
+                // unknown error
+                default:
+                  break;
+              }
+              console.log({ error });
+              Alert.alert(error.toString());
+            }
+          } else if (SignerType.MOBILE_KEY === signerType) {
+            setPasswordModal(false);
+            const inputs = idx(signingPayload, (_) => _[0].inputs);
+            if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+
+            const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+              defaultVault,
+              inputs,
+              serializedPSBT,
+              signer
             );
-            const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
-            const psbt = new PsbtV2(); //??
-            psbt.deserialize(buff);
-            console.log({ psbt });
-            const signed = await app.signPsbt(psbt, multisigWalletPolicy, null);
-            console.log(signed);
-          } catch (error) {
-            switch (error.message) {
-              case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
-                Alert.alert('Unlock the device to connect.');
-              case 'Ledger device: UNKNOWN_ERROR (0x6a15)':
-                Alert.alert('Navigate to the correct app in the Ledger.');
-              case 'Ledger device: UNKNOWN_ERROR (0x6511)':
-                Alert.alert('Open up the correct app in the Ledger.'); // no app selected
-              // unknown error
-              default:
-                break;
+            dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          } else if (SignerType.POLICY_SERVER === signerType) {
+            try {
+              showOTPModal(false);
+              const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+              if (!childIndexArray) throw new Error('Invalid signing payload');
+              const { signedPSBT } = await SigningServer.signPSBT(
+                keeper.id,
+                Number(signingServerOTP),
+                serializedPSBT,
+                childIndexArray
+              );
+              if (!signedPSBT) throw new Error('signing server: failed to sign');
+              dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));
+            } catch (err) {
+              Alert.alert(err);
             }
-            console.log({ error });
-            Alert.alert(error.toString());
+          } else {
+            break;
           }
-        } else {
-          break;
         }
       }
-    }
-  }, [serializedPSBTEnvelops, activeSignerId]);
+    },
+    [serializedPSBTEnvelops, activeSignerId]
+  );
+
+  const passwordEnter = () => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = password;
+      if (password.length < 4) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setPassword(tmpPasscode);
+        }
+      }
+      if (password && text == 'x') {
+        setPassword(password.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setPassword(password.slice(0, password.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)}>
+        <Box>
+          <CVVInputsView
+            passCode={password}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+            length={4}
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  const currentPinHash = hash512(password);
+                  if (currentPinHash === pinHash) {
+                    signTransaction();
+                  } else Alert.alert('Incorrect password. Try again!');
+                }}
+                value={'Confirm'}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  };
+
+  const otpContent = useCallback(() => {
+    const [otp, setOtp] = useState('');
+
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text == 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)}>
+        <Box>
+          <CVVInputsView
+            passCode={otp}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  signTransaction(otp);
+                }}
+                value={'proceed'}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  }, []);
 
   const callbackForSigners = (type: SignerType) => {
     switch (type) {
@@ -425,6 +601,12 @@ const SignTransactionScreen = () => {
         break;
       case SignerType.LEDGER:
         setLedgerModal(true);
+        break;
+      case SignerType.MOBILE_KEY:
+        setPasswordModal(true);
+        break;
+      case SignerType.POLICY_SERVER:
+        showOTPModal(true);
         break;
       default:
         Alert.alert(`action not set for ${type}`);
@@ -513,6 +695,28 @@ const SignTransactionScreen = () => {
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />
+      <KeeperModal
+        visible={passwordModal}
+        close={() => {
+          setPasswordModal(false);
+        }}
+        title={'Enter your password'}
+        subTitle={'Lorem ipsum dolor sit amet, '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#041513'}
+        Content={passwordEnter}
+      />
+      <KeeperModal
+        visible={otpModal}
+        close={() => {
+          showOTPModal(false);
+        }}
+        title={'Confirm OTP to setup 2FA'}
+        subTitle={'Lorem ipsum dolor sit amet, '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#041513'}
+        Content={otpContent}
+      />
     </ScreenWrapper>
   );
 };

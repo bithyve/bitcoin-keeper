@@ -1,7 +1,7 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useState } from 'react';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { hp, wp, windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -15,6 +15,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import Transactions from './Transactions';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -57,6 +58,7 @@ const AddSendAmount = ({ route }) => {
           onPressHandler={() => navigation.goBack()}
         />
       </Box>
+      {/*       
       <Box
         flexDirection={'row'}
         alignItems={'center'}
@@ -92,9 +94,28 @@ const AddSendAmount = ({ route }) => {
             {address}
           </Text>
         </Box>
+
         <DollarInput />
+      </Box> */}
+
+      {/* { Transaction list} */}
+      <Box marginTop={hp(32)} marginBottom={hp(32)}>
+        <Transactions transactions={[1, 2, 3]} addTransaction={() => { }} />
       </Box>
 
+      <Box
+        alignItems={'center'}
+        style={{
+          marginBottom: hp(30)
+        }}
+      >
+        <Box
+          borderBottomColor={'light.Border'}
+          borderBottomWidth={1}
+          width={wp(280)}
+          opacity={0.1}
+        />
+      </Box>
       <Box marginX={3}>
         <Box
           flexDirection={'row'}
@@ -133,7 +154,6 @@ const AddSendAmount = ({ route }) => {
             />
           </Box>
           <Pressable
-            backgroundColor={'light.yellow1'}
             onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
             style={{
               paddingHorizontal: 10,
@@ -142,10 +162,10 @@ const AddSendAmount = ({ route }) => {
             }}
           >
             <Text
-              color={'light.textDark'}
-              fontSize={RFValue(11)}
+              color={'light.sendMax'}
+              fontSize={RFValue(12)}
               letterSpacing={0.6}
-              fontWeight={200}
+              fontWeight={300}
             >
               Send Max
             </Text>
