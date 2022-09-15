@@ -50,6 +50,8 @@ import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { hash512 } from 'src/core/services/operations/encryption';
+import WalletOperations from 'src/core/wallets/operations';
 
 const { width } = Dimensions.get('screen');
 
@@ -245,6 +247,9 @@ const SignTransactionScreen = () => {
   const [ledgerModal, setLedgerModal] = useState(false);
   const [nfcVisible, setNfcVisible] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const { pinHash } = useAppSelector((state) => state.storage);
 
   const [activeSignerId, setActiveSignerId] = useState<string>();
   const LedgerCom = useRef();
@@ -341,6 +346,7 @@ const SignTransactionScreen = () => {
           const { signerType, serializedPSBT, signingPayload, signerId } =
             copySerializedPSBTEnvelop;
           setActiveSignerId(signerId);
+
           if (SignerType.TAPSIGNER === signerType) {
             setTapsignerModal(false);
             const withModal = (callback) => {
@@ -421,6 +427,19 @@ const SignTransactionScreen = () => {
               console.log({ error });
               Alert.alert(error.toString());
             }
+          } else if (SignerType.MOBILE_KEY === signerType) {
+            setPasswordModal(false);
+            const inputs = idx(signingPayload, (_) => _[0].inputs);
+            if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+
+            const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+              defaultVault,
+              inputs,
+              serializedPSBT,
+              signer
+            );
+            dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
           } else if (SignerType.POLICY_SERVER === signerType) {
             try {
               showOTPModal(false);
@@ -445,6 +464,69 @@ const SignTransactionScreen = () => {
     },
     [serializedPSBTEnvelops, activeSignerId]
   );
+
+  const passwordEnter = () => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = password;
+      if (password.length < 4) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setPassword(tmpPasscode);
+        }
+      }
+      if (password && text == 'x') {
+        setPassword(password.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setPassword(password.slice(0, password.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)}>
+        <Box>
+          <CVVInputsView
+            passCode={password}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+            length={4}
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  const currentPinHash = hash512(password);
+                  if (currentPinHash === pinHash) {
+                    signTransaction();
+                  } else Alert.alert('Incorrect password. Try again!');
+                }}
+                value={'Confirm'}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  };
 
   const otpContent = useCallback(() => {
     const [otp, setOtp] = useState('');
@@ -517,6 +599,9 @@ const SignTransactionScreen = () => {
         break;
       case SignerType.LEDGER:
         setLedgerModal(true);
+        break;
+      case SignerType.MOBILE_KEY:
+        setPasswordModal(true);
         break;
       case SignerType.POLICY_SERVER:
         showOTPModal(true);
@@ -608,6 +693,17 @@ const SignTransactionScreen = () => {
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />
+      <KeeperModal
+        visible={passwordModal}
+        close={() => {
+          setPasswordModal(false);
+        }}
+        title={'Enter your password'}
+        subTitle={'Lorem ipsum dolor sit amet, '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#041513'}
+        Content={passwordEnter}
+      />
       <KeeperModal
         visible={otpModal}
         close={() => {
