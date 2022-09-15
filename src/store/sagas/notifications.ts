@@ -72,32 +72,31 @@ export function* getMessageWorker() {
     )
   );
 
-  yield messages.forEach((notification) => {
-    call(dbManager.createObject, RealmSchema.Notification, {
-      ...notification,
+  for (let i = 0; i < messages.length; i++) {
+    yield call(dbManager.createObject, RealmSchema.Notification, {
+      ...messages[i],
       additionalInfo: {
         notes: Platform.select({
-          ios: notification.additionalInfo.notes.ios,
-          android: notification.additionalInfo.notes.android,
+          ios: messages[i].additionalInfo.notes.ios,
+          android: messages[i].additionalInfo.notes.android,
         }),
       },
     });
-  });
+  }
 
   const storedNotifications = yield call(dbManager.getCollection, RealmSchema.Notification);
-  console.log('storedNotifications', storedNotifications);
 
-  yield storedNotifications.forEach((notification) => {
-    put(
+  for (let i = 0; i < storedNotifications.length; i++) {
+    yield put(
       addToUaiStack(
-        notification.title,
+        storedNotifications[i].title,
         false,
-        notification.type,
+        storedNotifications[i].type,
         20,
-        notification.additionalInfo.notes
+        storedNotifications[i].additionalInfo.notes
       )
     );
-  });
+  }
 
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
