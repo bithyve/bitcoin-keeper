@@ -25,9 +25,9 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
+import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 
 const BulletPoint = ({ text }) => {
   return (
@@ -35,7 +35,7 @@ const BulletPoint = ({ text }) => {
       <Box
         style={{
           height: hp(5),
-          width: wp(5)
+          width: wp(5),
         }}
         backgroundColor={'light.modalText'}
         borderRadius={10}
@@ -197,6 +197,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       },
       bip85Config,
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
 
     dispatch(addSigningDevice(mobileKey));

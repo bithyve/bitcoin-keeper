@@ -1,7 +1,7 @@
 import {
   ActiveAddresses,
-  Balances,
   BIP85Config,
+  Balances,
   Transaction,
   TransactionToAddressMapping,
   UTXO,
@@ -42,7 +42,7 @@ export interface VaultScheme {
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
-  isMock?: Boolean;
+  isMock?: boolean;
   xpub: string;
   xpriv?: string;
   signerName?: string;
@@ -52,6 +52,8 @@ export interface VaultSigner {
   };
   bip85Config?: BIP85Config; // configuration for mobile keys
   lastHealthCheck: Date;
+  addedOn: Date;
+  hasSigned?: boolean;
 }
 
 export interface Vault {

@@ -1,32 +1,23 @@
-import { all, call, put, select } from 'redux-saga/effects';
-import _ from 'lodash';
 import * as bip39 from 'bip39';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import DeviceInfo from 'react-native-device-info';
-import { RealmSchema } from 'src/storage/realm/enum';
+
+import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import {
-  GET_APP_IMAGE,
-  UPDATE_APP_IMAGE,
-  SEED_BACKEDUP,
-  SEED_BACKEDUP_CONFIRMED,
-  INIT_CLOUD_BACKUP,
   CLOUD_BACKUP_SKIPPED,
   CONFIRM_CLOUD_BACKUP,
+  GET_APP_IMAGE,
   GET_CLOUD_DATA,
+  INIT_CLOUD_BACKUP,
   RECOVER_BACKUP,
-  getAppImage,
-  UPADTE_HEALTH_CHECK_SIGNER,
-  SET_BACKUP_WARNING,
-  UPDATE_VAULT_IMAGE,
   RECOVER_VAULT,
+  SEED_BACKEDUP,
+  SEED_BACKEDUP_CONFIRMED,
+  SET_BACKUP_WARNING,
+  UPADTE_HEALTH_CHECK_SIGNER,
+  UPDATE_APP_IMAGE,
+  UPDATE_VAULT_IMAGE,
+  getAppImage,
 } from '../sagaActions/bhr';
-import { createWatcher } from '../utilities';
-import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
-import moment from 'moment';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import {
   appImagerecoveryRetry,
   setAppImageError,
@@ -36,33 +27,39 @@ import {
   setBackupError,
   setBackupLoading,
   setBackupType,
+  setBackupWarning,
   setCloudBackupCompleted,
   setCloudBackupConfirmed,
   setCloudData,
   setDownloadingBackup,
   setInvalidPassword,
   setSeedConfirmed,
-  setBackupWarning,
 } from '../reducers/bhr';
-import { uploadData, getCloudBackupData } from 'src/nativemodules/Cloud';
-import { Platform } from 'react-native';
-import { translations } from 'src/common/content/LocContext';
-import BIP85 from 'src/core/wallets/operations/BIP85';
+import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
-import { refreshWallets } from '../sagaActions/wallets';
+import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
+import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
+
+import BIP85 from 'src/core/wallets/operations/BIP85';
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { Platform } from 'react-native';
+import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
-import dbManager from 'src/storage/realm/dbManager';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { uaiActionedEntity } from '../sagaActions/uai';
-import {
-  decryptVAC,
-  encryptVAC,
-  generateIDForVAC,
-  generateVAC,
-} from 'src/core/wallets/factories/VaultFactory';
 import { RootState } from '../store';
-import { setupKeeperApp, setupKeeperAppVaultReovery } from '../sagaActions/storage';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
 import { captureError } from 'src/core/services/sentry';
+import { createWatcher } from '../utilities';
+import dbManager from 'src/storage/realm/dbManager';
+import moment from 'moment';
+import { refreshWallets } from '../sagaActions/wallets';
+import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
+import { translations } from 'src/common/content/LocContext';
+import { uaiActionedEntity } from '../sagaActions/uai';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;

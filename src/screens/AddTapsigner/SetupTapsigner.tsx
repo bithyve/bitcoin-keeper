@@ -91,6 +91,7 @@ const SetupTapsigner = () => {
         xfp,
       },
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
     dispatch(addSigningDevice(signer));
   };
@@ -131,6 +132,7 @@ const SetupTapsigner = () => {
             xfp: masterFingerprint,
           },
           lastHealthCheck: new Date(),
+          addedOn: new Date(),
         };
         dispatch(addSigningDevice(tapsigner));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));

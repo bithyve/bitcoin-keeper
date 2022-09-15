@@ -9,10 +9,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
 
@@ -58,7 +57,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
               height={windowHeight * 0.08}
               flexDirection={'row'}
               style={{
-                paddingVertical: hp(25),
                 paddingLeft: wp(40),
               }}
             >
@@ -113,30 +111,26 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   };
 
   return (
-    <Box style={styles.container}>
-      <StatusBarComponent padding={50} />
-      <Box marginX={10}>
-        <HeaderTitle
-          title={vault.SelectSigner}
-          subtitle={vault.ForVault}
-          onPressHandler={() => navigation.navigate('NewHome')}
-          headerTitleColor={'light.headerTextTwo'}
-        />
-      </Box>
+    <ScreenWrapper>
+      <HeaderTitle
+        title={vault.SelectSigner}
+        subtitle={vault.ForVault}
+        onPressHandler={() => navigation.navigate('NewHome')}
+        headerTitleColor={'light.headerTextTwo'}
+      />
       <Box alignItems={'center'} justifyContent={'center'}>
         <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
             {[
-              'COLDCARD',
+              'MOBILE_KEY',
+              'POLICY_SERVER',
               'TAPSIGNER',
+              'COLDCARD',
               'LEDGER',
               'TREZOR',
               'KEYSTONE',
               'PASSPORT',
               'JADE',
-              // 'KEEPER',
-              'POLICY_SERVER',
-              'MOBILE_KEY',
             ].map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
@@ -172,14 +166,8 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={nfcAlertConternt}
         />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 };
-
-const styles = ScaledSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default SigningDeviceList;

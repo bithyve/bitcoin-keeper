@@ -59,6 +59,7 @@ const SetupColdCard = () => {
         xfp,
       },
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
     dispatch(addSigningDevice(signer));
   };
@@ -99,6 +100,7 @@ const SetupColdCard = () => {
             xfp: masterFingerprint,
           },
           lastHealthCheck: new Date(),
+          addedOn: new Date(),
         };
         dispatch(addSigningDevice(cc));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
