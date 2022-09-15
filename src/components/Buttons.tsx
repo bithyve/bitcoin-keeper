@@ -83,7 +83,6 @@ const styles = ScaledSheet.create({
     paddingHorizontal: wp(5),
     paddingVertical: hp(2.3),
     borderRadius: '10@s',
-    maxWidth: '60%',
   },
 });
 export default Buttons;

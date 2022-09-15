@@ -1,7 +1,7 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useState } from 'react';
-import { hp, wp, windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -11,11 +11,11 @@ import Header from 'src/components/Header';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
+import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import Transactions from './Transactions';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -100,13 +100,13 @@ const AddSendAmount = ({ route }) => {
 
       {/* { Transaction list} */}
       <Box marginTop={hp(32)} marginBottom={hp(32)}>
-        <Transactions transactions={[1, 2, 3]} addTransaction={() => { }} />
+        <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
       </Box>
 
       <Box
         alignItems={'center'}
         style={{
-          marginBottom: hp(30)
+          marginBottom: hp(30),
         }}
       >
         <Box
@@ -182,15 +182,6 @@ const AddSendAmount = ({ route }) => {
           <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
         <Box marginTop={3} marginBottom={5} flexDirection={'row'} justifyContent={'flex-end'}>
-          <Box ml={windowWidth * -0.1}>
-            <Buttons
-              secondaryText={'Add Recipient'}
-              secondaryCallback={() => {
-                // navigation.navigate('SendConfirmation');
-                console.log('Batch Send');
-              }}
-            />
-          </Box>
           <Box ml={windowWidth * -0.09}>
             <Buttons
               secondaryText={'Cancel'}

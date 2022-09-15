@@ -988,6 +988,7 @@ export default class WalletOperations {
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+    if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
       let err;
       try {
@@ -999,8 +1000,6 @@ export default class WalletOperations {
       }
       throw new Error(err);
     }
-
-    if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
     return txid;
   };
