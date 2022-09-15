@@ -214,7 +214,7 @@ const SignWith = ({
                 fontFamily={'body'}
                 letterSpacing={0.6}
               >
-                {`Added on ${moment(signer.lastHealthCheck).calendar()}`}
+                {`Added on ${moment(signer.addedOn).calendar()}`}
               </Text>
             </View>
           </Box>
