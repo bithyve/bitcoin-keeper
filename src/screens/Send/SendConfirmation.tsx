@@ -134,9 +134,6 @@ const SendConfirmation = ({ route }) => {
       state.sendAndReceive.sendPhaseTwo.failedErrorMessage
   );
 
-  const onBlockChainMsg = () =>
-    useAppSelector((state) => state.sendAndReceive.sendPhaseOne.failedErrorMessage);
-
   const navigation = useNavigation();
 
   useEffect(() => {
