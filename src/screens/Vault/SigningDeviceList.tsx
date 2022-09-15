@@ -14,6 +14,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
+import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 type HWProps = {
   type: SignerType;
@@ -36,8 +38,22 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   };
 
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
+    const disabled = useAppSelector((state) =>
+      state.vault.signers.filter(
+        (signer) =>
+          signer.type === type &&
+          (type === SignerType.MOBILE_KEY || type === SignerType.POLICY_SERVER)
+      )
+    );
     const [visible, setVisible] = useState(false);
+    const { showToast } = useToastMessage();
     const onPress = () => {
+      if (!!disabled.length) {
+        showToast(
+          `There can only be one ${type.toLowerCase().split('_').join(' ')} to create a Vault`
+        );
+        return;
+      }
       open();
     };
 
@@ -115,7 +131,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        onPressHandler={() => navigation.navigate('NewHome')}
         headerTitleColor={'light.headerTextTwo'}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
