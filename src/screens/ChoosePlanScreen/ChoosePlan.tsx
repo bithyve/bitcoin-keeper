@@ -27,8 +27,8 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { Subscription } from 'react-native-iap';
-import Whale from 'src/assets/images/svgs/ic_whale.svg';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
+import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import dbManager from 'src/storage/realm/dbManager';
 
 const plans = [
@@ -71,8 +71,8 @@ const plans = [
       'Dedicated email support',
     ],
     subTitle: 'Includes Inheritance',
-    icon: <Whale />,
-    iconFocused: <WhaleFocused />,
+    icon: <DiamondHands />,
+    iconFocused: <DiamondHandsFocused />,
     price: '',
   },
 ];
