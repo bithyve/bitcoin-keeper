@@ -42,6 +42,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
+import moment from 'moment';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -52,6 +53,7 @@ import config from 'src/core/config';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { hash512 } from 'src/core/services/operations/encryption';
 import WalletOperations from 'src/core/wallets/operations';
+
 
 const { width } = Dimensions.get('screen');
 
@@ -223,7 +225,7 @@ const SignWith = ({
                 fontFamily={'body'}
                 letterSpacing={0.6}
               >
-                {`Added on 4th of July`}
+                {`Added on ${moment(signer.addedOn).calendar()}`}
               </Text>
             </View>
           </Box>
