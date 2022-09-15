@@ -1,44 +1,66 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
-import { Alert } from 'react-native';
-import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import { StyleSheet } from 'react-native';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
+import { APP_STAGE } from 'src/core/config';
+import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { StyleSheet } from 'react-native';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { useDispatch } from 'react-redux';
-import { APP_STAGE } from 'src/core/config';
-import { useAppSelector } from 'src/store/hooks';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
+import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { hash512 } from 'src/core/services/operations/encryption';
+import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+
+const BulletPoint = ({ text }) => {
+  return (
+    <Box marginTop={'4'} flexDirection={'row'} alignItems={'center'}>
+      <Box
+        style={{
+          height: hp(5),
+          width: wp(5),
+        }}
+        backgroundColor={'light.modalText'}
+        borderRadius={10}
+        marginRight={wp(5)}
+      />
+      <Text
+        color={'light.modalText'}
+        fontSize={13}
+        fontFamily={'body'}
+        fontWeight={'200'}
+        p={1}
+        letterSpacing={1.65}
+      >
+        {text}
+      </Text>
+    </Box>
+  );
+};
 
 const TapsignerSetupContent = () => {
   return (
     <View>
       <TapsignerSetupImage />
-      <Box marginTop={'4'}>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-          {`\u2022 You will need the Pin/CVC at the back of TAPSIGNER`}
-        </Text>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-          {'\u2022 Make sure that TAPSIGNER is not used as a Signer on other apps'}
-        </Text>
-      </Box>
+      <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
+      <BulletPoint text={`Make sure that TAPSIGNER is not used as a Signer on other apps`} />
     </View>
   );
 };
@@ -50,19 +72,37 @@ const ColdCardSetupContent = () => {
         <ColdCardSetupImage />
       </Box>
       <Box marginTop={'4'}>
-        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mx={wp(10)}>
+        <Box flex={1} flexDirection={'row'}>
+          <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 1'}</Text>
           </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+          <Text
+            color={'#073B36'}
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            style={{
+              marginLeft: wp(10),
+              width: wp(210),
+            }}
+          >
             Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
           </Text>
         </Box>
-        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mx={wp(10)}>
+        <Box flex={1} flexDirection={'row'} marginTop={2}>
+          <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 2'}</Text>
           </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+          <Text
+            color={'#073B36'}
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            style={{
+              marginLeft: wp(10),
+              width: wp(200),
+            }}
+          >
             Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
           </Text>
         </Box>
@@ -71,94 +111,15 @@ const ColdCardSetupContent = () => {
   );
 };
 
-const BulletPoint = ({ description }: { description: string }) => {
-  return (
-    <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-      <Box width={2} height={2} borderRadius={10} backgroundColor={'light.modalText'} />
-      <Text
-        fontSize={13}
-        fontWeight={200}
-        letterSpacing={0.65}
-        width={wp(260)}
-        color={'light.modalText'}
-        marginY={2}
-        marginLeft={3}
-      >
-        {description}
-      </Text>
-    </Box>
-  );
-};
-
-const otpContent = () => {
-  const [otp, setOtp] = useState('');
-
-  const onPressNumber = (text) => {
-    let tmpPasscode = otp;
-    if (otp.length < 6) {
-      if (text != 'x') {
-        tmpPasscode += text;
-        setOtp(tmpPasscode);
-      }
-    }
-    if (otp && text == 'x') {
-      setOtp(otp.slice(0, -1));
-    }
-  };
-
-  const onDeletePressed = (text) => {
-    setOtp(otp.slice(0, otp.length - 1));
-  };
-
-  return (
-    <Box width={hp(280)}>
-      <Box>
-        <CVVInputsView
-          passCode={otp}
-          passcodeFlag={false}
-          backgroundColor={true}
-          textColor={true}
-        />
-        <Text
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          width={wp(290)}
-          color={'light.modalText'}
-          marginTop={2}
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
-        </Text>
-        <Box mt={10} alignSelf={'flex-end'} mr={2}>
-          <Box>
-            <CustomGreenButton onPress={() => {}} value={'proceed'} />
-          </Box>
-        </Box>
-      </Box>
-      <KeyPadView
-        onPressNumber={onPressNumber}
-        onDeletePressed={onDeletePressed}
-        keyColor={'light.lightBlack'}
-        ClearIcon={<DeleteIcon />}
-      />
-    </Box>
-  );
-};
-
 const SettingSigningServer = () => {
   return (
     <Box>
       <AlertIllustration />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
     </Box>
   );
@@ -169,14 +130,10 @@ const SetUpMobileKey = () => {
     <Box>
       <AlertIllustration />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
       <BulletPoint
-        description={
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'
-        }
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
     </Box>
   );
@@ -214,6 +171,12 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddLedger', params: {} }));
   };
 
+  const navigateToSigningServerSetup = () => {
+    close();
+    dispatch(registerWithSigningServer());
+    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: {} }));
+  };
+
   const setupMobileKey = async () => {
     const networkType = APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -234,6 +197,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       },
       bip85Config,
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
 
     dispatch(addSigningDevice(mobileKey));
@@ -266,6 +230,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
             passcodeFlag={false}
             backgroundColor={true}
             textColor={true}
+            length={4}
           />
           <Text
             fontSize={13}
@@ -286,7 +251,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
                   if (currentPinHash === pinHash) setupMobileKey();
                   else Alert.alert('Incorrect password. Try again!');
                 }}
-                value={'proceed'}
+                value={'Confirm'}
               />
             </Box>
           </Box>
@@ -351,6 +316,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonBackground={['#00836A', '#073E39']}
         buttonText={'Continue'}
         buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToSigningServerSetup}
         textColor={'#041513'}
         Content={SettingSigningServer}
       />
@@ -369,15 +335,6 @@ const HardwareModalMap = ({ type, visible, close }) => {
         }}
         textColor={'#041513'}
         Content={SetUpMobileKey}
-      />
-      <KeeperModal
-        visible={false}
-        close={() => {}}
-        title={'Confirm OTP to setup 2FA'}
-        subTitle={'Lorem ipsum dolor sit amet, '}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#041513'}
-        Content={otpContent}
       />
       <KeeperModal
         visible={passwordModal}

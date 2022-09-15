@@ -1,3 +1,5 @@
+import { SignerType } from 'src/core/wallets/enums';
+
 export const enum BackupType {
   CLOUD = 'CLOUD',
   SEED = 'SEED',
@@ -10,6 +12,12 @@ export interface BackupHistoryItem {
   date: number;
   confirmed: boolean;
   subtitle?: string;
+}
+
+export interface SigningDeviceRecovery {
+  signerId: string;
+  type: SignerType;
+  xpub: string;
 }
 
 export const enum BackupAction {
