@@ -29,6 +29,7 @@ import moment from 'moment';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import Relay from 'src/core/services/operations/Relay';
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
@@ -44,6 +45,11 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
   } else {
     return VaultMigrationType.CHANGE;
   }
+};
+
+export const checkSigningDevice = async (id) => {
+  const exisits = await Relay.getSignerIdInfo(id);
+  return exisits;
 };
 
 const AddSigningDevice = () => {
@@ -68,6 +74,7 @@ const AddSigningDevice = () => {
     if (activeVault) {
       dispatch(addSigningDevice(activeVault.signers));
     }
+    checkSigningDevice('7FBC64C9');
   }, []);
 
   useEffect(() => {
