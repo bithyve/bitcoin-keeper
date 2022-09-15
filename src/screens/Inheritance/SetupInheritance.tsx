@@ -184,6 +184,7 @@ const SetupInheritance = () => {
         buttonTextColor={'#073E39'}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         Content={InheritanceContent}
+        DarkCloseIcon={true}
       />
     </Box >
   );

@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/react-native';
-
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useRef } from 'react';
 
@@ -8,9 +6,11 @@ import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
+import ArchivedVault from 'src/screens/Vault/ArchivedVault';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
+import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
@@ -26,18 +26,23 @@ import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
+import { RigisterToSD } from 'src/screens/Vault/RigisterToSD';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
+import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
+import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
+import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
+import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
@@ -63,6 +68,27 @@ const LoginStack = () => {
       <Stack.Screen options={{ gestureEnabled: false }} name="Login" component={Login} />
       <Stack.Screen options={{ gestureEnabled: false }} name="CreatePin" component={CreatePin} />
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="VaultRecoveryAddSigner"
+        component={VaultRecovery}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="ColdCardReocvery"
+        component={ColdCardReocvery}
+      />
+
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="SignersList"
+        component={SignersList}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="TapSignerRecovery"
+        component={TapSignerRecovery}
+      />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
@@ -114,6 +140,9 @@ const AppStack = () => {
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
+        <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
+        <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
+        <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
       </Stack.Navigator>
     </RealmProvider>
   );

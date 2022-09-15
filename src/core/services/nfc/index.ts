@@ -100,7 +100,12 @@ export default class NFC {
       throw error;
     }
   };
+
   public static encodeForColdCard = (message) => {
     return Ndef.encodeMessage([Ndef.textRecord(message)]);
+  };
+
+  public static isNFCSupported = async () => {
+    return NfcManager.isSupported();
   };
 }

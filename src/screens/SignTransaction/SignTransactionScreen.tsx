@@ -256,6 +256,7 @@ const SignTransactionScreen = () => {
   );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
+  const [broadcasting, setBroadcasting] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
@@ -289,14 +290,17 @@ const SignTransactionScreen = () => {
   };
 
   useEffect(() => {
-    if (isMigratingNewVault && sendSuccessful) {
-      dispatch(finaliseVaultMigration(vaultId));
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+    if (isMigratingNewVault) {
+      if (sendSuccessful) {
+        dispatch(finaliseVaultMigration(vaultId));
+        navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      } else {
+        return;
+      }
     } else {
-      return;
-    }
-    if (sendSuccessful) {
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      if (sendSuccessful) {
+        navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      }
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
@@ -443,21 +447,26 @@ const SignTransactionScreen = () => {
         )}
       />
       <Box alignItems={'flex-end'} marginY={5}>
-        <Buttons
-          primaryText={'Boradcast'}
-          primaryCallback={() => {
-            if (areSignaturesSufficient()) {
-              dispatch(
-                sendPhaseThree({
-                  wallet: defaultVault,
-                  txnPriority: TxPriority.LOW,
-                })
-              );
-            } else {
-              Alert.alert(`Sorry there aren't enough signatures!`);
-            }
-          }}
-        />
+        {broadcasting ? (
+          <ActivityIndicator size={30} style={{ marginHorizontal: '10%' }} />
+        ) : (
+          <Buttons
+            primaryText={'Boradcast'}
+            primaryCallback={() => {
+              if (areSignaturesSufficient()) {
+                setBroadcasting(true);
+                dispatch(
+                  sendPhaseThree({
+                    wallet: defaultVault,
+                    txnPriority: TxPriority.LOW,
+                  })
+                );
+              } else {
+                Alert.alert(`Sorry there aren't enough signatures!`);
+              }
+            }}
+          />
+        )}
         <Note
           title={'Note'}
           subtitle={
@@ -487,6 +496,7 @@ const SignTransactionScreen = () => {
         buttonCallback={signTransaction}
         textColor={'#FFF'}
         Content={() => InputCvc({ textRef })}
+        DarkCloseIcon={true}
       />
       <KeeperModal
         visible={ledgerModal}
@@ -499,6 +509,7 @@ const SignTransactionScreen = () => {
         buttonTextColor={'#073E39'}
         buttonCallback={signTransaction}
         textColor={'#FFF'}
+        DarkCloseIcon={true}
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />

@@ -2,20 +2,19 @@ import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
+import Alert from 'src/assets/images/alert_illustration.svg';
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import NFC from 'src/core/services/nfc';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { StatusBar, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
-import KeeperModal from 'src/components/KeeperModal';
-import Alert from 'src/assets/images/alert_illustration.svg'
-import nfcManager from 'react-native-nfc-manager';
 
 type HWProps = {
   type: SignerType;
@@ -26,24 +25,22 @@ type HWProps = {
 const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const [nfcAlert, setNfcAlert] = useState(false);
-  const [visible, setVisible] = useState(false);
   const vault = translations['vault'];
 
   useEffect(() => {
-    getNfcSupport()
-  }, [])
+    getNfcSupport();
+  }, []);
 
   const getNfcSupport = async () => {
-    const isSupported = await nfcManager.isSupported()
-    setNfcAlert(!isSupported)
-  }
+    const isSupported = await NFC.isNFCSupported();
+    setNfcAlert(!isSupported);
+  };
 
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
-
+    const [visible, setVisible] = useState(false);
     const onPress = () => {
       open();
     };
-
 
     const open = () => setVisible(true);
     const close = () => setVisible(false);
@@ -98,10 +95,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   const nfcAlertConternt = () => {
     return (
       <Box>
-        <Box
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
+        <Box justifyContent={'center'} alignItems={'center'}>
           <Alert />
         </Box>
         <Text
@@ -111,13 +105,12 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           width={wp(260)}
           color={'light.modalText'}
           marginY={4}
-
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
         </Text>
       </Box>
-    )
-  }
+    );
+  };
 
   return (
     <Box style={styles.container}>
@@ -165,7 +158,9 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         </Text>
         <KeeperModal
           visible={nfcAlert}
-          close={() => { setNfcAlert(false) }}
+          close={() => {
+            setNfcAlert(false);
+          }}
           title={'NFC Not supported'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
           modalBackground={['#F7F2EC', '#F7F2EC']}

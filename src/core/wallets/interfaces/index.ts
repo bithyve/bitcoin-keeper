@@ -205,7 +205,7 @@ export interface NodeConnect {
 }
 
 export interface TwoFADetails {
-  bithyveXpub?: string;
+  signingServerXpub?: string;
   twoFAKey?: string;
   twoFAValidated?: boolean;
 }

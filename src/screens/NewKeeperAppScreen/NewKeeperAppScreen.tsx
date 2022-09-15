@@ -188,12 +188,14 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           <Tile
             title={'Inheritance Keeper Vault'}
             subTitle={'Using Signing Devices'}
-            onPress={() => console.log('using Signing Devices')}
+            onPress={() => {
+              navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+            }}
             Icon={<Inheritance />}
           />
         </Box>
       </ScrollView>
-      <Text py={'10%'} px={'10%'} color={'light.lightBlack'} fontSize={12}>
+      <Text px={'10%'} py={'5%'} color={'light.lightBlack'} fontSize={12}>
         When you use Signing Devices to restore Keeper, only Vault is restored and the app has new
         wallets
       </Text>

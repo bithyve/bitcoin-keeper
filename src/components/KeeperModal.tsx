@@ -2,9 +2,11 @@ import { Box, Modal, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
+import CloseGreen from 'src/assets/icons/modal_close_green.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const KeeperModal = (props) => {
   const {
@@ -18,6 +20,7 @@ const KeeperModal = (props) => {
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
+    DarkCloseIcon = false,
     Content = () => <></>,
   } = props;
   const { bottom } = useSafeAreaInsets();
@@ -40,7 +43,7 @@ const KeeperModal = (props) => {
           style={styles.container}
         >
           <TouchableOpacity style={styles.close} onPress={close}>
-            <Close />
+            {DarkCloseIcon ? <CloseGreen /> : <Close />}
           </TouchableOpacity>
           <Modal.Header
             alignSelf={'flex-start'}
@@ -53,7 +56,6 @@ const KeeperModal = (props) => {
               fontFamily={'body'}
               fontWeight={'200'}
               color={textColor}
-              paddingBottom={1}
             >
               {title}
             </Text>
@@ -99,7 +101,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     padding: '4%',
-    paddingVertical: '5%',
   },
   title: {
     fontSize: 19,
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
   },
   cta: {
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: wp(20),
     borderRadius: 10,
   },
   close: {
