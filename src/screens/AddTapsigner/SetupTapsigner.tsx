@@ -123,6 +123,7 @@ const SetupTapsigner = () => {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.TAPSIGNER,
           signerName: 'Tapsigner (Mock)',
+          isMock: true,
           xpub,
           xpriv,
           xpubInfo: {
@@ -157,7 +158,6 @@ const SetupTapsigner = () => {
               onChangeText={setCvc}
               secureTextEntry={true}
               showSoftInputOnFocus={false}
-
             />
             <Text
               padding={5}

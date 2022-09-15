@@ -42,6 +42,7 @@ export interface VaultScheme {
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
+  isMock?: Boolean;
   xpub: string;
   xpriv?: string;
   signerName?: string;
