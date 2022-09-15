@@ -345,8 +345,7 @@ export default class Relay {
 
   public static getSignerIdInfo = async (signerId): Promise<any> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
+      const res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
         signerId,
       });
       const data = res.data || res.json;
@@ -359,8 +358,7 @@ export default class Relay {
 
   public static getVac = async (signerIdsHash): Promise<any> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}getVac`, {
+      const res = await RestClient.post(`${RELAY}getVac`, {
         signerIdsHash,
       });
       const data = res.data || res.json;
