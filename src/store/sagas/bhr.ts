@@ -111,7 +111,6 @@ const getPermutations = (a, n, s = [], t = []) => {
 };
 
 const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
-  console.log(signerIdXpubMap, signerIds);
   let vacMap: any = {};
   const allPermutations = getPermutations(signerIds, m);
   for (let index in allPermutations) {
@@ -360,7 +359,6 @@ function* getAppImageWorker({ payload }) {
       'venue buffalo fury mandate skull domain pipe tower endorse drink defy require'
     );
     const appId = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    console.log({ appId });
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const { appImage, vaultImage } = yield call(Relay.getAppImage, appId);
     if (appImage) {
@@ -478,7 +476,6 @@ function* healthCheckSignerWorker({
 }) {
   try {
     const { vaultId, signerId } = payload;
-    console.log(vaultId, signerId);
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
 
     let signers = [];
