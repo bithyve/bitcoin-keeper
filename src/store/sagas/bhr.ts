@@ -353,8 +353,8 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
-    setAppImageError(false);
-    setAppRecoveryLoading(true);
+    yield put(setAppImageError(false));
+    yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(
       'venue buffalo fury mandate skull domain pipe tower endorse drink defy require'
     );

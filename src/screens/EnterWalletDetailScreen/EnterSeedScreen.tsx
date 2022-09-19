@@ -115,13 +115,11 @@ const EnterSeedScreen = () => {
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
-  const {
-    appImageRecoverd,
-    appRecreated,
-    appRecoveryLoading,
-    appImageError,
-    appImagerecoveryRetry,
-  } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
+
+  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -136,7 +134,7 @@ const EnterSeedScreen = () => {
         navigation.navigate('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
+  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError]);
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
@@ -157,10 +155,8 @@ const EnterSeedScreen = () => {
   };
 
   const onPressNext = async () => {
-    console.log('herer');
     if (isSeedFilled()) {
       let seedWord = getSeedWord();
-      console.log('seed Word', seedWord);
       dispatch(getAppImage(seedWord));
     }
   };
@@ -314,7 +310,7 @@ const EnterSeedScreen = () => {
                   {common.needHelp}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext}>
+              <TouchableOpacity onPress={onPressNext} disabled={appRecoveryLoading}>
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
