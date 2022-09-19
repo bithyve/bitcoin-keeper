@@ -278,9 +278,8 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      res = res.json || res.data;
+      let res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      res = res.data;
       return {
         status: res.status,
       };
@@ -317,11 +316,10 @@ export default class Relay {
 
   public static getAppImage = async (appId): Promise<any> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}getAppImage`, {
+      const res = await RestClient.post(`${RELAY}getAppImage`, {
         id: appId,
       });
-      const data = res.data || res.json;
+      const data = res.data;
       return data;
     } catch (err) {
       throw new Error('Failed get App Image');

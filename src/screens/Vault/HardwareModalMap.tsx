@@ -4,7 +4,7 @@ import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { APP_STAGE } from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -178,7 +178,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
   };
 
   const setupMobileKey = async () => {
-    const networkType = APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType =
+      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
       primaryMnemonic,

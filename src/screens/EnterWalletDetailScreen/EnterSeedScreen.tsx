@@ -153,12 +153,14 @@ const EnterSeedScreen = () => {
     for (let i = 0; i < 12; i++) {
       seedWord += seedData[i].name + ' ';
     }
-    return seedWord;
+    return seedWord.trim();
   };
 
   const onPressNext = async () => {
+    console.log('herer');
     if (isSeedFilled()) {
       let seedWord = getSeedWord();
+      console.log('seed Word', seedWord);
       dispatch(getAppImage(seedWord));
     }
   };
