@@ -61,6 +61,7 @@ function* setupKeeperAppWorker({ payload }) {
         name: SubscriptionTier.PLEB.toUpperCase(),
       },
       version: DeviceInfo.getVersion(),
+      config: config(),
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);

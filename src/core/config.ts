@@ -41,7 +41,7 @@ interface ESPLORA_ENPOINTS {
     BROADCAST_TX: string;
   };
 }
-interface Configuration {
+export interface Configuration {
   ENVIRONMENT: string;
   NETWORK?: bitcoinJS.networks.Network;
   APP_STAGE: APP_STAGE;
@@ -162,7 +162,7 @@ const initCofig = async ({ network }: { network: BITCOIN_NETWORK }) => {
     baseURL: myConfig.SIGNING_SERVER,
     timeout: myConfig.REQUEST_TIMEOUT,
   });
-  return config;
+  return myConfig;
 };
 
 const connectToBitHyveNode = async () => {

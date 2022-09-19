@@ -87,7 +87,7 @@ const SigningDeviceDetails = ({ route }) => {
         const { xpub } = resp;
         console.log(xpub);
         const networkType =
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+          config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
         const network = WalletUtilities.getNetworkByType(networkType);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
         if (signerIdDerived === signer.signerId) {
