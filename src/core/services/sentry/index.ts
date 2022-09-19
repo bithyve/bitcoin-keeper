@@ -11,7 +11,7 @@ export const sentryConfig = {
   maxBreadcrumbs: 50,
   tracesSampleRate: 1.0,
   dsn: config.SENTRY_DNS,
-  environment: config.APP_STAGE,
+  environment: config.ENVIRONMENT,
   integrations: [
     new Sentry.ReactNativeTracing({
       routingInstrumentation,

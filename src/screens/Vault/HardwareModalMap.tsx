@@ -4,7 +4,6 @@ import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { APP_STAGE } from 'src/core/config';
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -22,6 +21,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import config from 'src/core/config';
 import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
@@ -178,7 +178,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
   };
 
   const setupMobileKey = async () => {
-    const networkType = APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
       primaryMnemonic,

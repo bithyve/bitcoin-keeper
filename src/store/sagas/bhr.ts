@@ -503,7 +503,7 @@ function* isBackedUP({
     const ProductionWarning =
       (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30 ? true : false;
     const selectedWarning =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
+      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
     if (
       selectedWarning &&

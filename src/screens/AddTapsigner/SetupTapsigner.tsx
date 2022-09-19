@@ -16,10 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 const SetupTapsigner = () => {
   const [cvc, setCvc] = React.useState('');
@@ -79,8 +79,7 @@ const SetupTapsigner = () => {
 
   const saveTapsigner = async (tapsignerData) => {
     const { xpub, derivationPath, xfp } = tapsignerData;
-    const networkType =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     const signer: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
@@ -111,7 +110,7 @@ const SetupTapsigner = () => {
 
   const addMockTapsigner = React.useCallback(async () => {
     try {
-      if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
         const networkType = NetworkType.TESTNET;
         const network = WalletUtilities.getNetworkByType(networkType);
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(

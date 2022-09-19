@@ -1,4 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import { SafeAreaView, StyleSheet } from 'react-native';
 
 import { Box } from 'native-base';
@@ -8,13 +9,12 @@ import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import { NfcTech } from 'react-native-nfc-manager';
 import React from 'react';
-import { TapGestureHandler } from 'react-native-gesture-handler';
-import config, { APP_STAGE } from 'src/core/config';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
-import { useDispatch } from 'react-redux';
+import { TapGestureHandler } from 'react-native-gesture-handler';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
 import { setSigningDevices } from 'src/store/reducers/bhr';
+import { useDispatch } from 'react-redux';
 
 const ColdCardReocvery = () => {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -45,8 +45,7 @@ const ColdCardReocvery = () => {
     try {
       const coldcard = await getColdCardDetails();
 
-      const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const networkType = config.NETWORK_TYPE;
       const network = WalletUtilities.getNetworkByType(networkType);
       const xpub = WalletUtilities.generateXpubFromYpub(coldcard.xpub, network);
       const sigingDeivceDetails: SigningDeviceRecovery = {

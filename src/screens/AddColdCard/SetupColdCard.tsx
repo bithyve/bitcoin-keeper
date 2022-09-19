@@ -1,6 +1,6 @@
+import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
-import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { Box } from 'native-base';
@@ -14,9 +14,9 @@ import { TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 const SetupColdCard = () => {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -46,8 +46,7 @@ const SetupColdCard = () => {
 
   const saveColdCard = async (coldCardData) => {
     let { xpub, derivationPath, xfp } = coldCardData;
-    const networkType =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
     const signer: VaultSigner = {
@@ -79,7 +78,7 @@ const SetupColdCard = () => {
 
   const addMockColdCard = () => {
     try {
-      if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
         const networkType = NetworkType.TESTNET;
         const network = WalletUtilities.getNetworkByType(networkType);
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
