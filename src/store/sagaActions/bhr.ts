@@ -14,7 +14,7 @@ export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
 export const RECOVER_VAULT = 'RECOVER_VAULT';
 
-export const updateAppImage = (walletId) => {
+export const updateAppImage = (walletId?) => {
   return {
     type: UPDATE_APP_IMAGE,
     payload: {
