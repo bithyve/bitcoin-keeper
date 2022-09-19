@@ -4,14 +4,15 @@ import {
   AUTO_SYNC_WALLETS,
   IMPORT_NEW_WALLET,
   REFRESH_WALLETS,
+  REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
   UPDATE_WALLET_SETTINGS,
+  VALIDATE_SIGNING_SERVER_REGISTRATION,
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
-  VALIDATE_SIGNING_SERVER_REGISTRATION,
-  REGISTER_WITH_SIGNING_SERVER,
 } from '../sagaActions/wallets';
+import { APP_STAGE, config } from 'src/core/config';
 import {
   EntityKind,
   NetworkType,
@@ -23,8 +24,6 @@ import {
 import { Storage, getString, setItem } from 'src/storage';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import { TwoFADetails } from 'src/core/wallets/interfaces/';
-
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -32,13 +31,15 @@ import {
   vaultMigrationCompleted,
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/core/config';
+import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
+import SigningServer from 'src/core/services/operations/SigningServer';
+import { TwoFADetails } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
@@ -48,8 +49,6 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
-import SigningServer from 'src/core/services/operations/SigningServer';
 
 export interface newWalletDetails {
   name?: string;
@@ -85,7 +84,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         primaryMnemonic,
         networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+          config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
       return checkingWallet;
 
@@ -98,7 +97,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : '',
         primaryMnemonic,
         networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+          config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
       return lnWallet;
 
@@ -111,7 +110,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedMnemonic: importDetails.primaryMnemonic,
         networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+          config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
       return importedWallet;
 
@@ -124,7 +123,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedXpub: importDetails.xpub,
         networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+          config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
       });
       return readOnlyWallet;
   }
@@ -219,7 +218,7 @@ function* addNewVaultWorker({
         );
       }
       const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+        config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
       vault = yield call(generateVault, {
         type: vaultType,
         vaultShellId: vaultShell.id,
@@ -292,7 +291,7 @@ function* migrateVaultWorker({
       vaultShellInstances.activeShell
     );
     const networkType =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
 
     const vault: Vault = yield call(generateVault, {
       type: vaultType,

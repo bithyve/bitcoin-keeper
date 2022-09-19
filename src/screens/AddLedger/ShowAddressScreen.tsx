@@ -1,15 +1,14 @@
+import { APP_STAGE, config } from 'src/core/config';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import config, { APP_STAGE } from 'src/core/config';
 
 import AppClient from 'src/hardware/ledger';
 import QRCode from 'react-native-qrcode-svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const ShowAddressScreen = ({ transport }) => {
@@ -42,7 +41,7 @@ const ShowAddressScreen = ({ transport }) => {
       if (unmounted.current) return;
       setAddress(xpub);
       const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+        config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
       const network = WalletUtilities.getNetworkByType(networkType);
 
       const signer: VaultSigner = {

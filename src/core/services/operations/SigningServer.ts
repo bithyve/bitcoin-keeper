@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
-import config from '../../config';
 import RestClient from '../rest/RestClient';
-const { HEXA_ID, SIGNING_SERVER } = config;
+import { config } from '../../config';
 
 export default class SigningServer {
   static register = async (
@@ -14,8 +13,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}setup2FA`, {
-        HEXA_ID,
+      await RestClient.post(`${config().SIGNING_SERVER}setup2FA`, {
+        HEXA_ID: config().HEXA_ID,
         walletID,
       });
     } catch (err) {
@@ -38,8 +37,8 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}validate2FASetup`, {
-        HEXA_ID,
+      await RestClient.post(`${config().SIGNING_SERVER}validate2FASetup`, {
+        HEXA_ID: config().HEXA_ID,
         walletID,
         token,
       });
@@ -74,8 +73,8 @@ export default class SigningServer {
     let res: AxiosResponse;
 
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}securePSBTTransaction`, {
-        HEXA_ID: config.HEXA_ID,
+      await RestClient.post(`${config().SIGNING_SERVER}securePSBTTransaction`, {
+        HEXA_ID: config().HEXA_ID,
         walletID: walletId,
         token,
         serializedPSBT,

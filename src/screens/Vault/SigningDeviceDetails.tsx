@@ -1,17 +1,8 @@
+import { APP_STAGE, config } from 'src/core/config';
 import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import {
-  FlatList,
-  InteractionManager,
-  Platform,
-  RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
-import config, { APP_STAGE } from 'src/core/config';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+import { Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
 
 import BackIcon from 'src/assets/icons/back.svg';
 import Buttons from 'src/components/Buttons';
@@ -19,13 +10,10 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
 import Illustration from 'src/assets/images/illustration.svg';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { NetworkType } from 'src/core/wallets/enums';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
@@ -59,7 +47,6 @@ const Header = () => {
 const SigningDeviceDetails = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];

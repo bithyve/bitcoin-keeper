@@ -44,7 +44,6 @@ import { WalletMap } from '../Vault/WalletMap';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { cloneDeep } from 'lodash';
-import config from 'src/core/config';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';

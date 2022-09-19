@@ -1,9 +1,9 @@
+import { APP_STAGE, config } from 'src/core/config';
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import config, { APP_STAGE } from 'src/core/config';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -16,10 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 const SetupTapsigner = () => {
   const [cvc, setCvc] = React.useState('');
@@ -80,7 +80,7 @@ const SetupTapsigner = () => {
   const saveTapsigner = async (tapsignerData) => {
     const { xpub, derivationPath, xfp } = tapsignerData;
     const networkType =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
     const network = WalletUtilities.getNetworkByType(networkType);
     const signer: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
@@ -111,7 +111,7 @@ const SetupTapsigner = () => {
 
   const addMockTapsigner = React.useCallback(async () => {
     try {
-      if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
+      if (config().APP_STAGE === APP_STAGE.DEVELOPMENT) {
         const networkType = NetworkType.TESTNET;
         const network = WalletUtilities.getNetworkByType(networkType);
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(

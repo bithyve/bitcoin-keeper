@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import BIP85 from '../operations/BIP85';
+
 import { EntityKind, NetworkType, VaultType, VisibilityType, WalletType } from '../enums';
 import {
   Vault,
@@ -16,9 +16,10 @@ import {
   hash256,
 } from 'src/core/services/operations/encryption';
 
-import WalletUtilities from '../operations/utils';
-import config from './../../config';
+import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
+import WalletUtilities from '../operations/utils';
+import { config } from './../../config';
 
 const crypto = require('crypto');
 
@@ -178,7 +179,7 @@ export const generateKeyFromXpub = (
   const child = WalletUtilities.generateChildFromExtendedKey(
     xpub,
     network,
-    config.VAC_CHILD_INDEX,
+    config().VAC_CHILD_INDEX,
     true
   );
   return generateEncryptionKey(child);
@@ -188,7 +189,7 @@ export const encryptVAC = (vac: string, xpubs: string[]) => {
   let encrytedVac = vac;
   xpubs = xpubs.sort();
   xpubs.forEach((xpub) => {
-    const key = generateKeyFromXpub(xpub, config.NETWORK);
+    const key = generateKeyFromXpub(xpub, config().NETWORK);
     encrytedVac = encrypt(key, encrytedVac);
   });
   return encrytedVac;
@@ -198,7 +199,7 @@ export const decryptVAC = (encryptedVac: string, xpubs: string[]) => {
   let decryptedVAC = encryptedVac;
   xpubs = xpubs.sort().reverse();
   xpubs.forEach((xpub) => {
-    const key = generateKeyFromXpub(xpub, config.NETWORK);
+    const key = generateKeyFromXpub(xpub, config().NETWORK);
     decryptedVAC = decrypt(key, decryptedVAC);
   });
   return decryptedVAC;

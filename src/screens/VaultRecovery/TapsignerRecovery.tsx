@@ -1,9 +1,9 @@
+import { APP_STAGE, config } from 'src/core/config';
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import config, { APP_STAGE } from 'src/core/config';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -13,11 +13,11 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { wp } from 'src/common/data/responsiveness/responsive';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const TapSignerRecovery = () => {
   const [cvc, setCvc] = React.useState('');
@@ -57,7 +57,7 @@ const TapSignerRecovery = () => {
     try {
       const tapsigner = await getTapsignerDetails();
       const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+        config().APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
       const network = WalletUtilities.getNetworkByType(networkType);
       const sigingDeivceDetails: SigningDeviceRecovery = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(tapsigner.xpub, network),

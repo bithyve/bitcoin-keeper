@@ -1,5 +1,6 @@
 import * as bip39 from 'bip39';
 
+import { APP_STAGE, config } from 'src/core/config';
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import {
   CLOUD_BACKUP_SKIPPED,
@@ -36,7 +37,6 @@ import {
   setSeedConfirmed,
 } from '../reducers/bhr';
 import { call, put, select } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/core/config';
 import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
@@ -358,7 +358,7 @@ function* getAppImageWorker({ payload }) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
         BIP85.bip39MnemonicToEntropy,
-        config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+        config().BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
         primaryMnemonic
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
@@ -503,7 +503,7 @@ function* isBackedUP({
     const ProductionWarning =
       (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30 ? true : false;
     const selectedWarning =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
+      config().APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
     if (
       selectedWarning &&

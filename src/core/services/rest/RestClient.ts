@@ -1,10 +1,10 @@
-import axios, { AxiosResponse } from 'axios';
 import Tor, { RequestResponse } from 'react-native-tor';
-import config from 'src/core/config';
+import axios, { AxiosResponse } from 'axios';
+
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
+import { config } from 'src/core/config';
 
-const { HEXA_ID } = config;
 const tor = Tor({
   stopDaemonOnBackground: true,
 });
@@ -38,8 +38,8 @@ class RestClient {
 
   constructor() {
     RestClient.headers = {
-      'HEXA-ID': HEXA_ID,
-      HEXA_ID: HEXA_ID,
+      'HEXA-ID': config().HEXA_ID,
+      HEXA_ID: config().HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
       os: Platform.OS,

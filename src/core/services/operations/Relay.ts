@@ -1,13 +1,9 @@
-import { AxiosResponse } from 'axios';
-import config from '../../config';
-import idx from 'idx';
-import { INotification } from '../interfaces';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
+import { config } from '../../config';
 
-const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -21,8 +17,8 @@ export default class Relay {
   }> => {
     let res;
     try {
-      res = await RestClient.post(`${RELAY}checkCompatibility`, {
-        AUTH_ID,
+      res = await RestClient.post(`${config().RELAY}checkCompatibility`, {
+        AUTH_ID: config().AUTH_ID,
         method,
         version,
       });
@@ -40,7 +36,7 @@ export default class Relay {
   public static fetchReleaseNotes = async (version: string): Promise<any> => {
     let res;
     try {
-      res = await RestClient.get(`${RELAY}releasesNotes?version=${version}`);
+      res = await RestClient.get(`${config().RELAY}releasesNotes?version=${version}`);
     } catch (err) {
       if (err.response) console.log(err.response.data.err);
       if (err.code) console.log(err.code);
@@ -57,7 +53,7 @@ export default class Relay {
     try {
       let res;
       try {
-        res = await RestClient.post(`${RELAY}updateFCMTokens`, {
+        res = await RestClient.post(`${config().RELAY}updateFCMTokens`, {
           appID: appId,
           FCMs,
         });
@@ -80,8 +76,8 @@ export default class Relay {
   }> => {
     let res;
     try {
-      res = await RestClient.post(`${RELAY}fetchNotifications`, {
-        AUTH_ID,
+      res = await RestClient.post(`${config().RELAY}fetchNotifications`, {
+        AUTH_ID: config().AUTH_ID,
         appID,
       });
     } catch (err) {
@@ -111,8 +107,8 @@ export default class Relay {
       if (!receivers.length) throw new Error('Failed to deliver notification: receivers missing');
 
       try {
-        res = await RestClient.post(`${RELAY}sendNotifications`, {
-          AUTH_ID,
+        res = await RestClient.post(`${config().RELAY}sendNotifications`, {
+          AUTH_ID: config().AUTH_ID,
           receivers,
           notification,
         });
@@ -139,8 +135,8 @@ export default class Relay {
       let res;
       try {
         // TODO: re-route fee/exchange-rates fetch from legacy relay to keeper-relay
-        res = await RestClient.post(`${RELAY}fetchFeeAndExchangeRates`, {
-          HEXA_ID,
+        res = await RestClient.post(`${config().RELAY}fetchFeeAndExchangeRates`, {
+          HEXA_ID: config().HEXA_ID,
         });
       } catch (err) {
         // console.log({ err });
@@ -165,13 +161,13 @@ export default class Relay {
     try {
       let res;
       const obj = {
-        AUTH_ID,
+        AUTH_ID: config().AUTH_ID,
         receivers,
         notification,
       };
       try {
-        res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
-          AUTH_ID,
+        res = await RestClient.post(`${config().RELAY}sendKeeperNotifications`, {
+          AUTH_ID: config().AUTH_ID,
           receivers,
           notification,
         });
@@ -197,8 +193,8 @@ export default class Relay {
   }> => {
     let res;
     try {
-      res = await RestClient.post(`${RELAY}getMessages`, {
-        AUTH_ID,
+      res = await RestClient.post(`${config().RELAY}getMessages`, {
+        AUTH_ID: config().AUTH_ID,
         appID,
         timeStamp,
       });
@@ -224,8 +220,8 @@ export default class Relay {
     try {
       let res;
       try {
-        res = await RestClient.post(`${RELAY}updateMessages`, {
-          AUTH_ID,
+        res = await RestClient.post(`${config().RELAY}updateMessages`, {
+          AUTH_ID: config().AUTH_ID,
           appId,
           data,
         });
@@ -250,8 +246,8 @@ export default class Relay {
     try {
       let res;
       try {
-        res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
-          AUTH_ID,
+        res = await RestClient.post(`${config().RELAY}v2/fetchappImage`, {
+          AUTH_ID: config().AUTH_ID,
           appId: appId,
         });
       } catch (err) {
@@ -279,7 +275,7 @@ export default class Relay {
   }> => {
     try {
       let res;
-      res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      res = await RestClient.post(`${config().RELAY}updateAppImage`, appImage);
       res = res.json || res.data;
       return {
         status: res.status,
@@ -303,7 +299,7 @@ export default class Relay {
     try {
       let res;
 
-      res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      res = await RestClient.post(`${config().RELAY}updateVaultImage`, vaultData);
 
       res = res.json || res.data;
       return {
@@ -318,7 +314,7 @@ export default class Relay {
   public static getAppImage = async (appId): Promise<any> => {
     try {
       let res;
-      res = await RestClient.post(`${RELAY}getAppImage`, {
+      res = await RestClient.post(`${config().RELAY}getAppImage`, {
         id: appId,
       });
       const data = res.data || res.json;
@@ -332,7 +328,7 @@ export default class Relay {
   public static getVaultMetaData = async (signerId): Promise<any> => {
     try {
       let res;
-      res = await RestClient.post(`${RELAY}getVaultMetaData`, {
+      res = await RestClient.post(`${config().RELAY}getVaultMetaData`, {
         signerId,
       });
       const data = res.data || res.json;
@@ -345,7 +341,7 @@ export default class Relay {
 
   public static getSignerIdInfo = async (signerId): Promise<any> => {
     try {
-      const res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
+      const res = await RestClient.post(`${config().RELAY}getSignerIdInfo`, {
         signerId,
       });
       const data = res.data || res.json;
@@ -358,7 +354,7 @@ export default class Relay {
 
   public static getVac = async (signerIdsHash): Promise<any> => {
     try {
-      const res = await RestClient.post(`${RELAY}getVac`, {
+      const res = await RestClient.post(`${config().RELAY}getVac`, {
         signerIdsHash,
       });
       const data = res.data || res.json;

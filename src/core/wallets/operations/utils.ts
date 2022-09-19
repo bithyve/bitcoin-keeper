@@ -16,24 +16,18 @@ import {
   NetworkType,
   PaymentInfoKind,
   TransactionType,
-  WalletType,
 } from '../enums';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+import RestClient from 'src/core/services/rest/RestClient';
 import { Vault } from '../interfaces/vault';
 import { Wallet } from '../interfaces/wallet';
-import WalletOperations from '.';
 import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import config from '../../config';
-import idx from 'idx';
-import RestClient from 'src/core/services/rest/RestClient';
+import { config } from '../../config';
 
 const ECPair = ECPairFactory(ecc);
-
-const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
 
 export default class WalletUtilities {
   static networkType = (scannedStr: string): NetworkType => {
@@ -297,7 +291,7 @@ export default class WalletUtilities {
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    const closingExtIndex = nextFreeAddressIndex + config().GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, false, itr, network) === address)
         return publicKey
@@ -305,7 +299,7 @@ export default class WalletUtilities {
           : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
     }
 
-    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    const closingIntIndex = nextFreeChangeAddressIndex + config().GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       if (WalletUtilities.getAddressByIndex(xpub, true, itr, network) === address)
         return publicKey
@@ -393,7 +387,7 @@ export default class WalletUtilities {
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpubs } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    const closingExtIndex = nextFreeAddressIndex + config().GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
       const multiSig = WalletUtilities.createMultiSig(
         xpubs,
@@ -406,7 +400,7 @@ export default class WalletUtilities {
       if (multiSig.address === address) return multiSig;
     }
 
-    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    const closingIntIndex = nextFreeChangeAddressIndex + config().GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
       const multiSig = WalletUtilities.createMultiSig(
         xpubs,
@@ -425,7 +419,7 @@ export default class WalletUtilities {
   //   const { networkType } = wallet;
   //   const network = WalletUtilities.getNetworkByType(networkType);
 
-  //   const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;
+  //   const closingExtIndex = wallet.specs.nextFreeAddressIndex + config().GAP_LIMIT;
   //   for (let itr = 0; itr <= closingExtIndex; itr++) {
   //     const multiSig = WalletUtilities.createMultiSig(
   //       {
@@ -461,7 +455,7 @@ export default class WalletUtilities {
   //     }
   //   }
 
-  //   const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
+  //   const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config().GAP_LIMIT;
   //   for (let itr = 0; itr <= closingIntIndex; itr++) {
   //     const multiSig = WalletUtilities.createMultiSig(
   //       {
@@ -726,23 +720,23 @@ export default class WalletUtilities {
       try {
         if (network === bitcoinJS.networks.testnet) {
           res = await RestClient.post(
-            config.ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
+            config().ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         } else {
           res = await RestClient.post(
-            config.ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
+            config().ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         }
       } catch (err) {
         if (
-          config.ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN ===
-          config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN
+          config().ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN ===
+          config().BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN
         )
           throw new Error(err.message); // not using own-node
 
-        if (!config.USE_ESPLORA_FALLBACK) {
+        if (!config().USE_ESPLORA_FALLBACK) {
           // Toast( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
           throw new Error(err.message);
         }
@@ -750,12 +744,12 @@ export default class WalletUtilities {
         usedFallBack = true;
         if (network === bitcoinJS.networks.testnet) {
           res = await RestClient.post(
-            config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
+            config().BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         } else {
           res = await RestClient.post(
-            config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
+            config().BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         }
@@ -1023,11 +1017,11 @@ export default class WalletUtilities {
       let res;
       try {
         if (network === bitcoinJS.networks.testnet) {
-          res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.TESTNET.MULTITXN, {
+          res = await RestClient.post(config().ESPLORA_API_ENDPOINTS.TESTNET.MULTITXN, {
             addresses,
           });
         } else {
-          res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.MAINNET.MULTITXN, {
+          res = await RestClient.post(config().ESPLORA_API_ENDPOINTS.MAINNET.MULTITXN, {
             addresses,
           });
         }
@@ -1091,13 +1085,13 @@ export default class WalletUtilities {
     let res;
     try {
       if (network === bitcoinJS.networks.testnet) {
-        res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX, txHex, {
+        res = await RestClient.post(config().ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX, txHex, {
           headers: {
             'Content-Type': 'text/plain',
           },
         });
       } else {
-        res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX, txHex, {
+        res = await RestClient.post(config().ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX, txHex, {
           headers: {
             'Content-Type': 'text/plain',
           },
@@ -1109,16 +1103,16 @@ export default class WalletUtilities {
     } catch (err) {
       console.log(`An error occurred while broadcasting via current node. ${err}`);
       if (
-        config.ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX ===
-        config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX
+        config().ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX ===
+        config().BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX
       )
         throw new Error(err.message); // not using own-node
-      if (config.USE_ESPLORA_FALLBACK) {
+      if (config().USE_ESPLORA_FALLBACK) {
         console.log('using Hexa node as fallback(tx-broadcast)');
         try {
           if (network === bitcoinJS.networks.testnet) {
             res = await RestClient.post(
-              config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX,
+              config().BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX,
               txHex,
               {
                 headers: {
@@ -1128,7 +1122,7 @@ export default class WalletUtilities {
             );
           } else {
             res = await RestClient.post(
-              config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX,
+              config().BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX,
               txHex,
               {
                 headers: {
@@ -1166,8 +1160,8 @@ export default class WalletUtilities {
     const SATOSHIS_IN_BTC = 1e8;
     const amount = 10000 / SATOSHIS_IN_BTC;
     try {
-      const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
-        AUTH_ID: config.AUTH_ID,
+      const res = await RestClient.post(`${config().RELAY}/testnetFaucet`, {
+        AUTH_ID: config().AUTH_ID,
         recipientAddress,
         amount,
       });

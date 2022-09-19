@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 import axios, { AxiosInstance } from 'axios';
@@ -8,57 +7,97 @@ import PersonalNode from '../common/data/models/PersonalNode';
 import { Platform } from 'react-native';
 import { WalletType } from './wallets/enums';
 import _ from 'lodash';
-import config from 'react-native-config';
+import remoteConfig from '@react-native-firebase/remote-config';
 
+export enum BITCOIN_NETWORK {
+  TESTNET = 'TESTNET',
+  MAINNET = 'MAINNET',
+}
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
   STAGING = 'STAGING',
   PRODUCTION = 'PRODUCTION',
 }
 
-export enum BITCOIN_NETWORK {
-  TESTNET = 'TESTNET',
-  MAINNET = 'MAINNET',
+interface ESPLORA_ENPOINTS {
+  TESTNET: {
+    MULTIBALANCE: string;
+    MULTIUTXO: string;
+    MULTITXN: string;
+    MULTIBALANCETXN: string;
+    NEWMULTIUTXOTXN: string;
+    TXN_FEE: string;
+    TXNDETAILS: string;
+    BROADCAST_TX: string;
+  };
+  MAINNET: {
+    MULTIBALANCE: string;
+    MULTIUTXO: string;
+    MULTITXN: string;
+    MULTIBALANCETXN: string;
+    NEWMULTIUTXOTXN: string;
+    TXN_FEE: string;
+    TXNDETAILS: string;
+    BROADCAST_TX: string;
+  };
+}
+interface Configuration {
+  ENVIRONMENT: string;
+  NETWORK?: bitcoinJS.networks.Network;
+  APP_STAGE: APP_STAGE;
+  BITCOIN_NETWORK: string;
+  TESTNET_WRAPPER: string;
+  MAINNET_WRAPPER: string;
+  RELAY: string;
+  SIGNING_SERVER: string;
+  ENC_KEY_STORAGE_IDENTIFIER: string;
+  AUTH_ID: string;
+  HEXA_ID: string;
+  SENTRY_DNS: string;
+  WALLET_INSTANCES?: {
+    CHECKING: { series: number; upperBound: number };
+    IMPORTED: { series: number; upperBound: number };
+    SWAN: { series: number; upperBound: number };
+    LIGHTNING: { series: number; upperBound: number };
+    MOBILE_KEY: { series: number; upperBound: number };
+  };
+  REQUEST_TIMEOUT?: number;
+  GAP_LIMIT?: number;
+  ESPLORA_API_ENDPOINTS?: ESPLORA_ENPOINTS;
+  USE_ESPLORA_FALLBACK?: boolean;
+  RELAY_AXIOS?: AxiosInstance;
+  SIGNING_AXIOS?: AxiosInstance;
+  VAC_CHILD_INDEX?: number;
+  BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH?: string;
+  BITHYVE_ESPLORA_API_ENDPOINTS?: ESPLORA_ENPOINTS;
 }
 
-// defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.MAINNET,
+  ENVIRONMENT: APP_STAGE.STAGING,
   APP_STAGE: APP_STAGE.STAGING,
+  BITCOIN_NETWORK: 'MAINNET',
   TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
   MAINNET_WRAPPER: 'https://api.bithyve.com',
-  RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
-  SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
+  RELAY: 'https://new-staging-relay.nw.r.appspot.com/',
+  SIGNING_SERVER: 'https://new-staging-sign.nw.r.appspot.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
   AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
 };
 
-class Configuration {
-  public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER
-    ? config.TESTNET_WRAPPER.trim()
-    : DEFAULT_CONFIG.TESTNET_WRAPPER;
-  public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER
-    ? config.MAINNET_WRAPPER.trim()
-    : DEFAULT_CONFIG.MAINNET_WRAPPER;
-  public RELAY = config.RELAY ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
-  public SIGNING_SERVER = config.SIGNING_SERVER
-    ? config.SIGNING_SERVER.trim()
-    : DEFAULT_CONFIG.SIGNING_SERVER;
-  public AUTH_ID: string = config.AUTH_ID ? config.AUTH_ID.trim() : DEFAULT_CONFIG.AUTH_ID;
-  public HEXA_ID: string = config.HEXA_ID ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
-  public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = `m/83696968'/39'/0'/12'/83696968'`;
-  public VAC_CHILD_INDEX: number = 3012009;
-  public ENC_KEY_STORAGE_IDENTIFIER: string = config.ENC_KEY_STORAGE_IDENTIFIER
-    ? config.ENC_KEY_STORAGE_IDENTIFIER.trim()
-    : DEFAULT_CONFIG.ENC_KEY_STORAGE_IDENTIFIER;
+let myConfig: Configuration = DEFAULT_CONFIG;
 
-  public SENTRY_DNS: string = config.SENTRY_DNS
-    ? config.SENTRY_DNS.trim()
-    : DEFAULT_CONFIG.SENTRY_DNS;
-
-  public WALLET_INSTANCES = {
+const initCofig = async ({ network }: { network: BITCOIN_NETWORK }) => {
+  await remoteConfig().setDefaults(DEFAULT_CONFIG);
+  await remoteConfig().fetchAndActivate();
+  myConfig = JSON.parse(remoteConfig().getValue(network).asString());
+  myConfig.APP_STAGE = myConfig.ENVIRONMENT
+    ? APP_STAGE[myConfig.ENVIRONMENT]
+    : DEFAULT_CONFIG.APP_STAGE;
+  myConfig.NETWORK =
+    network === BITCOIN_NETWORK.MAINNET ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.testnet;
+  myConfig.WALLET_INSTANCES = {
     [WalletType.CHECKING]: {
       series: 0,
       upperBound: 10,
@@ -81,95 +120,88 @@ class Configuration {
     },
   };
 
-  public REQUEST_TIMEOUT: number = 15000;
-  public GAP_LIMIT: number = 5;
-  public RELAY_AXIOS: AxiosInstance = axios.create({
-    baseURL: this.RELAY,
-    timeout: this.REQUEST_TIMEOUT * 3,
+  myConfig.REQUEST_TIMEOUT = 15000;
+  myConfig.GAP_LIMIT = 5;
+
+  myConfig.BITHYVE_ESPLORA_API_ENDPOINTS = {
+    TESTNET: {
+      MULTIBALANCE: myConfig.TESTNET_WRAPPER + '/balances',
+      MULTIUTXO: myConfig.TESTNET_WRAPPER + '/utxos',
+      MULTITXN: myConfig.TESTNET_WRAPPER + '/data',
+      MULTIBALANCETXN: myConfig.TESTNET_WRAPPER + '/baltxs',
+      NEWMULTIUTXOTXN: myConfig.TESTNET_WRAPPER + '/nutxotxs',
+      TXN_FEE: myConfig.TESTNET_WRAPPER + '/fee-estimates',
+      TXNDETAILS: myConfig.TESTNET_WRAPPER + '/tx',
+      BROADCAST_TX: myConfig.TESTNET_WRAPPER + '/tx',
+    },
+    MAINNET: {
+      MULTIBALANCE: myConfig.MAINNET_WRAPPER + '/balances',
+      MULTIUTXO: myConfig.MAINNET_WRAPPER + '/utxos',
+      MULTITXN: myConfig.MAINNET_WRAPPER + '/data',
+      MULTIBALANCETXN: myConfig.MAINNET_WRAPPER + '/baltxs',
+      NEWMULTIUTXOTXN: myConfig.MAINNET_WRAPPER + '/nutxotxs',
+      TXN_FEE: myConfig.MAINNET_WRAPPER + '/fee-estimates',
+      TXNDETAILS: myConfig.MAINNET_WRAPPER + '/tx',
+      BROADCAST_TX: myConfig.MAINNET_WRAPPER + '/tx',
+    },
+  };
+
+  myConfig.ESPLORA_API_ENDPOINTS = _.cloneDeep(myConfig.BITHYVE_ESPLORA_API_ENDPOINTS); // current API-endpoints being used
+  myConfig.USE_ESPLORA_FALLBACK = false; // BITHYVE_ESPLORA_API_ENDPOINT acts as the fallback(when true)
+  myConfig.RELAY_AXIOS = axios.create({
+    baseURL: myConfig.RELAY,
+    timeout: myConfig.REQUEST_TIMEOUT * 3,
     headers: {
-      'HEXA-ID': config.HEXA_ID,
+      'HEXA-ID': myConfig.HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
       os: Platform.OS,
     },
   });
-  public SIGNING_AXIOS: AxiosInstance = axios.create({
-    baseURL: this.SIGNING_SERVER,
-    timeout: this.REQUEST_TIMEOUT,
+  myConfig.SIGNING_AXIOS = axios.create({
+    baseURL: myConfig.SIGNING_SERVER,
+    timeout: myConfig.REQUEST_TIMEOUT,
   });
+  return config;
+};
 
-  public NETWORK: bitcoinJS.Network;
-  public APP_STAGE: string;
+const connectToBitHyveNode = async () => {
+  myConfig.ESPLORA_API_ENDPOINTS = _.cloneDeep(myConfig.BITHYVE_ESPLORA_API_ENDPOINTS);
+  myConfig.USE_ESPLORA_FALLBACK = false;
+};
 
-  constructor(env: BITCOIN_NETWORK) {
-    this.NETWORK =
-      env.trim() === BITCOIN_NETWORK.MAINNET
-        ? bitcoinJS.networks.bitcoin
-        : bitcoinJS.networks.testnet;
-    this.APP_STAGE = config.ENVIRONMENT ? config.ENVIRONMENT.trim() : DEFAULT_CONFIG.APP_STAGE;
-  }
+const connectToPersonalNode = async (personalNode: PersonalNode) => {
+  const personalNodeURL = personalNode.urlPath;
+  if (personalNodeURL && personalNode.isConnectionActive) {
+    const personalNodeEPs = {
+      MULTIBALANCE: personalNodeURL + '/balances',
+      MULTIUTXO: personalNodeURL + '/utxos',
+      MULTITXN: personalNodeURL + '/data',
+      MULTIBALANCETXN: personalNodeURL + '/baltxs',
+      MULTIUTXOTXN: personalNodeURL + '/utxotxs',
+      NEWMULTIUTXOTXN: personalNodeURL + '/nutxotxs',
+      TXN_FEE: personalNodeURL + 'fee-estimates',
+      TXNDETAILS: personalNodeURL + '/tx',
+      BROADCAST_TX: personalNodeURL + '/tx',
+    };
 
-  public BITHYVE_ESPLORA_API_ENDPOINTS = {
-    TESTNET: {
-      MULTIBALANCE: this.TESTNET_WRAPPER + '/balances',
-      MULTIUTXO: this.TESTNET_WRAPPER + '/utxos',
-      MULTITXN: this.TESTNET_WRAPPER + '/data',
-      MULTIBALANCETXN: this.TESTNET_WRAPPER + '/baltxs',
-      NEWMULTIUTXOTXN: this.TESTNET_WRAPPER + '/nutxotxs',
-      TXN_FEE: this.TESTNET_WRAPPER + '/fee-estimates',
-      TXNDETAILS: this.TESTNET_WRAPPER + '/tx',
-      BROADCAST_TX: this.TESTNET_WRAPPER + '/tx',
-    },
-    MAINNET: {
-      MULTIBALANCE: this.MAINNET_WRAPPER + '/balances',
-      MULTIUTXO: this.MAINNET_WRAPPER + '/utxos',
-      MULTITXN: this.MAINNET_WRAPPER + '/data',
-      MULTIBALANCETXN: this.MAINNET_WRAPPER + '/baltxs',
-      NEWMULTIUTXOTXN: this.MAINNET_WRAPPER + '/nutxotxs',
-      TXN_FEE: this.MAINNET_WRAPPER + '/fee-estimates',
-      TXNDETAILS: this.MAINNET_WRAPPER + '/tx',
-      BROADCAST_TX: this.MAINNET_WRAPPER + '/tx',
-    },
-  };
-  public ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS); // current API-endpoints being used
-  public USE_ESPLORA_FALLBACK = false; // BITHYVE_ESPLORA_API_ENDPOINT acts as the fallback(when true)
-
-  public connectToPersonalNode = async (personalNode: PersonalNode) => {
-    const personalNodeURL = personalNode.urlPath;
-    if (personalNodeURL && personalNode.isConnectionActive) {
-      const personalNodeEPs = {
-        MULTIBALANCE: personalNodeURL + '/balances',
-        MULTIUTXO: personalNodeURL + '/utxos',
-        MULTITXN: personalNodeURL + '/data',
-        MULTIBALANCETXN: personalNodeURL + '/baltxs',
-        MULTIUTXOTXN: personalNodeURL + '/utxotxs',
-        NEWMULTIUTXOTXN: personalNodeURL + '/nutxotxs',
-        TXN_FEE: personalNodeURL + 'fee-estimates',
-        TXNDETAILS: personalNodeURL + '/tx',
-        BROADCAST_TX: personalNodeURL + '/tx',
+    if (myConfig.NETWORK === bitcoinJS.networks.bitcoin)
+      myConfig.ESPLORA_API_ENDPOINTS = {
+        ...myConfig.ESPLORA_API_ENDPOINTS,
+        MAINNET: personalNodeEPs,
       };
+    else
+      myConfig.ESPLORA_API_ENDPOINTS = {
+        ...myConfig.ESPLORA_API_ENDPOINTS,
+        TESTNET: personalNodeEPs,
+      };
+    myConfig.USE_ESPLORA_FALLBACK = personalNode.useFallback;
+  }
+  return myConfig;
+};
 
-      if (this.NETWORK === bitcoinJS.networks.bitcoin)
-        this.ESPLORA_API_ENDPOINTS = {
-          ...this.ESPLORA_API_ENDPOINTS,
-          MAINNET: personalNodeEPs,
-        };
-      else
-        this.ESPLORA_API_ENDPOINTS = {
-          ...this.ESPLORA_API_ENDPOINTS,
-          TESTNET: personalNodeEPs,
-        };
+const config = () => {
+  return myConfig;
+};
 
-      this.USE_ESPLORA_FALLBACK = personalNode.useFallback;
-    }
-  };
-
-  public connectToBitHyveNode = async () => {
-    this.ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS);
-    this.USE_ESPLORA_FALLBACK = false;
-  };
-}
-
-export default new Configuration(
-  (config.BITCOIN_NETWORK as BITCOIN_NETWORK) || DEFAULT_CONFIG.BITCOIN_NETWORK
-);
+export { config, initCofig, connectToBitHyveNode, connectToPersonalNode };

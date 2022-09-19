@@ -1,11 +1,13 @@
-import wif from 'wif';
-import bs58 from 'bs58';
-import * as bip39 from 'bip39';
 import * as bip32 from 'bip32';
-import crypto from 'crypto';
-import config from '../../config';
-import { WalletType, BIP85Languages, BIP85Words } from '../enums';
+import * as bip39 from 'bip39';
+
+import { BIP85Languages, BIP85Words, WalletType } from '../enums';
+
 import { BIP85Config } from '../interfaces';
+import bs58 from 'bs58';
+import { config } from '../../config';
+import crypto from 'crypto';
+import wif from 'wif';
 
 export default class BIP85 {
   private static hmacsha512 = (message): Buffer => {
@@ -130,7 +132,7 @@ export default class BIP85 {
     words: number = BIP85Words.TWELVE,
     language: string = BIP85Languages.ENGLISH
   ): BIP85Config => {
-    const { series, upperBound } = config.WALLET_INSTANCES[walletType];
+    const { series, upperBound } = config().WALLET_INSTANCES[walletType];
     if (instanceNumber > upperBound - 1)
       throw new Error(
         `Cannot create new instance of type ${walletType}, exceeds instance upper bound`
