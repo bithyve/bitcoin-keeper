@@ -355,9 +355,7 @@ function* getAppImageWorker({ payload }) {
   try {
     yield put(setAppImageError(false));
     yield put(setAppRecoveryLoading(true));
-    const primarySeed = bip39.mnemonicToSeedSync(
-      'venue buffalo fury mandate skull domain pipe tower endorse drink defy require'
-    );
+    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appId = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const { appImage, vaultImage } = yield call(Relay.getAppImage, appId);
