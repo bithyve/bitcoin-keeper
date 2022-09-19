@@ -29,7 +29,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   const vault = translations['vault'];
 
   useEffect(() => {
-    getNfcSupport();
+    // getNfcSupport();
   }, []);
 
   const getNfcSupport = async () => {
@@ -45,8 +45,15 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           (type === SignerType.MOBILE_KEY || type === SignerType.POLICY_SERVER)
       )
     );
-    const [visible, setVisible] = useState(false);
     const { showToast } = useToastMessage();
+    const [visible, setVisible] = useState(false);
+    const [disable, setDisable] = useState(WalletMap(type).disable);
+    let isDisable = WalletMap(type).disable;
+
+    useEffect(() => {
+      setDisable(isDisable)
+    }, [isDisable])
+
     const onPress = () => {
       if (!!disabled.length) {
         showToast(
@@ -62,7 +69,14 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
 
     return (
       <>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onPress}
+          disabled={disable}
+          style={{
+            opacity: disable ? 0.4 : 1
+          }}
+        >
           <Box
             backgroundColor={'light.lightYellow'}
             borderTopRadius={first ? 15 : 0}
@@ -139,13 +153,13 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
             {[
               'MOBILE_KEY',
               'POLICY_SERVER',
-              'TAPSIGNER',
-              'COLDCARD',
-              'LEDGER',
               'TREZOR',
               'KEYSTONE',
               'PASSPORT',
               'JADE',
+              'LEDGER',
+              'TAPSIGNER',
+              'COLDCARD',
             ].map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
