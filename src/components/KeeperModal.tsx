@@ -1,4 +1,4 @@
-import { Box, Modal, Text } from 'native-base';
+import { Box, Link, Modal, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
@@ -22,6 +22,8 @@ const KeeperModal = (props) => {
     textColor = '#000',
     DarkCloseIcon = false,
     Content = () => <></>,
+    learnMore = false,
+    learnMoreCallback = () => { }
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -66,28 +68,59 @@ const KeeperModal = (props) => {
           <Modal.Body>
             <Content />
           </Modal.Body>
-          {buttonText && (
-            <Box alignSelf={'flex-end'} bg={'transparent'}>
-              <TouchableOpacity onPress={buttonCallback}>
-                <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={buttonBackground}
-                  style={styles.cta}
+          {(learnMore || buttonText) &&
+            <Box
+              flexDirection={'row'}
+              justifyContent={'space-between'}
+              alignItems={'center'}
+              width={'100%'}
+            >
+              {learnMore ?
+                <Box
+                  borderColor={'light.yellow2'}
+                  borderRadius={hp(40)}
+                  borderWidth={1}
+                  alignItems={'center'}
+                  justifyContent={'center'}
+                  backgroundColor={'#00433A'}
+                  style={{
+                    height: hp(34),
+                    width: wp(110),
+                    marginLeft: wp(10)
+                  }}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
-                    letterSpacing={1}
-                    color={buttonTextColor}
-                  >
-                    {buttonText}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Box>
-          )}
+                  <Link onPress={learnMoreCallback}>
+                    <Text color={'light.yellow2'} fontSize={13} fontFamily={'body'} fontWeight={'200'} >
+                      {'Learn More'}
+                    </Text>
+                  </Link>
+                </Box>
+                :
+                <Box></Box>
+              }
+              {buttonText && (
+                <Box alignSelf={'flex-end'} bg={'transparent'}>
+                  <TouchableOpacity onPress={buttonCallback}>
+                    <LinearGradient
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      colors={buttonBackground}
+                      style={styles.cta}
+                    >
+                      <Text
+                        fontSize={13}
+                        fontFamily={'body'}
+                        fontWeight={'300'}
+                        letterSpacing={1}
+                        color={buttonTextColor}
+                      >
+                        {buttonText}
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Box>
+              )}
+            </Box>}
         </LinearGradient>
       </Modal.Content>
     </Modal>
@@ -111,9 +144,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   cta: {
-    paddingVertical: 10,
-    paddingHorizontal: wp(20),
     borderRadius: 10,
+    width: wp(110),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   close: {
     alignSelf: 'flex-end',
