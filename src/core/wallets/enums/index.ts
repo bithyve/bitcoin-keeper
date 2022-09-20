@@ -95,6 +95,7 @@ export enum SignerType {
   KEYSTONE = 'KEYSTONE',
   POLICY_SERVER = 'POLICY_SERVER',
   MOBILE_KEY = 'MOBILE_KEY',
+  SEED_WORDS = 'SEED_WORDS',
 }
 
 export enum PaymentInfoKind {

@@ -1,3 +1,4 @@
+import APP from 'src/assets/images/app.svg';
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
 import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
@@ -11,6 +12,7 @@ import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
+import SERVER from 'src/assets/images/server.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
 import TAPSIGNERICONLIGHT from 'src/assets/icons/tapsigner_light.svg';
@@ -18,9 +20,6 @@ import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
 import TREZORICONLIGHT from 'src/assets/icons/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
-import APP from 'src/assets/images/app.svg';
-import SERVER from 'src/assets/images/server.svg';
-
 import { Text } from 'native-base';
 
 export const WalletMap = (type: SignerType, light = false) => {
@@ -38,7 +37,11 @@ export const WalletMap = (type: SignerType, light = false) => {
     case SignerType.KEEPER:
       return {
         Icon: null,
-        Logo: null,
+        Logo: (
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+            Another Keeper App
+          </Text>
+        ),
       };
     case SignerType.KEYSTONE:
       return {
@@ -53,13 +56,11 @@ export const WalletMap = (type: SignerType, light = false) => {
     case SignerType.MOBILE_KEY:
       return {
         Icon: <APP />,
-        Logo: <Text
-          letterSpacing={1.5}
-          fontWeight={200}
-          fontSize={14}
-          color={'light.lightBlack2'}>
-          Mobile Key
-        </Text>,
+        Logo: (
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+            Mobile Key
+          </Text>
+        ),
       };
     case SignerType.PASSPORT:
       return {
@@ -69,13 +70,11 @@ export const WalletMap = (type: SignerType, light = false) => {
     case SignerType.POLICY_SERVER:
       return {
         Icon: <SERVER />,
-        Logo: <Text
-          letterSpacing={1.5}
-          fontWeight={200}
-          fontSize={14}
-          color={'light.lightBlack2'}>
-          Signing Server
-        </Text>,
+        Logo: (
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+            Signing Server
+          </Text>
+        ),
       };
     case SignerType.TAPSIGNER:
       return {
@@ -86,6 +85,15 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: light ? <TREZORICONLIGHT /> : <TREZORICON />,
         Logo: <TREZORLOGO />,
+      };
+    case SignerType.SEED_WORDS:
+      return {
+        Icon: null,
+        Logo: (
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+            Seed Words Based
+          </Text>
+        ),
       };
     default:
       return {
