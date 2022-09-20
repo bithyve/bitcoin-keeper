@@ -3,10 +3,11 @@ import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
 import CloseGreen from 'src/assets/icons/modal_close_green.svg';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const KeeperModal = (props) => {
   const {
@@ -36,59 +37,61 @@ const KeeperModal = (props) => {
       justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          colors={modalBackground}
-          style={styles.container}
-        >
-          <TouchableOpacity style={styles.close} onPress={close}>
-            {DarkCloseIcon ? <CloseGreen /> : <Close />}
-          </TouchableOpacity>
-          <Modal.Header
-            alignSelf={'flex-start'}
-            borderBottomWidth={0}
-            backgroundColor={'transparent'}
-            width={'90%'}
+        <GestureHandlerRootView>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            colors={modalBackground}
+            style={styles.container}
           >
-            <Text
-              style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
-              color={textColor}
+            <TouchableOpacity style={styles.close} onPress={close}>
+              {DarkCloseIcon ? <CloseGreen /> : <Close />}
+            </TouchableOpacity>
+            <Modal.Header
+              alignSelf={'flex-start'}
+              borderBottomWidth={0}
+              backgroundColor={'transparent'}
+              width={'90%'}
             >
-              {title}
-            </Text>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
-              {subTitle}
-            </Text>
-          </Modal.Header>
-          <Modal.Body>
-            <Content />
-          </Modal.Body>
-          {buttonText && (
-            <Box alignSelf={'flex-end'} bg={'transparent'}>
-              <TouchableOpacity onPress={buttonCallback}>
-                <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={buttonBackground}
-                  style={styles.cta}
-                >
-                  <Text
-                    fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
-                    letterSpacing={1}
-                    color={buttonTextColor}
+              <Text style={styles.title} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+                {title}
+              </Text>
+              <Text
+                style={styles.subTitle}
+                fontFamily={'body'}
+                fontWeight={'100'}
+                color={textColor}
+              >
+                {subTitle}
+              </Text>
+            </Modal.Header>
+            <Modal.Body>
+              <Content />
+            </Modal.Body>
+            {buttonText && (
+              <Box alignSelf={'flex-end'} bg={'transparent'}>
+                <TouchableOpacity onPress={buttonCallback}>
+                  <LinearGradient
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    colors={buttonBackground}
+                    style={styles.cta}
                   >
-                    {buttonText}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Box>
-          )}
-        </LinearGradient>
+                    <Text
+                      fontSize={13}
+                      fontFamily={'body'}
+                      fontWeight={'300'}
+                      letterSpacing={1}
+                      color={buttonTextColor}
+                    >
+                      {buttonText}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Box>
+            )}
+          </LinearGradient>
+        </GestureHandlerRootView>
       </Modal.Content>
     </Modal>
   );

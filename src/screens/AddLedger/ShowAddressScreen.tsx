@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -55,6 +55,7 @@ const ShowAddressScreen = ({ transport }) => {
         },
         lastHealthCheck: new Date(),
         addedOn: new Date(),
+        storageType: SignerStorage.COLD,
       };
       // const {
       //   xpub: xpub2,

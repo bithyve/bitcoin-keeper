@@ -101,3 +101,9 @@ export enum PaymentInfoKind {
   ADDRESS = 'address',
   PAYMENT_URI = 'paymentURI',
 }
+
+export enum SignerStorage {
+  HOT = 'HOT',
+  COLD = 'COLD',
+  WARM = 'WARM',
+}

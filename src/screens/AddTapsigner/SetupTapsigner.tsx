@@ -1,7 +1,7 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';
 
@@ -57,14 +57,14 @@ const SetupTapsigner = () => {
   };
 
   const getTapsignerDetails = async () => {
-    const signerDetails = await withModal(async () => {
+    const { xpub, derivationPath, xfp } = await withModal(async () => {
       const status = await card.first_look();
       const isLegit = await card.certificate_check();
       if (isLegit) {
         if (status.path) {
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
-          return { xpub, status, xfp: xfp.toString('hex') };
+          return { xpub, xfp: xfp.toString('hex'), derivationPath: status.path };
         } else {
           await card.setup(cvc);
           const newCard = await card.first_look();
@@ -74,13 +74,10 @@ const SetupTapsigner = () => {
         }
       }
     })();
-    return signerDetails;
-  };
-
-  const saveTapsigner = async (tapsignerData) => {
-    const { xpub, derivationPath, xfp } = tapsignerData;
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      return getMockTapsignerDetails();
+    }
     const signer: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.TAPSIGNER,
@@ -92,51 +89,58 @@ const SetupTapsigner = () => {
       },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.COLD,
     };
-    const exsists = await checkSigningDevice(signer.signerId);
-    if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
-    dispatch(addSigningDevice(signer));
+    return signer;
   };
 
   const addTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      saveTapsigner(tapsigner);
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
       Alert.alert(err.toString());
     }
   }, [cvc]);
 
+  const getMockTapsignerDetails = () => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
+      EntityKind.VAULT
+    );
+    // const xpub =
+    //   'tpubDF6L55YJ8AkuwkWwpdY87eJyUUHNu2PGHkXCNj7BuJQWcj2toFBDhAZJTU248AXMcMgi7fACLidVt9j35SfsANLensD5uUdQuPxjZvGDNWZ';
+    // const xpriv =
+    //   'tprv8iQHvfW3yo5F4HV9vysXiEeruSmSjhCMiSvR6D4tV2c7nEn8ArMdWfwSHJTiZNqH2TqgzJmj8EhJJf3BQwPhHs4qSuieY63Vc2QxRnmbu2d';
+    // const masterFingerprint = '7A5C570E';
+    // const derivationPath = "m/48'/1'/800859'/1'"; // bip48/testnet/account/script/
+    const tapsigner: VaultSigner = {
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      type: SignerType.TAPSIGNER,
+      signerName: 'Tapsigner (Mock)',
+      isMock: true,
+      xpub,
+      xpriv,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      storageType: SignerStorage.COLD,
+    };
+    return tapsigner;
+  };
+
   const addMockTapsigner = React.useCallback(async () => {
     try {
       if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const networkType = NetworkType.TESTNET;
-        const network = WalletUtilities.getNetworkByType(networkType);
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-          EntityKind.VAULT
-        );
-        // const xpub =
-        //   'tpubDF6L55YJ8AkuwkWwpdY87eJyUUHNu2PGHkXCNj7BuJQWcj2toFBDhAZJTU248AXMcMgi7fACLidVt9j35SfsANLensD5uUdQuPxjZvGDNWZ';
-        // const xpriv =
-        //   'tprv8iQHvfW3yo5F4HV9vysXiEeruSmSjhCMiSvR6D4tV2c7nEn8ArMdWfwSHJTiZNqH2TqgzJmj8EhJJf3BQwPhHs4qSuieY63Vc2QxRnmbu2d';
-        // const masterFingerprint = '7A5C570E';
-        // const derivationPath = "m/48'/1'/800859'/1'"; // bip48/testnet/account/script/
-        const tapsigner: VaultSigner = {
-          signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-          type: SignerType.TAPSIGNER,
-          signerName: 'Tapsigner (Mock)',
-          isMock: true,
-          xpub,
-          xpriv,
-          xpubInfo: {
-            derivationPath,
-            xfp: masterFingerprint,
-          },
-          lastHealthCheck: new Date(),
-          addedOn: new Date(),
-        };
-        dispatch(addSigningDevice(tapsigner));
+        const mockTapsigner = getMockTapsignerDetails();
+        dispatch(addSigningDevice(mockTapsigner));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     } catch (err) {
