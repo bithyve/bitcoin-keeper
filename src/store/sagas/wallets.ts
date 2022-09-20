@@ -246,8 +246,7 @@ function* addNewVaultWorker({
       });
     }
     yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
-
-    yield call(updatVaultImage);
+    yield put(updatVaultImage());
   } catch (err) {
     yield put(
       vaultCreated({
