@@ -1,6 +1,6 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -217,6 +217,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       bip85Config,
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.WARM,
     };
 
     dispatch(addSigningDevice(mobileKey));

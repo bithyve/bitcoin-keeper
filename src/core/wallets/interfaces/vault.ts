@@ -7,7 +7,14 @@ import {
   UTXO,
   WalletImportedAddresses,
 } from '.';
-import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+import {
+  EntityKind,
+  NetworkType,
+  SignerStorage,
+  SignerType,
+  VaultType,
+  VisibilityType,
+} from '../enums';
 
 import { WalletPresentationData } from './wallet';
 
@@ -39,9 +46,14 @@ export interface VaultScheme {
   n: number; // total number of xpubs
 }
 
+export interface VaultScheme {
+  m: number; // threshold number of signatures required
+  n: number; // total number of xpubs
+}
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
+  storageType: SignerStorage;
   isMock?: boolean;
   xpub: string;
   xpriv?: string;

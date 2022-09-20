@@ -1,6 +1,6 @@
 import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { Box } from 'native-base';
@@ -60,6 +60,7 @@ const SetupColdCard = () => {
       },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.COLD,
     };
     const exsists = await checkSigningDevice(signer.signerId);
     if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
@@ -103,6 +104,7 @@ const SetupColdCard = () => {
           },
           lastHealthCheck: new Date(),
           addedOn: new Date(),
+          storageType: SignerStorage.COLD,
         };
         dispatch(addSigningDevice(cc));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));

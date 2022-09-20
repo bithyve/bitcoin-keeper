@@ -1,7 +1,7 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';
 
@@ -89,6 +89,7 @@ const SetupTapsigner = () => {
       },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.COLD,
     };
     return signer;
   };
@@ -130,6 +131,7 @@ const SetupTapsigner = () => {
       },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.COLD,
     };
     return tapsigner;
   };

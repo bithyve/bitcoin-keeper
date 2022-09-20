@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
 
 import AppClient from 'src/hardware/ledger';
@@ -105,6 +105,7 @@ const AddLedger = ({}) => {
         },
         lastHealthCheck: new Date(),
         addedOn: new Date(),
+        storageType: SignerStorage.COLD,
       };
       dispatch(addSigningDevice(signer));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
@@ -140,6 +141,7 @@ const AddLedger = ({}) => {
       },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.COLD,
     };
     dispatch(addSigningDevice(ledger));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
