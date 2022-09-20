@@ -1,5 +1,12 @@
-import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Text, View } from 'native-base';
+import {
+  ActivityIndicator,
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
@@ -57,23 +64,25 @@ const AddLedger = ({}) => {
       scanForDevices();
     }, []);
     return (
-      <View>
-        <Box ml={wp(21)}>
-          {isScanning ? <ActivityIndicator /> : null}
-          {allDevices.map((device) => {
-            return (
-              <TouchableOpacity style={styles.deviceItem} onPress={() => connectToDevice(device)}>
-                <Text style={styles.deviceName}>{device.name}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </Box>
-        <Box marginTop={'4'}>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-            {`Please stay on the BTC app before connecting to the deivce`}
-          </Text>
-        </Box>
-      </View>
+      <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
+        <View>
+          <Box ml={wp(21)}>
+            {isScanning ? <ActivityIndicator /> : null}
+            {allDevices.map((device) => {
+              return (
+                <TouchableOpacity style={styles.deviceItem} onPress={() => connectToDevice(device)}>
+                  <Text style={styles.deviceName}>{device.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </Box>
+          <Box marginTop={'4'}>
+            <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
+              {`Please stay on the BTC app before connecting to the deivce`}
+            </Text>
+          </Box>
+        </View>
+      </TapGestureHandler>
     );
   };
 
@@ -139,18 +148,16 @@ const AddLedger = ({}) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {!transport ? (
-        <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
-          <KeeperModal
-            visible={visible}
-            close={close}
-            title={ledger.ScanningBT}
-            subTitle={ledger.KeepLedgerReady}
-            modalBackground={['#F7F2EC', '#F7F2EC']}
-            buttonBackground={['#00836A', '#073E39']}
-            textColor={'#041513'}
-            Content={LedgerSetupContent}
-          />
-        </TapGestureHandler>
+        <KeeperModal
+          visible={visible}
+          close={close}
+          title={ledger.ScanningBT}
+          subTitle={ledger.KeepLedgerReady}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          textColor={'#041513'}
+          Content={LedgerSetupContent}
+        />
       ) : null}
     </SafeAreaView>
   );
