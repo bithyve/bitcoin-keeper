@@ -68,7 +68,7 @@ export default function CreatePin(props) {
     if (hasCreds) {
       addDummyUaiToDb();
       props.navigation.navigate('OnBoardingSlides');
-      updateFCM();
+      // updateFCM();
     }
   }, [hasCreds]);
 
@@ -217,7 +217,7 @@ export default function CreatePin(props) {
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                    // mt={hp('1.5%')}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -239,8 +239,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // keyColor={'light.lightBlack'}
-          // ClearIcon={<DeleteIcon />}
+            // keyColor={'light.lightBlack'}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>
