@@ -79,7 +79,7 @@ const SetupColdCard = () => {
   const addMockColdCard = () => {
     try {
       if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const networkType = NetworkType.TESTNET;
+        const networkType = config.NETWORK_TYPE;
         const network = WalletUtilities.getNetworkByType(networkType);
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
           EntityKind.VAULT
