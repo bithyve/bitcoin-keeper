@@ -58,12 +58,14 @@ export const WalletMap = (type: SignerType, light = false) => {
         Icon: light ? <COLDCARDICONLIGHT /> : <COLDCARDICON />,
         Logo: <COLDCARDLOGO />,
         disable: nfcSupported,
+        message: nfcSupported ? 'NFC is Not enabled in your device' : ''
       };
     case SignerType.JADE:
       return {
         Icon: <JADEICON />,
         Logo: <JADELOGO />,
         disable: false,
+        message: ''
       };
     case SignerType.KEEPER:
       return {
@@ -73,18 +75,22 @@ export const WalletMap = (type: SignerType, light = false) => {
             Another Keeper App
           </Text>
         ),
+        disable: false,
+        message: ''
       };
     case SignerType.KEYSTONE:
       return {
         Icon: <KEYSTONEICON />,
         Logo: <KEYSTONELOGO />,
         disable: false,
+        message: ''
       };
     case SignerType.LEDGER:
       return {
         Icon: light ? <LEDGERICONLIGHT /> : <LEDGERICON />,
         Logo: <LEDGERLOGO />,
         disable: !bluetoothState,
+        message: !bluetoothState ? 'BLE is Not enabled in your device' : ''
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -97,12 +103,14 @@ export const WalletMap = (type: SignerType, light = false) => {
           Mobile Key
         </Text>,
         disable: false,
+        message: ''
       };
     case SignerType.PASSPORT:
       return {
         Icon: <PASSPORTICON />,
         Logo: <PASSPORTLOGO />,
         disable: false,
+        message: ''
       };
     case SignerType.POLICY_SERVER:
       return {
@@ -115,18 +123,21 @@ export const WalletMap = (type: SignerType, light = false) => {
           Signing Server
         </Text>,
         disable: false,
+        message: ''
       };
     case SignerType.TAPSIGNER:
       return {
         Icon: light ? <TAPSIGNERICONLIGHT /> : <TAPSIGNERICON />,
         Logo: <TAPSIGNERLOGO />,
         disable: nfcSupported,
+        message: nfcSupported ? 'NFC is Not enabled in your device' : ''
       };
     case SignerType.TREZOR:
       return {
         Icon: light ? <TREZORICONLIGHT /> : <TREZORICON />,
         Logo: <TREZORLOGO />,
         disable: false,
+        message: ''
       };
     case SignerType.SEED_WORDS:
       return {
@@ -136,12 +147,14 @@ export const WalletMap = (type: SignerType, light = false) => {
             Seed Words Based
           </Text>
         ),
+        message: ''
       };
     default:
       return {
         Icon: null,
         Logo: null,
         disable: false,
+        message: ''
       };
   }
 };

@@ -102,9 +102,20 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
               <Box
                 style={{
                   marginLeft: wp(23),
+                  justifyContent: 'flex-end',
+                  marginTop: hp(20)
                 }}
               >
                 {WalletMap(type).Logo}
+                <Text
+                  color={'light.inActiveMsg'}
+                  fontSize={10}
+                  fontWeight={200}
+                  letterSpacing={1.3}
+                  marginTop={hp(5)}
+                >
+                  {WalletMap(type).message}
+                </Text>
               </Box>
             </Box>
             <Box
