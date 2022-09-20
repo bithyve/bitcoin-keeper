@@ -4,7 +4,6 @@ import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { APP_STAGE } from 'src/core/config';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -23,6 +22,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
+import config from 'src/core/config';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
 import { useAppSelector } from 'src/store/hooks';
@@ -55,7 +55,7 @@ const SetupSigningServer = ({ route }: { route }) => {
   }, [signingServerVerified, isTwoFAAlreadyVerified]);
 
   const setupSigningServerKey = async () => {
-    const networkType = APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     // const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
     //   primaryMnemonic,

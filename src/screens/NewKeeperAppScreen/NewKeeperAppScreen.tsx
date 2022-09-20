@@ -1,8 +1,6 @@
-import { ActivityIndicator, Platform, SafeAreaView, TouchableOpacity, View } from 'react-native';
-import { Box, Pressable, ScrollView, StatusBar, Text } from 'native-base';
+import { ActivityIndicator, Platform } from 'react-native';
+import { Box, HStack, Pressable, ScrollView, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { SETUP_KEEPER_APP, setupKeeperApp } from 'src/store/sagaActions/storage';
-import { getCloudData, recoverBackup } from 'src/store/sagaActions/bhr';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -11,13 +9,16 @@ import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
-import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
 import PasswordModal from 'src/components/PasswordModal';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import config from 'src/core/config';
+import { recoverBackup } from 'src/store/sagaActions/bhr';
+import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
@@ -94,7 +95,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
-
+  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
   useEffect(() => {
     if (appCreated) {
       navigation.navigate('App', { screen: 'NewHome' });
@@ -131,6 +132,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
 
   const closeCloudModal = () => setCloudModal(false);
 
+  const switchConfig = () => {
+    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
+    setTestnet(isTestnet ? false : true);
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <ScrollView
@@ -160,10 +166,26 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             }}
             loading={keeperInitiating}
           />
+          <HStack justifyContent={'space-between'} paddingTop={'2'}>
+            <Text
+              color={'light.blackHeaderText'}
+              fontFamily={'heading'}
+              fontWeight={'300'}
+              px={'8'}
+            >
+              Use TESTNET:
+            </Text>
+            <Switch
+              defaultIsChecked
+              trackColor={{ true: 'green' }}
+              style={{ marginRight: '5%' }}
+              onChange={switchConfig}
+            />
+          </HStack>
           <Text
             color={'light.blackHeaderText'}
             fontSize={RFValue(20)}
-            style={{ marginTop: 50 }}
+            style={{ marginTop: 10 }}
             fontFamily={'heading'}
             px={'8'}
           >
