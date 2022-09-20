@@ -68,7 +68,11 @@ export const WalletMap = (type: SignerType, light = false) => {
     case SignerType.KEEPER:
       return {
         Icon: null,
-        Logo: null,
+        Logo: (
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+            Another Keeper App
+          </Text>
+        ),
       };
     case SignerType.KEYSTONE:
       return {
@@ -123,6 +127,15 @@ export const WalletMap = (type: SignerType, light = false) => {
         Icon: light ? <TREZORICONLIGHT /> : <TREZORICON />,
         Logo: <TREZORLOGO />,
         disable: false,
+      };
+    case SignerType.SEED_WORDS:
+      return {
+        Icon: null,
+        Logo: (
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+            Seed Words Based
+          </Text>
+        ),
       };
     default:
       return {

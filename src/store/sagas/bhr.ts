@@ -60,14 +60,13 @@ import { refreshWallets } from '../sagaActions/wallets';
 import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
 import { translations } from 'src/common/content/LocContext';
 import { uaiActionedEntity } from '../sagaActions/uai';
+import crypto from 'crypto';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
 
-  const { primarySeed, id, walletShellInstances, primaryMnemonic }: KeeperApp = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.KeeperApp
-  );
+  const { primarySeed, appID, walletShellInstances, primaryMnemonic, subscription }: KeeperApp =
+    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.WalletShell,
@@ -75,21 +74,29 @@ function* updateAppImageWorker({ payload }) {
     true
   );
   let walletObject = {};
+  const encryptionKey = generateEncryptionKey(primarySeed);
   if (walletId) {
     const wallet: Wallet = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
-    const encryptionKey = generateEncryptionKey(primarySeed);
     const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
     walletObject[wallet.id] = encrytedWallet;
-    try {
-      Relay.updateAppImage({
-        id,
-        walletObject,
-        walletShellInstances: JSON.stringify(walletShellInstances),
-        walletShells: JSON.stringify(walletShells[0]),
-      });
-    } catch (err) {
-      console.error('update failed', err);
+  } else {
+    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    for (let index in wallets) {
+      const wallet = wallets[index];
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+      walletObject[wallet.id] = encrytedWallet;
     }
+  }
+  try {
+    Relay.updateAppImage({
+      appID,
+      walletObject,
+      walletShellInstances: JSON.stringify(walletShellInstances),
+      walletShells: JSON.stringify(walletShells[0]),
+      subscription: JSON.stringify(subscription),
+    });
+  } catch (err) {
+    console.error('update failed', err);
   }
 }
 
@@ -104,7 +111,6 @@ const getPermutations = (a, n, s = [], t = []) => {
 };
 
 const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
-  console.log(signerIdXpubMap, signerIds);
   let vacMap: any = {};
   const allPermutations = getPermutations(signerIds, m);
   for (let index in allPermutations) {
@@ -122,13 +128,13 @@ const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
 };
 
 function* updateVaultImageWorker({ payload }) {
-  const { primarySeed, id, vaultShellInstances, subscription }: KeeperApp = yield call(
+  const { primarySeed, appID, vaultShellInstances, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
   const vault: Vault = vaults[vaults.length - 1];
-
+  const m = vault.scheme.m;
   var signersIds = [];
   var signerIdXpubMap = {};
   for (let signer of vault.signers) {
@@ -138,14 +144,13 @@ function* updateVaultImageWorker({ payload }) {
   const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
   const subscriptionStrings = JSON.stringify(subscription);
   const encryptionKey = generateEncryptionKey(primarySeed);
-
   const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
   const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
   const vacMap = createVACMap(signersIds, signerIdXpubMap, m, vault.VAC);
 
   try {
     Relay.updateVaultImage({
-      appId: id,
+      appID,
       vaultId: vault.id,
       m,
       vacEncryptedApp,
@@ -348,12 +353,12 @@ function* seedBackedUpWorker() {
 function* getAppImageWorker({ payload }) {
   const { primaryMnemonic } = payload;
   try {
-    setAppImageError(false);
-    setAppRecoveryLoading(true);
+    yield put(setAppImageError(false));
+    yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-    const id = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const appId = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage } = yield call(Relay.getAppImage, id);
+    const { appImage, vaultImage } = yield call(Relay.getAppImage, appId);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -362,15 +367,18 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-      const app = {
-        id,
+      const app: KeeperApp = {
+        id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
+        appID: appImage.appId,
         primarySeed: primarySeed.toString('hex'),
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic: primaryMnemonic,
         imageEncryptionKey,
-        subscriptionPlan: SubscriptionTier.PLEB, // todo retrive valid sub plan
+        subscription: JSON.parse(appImage.subscription),
         version: DeviceInfo.getVersion(),
-        vaultShellInstances: JSON.parse(appImage.vaultShellInstances),
+        vaultShellInstances: appImage.vaultShellInstances
+          ? JSON.parse(appImage.vaultShellInstances)
+          : null,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
       yield call(
@@ -466,7 +474,6 @@ function* healthCheckSignerWorker({
 }) {
   try {
     const { vaultId, signerId } = payload;
-    console.log(vaultId, signerId);
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
 
     let signers = [];
@@ -503,7 +510,7 @@ function* isBackedUP({
     const ProductionWarning =
       (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30 ? true : false;
     const selectedWarning =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
+      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
     if (
       selectedWarning &&

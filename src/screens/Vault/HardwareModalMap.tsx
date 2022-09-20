@@ -1,10 +1,9 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { APP_STAGE } from 'src/core/config';
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -14,6 +13,7 @@ import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -22,6 +22,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import config from 'src/core/config';
 import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
@@ -93,16 +94,34 @@ const ColdCardSetupContent = () => {
           <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 2'}</Text>
           </Box>
-          <Text
-            color={'#073B36'}
-            fontSize={13}
-            fontWeight={200}
-            letterSpacing={0.65}
-            style={{
-              marginLeft: wp(10),
-              width: wp(200),
-            }}
-          >
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
+          </Text>
+        </Box>
+      </Box>
+    </View>
+  );
+};
+const LedgerSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <LedgerImage />
+      </Box>
+      <Box marginTop={'4'} flex={1} alignItems={'center'} justifyContent={'center'}>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mr={wp(19)}>
+            <Text>{'\u2022'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </Text>
+        </Box>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mr={wp(10)}>
+            <Text>{'\u2022'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
             Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
           </Text>
         </Box>
@@ -178,7 +197,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
   };
 
   const setupMobileKey = async () => {
-    const networkType = APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
       primaryMnemonic,
@@ -198,6 +217,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       bip85Config,
       lastHealthCheck: new Date(),
       addedOn: new Date(),
+      storageType: SignerStorage.WARM,
     };
 
     dispatch(addSigningDevice(mobileKey));
@@ -301,11 +321,11 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={ledger.SetupDescription}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Setup'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToLedgerSetup}
         textColor={'#041513'}
-        Content={ColdCardSetupContent}
+        Content={LedgerSetupContent}
       />
       <KeeperModal
         visible={visible && type === SignerType.POLICY_SERVER}

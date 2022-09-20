@@ -85,6 +85,7 @@
     "react-native-nfc-manager": "^3.13.3",
     "react-native-os": "^1.0.1",
     "react-native-pdf": "^6.6.2",
+    "react-native-permissions": "^3.6.1",
     "react-native-qrcode-svg": "^6.1.2",
     "react-native-randombytes": "^3.0.0",
     "react-native-reanimated": "^2.5.0",

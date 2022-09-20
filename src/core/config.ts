@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
+import { NetworkType, WalletType } from './wallets/enums';
 import axios, { AxiosInstance } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
 import PersonalNode from '../common/data/models/PersonalNode';
 import { Platform } from 'react-native';
-import { WalletType } from './wallets/enums';
 import _ from 'lodash';
 import config from 'react-native-config';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
-  STAGING = 'STAGING',
   PRODUCTION = 'PRODUCTION',
 }
 
@@ -23,8 +22,7 @@ export enum BITCOIN_NETWORK {
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.MAINNET,
-  APP_STAGE: APP_STAGE.STAGING,
+  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
   TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
   MAINNET_WRAPPER: 'https://api.bithyve.com',
   RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
@@ -99,14 +97,13 @@ class Configuration {
   });
 
   public NETWORK: bitcoinJS.Network;
-  public APP_STAGE: string;
+  public NETWORK_TYPE: NetworkType;
+  public ENVIRONMENT: string;
 
-  constructor(env: BITCOIN_NETWORK) {
-    this.NETWORK =
-      env.trim() === BITCOIN_NETWORK.MAINNET
-        ? bitcoinJS.networks.bitcoin
-        : bitcoinJS.networks.testnet;
-    this.APP_STAGE = config.ENVIRONMENT ? config.ENVIRONMENT.trim() : DEFAULT_CONFIG.APP_STAGE;
+  constructor() {
+    this.NETWORK = bitcoinJS.networks.testnet;
+    this.NETWORK_TYPE = NetworkType.TESTNET;
+    this.ENVIRONMENT = config.ENVIRONMENT;
   }
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {
@@ -168,8 +165,12 @@ class Configuration {
     this.ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS);
     this.USE_ESPLORA_FALLBACK = false;
   };
+
+  public setNetwork = (network: NetworkType) => {
+    const isTestnet = network === NetworkType.TESTNET;
+    this.NETWORK_TYPE = network;
+    this.NETWORK = isTestnet ? bitcoinJS.networks.testnet : bitcoinJS.networks.bitcoin;
+  };
 }
 
-export default new Configuration(
-  (config.BITCOIN_NETWORK as BITCOIN_NETWORK) || DEFAULT_CONFIG.BITCOIN_NETWORK
-);
+export default new Configuration();

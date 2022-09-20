@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import config, { APP_STAGE } from 'src/core/config';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackIcon from 'src/assets/icons/back.svg';
@@ -34,6 +33,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useDispatch } from 'react-redux';
 
@@ -98,9 +98,7 @@ const SigningDeviceDetails = ({ route }) => {
     })()
       .then((resp) => {
         const { xpub } = resp;
-        console.log(xpub);
-        const networkType =
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+        const networkType = config.NETWORK_TYPE;
         const network = WalletUtilities.getNetworkByType(networkType);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
         if (signerIdDerived === signer.signerId) {
