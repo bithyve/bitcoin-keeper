@@ -340,7 +340,9 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Ledger",
-    "SetupDescription": "Keep your Nano X ready before proceeding"
+    "SetupDescription": "Keep your Nano X ready before proceeding",
+    "ScanningBT": "Scanning for bluetooth",
+    "KeepLedgerReady": "Keep your Ledger ready before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",
