@@ -68,18 +68,8 @@ export default function CreatePin(props) {
     if (hasCreds) {
       addDummyUaiToDb();
       props.navigation.navigate('OnBoardingSlides');
-      // updateFCM();
     }
   }, [hasCreds]);
-
-  async function updateFCM() {
-    try {
-      const token = await messaging().getToken();
-      dispatch(updateFCMTokens([token]));
-    } catch (error) {
-      //
-    }
-  }
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
