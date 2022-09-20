@@ -93,16 +93,12 @@ const SetupTapsigner = () => {
     return signer;
   };
 
-  const saveTapsigner = async (signer: VaultSigner) => {
-    const exsists = await checkSigningDevice(signer.signerId);
-    if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
-    dispatch(addSigningDevice(signer));
-  };
-
   const addTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      saveTapsigner(tapsigner);
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
       Alert.alert(err.toString());
