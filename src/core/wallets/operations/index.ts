@@ -871,7 +871,7 @@ export default class WalletOperations {
     wallet: Vault,
     inputs: any,
     serializedPSBT: string,
-    signer: VaultSigner
+    xpriv: string
   ): { signedSerializedPSBT: string } => {
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
@@ -882,7 +882,7 @@ export default class WalletOperations {
       const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
       const [internal, index] = subPath;
       const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-        signer.xpriv,
+        xpriv,
         !!internal,
         index,
         network
@@ -917,7 +917,7 @@ export default class WalletOperations {
         wallet,
         inputs,
         PSBT.toBase64(),
-        signer
+        signer.xpriv
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
@@ -940,8 +940,8 @@ export default class WalletOperations {
           });
         }
         signingPayload.push({ payloadTarget: SignerType.TAPSIGNER, inputsToSign });
-      } else if (signer.type === SignerType.MOBILE_KEY) {
-        signingPayload.push({ payloadTarget: SignerType.MOBILE_KEY, inputs });
+      } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
+        signingPayload.push({ payloadTarget: signer.type, inputs });
       } else if (signer.type === SignerType.POLICY_SERVER) {
         const childIndexArray = [];
         for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
