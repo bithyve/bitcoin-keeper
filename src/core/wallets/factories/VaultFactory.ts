@@ -137,6 +137,39 @@ export const generateMobileKey = async (
   };
 };
 
+export const generateSeedWordKey = (
+  mnemonic: string,
+  networkType: NetworkType
+): {
+  xpub: string;
+  xpriv: string;
+  derivationPath: string;
+  masterFingerprint: string;
+} => {
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
+
+  const DEFAULT_CHILD_PATH = 0;
+  let xDerivationPath = WalletUtilities.getDerivationPath(
+    EntityKind.WALLET,
+    networkType,
+    DEFAULT_CHILD_PATH
+  );
+
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed.toString('hex'),
+    network,
+    xDerivationPath
+  );
+  return {
+    xpub: extendedKeys.xpub,
+    xpriv: extendedKeys.xpriv,
+    derivationPath: xDerivationPath,
+    masterFingerprint,
+  };
+};
+
 export const generateMockExtendedKey = (
   entity: EntityKind,
   networkType = NetworkType.TESTNET
