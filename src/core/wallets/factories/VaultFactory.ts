@@ -137,7 +137,7 @@ export const generateMobileKey = async (
   };
 };
 
-export const generateSeedWordKey = (
+export const generateSeedWordsKey = (
   mnemonic: string,
   networkType: NetworkType
 ): {
