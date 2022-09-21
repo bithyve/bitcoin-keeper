@@ -1,7 +1,14 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import BIP85 from '../operations/BIP85';
-import { EntityKind, NetworkType, VaultType, VisibilityType, WalletType } from '../enums';
+
+import {
+  EntityKind,
+  NetworkType,
+  SignerType,
+  VaultType,
+  VisibilityType,
+  WalletType,
+} from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -16,9 +23,10 @@ import {
   hash256,
 } from 'src/core/services/operations/encryption';
 
+import BIP85 from '../operations/BIP85';
+import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import config from './../../config';
-import { BIP85Config } from '../interfaces';
 
 const crypto = require('crypto');
 
@@ -152,6 +160,30 @@ export const generateMockExtendedKey = (
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const randomWalletNumber = Math.floor(Math.random() * 10e5);
   let xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed.toString('hex'),
+    network,
+    xDerivationPath
+  );
+  return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
+};
+
+export const MOCK_SD_MNEMONIC_MAP = {
+  TAPSIGNER: 'result pink oyster iron journey social winter pattern cricket core leader behave',
+  COLDCARD: 'keen credit hold warfare nasty address poverty roast novel ranch system nasty',
+  LEDGER: 'hold address journey ranch result poverty cricket keen system core iron winter',
+};
+
+export const generateMockExtendedKeyForSigner = (
+  entity: EntityKind,
+  signer: SignerType,
+  networkType = NetworkType.TESTNET
+) => {
+  const mockMnemonic = MOCK_SD_MNEMONIC_MAP[signer];
+  const seed = bip39.mnemonicToSeedSync(mockMnemonic);
+  const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
+  const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, 123);
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed.toString('hex'),
