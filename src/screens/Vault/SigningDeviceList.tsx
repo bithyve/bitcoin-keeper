@@ -78,12 +78,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     );
     const { showToast } = useToastMessage();
     const [visible, setVisible] = useState(false);
-    const [disable, setDisable] = useState(WalletMap(type).disable);
-    let isDisable = WalletMap(type).disable;
-
-    useEffect(() => {
-      setDisable(isDisable)
-    }, [isDisable])
 
     const onPress = () => {
       if (!!disabled.length) {
@@ -103,9 +97,9 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={onPress}
-          disabled={disable}
+          disabled={WalletMap(type).disable}
           style={{
-            opacity: disable ? 0.4 : 1
+            opacity: WalletMap(type).disable ? 0.4 : 1,
           }}
         >
           <Box
