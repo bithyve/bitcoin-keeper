@@ -4,6 +4,10 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';
+import {
+  generateMockExtendedKey,
+  generateMockExtendedKeyForSigner,
+} from 'src/core/wallets/factories/VaultFactory';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -17,7 +21,6 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
@@ -76,7 +79,7 @@ const SetupTapsigner = () => {
     })();
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
     if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      return getMockTapsignerDetails();
+      return getMockTapsignerDetails(true);
     }
     const signer: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
@@ -106,18 +109,16 @@ const SetupTapsigner = () => {
     }
   }, [cvc]);
 
-  const getMockTapsignerDetails = () => {
+  const getMockTapsignerDetails = (automatedFlow = false) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-      EntityKind.VAULT
-    );
-    // const xpub =
-    //   'tpubDF6L55YJ8AkuwkWwpdY87eJyUUHNu2PGHkXCNj7BuJQWcj2toFBDhAZJTU248AXMcMgi7fACLidVt9j35SfsANLensD5uUdQuPxjZvGDNWZ';
-    // const xpriv =
-    //   'tprv8iQHvfW3yo5F4HV9vysXiEeruSmSjhCMiSvR6D4tV2c7nEn8ArMdWfwSHJTiZNqH2TqgzJmj8EhJJf3BQwPhHs4qSuieY63Vc2QxRnmbu2d';
-    // const masterFingerprint = '7A5C570E';
-    // const derivationPath = "m/48'/1'/800859'/1'"; // bip48/testnet/account/script/
+    const { xpub, xpriv, derivationPath, masterFingerprint } = automatedFlow
+      ? generateMockExtendedKey(EntityKind.VAULT, config.NETWORK_TYPE)
+      : generateMockExtendedKeyForSigner(
+          EntityKind.VAULT,
+          SignerType.TAPSIGNER,
+          config.NETWORK_TYPE
+        );
     const tapsigner: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.TAPSIGNER,
