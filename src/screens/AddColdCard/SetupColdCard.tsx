@@ -15,7 +15,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const SetupColdCard = () => {
@@ -82,15 +82,11 @@ const SetupColdCard = () => {
       if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
         const networkType = config.NETWORK_TYPE;
         const network = WalletUtilities.getNetworkByType(networkType);
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-          EntityKind.VAULT
+        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+          EntityKind.VAULT,
+          SignerType.COLDCARD,
+          networkType
         );
-        // const xpub =
-        //   'tpubDFVWQv8KEuYKsVZ5ZAGjjdRbWkfXq2qt1mGRAEmAWPM8T4ssZoamRJ2bAR3a2EcWZfguebFt6s7qcBPcsUUxXYJcRhaGGD7cexiGyiMmVF2';
-        // const xpriv =
-        //   'tprv8ioUGW656Xrez2XHfWc9LDmUwj9bfheySTfdsiis67Yjcad6wQmBEoQizGaW68XnAQsxRdhG3oRvnN4Thb5PxqH9SppW8iGKLxnMnCwE64i';
-        // const masterFingerprint = '129D089F';
-        // const derivationPath = "m/48'/1'/746975'/1'"; // bip48/testnet/account/script/
         const cc: VaultSigner = {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.COLDCARD,
