@@ -31,6 +31,7 @@ import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText'
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import Transactions from './Transactions';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import KeeperModal from 'src/components/KeeperModal';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -89,6 +90,15 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
+  // const openLoaders = () => {
+  //   useEffect(() => {
+  //     setTimeout(() => {
+  //       openSendModal();
+  //     }, 2000);
+  //   }, []);
+  //   return { onProceed?(): null; };
+  // };
+
   const onProceed = () => {
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
@@ -109,6 +119,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
+      // openLoaders();
       openSendModal();
       dispatch(
         sendPhaseTwo({
@@ -504,7 +515,7 @@ const SendConfirmation = ({ route }) => {
       </Box>
 
       {/* Success modal for Send Successful */}
-      <SuccessModal
+      <KeeperModal
         visible={visible}
         close={close}
         title={walletTransactions.SendSuccess}
@@ -519,27 +530,25 @@ const SendConfirmation = ({ route }) => {
       />
 
       {/* waiting loader after sending */}
-      <SuccessModal
+      <KeeperModal
         visible={sendingModal}
         close={closeSendModal}
         title={'Send Loader'}
         subTitle={'Sending...'}
         textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
+        dismissible={false}
+        showButtons={false}
         // Content={SendSuccessfulContent}
-        buttonPressed={viewDetails}
       />
 
       {/* Send failed modal  */}
-      <SuccessModal
+      <KeeperModal
         visible={sendFailed}
         close={closeFailModal}
         title={'Sending Failed'}
         subTitle={failedMsg}
         textColor={'#073B36'}
-        // buttonTextColor={'#FAFAFA'}
         // Content={SendSuccessfulContent}
-        // buttonPressed={viewDetails}
       />
     </Box>
   );

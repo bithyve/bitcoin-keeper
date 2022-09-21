@@ -22,6 +22,8 @@ const KeeperModal = (props) => {
     textColor = '#000',
     DarkCloseIcon = false,
     Content = () => <></>,
+    dismissible = true,
+    showButtons = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -29,7 +31,7 @@ const KeeperModal = (props) => {
   return (
     <Modal
       isOpen={visible}
-      onClose={close}
+      onClose={dismissible ? close : null}
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
@@ -43,7 +45,7 @@ const KeeperModal = (props) => {
           style={styles.container}
         >
           <TouchableOpacity style={styles.close} onPress={close}>
-            {DarkCloseIcon ? <CloseGreen /> : <Close />}
+            {showButtons ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
           </TouchableOpacity>
           <Modal.Header
             alignSelf={'flex-start'}
@@ -51,12 +53,7 @@ const KeeperModal = (props) => {
             backgroundColor={'transparent'}
             width={'90%'}
           >
-            <Text
-              style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
-              color={textColor}
-            >
+            <Text style={styles.title} fontFamily={'body'} fontWeight={'200'} color={textColor}>
               {title}
             </Text>
             <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
@@ -66,13 +63,13 @@ const KeeperModal = (props) => {
           <Modal.Body>
             <Content />
           </Modal.Body>
-          {buttonText && (
+          {showButtons && buttonText && (
             <Box alignSelf={'flex-end'} bg={'transparent'}>
-              <TouchableOpacity onPress={buttonCallback}>
+              <TouchableOpacity onPress={showButtons ? buttonCallback : null}>
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  colors={buttonBackground}
+                  colors={showButtons ? buttonBackground : null}
                   style={styles.cta}
                 >
                   <Text
@@ -82,7 +79,7 @@ const KeeperModal = (props) => {
                     letterSpacing={1}
                     color={buttonTextColor}
                   >
-                    {buttonText}
+                    {showButtons ? buttonText : null}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
