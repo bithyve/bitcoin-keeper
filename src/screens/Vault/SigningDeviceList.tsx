@@ -21,7 +21,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import useSigningList from 'src/hooks/useSigningList';
 
 type HWProps = {
   type: SignerType;
@@ -66,6 +66,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const [nfcAlert, setNfcAlert] = useState(false);
   const vault = translations['vault'];
+  const signingList = useSigningList();
 
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const disabled = useAppSelector((state) =>
@@ -183,7 +184,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
 
   return (
     <ScreenWrapper>
-      <StatusBarComponent padding={hp(50)} />
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
@@ -192,17 +192,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
       <Box alignItems={'center'} justifyContent={'center'}>
         <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
-            {[
-              'MOBILE_KEY',
-              'POLICY_SERVER',
-              'TREZOR',
-              'KEYSTONE',
-              'PASSPORT',
-              'JADE',
-              'LEDGER',
-              'TAPSIGNER',
-              'COLDCARD',
-            ].map((type: SignerType, index: number) => (
+            {signingList?.map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
