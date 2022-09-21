@@ -22,6 +22,8 @@ end
 
 target 'hexa_keeper' do
   common_pods
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-FaceID', :path => "#{permissions_path}/FaceID"
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   pod 'react-native-html-to-pdf', :path => '../node_modules/react-native-html-to-pdf'
