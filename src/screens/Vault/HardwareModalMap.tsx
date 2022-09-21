@@ -23,7 +23,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
-import { generateMobileKey, generateSeedWordKey } from 'src/core/wallets/factories/VaultFactory';
+import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
@@ -220,7 +220,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         params: {
           seed: mnemonic,
           next: true,
-          onSuccess: setupSeedWordBasedKey,
+          onSuccess: setupSeedWordsBasedKey,
         },
       })
     );
@@ -254,13 +254,10 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
-  const setupSeedWordBasedKey = () => {
+  const setupSeedWordsBasedKey = (mnemonic) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateSeedWordKey(
-      primaryMnemonic,
-      networkType
-    );
+    const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
 
     const softSigner: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
@@ -268,7 +265,6 @@ const HardwareModalMap = ({ type, visible, close }) => {
       storageType: SignerStorage.WARM,
       signerName: 'Seed Words',
       xpub,
-      xpriv,
       xpubInfo: {
         derivationPath,
         xfp: masterFingerprint,

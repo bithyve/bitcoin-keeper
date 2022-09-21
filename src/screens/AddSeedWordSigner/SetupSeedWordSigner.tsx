@@ -127,7 +127,7 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
             words={words}
             confirmBtnPress={() => {
               setConfirmSeedModal(false);
-              onSuccess();
+              onSuccess(seed);
             }}
           />
         </ModalWrapper>
