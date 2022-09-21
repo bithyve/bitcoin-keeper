@@ -1,14 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { Text } from 'native-base';
-import NFC from 'src/core/services/nfc';
-import { manager } from 'src/core/services/ble';
 
-import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { SignerType, SignerStorage } from 'src/core/wallets/enums';
-import { useAppSelector } from 'src/store/hooks';
+import { getNfcSupport, getBluetoothSupport, getDisabled } from './SigningDeviceList';
 
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
@@ -31,51 +25,15 @@ import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
 import APP from 'src/assets/images/app.svg';
 import SERVER from 'src/assets/images/server.svg';
 
-const findKeyInServer = () => {
-  const vaultSigners = useAppSelector((state) => state.vault.signers);
-  return vaultSigners.find(element => element.storageType === SignerStorage.HOT || element.storageType === SignerStorage.WARM);
-}
-const getDisabled = () => {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-
-  // Keys Incase of level 1 we have level 1
-  if (subscription.name.toLowerCase() === SubscriptionTier.PLEB) {
-    return { disabled: true, message: 'Upgrade to use these keys' };
-  }
-  // Keys Incase of already added 
-  if (findKeyInServer()) {
-    return { disabled: true, message: 'Key already added to the Vault.' }
-  }
-  return { disabled: false, message: '' }
-}
-
 export const WalletMap = (type: SignerType, light = false) => {
-
-  const [nfcSupported, setNfcSupported] = useState(false);
-  const [bluetoothState, setBluetoothState] = useState(false);
-
-  useEffect(() => {
-    getNfcSupport();
-    const subscription = manager.onStateChange((state) => {
-      if (state === 'PoweredOn') {
-      }
-    }, true);
-    return () => subscription.remove();
-  }, []);
-
-  const getNfcSupport = async () => {
-    const isSupported = await NFC.isNFCSupported();
-    setNfcSupported(!isSupported);
-  };
 
   switch (type) {
     case SignerType.COLDCARD:
       return {
         Icon: light ? <COLDCARDICONLIGHT /> : <COLDCARDICON />,
         Logo: <COLDCARDLOGO />,
-        disable: nfcSupported,
-        message: nfcSupported ? 'NFC is Not enabled in your device' : '',
+        disable: getNfcSupport(),
+        message: getNfcSupport() ? 'NFC is Not enabled in your device' : '',
         type: SignerStorage.COLD
       };
     case SignerType.JADE:
@@ -109,8 +67,8 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: light ? <LEDGERICONLIGHT /> : <LEDGERICON />,
         Logo: <LEDGERLOGO />,
-        disable: !bluetoothState,
-        message: !bluetoothState ? 'BLE is Not enabled in your device' : '',
+        disable: !getBluetoothSupport(),
+        message: !getBluetoothSupport() ? 'BLE is Not enabled in your device' : '',
         type: SignerStorage.COLD
       };
     case SignerType.MOBILE_KEY:
@@ -153,8 +111,8 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: light ? <TAPSIGNERICONLIGHT /> : <TAPSIGNERICON />,
         Logo: <TAPSIGNERLOGO />,
-        disable: nfcSupported,
-        message: nfcSupported ? 'NFC is Not enabled in your device' : '',
+        disable: getNfcSupport(),
+        message: getNfcSupport() ? 'NFC is Not enabled in your device' : '',
         type: SignerStorage.COLD
       };
     case SignerType.TREZOR:

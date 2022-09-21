@@ -11,11 +11,17 @@ import NFC from 'src/core/services/nfc';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { manager } from 'src/core/services/ble';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 
 type HWProps = {
   type: SignerType;
@@ -23,19 +29,43 @@ type HWProps = {
   last?: boolean;
 };
 
+export const getBluetoothSupport = () => {
+  const subscription = manager.onStateChange((state) => {
+    if (state === 'PoweredOn') {
+      return true
+    }
+    return false
+  }, true);
+  return false
+}
+export const getNfcSupport = async () => {
+  const isSupported = await NFC.isNFCSupported();
+  return isSupported;
+};
+
+const findKeyInServer = () => {
+  const vaultSigners = useAppSelector((state) => state.vault.signers);
+  return vaultSigners.find(element => element.storageType === SignerStorage.HOT || element.storageType === SignerStorage.WARM);
+}
+export const getDisabled = () => {
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
+  // Keys Incase of level 1 we have level 1
+  if (subscription.name.toLowerCase() === SubscriptionTier.PLEB) {
+    return { disabled: true, message: 'Upgrade to use these keys' };
+  }
+  // Keys Incase of already added 
+  if (findKeyInServer()) {
+    return { disabled: true, message: 'Key already added to the Vault.' }
+  }
+  return { disabled: false, message: '' }
+}
+
 const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
   const [nfcAlert, setNfcAlert] = useState(false);
   const vault = translations['vault'];
-
-  useEffect(() => {
-    // getNfcSupport();
-  }, []);
-
-  const getNfcSupport = async () => {
-    const isSupported = await NFC.isNFCSupported();
-    setNfcAlert(!isSupported);
-  };
 
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const disabled = useAppSelector((state) =>
@@ -153,6 +183,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
 
   return (
     <ScreenWrapper>
+      <StatusBarComponent padding={hp(50)} />
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
