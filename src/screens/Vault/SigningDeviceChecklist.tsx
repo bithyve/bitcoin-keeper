@@ -3,19 +3,14 @@ import { FlatList, Box, Text } from 'native-base';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import DotView from 'src/components/DotView';
+import moment from 'moment';
 
-const SigningDeviceChecklist = () => {
+const SigningDeviceChecklist = ({ date }) => {
   const [data, SetData] = useState([
     {
       id: '1',
-      date: '15 March ’21',
+      date: moment(date).calendar(),
       title: 'Health Check Successful',
-      subTitle: 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit',
-    },
-    {
-      id: '2',
-      date: '15 January ’21',
-      title: 'Health Check Skipped',
       subTitle: 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit',
     },
   ]);
