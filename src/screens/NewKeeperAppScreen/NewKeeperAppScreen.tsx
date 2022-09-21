@@ -20,6 +20,8 @@ import config from 'src/core/config';
 import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
+import messaging from '@react-native-firebase/messaging';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -99,8 +101,18 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   useEffect(() => {
     if (appCreated) {
       navigation.navigate('App', { screen: 'NewHome' });
+      updateFCM();
     }
   }, [appCreated]);
+
+  async function updateFCM() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(updateFCMTokens([token]));
+    } catch (error) {
+      //
+    }
+  }
 
   useEffect(() => {
     if (appImageError) {

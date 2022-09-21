@@ -230,7 +230,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
-    yield call(updatVaultImage);
+    yield put(updatVaultImage());
   } catch (err) {
     yield put(
       sendPhaseThreeExecuted({

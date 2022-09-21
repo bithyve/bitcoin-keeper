@@ -139,13 +139,15 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
             {[
               'MOBILE_KEY',
               'POLICY_SERVER',
+              'KEEPER',
               'TAPSIGNER',
               'COLDCARD',
-              'LEDGER',
               'TREZOR',
-              'KEYSTONE',
+              'LEDGER',
               'PASSPORT',
               'JADE',
+              'KEYSTONE',
+              'SEED_WORDS',
             ].map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}

@@ -3,10 +3,11 @@ import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
 import CloseGreen from 'src/assets/icons/modal_close_green.svg';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const KeeperModal = (props) => {
   const {

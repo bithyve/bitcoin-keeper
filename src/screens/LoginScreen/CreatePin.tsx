@@ -68,18 +68,8 @@ export default function CreatePin(props) {
     if (hasCreds) {
       addDummyUaiToDb();
       props.navigation.navigate('OnBoardingSlides');
-      updateFCM();
     }
   }, [hasCreds]);
-
-  async function updateFCM() {
-    try {
-      const token = await messaging().getToken();
-      dispatch(updateFCMTokens([token]));
-    } catch (error) {
-      //
-    }
-  }
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -217,7 +207,7 @@ export default function CreatePin(props) {
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                    // mt={hp('1.5%')}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -239,8 +229,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // keyColor={'light.lightBlack'}
-          // ClearIcon={<DeleteIcon />}
+            // keyColor={'light.lightBlack'}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>
