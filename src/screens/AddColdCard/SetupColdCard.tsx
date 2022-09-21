@@ -84,7 +84,8 @@ const SetupColdCard = () => {
         const network = WalletUtilities.getNetworkByType(networkType);
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
           EntityKind.VAULT,
-          SignerType.COLDCARD
+          SignerType.COLDCARD,
+          networkType
         );
         const cc: VaultSigner = {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),

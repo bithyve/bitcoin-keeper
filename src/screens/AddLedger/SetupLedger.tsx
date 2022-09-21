@@ -127,7 +127,8 @@ const AddLedger = ({}) => {
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
       EntityKind.VAULT,
-      SignerType.LEDGER
+      SignerType.LEDGER,
+      networkType
     );
     const ledger: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
