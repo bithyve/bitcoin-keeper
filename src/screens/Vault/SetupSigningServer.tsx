@@ -1,7 +1,8 @@
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Buttons from 'src/components/Buttons';
@@ -61,6 +62,7 @@ const SetupSigningServer = ({ route }: { route }) => {
     //   primaryMnemonic,
     //   networkType
     // );
+
 
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
@@ -163,11 +165,16 @@ const SetupSigningServer = ({ route }: { route }) => {
         >
           Scan the QR below to add Backup Key
         </Text>
-        <QRCode
-          value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
-          logoBackgroundColor="transparent"
-          size={hp(250)}
-        />
+        {twoFAKey === '' ?
+          <Box height={hp(250)} justifyContent={'center'}>
+            <ActivityIndicator animating={true} size='small' />
+          </Box> :
+          <QRCode
+            value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
+            logoBackgroundColor="transparent"
+            size={hp(250)}
+          />
+        }
       </Box>
 
       {/* {Bottom note} */}
