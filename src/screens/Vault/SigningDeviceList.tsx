@@ -30,17 +30,19 @@ type HWProps = {
 };
 
 export const getBluetoothSupport = () => {
+  const [flag, setFlag] = useState(false);
   const subscription = manager.onStateChange((state) => {
     if (state === 'PoweredOn') {
-      return true
+      setFlag(true)
     }
-    return false
   }, true);
-  return false
+  return flag
 }
 export const getNfcSupport = async () => {
+  const [flag, setFlag] = useState(false);
   const isSupported = await NFC.isNFCSupported();
-  return isSupported;
+  setFlag(flag)
+  return flag;
 };
 
 const findKeyInServer = () => {
