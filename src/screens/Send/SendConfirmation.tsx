@@ -97,7 +97,6 @@ const SendConfirmation = ({ route }) => {
   };
 
   const openLoaders = () => {
-    openOverlay();
     setTimeout(() => {
       closeOverlay();
       openSendModal();
@@ -105,6 +104,7 @@ const SendConfirmation = ({ route }) => {
   };
 
   const onProceed = () => {
+    openOverlay();
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
@@ -124,14 +124,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      // openLoaders();
-      // openSendModal();
-      console.log('On proceed trigerred');
-      openOverlay();
-      setTimeout(() => {
-        closeOverlay();
-        openSendModal();
-      }, 2000);
+      openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -526,13 +519,14 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
 
-      {setShowOverlay && (
+      {showOverlay && (
         <View
-          // flexGrow={1}
-          height={windowHeight * 1.5}
-          width={windowWidth * 1.2}
+          height={windowHeight}
+          width={windowWidth}
+          zIndex={99}
           opacity={0.4}
           bg={'#000'}
+          position={'absolute'}
         ></View>
       )}
       {/* Success modal for Send Successful */}
