@@ -122,7 +122,7 @@ const SetupSigningServer = ({ route }: { route }) => {
                 onPress={() => {
                   dispatch(validateSigningServerRegistration(Number(otp)));
                 }}
-                value={'proceed'}
+                value={'Confirm'}
               />
             </Box>
           </Box>
