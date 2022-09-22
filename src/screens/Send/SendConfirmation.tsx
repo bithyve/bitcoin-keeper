@@ -32,6 +32,7 @@ import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import Transactions from './Transactions';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import KeeperModal from 'src/components/KeeperModal';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -67,6 +68,11 @@ const SendConfirmation = ({ route }) => {
   const openFailedModal = () => setSendFailed(true);
   const closeFailModal = () => setSendFailed(false);
 
+  // overlay state
+  const [showOverlay, setShowOverlay] = useState(false);
+  const openOverlay = () => setShowOverlay(true);
+  const closeOverlay = () => setShowOverlay(false);
+
   // taken from hexa --> TransactionPriority.tsx - line 98
   const setCustomTransactionPriority = () => {
     // logic for custom transaction priority
@@ -90,14 +96,13 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  // const openLoaders = () => {
-  //   useEffect(() => {
-  //     setTimeout(() => {
-  //       openSendModal();
-  //     }, 2000);
-  //   }, []);
-  //   return { onProceed?(): null; };
-  // };
+  const openLoaders = () => {
+    openOverlay();
+    setTimeout(() => {
+      closeOverlay();
+      openSendModal();
+    }, 2000);
+  };
 
   const onProceed = () => {
     if (isVaultTransfer) {
@@ -120,7 +125,13 @@ const SendConfirmation = ({ route }) => {
       }
     } else {
       // openLoaders();
-      openSendModal();
+      // openSendModal();
+      console.log('On proceed trigerred');
+      openOverlay();
+      setTimeout(() => {
+        closeOverlay();
+        openSendModal();
+      }, 2000);
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -447,6 +458,7 @@ const SendConfirmation = ({ route }) => {
       paddingX={5}
       background={'light.ReceiveBackground'}
       flexGrow={1}
+      flex={1}
       position={'relative'}
     >
       <StatusBarComponent padding={50} />
@@ -514,6 +526,15 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
 
+      {setShowOverlay && (
+        <View
+          // flexGrow={1}
+          height={windowHeight * 1.5}
+          width={windowWidth * 1.2}
+          opacity={0.4}
+          bg={'#000'}
+        ></View>
+      )}
       {/* Success modal for Send Successful */}
       <KeeperModal
         visible={visible}
