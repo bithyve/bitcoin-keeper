@@ -16,9 +16,9 @@ import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScre
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
+import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -33,6 +33,7 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
+import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
@@ -44,6 +45,7 @@ import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
+import VaultSettings from 'src/screens/Vault/VaultSettings';
 import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
@@ -51,7 +53,6 @@ import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -146,6 +147,7 @@ const AppStack = () => {
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
+        <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
       </Stack.Navigator>
     </RealmProvider>

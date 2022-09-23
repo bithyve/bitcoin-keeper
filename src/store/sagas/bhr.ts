@@ -56,6 +56,7 @@ import { captureError } from 'src/core/services/sentry';
 import { createWatcher } from '../utilities';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { refreshWallets } from '../sagaActions/wallets';
 import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
@@ -480,21 +481,21 @@ function* healthCheckSignerWorker({
   };
 }) {
   try {
-    const { vaultId, signerId } = payload;
+    let { vaultId, signerId } = payload;
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
 
-    let signers = [];
-    for (let signer of vault.signers) {
+    const updatedSigners = vault.signers.map((signer) => {
+      console.log('signer', signer);
       if (signer.signerId === signerId) {
-        let updatedSigner = JSON.parse(JSON.stringify(signer));
+        const updatedSigner = getJSONFromRealmObject(signer);
         updatedSigner.lastHealthCheck = new Date();
-        yield put(uaiActionedEntity(signer.signerId));
-        signers.push(updatedSigner);
+        return updatedSigner;
+      } else {
+        return signer;
       }
-    }
-    let updatedVault: Vault = JSON.parse(JSON.stringify(vault));
-    updatedVault.signers = signers;
-    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);
+    });
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, { signers: updatedSigners });
+    yield put(uaiActionedEntity(signerId));
   } catch (err) {
     console.log(err);
   }

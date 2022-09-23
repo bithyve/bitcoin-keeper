@@ -154,13 +154,9 @@ const Footer = ({ vault }: { vault: Vault }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.IconText}
-          // onPress={() => {
-          //   navigation.dispatch(
-          //     CommonActions.navigate('ExportSeed', {
-          //       seed: vault?.derivationDetails?.mnemonic,
-          //     })
-          //   );
-          // }}
+          onPress={() => {
+            navigation.navigate('VaultSettings')
+          }}
         >
           <IconSettings />
           <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
