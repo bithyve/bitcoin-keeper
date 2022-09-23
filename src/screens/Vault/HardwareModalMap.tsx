@@ -23,12 +23,13 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
-import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
+import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import * as bip39 from 'bip39';
 
 const BulletPoint = ({ text }) => {
   return (
@@ -158,6 +159,20 @@ const SetUpMobileKey = () => {
   );
 };
 
+const SetupSeedWords = () => {
+  return (
+    <Box>
+      <AlertIllustration />
+      <BulletPoint
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+      />
+      <BulletPoint
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+      />
+    </Box>
+  );
+};
+
 const HardwareModalMap = ({ type, visible, close }) => {
   const dispatch = useDispatch();
 
@@ -196,6 +211,21 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: {} }));
   };
 
+  const navigateToSeedWordSetup = () => {
+    close();
+    const mnemonic = bip39.generateMnemonic();
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'SetupSeedWordSigner',
+        params: {
+          seed: mnemonic,
+          next: true,
+          onSuccess: setupSeedWordsBasedKey,
+        },
+      })
+    );
+  };
+
   const setupMobileKey = async () => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -208,6 +238,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.MOBILE_KEY,
       signerName: 'Mobile Key',
+      storageType: SignerStorage.WARM,
       xpub,
       xpriv,
       xpubInfo: {
@@ -217,10 +248,32 @@ const HardwareModalMap = ({ type, visible, close }) => {
       bip85Config,
       lastHealthCheck: new Date(),
       addedOn: new Date(),
-      storageType: SignerStorage.WARM,
     };
 
     dispatch(addSigningDevice(mobileKey));
+    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+  };
+
+  const setupSeedWordsBasedKey = (mnemonic) => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
+
+    const softSigner: VaultSigner = {
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      type: SignerType.SEED_WORDS,
+      storageType: SignerStorage.WARM,
+      signerName: 'Seed Words',
+      xpub,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+    };
+
+    dispatch(addSigningDevice(softSigner));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
@@ -366,6 +419,19 @@ const HardwareModalMap = ({ type, visible, close }) => {
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
         Content={passwordEnter}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.SEED_WORDS}
+        close={close}
+        title={'Setup Seed Words Based Signer'}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToSeedWordSetup}
+        textColor={'#041513'}
+        Content={SetupSeedWords}
       />
     </>
   );

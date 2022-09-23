@@ -73,7 +73,8 @@ export const customTheme = extendTheme({
       modalText: '#073B36',
       indicator: '#F86B50',
       addTransactionText: '#252C23',
-      sendMax: '#453228'
+      sendMax: '#453228',
+      inActiveMsg: '#959595'
     },
     dark: {
       black: '#000000',

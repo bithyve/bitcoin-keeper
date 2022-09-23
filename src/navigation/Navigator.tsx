@@ -16,6 +16,7 @@ import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScre
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
+import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import Login from '../screens/LoginScreen/Login';
@@ -50,6 +51,8 @@ import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
+import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
+import VaultSettings from 'src/screens/Vault/VaultSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -141,7 +144,10 @@ const AppStack = () => {
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
+        <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
+        <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
+        <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
       </Stack.Navigator>
     </RealmProvider>

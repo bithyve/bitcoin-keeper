@@ -422,6 +422,7 @@ const VaultStatus = (props) => {
         textColor={'#FFF'}
         Content={VaultSetupContent}
         DarkCloseIcon={true}
+        learnMore={true}
       />
     </Box>
   );

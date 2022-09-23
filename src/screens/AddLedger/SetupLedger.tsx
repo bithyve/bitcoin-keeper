@@ -21,7 +21,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
@@ -125,8 +125,10 @@ const AddLedger = ({}) => {
   const addMockLedger = () => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-      EntityKind.VAULT
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.LEDGER,
+      networkType
     );
     const ledger: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
