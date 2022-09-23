@@ -53,6 +53,7 @@ import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
+import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 
 const { width } = Dimensions.get('screen');
 
@@ -336,7 +337,13 @@ const SignTransactionScreen = () => {
   };
 
   const signTransaction = useCallback(
-    async (signingServerOTP?: string) => {
+    async ({
+      signingServerOTP,
+      seedBasedSingerMnemonic,
+    }: {
+      signingServerOTP?: string;
+      seedBasedSingerMnemonic?: string;
+    } = {}) => {
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.signerId === activeSignerId
@@ -433,7 +440,7 @@ const SignTransactionScreen = () => {
             defaultVault,
             inputs,
             serializedPSBT,
-            signer
+            signer.xpriv
           );
           dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
         } else if (SignerType.POLICY_SERVER === signerType) {
@@ -449,6 +456,26 @@ const SignTransactionScreen = () => {
             );
             if (!signedPSBT) throw new Error('signing server: failed to sign');
             dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));
+          } catch (err) {
+            Alert.alert(err);
+          }
+        } else if (SignerType.SEED_WORDS === signerType) {
+          try {
+            const inputs = idx(signingPayload, (_) => _[0].inputs);
+            if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+
+            const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+            const networkType = config.NETWORK_TYPE;
+            const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType);
+            if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+
+            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+              defaultVault,
+              inputs,
+              serializedPSBT,
+              xpriv
+            );
+            dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
           } catch (err) {
             Alert.alert(err);
           }
@@ -567,7 +594,7 @@ const SignTransactionScreen = () => {
             <Box>
               <CustomGreenButton
                 onPress={() => {
-                  signTransaction(otp);
+                  signTransaction({ signingServerOTP: otp });
                 }}
                 value={'proceed'}
               />
@@ -601,6 +628,16 @@ const SignTransactionScreen = () => {
         break;
       case SignerType.POLICY_SERVER:
         showOTPModal(true);
+        break;
+      case SignerType.SEED_WORDS:
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'InputSeedWordSigner',
+            params: {
+              onSuccess: signTransaction,
+            },
+          })
+        );
         break;
       default:
         Alert.alert(`action not set for ${type}`);

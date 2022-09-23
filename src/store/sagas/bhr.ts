@@ -54,19 +54,24 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import { captureError } from 'src/core/services/sentry';
 import { createWatcher } from '../utilities';
+import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import { refreshWallets } from '../sagaActions/wallets';
 import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
 import { translations } from 'src/common/content/LocContext';
 import { uaiActionedEntity } from '../sagaActions/uai';
-import crypto from 'crypto';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
-
-  const { primarySeed, appID, walletShellInstances, primaryMnemonic, subscription }: KeeperApp =
-    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const {
+    primarySeed,
+    appID,
+    walletShellInstances,
+    primaryMnemonic,
+    subscription,
+    networkType,
+  }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.WalletShell,
@@ -91,6 +96,7 @@ function* updateAppImageWorker({ payload }) {
     Relay.updateAppImage({
       appID,
       walletObject,
+      networkType,
       walletShellInstances: JSON.stringify(walletShellInstances),
       walletShells: JSON.stringify(walletShells[0]),
       subscription: JSON.stringify(subscription),
@@ -379,6 +385,7 @@ function* getAppImageWorker({ payload }) {
         vaultShellInstances: appImage.vaultShellInstances
           ? JSON.parse(appImage.vaultShellInstances)
           : null,
+        networkType: appImage.networkType,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
       yield call(

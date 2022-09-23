@@ -114,13 +114,10 @@ const SetupTapsigner = () => {
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint } = automatedFlow
       ? generateMockExtendedKey(EntityKind.VAULT, config.NETWORK_TYPE)
-      : generateMockExtendedKeyForSigner(
-          EntityKind.VAULT,
-          SignerType.TAPSIGNER,
-          config.NETWORK_TYPE
-        );
+      : generateMockExtendedKeyForSigner(EntityKind.VAULT, SignerType.TAPSIGNER, networkType);
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const tapsigner: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      signerId,
       type: SignerType.TAPSIGNER,
       signerName: 'Tapsigner (Mock)',
       isMock: true,
