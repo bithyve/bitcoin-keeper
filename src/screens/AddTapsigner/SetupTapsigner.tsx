@@ -78,11 +78,9 @@ const SetupTapsigner = () => {
       }
     })();
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      return getMockTapsignerDetails(true);
-    }
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const signer: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      signerId,
       type: SignerType.TAPSIGNER,
       signerName: 'Tapsigner',
       xpub,
@@ -94,6 +92,9 @@ const SetupTapsigner = () => {
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
     };
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      return getMockTapsignerDetails({ signerId, xpub });
+    }
     return signer;
   };
 
@@ -109,12 +110,14 @@ const SetupTapsigner = () => {
     }
   }, [cvc]);
 
-  const getMockTapsignerDetails = (automatedFlow = false) => {
+  const getMockTapsignerDetails = (amfValue = null) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = automatedFlow
-      ? generateMockExtendedKey(EntityKind.VAULT, config.NETWORK_TYPE)
-      : generateMockExtendedKeyForSigner(EntityKind.VAULT, SignerType.TAPSIGNER, networkType);
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.TAPSIGNER,
+      networkType
+    );
     const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const tapsigner: VaultSigner = {
       signerId,
@@ -130,6 +133,7 @@ const SetupTapsigner = () => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
+      amfData: { [signerId]: amfValue },
     };
     return tapsigner;
   };
