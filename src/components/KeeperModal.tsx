@@ -23,8 +23,10 @@ const KeeperModal = (props) => {
     textColor = '#000',
     DarkCloseIcon = false,
     Content = () => <></>,
+    dismissible = true,
+    showButtons = true,
     learnMore = false,
-    learnMoreCallback = () => { }
+    learnMoreCallback = () => {},
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -32,7 +34,7 @@ const KeeperModal = (props) => {
   return (
     <Modal
       isOpen={visible}
-      onClose={close}
+      onClose={dismissible ? close : null}
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
@@ -47,7 +49,7 @@ const KeeperModal = (props) => {
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
-              {DarkCloseIcon ? <CloseGreen /> : <Close />}
+              {showButtons ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
             </TouchableOpacity>
             <Modal.Header
               alignSelf={'flex-start'}
@@ -70,14 +72,14 @@ const KeeperModal = (props) => {
             <Modal.Body>
               <Content />
             </Modal.Body>
-            {(learnMore || buttonText) &&
+            {((showButtons && learnMore) || buttonText) && (
               <Box
                 flexDirection={'row'}
                 justifyContent={'space-between'}
                 alignItems={'center'}
                 width={'100%'}
               >
-                {learnMore ?
+                {learnMore ? (
                   <Box
                     borderColor={'light.yellow2'}
                     borderRadius={hp(40)}
@@ -88,18 +90,23 @@ const KeeperModal = (props) => {
                     style={{
                       height: hp(34),
                       width: wp(110),
-                      marginLeft: wp(10)
+                      marginLeft: wp(10),
                     }}
                   >
                     <Link onPress={learnMoreCallback}>
-                      <Text color={'light.yellow2'} fontSize={13} fontFamily={'body'} fontWeight={'200'} >
+                      <Text
+                        color={'light.yellow2'}
+                        fontSize={13}
+                        fontFamily={'body'}
+                        fontWeight={'200'}
+                      >
                         {'Learn More'}
                       </Text>
                     </Link>
                   </Box>
-                  :
+                ) : (
                   <Box></Box>
-                }
+                )}
                 {buttonText && (
                   <Box alignSelf={'flex-end'} bg={'transparent'}>
                     <TouchableOpacity onPress={buttonCallback}>
@@ -116,13 +123,14 @@ const KeeperModal = (props) => {
                           letterSpacing={1}
                           color={buttonTextColor}
                         >
-                          {buttonText}
+                          {showButtons ? buttonText : null}
                         </Text>
                       </LinearGradient>
                     </TouchableOpacity>
                   </Box>
                 )}
-              </Box>}
+              </Box>
+            )}
           </LinearGradient>
         </GestureHandlerRootView>
       </Modal.Content>
@@ -151,7 +159,7 @@ const styles = StyleSheet.create({
     width: wp(110),
     height: hp(45),
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   close: {
     alignSelf: 'flex-end',

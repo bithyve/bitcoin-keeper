@@ -31,6 +31,8 @@ import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText'
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import Transactions from './Transactions';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import KeeperModal from 'src/components/KeeperModal';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -66,6 +68,11 @@ const SendConfirmation = ({ route }) => {
   const openFailedModal = () => setSendFailed(true);
   const closeFailModal = () => setSendFailed(false);
 
+  // overlay state
+  const [showOverlay, setShowOverlay] = useState(false);
+  const openOverlay = () => setShowOverlay(true);
+  const closeOverlay = () => setShowOverlay(false);
+
   // taken from hexa --> TransactionPriority.tsx - line 98
   const setCustomTransactionPriority = () => {
     // logic for custom transaction priority
@@ -89,7 +96,15 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
+  const openLoaders = () => {
+    setTimeout(() => {
+      closeOverlay();
+      openSendModal();
+    }, 2000);
+  };
+
   const onProceed = () => {
+    openOverlay();
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
@@ -109,7 +124,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      openSendModal();
+      openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -436,6 +451,7 @@ const SendConfirmation = ({ route }) => {
       paddingX={5}
       background={'light.ReceiveBackground'}
       flexGrow={1}
+      flex={1}
       position={'relative'}
     >
       <StatusBarComponent padding={50} />
@@ -503,8 +519,18 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
 
+      {showOverlay && (
+        <View
+          height={windowHeight}
+          width={windowWidth}
+          zIndex={99}
+          opacity={0.4}
+          bg={'#000'}
+          position={'absolute'}
+        ></View>
+      )}
       {/* Success modal for Send Successful */}
-      <SuccessModal
+      <KeeperModal
         visible={visible}
         close={close}
         title={walletTransactions.SendSuccess}
@@ -519,27 +545,25 @@ const SendConfirmation = ({ route }) => {
       />
 
       {/* waiting loader after sending */}
-      <SuccessModal
+      <KeeperModal
         visible={sendingModal}
         close={closeSendModal}
         title={'Send Loader'}
         subTitle={'Sending...'}
         textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
+        dismissible={false}
+        showButtons={false}
         // Content={SendSuccessfulContent}
-        buttonPressed={viewDetails}
       />
 
       {/* Send failed modal  */}
-      <SuccessModal
+      <KeeperModal
         visible={sendFailed}
         close={closeFailModal}
         title={'Sending Failed'}
         subTitle={failedMsg}
         textColor={'#073B36'}
-        // buttonTextColor={'#FAFAFA'}
         // Content={SendSuccessfulContent}
-        // buttonPressed={viewDetails}
       />
     </Box>
   );
