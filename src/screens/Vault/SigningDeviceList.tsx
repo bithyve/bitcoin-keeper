@@ -29,10 +29,10 @@ type HWProps = {
   last?: boolean;
 };
 
-const findKeyInServer = (vaultSigners) => {
+const findKeyInServer = (vaultSigners, type: SignerType) => {
   return vaultSigners.find(
     (element) =>
-      element.storageType === SignerStorage.HOT || element.storageType === SignerStorage.WARM
+      element.type === type
   );
 };
 
@@ -66,13 +66,13 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     }, true);
   };
 
-  const getDisabled = () => {
+  const getDisabled = (type: SignerType) => {
     // Keys Incase of level 1 we have level 1
     if (isOnPleb) {
       return { disabled: true, message: 'Upgrade to use these keys' };
     }
     // Keys Incase of already added
-    if (findKeyInServer(vaultSigners)) {
+    if (findKeyInServer(vaultSigners, type)) {
       return { disabled: true, message: 'Key already added to the Vault.' };
     }
     return { disabled: false, message: '' };
@@ -83,7 +83,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     getBluetoothSupport();
   }, []);
 
-  const getDeviceStatus = (type) => {
+  const getDeviceStatus = (type: SignerType) => {
     switch (type) {
       case SignerType.COLDCARD:
         return {
@@ -97,13 +97,13 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         };
       case SignerType.MOBILE_KEY:
         return {
-          message: getDisabled().message,
-          disabled: getDisabled().disabled,
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
         };
       case SignerType.POLICY_SERVER:
         return {
-          message: getDisabled().message,
-          disabled: getDisabled().disabled,
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
         };
       case SignerType.TAPSIGNER:
         return {
@@ -112,13 +112,13 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         };
       case SignerType.SEED_WORDS:
         return {
-          message: getDisabled().message,
-          disabled: getDisabled().disabled,
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
         };
       case SignerType.KEEPER:
         return {
-          message: getDisabled().message,
-          disabled: getDisabled().disabled,
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
         };
       default:
         return {
