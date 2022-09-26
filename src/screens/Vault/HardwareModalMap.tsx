@@ -6,6 +6,8 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -134,7 +136,7 @@ const LedgerSetupContent = () => {
 const SettingSigningServer = () => {
   return (
     <Box>
-      <AlertIllustration />
+      <SigningServerIllustration />
       <BulletPoint
         text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
@@ -148,7 +150,7 @@ const SettingSigningServer = () => {
 const SetUpMobileKey = () => {
   return (
     <Box>
-      <AlertIllustration />
+      <MobileKeyIllustration />
       <BulletPoint
         text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
