@@ -146,7 +146,11 @@ const AddSigningDevice = () => {
     } else {
       const freshVault = createVault(signersState, currentScheme);
       if (freshVault && !activeVault) {
-        navigation.dispatch(CommonActions.navigate('NewHome'));
+        const navigationState = {
+          index: 1,
+          routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
+        };
+        navigation.dispatch(CommonActions.reset(navigationState));
       }
     }
   };
