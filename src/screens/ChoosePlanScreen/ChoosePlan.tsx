@@ -167,6 +167,16 @@ const ChoosePlan = (props) => {
 
   async function processSubscription(subscription: Subscription) {
     try {
+      const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+      const sub: SubScription = {
+        productId: subscription.productId,
+        receipt: 'mock-purchase',
+        name: subscription.name.split(' ')[0],
+      };
+      dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+        subscription: sub,
+      });
+      return
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
         const sub: SubScription = {
@@ -208,7 +218,7 @@ const ChoosePlan = (props) => {
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <ScrollView style={{ height: '70%', marginVertical: 20 }}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ height: '70%', marginVertical: 20 }}>
           <ChoosePlanCarousel
             data={items}
             onPress={async (item) => processSubscription(item)}
@@ -244,8 +254,7 @@ const ChoosePlan = (props) => {
           </Box>
         </ScrollView>
       )}
-
-      <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
+      <Box height={'10%'} justifyContent={'flex-end'} pt={1}>
         <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
       </Box>
     </ScreenWrapper>
