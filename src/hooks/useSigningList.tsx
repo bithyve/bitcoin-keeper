@@ -1,31 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { WalletMap } from 'src/screens/Vault/WalletMap';
+import React from 'react';
+import { SignerType } from 'src/core/wallets/enums';
+import { useState } from 'react';
 
-const useSigningList = () => {
-  const [SD] = useState<SignerType[]>([
-    SignerType.MOBILE_KEY,
-    SignerType.POLICY_SERVER,
-    SignerType.TREZOR,
-    SignerType.KEYSTONE,
-    SignerType.PASSPORT,
-    SignerType.JADE,
-    SignerType.LEDGER,
-    SignerType.TAPSIGNER,
-    SignerType.COLDCARD,
-  ])
-  const inActiveSigners: SignerType[] = [];
-  const activeSigners: SignerType[] = [];
+const Signers = [
+  SignerType.MOBILE_KEY,
+  SignerType.POLICY_SERVER,
+  SignerType.KEEPER,
+  SignerType.SEED_WORDS,
+  SignerType.TAPSIGNER,
+  SignerType.LEDGER,
+  SignerType.COLDCARD,
+  SignerType.TREZOR,
+  SignerType.PASSPORT,
+  SignerType.JADE,
+  SignerType.KEYSTONE,
+];
 
-  for (let i = 0; i < SD.length; i++) {
-    if (WalletMap(SD[i]).disable) {
-      inActiveSigners.push(SD[i])
-    } else {
-      activeSigners.push(SD[i])
-    }
-  }
+const useSigningList = (isNfcSupported, isBLESupported, getDeviceStatus) => {
+  const [sortedSigners, setSigners] = useState<SignerType[]>([]);
 
-  return [...activeSigners, ...inActiveSigners];
+  React.useEffect(() => {
+    const inActiveSigners = [];
+    const activeSigners = [];
+    Signers.map((signer) => {
+      return { type: signer, disabled: getDeviceStatus(signer).disabled };
+    }).forEach((signer) =>
+      signer.disabled ? inActiveSigners.push(signer.type) : activeSigners.push(signer.type)
+    );
+    setSigners([...activeSigners, ...inActiveSigners]);
+  }, [isNfcSupported, isBLESupported]);
+
+  return sortedSigners;
 };
 
 export default useSigningList;

@@ -1,6 +1,7 @@
+import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import config, { APP_STAGE } from 'src/core/config';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -12,7 +13,7 @@ import React from 'react';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 
@@ -60,9 +61,38 @@ const ColdCardReocvery = () => {
     }
   };
 
+  const getMockColdCardDetails = () => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.COLDCARD,
+      networkType
+    );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    const cc: SigningDeviceRecovery = {
+      signerId,
+      type: SignerType.COLDCARD,
+      xpub,
+    };
+    return cc;
+  };
+
+  const addMockColdCard = React.useCallback(async () => {
+    try {
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockColdCard: SigningDeviceRecovery = getMockColdCardDetails();
+        dispatch(setSigningDevices(mockColdCard));
+        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      }
+    } catch (err) {
+      Alert.alert(err.toString());
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      <TapGestureHandler>
+      <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle

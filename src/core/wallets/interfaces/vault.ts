@@ -66,6 +66,7 @@ export interface VaultSigner {
   lastHealthCheck: Date;
   addedOn: Date;
   hasSigned?: boolean;
+  amfData?: any;
 }
 
 export interface Vault {

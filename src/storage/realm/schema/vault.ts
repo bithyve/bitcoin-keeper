@@ -30,6 +30,7 @@ export const VaultSignerSchema: ObjectSchema = {
     isMock: 'bool?',
     hasSigned: { type: 'bool?', default: false },
     storageType: 'string',
+    amfData: '{}?',
   },
 };
 

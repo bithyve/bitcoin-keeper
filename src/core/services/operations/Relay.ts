@@ -1,11 +1,11 @@
-import { AxiosResponse } from 'axios';
-import config from '../../config';
-import idx from 'idx';
-import { INotification } from '../interfaces';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { AxiosResponse } from 'axios';
+import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
+import config from '../../config';
+import { getAppImage } from 'src/store/sagaActions/bhr';
+import idx from 'idx';
 
 const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
@@ -322,8 +322,8 @@ export default class Relay {
       const data = res.data;
       return data;
     } catch (err) {
-      throw new Error('Failed get App Image');
       captureError(err);
+      throw new Error('Failed get App Image');
     }
   };
 
