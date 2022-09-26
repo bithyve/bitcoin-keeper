@@ -21,6 +21,7 @@ import {
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+import RestClient from 'src/core/services/rest/RestClient';
 import { Vault } from '../interfaces/vault';
 import { Wallet } from '../interfaces/wallet';
 import WalletOperations from '.';
@@ -29,7 +30,6 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import config from '../../config';
 import idx from 'idx';
-import RestClient from 'src/core/services/rest/RestClient';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -262,6 +262,14 @@ export default class WalletUtilities {
     if (shouldNotDerive) childXKey = xKey.derive(childIndex);
     else childXKey = xKey.derive(internal ? 1 : 0).derive(childIndex);
     return childXKey.toBase58();
+  };
+
+  static getNetworkFromXpub = (xpub: string) => {
+    if (xpub) {
+      return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
+        ? NetworkType.MAINNET
+        : NetworkType.TESTNET;
+    }
   };
 
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {

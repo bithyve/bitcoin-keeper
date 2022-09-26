@@ -56,8 +56,7 @@ const TapSignerRecovery = () => {
   const verifyTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      const networkType = config.NETWORK_TYPE;
-      const network = WalletUtilities.getNetworkByType(networkType);
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
       const sigingDeivceDetails: SigningDeviceRecovery = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(tapsigner.xpub, network),
         xpub: tapsigner.xpub,

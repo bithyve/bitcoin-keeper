@@ -18,6 +18,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { Pressable } from 'react-native';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import Relay from 'src/core/services/operations/Relay';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -29,12 +30,11 @@ import moment from 'moment';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import Relay from 'src/core/services/operations/Relay';
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
@@ -55,7 +55,7 @@ export const checkSigningDevice = async (id) => {
 const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
   const currentSignerLimit = subscriptionScheme.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
@@ -131,7 +131,7 @@ const AddSigningDevice = () => {
   };
 
   const onProceed = () => {
-    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (activeVault) {
       const newVaultInfo: newVaultInfo = {
         vaultType: VaultType.DEFAULT,

@@ -78,6 +78,12 @@ const SetupTapsigner = () => {
       }
     })();
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      // AMF flow
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
+      const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+      return getMockTapsignerDetails({ signerId, xpub });
+    }
     const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const signer: VaultSigner = {
       signerId,
@@ -92,9 +98,7 @@ const SetupTapsigner = () => {
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
     };
-    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      return getMockTapsignerDetails({ signerId, xpub });
-    }
+
     return signer;
   };
 
@@ -110,7 +114,7 @@ const SetupTapsigner = () => {
     }
   }, [cvc]);
 
-  const getMockTapsignerDetails = (amfValue = null) => {
+  const getMockTapsignerDetails = (amfData = null) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
@@ -133,8 +137,10 @@ const SetupTapsigner = () => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
-      amfData: { [signerId]: amfValue },
     };
+    if (amfData) {
+      tapsigner.amfData = amfData;
+    }
     return tapsigner;
   };
 
