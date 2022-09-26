@@ -73,15 +73,28 @@ export function* getMessageWorker() {
   );
 
   for (let i = 0; i < messages.length; i++) {
-    yield call(dbManager.createObject, RealmSchema.Notification, {
-      ...messages[i],
-      additionalInfo: {
-        notes: Platform.select({
-          ios: messages[i].additionalInfo.notes.ios,
-          android: messages[i].additionalInfo.notes.android,
-        }),
-      },
-    });
+    if (messages[i].uaiType === 'RELEASE') {
+      let temp = messages.slice(-1);
+      yield call(dbManager.createObject, RealmSchema.Notification, {
+        ...temp,
+        additionalInfo: {
+          notes: Platform.select({
+            ios: temp.additionalInfo.notes.ios,
+            android: temp.additionalInfo.notes.android,
+          }),
+        },
+      });
+    } else {
+      yield call(dbManager.createObject, RealmSchema.Notification, {
+        ...messages[i],
+        additionalInfo: {
+          notes: Platform.select({
+            ios: messages[i].additionalInfo.notes.ios,
+            android: messages[i].additionalInfo.notes.android,
+          }),
+        },
+      });
+    }
   }
 
   const storedNotifications = yield call(dbManager.getCollection, RealmSchema.Notification);
@@ -92,7 +105,7 @@ export function* getMessageWorker() {
         storedNotifications[i].title,
         false,
         storedNotifications[i].type,
-        20,
+        100,
         storedNotifications[i].additionalInfo.notes
       )
     );

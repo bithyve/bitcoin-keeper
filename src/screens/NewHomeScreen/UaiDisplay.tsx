@@ -8,26 +8,28 @@ import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { updateUaiStack } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
+import { Linking, Platform } from 'react-native';
 
 const UaiDisplay = ({ uaiStack }) => {
   const [uai, setUai] = useState({});
   const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [showReleaseModal, setShowReleaseModal] = useState(false);
 
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
 
   const getUaiTypeDefinations = (type) => {
     switch (type) {
-      case uaiType.RELEASE_MESSAGE:
+      case uaiType.RELEASE:
         return {
           modalDetails: {
             heading: 'Update application',
             btnText: 'Update',
           },
           cta: () => {
-            setShowModal(false);
             uaiSetActionFalse();
+            setShowReleaseModal(true);
           },
         };
       case uaiType.ALERT:
@@ -68,6 +70,7 @@ const UaiDisplay = ({ uaiStack }) => {
   };
 
   useEffect(() => {
+    setReleaseActionFalse();
     setUaiConfig(getUaiTypeDefinations(uai?.uaiType));
   }, [uai]);
 
@@ -79,6 +82,31 @@ const UaiDisplay = ({ uaiStack }) => {
     let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
     updatedUai = { ...updatedUai, isActioned: true };
     dispatch(updateUaiStack(updatedUai));
+  };
+
+  const setReleaseActionFalse = () => {
+    let releaseArray = [];
+    for (let i = 0; i < uaiStack.length; i++) {
+      if (uaiStack[i].uaiType === 'RELEASE') {
+        releaseArray.push(uaiStack[i]);
+      }
+    }
+    console.log('releaseArray ', JSON.stringify(releaseArray));
+    let newUai = releaseArray.slice(0, -1);
+    let updatedUai: UAI = JSON.parse(JSON.stringify(newUai));
+    updatedUai = { ...updatedUai, isActioned: true };
+    dispatch(updateUaiStack(updatedUai));
+  };
+
+  const onclick = () => {
+    uaiSetActionFalse();
+    if (Platform.OS === 'android') {
+      Linking.openURL(
+        'https://play.google.com/store/apps/details?id=io.hexawallet.keeper.development'
+      );
+    } else {
+      Linking.openURL('https://apps.apple.com/us/app/bitcoin-keeper-dev/id1616695904');
+    }
   };
 
   const pressHandler = () => {
@@ -116,6 +144,18 @@ const UaiDisplay = ({ uaiStack }) => {
           </Text>
           <NextIcon pressHandler={pressHandler} />
         </Box>
+        <KeeperModal
+          visible={showReleaseModal}
+          close={() => setShowModal(false)}
+          title={uai?.title}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText={uaiConfig?.modalDetails?.btnText}
+          buttonTextColor={'#FAFAFA'}
+          buttonCallback={onclick}
+          textColor={'#000'}
+          Content={() => <Text>{uai?.displayText}</Text>}
+        />
         <KeeperModal
           visible={showModal}
           close={() => setShowModal(false)}
