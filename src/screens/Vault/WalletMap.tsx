@@ -13,6 +13,7 @@ import LEDGERICONLIGHT from 'src/assets/icons/ledger_light.svg';
 import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
+import SEEDWORDSICON from 'src/assets/images/seedwords_icon.svg';
 import React from 'react';
 import SERVER from 'src/assets/images/server.svg';
 import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
@@ -98,7 +99,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.SEED_WORDS:
       return {
-        Icon: null,
+        Icon: <SEEDWORDSICON />,
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Seed Words Based
