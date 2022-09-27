@@ -30,7 +30,7 @@ export const useUaiStack = () => {
       if (!uai_SECURE_VAULT) {
         dispatch(
           addToUaiStack(
-            'Select and add a Signer to activate your Vault',
+            'Add a Signing Device to activate your Vault',
             false,
             uaiType.SECURE_VAULT,
             80,

@@ -498,7 +498,7 @@ const VaultInfo = () => {
             {getPlanIcon()}
             <Box
               backgroundColor="#015A53"
-              borderWidth={0.4}
+              borderWidth={0.8}
               borderRightRadius={15}
               paddingX={1}
               marginX={-2}
