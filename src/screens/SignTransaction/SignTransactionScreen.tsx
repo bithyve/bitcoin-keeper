@@ -46,6 +46,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { cloneDeep } from 'lodash';
 import config from 'src/core/config';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
+import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import idx from 'idx';
@@ -53,7 +54,6 @@ import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
-import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 
 const { width } = Dimensions.get('screen');
 
@@ -112,7 +112,13 @@ const PSTBCard = ({ message, buttonText, buttonCallBack }) => {
     </Box>
   );
 };
-const ColdCardContent = ({ broadcast, send }) => {
+const ColdCardContent = ({ broadcast, send, id }) => {
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { signers }: { signers: VaultSigner[]; id: string } = useQuery(RealmSchema.Vault).map(
+    getJSONFromRealmObject
+  )[0];
+  const coldcard = signers.filter((signer) => signer.signerId === id)[0];
+  console.log({ coldcard });
   return (
     <Box>
       <PSTBCard
@@ -241,7 +247,9 @@ const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const { signers, id: vaultId }: { signers: VaultSigner[]; id: string } = useQuery(
     RealmSchema.Vault
-  ).map(getJSONFromRealmObject)[0];
+  )
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -695,7 +703,13 @@ const SignTransactionScreen = () => {
         title={'Upload Multi-sig data'}
         subTitle={'Keep your ColdCard ready before proceeding'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        Content={() => <ColdCardContent broadcast={receiveAndBroadCast} send={signTransaction} />}
+        Content={() => (
+          <ColdCardContent
+            broadcast={receiveAndBroadCast}
+            send={signTransaction}
+            id={activeSignerId}
+          />
+        )}
       />
       <KeeperModal
         visible={tapsignerModal}
