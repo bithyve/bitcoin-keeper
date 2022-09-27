@@ -11,6 +11,7 @@ import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -67,18 +68,8 @@ export default function CreatePin(props) {
     if (hasCreds) {
       addDummyUaiToDb();
       props.navigation.navigate('OnBoardingSlides');
-      updateFCM();
     }
   }, [hasCreds]);
-
-  async function updateFCM() {
-    try {
-      const token = await messaging().getToken();
-      dispatch(updateFCMTokens([token]));
-    } catch (error) {
-      //
-    }
-  }
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -117,6 +108,10 @@ export default function CreatePin(props) {
       }
     }
   }
+
+  const onDeletePressed = (text) => {
+    setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+  };
 
   useEffect(() => {
     if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length == 4) {
@@ -172,7 +167,7 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient testID="main" colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
         <Box pt={50}>
           <StatusBar barStyle={'light-content'} />
@@ -221,6 +216,7 @@ export default function CreatePin(props) {
                 <Box alignSelf={'flex-end'} mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
+                    testID="button"
                     onPress={() => {
                       dispatch(storeCreds(passcode));
                     }}
@@ -230,7 +226,12 @@ export default function CreatePin(props) {
               </Box>
             ) : null}
           </Box>
-          <KeyPadView onPressNumber={onPressNumber} />
+          <KeyPadView
+            onDeletePressed={onDeletePressed}
+            onPressNumber={onPressNumber}
+            // keyColor={'light.lightBlack'}
+            // ClearIcon={<DeleteIcon />}
+          />
         </Box>
       </Box>
     </LinearGradient>

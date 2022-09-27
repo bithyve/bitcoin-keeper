@@ -78,7 +78,7 @@ const OnBoardingSlides = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
-      <ImageBackground resizeMode="stretch" style={{ flex: 1 }} source={OnboardingBackImage}>
+      <ImageBackground resizeMode='contain' style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1 }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
           <Box justifyContent={'center'} mr={4} mt={10}>

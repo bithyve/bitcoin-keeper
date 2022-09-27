@@ -57,6 +57,10 @@ const SeedConfirmPasscode = (props) => {
     }
   };
 
+  const onDeletePressed = (text) => {
+    setPasscode(passcode.slice(0, passcode.length - 1));
+  };
+
   useEffect(() => {
     if (attempts >= 3) {
       setAttempts(1);
@@ -144,7 +148,12 @@ const SeedConfirmPasscode = (props) => {
         </Box>
       </Box>
       {/* keyboardview start */}
-      <KeyPadView onPressNumber={onPressNumber} keyColor={'#041513'} ClearIcon={<DeleteIcon />} />
+      <KeyPadView
+        onDeletePressed={onDeletePressed}
+        onPressNumber={onPressNumber}
+        keyColor={'light.lightBlack'}
+        ClearIcon={<DeleteIcon />}
+      />
     </Box>
   );
 };

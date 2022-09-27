@@ -4,42 +4,56 @@ import {
   Dimensions,
   FlatList,
   Platform,
-  SafeAreaView,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import AppClient, { DefaultWalletPolicy, PsbtV2, WalletPolicy } from 'src/hardware/ledger';
-import { Box, Pressable, Text } from 'native-base';
+import { Box, DeleteIcon, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Ndef, NfcTech } from 'react-native-nfc-manager';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 
+import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import CheckIcon from 'src/assets/images/checked.svg';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import Header from 'src/components/Header';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
 import Next from 'src/assets/images/svgs/icon_arrow.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import { NfcTech } from 'react-native-nfc-manager';
 import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
-import { SignerMap } from '../NewHomeScreen/SignerMap';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
+import SigningServer from 'src/core/services/operations/SigningServer';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { WalletMap } from '../Vault/WalletMap';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { cloneDeep } from 'lodash';
+import config from 'src/core/config';
+import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { hash512 } from 'src/core/services/operations/encryption';
+import idx from 'idx';
+import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
-import useDebouncedEffect from 'src/hooks/useDebouncedEffect';
 import { useDispatch } from 'react-redux';
 import useScanLedger from '../AddLedger/useScanLedger';
+import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 
 const { width } = Dimensions.get('screen');
 
@@ -164,14 +178,35 @@ const LedgerContent = ({ onSelectDevice }) => {
   );
 };
 
-const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) => {
+const SignWith = ({
+  signer,
+  callback,
+  envelops,
+}: {
+  signer: VaultSigner;
+  callback: any;
+  envelops: SerializedPSBTEnvelop[];
+}) => {
+  const hasSignerSigned = !!envelops.filter(
+    (psbt) => psbt.signerId === signer.signerId && psbt.isSigned
+  ).length;
   return (
     <TouchableOpacity onPress={callback}>
       <Box m={5}>
         <Box flexDirection={'row'} borderRadius={10} justifyContent={'space-between'}>
           <Box flexDirection={'row'}>
             <View style={styles.inheritenceView}>
-              <SignerMap type={signer.type} />
+              <Box
+                width={30}
+                height={30}
+                borderRadius={30}
+                bg={'#FAC48B'}
+                justifyContent={'center'}
+                alignItems={'center'}
+                marginX={1}
+              >
+                {WalletMap(signer.type).Icon}
+              </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
               <Text
@@ -190,12 +225,12 @@ const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) 
                 fontFamily={'body'}
                 letterSpacing={0.6}
               >
-                {`Added on 4th of July`}
+                {`Added on ${moment(signer.addedOn).calendar()}`}
               </Text>
             </View>
           </Box>
           <Box alignItems={'center'} justifyContent={'center'}>
-            <Next />
+            {hasSignerSigned ? <CheckIcon /> : <Next />}
           </Box>
         </Box>
       </Box>
@@ -204,14 +239,20 @@ const SignWith = ({ signer, callback }: { signer: VaultSigner; callback: any }) 
 };
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const { signers }: { signers: VaultSigner[] } = useQuery(RealmSchema.Vault).map(
-    getJSONFromRealmObject
-  )[0];
+  const { signers, id: vaultId }: { signers: VaultSigner[]; id: string } = useQuery(
+    RealmSchema.Vault
+  ).map(getJSONFromRealmObject)[0];
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
   const [nfcVisible, setNfcVisible] = useState(false);
+  const [otpModal, showOTPModal] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const { pinHash } = useAppSelector((state) => state.storage);
+
   const [activeSignerId, setActiveSignerId] = useState<string>();
   const LedgerCom = useRef();
   const onSelectDevice = useCallback(async (device) => {
@@ -231,9 +272,14 @@ const SignTransactionScreen = () => {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
+  const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
+  const [broadcasting, setBroadcasting] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
-  const defaultVault: Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0];
+  const defaultVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
   const card = useRef(new CKTapCard()).current;
 
   const receiveAndBroadCast = async () => {
@@ -261,7 +307,21 @@ const SignTransactionScreen = () => {
     );
   };
 
-  let dispatched = false;
+  useEffect(() => {
+    if (isMigratingNewVault) {
+      if (sendSuccessful) {
+        dispatch(finaliseVaultMigration(vaultId));
+        navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      } else {
+        return;
+      }
+    } else {
+      if (sendSuccessful) {
+        navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      }
+    }
+  }, [sendSuccessful, isMigratingNewVault]);
+
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
     serializedPSBTEnvelops.forEach((envelop) => {
@@ -271,41 +331,25 @@ const SignTransactionScreen = () => {
     });
     // modify this in dev builds for mock signers
     if (signedTxCount >= defaultVault.scheme.m) {
-      dispatch(
-        sendPhaseThree({
-          wallet: defaultVault,
-          txnPriority: TxPriority.LOW,
-        })
-      );
-      dispatched = true;
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
       return true;
     }
     return false;
   };
 
-  useDebouncedEffect(
-    () => {
-      if (!dispatched) {
-        areSignaturesSufficient();
-      }
-    },
-    {
-      timeout: 500,
-    },
-    [serializedPSBTEnvelops]
-  );
-
-  const signTransaction = useCallback(async () => {
-    if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
-      for (let i = 0; i < serializedPSBTEnvelops.length; i++) {
-        const serializedPSBTEnvelop = serializedPSBTEnvelops[i];
-        if (serializedPSBTEnvelop.isSigned === true) {
-          continue;
-        }
+  const signTransaction = useCallback(
+    async ({
+      signingServerOTP,
+      seedBasedSingerMnemonic,
+    }: {
+      signingServerOTP?: string;
+      seedBasedSingerMnemonic?: string;
+    } = {}) => {
+      if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
+        const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+          (envelop) => envelop.signerId === activeSignerId
+        )[0];
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
-        const { signerType, signingPayload, signerId } = copySerializedPSBTEnvelop;
-        setActiveSignerId(signerId);
+        const { signerType, serializedPSBT, signingPayload, signerId } = copySerializedPSBTEnvelop;
         if (SignerType.TAPSIGNER === signerType) {
           setTapsignerModal(false);
           const withModal = (callback) => {
@@ -343,9 +387,7 @@ const SignTransactionScreen = () => {
           try {
             setColdCardModal(false);
             setNfcVisible(true);
-            const psbtBytes = Ndef.encodeMessage([
-              Ndef.textRecord(serializedPSBTEnvelop.serializedPSBT),
-            ]);
+            const psbtBytes = NFC.encodeForColdCard(serializedPSBTEnvelop.serializedPSBT);
             await NFC.send([NfcTech.Ndef], psbtBytes);
             setNfcVisible(false);
           } catch (error) {
@@ -388,14 +430,189 @@ const SignTransactionScreen = () => {
             console.log({ error });
             Alert.alert(error.toString());
           }
+        } else if (SignerType.MOBILE_KEY === signerType) {
+          setPasswordModal(false);
+          const inputs = idx(signingPayload, (_) => _[0].inputs);
+          if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+
+          const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+          const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+            defaultVault,
+            inputs,
+            serializedPSBT,
+            signer.xpriv
+          );
+          dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+        } else if (SignerType.POLICY_SERVER === signerType) {
+          try {
+            showOTPModal(false);
+            const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+            if (!childIndexArray) throw new Error('Invalid signing payload');
+            const { signedPSBT } = await SigningServer.signPSBT(
+              keeper.id,
+              Number(signingServerOTP),
+              serializedPSBT,
+              childIndexArray
+            );
+            if (!signedPSBT) throw new Error('signing server: failed to sign');
+            dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));
+          } catch (err) {
+            Alert.alert(err);
+          }
+        } else if (SignerType.SEED_WORDS === signerType) {
+          try {
+            const inputs = idx(signingPayload, (_) => _[0].inputs);
+            if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+
+            const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+            const networkType = config.NETWORK_TYPE;
+            const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType);
+            if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+
+            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+              defaultVault,
+              inputs,
+              serializedPSBT,
+              xpriv
+            );
+            dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          } catch (err) {
+            Alert.alert(err);
+          }
         } else {
-          break;
+          return;
         }
       }
-    }
-  }, [serializedPSBTEnvelops, activeSignerId]);
+    },
+    [activeSignerId, serializedPSBTEnvelops]
+  );
 
-  const callbackForSigners = (type: SignerType) => {
+  const passwordEnter = () => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = password;
+      if (password.length < 4) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setPassword(tmpPasscode);
+        }
+      }
+      if (password && text == 'x') {
+        setPassword(password.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setPassword(password.slice(0, password.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)}>
+        <Box>
+          <CVVInputsView
+            passCode={password}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+            length={4}
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  const currentPinHash = hash512(password);
+                  if (currentPinHash === pinHash) {
+                    signTransaction();
+                  } else Alert.alert('Incorrect password. Try again!');
+                }}
+                value={'Confirm'}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  };
+
+  const otpContent = useCallback(() => {
+    const [otp, setOtp] = useState('');
+
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text != 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text == 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = (text) => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(280)}>
+        <Box>
+          <CVVInputsView
+            passCode={otp}
+            passcodeFlag={false}
+            backgroundColor={true}
+            textColor={true}
+          />
+          <Text
+            fontSize={13}
+            fontWeight={200}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color={'light.modalText'}
+            marginTop={2}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+            incididunt ut labore et
+          </Text>
+          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  signTransaction({ signingServerOTP: otp });
+                }}
+                value={'proceed'}
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor={'light.lightBlack'}
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  }, [activeSignerId]);
+
+  const callbackForSigners = ({ type, signerId }: VaultSigner) => {
+    setActiveSignerId(signerId);
     switch (type) {
       case SignerType.TAPSIGNER:
         setTapsignerModal(true);
@@ -406,6 +623,22 @@ const SignTransactionScreen = () => {
       case SignerType.LEDGER:
         setLedgerModal(true);
         break;
+      case SignerType.MOBILE_KEY:
+        setPasswordModal(true);
+        break;
+      case SignerType.POLICY_SERVER:
+        showOTPModal(true);
+        break;
+      case SignerType.SEED_WORDS:
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'InputSeedWordSigner',
+            params: {
+              onSuccess: signTransaction,
+            },
+          })
+        );
+        break;
       default:
         Alert.alert(`action not set for ${type}`);
         break;
@@ -413,20 +646,40 @@ const SignTransactionScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.Container}>
-      <Box paddingX={5} marginTop={hp(5)}>
-        <Box marginY={5}>
-          <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
-        </Box>
-        <FlatList
-          data={signers}
-          keyExtractor={(item) => item.signerId}
-          renderItem={({ item }) => (
-            <SignWith signer={item} callback={() => callbackForSigners(item.type)} />
-          )}
-        />
-      </Box>
-      <Box alignItems={'flex-start'} marginY={5}>
+    <ScreenWrapper>
+      <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
+      <FlatList
+        data={signers}
+        keyExtractor={(item) => item.signerId}
+        renderItem={({ item }) => (
+          <SignWith
+            signer={item}
+            callback={() => callbackForSigners(item)}
+            envelops={serializedPSBTEnvelops}
+          />
+        )}
+      />
+      <Box alignItems={'flex-end'} marginY={5}>
+        {broadcasting ? (
+          <ActivityIndicator size={30} style={{ marginHorizontal: '10%' }} />
+        ) : (
+          <Buttons
+            primaryText={'Boradcast'}
+            primaryCallback={() => {
+              if (areSignaturesSufficient()) {
+                setBroadcasting(true);
+                dispatch(
+                  sendPhaseThree({
+                    wallet: defaultVault,
+                    txnPriority: TxPriority.LOW,
+                  })
+                );
+              } else {
+                Alert.alert(`Sorry there aren't enough signatures!`);
+              }
+            }}
+          />
+        )}
         <Note
           title={'Note'}
           subtitle={
@@ -456,6 +709,7 @@ const SignTransactionScreen = () => {
         buttonCallback={signTransaction}
         textColor={'#FFF'}
         Content={() => InputCvc({ textRef })}
+        DarkCloseIcon={true}
       />
       <KeeperModal
         visible={ledgerModal}
@@ -468,10 +722,33 @@ const SignTransactionScreen = () => {
         buttonTextColor={'#073E39'}
         buttonCallback={signTransaction}
         textColor={'#FFF'}
+        DarkCloseIcon={true}
         Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
       />
       <NfcPrompt visible={nfcVisible} />
-    </SafeAreaView>
+      <KeeperModal
+        visible={passwordModal}
+        close={() => {
+          setPasswordModal(false);
+        }}
+        title={'Enter your password'}
+        subTitle={'Lorem ipsum dolor sit amet, '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#041513'}
+        Content={passwordEnter}
+      />
+      <KeeperModal
+        visible={otpModal}
+        close={() => {
+          showOTPModal(false);
+        }}
+        title={'Confirm OTP to setup 2FA'}
+        subTitle={'Lorem ipsum dolor sit amet, '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#041513'}
+        Content={otpContent}
+      />
+    </ScreenWrapper>
   );
 };
 

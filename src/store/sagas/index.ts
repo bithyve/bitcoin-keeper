@@ -1,11 +1,16 @@
 import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
+  addSigningDeviceWatcher,
   autoWalletsSyncWatcher,
+  finaliseVaultMigrationWatcher,
   importNewWalletWatcher,
+  migrateVaultWatcher,
   refreshWalletsWatcher,
+  registerWithSigningServerWatcher,
   syncWalletsWatcher,
   updateWalletSettingsWatcher,
+  validateSigningServerRegistrationWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -31,9 +36,11 @@ import {
   healthCheckSignerWatcher,
   initCloudBackupWatcher,
   recoverBackupWatcher,
+  recoverVaultWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
+  updateVaultImageWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -47,7 +54,7 @@ import {
 } from './send_and_receive';
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
-import { setupKeeperAppWatcher } from './storage';
+import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -65,12 +72,19 @@ export const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
-    addNewVaultWatcher,
     autoWalletsSyncWatcher,
     importNewWalletWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
+    registerWithSigningServerWatcher,
+    validateSigningServerRegistrationWatcher,
+
+    // vaults
+    addNewVaultWatcher,
+    addSigningDeviceWatcher,
+    migrateVaultWatcher,
+    finaliseVaultMigrationWatcher,
 
     // send and receive
     feeAndExchangeRatesWatcher,
@@ -90,6 +104,7 @@ export const rootSaga = function* () {
 
     //BHR
     updateAppImageWatcher,
+    updateVaultImageWatcher,
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
@@ -100,6 +115,8 @@ export const rootSaga = function* () {
     recoverBackupWatcher,
     healthCheckSignerWatcher,
     backupWarningWatcher,
+    recoverVaultWatcher,
+    setupKeeperVaultRecoveryAppWatcher,
   ];
 
   yield all(

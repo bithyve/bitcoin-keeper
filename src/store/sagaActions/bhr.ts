@@ -11,13 +11,21 @@ export const GET_CLOUD_DATA = 'GET_CLOUD_DATA';
 export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
+export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
+export const RECOVER_VAULT = 'RECOVER_VAULT';
 
-export const updateAppImage = (walletId) => {
+export const updateAppImage = (walletId?) => {
   return {
     type: UPDATE_APP_IMAGE,
     payload: {
       walletId,
     },
+  };
+};
+
+export const updatVaultImage = () => {
+  return {
+    type: UPDATE_VAULT_IMAGE,
   };
 };
 
@@ -27,6 +35,12 @@ export const getAppImage = (primaryMnemonic: string) => {
     payload: {
       primaryMnemonic,
     },
+  };
+};
+
+export const reoverVault = () => {
+  return {
+    type: RECOVER_VAULT,
   };
 };
 

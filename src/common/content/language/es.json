@@ -297,7 +297,7 @@
     "AddNow": "Add Now",
     "SelectSigner": "Select a Signing Devices",
     "ForVault": "For your Vault",
-    "VaultInfo": "A Signer can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
+    "VaultInfo": "A Signing Device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
     "Description": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor"
@@ -340,7 +340,9 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Ledger",
-    "SetupDescription": "Keep your Nano X ready before proceeding"
+    "SetupDescription": "Keep your Nano X ready before proceeding",
+    "ScanningBT": "Scanning for bluetooth",
+    "KeepLedgerReady": "Keep your Ledger ready before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",

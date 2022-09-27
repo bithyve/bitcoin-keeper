@@ -21,6 +21,7 @@ import {
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+import RestClient from 'src/core/services/rest/RestClient';
 import { Vault } from '../interfaces/vault';
 import { Wallet } from '../interfaces/wallet';
 import WalletOperations from '.';
@@ -29,7 +30,6 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import config from '../../config';
 import idx from 'idx';
-import RestClient from 'src/core/services/rest/RestClient';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -262,6 +262,14 @@ export default class WalletUtilities {
     if (shouldNotDerive) childXKey = xKey.derive(childIndex);
     else childXKey = xKey.derive(internal ? 1 : 0).derive(childIndex);
     return childXKey.toBase58();
+  };
+
+  static getNetworkFromXpub = (xpub: string) => {
+    if (xpub) {
+      return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
+        ? NetworkType.MAINNET
+        : NetworkType.TESTNET;
+    }
   };
 
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
@@ -1180,157 +1188,5 @@ export default class WalletUtilities {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
-  };
-
-  // 2FA-wallet specific utilities
-  // TODO: walletID <> appID switch
-  static setupTwoFA = async (
-    appId: string
-  ): Promise<{
-    setupData: {
-      secret: string;
-      bhXpub: string;
-    };
-  }> => {
-    let res;
-    try {
-      res = await SIGNING_AXIOS.post('setup2FA', {
-        AUTH_ID: config.AUTH_ID,
-        appId,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { setupSuccessful, setupData } = res.data || res.json;
-    if (!setupSuccessful) throw new Error('2FA setup failed');
-    return {
-      setupData,
-    };
-  };
-
-  static validateTwoFA = async (
-    appId: string,
-    token: number
-  ): Promise<{
-    valid: Boolean;
-  }> => {
-    let res;
-    try {
-      res = await SIGNING_AXIOS.post('validate2FASetup', {
-        AUTH_ID: config.AUTH_ID,
-        appId,
-        token,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { valid } = res.data || res.json;
-    if (!valid) throw new Error('2FA validation failed');
-
-    return {
-      valid,
-    };
-  };
-
-  static resetTwoFA = async (
-    appId: string,
-    secondaryMnemonic: string,
-    secondaryXpub: string,
-    network: bitcoinJS.networks.Network
-  ): Promise<{
-    secret: any;
-  }> => {
-    const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
-      secondaryMnemonic,
-      false,
-      network,
-      WalletUtilities.getDerivationPath(EntityKind.VAULT, NetworkType.MAINNET, 0)
-    );
-    if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
-
-    let res;
-    try {
-      res = await SIGNING_AXIOS.post('resetTwoFAv2', {
-        AUTH_ID: config.AUTH_ID,
-        appId: appId,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-    const { secret } = res.data || res.json;
-    return {
-      secret,
-    };
-  };
-
-  static generateSecondaryXpriv = (
-    secondaryMnemonic: string,
-    secondaryXpub: string,
-    network: bitcoinJS.networks.Network
-  ): {
-    secondaryXpriv: string;
-  } => {
-    const derivationPath = WalletUtilities.getDerivationPath(
-      EntityKind.VAULT,
-      NetworkType.MAINNET,
-      0
-    );
-    const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
-      secondaryMnemonic,
-      false,
-      network,
-      derivationPath
-    );
-    if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
-
-    const secondaryXpriv = WalletUtilities.generateExtendedKey(
-      secondaryMnemonic,
-      true,
-      network,
-      derivationPath
-    );
-    return {
-      secondaryXpriv,
-    };
-  };
-
-  static getSecondSignature = async (
-    walletId: string,
-    token: number,
-    serializedPSBT: string,
-    childIndexArray: Array<{
-      childIndex: number;
-      inputIdentifier: {
-        txId: string;
-        vout: number;
-      };
-    }>
-  ): Promise<{
-    signedTxHex: string;
-  }> => {
-    let res;
-
-    try {
-      res = await SIGNING_AXIOS.post('securePSBTTransaction', {
-        AUTH_ID: config.AUTH_ID,
-        walletID: walletId,
-        token,
-        serializedPSBT,
-        childIndexArray,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const signedTxHex = res.data || res.json.txHex;
-    return {
-      signedTxHex,
-    };
   };
 }

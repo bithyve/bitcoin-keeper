@@ -26,6 +26,11 @@ export const VaultSignerSchema: ObjectSchema = {
       },
     },
     lastHealthCheck: 'date',
+    addedOn: 'date',
+    isMock: 'bool?',
+    hasSigned: { type: 'bool?', default: false },
+    storageType: 'string',
+    amfData: '{}?',
   },
 };
 
@@ -75,6 +80,8 @@ export const VaultSchema: ObjectSchema = {
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
+    VAC: 'string',
+    archived: 'bool',
   },
   primaryKey: 'id',
 };

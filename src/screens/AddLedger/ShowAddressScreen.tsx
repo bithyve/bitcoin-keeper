@@ -1,18 +1,16 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import config, { APP_STAGE } from 'src/core/config';
 
 import AppClient from 'src/hardware/ledger';
 import QRCode from 'react-native-qrcode-svg';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { addNewVault } from 'src/store/sagaActions/wallets';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import config from 'src/core/config';
 import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
-
-const delay = (ms) => new Promise((success) => setTimeout(success, ms));
 
 const ShowAddressScreen = ({ transport }) => {
   const [error, setError] = useState(null);
@@ -24,7 +22,7 @@ const ShowAddressScreen = ({ transport }) => {
 
   const _fetchAddress = async () => {
     if (unmounted.current) return;
-    await fetchAddress(false);
+    await fetchAddress();
   };
 
   useEffect(() => {
@@ -34,26 +32,7 @@ const ShowAddressScreen = ({ transport }) => {
     };
   }, []);
 
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
-    try {
-      const newVaultInfo = {
-        vaultType: VaultType.DEFAULT,
-        vaultScheme: scheme,
-        vaultSigners: signers,
-        vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
-        },
-      };
-      dispatch(addNewVault(newVaultInfo));
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }, []);
-
-  const fetchAddress = async (verify) => {
+  const fetchAddress = async () => {
     try {
       // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
       const app = new AppClient(transport);
@@ -62,8 +41,7 @@ const ShowAddressScreen = ({ transport }) => {
       const masterfp = await app.getMasterFingerprint();
       if (unmounted.current) return;
       setAddress(xpub);
-      const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const networkType = config.NETWORK_TYPE;
       const network = WalletUtilities.getNetworkByType(networkType);
 
       const signer: VaultSigner = {
@@ -76,32 +54,16 @@ const ShowAddressScreen = ({ transport }) => {
           xfp: masterfp,
         },
         lastHealthCheck: new Date(),
+        addedOn: new Date(),
+        storageType: SignerStorage.COLD,
       };
       // const {
       //   xpub: xpub2,
       //   masterFingerprint: xfp,
       //   derivationPath,
       // } = generateMockExtendedKey(EntityKind.VAULT);
-
-      const xpubMock =
-        'tpubDEiaCA6jkvH9MTdbuqbFXrcZfKhyixmdXcSJKhoR742PdCPzXqdLTfrg6TdJPzus38Pap78CWgxm5Fx9N5kUr5FxNr6JnAb8ZD163zHiZ6q';
-      const derivationPath =
-        'tpubDEiaCA6jkvH9MTdbuqbFXrcZfKhyixmdXcSJKhoR742PdCPzXqdLTfrg6TdJPzus38Pap78CWgxm5Fx9N5kUr5FxNr6JnAb8ZD163zHiZ6q';
-      const xfp = '73DC8582';
-      const signer2: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpubMock, network),
-        type: SignerType.LEDGER,
-        signerName: 'Nano X (Mock)',
-        xpub: xpubMock,
-        xpubInfo: {
-          derivationPath,
-          xfp,
-        },
-        lastHealthCheck: new Date(),
-      };
-      const scheme: VaultScheme = { m: 1, n: 2 };
-      const isVaultCreated = createVault([signer, signer2], scheme);
-      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
+      dispatch(addSigningDevice(signer));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (error) {
       // in this case, user is likely not on Ethereum app
       if (unmounted) return;

@@ -19,7 +19,12 @@ const initializeRealm = async (
  * @param  {any} object
  */
 const createObject = (schema: RealmSchema, object: any) => {
-  return realm.create(schema, object);
+  try {
+    const hasCreated = realm.create(schema, object);
+    return hasCreated;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 /**
@@ -80,7 +85,7 @@ const getObjectByField = (schema: RealmSchema, value: string, fieldName: string)
  */
 const getCollection = (schema: RealmSchema) => {
   const objects = realm.get(schema);
-  return objects.toJSON()
+  return objects.toJSON();
 };
 
 export default {

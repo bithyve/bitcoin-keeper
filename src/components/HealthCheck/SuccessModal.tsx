@@ -37,78 +37,89 @@ const SuccessModal = (props) => {
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
+
+      // zIndex={'-1'}
+      // style={styles.viewContainer}
+      // overlayVisible
     >
-      <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-        <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          colors={modalBackground}
-          style={styles.container}
-        >
-          <TouchableOpacity style={styles.close} onPress={close}>
-            <Close />
-          </TouchableOpacity>
-          <Modal.Header
-            alignSelf={'flex-start'}
-            borderBottomWidth={0}
-            backgroundColor={'transparent'}
-            width={'90%'}
+      <View flex={1} style={styles.viewContainer}>
+        <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
+          <LinearGradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            colors={modalBackground}
+            style={styles.container}
           >
-            <Text
-              style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
-              color={textColor}
-              paddingBottom={1}
-            >
-              {title}
-            </Text>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
-              {subTitle}
-            </Text>
-          </Modal.Header>
-          <Modal.Body>
-            <Content />
-          </Modal.Body>
-          <Box
-            alignItems={'center'}
-            alignSelf={'flex-end'}
-            bg={'transparent'}
-            flexDirection={'row'}
-          >
-            <TouchableOpacity onPress={cancelButtonPressed}>
-              <Text
-                fontSize={13}
-                fontFamily={'body'}
-                fontWeight={'300'}
-                letterSpacing={1}
-                color={cancelButtonColor}
-                mr={wp(18)}
-              >
-                {cancelButtonText}
-              </Text>
+            <TouchableOpacity style={styles.close} onPress={close}>
+              <Close />
             </TouchableOpacity>
-            <TouchableOpacity onPress={buttonPressed}>
-              <LinearGradient
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                colors={buttonBackground}
-                style={styles.cta}
+            <Modal.Header
+              alignSelf={'flex-start'}
+              borderBottomWidth={0}
+              backgroundColor={'transparent'}
+              width={'90%'}
+            >
+              <Text
+                style={styles.title}
+                fontFamily={'body'}
+                fontWeight={'200'}
+                color={textColor}
+                paddingBottom={1}
               >
+                {title}
+              </Text>
+              <Text
+                style={styles.subTitle}
+                fontFamily={'body'}
+                fontWeight={'100'}
+                color={textColor}
+              >
+                {subTitle}
+              </Text>
+            </Modal.Header>
+            <Modal.Body>
+              <Content />
+            </Modal.Body>
+            <Box
+              alignItems={'center'}
+              alignSelf={'flex-end'}
+              bg={'transparent'}
+              flexDirection={'row'}
+            >
+              <TouchableOpacity onPress={cancelButtonPressed}>
                 <Text
                   fontSize={13}
                   fontFamily={'body'}
                   fontWeight={'300'}
                   letterSpacing={1}
-                  color={buttonTextColor}
+                  color={cancelButtonColor}
+                  mr={wp(18)}
                 >
-                  {buttonText}
+                  {cancelButtonText}
                 </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </Box>
-        </LinearGradient>
-      </Modal.Content>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={buttonPressed}>
+                <LinearGradient
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  colors={buttonBackground}
+                  style={styles.cta}
+                >
+                  <Text
+                    fontSize={13}
+                    fontFamily={'body'}
+                    fontWeight={'300'}
+                    letterSpacing={1}
+                    color={buttonTextColor}
+                  >
+                    {buttonText}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Box>
+          </LinearGradient>
+        </Modal.Content>
+      </View>
     </Modal>
   );
 };
@@ -116,9 +127,21 @@ const SuccessModal = (props) => {
 export default SuccessModal;
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 10,
+  viewContainer: {
+    zIndex: -1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     alignItems: 'center',
+    flexDirection: 'column-reverse',
+  },
+  container: {
+    zIndex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
     padding: '4%',
     paddingVertical: '5%',
   },

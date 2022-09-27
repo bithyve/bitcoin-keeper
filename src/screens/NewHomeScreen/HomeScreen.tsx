@@ -1,52 +1,61 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Box, HStack, Pressable, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Image, ImageBackground, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
-import FileViewer from 'react-native-file-viewer';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import { Alert } from 'react-native';
-
+import {
+  Image,
+  ImageBackground,
+  PermissionsAndroid,
+  Platform,
+  TouchableOpacity,
+} from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import Basic from 'src/assets/images/svgs/basic.svg';
+import CustomPriorityModal from '../Send/CustomPriorityModal';
+import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
+import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
+import Pleb from 'src/assets/images/svgs/pleb.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 // import Elite from 'src/assets/images/svgs/elite.svg';
 // import Pro from 'src/assets/images/svgs/pro.svg';
 // import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
 // import Ledger from 'src/assets/images/svgs/ledger_home.svg';
 // import Trezor from 'src/assets/images/svgs/trezor_home.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
-import ScannerIcon from 'src/assets/images/svgs/scan.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import { SignerMap } from './SignerMap';
-import SuccessModal from 'src/components/SuccessModal';
 import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { WalletMap } from '../Vault/WalletMap';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
+import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { walletData } from 'src/common/data/defaultData/defaultData';
-import CustomPriorityModal from '../Send/CustomPriorityModal';
-
+import Chain from 'src/assets/icons/illustration_homescreen.svg';
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -95,7 +104,6 @@ const InheritanceComponent = () => {
             </Text>
           </Box>
         </Box>
-        <NextIcon pressHandler={() => navigation.navigate('SetupInheritance')} />
         <NextIcon pressHandler={() => onPress()} />
         <>
           <NewWalletModal
@@ -197,12 +205,12 @@ const VaultSetupContent = () => {
       <Box alignSelf={'center'}>
         <VaultSetupIcon />
       </Box>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
         {
           'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
         }
       </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
         {
           'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
         }
@@ -218,13 +226,22 @@ const VaultStatus = (props) => {
   const vaultTranslations = translations['vault'];
   const wallet = translations['wallet'];
   const common = translations['common'];
-
   const { useQuery } = useContext(RealmWrapperContext);
-  const vaults: Vault[] = useQuery(RealmSchema.Vault);
-  const Signers = vaults[0]?.signers || [];
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const Vault: Vault =
+    useQuery(RealmSchema.Vault)
+      .map(getJSONFromRealmObject)
+      .filter((vault) => !vault.archived)[0] || [];
+  const {
+    specs: { balances: { confirmed, unconfirmed } } = {
+      balances: { confirmed: 0, unconfirmed: 0 },
+    },
+    signers = [],
+  } = Vault;
+  const vaultBalance = confirmed + unconfirmed;
 
   const open = () => {
-    if (Signers.length) {
+    if (signers.length) {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
     } else {
       setModalVisible(true);
@@ -234,58 +251,51 @@ const VaultStatus = (props) => {
 
   const navigateToHardwareSetup = () => {
     close();
-    navigation.dispatch(CommonActions.navigate({ name: 'HardwareWallet', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
-  const Vault = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject)[0] || [];
-  const {
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-  } = Vault;
-  const vaultBalance = confirmed + unconfirmed;
-
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus())
-  const dispatch = useAppDispatch()
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+  const dispatch = useAppDispatch();
 
   const onChangeTorStatus = (status: TorStatus) => {
-    settorStatus(status)
-  }
+    settorStatus(status);
+  };
 
   useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus)
+    RestClient.subToTorStatus(onChangeTorStatus);
+    identifyUser(keeper.appID);
     return () => {
-      RestClient.unsubscribe(onChangeTorStatus)
-    }
-  }, [])
+      RestClient.unsubscribe(onChangeTorStatus);
+    };
+  }, []);
 
   const getTorStatusText = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'Tor disabled'
+        return 'Tor disabled';
       case TorStatus.CONNECTING:
-        return 'Tor connecting...'
+        return 'Tor connecting...';
       case TorStatus.CONNECTED:
-        return 'Tor enabled'
+        return 'Tor enabled';
       case TorStatus.ERROR:
-        return 'Tor error'
+        return 'Tor error';
       default:
-        return torStatus
+        return torStatus;
     }
   }, [torStatus]);
 
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'yellow.400'
+        return 'yellow.400';
       case TorStatus.CONNECTING:
-        return 'orange.400'
+        return 'orange.400';
       case TorStatus.CONNECTED:
-        return 'green.400'
+        return 'green.400';
       case TorStatus.ERROR:
-        return 'red.400'
+        return 'red.400';
       default:
-        return 'yellow.400'
+        return 'yellow.400';
     }
   }, [torStatus]);
 
@@ -330,28 +340,40 @@ const VaultStatus = (props) => {
               opacity={0.8}
               paddingBottom={1}
             >
-              {!Signers.length
+              {!signers.length
                 ? 'Activate Now '
-                : `Secured by ${Signers.length} signer${Signers.length === 1 ? '' : 's'}`}
+                : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`}
             </Text>
-            {!Signers.length ? null : (
+            {!signers.length ? null : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
-                {Signers.map((signer) => (
-                  <SignerMap type={signer.type} />
+                {signers.map((signer) => (
+                  <Box
+                    width={30}
+                    height={30}
+                    borderRadius={30}
+                    bg={'#FAC48B'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    marginX={1}
+                  >
+                    {WalletMap(signer.type).Icon}
+                  </Box>
                 ))}
               </Box>
             )}
           </Box>
-          {!Signers.length ? (
+          {!signers.length ? (
             <Box marginTop={hp(31.5)}>
-              <Image
+              {/* <Image
                 source={require('src/assets/images/illustration.png')}
                 style={{ width: wp(123.95), height: hp(122.3) }}
                 resizeMode="contain"
-              />
+              /> */}
+
+              <Chain />
             </Box>
           ) : null}
-          {Signers.length ? (
+          {signers.length ? (
             <HStack alignItems={'center'} marginTop={'10%'}>
               <BTC style={{ height: '20%' }} />
               <Pressable onPress={() => props.onAmountPress()}>
@@ -399,6 +421,8 @@ const VaultStatus = (props) => {
         buttonCallback={navigateToHardwareSetup}
         textColor={'#FFF'}
         Content={VaultSetupContent}
+        DarkCloseIcon={true}
+        learnMore={true}
       />
     </Box>
   );
@@ -408,6 +432,9 @@ const VaultInfo = () => {
   const navigation = useNavigation();
   const { uaiStack } = useUaiStack();
   const dispatch = useDispatch();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
   const addtoDb = () => {
     dispatch(
       addToUaiStack(
@@ -437,6 +464,17 @@ const VaultInfo = () => {
       )
     );
   };
+
+  function getPlanIcon() {
+    if (subscription.name.toLowerCase().includes('whale')) {
+      return <DiamondHandsFocused />;
+    } else if (subscription.name.toLowerCase().includes('hodler')) {
+      return <HodlerFocused />;
+    } else {
+      return <PlebFocused />;
+    }
+  }
+
   return (
     <LinearGradient
       colors={['#00836A', '#073E39']}
@@ -451,12 +489,27 @@ const VaultInfo = () => {
           justifyContent={'space-between'}
           width={'100%'}
         >
-          <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
-            <Pleb />
+          <Pressable
+            justifyContent="center"
+            alignItems="center"
+            flexDirection="row"
+            onPress={() => navigation.navigate('ChoosePlan')}
+          >
+            {getPlanIcon()}
+            <Box
+              backgroundColor="#015A53"
+              borderWidth={0.8}
+              borderRightRadius={15}
+              paddingX={1}
+              marginX={-2}
+              zIndex={-10}
+              borderColor="light.white1"
+            >
+              <Text p={1} color={'light.white1'} fontSize={hp(14)} fontWeight={200}>
+                {subscription.name}
+              </Text>
+            </Box>
           </Pressable>
-          {/* <Pressable onPress={() => navigation.navigate('ChoosePlan')}>
-            <Basic />
-          </Pressable> */}
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
           </Pressable>
@@ -495,7 +548,7 @@ const HomeScreen = () => {
     company: 'Xyz Company',
     amount: '46899.50',
     amt: '53100.50',
-  }
+  };
   const htmlContent = `
           <html>
             <head>
@@ -586,7 +639,7 @@ const HomeScreen = () => {
           {
             title: 'Pdf creator needs External Storage Write Permission',
             message: 'Pdf creator needs access to Storage data in your SD Card',
-            buttonPositive: ''
+            buttonPositive: '',
           }
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -604,7 +657,7 @@ const HomeScreen = () => {
     } else {
       createPDF();
     }
-  }
+  };
   const createPDF = async () => {
     let options = {
       //Content to print
@@ -614,28 +667,28 @@ const HomeScreen = () => {
       //File directory
       directory: 'Download',
 
-      base64: true
+      base64: true,
     };
 
-    let file = await RNHTMLtoPDF.convert(options)
+    let file = await RNHTMLtoPDF.convert(options);
     // console.log(file.filePath);
     // Alert.alert('Successfully Exported', 'Path:' + file.filePath, [
     //   { text: 'Cancel', style: 'cancel' },
     //   { text: 'Open', onPress: () => openFile(file.filePath) }
     // ], { cancelable: true });
-    openFile(file.filePath)
-  }
+    openFile(file.filePath);
+  };
 
   const openFile = (filepath) => {
-    const path = filepath;// absolute-path-to-my-local-file.
+    const path = filepath; // absolute-path-to-my-local-file.
     FileViewer.open(path)
       .then(() => {
         // success
       })
-      .catch(error => {
+      .catch((error) => {
         // error
       });
-  }
+  };
 
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'}>

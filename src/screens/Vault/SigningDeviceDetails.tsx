@@ -1,6 +1,7 @@
 import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
+  Alert,
   FlatList,
   InteractionManager,
   Platform,
@@ -9,30 +10,35 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
-import config, { APP_STAGE } from 'src/core/config';
+
 import BackIcon from 'src/assets/icons/back.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useDispatch } from 'react-redux';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
-import SuccessModal from 'src/components/HealthCheck/SuccessModal';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import Illustration from 'src/assets/images/illustration.svg';
+import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import { NetworkType } from 'src/core/wallets/enums';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
+import Illustration from 'src/assets/images/illustration.svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { useDispatch } from 'react-redux';
+import NFC from 'src/core/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -61,17 +67,19 @@ const SigningDeviceDetails = ({ route }) => {
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];
   const tapsigner = translations['tapsigner'];
+  const coldcard = translations['coldcard'];
   const { SignerIcon, signer, vaultId } = route.params;
   const [editDescriptionModal, setEditDescriptionModal] = useState(false);
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
-  const [healthCheckView, setHealthCheckView] = useState(false);
+  const [healthCheckViewTapSigner, setHealthCheckViewTapsigner] = useState(false);
+  const [healthCheckViewColdCard, setHealthCheckViewColdCard] = useState(false);
+
   const [healthCheckSkipModal, setHealthCheckSkipModal] = useState(false);
   const [healthCheckSuccess, setHealthCheckSuccess] = useState(false);
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const [description, setDescription] = useState('');
   const [cvc, setCvc] = useState('');
   const card = React.useRef(new CKTapCard()).current;
-
   const modalHandler = (callback) => {
     return Platform.select({
       android: async () => {
@@ -84,6 +92,28 @@ const SigningDeviceDetails = ({ route }) => {
     });
   };
 
+  const scanMK4 = async () => {
+    setNfcVisible(true);
+    try {
+      const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
+      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
+      const path = data?.p2sh_p2wsh_deriv ?? '';
+      const xfp = data?.xfp ?? '';
+      setNfcVisible(false);
+      return { xpub, path, xfp };
+    } catch (err) {
+      console.log(err);
+      setNfcVisible(false);
+    }
+  };
+
+  console.log('date', signer.lastHealthCheck);
+
+  const getColdCardDetails = async () => {
+    const { xpub, path: derivationPath, xfp } = await scanMK4();
+    return { xpub, derivationPath, xfp };
+  };
+  console.log();
   const healthCheckTapSigner = React.useCallback(() => {
     modalHandler(async () => {
       await card.first_look();
@@ -95,21 +125,38 @@ const SigningDeviceDetails = ({ route }) => {
     })()
       .then((resp) => {
         const { xpub } = resp;
-        console.log(xpub);
-        const networkType =
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+        const networkType = config.NETWORK_TYPE;
         const network = WalletUtilities.getNetworkByType(networkType);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
         if (signerIdDerived === signer.signerId) {
-          console.log('verified');
           dispatch(healthCheckSigner(vaultId, signer.signerId));
           setHealthCheckSuccess(true);
         } else {
-          console.log('verifivation failed');
+          Alert.alert('verifivation failed');
         }
       })
       .catch(console.log);
   }, [cvc]);
+
+  const healthCheckColdCard = React.useCallback(async () => {
+    try {
+      const colcard = await getColdCardDetails();
+      let { xpub, derivationPath, xfp } = colcard;
+      const networkType = config.NETWORK_TYPE;
+      const network = WalletUtilities.getNetworkByType(networkType);
+      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+      if (signerIdDerived === signer.signerId) {
+        console.log('verified');
+        dispatch(healthCheckSigner(vaultId, signer.signerId));
+        setHealthCheckSuccess(true);
+      } else {
+        Alert.alert('verifivation failed');
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
 
   const closeHealthCheckSuccessView = () => setHealthCheckSuccess(false);
 
@@ -121,10 +168,10 @@ const SigningDeviceDetails = ({ route }) => {
     setconfirmHealthCheckModal(false);
   };
 
-  const closeHealthCheckView = () => setHealthCheckView(false);
+  const closeHealthCheckView = () => setHealthCheckViewTapsigner(false);
 
   const healthCheckSkip = () => {
-    setHealthCheckView(false);
+    setHealthCheckViewTapsigner(false);
     setHealthCheckSkipModal(true);
   };
 
@@ -147,21 +194,55 @@ const SigningDeviceDetails = ({ route }) => {
     setconfirmHealthCheckModal(false);
   };
 
-  const confirm = () => {
-    setHealthCheckView(false);
-    setconfirmHealthCheckModal(true);
+  const confirm = (signerType) => {
+    switch (signerType) {
+      case SignerType.TAPSIGNER:
+        setHealthCheckViewTapsigner(false);
+        setconfirmHealthCheckModal(true);
+        break;
+      case SignerType.COLDCARD:
+        setHealthCheckViewColdCard(false);
+        healthCheckColdCard();
+        break;
+    }
   };
 
   const confirmHealthCheck = () => {
     navigation.goBack();
   };
 
-  const HealthCheckContent = () => {
+  const HealthCheckContentTapsigner = () => {
     return (
       <View>
         <Box alignSelf={'center'}>
           <TapsignerSetupImage />
         </Box>
+        <Text
+          color={'light.lightBlack2'}
+          fontSize={13}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={2}
+        >
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+        <Text
+          color={'light.lightBlack2'}
+          fontSize={13}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={2}
+        >
+          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        </Text>
+      </View>
+    );
+  };
+
+  const HealthCheckContentColdCard = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>{/* <TapsignerSetupImage /> */}</Box>
         <Text
           color={'light.lightBlack2'}
           fontSize={13}
@@ -232,6 +313,20 @@ const SigningDeviceDetails = ({ route }) => {
     );
   };
 
+  const openHealthCheckModal = (signerType) => {
+    switch (signerType) {
+      case SignerType.TAPSIGNER:
+        setHealthCheckViewTapsigner(true);
+        break;
+      case SignerType.COLDCARD:
+        console.log('gere');
+        setHealthCheckViewColdCard(true);
+        break;
+      default:
+        console.log('Healt Check Not Supported currently');
+    }
+  };
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -260,45 +355,44 @@ const SigningDeviceDetails = ({ route }) => {
       </Box>
       <ScrollView>
         <Box m={10}>
-          <SigningDeviceChecklist />
+          <SigningDeviceChecklist date={signer.lastHealthCheck} />
+          <TouchableOpacity
+            onPress={() =>
+              navigation.dispatch(CommonActions.navigate('RigisterToSD', { type: signer.type }))
+            }
+          >
+            <VStack maxWidth={'90%'} paddingTop={'4'}>
+              <HStack alignItems={'center'}>
+                <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                  {'Register Vault to this device'}
+                </Text>
+                <Box paddingLeft={'2'}>
+                  <RightArrowIcon />
+                </Box>
+              </HStack>
+              <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                {'Register the multisig wallet to this signing device'}
+              </Text>
+            </VStack>
+          </TouchableOpacity>
         </Box>
       </ScrollView>
       <Box px={'10%'} py={'10%'}>
         <Text fontSize={13}>
           You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,
         </Text>
-        <Box marginTop={10} flexDirection={'row'} justifyContent={'space-between'}>
-          <Text
-            marginTop={3}
-            color={'light.greenText'}
-            letterSpacing={0.8}
-            fontWeight={300}
-            fontSize={14}
-          >
-            {healthcheck.ChangeSigningDevice}
-          </Text>
-          <LinearGradient
-            colors={['#00836A', '#073E39']}
-            style={styles.buttonContainer}
-            start={{ x: -0.5, y: 1 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text
-              justifyContent={'center'}
-              color={'light.white'}
-              textAlign={'center'}
-              letterSpacing={0.8}
-              fontWeight={300}
-              fontSize={14}
-              marginTop={3}
-              onPress={() => {
-                setHealthCheckView(true);
-              }}
-            >
-              {healthcheck.HealthCheck}
-            </Text>
-          </LinearGradient>
-        </Box>
+        <Buttons
+          primaryText={healthcheck.HealthCheck}
+          secondaryText={healthcheck.ChangeSigningDevice}
+          primaryCallback={() => {
+            openHealthCheckModal(signer.type);
+          }}
+          secondaryCallback={() => {
+            navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          }}
+          primaryDisable={false}
+          secondaryDisable={false}
+        />
         <EditDescriptionModal
           visible={editDescriptionModal}
           closeHealthCheck={closeEditDescription}
@@ -318,7 +412,7 @@ const SigningDeviceDetails = ({ route }) => {
           setInputText={setDescription}
         />
         <SuccessModal
-          visible={healthCheckView}
+          visible={healthCheckViewTapSigner}
           close={closeHealthCheckView}
           title={healthcheck.HealthCheck}
           subTitle={tapsigner.SetupDescription}
@@ -327,8 +421,21 @@ const SigningDeviceDetails = ({ route }) => {
           cancelButtonText={'Skip'}
           cancelButtonColor={'light.greenText'}
           cancelButtonPressed={healthCheckSkip}
-          buttonPressed={confirm}
-          Content={HealthCheckContent}
+          buttonPressed={() => confirm(SignerType.TAPSIGNER)}
+          Content={HealthCheckContentTapsigner}
+        />
+        <SuccessModal
+          visible={healthCheckViewColdCard}
+          close={closeHealthCheckView}
+          title={healthcheck.HealthCheck}
+          subTitle={coldcard.SetupDescription}
+          buttonText={'Proceed'}
+          buttonTextColor={'light.white'}
+          cancelButtonText={'Skip'}
+          cancelButtonColor={'light.greenText'}
+          cancelButtonPressed={healthCheckSkip}
+          buttonPressed={() => confirm(SignerType.COLDCARD)}
+          Content={HealthCheckContentColdCard}
         />
         <SuccessModal
           visible={healthCheckSkipModal}

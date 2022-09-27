@@ -205,19 +205,29 @@ export interface NodeConnect {
 }
 
 export interface TwoFADetails {
-  bithyveXpub?: string;
+  signingServerXpub?: string;
   twoFAKey?: string;
   twoFAValidated?: boolean;
 }
 
 export interface SigningPayload {
-  inputsToSign: Array<{
+  payloadTarget: SignerType;
+  inputs?: any;
+  inputsToSign?: Array<{
     digest: string;
     subPath: string;
     inputIndex: number;
     sighashType: number;
     publicKey: string;
     signature?: string;
+  }>;
+  childIndexArray?: Array<{
+    subPath: number[];
+    inputIdentifier: {
+      txId: string;
+      vout: number;
+      value: number;
+    };
   }>;
 }
 

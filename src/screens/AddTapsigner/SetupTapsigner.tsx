@@ -1,11 +1,13 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType, VaultType } from 'src/core/wallets/enums';
-import React, { useCallback } from 'react';
+import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config, { APP_STAGE } from 'src/core/config';
+import {
+  generateMockExtendedKey,
+  generateMockExtendedKeyForSigner,
+} from 'src/core/wallets/factories/VaultFactory';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -13,11 +15,12 @@ import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { addNewVault } from 'src/store/sagaActions/wallets';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
-import { newVaultInfo } from 'src/store/sagas/wallets';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
@@ -50,126 +53,120 @@ const SetupTapsigner = () => {
       setCvc(cvc.slice(0, -1));
     }
   };
+  const dispatch = useDispatch();
 
   const onDeletePressed = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
-  const dispatch = useDispatch();
-
-  const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
-    try {
-      const newVaultInfo: newVaultInfo = {
-        vaultType: VaultType.DEFAULT,
-        vaultScheme: scheme,
-        vaultSigners: signers,
-        vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
-        },
-      };
-      dispatch(addNewVault(newVaultInfo));
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  }, []);
 
   const getTapsignerDetails = async () => {
-    const signerDetails = await withModal(async () => {
+    const { xpub, derivationPath, xfp } = await withModal(async () => {
       const status = await card.first_look();
       const isLegit = await card.certificate_check();
       if (isLegit) {
         if (status.path) {
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
-          return { xpub, status, xfp: xfp.toString('hex') };
+          return { xpub, xfp: xfp.toString('hex'), derivationPath: status.path };
         } else {
           await card.setup(cvc);
           const newCard = await card.first_look();
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
-          return { xpub, status: newCard, xfp: xfp.toString('hex') };
+          return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
         }
       }
     })();
-    return signerDetails;
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      // AMF flow
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
+      const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+      return getMockTapsignerDetails({ signerId, xpub });
+    }
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    const signer: VaultSigner = {
+      signerId,
+      type: SignerType.TAPSIGNER,
+      signerName: 'Tapsigner',
+      xpub,
+      xpubInfo: {
+        derivationPath,
+        xfp,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      storageType: SignerStorage.COLD,
+    };
+
+    return signer;
   };
 
-  const makeVaultData = (signersData: any[], scheme) => {
-    const signers = signersData.map((signerData) => {
-      console.log(signerData);
-      const { xpub, status, xfp } = signerData;
-      const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
-      const network = WalletUtilities.getNetworkByType(networkType);
-
-      const signer: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.TAPSIGNER,
-        signerName: 'Tapsigner',
-        xpub,
-        xpubInfo: {
-          derivationPath: status.path,
-          xfp,
-        },
-        lastHealthCheck: new Date(),
-      };
-      return signer;
-    });
-
-    const isVaultCreated = createVault(signers, scheme);
-    if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
-  };
-
-  const integrateTapsigner = React.useCallback(async () => {
+  const addTapsigner = React.useCallback(async () => {
     try {
-      const signer = await getTapsignerDetails();
-      const scheme: VaultScheme = { m: 1, n: 1 };
-      makeVaultData([signer], scheme);
+      const tapsigner = await getTapsignerDetails();
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      dispatch(addSigningDevice(tapsigner));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
       Alert.alert(err.toString());
     }
   }, [cvc]);
 
-  const MockVaultCreation = () => {
-    if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
-      const networkType = NetworkType.TESTNET;
-      const network = WalletUtilities.getNetworkByType(networkType);
-
-      const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-        EntityKind.VAULT
-      );
-      const mockTapSigner: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.TAPSIGNER,
-        signerName: 'Tapsigner',
-        xpub: xpub,
-        xpriv,
-        xpubInfo: {
-          derivationPath,
-          xfp: masterFingerprint,
-        },
-        lastHealthCheck: new Date(),
-      };
-
-      const scheme: VaultScheme = { m: 1, n: 1 };
-      const isVaultCreated = createVault([mockTapSigner], scheme);
-      if (isVaultCreated) navigation.dispatch(CommonActions.navigate('NewHome'));
+  const getMockTapsignerDetails = (amfData = null) => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.TAPSIGNER,
+      networkType
+    );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    const tapsigner: VaultSigner = {
+      signerId,
+      type: SignerType.TAPSIGNER,
+      signerName: 'Tapsigner (Mock)',
+      isMock: true,
+      xpub,
+      xpriv,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      storageType: SignerStorage.COLD,
+    };
+    if (amfData) {
+      tapsigner.amfData = amfData;
     }
+    return tapsigner;
   };
+
+  const addMockTapsigner = React.useCallback(async () => {
+    try {
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockTapsigner = getMockTapsignerDetails();
+        dispatch(addSigningDevice(mockTapsigner));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
+    } catch (err) {
+      Alert.alert(err.toString());
+    }
+  }, [cvc]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Box flex={1}>
-        <Box style={styles.header}>
-          <HeaderTitle
-            title="Setting up Tapsigner"
-            subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
-            onPressHandler={() => navigation.goBack()}
-          />
-        </Box>
-        <TapGestureHandler numberOfTaps={3} onActivated={MockVaultCreation}>
+      <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
+        <Box flex={1}>
+          <Box style={styles.header}>
+            <HeaderTitle
+              title="Setting up Tapsigner"
+              subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+              onPressHandler={() => navigation.goBack()}
+            />
+          </Box>
           <ScrollView>
             <TextInput
               style={styles.input}
@@ -178,20 +175,29 @@ const SetupTapsigner = () => {
               secureTextEntry={true}
               showSoftInputOnFocus={false}
             />
-            <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+            <Text
+              padding={5}
+              fontWeight={200}
+              width={wp(250)}
+              fontSize={13}
+              letterSpacing={0.65}
+              color={'light.modalText'}
+            >
+              Lorem ipsum dolor sit amet, consectetur eiusmod tempor
+            </Text>
             <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
-              <Buttons primaryText="Proceed" primaryCallback={integrateTapsigner} />
+              <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
-        </TapGestureHandler>
-        <KeyPadView
-          onPressNumber={onPressHandler}
-          keyColor={'#041513'}
-          ClearIcon={<DeleteIcon />}
-          onDeletePressed={onDeletePressed}
-        />
-        <NfcPrompt visible={nfcVisible} />
-      </Box>
+          <KeyPadView
+            onPressNumber={onPressHandler}
+            keyColor={'#041513'}
+            ClearIcon={<DeleteIcon />}
+            onDeletePressed={onDeletePressed}
+          />
+          <NfcPrompt visible={nfcVisible} />
+        </Box>
+      </TapGestureHandler>
     </SafeAreaView>
   );
 };
@@ -238,7 +244,7 @@ const styles = StyleSheet.create({
   input: {
     paddingHorizontal: 20,
     margin: '5%',
-    width: '100%',
+    width: wp(305),
     height: 50,
     borderRadius: 10,
     backgroundColor: '#f0e7dd',

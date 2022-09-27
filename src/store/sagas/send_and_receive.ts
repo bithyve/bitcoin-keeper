@@ -17,9 +17,7 @@ import {
   UPDATE_PSBT_SIGNATURES,
   UpdatePSBTAction,
   customFeeCalculated,
-  customSendMaxUpdated,
   feeIntelMissing,
-  sendMaxFeeCalculated,
 } from '../sagaActions/send_and_receive';
 import { EntityKind, TxPriority, WalletType } from 'src/core/wallets/enums';
 import {
@@ -30,6 +28,7 @@ import {
   setAverageTxFee,
   setExchangeRates,
   updatePSBTEnvelops,
+  setSendMaxFee,
 } from '../reducers/send_and_receive';
 import { call, put, select } from 'redux-saga/effects';
 
@@ -44,6 +43,7 @@ import _ from 'lodash';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import idx from 'idx';
+import { updatVaultImage } from '../sagaActions/bhr';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return '';
@@ -230,6 +230,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
+    yield put(updatVaultImage());
   } catch (err) {
     yield put(
       sendPhaseThreeExecuted({
@@ -313,7 +314,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     network
   );
 
-  yield put(sendMaxFeeCalculated(fee));
+  yield put(setSendMaxFee(fee));
 }
 
 export const calculateSendMaxFeeWatcher = createWatcher(

@@ -24,6 +24,8 @@ import { NodeConnectSchema } from './nodeConnect';
 import { TriggerPolicySchema } from './triggerPolicy';
 import { TwoFADetailsSchema } from './twoFADetails';
 import { UAISchema } from './uai';
+import { NotificationSchema } from './notitfication';
+import { additionalInfoSchema } from './notitfication';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 
@@ -51,6 +53,8 @@ export default [
   TwoFADetailsSchema,
   NodeConnectSchema,
   UAISchema,
+  NotificationSchema,
+  additionalInfoSchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,

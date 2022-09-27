@@ -1,36 +1,37 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, StatusBar } from 'native-base';
 import {
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
   ActivityIndicator,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
 } from 'react-native';
-import { Subscription } from 'react-native-iap';
-
-import { RFValue } from 'react-native-responsive-fontsize';
-
-import BackIcon from 'src/assets/icons/back.svg';
-import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
-import Note from 'src/components/Note/Note';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { Box, StatusBar, Text } from 'native-base';
 import RNIap, {
-  requestSubscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
+  requestSubscription,
 } from 'react-native-iap';
-import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
-import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import React, { useContext, useEffect, useState } from 'react';
+
+import BackIcon from 'src/assets/icons/back.svg';
+import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
+import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
 import Hodler from 'src/assets/images/svgs/ic_hodler.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
-import Whale from 'src/assets/images/svgs/ic_whale.svg';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import dbManager from 'src/storage/realm/dbManager';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
+import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
+import { Subscription } from 'react-native-iap';
+import dbManager from 'src/storage/realm/dbManager';
 
 const plans = [
   {
@@ -72,8 +73,8 @@ const plans = [
       'Dedicated email support',
     ],
     subTitle: 'Includes Inheritance',
-    icon: <Whale />,
-    iconFocused: <WhaleFocused />,
+    icon: <DiamondHands />,
+    iconFocused: <DiamondHandsFocused />,
     price: '',
   },
 ];
@@ -89,20 +90,22 @@ const ChoosePlan = (props) => {
     let purchaseUpdateSubscription;
     let purchaseErrorSubscription;
     RNIap.initConnection()
-      .then(async (connected) => {
-        purchaseUpdateSubscription = purchaseUpdatedListener((purchase) => {
+      .then((connected) => {
+        purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
           console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
-          RNIap.finishTransaction(purchase, false);
-          console.log('receipt', receipt);
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+          const sub = await getSubscriptions([purchase.productId]);
           const subscription: SubScription = {
             productId: purchase.productId,
             receipt: receipt,
+            name: sub[0].title.split(' ')[0],
           };
+
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
+          const finish = await RNIap.finishTransaction(purchase, false);
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
@@ -156,7 +159,7 @@ const ChoosePlan = (props) => {
       });
       setItems([...data]);
       setLoading(false);
-      console.log('subscriptions', JSON.stringify(data));
+      // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
     }
@@ -164,31 +167,34 @@ const ChoosePlan = (props) => {
 
   async function processSubscription(subscription: Subscription) {
     try {
-      if (Platform.OS === 'android') {
-        console.log({
-          sku: subscription.productId,
-          purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
-          subscriptionOffers: [
-            {
-              sku: subscription.productId,
-              offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-            },
-          ],
-        });
-        await requestSubscription({
-          sku: subscription.productId,
-          purchaseTokenAndroid: subscription.subscriptionOfferDetails[0].offerToken,
-          subscriptionOffers: [
-            {
-              sku: subscription.productId,
-              offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-            },
-          ],
+      if (__DEV__) {
+        const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+        const sub: SubScription = {
+          productId: subscription.productId,
+          receipt: 'free',
+          name: subscription.name.split(' ')[0],
+        };
+        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+          subscription: sub,
         });
       } else {
-        await requestSubscription({
-          sku: subscription.productId,
-        });
+        if (Platform.OS === 'android') {
+          await requestSubscription({
+            sku: subscription.productId,
+            ...(subscription.subscriptionOfferDetails[0].offerToken && {
+              subscriptionOffers: [
+                {
+                  sku: subscription.productId,
+                  offerToken: subscription.subscriptionOfferDetails[0].offerToken,
+                },
+              ],
+            }),
+          });
+        } else {
+          await requestSubscription({
+            sku: subscription.productId,
+          });
+        }
       }
     } catch (err) {
       console.log(err.code, err.message);
@@ -196,34 +202,13 @@ const ChoosePlan = (props) => {
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#F7F2EC',
-      }}
-    >
-      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box height={'20%'} mt={4}>
-        <Box mx={7} my={5}>
-          <TouchableOpacity onPress={() => props.navigation.goBack()}>
-            <BackIcon />
-          </TouchableOpacity>
-        </Box>
-        <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-          <Box w={'60%'}>
-            <Text fontSize={RFValue(20)} color={'light.textBlack'} fontFamily={'heading'}>
-              {choosePlan.choosePlantitle}
-            </Text>
-            <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
-              {choosePlan.choosePlanSubTitle}{' '}
-            </Text>
-          </Box>
-        </Box>
-      </Box>
+    <ScreenWrapper barStyle="dark-content">
+      <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
+
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <ScrollView style={{ height: '70%' }}>
+        <ScrollView style={{ height: '70%', marginVertical: 20 }}>
           <ChoosePlanCarousel
             data={items}
             onPress={async (item) => processSubscription(item)}
@@ -263,7 +248,7 @@ const ChoosePlan = (props) => {
       <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
         <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
       </Box>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 export default ChoosePlan;
