@@ -113,7 +113,7 @@ const SigningDeviceDetails = ({ route }) => {
     const { xpub, path: derivationPath, xfp } = await scanMK4();
     return { xpub, derivationPath, xfp };
   };
-  console.log();
+
   const healthCheckTapSigner = React.useCallback(() => {
     modalHandler(async () => {
       await card.first_look();

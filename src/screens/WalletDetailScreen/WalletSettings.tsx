@@ -18,6 +18,8 @@ import BackupIcon from 'src/assets/icons/backup.svg';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import LinearGradient from 'react-native-linear-gradient';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { testSatsRecieve } from 'src/store/sagaActions/wallets';
+import { useDispatch } from 'react-redux';
 
 type Props = {
   title: string;
@@ -69,7 +71,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 
 const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
-  //
+  const dispatch = useDispatch();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const wallet: Wallet = route?.params?.wallet;
@@ -86,7 +88,7 @@ const WalletSettings = ({ route }) => {
           height: hp(75),
           position: 'relative',
           marginLeft: -wp(20),
-          marginBottom: hp(30)
+          marginBottom: hp(30),
         }}
       >
         <Box
@@ -122,7 +124,11 @@ const WalletSettings = ({ route }) => {
         </Box>
       </LinearGradient>
     );
-  }
+  };
+
+  const getTestSats = () => {
+    dispatch(testSatsRecieve(wallet));
+  };
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -177,6 +183,14 @@ const WalletSettings = ({ route }) => {
           subTitle={'Use to link external wallets to Keeper'}
           onPress={() => {
             setConfirmPassVisible(true);
+          }}
+          Icon={false}
+        />
+        <Option
+          title={'Recieve Test Sats'}
+          subTitle={'Recieve Test Sats to this address'}
+          onPress={() => {
+            getTestSats();
           }}
           Icon={false}
         />
