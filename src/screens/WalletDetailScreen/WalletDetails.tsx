@@ -99,7 +99,7 @@ const WalletDetails = () => {
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail')}
+              onPress={() => navigation.navigate('EnterWalletDetail', wallets.length)}
             >
               <AddSCardIcon />
               <Text
