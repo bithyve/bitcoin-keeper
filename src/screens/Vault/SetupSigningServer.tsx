@@ -150,30 +150,47 @@ const SetupSigningServer = ({ route }: { route }) => {
           headerTitleColor={'light.headerText'}
         />
       </Box>
-      <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={hp(250)}>
-        <Text
-          color={'light.recieverAddress'}
-          fontFamily={'body'}
-          fontWeight={300}
-          fontSize={12}
-          letterSpacing={1.08}
-          width={hp(250)}
-          noOfLines={1}
-          style={{
-            marginVertical: hp(30),
-          }}
-        >
-          Scan the QR below to add Backup Key
-        </Text>
+      <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={wp(250)}>
         {twoFAKey === '' ?
           <Box height={hp(250)} justifyContent={'center'}>
             <ActivityIndicator animating={true} size='small' />
           </Box> :
-          <QRCode
-            value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
-            logoBackgroundColor="transparent"
-            size={hp(250)}
-          />
+          <Box alignItems={'center'} alignSelf={'center'} width={hp(200)}>
+            <Text
+              color={'light.recieverAddress'}
+              fontFamily={'body'}
+              fontWeight={300}
+              fontSize={12}
+              letterSpacing={1.08}
+              noOfLines={1}
+              backgroundColor={'amber.400'}
+              style={{
+                marginVertical: hp(30),
+              }}
+            >
+              Scan the QR below to add Backup Key
+            </Text>
+            <QRCode
+              value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
+              logoBackgroundColor="transparent"
+              size={hp(200)}
+            />
+            <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
+              <Text
+                textAlign={'center'}
+                color={'light.recieverAddress'}
+                fontFamily={'body'}
+                fontWeight={300}
+                fontSize={12}
+                letterSpacing={1.08}
+                width={'100%'}
+                noOfLines={1}
+              >
+                {twoFAKey}
+              </Text>
+            </Box>
+          </Box>
+
         }
       </Box>
 

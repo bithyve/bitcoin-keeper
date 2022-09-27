@@ -70,7 +70,7 @@ function* setupKeeperAppWorker({ payload }) {
     const defaultWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
-        name: 'Mobile Wallet',
+        name: 'Wallet 1',
         description: 'Single-sig bitcoin wallet',
       },
     };
