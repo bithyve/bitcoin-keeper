@@ -1,8 +1,9 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendingFailed, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import { crossTransfer, sendPhaseTwo, sendingFailed } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
@@ -12,12 +13,15 @@ import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import CustomPriorityModal from './CustomPriorityModal';
 import Header from 'src/components/Header';
+import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import Transactions from './Transactions';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -29,10 +33,6 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import Transactions from './Transactions';
-import SuccessModal from 'src/components/HealthCheck/SuccessModal';
-import KeeperModal from 'src/components/KeeperModal';
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -53,30 +53,26 @@ const SendConfirmation = ({ route }) => {
   const common = translations['common'];
   const walletTransactions = translations['wallet'];
 
-  // Sending process is still not executed
-  const [sendingModal, setSendingModal] = useState(false);
-  const openSendModal = () => setSendingModal(true);
-  const closeSendModal = () => setSendingModal(false);
+  // // Sending process is still not executed
+  // const [sendingModal, setSendingModal] = useState(false);
+  // const openSendModal = () => setSendingModal(true);
+  // const closeSendModal = () => setSendingModal(false);
 
-  // Send is Successful
-  const [visible, setVisible] = useState(false);
-  const open = () => setVisible(true);
-  const close = () => setVisible(false);
+  // // Send is Successful
+  // const [visible, setVisible] = useState(false);
+  // const open = () => setVisible(true);
+  // const close = () => setVisible(false);
 
-  // Send Failed
-  const [sendFailed, setSendFailed] = useState(false);
-  const openFailedModal = () => setSendFailed(true);
-  const closeFailModal = () => setSendFailed(false);
+  // // Send Failed
+  // const [sendFailed, setSendFailed] = useState(false);
+  // const openFailedModal = () => setSendFailed(true);
+  // const closeFailModal = () => setSendFailed(false);
 
-  // overlay state
-  const [showOverlay, setShowOverlay] = useState(false);
-  const openOverlay = () => setShowOverlay(true);
-  const closeOverlay = () => setShowOverlay(false);
-
-  // taken from hexa --> TransactionPriority.tsx - line 98
-  const setCustomTransactionPriority = () => {
-    // logic for custom transaction priority
-  };
+  // const closeAllModal = () => {
+  //   closeFailModal();
+  //   close()
+  //   closeSendModal()
+  // }
 
   const SendSuccessfulContent = () => {
     return (
@@ -96,20 +92,20 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  const openLoaders = () => {
-    setTimeout(() => {
-      closeOverlay();
-      openSendModal();
-    }, 2000);
-  };
+  // const openLoaders = () => {
+  //   setTimeout(() => {
+  //     closeAllModal();
+  //     openSendModal();
+  //   }, 2000);
+  // };
 
   const onProceed = () => {
-    openOverlay();
+    // closeAllModal();
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      openSendModal();
+      // openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
@@ -124,7 +120,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      openLoaders();
+      // openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -158,21 +154,20 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
-    close();
+    // close();
     navigation.navigate('WalletDetails');
   };
 
-  useEffect(() => {
-    if (sendHasFailed) {
-      closeSendModal();
-      openFailedModal();
-    }
-  }, [sendHasFailed]);
+  // useEffect(() => {
+  //   if (sendHasFailed) {
+  //     closeSendModal();
+  //     openFailedModal();
+  //   }
+  // }, [sendHasFailed]);
 
   useEffect(() => {
     if (walletSendSuccessful) {
-      closeSendModal();
-      open();
+      viewDetails();
     }
   }, [walletSendSuccessful]);
 
@@ -428,22 +423,22 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  const handleCustomPriority = () => {
-    const { translations } = useContext(LocalizationContext);
-    const vault = translations['vault'];
-    const common = translations['common'];
+  // const handleCustomPriority = () => {
+  //   const { translations } = useContext(LocalizationContext);
+  //   const vault = translations['vault'];
+  //   const common = translations['common'];
 
-    return (
-      <CustomPriorityModal
-        visible={visible}
-        title={vault.CustomPriority}
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-        info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-        close={close}
-        buttonText={common.confirm}
-      />
-    );
-  };
+  //   return (
+  //     <CustomPriorityModal
+  //       visible={visible}
+  //       title={vault.CustomPriority}
+  //       subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+  //       info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+  //       close={close}
+  //       buttonText={common.confirm}
+  //     />
+  //   );
+  // };
 
   return (
     <Box
@@ -463,8 +458,12 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <Box marginTop={hp(32)} marginBottom={hp(32)}>
-          <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
+        <Box marginTop={windowHeight * 0.01}>
+          <Transaction />
+        </Box>
+
+        <Box>
+          <SendingPriority />
         </Box>
 
         <Box flexDirection={'row'} justifyContent={'space-between'}>
@@ -482,28 +481,6 @@ const SendConfirmation = ({ route }) => {
             0.024
           </Text>
         </Box>
-        <Box
-          alignItems={'center'}
-          style={{
-            marginTop: hp(30),
-            marginBottom: hp(10),
-          }}
-        >
-          <Box
-            borderBottomColor={'light.Border'}
-            borderBottomWidth={1}
-            width={wp(280)}
-            opacity={0.1}
-          />
-        </Box>
-
-        <Box marginTop={windowHeight * 0.01}>
-          <Transaction />
-        </Box>
-
-        <Box>
-          <SendingPriority />
-        </Box>
       </Box>
 
       <CustomPriorityBox />
@@ -519,7 +496,7 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
 
-      {showOverlay && (
+      {/* {showOverlay && (
         <View
           height={windowHeight}
           width={windowWidth}
@@ -528,9 +505,8 @@ const SendConfirmation = ({ route }) => {
           bg={'#000'}
           position={'absolute'}
         ></View>
-      )}
-      {/* Success modal for Send Successful */}
-      <KeeperModal
+      )} */}
+      {/* <KeeperModal
         visible={visible}
         close={close}
         title={walletTransactions.SendSuccess}
@@ -544,7 +520,6 @@ const SendConfirmation = ({ route }) => {
         buttonPressed={viewDetails}
       />
 
-      {/* waiting loader after sending */}
       <KeeperModal
         visible={sendingModal}
         close={closeSendModal}
@@ -556,7 +531,6 @@ const SendConfirmation = ({ route }) => {
         // Content={SendSuccessfulContent}
       />
 
-      {/* Send failed modal  */}
       <KeeperModal
         visible={sendFailed}
         close={closeFailModal}
@@ -564,7 +538,7 @@ const SendConfirmation = ({ route }) => {
         subTitle={failedMsg}
         textColor={'#073B36'}
         // Content={SendSuccessfulContent}
-      />
+      /> */}
     </Box>
   );
 };

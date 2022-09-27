@@ -11,7 +11,6 @@ import Header from 'src/components/Header';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
@@ -53,12 +52,11 @@ const AddSendAmount = ({ route }) => {
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
-          title="Sending to address"
-          subtitle="Lorem ipsum dolor sit amet,"
+          title={`Enter the amount`}
+          subtitle={`Sending to ${address}`}
           onPressHandler={() => navigation.goBack()}
         />
       </Box>
-      {/*       
       <Box
         flexDirection={'row'}
         alignItems={'center'}
@@ -94,15 +92,8 @@ const AddSendAmount = ({ route }) => {
             {address}
           </Text>
         </Box>
-
         <DollarInput />
-      </Box> */}
-
-      {/* { Transaction list} */}
-      <Box marginTop={hp(32)} marginBottom={hp(32)}>
-        <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
       </Box>
-
       <Box
         alignItems={'center'}
         style={{
