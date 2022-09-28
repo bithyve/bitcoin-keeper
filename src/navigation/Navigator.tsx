@@ -114,7 +114,6 @@ const AppStack = () => {
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHome" component={HomeScreen} />
-        <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
@@ -151,6 +150,7 @@ const AppStack = () => {
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
+        <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
       </Stack.Navigator>
     </RealmProvider>
   );

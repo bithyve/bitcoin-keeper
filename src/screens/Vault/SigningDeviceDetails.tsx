@@ -1,5 +1,3 @@
-import { Box, HStack, Text, VStack, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   Alert,
   FlatList,
@@ -10,6 +8,9 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { Box, HStack, Text, VStack, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -22,7 +23,8 @@ import Illustration from 'src/assets/images/illustration.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import NFC from 'src/core/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -37,8 +39,6 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useDispatch } from 'react-redux';
-import NFC from 'src/core/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -356,25 +356,27 @@ const SigningDeviceDetails = ({ route }) => {
       <ScrollView>
         <Box m={10}>
           <SigningDeviceChecklist date={signer.lastHealthCheck} />
-          <TouchableOpacity
-            onPress={() =>
-              navigation.dispatch(CommonActions.navigate('RigisterToSD', { type: signer.type }))
-            }
-          >
-            <VStack maxWidth={'90%'} paddingTop={'4'}>
-              <HStack alignItems={'center'}>
-                <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
-                  {'Register Vault to this device'}
+          {signer.storageType === SignerStorage.COLD ? (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.dispatch(CommonActions.navigate('RigisterToSD', { type: signer.type }))
+              }
+            >
+              <VStack maxWidth={'90%'} paddingTop={'4'}>
+                <HStack alignItems={'center'}>
+                  <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                    {'Register Vault to this device'}
+                  </Text>
+                  <Box paddingLeft={'2'}>
+                    <RightArrowIcon />
+                  </Box>
+                </HStack>
+                <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                  {'Register the multisig wallet to this signing device'}
                 </Text>
-                <Box paddingLeft={'2'}>
-                  <RightArrowIcon />
-                </Box>
-              </HStack>
-              <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-                {'Register the multisig wallet to this signing device'}
-              </Text>
-            </VStack>
-          </TouchableOpacity>
+              </VStack>
+            </TouchableOpacity>
+          ) : null}
         </Box>
       </ScrollView>
       <Box px={'10%'} py={'10%'}>
