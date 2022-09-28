@@ -30,9 +30,9 @@ const AppWithNetwork = ({ children }) => {
 
 export const RealmProvider = ({ children }) => {
   const key = useAppSelector((state) => state?.login?.key);
-  const bufferKey = stringToArrayBuffer(key);
-  const RealmContext = useMemo(() => createRealmContext(realmConfig(bufferKey)), [key]);
   if (key) {
+    const bufferKey = stringToArrayBuffer(key);
+    const RealmContext = useMemo(() => createRealmContext(realmConfig(bufferKey)), [key]);
     const { useQuery, useRealm, useObject } = RealmContext;
     return (
       <RealmWrapperContext.Provider value={{ useQuery, useRealm, useObject }}>
