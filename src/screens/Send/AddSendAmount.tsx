@@ -1,6 +1,6 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
@@ -13,8 +13,10 @@ import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -31,8 +33,13 @@ const AddSendAmount = ({ route }) => {
       recipients,
     });
   };
+  const { showToast } = useToastMessage();
 
   const executeSendPhaseOne = () => {
+    if (wallet.specs.balances.confirmed < Number(amount)) {
+      showToast('You have insuffecient balnce at this time.', null, 1000);
+      return;
+    }
     const recipients = [];
     recipients.push({
       address,
@@ -46,6 +53,12 @@ const AddSendAmount = ({ route }) => {
     );
     navigateToNext(recipients);
   };
+
+  useEffect(() => {
+    return () => {
+      dispatch(sendPhaseOneReset());
+    };
+  }, []);
 
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>

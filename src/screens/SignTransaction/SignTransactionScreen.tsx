@@ -30,6 +30,7 @@ import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
+import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
@@ -78,6 +79,12 @@ const SignTransactionScreen = () => {
       }
     }
   }, [sendSuccessful, isMigratingNewVault]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(sendPhaseThreeReset());
+    };
+  }, []);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;

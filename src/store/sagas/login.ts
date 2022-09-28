@@ -1,59 +1,65 @@
-import { call, put, select } from 'redux-saga/effects';
-import { createWatcher } from '../utilities';
 import * as SecureStore from '../../storage/secure-store';
-import { Platform } from 'react-native';
+
 import {
-  CREDS_AUTH,
-  STORE_CREDS,
   CHANGE_AUTH_CRED,
-  RESET_PIN,
   CHANGE_LOGIN_METHOD,
+  CREDS_AUTH,
+  RESET_PIN,
+  STORE_CREDS,
   UPDATE_APPLICATION,
   updateApplication,
 } from '../sagaActions/login';
-import { setLoginMethod } from '../reducers/settings';
+import { call, put, select } from 'redux-saga/effects';
 import {
   credsAuthenticated,
   credsChanged,
-  setCredStored,
   pinChangedFailed,
-  setupLoading,
+  setCredStored,
   setKey,
+  setupLoading,
 } from '../reducers/login';
-import dbManager from '../../storage/realm/dbManager';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import {
-  setPinResetCreds,
-  resetPinFailAttempts,
-  setPinHash,
-  setAppVersion,
-} from '../reducers/storage';
-import { setupKeeperApp } from '../sagaActions/storage';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RootState } from '../store';
-import { autoSyncWallets } from '../sagaActions/wallets';
-import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
-import { getMessages } from '../sagaActions/notifications';
-import DeviceInfo from 'react-native-device-info';
-import messaging from '@react-native-firebase/messaging';
-import { getReleaseTopic } from 'src/utils/releaseTopic';
-import Relay from 'src/core/services/operations/Relay';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash512,
 } from 'src/core/services/operations/encryption';
-import { uaiChecks } from '../sagaActions/uai';
+import {
+  resetPinFailAttempts,
+  setAppVersion,
+  setPinHash,
+  setPinResetCreds,
+} from '../reducers/storage';
+
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { Platform } from 'react-native';
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { RootState } from '../store';
+import { autoSyncWallets } from '../sagaActions/wallets';
+import { createWatcher } from '../utilities';
+import dbManager from '../../storage/realm/dbManager';
+import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
+import { getMessages } from '../sagaActions/notifications';
+import { getReleaseTopic } from 'src/utils/releaseTopic';
+import messaging from '@react-native-firebase/messaging';
+import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
+import { setupKeeperApp } from '../sagaActions/storage';
+import { uaiChecks } from '../sagaActions/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
-  const byteArray = new Uint8Array(byteString.length);
-  for (let i = 0; i < byteString.length; i++) {
-    byteArray[i] = byteString.codePointAt(i);
+  if (byteString) {
+    const byteArray = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+      byteArray[i] = byteString.codePointAt(i);
+    }
+    return byteArray;
+  } else {
+    return null;
   }
-  return byteArray;
 };
 
 function* credentialsStorageWorker({ payload }) {
@@ -128,10 +134,7 @@ function* credentialsAuthWorker({ payload }) {
   yield put(setKey(key));
   if (!payload.reLogin) {
     // case: login
-    const history = yield call(
-      dbManager.getCollection,
-      RealmSchema.BackupHistory
-    );
+    const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
 
     yield put(autoSyncWallets());
     yield put(fetchFeeAndExchangeRates());
@@ -265,5 +268,3 @@ function* applicationUpdateWorker({
 }
 
 export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);
-
-

@@ -27,6 +27,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
@@ -129,6 +130,12 @@ const SendConfirmation = ({ route }) => {
       );
     }
   };
+
+  useEffect(() => {
+    return () => {
+      dispatch(sendPhaseTwoReset());
+    };
+  }, []);
 
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
