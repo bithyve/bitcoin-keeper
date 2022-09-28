@@ -100,7 +100,10 @@ const AddSendAmount = ({ route }) => {
 
       {/* { Transaction list} */}
       <Box marginTop={hp(32)} marginBottom={hp(32)}>
-        <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
+        <Transactions transactions={[{
+          address,
+          amount
+        }]} addTransaction={() => { }} />
       </Box>
 
       <Box
