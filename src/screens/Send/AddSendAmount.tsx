@@ -15,6 +15,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import Transactions from './Transactions';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -57,7 +58,7 @@ const AddSendAmount = ({ route }) => {
           onPressHandler={() => navigation.goBack()}
         />
       </Box>
-      <Box
+      {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
         justifyContent={'space-between'}
@@ -93,6 +94,14 @@ const AddSendAmount = ({ route }) => {
           </Text>
         </Box>
         <DollarInput />
+      </Box> */}
+
+      {/* { Transaction list} */}
+      <Box marginTop={hp(32)} marginBottom={hp(32)}>
+        <Transactions transactions={[{
+          address,
+          amount
+        }]} addTransaction={() => { }} />
       </Box>
       <Box
         alignItems={'center'}
