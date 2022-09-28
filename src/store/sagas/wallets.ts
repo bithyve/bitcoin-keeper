@@ -31,7 +31,12 @@ import {
   vaultMigrationCompleted,
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
-import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
+import {
+  setNetBalance,
+  setTestCoinsFailed,
+  setTestCoinsReceived,
+  signingServerRegistrationVerified,
+} from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
@@ -608,9 +613,11 @@ function* testcoinsWorker({ payload }) {
   console.log({ receivingAddress, network });
   const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
 
-  if (!txid) console.log('Failed to get testcoins');
-  else {
-    console.log('Test Sats Recieved');
+  if (!txid) {
+    yield put(setTestCoinsFailed(true));
+  } else {
+    yield put(setTestCoinsReceived(true));
+    yield put(refreshWallets([wallet], { hardRefresh: true }));
   }
 }
 
