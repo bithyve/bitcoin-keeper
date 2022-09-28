@@ -11,6 +11,7 @@ import Header from 'src/components/Header';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
+import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
@@ -70,7 +71,7 @@ const AddSendAmount = ({ route }) => {
           onPressHandler={() => navigation.goBack()}
         />
       </Box>
-      <Box
+      {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
         justifyContent={'space-between'}
@@ -106,6 +107,19 @@ const AddSendAmount = ({ route }) => {
           </Text>
         </Box>
         <DollarInput />
+      </Box> */}
+
+      {/* { Transaction list} */}
+      <Box marginTop={hp(32)} marginBottom={hp(32)}>
+        <Transactions
+          transactions={[
+            {
+              address,
+              amount,
+            },
+          ]}
+          addTransaction={() => {}}
+        />
       </Box>
       <Box
         alignItems={'center'}
