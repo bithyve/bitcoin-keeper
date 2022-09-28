@@ -11,6 +11,7 @@ import {
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
+  TEST_SATS_RECIEVE,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -30,7 +31,12 @@ import {
   vaultMigrationCompleted,
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
-import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
+import {
+  setNetBalance,
+  setTestCoinsFailed,
+  setTestCoinsReceived,
+  signingServerRegistrationVerified,
+} from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
@@ -49,6 +55,7 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
+import Relay from 'src/core/services/operations/Relay';
 
 export interface newWalletDetails {
   name?: string;
@@ -597,3 +604,21 @@ export const validateSigningServerRegistrationWatcher = createWatcher(
   validateSigningServerRegistrationWorker,
   VALIDATE_SIGNING_SERVER_REGISTRATION
 );
+
+function* testcoinsWorker({ payload }) {
+  const { wallet } = payload;
+  console.log({ wallet });
+  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  console.log({ receivingAddress, network });
+  const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
+
+  if (!txid) {
+    yield put(setTestCoinsFailed(true));
+  } else {
+    yield put(setTestCoinsReceived(true));
+    yield put(refreshWallets([wallet], { hardRefresh: true }));
+  }
+}
+
+export const testcoinsWatcher = createWatcher(testcoinsWorker, TEST_SATS_RECIEVE);

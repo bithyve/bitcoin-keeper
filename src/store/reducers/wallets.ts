@@ -1,4 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import persistReducer from 'redux-persist/es/persistReducer';
+import { reduxStorage } from 'src/storage';
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
 export type WalletsState = {
@@ -18,6 +20,8 @@ export type WalletsState = {
   haswalletSettingsUpdateFailed: boolean;
 
   testCoinsReceived: boolean;
+  testCoinsFailed: boolean;
+
   resetTwoFALoader: boolean;
 };
 
@@ -37,6 +41,8 @@ const initialState: WalletsState = {
   haswalletSettingsUpdateFailed: false,
 
   testCoinsReceived: false,
+  testCoinsFailed: false,
+
   resetTwoFALoader: false,
 };
 
@@ -44,9 +50,6 @@ const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    testcoinsReceived: (state) => {
-      state.testCoinsReceived = true;
-    },
     walletsSynched: (state, action: PayloadAction<boolean>) => {
       state.walletsSynched = action.payload;
     },
@@ -55,6 +58,12 @@ const walletSlice = createSlice({
     },
     signingServerRegistrationVerified: (state, action: PayloadAction<boolean>) => {
       state.signingServer.verified = action.payload;
+    },
+    setTestCoinsReceived: (state, action: PayloadAction<boolean>) => {
+      state.testCoinsReceived = action.payload;
+    },
+    setTestCoinsFailed: (state, action: PayloadAction<boolean>) => {
+      state.testCoinsFailed = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -67,13 +76,19 @@ const walletSlice = createSlice({
 });
 
 export const {
-  testcoinsReceived,
   walletsSynched,
   setNetBalance,
   signingServerRegistrationVerified,
+  setTestCoinsReceived,
+  setTestCoinsFailed,
 } = walletSlice.actions;
 
-export default walletSlice.reducer;
+const walletPersistConfig = {
+  key: 'wallet',
+  storage: reduxStorage,
+  blacklist: ['testCoinsReceived', 'testCoinsFailed'],
+};
+export default persistReducer(walletPersistConfig, walletSlice.reducer);
 
 /*
 export default (state: WalletsState = initialState, action): WalletsState => {

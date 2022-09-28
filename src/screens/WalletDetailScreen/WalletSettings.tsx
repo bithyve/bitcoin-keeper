@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -18,6 +18,11 @@ import BackupIcon from 'src/assets/icons/backup.svg';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import LinearGradient from 'react-native-linear-gradient';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { testSatsRecieve } from 'src/store/sagaActions/wallets';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from 'src/store/hooks';
+import { Alert } from 'react-native';
+import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 
 type Props = {
   title: string;
@@ -69,10 +74,11 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 
 const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
-  //
+  const dispatch = useDispatch();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const wallet: Wallet = route?.params?.wallet;
+  const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
 
   const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
     return (
@@ -86,7 +92,7 @@ const WalletSettings = ({ route }) => {
           height: hp(75),
           position: 'relative',
           marginLeft: -wp(20),
-          marginBottom: hp(30)
+          marginBottom: hp(30),
         }}
       >
         <Box
@@ -122,7 +128,27 @@ const WalletSettings = ({ route }) => {
         </Box>
       </LinearGradient>
     );
-  }
+  };
+
+  const getTestSats = () => {
+    dispatch(testSatsRecieve(wallet));
+  };
+
+  useEffect(() => {
+    if (testCoinsReceived) {
+      Alert.alert('5000 Sats Received');
+      setTimeout(() => {
+        dispatch(setTestCoinsReceived(false));
+        navigtaion.goBack();
+      }, 3000);
+    } else {
+      if (testCoinsFailed) {
+        Alert.alert('Process Failed');
+        dispatch(setTestCoinsFailed(false));
+      }
+    }
+  }, [testCoinsReceived, testCoinsFailed]);
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -177,6 +203,14 @@ const WalletSettings = ({ route }) => {
           subTitle={'Use to link external wallets to Keeper'}
           onPress={() => {
             setConfirmPassVisible(true);
+          }}
+          Icon={false}
+        />
+        <Option
+          title={'Receive Test Sats'}
+          subTitle={'Recieve Test Sats to this address'}
+          onPress={() => {
+            getTestSats();
           }}
           Icon={false}
         />

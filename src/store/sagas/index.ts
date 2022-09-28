@@ -9,6 +9,7 @@ import {
   refreshWalletsWatcher,
   registerWithSigningServerWatcher,
   syncWalletsWatcher,
+  testcoinsWatcher,
   updateWalletSettingsWatcher,
   validateSigningServerRegistrationWatcher,
 } from './wallets';
@@ -79,6 +80,7 @@ export const rootSaga = function* () {
     updateWalletSettingsWatcher,
     registerWithSigningServerWatcher,
     validateSigningServerRegistrationWatcher,
+    testcoinsWatcher,
 
     // vaults
     addNewVaultWatcher,
