@@ -37,6 +37,7 @@ import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSign
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
+import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
@@ -149,6 +150,7 @@ const AppStack = () => {
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
+        <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
       </Stack.Navigator>
     </RealmProvider>
   );
