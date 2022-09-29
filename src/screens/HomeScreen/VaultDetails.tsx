@@ -43,6 +43,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
@@ -230,7 +231,7 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
             fontWeight={200}
             letterSpacing={1.28}
           >
-            {confirmed + unconfirmed}
+            {getAmount(confirmed + unconfirmed)}
           </Text>
         </HStack>
       </HStack>

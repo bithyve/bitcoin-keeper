@@ -23,6 +23,7 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { Alert } from 'react-native';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 type Props = {
   title: string;
@@ -170,7 +171,7 @@ const WalletSettings = ({ route }) => {
         <WalletCard
           walletName={wallet.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
-          walletBalance={wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed}
+          walletBalance={getAmount(wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed)}
         />
         {/* <Option
           title={'Wallet Backup'}
