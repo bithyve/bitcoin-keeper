@@ -11,6 +11,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import BTC from 'src/assets/images/svgs/btc_black.svg';
 import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const ArchivedVault = () => {
 
@@ -77,7 +78,7 @@ const ArchivedVault = () => {
                 marginLeft: wp(4)
               }}
             >
-              {vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed}
+              {getAmount(vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed)}
             </Text>
           </Box>
           <Box

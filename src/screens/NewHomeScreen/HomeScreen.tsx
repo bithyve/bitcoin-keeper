@@ -56,6 +56,7 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
 import Chain from 'src/assets/icons/illustration_homescreen.svg';
+import { getAmount } from 'src/common/constants/Bitcoin';
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -183,7 +184,7 @@ const LinkedWallets = (props) => {
                 <BTC />
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
-                {netBalance}
+                {getAmount(netBalance)}
               </Text>
             </Box>
           ) : (
@@ -385,7 +386,7 @@ const VaultStatus = (props) => {
                     fontSize={hp(34)}
                     fontWeight={200}
                   >
-                    {vaultBalance}
+                    {getAmount(vaultBalance)}
                   </Text>
                 ) : (
                   <Hidden />

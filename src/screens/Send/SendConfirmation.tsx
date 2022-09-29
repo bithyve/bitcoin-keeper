@@ -34,6 +34,7 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -224,9 +225,9 @@ const SendConfirmation = ({ route }) => {
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
                 {isVaultTransfer && defaultWallet && isSend
-                  ? (defaultWallet as Wallet).specs.balances.confirmed / 10e8
+                  ? getAmount((defaultWallet as Wallet).specs.balances.confirmed)
                   : ''}
-                {wallet ? (wallet as Wallet).specs.balances.confirmed / 10e8 : ''}
+                {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
                 {!isSend && isVaultTransfer ? '0.0001' : ''}
               </Text>
             </Box>
