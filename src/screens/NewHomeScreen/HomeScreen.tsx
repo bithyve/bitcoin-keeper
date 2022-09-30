@@ -467,7 +467,7 @@ const VaultInfo = () => {
   };
 
   function getPlanIcon() {
-    if (subscription.name.toLowerCase().includes('whale')) {
+    if (subscription.name.toLowerCase().includes('diamond')) {
       return <DiamondHandsFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;
