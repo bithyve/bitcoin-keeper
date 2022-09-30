@@ -45,6 +45,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -99,7 +100,7 @@ const WalletDetails = () => {
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail')}
+              onPress={() => navigation.navigate('EnterWalletDetail', wallets.length)}
             >
               <AddSCardIcon />
               <Text
@@ -176,10 +177,10 @@ const WalletDetails = () => {
                     fontSize={hp(24)}
                     fontWeight={200}
                   >
-                    {walletBalance}
+                    {getAmount(walletBalance)}
                   </Text>
                   <Text color={'light.white'} fontSize={hp(11)} fontWeight={200}>
-                    {confirmedBalance + ' confirmed'}
+                    {getAmount(confirmedBalance) + ' confirmed'}
                   </Text>
                 </VStack>
               </Box>
@@ -248,7 +249,7 @@ const WalletDetails = () => {
             marginX={2}
             marginRight={3}
           >
-            {transaction.amount}
+            {getAmount(transaction.amount)}
           </Text>
           <Box>
             <IconArrowGrey />
@@ -314,7 +315,7 @@ const WalletDetails = () => {
             <BTC />
           </Box>
           <Text color={'light.textWallet'} letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
-            {netBalance}
+            {getAmount(netBalance)}
           </Text>
         </Box>
       </Box>

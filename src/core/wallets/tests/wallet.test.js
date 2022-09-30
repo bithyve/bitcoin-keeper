@@ -1,11 +1,11 @@
 const { WalletType, NetworkType, TxPriority } = require('../enums');
 const { generateWallet } = require('../factories/WalletFactory');
-import { getRandomBytes } from 'src/core/services/operations/encryption';
+
 import Relay from 'src/core/services/operations/Relay';
-import config, { APP_STAGE } from '../../config';
 import WalletOperations from '../operations';
 import WalletUtilities from '../operations/utils';
-import * as bip39 from 'bip39';
+import config from '../../config';
+import { getRandomBytes } from 'src/core/services/operations/encryption';
 
 describe('Testing wallet primitives', () => {
   let primaryMnemonic, walletShell, wallet, averageTxFees, txPrerequisites, txnPriority, PSBT;
@@ -29,8 +29,7 @@ describe('Testing wallet primitives', () => {
       walletName: walletName,
       walletDescription: walletDescription,
       primaryMnemonic,
-      networkType:
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+      networkType: config.NETWORK_TYPE,
     });
     expect(wallet.derivationDetails.mnemonic).toEqual(
       'tragic water gloom vocal quick culture gasp comfort gas human valley warm'

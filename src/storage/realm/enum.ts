@@ -22,6 +22,8 @@ export enum RealmSchema {
   TwoFADetails = 'TwoFADetails',
   NodeConnect = 'NodeConnect',
   UAI = 'UAI',
+  Notification = 'Notification',
+  AdditionalNotes = 'AdditionalNotes',
   VersionHistory = 'VersionHistory',
   BackupHistory = 'BackupHistory',
   StoreSubscription = 'StoreSubscription',

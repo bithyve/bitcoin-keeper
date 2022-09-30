@@ -4,13 +4,14 @@ import {
   AUTO_SYNC_WALLETS,
   IMPORT_NEW_WALLET,
   REFRESH_WALLETS,
+  REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
   UPDATE_WALLET_SETTINGS,
+  VALIDATE_SIGNING_SERVER_REGISTRATION,
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
-  VALIDATE_SIGNING_SERVER_REGISTRATION,
-  REGISTER_WITH_SIGNING_SERVER,
+  TEST_SATS_RECIEVE,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -23,8 +24,6 @@ import {
 import { Storage, getString, setItem } from 'src/storage';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
-import { TwoFADetails } from 'src/core/wallets/interfaces/';
-
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -32,24 +31,31 @@ import {
   vaultMigrationCompleted,
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/core/config';
+import {
+  setNetBalance,
+  setTestCoinsFailed,
+  setTestCoinsReceived,
+  signingServerRegistrationVerified,
+} from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
+import SigningServer from 'src/core/services/operations/SigningServer';
+import { TwoFADetails } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
+import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import Relay from 'src/core/services/operations/Relay';
 
 export interface newWalletDetails {
   name?: string;
@@ -84,8 +90,7 @@ function* addNewWallet(
         walletName: walletName ? walletName : 'Checking Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         primaryMnemonic,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+        networkType: config.NETWORK_TYPE,
       });
       return checkingWallet;
 
@@ -97,8 +102,7 @@ function* addNewWallet(
         walletName: walletName ? walletName : 'Lightning Wallet',
         walletDescription: walletDescription ? walletDescription : '',
         primaryMnemonic,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+        networkType: config.NETWORK_TYPE,
       });
       return lnWallet;
 
@@ -110,8 +114,7 @@ function* addNewWallet(
         walletName: walletName ? walletName : 'Imported Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedMnemonic: importDetails.primaryMnemonic,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+        networkType: config.NETWORK_TYPE,
       });
       return importedWallet;
 
@@ -123,8 +126,7 @@ function* addNewWallet(
         walletName: walletName ? walletName : 'Read-Only Wallet',
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedXpub: importDetails.xpub,
-        networkType:
-          config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET,
+        networkType: config.NETWORK_TYPE,
       });
       return readOnlyWallet;
   }
@@ -218,8 +220,7 @@ function* addNewVaultWorker({
           vaultShellInstances.activeShell
         );
       }
-      const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+      const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
         type: vaultType,
         vaultShellId: vaultShell.id,
@@ -290,8 +291,7 @@ function* migrateVaultWorker({
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
     );
-    const networkType =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
 
     const vault: Vault = yield call(generateVault, {
       type: vaultType,
@@ -604,3 +604,21 @@ export const validateSigningServerRegistrationWatcher = createWatcher(
   validateSigningServerRegistrationWorker,
   VALIDATE_SIGNING_SERVER_REGISTRATION
 );
+
+function* testcoinsWorker({ payload }) {
+  const { wallet } = payload;
+  console.log({ wallet });
+  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  console.log({ receivingAddress, network });
+  const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
+
+  if (!txid) {
+    yield put(setTestCoinsFailed(true));
+  } else {
+    yield put(setTestCoinsReceived(true));
+    yield put(refreshWallets([wallet], { hardRefresh: true }));
+  }
+}
+
+export const testcoinsWatcher = createWatcher(testcoinsWorker, TEST_SATS_RECIEVE);

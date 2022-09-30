@@ -842,17 +842,9 @@ export default class WalletOperations {
     PSBT: bitcoinJS.Psbt
   ): {
     signedPSBT: bitcoinJS.Psbt;
-    childIndexArray: Array<{
-      childIndex: number;
-      inputIdentifier: {
-        txId: string;
-        vout: number;
-      };
-    }> | null;
   } => {
     try {
       let vin = 0;
-      const childIndexArray = [];
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
       for (const input of inputs) {
@@ -869,11 +861,38 @@ export default class WalletOperations {
 
       return {
         signedPSBT: PSBT,
-        childIndexArray: childIndexArray.length ? childIndexArray : null,
       };
     } catch (err) {
       throw new Error(`Transaction signing failed: ${err.message}`);
     }
+  };
+
+  static signVaultPSBT = (
+    wallet: Vault,
+    inputs: any,
+    serializedPSBT: string,
+    xpriv: string
+  ): { signedSerializedPSBT: string } => {
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+
+    let vin = 0;
+    for (const input of inputs) {
+      let keyPair;
+      const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+      const [internal, index] = subPath;
+      const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
+        xpriv,
+        !!internal,
+        index,
+        network
+      );
+      keyPair = WalletUtilities.getKeyPair(privateKey, network);
+      PSBT.signInput(vin, keyPair);
+      vin++;
+    }
+
+    return { signedSerializedPSBT: PSBT.toBase64() };
   };
 
   static signVaultTransaction = (
@@ -890,31 +909,19 @@ export default class WalletOperations {
         signedPSBT?: undefined;
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
-    let signingPayload: SigningPayload[] = []; // in case of TapSigner, we'll require a signingPayload
+    let signingPayload: SigningPayload[] = [];
     let isSigned = false;
-    // case: if signer has an xpriv attached to it(for ex: Mock Signer), we'll sign the PSBT right away
-    if (signer.xpriv) {
-      const network = WalletUtilities.getNetworkByType(wallet.networkType);
-      let vin = 0;
-
-      for (const input of inputs) {
-        let keyPair;
-        const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-        const [internal, index] = subPath;
-        const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-          signer.xpriv,
-          !!internal,
-          index,
-          network
-        );
-        keyPair = WalletUtilities.getKeyPair(privateKey, network);
-
-        PSBT.signInput(vin, keyPair);
-        vin++;
-      }
+    if (signer.isMock && signer.xpriv) {
+      // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
+      const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+        wallet,
+        inputs,
+        PSBT.toBase64(),
+        signer.xpriv
+      );
+      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
     } else {
-      // case: signer doesn't have an xpriv(perpare signing envelop)
       if (signer.type === SignerType.TAPSIGNER) {
         const inputsToSign = [];
         for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -933,6 +940,8 @@ export default class WalletOperations {
           });
         }
         signingPayload.push({ payloadTarget: SignerType.TAPSIGNER, inputsToSign });
+      } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
+        signingPayload.push({ payloadTarget: signer.type, inputs });
       } else if (signer.type === SignerType.POLICY_SERVER) {
         const childIndexArray = [];
         for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -979,6 +988,7 @@ export default class WalletOperations {
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+    if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
       let err;
       try {
@@ -990,8 +1000,6 @@ export default class WalletOperations {
       }
       throw new Error(err);
     }
-
-    if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
     return txid;
   };

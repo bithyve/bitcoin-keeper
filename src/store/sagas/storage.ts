@@ -1,22 +1,24 @@
 import * as bip39 from 'bip39';
-import DeviceInfo from 'react-native-device-info';
+
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
-import { setAppId } from '../reducers/storage';
 import { call, put } from 'redux-saga/effects';
-import { createWatcher } from '../utilities';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { RealmSchema } from 'src/storage/realm/enum';
-import dbManager from 'src/storage/realm/dbManager';
-import { WalletShell } from 'src/core/wallets/interfaces/wallet';
-import { addNewWallets } from '../sagaActions/wallets';
-import { newWalletInfo } from './wallets';
-import { WalletType } from 'src/core/wallets/enums';
 import { generateEncryptionKey, getRandomBytes } from 'src/core/services/operations/encryption';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+
 import BIP85 from 'src/core/wallets/operations/BIP85';
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { WalletType } from 'src/core/wallets/enums';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { addNewWallets } from '../sagaActions/wallets';
 import config from '../../core/config';
+import { createWatcher } from '../utilities';
 import crypto from 'crypto';
+import dbManager from 'src/storage/realm/dbManager';
+import { newWalletInfo } from './wallets';
+import { setAppId } from '../reducers/storage';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -56,9 +58,10 @@ function* setupKeeperAppWorker({ payload }) {
       },
       subscription: {
         productId: SubscriptionTier.PLEB,
-        name: SubscriptionTier.PLEB.toUpperCase(),
+        name: SubscriptionTier.PLEB,
       },
       version: DeviceInfo.getVersion(),
+      networkType: config.NETWORK_TYPE,
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
@@ -67,7 +70,7 @@ function* setupKeeperAppWorker({ payload }) {
     const defaultWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
-        name: 'Mobile Wallet',
+        name: 'Wallet 1',
         description: 'Single-sig bitcoin wallet',
       },
     };
@@ -120,6 +123,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
         name: subscription.name,
       },
       version: DeviceInfo.getVersion(),
+      networkType: config.NETWORK_TYPE,
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);

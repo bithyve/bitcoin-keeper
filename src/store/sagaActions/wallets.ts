@@ -27,6 +27,7 @@ export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
+export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -306,6 +307,16 @@ export const loginWithHexa = (authToken, walletName) => {
     payload: {
       authToken,
       walletName,
+    },
+  };
+};
+
+export const testSatsRecieve = (wallet: Wallet) => {
+  console.log('wallet', wallet);
+  return {
+    type: TEST_SATS_RECIEVE,
+    payload: {
+      wallet,
     },
   };
 };

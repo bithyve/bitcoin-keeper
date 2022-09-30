@@ -1,12 +1,13 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { APP_STAGE } from 'src/core/config';
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -14,6 +15,7 @@ import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -22,12 +24,14 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateMobileKey } from 'src/core/wallets/factories/VaultFactory';
+import config from 'src/core/config';
+import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
+import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
+import * as bip39 from 'bip39';
 
 const BulletPoint = ({ text }) => {
   return (
@@ -35,7 +39,7 @@ const BulletPoint = ({ text }) => {
       <Box
         style={{
           height: hp(5),
-          width: wp(5)
+          width: wp(5),
         }}
         backgroundColor={'light.modalText'}
         borderRadius={10}
@@ -93,16 +97,34 @@ const ColdCardSetupContent = () => {
           <Box mb={hp(19)} mx={wp(2)}>
             <Text>{'\u2022 Step 2'}</Text>
           </Box>
-          <Text
-            color={'#073B36'}
-            fontSize={13}
-            fontWeight={200}
-            letterSpacing={0.65}
-            style={{
-              marginLeft: wp(10),
-              width: wp(200),
-            }}
-          >
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
+          </Text>
+        </Box>
+      </Box>
+    </View>
+  );
+};
+const LedgerSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <LedgerImage />
+      </Box>
+      <Box marginTop={'4'} flex={1} alignItems={'center'} justifyContent={'center'}>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mr={wp(19)}>
+            <Text>{'\u2022'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
+            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </Text>
+        </Box>
+        <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
+          <Box mb={hp(19)} mr={wp(10)}>
+            <Text>{'\u2022'}</Text>
+          </Box>
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
             Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
           </Text>
         </Box>
@@ -114,7 +136,7 @@ const ColdCardSetupContent = () => {
 const SettingSigningServer = () => {
   return (
     <Box>
-      <AlertIllustration />
+      <SigningServerIllustration />
       <BulletPoint
         text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
       />
@@ -126,6 +148,20 @@ const SettingSigningServer = () => {
 };
 
 const SetUpMobileKey = () => {
+  return (
+    <Box>
+      <MobileKeyIllustration />
+      <BulletPoint
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+      />
+      <BulletPoint
+        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+      />
+    </Box>
+  );
+};
+
+const SetupSeedWords = () => {
   return (
     <Box>
       <AlertIllustration />
@@ -177,8 +213,23 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: {} }));
   };
 
+  const navigateToSeedWordSetup = () => {
+    close();
+    const mnemonic = bip39.generateMnemonic();
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'SetupSeedWordSigner',
+        params: {
+          seed: mnemonic,
+          next: true,
+          onSuccess: setupSeedWordsBasedKey,
+        },
+      })
+    );
+  };
+
   const setupMobileKey = async () => {
-    const networkType = APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
+    const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
       primaryMnemonic,
@@ -189,6 +240,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.MOBILE_KEY,
       signerName: 'Mobile Key',
+      storageType: SignerStorage.WARM,
       xpub,
       xpriv,
       xpubInfo: {
@@ -197,9 +249,33 @@ const HardwareModalMap = ({ type, visible, close }) => {
       },
       bip85Config,
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
     };
 
     dispatch(addSigningDevice(mobileKey));
+    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+  };
+
+  const setupSeedWordsBasedKey = (mnemonic) => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
+
+    const softSigner: VaultSigner = {
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      type: SignerType.SEED_WORDS,
+      storageType: SignerStorage.WARM,
+      signerName: 'Seed Words',
+      xpub,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+    };
+
+    dispatch(addSigningDevice(softSigner));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
@@ -300,11 +376,11 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={ledger.SetupDescription}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Setup'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToLedgerSetup}
         textColor={'#041513'}
-        Content={ColdCardSetupContent}
+        Content={LedgerSetupContent}
       />
       <KeeperModal
         visible={visible && type === SignerType.POLICY_SERVER}
@@ -345,6 +421,19 @@ const HardwareModalMap = ({ type, visible, close }) => {
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
         Content={passwordEnter}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.SEED_WORDS}
+        close={close}
+        title={'Setup Seed Words Based Signer'}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToSeedWordSetup}
+        textColor={'#041513'}
+        Content={SetupSeedWords}
       />
     </>
   );

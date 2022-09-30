@@ -1,7 +1,7 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
-import React, { useState } from 'react';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import React, { useEffect, useState } from 'react';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -11,10 +11,13 @@ import Header from 'src/components/Header';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
+import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -31,8 +34,13 @@ const AddSendAmount = ({ route }) => {
       recipients,
     });
   };
+  const { showToast } = useToastMessage();
 
   const executeSendPhaseOne = () => {
+    if (wallet.specs.balances.confirmed < Number(amount)) {
+      showToast('You have insuffecient balnce at this time.', null, 1000);
+      return;
+    }
     const recipients = [];
     recipients.push({
       address,
@@ -47,17 +55,23 @@ const AddSendAmount = ({ route }) => {
     navigateToNext(recipients);
   };
 
+  useEffect(() => {
+    return () => {
+      dispatch(sendPhaseOneReset());
+    };
+  }, []);
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
-          title="Sending to address"
-          subtitle="Lorem ipsum dolor sit amet,"
+          title={`Enter the amount`}
+          subtitle={`Sending to ${address}`}
           onPressHandler={() => navigation.goBack()}
         />
       </Box>
-      <Box
+      {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
         justifyContent={'space-between'}
@@ -93,8 +107,33 @@ const AddSendAmount = ({ route }) => {
           </Text>
         </Box>
         <DollarInput />
-      </Box>
+      </Box> */}
 
+      {/* { Transaction list} */}
+      <Box marginTop={hp(32)} marginBottom={hp(32)}>
+        <Transactions
+          transactions={[
+            {
+              address,
+              amount,
+            },
+          ]}
+          addTransaction={() => {}}
+        />
+      </Box>
+      <Box
+        alignItems={'center'}
+        style={{
+          marginBottom: hp(30),
+        }}
+      >
+        <Box
+          borderBottomColor={'light.Border'}
+          borderBottomWidth={1}
+          width={wp(280)}
+          opacity={0.1}
+        />
+      </Box>
       <Box marginX={3}>
         <Box
           flexDirection={'row'}
@@ -133,7 +172,6 @@ const AddSendAmount = ({ route }) => {
             />
           </Box>
           <Pressable
-            backgroundColor={'light.yellow1'}
             onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
             style={{
               paddingHorizontal: 10,
@@ -142,10 +180,10 @@ const AddSendAmount = ({ route }) => {
             }}
           >
             <Text
-              color={'light.textDark'}
-              fontSize={RFValue(11)}
+              color={'light.sendMax'}
+              fontSize={RFValue(12)}
               letterSpacing={0.6}
-              fontWeight={200}
+              fontWeight={300}
             >
               Send Max
             </Text>
@@ -162,15 +200,6 @@ const AddSendAmount = ({ route }) => {
           <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
         <Box marginTop={3} marginBottom={5} flexDirection={'row'} justifyContent={'flex-end'}>
-          <Box ml={windowWidth * -0.1}>
-            <Buttons
-              secondaryText={'Add Recipient'}
-              secondaryCallback={() => {
-                // navigation.navigate('SendConfirmation');
-                console.log('Batch Send');
-              }}
-            />
-          </Box>
           <Box ml={windowWidth * -0.09}>
             <Buttons
               secondaryText={'Cancel'}

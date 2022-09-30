@@ -212,6 +212,7 @@ export interface TwoFADetails {
 
 export interface SigningPayload {
   payloadTarget: SignerType;
+  inputs?: any;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;

@@ -1,18 +1,12 @@
-import React from 'react';
 import { Box, Text } from 'native-base';
-import Switch from '../../components/Switch/Switch';
+
 import { RFValue } from 'react-native-responsive-fontsize';
+import React from 'react';
+import Switch from '../../components/Switch/Switch';
 
 const SettingsSwitchCard = (props) => {
   return (
-    <Box
-      flexDirection={'row'}
-      justifyContent={'space-evenly'}
-      mx={7}
-      p={3}
-      borderRadius={10}
-      {...props}
-    >
+    <Box flexDirection={'row'} justifyContent={'space-evenly'} p={3} borderRadius={10} {...props}>
       <Box flex={0.9}>
         <Text
           color={'light.lightBlack'}

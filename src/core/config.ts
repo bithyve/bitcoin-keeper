@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
+import { NetworkType, WalletType } from './wallets/enums';
 import axios, { AxiosInstance } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
 import PersonalNode from '../common/data/models/PersonalNode';
 import { Platform } from 'react-native';
-import { WalletType } from './wallets/enums';
 import _ from 'lodash';
 import config from 'react-native-config';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
-  STAGING = 'STAGING',
   PRODUCTION = 'PRODUCTION',
 }
 
@@ -23,16 +22,16 @@ export enum BITCOIN_NETWORK {
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
-  BITCOIN_NETWORK: BITCOIN_NETWORK.MAINNET,
-  APP_STAGE: APP_STAGE.STAGING,
+  BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
   TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
   MAINNET_WRAPPER: 'https://api.bithyve.com',
-  RELAY: 'https://dev-relay.bithyve.com/',
+  RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
   SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
   AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
+  ENVIRONMENT: APP_STAGE.DEVELOPMENT,
 };
 
 class Configuration {
@@ -87,7 +86,7 @@ class Configuration {
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
     headers: {
-      'HEXA-ID': config.HEXA_ID,
+      'HEXA-ID': config.HEXA_ID ? config.HEXA_ID : DEFAULT_CONFIG.HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
       os: Platform.OS,
@@ -99,14 +98,13 @@ class Configuration {
   });
 
   public NETWORK: bitcoinJS.Network;
-  public APP_STAGE: string;
+  public NETWORK_TYPE: NetworkType;
+  public ENVIRONMENT: string;
 
-  constructor(env: BITCOIN_NETWORK) {
-    this.NETWORK =
-      env.trim() === BITCOIN_NETWORK.MAINNET
-        ? bitcoinJS.networks.bitcoin
-        : bitcoinJS.networks.testnet;
-    this.APP_STAGE = config.ENVIRONMENT ? config.ENVIRONMENT.trim() : DEFAULT_CONFIG.APP_STAGE;
+  constructor() {
+    this.NETWORK = bitcoinJS.networks.testnet;
+    this.NETWORK_TYPE = NetworkType.TESTNET;
+    this.ENVIRONMENT = config.ENVIRONMENT ? config.ENVIRONMENT : DEFAULT_CONFIG.ENVIRONMENT;
   }
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {
@@ -168,8 +166,12 @@ class Configuration {
     this.ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS);
     this.USE_ESPLORA_FALLBACK = false;
   };
+
+  public setNetwork = (network: NetworkType) => {
+    const isTestnet = network === NetworkType.TESTNET;
+    this.NETWORK_TYPE = network;
+    this.NETWORK = isTestnet ? bitcoinJS.networks.testnet : bitcoinJS.networks.bitcoin;
+  };
 }
 
-export default new Configuration(
-  (config.BITCOIN_NETWORK as BITCOIN_NETWORK) || DEFAULT_CONFIG.BITCOIN_NETWORK
-);
+export default new Configuration();

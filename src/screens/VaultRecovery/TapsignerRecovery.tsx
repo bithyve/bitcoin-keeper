@@ -13,11 +13,12 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { wp } from 'src/common/data/responsiveness/responsive';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const TapSignerRecovery = () => {
   const [cvc, setCvc] = React.useState('');
@@ -56,9 +57,7 @@ const TapSignerRecovery = () => {
   const verifyTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      const networkType =
-        config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
-      const network = WalletUtilities.getNetworkByType(networkType);
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
       const sigingDeivceDetails: SigningDeviceRecovery = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(tapsigner.xpub, network),
         xpub: tapsigner.xpub,
@@ -92,9 +91,38 @@ const TapSignerRecovery = () => {
     return signerDetails;
   };
 
+  const getMockTapsignerDetails = () => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.TAPSIGNER,
+      networkType
+    );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    const tapsigner: SigningDeviceRecovery = {
+      signerId,
+      type: SignerType.TAPSIGNER,
+      xpub,
+    };
+    return tapsigner;
+  };
+
+  const addMockTapsigner = React.useCallback(async () => {
+    try {
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockTapsigner: SigningDeviceRecovery = getMockTapsignerDetails();
+        dispatch(setSigningDevices(mockTapsigner));
+        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      }
+    } catch (err) {
+      Alert.alert(err.toString());
+    }
+  }, [cvc]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <TapGestureHandler>
+      <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle

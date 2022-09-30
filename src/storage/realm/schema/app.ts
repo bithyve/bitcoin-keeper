@@ -1,13 +1,13 @@
 import { ObjectSchema } from 'realm';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { RealmSchema } from '../enum';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 export const StoreSubscriptionSchema: ObjectSchema = {
   name: RealmSchema.StoreSubscription,
   properties: {
     name: {
       type: 'string',
-      default: SubscriptionTier.PLEB.toUpperCase(),
+      default: SubscriptionTier.PLEB,
     },
     productId: {
       type: 'string',
@@ -34,6 +34,7 @@ export const KeeperAppSchema: ObjectSchema = {
     twoFADetails: `${RealmSchema.TwoFADetails}?`,
     nodeConnect: `${RealmSchema.NodeConnect}?`,
     uai: `${RealmSchema.UAI}?`,
+    notification: `${RealmSchema.Notification}?`,
     subscription: {
       type: RealmSchema.StoreSubscription,
     },
@@ -50,6 +51,7 @@ export const KeeperAppSchema: ObjectSchema = {
       type: 'string?',
       default: '',
     },
+    networkType: 'string',
   },
   primaryKey: 'id',
 };

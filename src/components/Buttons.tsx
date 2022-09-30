@@ -1,8 +1,8 @@
 import { Text, View } from 'native-base';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
+// import {
+//   heightPercentageToDP as hp,
+//   widthPercentageToDP as wp,
+// } from 'react-native-responsive-screen';
 
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -10,20 +10,21 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 import { TouchableOpacity } from 'react-native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const Buttons = ({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => {},
-  secondaryCallback = () => {},
+  primaryCallback = () => { },
+  secondaryCallback = () => { },
   primaryDisable = false,
   secondaryDisable = false,
 }) => {
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 20 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: 20 }}>
       {secondaryText != '' && (
         <TouchableOpacity
-          style={{ ...styles.cancelBtn, opacity: secondaryDisable ? 0.5 : 1 }}
+          style={[styles.cancelBtn, { opacity: secondaryDisable ? 0.5 : 1 }]}
           onPress={secondaryCallback}
           disabled={secondaryDisable}
           activeOpacity={0.5}
@@ -44,14 +45,10 @@ const Buttons = ({
         </TouchableOpacity>
       )}
       {primaryText != '' && (
-        <TouchableOpacity
-          onPress={primaryCallback}
-          disabled={primaryDisable}
-          style={{ maxWidth: '50%' }}
-        >
+        <TouchableOpacity onPress={primaryCallback} disabled={primaryDisable}>
           <Shadow distance={10} startColor={'#073E3926'} offset={[3, 4]}>
             <LinearGradient
-              style={{ ...styles.createBtn, opacity: primaryDisable ? 0.5 : 1 }}
+              style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1 }]}
               start={{ x: 0, y: 0.75 }}
               end={{ x: 1, y: 0.25 }}
               colors={['#00836A', '#073E39']}
@@ -79,15 +76,13 @@ const Buttons = ({
 
 const styles = ScaledSheet.create({
   createBtn: {
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(2),
+    paddingHorizontal: wp(40),
+    paddingVertical: hp(15),
     borderRadius: '10@s',
   },
   cancelBtn: {
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(2.3),
+    marginRight: wp(20),
     borderRadius: '10@s',
-    maxWidth: '60%',
   },
 });
 export default Buttons;

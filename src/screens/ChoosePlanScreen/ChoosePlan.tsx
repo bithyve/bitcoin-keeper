@@ -16,6 +16,9 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import BackIcon from 'src/assets/icons/back.svg';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
+import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
 import Hodler from 'src/assets/images/svgs/ic_hodler.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -25,10 +28,9 @@ import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { Subscription } from 'react-native-iap';
-import Whale from 'src/assets/images/svgs/ic_whale.svg';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
 import dbManager from 'src/storage/realm/dbManager';
 
 const plans = [
@@ -41,8 +43,8 @@ const plans = [
       'Air-gapped Vault (single-sig)',
       'Community support',
     ],
-    name: 'PLEB',
-    productId: 'pleb',
+    name: 'Pleb',
+    productId: 'Pleb',
     productType: 'free',
     subTitle: 'Always free',
     icon: <Pleb />,
@@ -71,8 +73,8 @@ const plans = [
       'Dedicated email support',
     ],
     subTitle: 'Includes Inheritance',
-    icon: <Whale />,
-    iconFocused: <WhaleFocused />,
+    icon: <DiamondHands />,
+    iconFocused: <DiamondHandsFocused />,
     price: '',
   },
 ];
@@ -152,7 +154,7 @@ const ChoosePlan = (props) => {
           ...subscription,
           ...plans[index + 1],
           price: getAmt(subscription),
-          name: subscription.title,
+          name: subscription.title.split(' (')[0],
         });
       });
       setItems([...data]);
@@ -165,6 +167,16 @@ const ChoosePlan = (props) => {
 
   async function processSubscription(subscription: Subscription) {
     try {
+      const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+      const sub: SubScription = {
+        productId: subscription.productId,
+        receipt: 'mock-purchase',
+        name: subscription.name.split(' (')[0],
+      };
+      dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+        subscription: sub,
+      });
+      return;
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
         const sub: SubScription = {
@@ -200,34 +212,16 @@ const ChoosePlan = (props) => {
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#F7F2EC',
-      }}
-    >
-      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box height={'20%'} mt={4}>
-        <Box mx={7} my={5}>
-          <TouchableOpacity onPress={() => props.navigation.goBack()}>
-            <BackIcon />
-          </TouchableOpacity>
-        </Box>
-        <Box ml={10} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-          <Box w={'60%'}>
-            <Text fontSize={RFValue(20)} color={'light.textBlack'} fontFamily={'heading'}>
-              {choosePlan.choosePlantitle}
-            </Text>
-            <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
-              {choosePlan.choosePlanSubTitle}{' '}
-            </Text>
-          </Box>
-        </Box>
-      </Box>
+    <ScreenWrapper barStyle="dark-content">
+      <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
+
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <ScrollView style={{ height: '70%' }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ height: '70%', marginVertical: 20 }}
+        >
           <ChoosePlanCarousel
             data={items}
             onPress={async (item) => processSubscription(item)}
@@ -263,11 +257,10 @@ const ChoosePlan = (props) => {
           </Box>
         </ScrollView>
       )}
-
-      <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
+      <Box height={'10%'} justifyContent={'flex-end'} pt={1}>
         <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
       </Box>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 export default ChoosePlan;

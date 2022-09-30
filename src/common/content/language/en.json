@@ -340,7 +340,9 @@
     "Associate": "Associate",
     "CardStatus": "Card Status",
     "SetupTitle": "Setting up Ledger",
-    "SetupDescription": "Keep your Nano X ready before proceeding"
+    "SetupDescription": "Keep your Nano X ready before proceeding",
+    "ScanningBT": "Scanning for bluetooth",
+    "KeepLedgerReady": "Keep your Ledger ready before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",
@@ -428,7 +430,7 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store. After trail period the subscription auto renews monthly"
+    "noteSubTitle": "The subscription should be confirmed on the Play/ App Store. After trail period the subscription auto renews monthly"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Seed Words",

@@ -46,7 +46,7 @@ import VaultImage from 'src/assets/images/Vault.png';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
-import WhaleFocused from 'src/assets/images/svgs/ic_whale_focused.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -56,6 +56,7 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import { walletData } from 'src/common/data/defaultData/defaultData';
 import Chain from 'src/assets/icons/illustration_homescreen.svg';
+import { getAmount } from 'src/common/constants/Bitcoin';
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -183,7 +184,7 @@ const LinkedWallets = (props) => {
                 <BTC />
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
-                {netBalance}
+                {getAmount(netBalance)}
               </Text>
             </Box>
           ) : (
@@ -274,7 +275,7 @@ const VaultStatus = (props) => {
       case TorStatus.OFF:
         return 'Tor disabled';
       case TorStatus.CONNECTING:
-        return 'Tor connecting...';
+        return 'Connecting to Tor';
       case TorStatus.CONNECTED:
         return 'Tor enabled';
       case TorStatus.ERROR:
@@ -287,15 +288,15 @@ const VaultStatus = (props) => {
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'yellow.400';
+        return '#fac48b';
       case TorStatus.CONNECTING:
-        return 'orange.400';
+        return '#fac48b';
       case TorStatus.CONNECTED:
-        return 'green.400';
+        return '#c6ecae';
       case TorStatus.ERROR:
         return 'red.400';
       default:
-        return 'yellow.400';
+        return '#fac48b';
     }
   }, [torStatus]);
 
@@ -310,14 +311,15 @@ const VaultStatus = (props) => {
             justifyContent={'center'}
             alignItems={'center'}
             marginTop={hp(30)}
-            paddingX={1}
+            paddingX={2}
           >
             <Text
               color={'light.lightBlack'}
               letterSpacing={1}
-              fontSize={hp(11)}
+              fontSize={11}
               fontWeight={300}
               textAlign={'center'}
+              textTransform="uppercase"
             >
               {getTorStatusText}
             </Text>
@@ -385,7 +387,7 @@ const VaultStatus = (props) => {
                     fontSize={hp(34)}
                     fontWeight={200}
                   >
-                    {vaultBalance}
+                    {getAmount(vaultBalance)}
                   </Text>
                 ) : (
                   <Hidden />
@@ -422,6 +424,7 @@ const VaultStatus = (props) => {
         textColor={'#FFF'}
         Content={VaultSetupContent}
         DarkCloseIcon={true}
+        learnMore={true}
       />
     </Box>
   );
@@ -465,8 +468,8 @@ const VaultInfo = () => {
   };
 
   function getPlanIcon() {
-    if (subscription.name.toLowerCase().includes('whale')) {
-      return <WhaleFocused />;
+    if (subscription.name.toLowerCase().includes('diamond')) {
+      return <DiamondHandsFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;
     } else {
@@ -497,7 +500,7 @@ const VaultInfo = () => {
             {getPlanIcon()}
             <Box
               backgroundColor="#015A53"
-              borderWidth={0.4}
+              borderWidth={0.8}
               borderRightRadius={15}
               paddingX={1}
               marginX={-2}

@@ -18,6 +18,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { Pressable } from 'react-native';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import Relay from 'src/core/services/operations/Relay';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -33,7 +34,7 @@ import { useDispatch } from 'react-redux';
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
@@ -46,10 +47,15 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
   }
 };
 
+export const checkSigningDevice = async (id) => {
+  const exisits = await Relay.getSignerIdInfo(id);
+  return exisits;
+};
+
 const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
   const currentSignerLimit = subscriptionScheme.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
@@ -68,6 +74,7 @@ const AddSigningDevice = () => {
     if (activeVault) {
       dispatch(addSigningDevice(activeVault.signers));
     }
+    checkSigningDevice('7FBC64C9');
   }, []);
 
   useEffect(() => {
@@ -124,7 +131,7 @@ const AddSigningDevice = () => {
   };
 
   const onProceed = () => {
-    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (activeVault) {
       const newVaultInfo: newVaultInfo = {
         vaultType: VaultType.DEFAULT,
@@ -139,7 +146,11 @@ const AddSigningDevice = () => {
     } else {
       const freshVault = createVault(signersState, currentScheme);
       if (freshVault && !activeVault) {
-        navigation.dispatch(CommonActions.navigate('NewHome'));
+        const navigationState = {
+          index: 1,
+          routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
+        };
+        navigation.dispatch(CommonActions.reset(navigationState));
       }
     }
   };

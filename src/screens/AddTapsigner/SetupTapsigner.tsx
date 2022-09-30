@@ -1,9 +1,13 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';
+import {
+  generateMockExtendedKey,
+  generateMockExtendedKeyForSigner,
+} from 'src/core/wallets/factories/VaultFactory';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -16,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
@@ -56,14 +60,14 @@ const SetupTapsigner = () => {
   };
 
   const getTapsignerDetails = async () => {
-    const signerDetails = await withModal(async () => {
+    const { xpub, derivationPath, xfp } = await withModal(async () => {
       const status = await card.first_look();
       const isLegit = await card.certificate_check();
       if (isLegit) {
         if (status.path) {
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
-          return { xpub, status, xfp: xfp.toString('hex') };
+          return { xpub, xfp: xfp.toString('hex'), derivationPath: status.path };
         } else {
           await card.setup(cvc);
           const newCard = await card.first_look();
@@ -73,16 +77,16 @@ const SetupTapsigner = () => {
         }
       }
     })();
-    return signerDetails;
-  };
-
-  const saveTapsigner = (tapsignerData) => {
-    const { xpub, derivationPath, xfp } = tapsignerData;
-    const networkType =
-      config.APP_STAGE === APP_STAGE.DEVELOPMENT ? NetworkType.TESTNET : NetworkType.MAINNET;
-    const network = WalletUtilities.getNetworkByType(networkType);
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      // AMF flow
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
+      const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+      return getMockTapsignerDetails({ signerId, xpub });
+    }
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const signer: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      signerId,
       type: SignerType.TAPSIGNER,
       signerName: 'Tapsigner',
       xpub,
@@ -91,47 +95,60 @@ const SetupTapsigner = () => {
         xfp,
       },
       lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      storageType: SignerStorage.COLD,
     };
-    dispatch(addSigningDevice(signer));
+
+    return signer;
   };
 
   const addTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      saveTapsigner(tapsigner);
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
       Alert.alert(err.toString());
     }
   }, [cvc]);
 
+  const getMockTapsignerDetails = (amfData = null) => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.TAPSIGNER,
+      networkType
+    );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    const tapsigner: VaultSigner = {
+      signerId,
+      type: SignerType.TAPSIGNER,
+      signerName: 'Tapsigner (Mock)',
+      isMock: true,
+      xpub,
+      xpriv,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+      storageType: SignerStorage.COLD,
+    };
+    if (amfData) {
+      tapsigner.amfData = amfData;
+    }
+    return tapsigner;
+  };
+
   const addMockTapsigner = React.useCallback(async () => {
     try {
-      if (config.APP_STAGE === APP_STAGE.DEVELOPMENT) {
-        const networkType = NetworkType.TESTNET;
-        const network = WalletUtilities.getNetworkByType(networkType);
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKey(
-          EntityKind.VAULT
-        );
-        // const xpub =
-        //   'tpubDF6L55YJ8AkuwkWwpdY87eJyUUHNu2PGHkXCNj7BuJQWcj2toFBDhAZJTU248AXMcMgi7fACLidVt9j35SfsANLensD5uUdQuPxjZvGDNWZ';
-        // const xpriv =
-        //   'tprv8iQHvfW3yo5F4HV9vysXiEeruSmSjhCMiSvR6D4tV2c7nEn8ArMdWfwSHJTiZNqH2TqgzJmj8EhJJf3BQwPhHs4qSuieY63Vc2QxRnmbu2d';
-        // const masterFingerprint = '7A5C570E';
-        // const derivationPath = "m/48'/1'/800859'/1'"; // bip48/testnet/account/script/
-        const tapsigner: VaultSigner = {
-          signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-          type: SignerType.TAPSIGNER,
-          signerName: 'Tapsigner (Mock)',
-          xpub,
-          xpriv,
-          xpubInfo: {
-            derivationPath,
-            xfp: masterFingerprint,
-          },
-          lastHealthCheck: new Date(),
-        };
-        dispatch(addSigningDevice(tapsigner));
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockTapsigner = getMockTapsignerDetails();
+        dispatch(addSigningDevice(mockTapsigner));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     } catch (err) {
@@ -157,7 +174,6 @@ const SetupTapsigner = () => {
               onChangeText={setCvc}
               secureTextEntry={true}
               showSoftInputOnFocus={false}
-
             />
             <Text
               padding={5}

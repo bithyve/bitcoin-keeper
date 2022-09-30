@@ -18,6 +18,7 @@ import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWa
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
+import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -32,9 +33,11 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
+import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
+import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
@@ -43,6 +46,7 @@ import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
+import VaultSettings from 'src/screens/Vault/VaultSettings';
 import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
@@ -141,8 +145,12 @@ const AppStack = () => {
         <Stack.Screen name="SignTransactionScreen" component={SignTransactionScreen} />
         <Stack.Screen name="AddSigningDevice" component={AddSigningDevice} />
         <Stack.Screen name="SetupSigningServer" component={SetupSigningServer} />
+        <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
+        <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
+        <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
+        <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
       </Stack.Navigator>
     </RealmProvider>
   );
