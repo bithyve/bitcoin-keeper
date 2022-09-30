@@ -21,12 +21,13 @@ const KeeperModal = (props) => {
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
+    subTitleColor = textColor,
     DarkCloseIcon = false,
     Content = () => <></>,
     dismissible = true,
     showButtons = true,
     learnMore = false,
-    learnMoreCallback = () => {},
+    learnMoreCallback = () => { },
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -63,8 +64,8 @@ const KeeperModal = (props) => {
               <Text
                 style={styles.subTitle}
                 fontFamily={'body'}
-                fontWeight={'100'}
-                color={textColor}
+                fontWeight={'200'}
+                color={subTitleColor}
               >
                 {subTitle}
               </Text>

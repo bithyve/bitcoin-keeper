@@ -275,7 +275,7 @@ const VaultStatus = (props) => {
       case TorStatus.OFF:
         return 'Tor disabled';
       case TorStatus.CONNECTING:
-        return 'Tor connecting...';
+        return 'Connecting to Tor';
       case TorStatus.CONNECTED:
         return 'Tor enabled';
       case TorStatus.ERROR:
@@ -288,15 +288,15 @@ const VaultStatus = (props) => {
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'yellow.400';
+        return '#fac48b';
       case TorStatus.CONNECTING:
-        return 'orange.400';
+        return '#fac48b';
       case TorStatus.CONNECTED:
-        return 'green.400';
+        return '#c6ecae';
       case TorStatus.ERROR:
         return 'red.400';
       default:
-        return 'yellow.400';
+        return '#fac48b';
     }
   }, [torStatus]);
 
@@ -311,14 +311,15 @@ const VaultStatus = (props) => {
             justifyContent={'center'}
             alignItems={'center'}
             marginTop={hp(30)}
-            paddingX={1}
+            paddingX={2}
           >
             <Text
               color={'light.lightBlack'}
               letterSpacing={1}
-              fontSize={hp(11)}
+              fontSize={11}
               fontWeight={300}
               textAlign={'center'}
+              textTransform="uppercase"
             >
               {getTorStatusText}
             </Text>
@@ -467,7 +468,7 @@ const VaultInfo = () => {
   };
 
   function getPlanIcon() {
-    if (subscription.name.toLowerCase().includes('whale')) {
+    if (subscription.name.toLowerCase().includes('diamond')) {
       return <DiamondHandsFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;

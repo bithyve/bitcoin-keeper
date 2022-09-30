@@ -23,12 +23,16 @@ const ChoosePlanCarousel = (props) => {
 
   const getBtnTitle = (item) => {
     if (item.productId === SubscriptionTier.PLEB) {
-      return "Downgrade"
-    } if (item.name.split(' ')[0] === SubscriptionTier.HODLER && subscription.name === SubscriptionTier.WHALE) {
-      return "Downgrade"
+      return 'Downgrade';
     }
-    return "Upgrade"
-  }
+    if (
+      item.name.split(' ')[0] === SubscriptionTier.HODLER &&
+      subscription.name === SubscriptionTier.DIAMOND_HANDS
+    ) {
+      return 'Downgrade';
+    }
+    return 'Upgrade';
+  };
 
   const _renderItem = ({ item, index }) => {
     return (
@@ -66,7 +70,7 @@ const ChoosePlanCarousel = (props) => {
           <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
             / month
           </Text>
-          {(subscription.productId !== item.productId) ? (
+          {subscription.productId !== item.productId ? (
             <Box mt={10}>
               <CustomYellowButton onPress={() => props.onPress(item)} value={getBtnTitle(item)} />
             </Box>

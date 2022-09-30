@@ -43,8 +43,8 @@ const plans = [
       'Air-gapped Vault (single-sig)',
       'Community support',
     ],
-    name: 'PLEB',
-    productId: 'pleb',
+    name: 'Pleb',
+    productId: 'Pleb',
     productType: 'free',
     subTitle: 'Always free',
     icon: <Pleb />,
@@ -154,7 +154,7 @@ const ChoosePlan = (props) => {
           ...subscription,
           ...plans[index + 1],
           price: getAmt(subscription),
-          name: subscription.title,
+          name: subscription.title.split(' (')[0],
         });
       });
       setItems([...data]);
@@ -171,12 +171,12 @@ const ChoosePlan = (props) => {
       const sub: SubScription = {
         productId: subscription.productId,
         receipt: 'mock-purchase',
-        name: subscription.name.split(' ')[0],
+        name: subscription.name.split(' (')[0],
       };
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
       });
-      return
+      return;
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
         const sub: SubScription = {
@@ -218,7 +218,10 @@ const ChoosePlan = (props) => {
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} style={{ height: '70%', marginVertical: 20 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ height: '70%', marginVertical: 20 }}
+        >
           <ChoosePlanCarousel
             data={items}
             onPress={async (item) => processSubscription(item)}
