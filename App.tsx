@@ -32,7 +32,7 @@ const App = () => {
 
   useEffect(() => {
     Sentry.init(sentryConfig);
-    Instabug.start('d68ca4d54b1cccbf5916086af360edec', [Instabug.invocationEvent.shake]);
+    Instabug.start('d68ca4d54b1cccbf5916086af360edec', [Instabug.invocationEvent.shake, Instabug.invocationEvent.screenshot]);
   }, [])
 
 
