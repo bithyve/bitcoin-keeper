@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import SettingsModalMap from './SettingsModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -48,8 +49,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -322,6 +323,7 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Box>
       </Box>
+      <SettingsModalMap visible={true} close={() => { }} type={''} />
     </ScreenWrapper>
   );
 };
