@@ -1,18 +1,16 @@
-import { Alert, NativeModules, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
+import { Alert, NativeModules } from 'react-native';
+import { Box, Pressable, ScrollView, Text, useColorMode } from 'native-base';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import SettingsModalMap from './SettingsModalMap';
+import TorModalMap from './TorModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -20,6 +18,8 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { setTorEnabled } from 'src/store/reducers/settings';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const GoogleDrive = NativeModules.GoogleDrive;
@@ -36,10 +36,31 @@ const AppSettings = ({ navigation }) => {
   const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
   const { settings } = translations;
+  const [showTorModal, setShowTorModal] = useState(false);
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+
+  const onChangeTorStatus = (status: TorStatus, message) => {
+    settorStatus(status);
+  };
+
+  useEffect(() => {
+    RestClient.subToTorStatus(onChangeTorStatus);
+    return () => {
+      RestClient.unsubscribe(onChangeTorStatus);
+    };
+  }, []);
 
   useEffect(() => {
     init();
   }, []);
+
+  const RenderTorStatus = useCallback(() => {
+    return (
+      <Box backgroundColor="#E3BE96" py={0.5} px={1.5} borderRadius={10}>
+        <Text fontSize={11}>{torStatus}</Text>
+      </Box>
+    );
+  }, [torStatus]);
 
   const init = async () => {
     try {
@@ -49,8 +70,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -166,6 +187,18 @@ const AppSettings = ({ navigation }) => {
     );
   };
 
+  const onPressTor = () => {
+    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
+      setShowTorModal(true);
+      RestClient.setUseTor(true);
+      dispatch(setTorEnabled(true));
+    } else {
+      RestClient.setUseTor(false);
+      dispatch(setTorEnabled(false));
+      setShowTorModal(false);
+    }
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
@@ -232,7 +265,8 @@ const AppSettings = ({ navigation }) => {
             my={2}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => navigation.navigate('TorSettings')}
+            onPress={onPressTor}
+            renderStatus={torStatus === TorStatus.OFF ? null : RenderTorStatus}
           />
           <SettingsCard
             title={settings.LanguageCountry}
@@ -323,7 +357,11 @@ const AppSettings = ({ navigation }) => {
           </Box>
         </Box>
       </Box>
-      <SettingsModalMap visible={true} close={() => { }} type={''} />
+      <TorModalMap
+        onPressTryAgain={onPressTor}
+        visible={showTorModal}
+        close={() => setShowTorModal(false)}
+      />
     </ScreenWrapper>
   );
 };
