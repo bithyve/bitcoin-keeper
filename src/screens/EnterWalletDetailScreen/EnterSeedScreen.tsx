@@ -252,8 +252,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid == true
                           ? {
-                              borderColor: '#F58E6F',
-                            }
+                            borderColor: '#F58E6F',
+                          }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -276,6 +276,11 @@ const EnterSeedScreen = () => {
                           data[index].invalid = true;
                           setSeedData(data);
                         }
+                      }}
+                      onFocus={() => {
+                        const data = [...seedData];
+                        data[index].invalid = false;
+                        setSeedData(data);
                       }}
                     />
                   </View>
