@@ -74,7 +74,8 @@ export const customTheme = extendTheme({
       indicator: '#F86B50',
       addTransactionText: '#252C23',
       sendMax: '#453228',
-      inActiveMsg: '#959595'
+      inActiveMsg: '#959595',
+      vaultCardText: '#FFE5C6'
     },
     dark: {
       black: '#000000',
