@@ -6,6 +6,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
+import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -32,6 +33,28 @@ import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
+
+const SetupSuccessfully = () => {
+  return (
+    <Box width={wp(270)}>
+      <Box alignItems={'center'}>
+        <SuccessIllustration />
+      </Box>
+      <Box marginTop={hp(0)}>
+        <Text
+          color={'light.modalText'}
+          fontSize={13}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+          letterSpacing={0.65}
+        >
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+        </Text>
+      </Box>
+    </Box>
+  );
+};
 
 const BulletPoint = ({ text }) => {
   return (
@@ -434,6 +457,20 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonCallback={navigateToSeedWordSetup}
         textColor={'#041513'}
         Content={SetupSeedWords}
+      />
+      <KeeperModal
+        visible={false}
+        close={close}
+        title={'Signing Server Setup Successfully'}
+        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'View Vault'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={() => { console.log('View Vault') }}
+        textColor={'#041513'}
+        Content={SetupSuccessfully}
       />
     </>
   );
