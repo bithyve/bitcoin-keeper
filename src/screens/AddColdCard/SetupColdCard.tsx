@@ -91,7 +91,7 @@ const SetupColdCard = () => {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.COLDCARD,
           isMock: true,
-          signerName: 'Mk4 (Mock)',
+          signerName: 'Mk4**',
           xpub,
           xpriv,
           xpubInfo: {
