@@ -495,6 +495,8 @@ PODS:
     - React-Core
   - RNIap (9.0.1):
     - React-Core
+  - RNInstabug (11.2.0):
+    - React
   - RNKeychain (8.1.1):
     - React-Core
   - RNLocalize (2.2.2):
@@ -634,6 +636,7 @@ DEPENDENCIES:
   - RNFileViewer (from `../node_modules/react-native-file-viewer`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNIap (from `../node_modules/react-native-iap`)
+  - RNInstabug (from `../node_modules/instabug-reactnative`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNOS (from `../node_modules/react-native-os`)
@@ -791,6 +794,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNIap:
     :path: "../node_modules/react-native-iap"
+  RNInstabug:
+    :path: "../node_modules/instabug-reactnative"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
@@ -897,6 +902,7 @@ SPEC CHECKSUMS:
   RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
   RNIap: 73f0114671e9a3879bde4b9b3914359e96ba1493
+  RNInstabug: 7c6c25176a8fca8f6269031c9ef93629d6cc1804
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027

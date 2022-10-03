@@ -126,7 +126,7 @@ const SetupTapsigner = () => {
     const tapsigner: VaultSigner = {
       signerId,
       type: SignerType.TAPSIGNER,
-      signerName: 'Tapsigner (Mock)',
+      signerName: 'Tapsigner**',
       isMock: true,
       xpub,
       xpriv,
@@ -140,6 +140,7 @@ const SetupTapsigner = () => {
     };
     if (amfData) {
       tapsigner.amfData = amfData;
+      tapsigner.signerName = 'Tapsigner*';
     }
     return tapsigner;
   };
