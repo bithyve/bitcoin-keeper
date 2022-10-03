@@ -1,9 +1,9 @@
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
 import { Box, StatusBar, Text } from 'native-base';
 import RNIap, {
@@ -12,9 +12,7 @@ import RNIap, {
   purchaseUpdatedListener,
   requestSubscription,
 } from 'react-native-iap';
-import React, { useContext, useEffect, useState } from 'react';
-
-import BackIcon from 'src/assets/icons/back.svg';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
 import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
@@ -32,6 +30,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { Subscription } from 'react-native-iap';
 import dbManager from 'src/storage/realm/dbManager';
+import TierUpgradeModal from './TierUpgradeModal';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 const plans = [
   {
@@ -85,6 +85,10 @@ const ChoosePlan = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [isUpgrade, setIsUpgrade] = useState(false)
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   useEffect(() => {
     let purchaseUpdateSubscription;
@@ -165,17 +169,28 @@ const ChoosePlan = (props) => {
     }
   }
 
-  async function processSubscription(subscription: Subscription) {
+  async function processSubscription(item: Subscription) {
     try {
       const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const sub: SubScription = {
-        productId: subscription.productId,
+        productId: item.productId,
         receipt: 'mock-purchase',
-        name: subscription.name.split(' (')[0],
+        name: item.name.split(' (')[0],
       };
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
       });
+      if (item.productId === SubscriptionTier.PLEB) {
+        setIsUpgrade(false)
+      } else if (
+        item.name.split(' ')[0] === SubscriptionTier.HODLER &&
+        subscription.name === SubscriptionTier.DIAMOND_HANDS
+      ) {
+        setIsUpgrade(false)
+      } else {
+        setIsUpgrade(true)
+      }
+      setShowUpgradeModal(true)
       return;
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
@@ -211,10 +226,20 @@ const ChoosePlan = (props) => {
     }
   }
 
+  const onPressModalBtn = () => {
+    setShowUpgradeModal(false)
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
 
+      <TierUpgradeModal
+        visible={showUpgradeModal}
+        close={() => setShowUpgradeModal(false)}
+        onPress={onPressModalBtn}
+        isUpgrade={isUpgrade}
+      />
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
