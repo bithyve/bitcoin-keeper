@@ -54,6 +54,7 @@ import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import ChoosePolicy from 'src/screens/Vault/ChoosePolicy';
 import SetExceptions from 'src/screens/Vault/SetExceptions';
+import SigningServer from 'src/screens/Vault/SigningServer';
 import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
@@ -157,6 +158,7 @@ const AppStack = () => {
         <Stack.Screen name="ChoosePolicy" component={ChoosePolicy} />
         <Stack.Screen name="SetExceptions" component={SetExceptions} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
+        <Stack.Screen name="SigningServer" component={SigningServer} />
       </Stack.Navigator>
     </RealmProvider>
   );
