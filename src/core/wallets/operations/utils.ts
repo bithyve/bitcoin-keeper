@@ -21,6 +21,7 @@ import {
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+import RestClient from 'src/core/services/rest/RestClient';
 import { Vault } from '../interfaces/vault';
 import { Wallet } from '../interfaces/wallet';
 import WalletOperations from '.';
@@ -33,12 +34,6 @@ import idx from 'idx';
 const ECPair = ECPairFactory(ecc);
 
 const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
-const accAxios: AxiosInstance = axios.create({
-  timeout: REQUEST_TIMEOUT * 3,
-  headers: {
-    HEXA_ID: config.HEXA_ID,
-  },
-});
 
 export default class WalletUtilities {
   static networkType = (scannedStr: string): NetworkType => {
@@ -93,7 +88,7 @@ export default class WalletUtilities {
     entity: EntityKind,
     type: NetworkType,
     accountNumber: number = 0,
-    purpose: DerivationPurpose = DerivationPurpose.BIP49,
+    purpose: DerivationPurpose = DerivationPurpose.BIP84,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
   ): string => {
     const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
@@ -109,10 +104,10 @@ export default class WalletUtilities {
   static deriveAddressFromKeyPair = (
     keyPair: bip32.BIP32Interface | ECPairInterface,
     network: bitcoinJS.Network,
-    purpose: DerivationPurpose = DerivationPurpose.BIP49
+    purpose: DerivationPurpose = DerivationPurpose.BIP84
   ): string => {
-    if (purpose === DerivationPurpose.BIP44) {
-      return bitcoinJS.payments.p2pkh({
+    if (purpose === DerivationPurpose.BIP84) {
+      return bitcoinJS.payments.p2wpkh({
         pubkey: keyPair.publicKey,
         network,
       }).address;
@@ -124,8 +119,8 @@ export default class WalletUtilities {
         }),
         network,
       }).address;
-    } else if (purpose === DerivationPurpose.BIP84) {
-      return bitcoinJS.payments.p2wpkh({
+    } else if (purpose === DerivationPurpose.BIP44) {
+      return bitcoinJS.payments.p2pkh({
         pubkey: keyPair.publicKey,
         network,
       }).address;
@@ -269,6 +264,14 @@ export default class WalletUtilities {
     return childXKey.toBase58();
   };
 
+  static getNetworkFromXpub = (xpub: string) => {
+    if (xpub) {
+      return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
+        ? NetworkType.MAINNET
+        : NetworkType.TESTNET;
+    }
+  };
+
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
     // generates ypub corresponding to supplied xpub || upub corresponding to tpub
     let data = bs58check.decode(xpub);
@@ -302,11 +305,9 @@ export default class WalletUtilities {
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const purpose =
-      wallet.type === WalletType.SWAN ? DerivationPurpose.BIP84 : DerivationPurpose.BIP49;
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
+      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network) === address)
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
@@ -314,7 +315,7 @@ export default class WalletUtilities {
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
+      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network) === address)
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
@@ -584,19 +585,30 @@ export default class WalletUtilities {
         changeAddress: string;
         changeMultisig?: undefined;
       } => {
-    let changeAddress: string;
-    const purpose = DerivationPurpose.BIP49;
+    let changeAddress: string = '';
+    let changeMultisig: {
+      p2ms: bitcoinJS.payments.Payment;
+      p2wsh: bitcoinJS.payments.Payment;
+      p2sh: bitcoinJS.payments.Payment;
+      pubkeys: Buffer[];
+      address: string;
+      subPath: number[];
+      signerPubkeyMap: Map<string, Buffer>;
+    };
+    if ((wallet as Vault).isMultiSig) {
+      const xpubs = (wallet as Vault).specs.xpubs;
+      changeMultisig = WalletUtilities.createMultiSig(
+        xpubs,
+        (wallet as Vault).scheme.m,
+        network,
+        nextFreeChangeAddressIndex,
+        true
+      );
+    }
+
     for (let output of outputs) {
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
-          const xpubs = (wallet as Vault).specs.xpubs;
-          const changeMultisig = WalletUtilities.createMultiSig(
-            xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            nextFreeChangeAddressIndex,
-            true
-          );
           output.address = changeMultisig.address;
           return { outputs, changeMultisig };
         } else {
@@ -604,12 +616,17 @@ export default class WalletUtilities {
             (wallet as Wallet).specs.xpub,
             true,
             nextFreeChangeAddressIndex,
-            network,
-            purpose
+            network
           );
           return { outputs, changeAddress };
         }
       }
+    }
+    // when there's no change
+    if ((wallet as Vault).isMultiSig) {
+      return { outputs, changeMultisig };
+    } else {
+      return { outputs, changeAddress };
     }
   };
 
@@ -663,7 +680,7 @@ export default class WalletUtilities {
       };
     };
   }> => {
-    let res: AxiosResponse;
+    let res;
     try {
       const walletToAddressMapping = {};
       const walletsTemp: {
@@ -716,12 +733,12 @@ export default class WalletUtilities {
       let usedFallBack = false;
       try {
         if (network === bitcoinJS.networks.testnet) {
-          res = await accAxios.post(
+          res = await RestClient.post(
             config.ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         } else {
-          res = await accAxios.post(
+          res = await RestClient.post(
             config.ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
@@ -738,22 +755,21 @@ export default class WalletUtilities {
           throw new Error(err.message);
         }
         console.log('using Hexa node as fallback(fetch-balTx)');
-
         usedFallBack = true;
         if (network === bitcoinJS.networks.testnet) {
-          res = await accAxios.post(
+          res = await RestClient.post(
             config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         } else {
-          res = await accAxios.post(
+          res = await RestClient.post(
             config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.NEWMULTIUTXOTXN,
             walletToAddressMapping
           );
         }
       }
 
-      const walletToResponseMapping = res.data;
+      const walletToResponseMapping = res.data || res.json;
       const synchedWallets = {};
 
       for (const walletId of Object.keys(walletToResponseMapping)) {
@@ -1012,14 +1028,14 @@ export default class WalletUtilities {
   static getTxCounts = async (addresses: string[], network: bitcoinJS.Network) => {
     const txCounts = {};
     try {
-      let res: AxiosResponse;
+      let res;
       try {
         if (network === bitcoinJS.networks.testnet) {
-          res = await accAxios.post(config.ESPLORA_API_ENDPOINTS.TESTNET.MULTITXN, {
+          res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.TESTNET.MULTITXN, {
             addresses,
           });
         } else {
-          res = await accAxios.post(config.ESPLORA_API_ENDPOINTS.MAINNET.MULTITXN, {
+          res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.MAINNET.MULTITXN, {
             addresses,
           });
         }
@@ -1027,7 +1043,7 @@ export default class WalletUtilities {
         throw new Error(err.response.data.err);
       }
 
-      const addressesInfo = res.data;
+      const addressesInfo = res.data || res.json;
       for (const addressInfo of addressesInfo) {
         txCounts[addressInfo.Address] = addressInfo.TotalTransactions;
       }
@@ -1080,23 +1096,23 @@ export default class WalletUtilities {
   ): Promise<{
     txid: string;
   }> => {
-    let res: AxiosResponse;
+    let res;
     try {
       if (network === bitcoinJS.networks.testnet) {
-        res = await accAxios.post(config.ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX, txHex, {
+        res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX, txHex, {
           headers: {
             'Content-Type': 'text/plain',
           },
         });
       } else {
-        res = await accAxios.post(config.ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX, txHex, {
+        res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX, txHex, {
           headers: {
             'Content-Type': 'text/plain',
           },
         });
       }
       return {
-        txid: res.data,
+        txid: res.data || res.json,
       };
     } catch (err) {
       console.log(`An error occurred while broadcasting via current node. ${err}`);
@@ -1109,7 +1125,7 @@ export default class WalletUtilities {
         console.log('using Hexa node as fallback(tx-broadcast)');
         try {
           if (network === bitcoinJS.networks.testnet) {
-            res = await accAxios.post(
+            res = await RestClient.post(
               config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX,
               txHex,
               {
@@ -1119,7 +1135,7 @@ export default class WalletUtilities {
               }
             );
           } else {
-            res = await accAxios.post(
+            res = await RestClient.post(
               config.BITHYVE_ESPLORA_API_ENDPOINTS.MAINNET.BROADCAST_TX,
               txHex,
               {
@@ -1131,7 +1147,7 @@ export default class WalletUtilities {
           }
           // Toast( 'We could not connect to your own node.\nSent using the BitHyve node....' )
           return {
-            txid: res.data,
+            txid: res.data || res.json,
           };
         } catch (err) {
           throw new Error('Transaction broadcasting failed');
@@ -1158,12 +1174,12 @@ export default class WalletUtilities {
     const SATOSHIS_IN_BTC = 1e8;
     const amount = 10000 / SATOSHIS_IN_BTC;
     try {
-      const res = await accAxios.post(`${config.RELAY}/testnetFaucet`, {
+      const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
         AUTH_ID: config.AUTH_ID,
         recipientAddress,
         amount,
       });
-      const { txid, funded } = res.data;
+      const { txid, funded } = res.data || res.json;
       return {
         txid,
         funded,
@@ -1172,157 +1188,5 @@ export default class WalletUtilities {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
-  };
-
-  // 2FA-wallet specific utilities
-  // TODO: walletID <> appID switch
-  static setupTwoFA = async (
-    appId: string
-  ): Promise<{
-    setupData: {
-      secret: string;
-      bhXpub: string;
-    };
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await SIGNING_AXIOS.post('setup2FA', {
-        AUTH_ID: config.AUTH_ID,
-        appId,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { setupSuccessful, setupData } = res.data;
-    if (!setupSuccessful) throw new Error('2FA setup failed');
-    return {
-      setupData,
-    };
-  };
-
-  static validateTwoFA = async (
-    appId: string,
-    token: number
-  ): Promise<{
-    valid: Boolean;
-  }> => {
-    let res: AxiosResponse;
-    try {
-      res = await SIGNING_AXIOS.post('validate2FASetup', {
-        AUTH_ID: config.AUTH_ID,
-        appId,
-        token,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const { valid } = res.data;
-    if (!valid) throw new Error('2FA validation failed');
-
-    return {
-      valid,
-    };
-  };
-
-  static resetTwoFA = async (
-    appId: string,
-    secondaryMnemonic: string,
-    secondaryXpub: string,
-    network: bitcoinJS.networks.Network
-  ): Promise<{
-    secret: any;
-  }> => {
-    const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
-      secondaryMnemonic,
-      false,
-      network,
-      WalletUtilities.getDerivationPath(EntityKind.VAULT, NetworkType.MAINNET, 0)
-    );
-    if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
-
-    let res: AxiosResponse;
-    try {
-      res = await SIGNING_AXIOS.post('resetTwoFAv2', {
-        AUTH_ID: config.AUTH_ID,
-        appId: appId,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-    const { secret } = res.data;
-    return {
-      secret,
-    };
-  };
-
-  static generateSecondaryXpriv = (
-    secondaryMnemonic: string,
-    secondaryXpub: string,
-    network: bitcoinJS.networks.Network
-  ): {
-    secondaryXpriv: string;
-  } => {
-    const derivationPath = WalletUtilities.getDerivationPath(
-      EntityKind.VAULT,
-      NetworkType.MAINNET,
-      0
-    );
-    const derivedSecondaryXpub = WalletUtilities.generateExtendedKey(
-      secondaryMnemonic,
-      false,
-      network,
-      derivationPath
-    );
-    if (derivedSecondaryXpub !== secondaryXpub) throw new Error('Invaild secondary mnemonic');
-
-    const secondaryXpriv = WalletUtilities.generateExtendedKey(
-      secondaryMnemonic,
-      true,
-      network,
-      derivationPath
-    );
-    return {
-      secondaryXpriv,
-    };
-  };
-
-  static getSecondSignature = async (
-    walletId: string,
-    token: number,
-    serializedPSBT: string,
-    childIndexArray: Array<{
-      childIndex: number;
-      inputIdentifier: {
-        txId: string;
-        vout: number;
-      };
-    }>
-  ): Promise<{
-    signedTxHex: string;
-  }> => {
-    let res: AxiosResponse;
-
-    try {
-      res = await SIGNING_AXIOS.post('securePSBTTransaction', {
-        AUTH_ID: config.AUTH_ID,
-        walletID: walletId,
-        token,
-        serializedPSBT,
-        childIndexArray,
-      });
-    } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-
-    const signedTxHex = res.data.txHex;
-    return {
-      signedTxHex,
-    };
   };
 }

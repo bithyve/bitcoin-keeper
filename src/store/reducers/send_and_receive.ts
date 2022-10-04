@@ -1,13 +1,16 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
-import { TxPriority } from 'src/core/wallets/enums';
 import {
   AverageTxFeesByNetwork,
   ExchangeRates,
   SerializedPSBTEnvelop,
+  SigningPayload,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
 } from 'src/core/wallets/interfaces/';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+
+import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
+import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { TxPriority } from 'src/core/wallets/enums';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;
@@ -24,9 +27,15 @@ export interface SendPhaseOneExecutedPayload {
 
 export interface SendPhaseTwoExecutedPayload {
   successful: boolean;
-  serializedPSBTEnvelop?: SerializedPSBTEnvelop;
+  serializedPSBTEnvelops?: SerializedPSBTEnvelop[];
   txid?: string;
   err?: string;
+}
+
+export interface UpdatePSBTPayload {
+  signedSerializedPSBT?: string;
+  signingPayload?: SigningPayload[];
+  signerId: string;
 }
 
 export interface SendPhaseThreeExecutedPayload {
@@ -62,7 +71,7 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
-    serializedPSBTEnvelop: SerializedPSBTEnvelop;
+    serializedPSBTEnvelops: SerializedPSBTEnvelop[];
     txid: string | null;
   };
   sendPhaseThree: {
@@ -97,7 +106,7 @@ const initialState: {
     hasFailed: false,
     failedErrorMessage: null,
     isSuccessful: false,
-    serializedPSBTEnvelop: null,
+    serializedPSBTEnvelops: null,
     txid: null,
   },
   sendPhaseThree: {
@@ -141,6 +150,10 @@ const sendAndReceiveSlice = createSlice({
       state.averageTxFees = action.payload;
     },
 
+    setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
+      state.sendMaxFee = action.payload;
+    },
+
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
       const transactionFeeInfo: TransactionFeeInfo = state.transactionFeeInfo;
       let txPrerequisites: TransactionPrerequisite;
@@ -170,14 +183,31 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
-      const { successful, txid, serializedPSBTEnvelop, err } = action.payload;
+      const { successful, txid, serializedPSBTEnvelops, err } = action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
         hasFailed: !successful,
         failedErrorMessage: !successful ? err : null,
         isSuccessful: successful,
-        serializedPSBTEnvelop: successful ? serializedPSBTEnvelop : null,
+        serializedPSBTEnvelops: successful ? serializedPSBTEnvelops : null,
         txid: successful ? txid : null,
+      };
+    },
+
+    updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
+      const { signerId, signingPayload, signedSerializedPSBT } = action.payload;
+      state.sendPhaseTwo = {
+        ...state.sendPhaseTwo,
+        serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
+          if (envelop.signerId === signerId) {
+            envelop.serializedPSBT = signedSerializedPSBT
+              ? signedSerializedPSBT
+              : envelop.serializedPSBT;
+            envelop.isSigned = signedSerializedPSBT ? true : envelop.isSigned;
+            envelop.signingPayload = signingPayload ? signingPayload : envelop.signingPayload;
+          }
+          return envelop;
+        }),
       };
     },
 
@@ -193,8 +223,21 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhasesReset: (state) => {
+      state.sendMaxFee = 0;
       state.sendPhaseOne = initialState.sendPhaseOne;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
+    sendPhaseOneReset: (state) => {
+      state.sendPhaseOne = initialState.sendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
+    sendPhaseTwoReset: (state) => {
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
+    sendPhaseThreeReset: (state) => {
       state.sendPhaseThree = initialState.sendPhaseThree;
     },
   },
@@ -203,9 +246,14 @@ const sendAndReceiveSlice = createSlice({
 export const {
   setExchangeRates,
   setAverageTxFee,
+  setSendMaxFee,
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
   sendPhasesReset,
+  sendPhaseOneReset,
+  sendPhaseTwoReset,
+  sendPhaseThreeReset,
+  updatePSBTEnvelops,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

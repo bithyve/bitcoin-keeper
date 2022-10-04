@@ -1,12 +1,20 @@
 import {
   ActiveAddresses,
+  BIP85Config,
   Balances,
   Transaction,
   TransactionToAddressMapping,
   UTXO,
   WalletImportedAddresses,
 } from '.';
-import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+import {
+  EntityKind,
+  NetworkType,
+  SignerStorage,
+  SignerType,
+  VaultType,
+  VisibilityType,
+} from '../enums';
 
 import { WalletPresentationData } from './wallet';
 
@@ -38,9 +46,15 @@ export interface VaultScheme {
   n: number; // total number of xpubs
 }
 
+export interface VaultScheme {
+  m: number; // threshold number of signatures required
+  n: number; // total number of xpubs
+}
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
+  storageType: SignerStorage;
+  isMock?: boolean;
   xpub: string;
   xpriv?: string;
   signerName?: string;
@@ -48,6 +62,11 @@ export interface VaultSigner {
     derivationPath?: string;
     xfp?: string;
   };
+  bip85Config?: BIP85Config; // configuration for mobile keys
+  lastHealthCheck: Date;
+  addedOn: Date;
+  hasSigned?: boolean;
+  amfData?: any;
 }
 
 export interface Vault {
@@ -62,6 +81,8 @@ export interface Vault {
   signers: VaultSigner[];
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
+  archived: boolean;
+  VAC: string;
 }
 
 export interface InheritancePolicy {

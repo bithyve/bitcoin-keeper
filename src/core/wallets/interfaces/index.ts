@@ -205,13 +205,15 @@ export interface NodeConnect {
 }
 
 export interface TwoFADetails {
-  bithyveXpub?: string;
+  signingServerXpub?: string;
   twoFAKey?: string;
   twoFAValidated?: boolean;
 }
 
-export interface SigningDataHW {
-  inputsToSign: Array<{
+export interface SigningPayload {
+  payloadTarget: SignerType;
+  inputs?: any;
+  inputsToSign?: Array<{
     digest: string;
     subPath: string;
     inputIndex: number;
@@ -219,10 +221,20 @@ export interface SigningDataHW {
     publicKey: string;
     signature?: string;
   }>;
+  childIndexArray?: Array<{
+    subPath: number[];
+    inputIdentifier: {
+      txId: string;
+      vout: number;
+      value: number;
+    };
+  }>;
 }
 
 export interface SerializedPSBTEnvelop {
+  signerId: string;
   signerType: SignerType;
   serializedPSBT: string;
-  signingDataHW?: SigningDataHW[];
+  signingPayload?: SigningPayload[];
+  isSigned: boolean;
 }

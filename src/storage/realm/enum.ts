@@ -21,8 +21,10 @@ export enum RealmSchema {
   TriggerPolicy = 'TriggerPolicy',
   TwoFADetails = 'TwoFADetails',
   NodeConnect = 'NodeConnect',
-  UserTier = 'UserTier',
   UAI = 'UAI',
+  Notification = 'Notification',
+  AdditionalNotes = 'AdditionalNotes',
   VersionHistory = 'VersionHistory',
   BackupHistory = 'BackupHistory',
+  StoreSubscription = 'StoreSubscription',
 }

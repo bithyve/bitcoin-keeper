@@ -1,13 +1,14 @@
-// libraries
-import { Box, Text, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
+  Alert,
   FlatList,
   InteractionManager,
   ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+// libraries
+import { Box, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -30,11 +31,11 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 
 const SendScreen = ({ route }) => {
-  const cameraRef = useRef<RNCamera>();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const wallet: Wallet = route.params.wallet;
@@ -52,7 +53,13 @@ const SendScreen = ({ route }) => {
     });
   }, []);
 
+  const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+
   const navigateToNext = (address: string, amount?: string) => {
+    if (!avgFees) {
+      Alert.alert("Average transaction fees couldn't be fetched!");
+      return;
+    }
     navigation.navigate('AddSendAmount', {
       wallet,
       address,
@@ -62,15 +69,14 @@ const SendScreen = ({ route }) => {
 
   const handleTextChange = (info: string) => {
     info = info.trim();
-    setPaymentInfo(info);
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
-
+    setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         navigateToNext(address);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        navigateToNext(address, amount.toString());
+        navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
         return;
@@ -79,9 +85,7 @@ const SendScreen = ({ route }) => {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigation.dispatch(
-        CommonActions.navigate('AddSendAmount', { wallet, address: getNextFreeAddress(item) })
-      );
+      navigateToNext(getNextFreeAddress(item));
     };
     return (
       <Box
@@ -121,7 +125,13 @@ const SendScreen = ({ route }) => {
 
       <ScrollView>
         <Box style={styles.qrcontainer}>
-          <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
+          <RNCamera
+            style={styles.cameraView}
+            captureAudio={false}
+            onBarCodeRead={(data) => {
+              handleTextChange(data.data);
+            }}
+          />
         </Box>
         {/* send manually option */}
         <Box
@@ -180,7 +190,7 @@ const SendScreen = ({ route }) => {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: 8,
+    padding: '20@s',
     backgroundColor: 'light.ReceiveBackground',
   },
   linearGradient: {

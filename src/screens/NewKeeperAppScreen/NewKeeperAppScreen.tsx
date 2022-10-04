@@ -1,24 +1,29 @@
+import { ActivityIndicator, Platform } from 'react-native';
+import { Box, HStack, Pressable, ScrollView, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, ScrollView, StatusBar, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity, Platform, View } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { setupKeeperApp, SETUP_KEEPER_APP } from 'src/store/sagaActions/storage';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
-import { getCloudData, recoverBackup } from 'src/store/sagaActions/bhr';
-import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
-import App from 'src/assets/images/svgs/app.svg';
-import Recover from 'src/assets/images/svgs/recover.svg';
-import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import PasswordModal from 'src/components/PasswordModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
-import useToastMessage from 'src/hooks/useToastMessage';
-import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 
-const Tile = ({ title, subTitle, onPress, Icon }) => {
+import App from 'src/assets/images/svgs/app.svg';
+import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
+import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
+import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
+import PasswordModal from 'src/components/PasswordModal';
+import { RFValue } from 'react-native-responsive-fontsize';
+import Recover from 'src/assets/images/svgs/recover.svg';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import config from 'src/core/config';
+import messaging from '@react-native-firebase/messaging';
+import { recoverBackup } from 'src/store/sagaActions/bhr';
+import { setupKeeperApp } from 'src/store/sagaActions/storage';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
+import useToastMessage from 'src/hooks/useToastMessage';
+
+const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
     <Pressable
       onPress={onPress}
@@ -36,7 +41,7 @@ const Tile = ({ title, subTitle, onPress, Icon }) => {
           paddingVertical: hp(20),
           paddingLeft: wp(24),
           borderRadius: hp(10),
-          width: wp(250),
+          width: '80%',
         }}
       >
         <Text
@@ -45,7 +50,7 @@ const Tile = ({ title, subTitle, onPress, Icon }) => {
           fontWeight={200}
           fontSize={RFValue(13)}
           letterSpacing={0.65}
-          width={wp(233)}
+          width={'80%'}
         >
           {title}
         </Text>
@@ -55,13 +60,18 @@ const Tile = ({ title, subTitle, onPress, Icon }) => {
           fontWeight={200}
           fontSize={RFValue(12)}
           letterSpacing={0.6}
-          width={wp(240)}
-          marginTop={hp(5)}
+          width={'80%'}
         >
           {subTitle}
         </Text>
       </Box>
-      <ArrowIcon />
+      {loading ? (
+        <Box marginRight={'10'}>
+          <ActivityIndicator />
+        </Box>
+      ) : (
+        <ArrowIcon />
+      )}
     </Pressable>
   );
 };
@@ -81,10 +91,28 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
     appImageError,
     appImagerecoveryRetry,
   } = useAppSelector((state) => state.bhr);
+  const appCreated = useAppSelector((state) => state.storage.appId);
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const { showToast } = useToastMessage();
+  const [keeperInitiating, setInitiating] = useState(false);
+  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
+  useEffect(() => {
+    if (appCreated) {
+      navigation.navigate('App', { screen: 'NewHome' });
+      updateFCM();
+    }
+  }, [appCreated]);
+
+  async function updateFCM() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(updateFCMTokens([token]));
+    } catch (error) {
+      //
+    }
+  }
 
   useEffect(() => {
     if (appImageError) {
@@ -116,35 +144,34 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
 
   const closeCloudModal = () => setCloudModal(false);
 
+  const switchConfig = () => {
+    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
+    setTestnet(isTestnet ? false : true);
+  };
+
+  useEffect(() => {
+    if (keeperInitiating) {
+      dispatch(setupKeeperApp());
+    }
+  }, [keeperInitiating]);
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: 'light.ReceiveBackground',
-      }}
-    >
-      <StatusBar backgroundColor={'light.ReceiveBackground'} barStyle="dark-content" />
+    <ScreenWrapper barStyle="dark-content">
       <ScrollView
         style={{
-          paddingTop: 50,
+          paddingTop: '5%',
         }}
       >
-        <Box mx={3}>
+        <Box>
           <Text
             color={'light.blackHeaderText'}
             fontSize={RFValue(20)}
             fontFamily={'heading'}
-            pl={10}
+            px={'8'}
           >
             New Keeper App
           </Text>
-          <Text
-            px={'5%'}
-            color={'light.blackHeaderText'}
-            fontSize={RFValue(12)}
-            fontFamily={'body'}
-            pl={10}
-          >
+          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} px={'8'}>
             Use this option if you want to create a new Keeper app
           </Text>
           <Tile
@@ -152,23 +179,39 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             subTitle={'New Vault and Wallets'}
             Icon={<App />}
             onPress={() => {
-              dispatch(setupKeeperApp());
-              navigation.navigate('App', { screen: 'NewHome' });
+              setInitiating(true);
             }}
+            loading={keeperInitiating}
           />
+          <HStack justifyContent={'space-between'} paddingTop={'2'}>
+            <Text
+              color={'light.blackHeaderText'}
+              fontFamily={'heading'}
+              fontWeight={'300'}
+              px={'8'}
+            >
+              Use TESTNET:
+            </Text>
+            <Switch
+              defaultIsChecked
+              trackColor={{ true: 'green' }}
+              style={{ marginRight: '5%' }}
+              onChange={switchConfig}
+            />
+          </HStack>
           <Text
             color={'light.blackHeaderText'}
             fontSize={RFValue(20)}
-            style={{ marginTop: 50 }}
+            style={{ marginTop: 10 }}
             fontFamily={'heading'}
-            pl={10}
+            px={'8'}
           >
             Exsisting Keeper App
           </Text>
-          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} px={'8'}>
             If you previously had a Keeper wallet you can recover it
           </Text>
-          <Tile
+          {/* <Tile
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
             Icon={<Recover />}
@@ -176,7 +219,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               dispatch(getCloudData());
               setCloudModal(true);
             }}
-          />
+          /> */}
           <Tile
             title={'Recover for myself'}
             subTitle={'Using Seed'}
@@ -188,12 +231,14 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           <Tile
             title={'Inheritance Keeper Vault'}
             subTitle={'Using Signing Devices'}
-            onPress={() => console.log('using Signing Devices')}
+            onPress={() => {
+              navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+            }}
             Icon={<Inheritance />}
           />
         </Box>
       </ScrollView>
-      <Text px={'10%'} color={'light.lightBlack'} fontSize={12}>
+      <Text px={'10%'} py={'5%'} color={'light.lightBlack'} fontSize={12}>
         When you use Signing Devices to restore Keeper, only Vault is restored and the app has new
         wallets
       </Text>
@@ -236,7 +281,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       >
         <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
       </ModalWrapper>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 };
 export default NewKeeperApp;

@@ -1,5 +1,5 @@
 import { BackHandler, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, Text } from 'native-base';
+import { Box, Pressable, Text, VStack } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
 import {
   getTransactionPadding,
@@ -32,6 +32,7 @@ import Recieve from 'src/assets/images/svgs/receive.svg';
 // icons and images
 // import ScannerIcon from 'src/assets/images/svgs/scan_green.svg';
 import Send from 'src/assets/images/svgs/send.svg';
+import { Shadow } from 'react-native-shadow-2';
 // import Setting from 'src/assets/images/svgs/settings_small.svg';
 //components and images
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -44,6 +45,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -72,99 +74,120 @@ const WalletDetails = () => {
     const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
+    const confirmedBalance = balances?.confirmed;
 
     return (
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          borderRadius: hp(20),
-          width: wp(320),
-          height: hp(130),
-          position: 'relative',
+      <Shadow
+        distance={4}
+        startColor={'#e4e4e4'}
+        offset={[4, 0]}
+        viewStyle={{
+          height: hp(140),
         }}
       >
-        {!(item?.presentationData && item?.specs) ? (
-          <TouchableOpacity
-            style={styles.addWalletContainer}
-            onPress={() => navigation.navigate('EnterWalletDetail')}
-          >
-            <AddSCardIcon />
-            <Text
-              color={'light.white'}
-              fontFamily={'body'}
-              fontWeight={'200'}
-              fontSize={RFValue(14)}
+        <LinearGradient
+          colors={['#00836A', '#073E39']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            borderRadius: hp(20),
+            width: wp(320),
+            height: hp(130),
+            position: 'relative',
+            marginLeft: 0,
+          }}
+        >
+          {!(item?.presentationData && item?.specs) ? (
+            <TouchableOpacity
+              style={styles.addWalletContainer}
+              onPress={() => navigation.navigate('EnterWalletDetail', wallets.length)}
             >
-              {wallet.AddNewWallet}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <>
-            <Box
-              marginTop={hp(21)}
-              justifyContent={'flex-start'}
-              flexDirection={'row'}
-              style={{
-                marginHorizontal: wp(20),
-              }}
-            >
-              <Pressable
-                height={hp(20)}
-                width={wp(60)}
-                borderRadius={hp(5)}
-                borderColor={'white'}
-                borderWidth={0.5}
-                justifyContent={'center'}
-                alignItems={'center'}
-                onPress={() => BackHandler.exitApp()}
+              <AddSCardIcon />
+              <Text
+                color={'light.white'}
+                fontFamily={'body'}
+                fontWeight={'200'}
+                fontSize={RFValue(14)}
               >
-                <Text
-                  color={'light.white'}
-                  letterSpacing={0.6}
-                  fontSize={RFValue(8)}
-                  fontWeight={100}
-                >
-                  Know More
-                </Text>
-              </Pressable>
-            </Box>
-
-            <Box
-              marginTop={hp(21)}
-              flexDirection={'row'}
-              alignItems={'center'}
-              justifyContent={'space-between'}
-              style={{
-                marginHorizontal: wp(20),
-              }}
-            >
-              <Box>
-                <Text
-                  color={'light.white'}
-                  letterSpacing={0.28}
-                  fontSize={RFValue(14)}
-                  fontWeight={200}
-                >
-                  {walletName}
-                </Text>
-                <Text
-                  color={'light.white'}
-                  letterSpacing={0.24}
-                  fontSize={RFValue(12)}
-                  fontWeight={100}
-                >
-                  {walletDescription}
-                </Text>
-              </Box>
-              <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
-                {walletBalance}
+                {wallet.AddNewWallet}
               </Text>
-            </Box>
-          </>
-        )}
-      </LinearGradient>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <Box
+                marginTop={hp(21)}
+                justifyContent={'flex-start'}
+                flexDirection={'row'}
+                style={{
+                  marginHorizontal: wp(20),
+                }}
+              >
+                <Pressable
+                  height={hp(20)}
+                  width={wp(60)}
+                  borderRadius={hp(5)}
+                  borderColor={'white'}
+                  borderWidth={0.5}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                  onPress={() => BackHandler.exitApp()}
+                >
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={0.6}
+                    fontSize={RFValue(8)}
+                    fontWeight={100}
+                  >
+                    Know More
+                  </Text>
+                </Pressable>
+              </Box>
+
+              <Box
+                marginTop={hp(21)}
+                flexDirection={'row'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+                style={{
+                  marginHorizontal: wp(20),
+                }}
+              >
+                <Box>
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={0.28}
+                    fontSize={RFValue(14)}
+                    fontWeight={200}
+                  >
+                    {walletName}
+                  </Text>
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={0.24}
+                    fontSize={RFValue(12)}
+                    fontWeight={100}
+                  >
+                    {walletDescription}
+                  </Text>
+                </Box>
+                <VStack alignItems={'center'}>
+                  <Text
+                    color={'light.white'}
+                    letterSpacing={1.2}
+                    fontSize={hp(24)}
+                    fontWeight={200}
+                  >
+                    {getAmount(walletBalance)}
+                  </Text>
+                  <Text color={'light.white'} fontSize={hp(11)} fontWeight={200}>
+                    {getAmount(confirmedBalance) + ' confirmed'}
+                  </Text>
+                </VStack>
+              </Box>
+            </>
+          )}
+        </LinearGradient>
+      </Shadow>
     );
   };
 
@@ -226,7 +249,7 @@ const WalletDetails = () => {
             marginX={2}
             marginRight={3}
           >
-            {transaction.amount}
+            {getAmount(transaction.amount)}
           </Text>
           <Box>
             <IconArrowGrey />
@@ -268,7 +291,9 @@ const WalletDetails = () => {
       <Pressable
         zIndex={999}
         onPress={() => navigation.goBack()}
-        width={4}
+        width={5}
+        padding={2}
+        alignItems={'center'}
       >
         <BackIcon />
       </Pressable>
@@ -290,7 +315,7 @@ const WalletDetails = () => {
             <BTC />
           </Box>
           <Text color={'light.textWallet'} letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
-            {netBalance}
+            {getAmount(netBalance)}
           </Text>
         </Box>
       </Box>
@@ -333,10 +358,7 @@ const WalletDetails = () => {
         </Box>
       </Box>
 
-      <Box
-        marginTop={18}
-        alignItems={'center'}
-      >
+      <Box marginTop={18} alignItems={'center'}>
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -344,7 +366,7 @@ const WalletDetails = () => {
           renderItem={_renderItem}
           sliderWidth={windowWidth}
           itemWidth={wp(320)}
-          itemHeight={hp(20)}
+          itemHeight={hp(100)}
           layout={'default'}
         />
       </Box>
@@ -431,7 +453,7 @@ const WalletDetails = () => {
             <TouchableOpacity
               style={styles.IconText}
               onPress={() => {
-                navigation.navigate('WalletSettings');
+                navigation.navigate('WalletSettings', { wallet: currentWallet });
                 // navigation.navigate('ExportSeed', {
                 //   seed: currentWallet?.derivationDetails?.mnemonic,
                 // });

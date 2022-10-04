@@ -19,7 +19,12 @@ const initializeRealm = async (
  * @param  {any} object
  */
 const createObject = (schema: RealmSchema, object: any) => {
-  return realm.create(schema, object);
+  try {
+    const hasCreated = realm.create(schema, object);
+    return hasCreated;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 /**
@@ -63,10 +68,32 @@ const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => 
   }
 };
 
+/**
+ * generic :: fetched the object corresponding to the fieldName and Value
+ * @param  {RealmSchema} schema
+ * @param  {any} value
+ * @param  {string} fieldName
+ */
+const getObjectByField = (schema: RealmSchema, value: string, fieldName: string) => {
+  const objects = realm.get(schema);
+  return objects.filtered(`${fieldName} == '${value}'`);
+};
+
+/**
+ * generic :: fetches an object corresponding to provided schema and the supplied id
+ * @param  {RealmSchema} schema
+ */
+const getCollection = (schema: RealmSchema) => {
+  const objects = realm.get(schema);
+  return objects.toJSON();
+};
+
 export default {
   initializeRealm,
   createObject,
   getObjectByIndex,
   getObjectById,
   updateObjectById,
+  getCollection,
+  getObjectByField,
 };

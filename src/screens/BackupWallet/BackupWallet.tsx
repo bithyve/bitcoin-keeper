@@ -3,7 +3,7 @@ import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
+import Header from 'src/components/Header';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -104,12 +104,15 @@ const BackupWallet = () => {
   ) : (
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
-      <HeaderTitle
-        title={BackupWallet.backupWallet}
-        subtitle={BackupWallet.backupWalletSubTitle}
-        color="light.ReceiveBackground"
-        onPressHandler={() => navigation.goBack()}
-      />
+      <Box style={{
+        padding: hp(5)
+      }}>
+        <Header
+          title={BackupWallet.backupWallet}
+          subtitle={BackupWallet.backupWalletSubTitle}
+          onPressHandler={() => navigation.goBack()}
+        />
+      </Box>
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
@@ -122,7 +125,7 @@ const BackupWallet = () => {
             });
           }}
         />
-        <Option
+        {/* <Option
           title={BackupWallet.backupOnCloud}
           subTitle={'Lorem ipsum dolor sit amet,'}
           onPress={() => {
@@ -132,7 +135,7 @@ const BackupWallet = () => {
             // setHealthCheckSuccessModal(true);
             // setSkipHealthCheckModal(true);
           }}
-        />
+        /> */}
       </Box>
       <Box>
         <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>

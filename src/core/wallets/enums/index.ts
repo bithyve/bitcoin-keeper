@@ -71,10 +71,17 @@ export enum WalletType {
   READ_ONLY = 'READ_ONLY',
   SWAN = 'SWAN',
   LIGHTNING = 'LIGHTNING',
+  MOBILE_KEY = 'MOBILE_KEY',
 }
 
 export enum VaultType {
   DEFAULT = 'DEFAULT',
+}
+
+export enum VaultMigrationType {
+  UPGRADE = 'UPGRADE',
+  DOWNGRADE = 'DOWNGRADE',
+  CHANGE = 'CHANGE',
 }
 
 export enum SignerType {
@@ -88,9 +95,16 @@ export enum SignerType {
   KEYSTONE = 'KEYSTONE',
   POLICY_SERVER = 'POLICY_SERVER',
   MOBILE_KEY = 'MOBILE_KEY',
+  SEED_WORDS = 'SEED_WORDS',
 }
 
 export enum PaymentInfoKind {
   ADDRESS = 'address',
   PAYMENT_URI = 'paymentURI',
+}
+
+export enum SignerStorage {
+  HOT = 'HOT',
+  COLD = 'COLD',
+  WARM = 'WARM',
 }

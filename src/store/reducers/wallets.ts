@@ -1,13 +1,14 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import persistReducer from 'redux-persist/es/persistReducer';
+import { reduxStorage } from 'src/storage';
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
 export type WalletsState = {
   walletsSynched: boolean;
   netBalance: number;
-  twoFAHelpFlags: {
-    xprivGenerated: boolean | null;
-    twoFAValid: boolean | null;
-    twoFAResetted: boolean | null;
+  signingServer: {
+    verified: boolean | null;
+    resetted: boolean | null;
   };
 
   isGeneratingNewWallet: boolean;
@@ -19,16 +20,17 @@ export type WalletsState = {
   haswalletSettingsUpdateFailed: boolean;
 
   testCoinsReceived: boolean;
+  testCoinsFailed: boolean;
+
   resetTwoFALoader: boolean;
 };
 
 const initialState: WalletsState = {
   walletsSynched: false,
   netBalance: 0,
-  twoFAHelpFlags: {
-    xprivGenerated: null,
-    twoFAValid: null,
-    twoFAResetted: null,
+  signingServer: {
+    verified: null,
+    resetted: null,
   },
   isGeneratingNewWallet: false,
   hasNewWalletsGenerationSucceeded: false,
@@ -39,6 +41,8 @@ const initialState: WalletsState = {
   haswalletSettingsUpdateFailed: false,
 
   testCoinsReceived: false,
+  testCoinsFailed: false,
+
   resetTwoFALoader: false,
 };
 
@@ -46,14 +50,20 @@ const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    testcoinsReceived: (state) => {
-      state.testCoinsReceived = true;
-    },
     walletsSynched: (state, action: PayloadAction<boolean>) => {
       state.walletsSynched = action.payload;
     },
     setNetBalance: (state, action: PayloadAction<number>) => {
       state.netBalance = action.payload;
+    },
+    signingServerRegistrationVerified: (state, action: PayloadAction<boolean>) => {
+      state.signingServer.verified = action.payload;
+    },
+    setTestCoinsReceived: (state, action: PayloadAction<boolean>) => {
+      state.testCoinsReceived = action.payload;
+    },
+    setTestCoinsFailed: (state, action: PayloadAction<boolean>) => {
+      state.testCoinsFailed = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -65,9 +75,20 @@ const walletSlice = createSlice({
   },
 });
 
-export const { testcoinsReceived, walletsSynched, setNetBalance } = walletSlice.actions;
+export const {
+  walletsSynched,
+  setNetBalance,
+  signingServerRegistrationVerified,
+  setTestCoinsReceived,
+  setTestCoinsFailed,
+} = walletSlice.actions;
 
-export default walletSlice.reducer;
+const walletPersistConfig = {
+  key: 'wallet',
+  storage: reduxStorage,
+  blacklist: ['testCoinsReceived', 'testCoinsFailed'],
+};
+export default persistReducer(walletPersistConfig, walletSlice.reducer);
 
 /*
 export default (state: WalletsState = initialState, action): WalletsState => {

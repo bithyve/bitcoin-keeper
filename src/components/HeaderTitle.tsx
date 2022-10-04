@@ -6,6 +6,7 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 
 type Props = {
   title?: string;
@@ -13,6 +14,9 @@ type Props = {
   onPressHandler?: () => void;
   enableBack?: boolean;
   headerTitleColor?: string;
+  paddingLeft?: number;
+  paddingTop?: number;
+  showToggler?: boolean;
 };
 const HeaderTitle = ({
   title = '',
@@ -20,6 +24,9 @@ const HeaderTitle = ({
   onPressHandler,
   enableBack = true,
   headerTitleColor = 'light.headerText',
+  paddingLeft = 0,
+  paddingTop = 0,
+  showToggler = false
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -32,29 +39,33 @@ const HeaderTitle = ({
           <BackButton />
         </TouchableOpacity>
       )}
-      <Box>
-        {title && (
-          <Text
-            numberOfLines={1}
-            style={styles.addWalletText}
-            color={headerTitleColor}
-            fontFamily={'body'}
-            fontWeight={'200'}
-          >
-            {title}
-          </Text>
-        )}
-        {subtitle && (
-          <Text
-            numberOfLines={1}
-            style={styles.addWalletDescription}
-            color={'light.lightBlack'}
-            fontFamily={'body'}
-            fontWeight={'100'}
-          >
-            {subtitle}
-          </Text>
-        )}
+      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
+        <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
+          {title && (
+            <Text
+              numberOfLines={1}
+              style={styles.addWalletText}
+              color={headerTitleColor}
+              fontFamily={'body'}
+              fontWeight={'200'}
+            >
+              {title}
+            </Text>
+          )}
+          {subtitle && (
+            <Text
+              style={styles.addWalletDescription}
+              color={'light.lightBlack'}
+              fontFamily={'body'}
+              fontWeight={'100'}
+            >
+              {subtitle}
+            </Text>
+          )}
+        </Box>
+        {showToggler && <Box paddingTop={paddingTop}>
+          <CurrencyTypeSwitch />
+        </Box>}
       </Box>
     </Box>
   );
@@ -68,13 +79,13 @@ const styles = ScaledSheet.create({
     fontSize: RFValue(16),
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    paddingHorizontal: '10@s',
+    paddingHorizontal: '20@s',
   },
   addWalletDescription: {
     fontSize: RFValue(12),
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    paddingHorizontal: '10@s',
+    paddingHorizontal: '20@s',
   },
   back: {
     paddingHorizontal: '5@s',

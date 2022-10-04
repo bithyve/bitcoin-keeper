@@ -1,12 +1,15 @@
-import { AxiosResponse } from 'axios';
-import config from '../../config';
-import idx from 'idx';
-import { INotification } from '../interfaces';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { AxiosResponse } from 'axios';
+import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
+import { captureError } from '../sentry';
+import config from '../../config';
+import { getAppImage } from 'src/store/sagaActions/bhr';
+import idx from 'idx';
+import { NetworkType } from 'src/core/wallets/enums';
+import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
 
-const { AUTH_ID, HEXA_ID } = config;
+const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -20,7 +23,7 @@ export default class Relay {
   }> => {
     let res;
     try {
-      res = await RestClient.post('checkCompatibility', {
+      res = await RestClient.post(`${RELAY}checkCompatibility`, {
         AUTH_ID,
         method,
         version,
@@ -39,7 +42,7 @@ export default class Relay {
   public static fetchReleaseNotes = async (version: string): Promise<any> => {
     let res;
     try {
-      res = await RestClient.get(`releasesNotes?version=${version}`);
+      res = await RestClient.get(`${RELAY}releasesNotes?version=${version}`);
     } catch (err) {
       if (err.response) console.log(err.response.data.err);
       if (err.code) console.log(err.code);
@@ -56,17 +59,17 @@ export default class Relay {
     try {
       let res;
       try {
-        res = await RestClient.post('updateFCMTokens', {
+        res = await RestClient.post(`${RELAY}updateFCMTokens`, {
           appID: appId,
           FCMs,
-        })
+        });
       } catch (err) {
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
       return res.data || res.json;
     } catch (err) {
-      console.log('err', err)
+      console.log('err', err);
       throw new Error('Failed to update FCM token');
     }
   };
@@ -77,9 +80,9 @@ export default class Relay {
     notifications: INotification[];
     DHInfos: [{ address: string; publicKey: string }];
   }> => {
-    let res
+    let res;
     try {
-      res = await RestClient.post('fetchNotifications', {
+      res = await RestClient.post(`${RELAY}fetchNotifications`, {
         AUTH_ID,
         appID,
       });
@@ -91,7 +94,7 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
 
-    const { notifications, DHInfos } = res.data || res.json
+    const { notifications, DHInfos } = res.data || res.json;
     return {
       notifications,
       DHInfos,
@@ -105,12 +108,12 @@ export default class Relay {
     sent: boolean;
   }> => {
     try {
-      let res
+      let res;
 
       if (!receivers.length) throw new Error('Failed to deliver notification: receivers missing');
 
       try {
-        res = await RestClient.post('sendNotifications', {
+        res = await RestClient.post(`${RELAY}sendNotifications`, {
           AUTH_ID,
           receivers,
           notification,
@@ -119,7 +122,7 @@ export default class Relay {
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
-      const { sent } = res.data || res.json
+      const { sent } = res.data || res.json;
       if (!sent) throw new Error();
 
       return {
@@ -135,10 +138,10 @@ export default class Relay {
     averageTxFees: AverageTxFeesByNetwork;
   }> => {
     try {
-      let res
+      let res;
       try {
         // TODO: re-route fee/exchange-rates fetch from legacy relay to keeper-relay
-        res = await RestClient.post('fetchFeeAndExchangeRates', {
+        res = await RestClient.post(`${RELAY}fetchFeeAndExchangeRates`, {
           HEXA_ID,
         });
       } catch (err) {
@@ -146,7 +149,7 @@ export default class Relay {
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
-      const { exchangeRates, averageTxFees } = res.data || res.json
+      const { exchangeRates, averageTxFees } = res.data || res.json;
 
       return {
         exchangeRates,
@@ -162,19 +165,19 @@ export default class Relay {
     notification: INotification
   ) => {
     try {
-      let res
+      let res;
       const obj = {
         AUTH_ID,
         receivers,
         notification,
       };
       try {
-        res = await RestClient.post('sendKeeperNotifications', {
+        res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
           AUTH_ID,
           receivers,
           notification,
         });
-        const { sent } = res.data || res.json
+        const { sent } = res.data || res.json;
         if (!sent) throw new Error();
         return {
           sent,
@@ -196,12 +199,11 @@ export default class Relay {
   }> => {
     let res;
     try {
-      res = await RestClient.post('getMessages', {
+      res = await RestClient.post(`${RELAY}getMessages`, {
         AUTH_ID,
         appID,
         timeStamp,
       });
-
     } catch (err) {
       console.log({
         err,
@@ -222,9 +224,9 @@ export default class Relay {
     updated: boolean;
   }> => {
     try {
-      let res
+      let res;
       try {
-        res = await RestClient.post('updateMessages', {
+        res = await RestClient.post(`${RELAY}updateMessages`, {
           AUTH_ID,
           appId,
           data,
@@ -233,7 +235,7 @@ export default class Relay {
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
-      const { updated } = res.data || res.json
+      const { updated } = res.data || res.json;
       return {
         updated,
       };
@@ -248,9 +250,9 @@ export default class Relay {
     appImage: any;
   }> => {
     try {
-      let res
+      let res;
       try {
-        res = await RestClient.post('v2/fetchappImage', {
+        res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
           AUTH_ID,
           appId: appId,
         });
@@ -258,7 +260,7 @@ export default class Relay {
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
-      const { appImage } = res.data || res.json
+      const { appImage } = res.data || res.json;
       return {
         appImage,
       };
@@ -278,27 +280,119 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      let res
-      res = await RestClient.post('updateAppImage', appImage);
-      res = res.json || res.data
+      let res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      res = res.data;
       return {
         status: res.status,
       };
     } catch (err) {
+      captureError(err);
       throw new Error('Failed to update App Image');
+    }
+  };
+
+  public static updateVaultImage = async (
+    vaultData
+  ): Promise<{
+    status?: number;
+    data?: {
+      updated: boolean;
+    };
+    err?: undefined;
+    message?: undefined;
+  }> => {
+    try {
+      let res;
+
+      res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+
+      res = res.json || res.data;
+      return {
+        status: res.status,
+      };
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed to update Vault Image');
     }
   };
 
   public static getAppImage = async (appId): Promise<any> => {
     try {
-      let res
-      res = await RestClient.post('getAppImage', {
+      const res = await RestClient.post(`${RELAY}getAppImage`, {
         id: appId,
       });
-      const { appImageData } = res.data || res.json
-      return appImageData;
+      const data = res.data;
+      return data;
     } catch (err) {
+      captureError(err);
       throw new Error('Failed get App Image');
+    }
+  };
+
+  public static getVaultMetaData = async (signerId): Promise<any> => {
+    try {
+      let res;
+      res = await RestClient.post(`${RELAY}getVaultMetaData`, {
+        signerId,
+      });
+      const data = res.data || res.json;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get Vault Meta Data');
+    }
+  };
+
+  public static getSignerIdInfo = async (signerId): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
+        signerId,
+      });
+      const data = res.data || res.json;
+      return data.exsists;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get SignerId Info');
+    }
+  };
+
+  public static getVac = async (signerIdsHash): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}getVac`, {
+        signerIdsHash,
+      });
+      const data = res.data || res.json;
+      return data.encryptedVac;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get Vac');
+    }
+  };
+
+  public static getTestcoins = async (
+    recipientAddress: string,
+    network: any
+  ): Promise<{
+    txid: any;
+    funded: any;
+  }> => {
+    if (network === NetworkType.MAINNET) {
+      throw new Error('Invalid network: failed to fund via testnet');
+    }
+    const amount = 5000 / SATOSHIS_IN_BTC;
+    try {
+      const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
+        recipientAddress,
+        amount,
+      });
+      const { txid, funded } = res.data;
+      return {
+        txid,
+        funded,
+      };
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
     }
   };
 }

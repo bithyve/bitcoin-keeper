@@ -1,4 +1,4 @@
-import { Box, Image, Pressable, Text, View, Input, ScrollView } from 'native-base';
+import { Box, Text, View, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Platform,
@@ -115,13 +115,11 @@ const EnterSeedScreen = () => {
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
-  const {
-    appImageRecoverd,
-    appRecreated,
-    appRecoveryLoading,
-    appImageError,
-    appImagerecoveryRetry,
-  } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
+
+  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -136,7 +134,7 @@ const EnterSeedScreen = () => {
         navigation.navigate('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
+  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError]);
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
@@ -153,16 +151,13 @@ const EnterSeedScreen = () => {
     for (let i = 0; i < 12; i++) {
       seedWord += seedData[i].name + ' ';
     }
-    return seedWord;
+    return seedWord.trim();
   };
 
   const onPressNext = async () => {
     if (isSeedFilled()) {
       let seedWord = getSeedWord();
-      // dispatch(getAppImage(seedWord));
-      dispatch(
-        getAppImage('stereo clay oil subway satoshi muffin claw clever mandate treat clay farm')
-      );
+      dispatch(getAppImage(seedWord));
     }
   };
 
@@ -254,26 +249,11 @@ const EnterSeedScreen = () => {
                     </Text>
                     <TextInput
                       style={[
-                        {
-                          backgroundColor: '#FDF7F0',
-                          shadowColor: 'black',
-                          shadowOpacity: 0.4,
-                          shadowColor: 'rgba(0, 0, 0, 0.05)',
-                          elevation: 6,
-                          shadowRadius: 10,
-                          shadowOffset: { width: 1, height: 10 },
-                          borderRadius: 10,
-                          fontSize: 12,
-                          height: 35,
-                          width: 110,
-                          marginLeft: 10,
-                          borderWidth: 1,
-                          paddingHorizontal: 5,
-                        },
+                        styles.input,
                         item.invalid == true
                           ? {
-                              borderColor: '#F58E6F',
-                            }
+                            borderColor: '#F58E6F',
+                          }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -282,6 +262,9 @@ const EnterSeedScreen = () => {
                       returnKeyType="next"
                       autoCorrect={false}
                       autoCapitalize="none"
+                      keyboardType={
+                        Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
+                      }
                       onChangeText={(text) => {
                         const data = [...seedData];
                         data[index].name = text.trim();
@@ -293,6 +276,11 @@ const EnterSeedScreen = () => {
                           data[index].invalid = true;
                           setSeedData(data);
                         }
+                      }}
+                      onFocus={() => {
+                        const data = [...seedData];
+                        data[index].invalid = false;
+                        setSeedData(data);
                       }}
                     />
                   </View>
@@ -327,7 +315,7 @@ const EnterSeedScreen = () => {
                   {common.needHelp}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext}>
+              <TouchableOpacity onPress={onPressNext} disabled={appRecoveryLoading}>
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -419,6 +407,21 @@ const styles = ScaledSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 10,
+  },
+  input: {
+    backgroundColor: '#FDF7F0',
+    shadowOpacity: 0.4,
+    shadowColor: 'rgba(0, 0, 0, 0.05)',
+    elevation: 6,
+    shadowRadius: 10,
+    shadowOffset: { width: 1, height: 10 },
+    borderRadius: 10,
+    fontSize: 12,
+    height: 35,
+    width: 110,
+    marginLeft: 10,
+    borderWidth: 1,
+    paddingHorizontal: 5,
   },
 });
 

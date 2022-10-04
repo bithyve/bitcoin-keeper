@@ -1,3 +1,5 @@
+import { BackupHistory } from 'src/common/data/enums/BHR';
+
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
 export const SEED_BACKEDUP = 'SEED_BACKEDUP';
@@ -7,13 +9,23 @@ export const CLOUD_BACKUP_SKIPPED = 'CLOUD_BACKUP_SKIPPED';
 export const CONFIRM_CLOUD_BACKUP = 'CONFIRM_CLOUD_BACKUP';
 export const GET_CLOUD_DATA = 'GET_CLOUD_DATA';
 export const RECOVER_BACKUP = 'RECOVER_BACKUP';
+export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
+export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
+export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
+export const RECOVER_VAULT = 'RECOVER_VAULT';
 
-export const updateAppImage = (walletId) => {
+export const updateAppImage = (walletId?) => {
   return {
     type: UPDATE_APP_IMAGE,
     payload: {
       walletId,
     },
+  };
+};
+
+export const updatVaultImage = () => {
+  return {
+    type: UPDATE_VAULT_IMAGE,
   };
 };
 
@@ -26,9 +38,24 @@ export const getAppImage = (primaryMnemonic: string) => {
   };
 };
 
+export const reoverVault = () => {
+  return {
+    type: RECOVER_VAULT,
+  };
+};
+
 export const seedBackedUp = () => {
   return {
     type: SEED_BACKEDUP,
+  };
+};
+
+export const setWarning = (history: BackupHistory = []) => {
+  return {
+    type: SET_BACKUP_WARNING,
+    payload: {
+      history,
+    },
   };
 };
 
@@ -78,6 +105,18 @@ export const recoverBackup = (password: string, encData: string) => {
     payload: {
       password,
       encData,
+    },
+  };
+};
+
+//HealthChecks
+
+export const healthCheckSigner = (vaultId: string, signerId: string) => {
+  return {
+    type: UPADTE_HEALTH_CHECK_SIGNER,
+    payload: {
+      vaultId,
+      signerId,
     },
   };
 };

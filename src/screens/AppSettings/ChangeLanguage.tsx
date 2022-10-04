@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   textValue: {
     fontFamily: Fonts.FiraSansRegular,
-    fontSize: RFValue(13),
+    fontSize: RFValue(12),
     marginLeft: wp('3%'),
   },
   mainText: {
@@ -115,6 +115,8 @@ const ChangeLanguage = () => {
         >
           <Text
             style={styles.textValue}
+            fontWeight={200}
+            color={'light.GreyText'}
           >
             {value}
           </Text>
@@ -161,8 +163,8 @@ const ChangeLanguage = () => {
           py={3}
         >
           <Box w={'60%'} marginLeft={'10%'}>
-            <Text fontSize={RFValue(16)} style={styles.mainText}>{settings.LanguageCountry}</Text>
-            <Text fontSize={RFValue(12)} style={styles.subText}>{settings.biometricsDesc}</Text>
+            <Text fontSize={RFValue(16)} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>{settings.LanguageCountry}</Text>
+            <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6} style={styles.subText}>{settings.biometricsDesc}</Text>
           </Box>
           <CountryCard
             title={settings.SatsMode}

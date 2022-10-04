@@ -16,15 +16,17 @@ import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const EnterWalletDetailScreen = () => {
+const EnterWalletDetailScreen = ({ route }) => {
+
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const [walletName, setWalletName] = useState('');
-  const [walletDescription, setWalletDescription] = useState('');
-
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
   const common = translations['common'];
+
+  const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
+  const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
+
 
   const createNewWallet = useCallback(() => {
     const newWallet: newWalletInfo = {
