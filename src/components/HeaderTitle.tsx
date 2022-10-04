@@ -6,6 +6,7 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 
 type Props = {
   title?: string;
@@ -15,6 +16,7 @@ type Props = {
   headerTitleColor?: string;
   paddingLeft?: number;
   paddingTop?: number;
+  showToggler?: boolean;
 };
 const HeaderTitle = ({
   title = '',
@@ -24,6 +26,7 @@ const HeaderTitle = ({
   headerTitleColor = 'light.headerText',
   paddingLeft = 0,
   paddingTop = 0,
+  showToggler = false
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -36,28 +39,33 @@ const HeaderTitle = ({
           <BackButton />
         </TouchableOpacity>
       )}
-      <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
-        {title && (
-          <Text
-            numberOfLines={1}
-            style={styles.addWalletText}
-            color={headerTitleColor}
-            fontFamily={'body'}
-            fontWeight={'200'}
-          >
-            {title}
-          </Text>
-        )}
-        {subtitle && (
-          <Text
-            style={styles.addWalletDescription}
-            color={'light.lightBlack'}
-            fontFamily={'body'}
-            fontWeight={'100'}
-          >
-            {subtitle}
-          </Text>
-        )}
+      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
+        <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
+          {title && (
+            <Text
+              numberOfLines={1}
+              style={styles.addWalletText}
+              color={headerTitleColor}
+              fontFamily={'body'}
+              fontWeight={'200'}
+            >
+              {title}
+            </Text>
+          )}
+          {subtitle && (
+            <Text
+              style={styles.addWalletDescription}
+              color={'light.lightBlack'}
+              fontFamily={'body'}
+              fontWeight={'100'}
+            >
+              {subtitle}
+            </Text>
+          )}
+        </Box>
+        {showToggler && <Box paddingTop={paddingTop}>
+          <CurrencyTypeSwitch />
+        </Box>}
       </Box>
     </Box>
   );

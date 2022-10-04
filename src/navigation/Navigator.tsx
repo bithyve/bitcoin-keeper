@@ -52,6 +52,8 @@ import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import ChoosePolicy from 'src/screens/Vault/ChoosePolicy';
+import SetExceptions from 'src/screens/Vault/SetExceptions';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 
@@ -151,6 +153,8 @@ const AppStack = () => {
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
+        <Stack.Screen name="ChoosePolicy" component={ChoosePolicy} />
+        <Stack.Screen name="SetExceptions" component={SetExceptions} />
       </Stack.Navigator>
     </RealmProvider>
   );
