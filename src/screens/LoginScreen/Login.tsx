@@ -1,31 +1,30 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text } from 'native-base';
-import messaging from '@react-native-firebase/messaging';
-
-import { RFValue } from 'react-native-responsive-fontsize';
+import React, { useContext, useEffect, useState } from 'react';
+import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import {
-  widthPercentageToDP as wp,
   heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import LinearGradient from 'react-native-linear-gradient';
-
-import { credsAuth } from '../../store/sagaActions/login';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import { credsAuthenticated } from '../../store/reducers/login';
-import KeyPadView from '../../components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import CustomButton from 'src/components/CustomButton/CustomButton';
-import ModalContainer from 'src/components/Modal/ModalContainer';
-import FogotPassword from './components/FogotPassword';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import ResetPassSuccess from './components/ResetPassSuccess';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+
+import CustomButton from 'src/components/CustomButton/CustomButton';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import FogotPassword from './components/FogotPassword';
+import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import { RFValue } from 'react-native-responsive-fontsize';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import ResetPassSuccess from './components/ResetPassSuccess';
+import { credsAuth } from '../../store/sagaActions/login';
+import { credsAuthenticated } from '../../store/reducers/login';
+import messaging from '@react-native-firebase/messaging';
+import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -42,7 +41,7 @@ const LoginScreen = ({ navigation, route }) => {
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
-  const [Elevation, setElevation] = useState(10);
+  const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
   const [canLogin, setCanLogin] = useState(false);
@@ -51,6 +50,12 @@ const LoginScreen = ({ navigation, route }) => {
   const { translations } = useContext(LocalizationContext);
   const login = translations['login'];
   const common = translations['common'];
+
+  useEffect(() => {
+    if (loggingIn) {
+      attemptLogin(passcode);
+    }
+  }, [loggingIn]);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -248,9 +253,9 @@ const LoginScreen = ({ navigation, route }) => {
                   <CustomButton
                     onPress={() => {
                       setLoginError(false);
-                      setElevation(0);
-                      attemptLogin(passcode);
+                      setLogging(true);
                     }}
+                    loading={loggingIn}
                     value={common.proceed}
                   />
                 </Box>
@@ -262,7 +267,7 @@ const LoginScreen = ({ navigation, route }) => {
               style={{
                 flex: 0.8,
                 justifyContent: 'flex-end',
-                elevation: Elevation,
+                elevation: loggingIn ? 0 : 10,
                 margin: 20,
               }}
               onPress={() => {
@@ -284,7 +289,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}

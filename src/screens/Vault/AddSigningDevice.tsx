@@ -60,6 +60,7 @@ const AddSigningDevice = () => {
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const [signersState, setSignersState] = useState(vaultSigners);
+  const [vaultCreating, setCreating] = useState(false);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const navigateToSignerList = () =>
@@ -90,6 +91,12 @@ const AddSigningDevice = () => {
       sweepVaultFunds(activeVault, temporaryVault, activeVault.specs.balances.confirmed.toString());
     }
   }, [temporaryVault]);
+
+  useEffect(() => {
+    if (vaultCreating) {
+      createNewVault();
+    }
+  }, [vaultCreating]);
 
   const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
@@ -130,7 +137,7 @@ const AddSigningDevice = () => {
     );
   };
 
-  const onProceed = () => {
+  const createNewVault = () => {
     const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (activeVault) {
       const newVaultInfo: newVaultInfo = {
@@ -157,6 +164,10 @@ const AddSigningDevice = () => {
 
   const removeSigner = (signer) => {
     dispatch(removeSigningDevice(signer));
+  };
+
+  const triggerVaultCreation = () => {
+    setCreating(true);
   };
 
   const SignerItem = ({ signer, index }: { signer: VaultSigner | undefined; index: number }) => {
@@ -252,8 +263,9 @@ const AddSigningDevice = () => {
       }) && (
         <Box position={'absolute'} bottom={10} width={'100%'}>
           <Buttons
+            primaryLoading={vaultCreating}
             primaryText="Create Vault"
-            primaryCallback={onProceed}
+            primaryCallback={triggerVaultCreation}
             secondaryText={'Cancel'}
             secondaryCallback={navigation.goBack}
           />
