@@ -15,6 +15,7 @@ import React from 'react';
 import { customTheme } from './src/common/themes';
 import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext } from 'react-native-iap';
+import { AppContextProvider } from 'src/common/content/AppContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -37,7 +38,9 @@ const App = () => {
         <NativeBaseProvider theme={customTheme}>
           <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
           <LocalizationProvider>
-            <Navigator />
+            <AppContextProvider>
+              <Navigator />
+            </AppContextProvider>
           </LocalizationProvider>
         </NativeBaseProvider>
       </BottomSheetModalProvider>

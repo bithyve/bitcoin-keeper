@@ -1,5 +1,5 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -58,6 +58,8 @@ import SigningServer from 'src/screens/Vault/SigningServer';
 import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
+import KeeperLoader from 'src/components/KeeperLoader';
+import { AppContext } from 'src/common/content/AppContext';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -166,6 +168,7 @@ const AppStack = () => {
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
+  const { appLoading } = useContext(AppContext);
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
@@ -177,6 +180,14 @@ const Navigator = () => {
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />
       </Stack.Navigator>
+      <KeeperLoader
+        visible={appLoading}
+        close={() => { }}
+        title={'please wait'}
+        subTitle={'loading'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#000'}
+      />
     </NavigationContainer>
   );
 };
