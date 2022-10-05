@@ -6,7 +6,7 @@ const Signers = [
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,
   SignerType.KEEPER,
-  SignerType.SEED_WORDS,
+  // SignerType.SEED_WORDS,
   SignerType.TAPSIGNER,
   SignerType.LEDGER,
   SignerType.COLDCARD,
