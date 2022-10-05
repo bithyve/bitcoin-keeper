@@ -5,6 +5,8 @@ import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
+import Twitter from 'src/assets/images/svgs/Twitter.svg';
+import Telegram from 'src/assets/images/svgs/Telegram.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import TorModalMap from './TorModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -70,8 +72,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -215,7 +217,7 @@ const AppSettings = ({ navigation }) => {
           <CurrencyTypeSwitch />
         </Box>
       </Box>
-      <Box flex={1}>
+      <Box flex={1} position={'relative'}>
         <ScrollView
           overScrollMode="never"
           bounces={false}
@@ -237,7 +239,7 @@ const AppSettings = ({ navigation }) => {
           <SettingsSwitchCard
             title={sensorType}
             description={formatString(settings.UseBiometricSubTitle, sensorType)}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => onChangeLoginMethod()}
             value={loginMethod === LoginMethod.BIOMETRIC}
@@ -246,7 +248,7 @@ const AppSettings = ({ navigation }) => {
           <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
@@ -254,7 +256,7 @@ const AppSettings = ({ navigation }) => {
           <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
@@ -262,7 +264,7 @@ const AppSettings = ({ navigation }) => {
           <SettingsCard
             title={'Tor'}
             description={'Tor daemon settings'}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={onPressTor}
@@ -271,89 +273,149 @@ const AppSettings = ({ navigation }) => {
           <SettingsCard
             title={settings.LanguageCountry}
             description={settings.LanguageCountrySubTitle}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
         </ScrollView>
 
-        <Pressable onPress={() => openLink('https://t.me/HexaWallet')}>
-          <Box
-            flexDirection={'row'}
-            justifyContent={'space-evenly'}
-            height={hp(40)}
-            borderRadius={8}
-            marginBottom={hp(8)}
-            backgroundColor={'light.lightYellow'}
-            alignItems={'center'}
-          >
-            <Box>
-              <Text
-                color={'light.textColor2'}
-                fontWeight={200}
-                fontSize={RFValue(13)}
-                letterSpacing={0.79}
-                fontFamily={'body'}
+        <Box
+          width={wp(340)}
+          position={'absolute'}
+          bottom={-hp(20)}
+          backgroundColor={'light.ReceiveBackground'}
+        >
+          <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
+            <Pressable onPress={() => console.log('Telegram')}>
+              <Box
+                flexDirection={'row'}
+                justifyContent={'space-evenly'}
+                height={hp(45)}
+                width={wp(169)}
+                borderRadius={8}
+                marginBottom={hp(8)}
+                backgroundColor={'light.lightYellow'}
+                alignItems={'center'}
               >
-                {settings.KeeperCommunityTelegramGroup}
-              </Text>
-            </Box>
-            <Box flex={0.1} justifyContent={'center'} alignItems={'center'}>
-              <LinkIcon />
-            </Box>
-          </Box>
-        </Pressable>
+                <Box
+                  flexDirection={'row'}
+                  alignItems={'center'}
+                  style={{ marginRight: wp(3) }}
 
-        <Box style={{ flex: hp(0.15) }}>
-          <Box
-            flexDirection={'row'}
-            justifyContent={'space-evenly'}
-            alignItems={'center'}
-            borderRadius={8}
-            p={2}
-            height={hp(45)}
-            bg={'light.lightYellow'}
-          >
-            <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
-              <Text
-                fontSize={13}
-                fontWeight={200}
-                letterSpacing={0.79}
-                fontFamily={'body'}
-                color={`${colorMode}.textColor2`}
-              >
-                {common.FAQs}
-              </Text>
+                >
+                  <Telegram />
+                  <Box style={{ marginLeft: wp(10) }}>
+                    <Text
+                      color={'light.textColor2'}
+                      fontWeight={200}
+                      fontSize={RFValue(13)}
+                      letterSpacing={0.79}
+                      fontFamily={'body'}
+                    >
+                      Keeper Telegram
+                    </Text>
+                  </Box>
+                </Box>
+                <Box
+                  flex={0.1}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                >
+                  <LinkIcon />
+                </Box>
+              </Box>
             </Pressable>
-            <Text fontFamily={'body'} color={'light.textColor2'}>
-              |
-            </Text>
-            <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
-              <Text
-                fontSize={13}
-                fontWeight={200}
-                letterSpacing={0.79}
-                fontFamily={'body'}
-                color={`${colorMode}.textColor2`}
+            <Pressable onPress={() => console.log('Twitter')}>
+              <Box
+                flexDirection={'row'}
+                justifyContent={'space-evenly'}
+                height={hp(45)}
+                width={wp(165)}
+                borderRadius={8}
+                marginBottom={hp(8)}
+                backgroundColor={'light.lightYellow'}
+                alignItems={'center'}
               >
-                {common.TermsConditions}
-              </Text>
+                <Box
+                  flexDirection={'row'}
+                  alignItems={'center'}
+                  style={{ marginRight: wp(3) }}
+                >
+                  <Twitter />
+                  <Box style={{ marginLeft: wp(10) }}>
+                    <Text
+                      color={'light.textColor2'}
+                      fontWeight={200}
+                      fontSize={RFValue(13)}
+                      letterSpacing={0.79}
+                      fontFamily={'body'}
+                    >
+                      Keeper Twitter
+                    </Text>
+                  </Box>
+                </Box>
+                <Box
+                  flex={0.1}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                >
+                  <LinkIcon />
+                </Box>
+              </Box>
             </Pressable>
-            <Text fontFamily={'body'} color={'light.textColor2'}>
-              |
-            </Text>
-            <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
-              <Text
-                fontSize={13}
-                fontWeight={200}
-                letterSpacing={0.79}
-                fontFamily={'body'}
-                color={`${colorMode}.textColor2`}
-              >
-                {common.PrivacyPolicy}
+          </Box>
+
+          <Box style={{ flex: hp(0.15) }}>
+            <Box
+              flexDirection={'row'}
+              justifyContent={'space-evenly'}
+              alignItems={'center'}
+              borderRadius={8}
+              p={2}
+              height={hp(45)}
+              bg={'light.lightYellow'}
+            >
+              <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
+                <Text
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.79}
+                  fontFamily={'body'}
+                  color={`${colorMode}.textColor2`}
+                >
+                  {common.FAQs}
+                </Text>
+              </Pressable>
+              <Text fontFamily={'body'} color={'light.textColor2'}>
+                |
               </Text>
-            </Pressable>
+              <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
+                <Text
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.79}
+                  fontFamily={'body'}
+                  color={`${colorMode}.textColor2`}
+                >
+                  {common.TermsConditions}
+                </Text>
+              </Pressable>
+              <Text fontFamily={'body'} color={'light.textColor2'}>
+                |
+              </Text>
+              <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
+                <Text
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.79}
+                  fontFamily={'body'}
+                  color={`${colorMode}.textColor2`}
+                >
+                  {common.PrivacyPolicy}
+                </Text>
+              </Pressable>
+            </Box>
           </Box>
         </Box>
       </Box>
