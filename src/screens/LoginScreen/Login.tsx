@@ -24,6 +24,7 @@ import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
+import { AppContext } from 'src/common/content/AppContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 
 const TIMEOUT = 60;
@@ -48,6 +49,7 @@ const LoginScreen = ({ navigation, route }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
+  const { setAppLoading } = useContext(AppContext);
   const login = translations['login'];
   const common = translations['common'];
 
@@ -158,6 +160,7 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
+      setAppLoading(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
@@ -169,6 +172,7 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      setAppLoading(false)
       if (relogin) {
         navigation.goBack();
       } else {
@@ -193,6 +197,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
+    setAppLoading(true)
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -289,7 +294,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
