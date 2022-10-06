@@ -68,14 +68,13 @@ const WalletDetails = () => {
     const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
-    const confirmedBalance = balances?.confirmed;
     const isActive = index === walletIndex
 
     return (
       <Shadow
-        distance={4}
+        distance={9}
         startColor={'#e4e4e4'}
-        offset={[4, 0]}
+        offset={[0, 14]}
         viewStyle={{
           height: hp(140),
         }}
@@ -310,6 +309,7 @@ const WalletDetails = () => {
           itemHeight={hp(160)}
           layout={'default'}
           activeSlideAlignment='start'
+
           inactiveSlideOpacity={1}
         />
       </Box>
