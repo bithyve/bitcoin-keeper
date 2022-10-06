@@ -277,7 +277,7 @@ const WalletDetails = () => {
         <Text
           color={'light.textWallet'}
           letterSpacing={0.96}
-          fontSize={RFValue(14)}
+          fontSize={RFValue(16)}
           fontWeight={200}
           marginTop={hp(10)}
         >
