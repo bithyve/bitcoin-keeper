@@ -61,7 +61,7 @@ export default class SigningServer {
 
   static signPSBT = async (
     appId: string,
-    token: number,
+    verificationToken: number,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -80,7 +80,7 @@ export default class SigningServer {
       res = await RestClient.post(`${SIGNING_SERVER}v2/signTransaction`, {
         HEXA_ID: config.HEXA_ID,
         appId,
-        token,
+        verificationToken,
         serializedPSBT,
         childIndexArray,
       });
