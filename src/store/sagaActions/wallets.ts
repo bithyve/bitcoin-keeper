@@ -3,6 +3,7 @@ import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { SignerPolicy } from 'src/core/services/interfaces';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -107,17 +108,20 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => {
   };
 };
 
-export const registerWithSigningServer = () => {
+export const registerWithSigningServer = (policy: SignerPolicy) => {
   return {
     type: REGISTER_WITH_SIGNING_SERVER,
+    payload: {
+      policy,
+    },
   };
 };
 
-export const validateSigningServerRegistration = (token: number) => {
+export const validateSigningServerRegistration = (verificationToken) => {
   return {
     type: VALIDATE_SIGNING_SERVER_REGISTRATION,
     payload: {
-      token,
+      verificationToken,
     },
   };
 };

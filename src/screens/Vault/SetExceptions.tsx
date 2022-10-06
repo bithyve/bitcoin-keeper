@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -8,9 +8,14 @@ import { Pressable, StyleSheet, TextInput } from 'react-native';
 import Fonts from 'src/common/Fonts';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
+import { SignerException, SignerPolicy, VerificationType } from 'src/core/services/interfaces';
+import { CommonActions } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 
-const SetExceptions = ({ navigation }) => {
-  const [maxTransaction, setMaxTransaction] = useState('0.0009');
+const SetExceptions = ({ navigation, route }) => {
+  const [maxTransaction, setMaxTransaction] = useState('0');
+  const dispatch = useDispatch();
 
   const CheckOption = ({ title, subTitle, isChecked = false, showInput = false }) => {
     return (
@@ -27,61 +32,75 @@ const SetExceptions = ({ navigation }) => {
           />
         </Pressable>
         <Box>
-          <Text
-            fontWeight={200}
-            fontSize={14}
-            letterSpacing={0.96}
-            color={'light.lightBlack'}
-          >
+          <Text fontWeight={200} fontSize={14} letterSpacing={0.96} color={'light.lightBlack'}>
             {title}
           </Text>
-          <Text
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontSize={11}
-            letterSpacing={0.5}
-          >
+          <Text color={'light.GreyText'} fontWeight={200} fontSize={11} letterSpacing={0.5}>
             {subTitle}
           </Text>
         </Box>
-        {showInput &&
+        {showInput && (
           <Box>
-            <Box
-              marginLeft={wp(20)}
-            >
-              <TextInput
-                style={styles.textInput}
-                value={maxTransaction}
-              />
+            <Box marginLeft={wp(20)}>
+              <TextInput style={styles.textInput} value={maxTransaction} />
             </Box>
           </Box>
-        }
+        )}
       </Box>
-    )
-  }
+    );
+  };
   return (
     <Box flex={1} position={'relative'}>
-      <ScreenWrapper barStyle="dark-content" >
-        <Box style={{
-          paddingLeft: wp(10),
-        }}>
+      <ScreenWrapper barStyle="dark-content">
+        <Box
+          style={{
+            paddingLeft: wp(10),
+          }}
+        >
           <HeaderTitle
-            title='Set Exceptions'
-            subtitle='for the signing server'
+            title="Set Exceptions"
+            subtitle="for the signing server"
             paddingTop={hp(20)}
             showToggler={true}
           />
           {/* {check options } */}
-          <Box style={{
-            paddingHorizontal: wp(15)
-          }}>
+          <Box
+            style={{
+              paddingHorizontal: wp(15),
+            }}
+          >
             <CheckOption title={'No Exceptions'} subTitle={'Lorem ipsum dolor sit amet,'} />
-            <CheckOption title={'Max Transaction amount'} subTitle={'Lorem ipsum dolor sit amet,'} showInput={true} />
+            <CheckOption
+              title={'Max Transaction amount'}
+              subTitle={'Lorem ipsum dolor sit amet,'}
+              showInput={true}
+            />
           </Box>
           {/* {button} */}
           <Box marginTop={hp(80)}>
             <Buttons
-              primaryText='Next'
+              primaryText="Next"
+              primaryCallback={() => {
+                const maxAmount = Number(maxTransaction); // in sats
+                const exceptions: SignerException = {
+                  none: maxAmount === 0,
+                  transactionAmount: maxAmount === 0 ? null : maxAmount,
+                };
+
+                const policy: SignerPolicy = {
+                  verification: {
+                    method: VerificationType.TWO_FA,
+                    verifier: {},
+                  },
+                  restrictions: route.params.restrictions,
+                  exceptions,
+                };
+
+                dispatch(registerWithSigningServer(policy));
+                navigation.dispatch(
+                  CommonActions.navigate({ name: 'SetupSigningServer', params: {} })
+                );
+              }}
             />
           </Box>
         </Box>
@@ -93,7 +112,7 @@ const SetExceptions = ({ navigation }) => {
           ok={() => {
             console.log('ok');
           }}
-          clear={() => { }}
+          clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
@@ -110,7 +129,7 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 20,
     letterSpacing: 0.23,
-    fontFamily: Fonts.RobotoCondensedRegular
+    fontFamily: Fonts.RobotoCondensedRegular,
   },
-})
+});
 export default SetExceptions;

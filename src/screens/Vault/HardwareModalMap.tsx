@@ -29,7 +29,6 @@ import config from 'src/core/config';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
-import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
@@ -232,8 +231,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const navigateToSigningServerSetup = () => {
     close();
-    dispatch(registerWithSigningServer());
-    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicy', params: {} }));
   };
 
   const navigateToSeedWordSetup = () => {
@@ -468,7 +466,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonBackground={['#00836A', '#073E39']}
         buttonText={'View Vault'}
         buttonTextColor={'#FAFAFA'}
-        buttonCallback={() => { console.log('View Vault') }}
+        buttonCallback={() => {
+          console.log('View Vault');
+        }}
         textColor={'#041513'}
         Content={SetupSuccessfully}
       />
