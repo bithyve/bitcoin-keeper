@@ -58,11 +58,6 @@ const SetupSigningServer = ({ route }: { route }) => {
   const setupSigningServerKey = async () => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    // const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
-    //   primaryMnemonic,
-    //   networkType
-    // );
-
 
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
@@ -151,10 +146,11 @@ const SetupSigningServer = ({ route }: { route }) => {
         />
       </Box>
       <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={wp(250)}>
-        {twoFAKey === '' ?
+        {twoFAKey === '' ? (
           <Box height={hp(250)} justifyContent={'center'}>
-            <ActivityIndicator animating={true} size='small' />
-          </Box> :
+            <ActivityIndicator animating={true} size="small" />
+          </Box>
+        ) : (
           <Box alignItems={'center'} alignSelf={'center'} width={hp(200)}>
             <Text
               color={'light.recieverAddress'}
@@ -190,8 +186,7 @@ const SetupSigningServer = ({ route }: { route }) => {
               </Text>
             </Box>
           </Box>
-
-        }
+        )}
       </Box>
 
       {/* {Bottom note} */}
