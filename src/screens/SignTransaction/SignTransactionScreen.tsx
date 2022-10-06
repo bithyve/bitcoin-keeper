@@ -222,12 +222,15 @@ const SignTransactionScreen = () => {
           try {
             showOTPModal(false);
             const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+            const outgoing = idx(signingPayload, (_) => _[0].outgoing);
+
             if (!childIndexArray) throw new Error('Invalid signing payload');
             const { signedPSBT } = await SigningServer.signPSBT(
               keeper.id,
               Number(signingServerOTP),
               serializedPSBT,
-              childIndexArray
+              childIndexArray,
+              outgoing
             );
             if (!signedPSBT) throw new Error('signing server: failed to sign');
             dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));

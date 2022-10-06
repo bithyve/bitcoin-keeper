@@ -70,7 +70,8 @@ export default class SigningServer {
         vout: number;
         value: number;
       };
-    }>
+    }>,
+    outgoing: number
   ): Promise<{
     signedPSBT: string;
   }> => {
@@ -83,6 +84,7 @@ export default class SigningServer {
         verificationToken,
         serializedPSBT,
         childIndexArray,
+        outgoing,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
