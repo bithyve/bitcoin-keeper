@@ -3,7 +3,8 @@ import {
   ActivityIndicator,
   SafeAreaView,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  Platform
 } from 'react-native';
 import { Box, StatusBar, Text } from 'native-base';
 import RNIap, {
@@ -32,6 +33,7 @@ import { Subscription } from 'react-native-iap';
 import dbManager from 'src/storage/realm/dbManager';
 import TierUpgradeModal from './TierUpgradeModal';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { useNavigation } from '@react-navigation/native';
 
 const plans = [
   {
@@ -89,6 +91,7 @@ const ChoosePlan = (props) => {
   const [isUpgrade, setIsUpgrade] = useState(false)
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const navigation = useNavigation()
 
   useEffect(() => {
     let purchaseUpdateSubscription;
@@ -228,6 +231,7 @@ const ChoosePlan = (props) => {
 
   const onPressModalBtn = () => {
     setShowUpgradeModal(false)
+    navigation.navigate('AddSigningDevice')
   }
 
   return (
