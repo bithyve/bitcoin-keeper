@@ -11,11 +11,9 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
+import Instabug, {BugReporting} from 'instabug-reactnative';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import CustomPriorityModal from '../Send/CustomPriorityModal';
 import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
@@ -26,13 +24,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
-// import Elite from 'src/assets/images/svgs/elite.svg';
-// import Pro from 'src/assets/images/svgs/pro.svg';
-// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
-// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
-// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -54,9 +46,9 @@ import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import { walletData } from 'src/common/data/defaultData/defaultData';
 import Chain from 'src/assets/icons/illustration_homescreen.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
+
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -275,7 +267,7 @@ const VaultStatus = (props) => {
       case TorStatus.OFF:
         return 'Tor disabled';
       case TorStatus.CONNECTING:
-        return 'Tor connecting...';
+        return 'Connecting to Tor';
       case TorStatus.CONNECTED:
         return 'Tor enabled';
       case TorStatus.ERROR:
@@ -288,15 +280,15 @@ const VaultStatus = (props) => {
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'yellow.400';
+        return '#fac48b';
       case TorStatus.CONNECTING:
-        return 'orange.400';
+        return '#fac48b';
       case TorStatus.CONNECTED:
-        return 'green.400';
+        return '#c6ecae';
       case TorStatus.ERROR:
         return 'red.400';
       default:
-        return 'yellow.400';
+        return '#fac48b';
     }
   }, [torStatus]);
 
@@ -311,14 +303,15 @@ const VaultStatus = (props) => {
             justifyContent={'center'}
             alignItems={'center'}
             marginTop={hp(30)}
-            paddingX={1}
+            paddingX={2}
           >
             <Text
               color={'light.lightBlack'}
               letterSpacing={1}
-              fontSize={hp(11)}
+              fontSize={11}
               fontWeight={300}
               textAlign={'center'}
+              textTransform="uppercase"
             >
               {getTorStatusText}
             </Text>
@@ -467,7 +460,7 @@ const VaultInfo = () => {
   };
 
   function getPlanIcon() {
-    if (subscription.name.toLowerCase().includes('whale')) {
+    if (subscription.name.toLowerCase().includes('diamond')) {
       return <DiamondHandsFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;
@@ -541,6 +534,17 @@ export const NextIcon = ({ pressHandler }) => {
 
 const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      BugReporting.setOptions([BugReporting.option.emailFieldHidden])
+      BugReporting.setInvocationEvents([Instabug.invocationEvent.shake, Instabug.invocationEvent.screenshot])
+      BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback])
+      Instabug.setPrimaryColor('rgb(7, 62, 57)')
+      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [Instabug.invocationEvent.none])
+    }, 2000);
+  }, [])
 
   const data = {
     name: 'Tonny Hill',

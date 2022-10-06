@@ -58,7 +58,7 @@ function* setupKeeperAppWorker({ payload }) {
       },
       subscription: {
         productId: SubscriptionTier.PLEB,
-        name: SubscriptionTier.PLEB.toUpperCase(),
+        name: SubscriptionTier.PLEB,
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,

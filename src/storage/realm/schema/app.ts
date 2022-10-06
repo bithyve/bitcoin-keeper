@@ -7,7 +7,7 @@ export const StoreSubscriptionSchema: ObjectSchema = {
   properties: {
     name: {
       type: 'string',
-      default: SubscriptionTier.PLEB.toUpperCase(),
+      default: SubscriptionTier.PLEB,
     },
     productId: {
       type: 'string',

@@ -1,6 +1,5 @@
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 
-import APP from 'src/assets/images/app.svg';
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
 import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
@@ -11,11 +10,14 @@ import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
 import LEDGERICONLIGHT from 'src/assets/icons/ledger_light.svg';
 import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
+import MOBILEKEY from 'src/assets/images/mobile_key.svg';
+import MOBILEKEYLIGHT from 'src/assets/images/svgs/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
-import SEEDWORDSICON from 'src/assets/images/seedwords_icon.svg';
 import React from 'react';
+import SEEDWORDSICON from 'src/assets/images/seedwords_icon.svg';
 import SERVER from 'src/assets/images/server.svg';
+import SERVERLIGHT from 'src/assets/icons/server_light.svg';
 import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
 import TAPSIGNERICONLIGHT from 'src/assets/icons/tapsigner_light.svg';
 import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
@@ -63,7 +65,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.MOBILE_KEY:
       return {
-        Icon: <APP />,
+        Icon: light ? <MOBILEKEYLIGHT /> : <MOBILEKEY />,
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Mobile Key
@@ -79,7 +81,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.POLICY_SERVER:
       return {
-        Icon: <SERVER />,
+        Icon: light ? <SERVERLIGHT /> : <SERVER />,
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Signing Server

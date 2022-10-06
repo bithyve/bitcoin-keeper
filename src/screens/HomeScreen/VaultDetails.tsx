@@ -2,14 +2,13 @@ import { Box, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
-  InteractionManager,
   Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
@@ -39,11 +38,12 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import { WalletMap } from '../Vault/WalletMap';
+import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getAmount } from 'src/common/constants/Bitcoin';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
@@ -156,7 +156,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.navigate('VaultSettings')
+            navigation.navigate('VaultSettings');
           }}
         >
           <IconSettings />
@@ -422,7 +422,7 @@ const SignerList = ({
                   letterSpacing={0.6}
                   textAlign={'center'}
                 >
-                  {`Hardware Wallet`}
+                  {`${moment(signer.addedOn).fromNow()}`}
                 </Text>
               </VStack>
             </TouchableOpacity>
@@ -449,7 +449,7 @@ const VaultDetails = () => {
 
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {

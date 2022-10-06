@@ -7,7 +7,7 @@ export const SUBSCRIPTION_SCHEME_MAP = {
     m: 2,
     n: 3,
   },
-  WHALE: {
+  'DIAMOND HANDS': {
     m: 3,
     n: 5,
   },
