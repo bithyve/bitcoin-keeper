@@ -401,7 +401,11 @@ const WalletDetails = () => {
             </Box>
           </Box>
 
-          <Box marginTop={hp(10)} height={hp(250)}>
+          <Box
+            marginTop={hp(10)}
+            height={hp(250)}
+            position={'relative'}
+          >
             <FlatList
               refreshControl={
                 <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
@@ -412,58 +416,68 @@ const WalletDetails = () => {
               showsVerticalScrollIndicator={false}
             />
           </Box>
-
           <Box
-            borderWidth={0.5}
-            borderColor={'light.GreyText'}
-            borderRadius={20}
-            opacity={0.2}
-            marginTop={hp(-5)}
-          />
-
-          <Box flexDirection={'row'} marginTop={2} justifyContent={'space-between'} marginX={10}>
-            <TouchableOpacity
-              style={styles.IconText}
-              onPress={() => {
-                navigation.navigate('Send', { wallet: currentWallet });
-              }}
+            position={'absolute'}
+            bottom={0}
+            width={wp(375)}
+            paddingX={5}
+          >
+            <Box
+              borderWidth={0.5}
+              borderColor={'light.GreyText'}
+              borderRadius={20}
+              opacity={0.2}
+            />
+            <Box
+              flexDirection={'row'}
+              marginTop={4}
+              marginBottom={hp(2)}
+              justifyContent={'space-between'}
+              marginX={10}
             >
-              <Send />
-              <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                Send
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.IconText}
-              onPress={() => {
-                navigation.navigate('Receive', { wallet: currentWallet });
-              }}
-            >
-              <Recieve />
-              <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                Recieve
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.IconText}>
-              <Buy />
-              <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                Buy
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.IconText}
-              onPress={() => {
-                navigation.navigate('WalletSettings', { wallet: currentWallet });
-                // navigation.navigate('ExportSeed', {
-                //   seed: currentWallet?.derivationDetails?.mnemonic,
-                // });
-              }}
-            >
-              <IconSettings />
-              <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                Settings
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.IconText}
+                onPress={() => {
+                  navigation.navigate('Send', { wallet: currentWallet });
+                }}
+              >
+                <Send />
+                <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                  Send
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.IconText}
+                onPress={() => {
+                  navigation.navigate('Receive', { wallet: currentWallet });
+                }}
+              >
+                <Recieve />
+                <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                  Recieve
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.IconText}>
+                <Buy />
+                <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                  Buy
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.IconText}
+                onPress={() => {
+                  navigation.navigate('WalletSettings', { wallet: currentWallet });
+                  // navigation.navigate('ExportSeed', {
+                  //   seed: currentWallet?.derivationDetails?.mnemonic,
+                  // });
+                }}
+              >
+                <IconSettings />
+                <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                  Settings
+                </Text>
+              </TouchableOpacity>
+            </Box>
           </Box>
         </>
       ) : (
