@@ -24,6 +24,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { AppContext } from 'src/common/content/AppContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 
@@ -49,6 +50,7 @@ const LoginScreen = ({ navigation, route }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
+  const { setAppLoading } = useContext(AppContext);
   const login = translations['login'];
   const common = translations['common'];
 
@@ -153,6 +155,7 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
+      setAppLoading(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
@@ -164,6 +167,7 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      setAppLoading(false)
       if (relogin) {
         navigation.goBack();
       } else {
@@ -188,6 +192,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
+    setAppLoading(true)
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
