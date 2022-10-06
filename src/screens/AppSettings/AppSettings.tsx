@@ -261,14 +261,15 @@ const AppSettings = ({ navigation }) => {
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
           />
-          <SettingsCard
+          <SettingsSwitchCard
             title={'Tor'}
             description={'Tor daemon settings'}
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={onPressTor}
-            renderStatus={torStatus === TorStatus.OFF ? null : RenderTorStatus}
+            onSwitchToggle={onPressTor}
+            renderStatus={(torStatus === TorStatus.OFF || torStatus === TorStatus.CONNECTED) ? null : RenderTorStatus}
+            value={torStatus === TorStatus.CONNECTED}
           />
           <SettingsCard
             title={settings.LanguageCountry}
