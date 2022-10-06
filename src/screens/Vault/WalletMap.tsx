@@ -5,6 +5,8 @@ import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
 import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
 import JADEICON from 'src/assets/images/jade_icon.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
+import KEEPERAPP from 'src/assets/icons/KeeperIcon.svg';
+import KEEPERAPPLIGHT from 'src/assets/icons/KeeperIconLight.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
@@ -15,7 +17,8 @@ import MOBILEKEYLIGHT from 'src/assets/images/svgs/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
-import SEEDWORDSICON from 'src/assets/images/seedwords_icon.svg';
+import SEEDWORDS from 'src/assets/icons/seedwords.svg';
+import SEEDWORDSLIGHT from 'src/assets/icons/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';
 import SERVERLIGHT from 'src/assets/icons/server_light.svg';
 import TAPSIGNERICON from 'src/assets/images/tapsigner_icon.svg';
@@ -42,7 +45,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.KEEPER:
       return {
-        Icon: null,
+        Icon: light ? <KEEPERAPPLIGHT /> : <KEEPERAPP />,
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Another Keeper App
@@ -101,10 +104,10 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.SEED_WORDS:
       return {
-        Icon: <SEEDWORDSICON />,
+        Icon: light ? <SEEDWORDSLIGHT /> : <SEEDWORDS />,
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
-            Seed Words Based
+            Soft Key
           </Text>
         ),
         type: SignerStorage.WARM,

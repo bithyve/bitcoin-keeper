@@ -30,10 +30,7 @@ type HWProps = {
 };
 
 const findKeyInServer = (vaultSigners, type: SignerType) => {
-  return vaultSigners.find(
-    (element) =>
-      element.type === type
-  );
+  return vaultSigners.find((element) => element.type === type);
 };
 
 const SigningDeviceList = ({ navigation }: { navigation }) => {
@@ -43,7 +40,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     getJSONFromRealmObject
   )[0];
 
-  const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB;
+  const isOnPleb = subscription.name === SubscriptionTier.PLEB;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
 
   const [nfcAlert, setNfcAlert] = useState(false);
@@ -64,6 +61,10 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         setBLESupport(false);
       }
     }, true);
+  };
+
+  const openNFCError = () => {
+    setNfcAlert(true);
   };
 
   const getDisabled = (type: SignerType) => {
@@ -128,7 +129,19 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     }
   };
 
-  const sortedSigners = useSigningList(isNfcSupported, isBLESupported, getDeviceStatus);
+  const sortedSigners = [
+    SignerType.COLDCARD,
+    SignerType.LEDGER,
+    SignerType.TREZOR,
+    SignerType.TAPSIGNER,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
+    SignerType.PASSPORT,
+    SignerType.JADE,
+    SignerType.KEEPER,
+    SignerType.SEED_WORDS,
+    SignerType.KEYSTONE,
+  ];
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
 
@@ -231,27 +244,28 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         headerTitleColor={'light.headerTextTwo'}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
-        <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
             {sortedSigners?.map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
-        </ScrollView>
-        <Text
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-          fontWeight={100}
-          color={'light.lightBlack'}
-          width={wp(300)}
-          lineHeight={20}
-          marginTop={hp(20)}
-        >
-          {vault.VaultInfo}{' '}
-          <Text fontStyle={'italic'} fontWeight={'bold'}>
-            Contact Us
+          <Text
+            fontSize={RFValue(12)}
+            letterSpacing={0.6}
+            fontWeight={100}
+            color={'light.lightBlack'}
+            width={wp(300)}
+            lineHeight={20}
+            marginTop={hp(20)}
+          >
+            {vault.VaultInfo}{' '}
+            <Text fontStyle={'italic'} fontWeight={'bold'}>
+              Contact Us
+            </Text>
           </Text>
-        </Text>
+        </ScrollView>
+
         <KeeperModal
           visible={nfcAlert}
           close={() => {

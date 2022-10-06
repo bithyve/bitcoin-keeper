@@ -1,14 +1,14 @@
+import * as bip39 from 'bip39';
+
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
+import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { Alert } from 'react-native';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
-import SuccessIllustration from 'src/assets/images/success_illustration.svg';
-import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
-import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -18,21 +18,22 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import { StyleSheet } from 'react-native';
+import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
-import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import * as bip39 from 'bip39';
 
 const SetupSuccessfully = () => {
   return (
@@ -87,7 +88,9 @@ const TapsignerSetupContent = () => {
     <View>
       <TapsignerSetupImage />
       <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
-      <BulletPoint text={`Make sure that TAPSIGNER is not used as a Signer on other apps`} />
+      <BulletPoint
+        text={`You should generally not use the same Signing Device on multiple wallets/apps`}
+      />
     </View>
   );
 };
@@ -160,11 +163,11 @@ const SettingSigningServer = () => {
   return (
     <Box>
       <SigningServerIllustration />
+      <BulletPoint text={'A 2FA authenticator will have to be set up to use this option'} />
       <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
-      />
-      <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        text={
+          'On providing the correct code from the auth app, the Signing Server will sign the transaction'
+        }
       />
     </Box>
   );
@@ -175,10 +178,12 @@ const SetUpMobileKey = () => {
     <Box>
       <MobileKeyIllustration />
       <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        text={'To secure this key, you need the Recovery Phrase of the wallets to be backed up'}
       />
       <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        text={
+          'This key available for signing transactions if you confirm your passcode or biometrics'
+        }
       />
     </Box>
   );
@@ -338,8 +343,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
             color={'light.modalText'}
             marginTop={2}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et
+            The app will use the Mobile Key to sign on entering the correct Passcode
           </Text>
           <Box mt={10} alignSelf={'flex-end'} mr={2}>
             <Box>
@@ -373,7 +377,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={tapsigner.SetupDescription}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Setup'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToTapsignerSetup}
         textColor={'#041513'}
@@ -409,10 +413,10 @@ const HardwareModalMap = ({ type, visible, close }) => {
         visible={visible && type === SignerType.POLICY_SERVER}
         close={close}
         title={'Setting up a Signing Server'}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+        subTitle={'A Signing Server will hold one of the keys in the Vault'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Continue'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToSigningServerSetup}
         textColor={'#041513'}
@@ -422,10 +426,12 @@ const HardwareModalMap = ({ type, visible, close }) => {
         visible={visible && type === SignerType.MOBILE_KEY}
         close={close}
         title={'Set up a Mobile Key'}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+        subTitle={
+          'This key available for signing transactions if you confirm your passcode or biometrics'
+        }
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Continue'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={() => {
           close();
@@ -440,7 +446,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
           setPasswordModal(false);
         }}
         title={'Enter your password'}
-        subTitle={'Lorem ipsum dolor sit amet, '}
+        subTitle={'The one you use to login to the app'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
         Content={passwordEnter}
@@ -452,7 +458,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Continue'}
+        buttonText={'Proceed'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToSeedWordSetup}
         textColor={'#041513'}
@@ -468,7 +474,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonBackground={['#00836A', '#073E39']}
         buttonText={'View Vault'}
         buttonTextColor={'#FAFAFA'}
-        buttonCallback={() => { console.log('View Vault') }}
+        buttonCallback={() => {
+          console.log('View Vault');
+        }}
         textColor={'#041513'}
         Content={SetupSuccessfully}
       />

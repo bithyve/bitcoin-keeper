@@ -1,32 +1,34 @@
-import { Box, Text, View, ScrollView } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import * as bip39 from 'bip39';
+
+import { Box, ScrollView, Text, View } from 'native-base';
 import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  FlatList,
+  Platform,
+  StyleSheet,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import SeedWordsView from 'src/components/SeedWordsView';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import LinearGradient from 'react-native-linear-gradient';
-import KeeperModal from 'src/components/KeeperModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import React, { useContext, useEffect, useState } from 'react';
+
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import { useDispatch } from 'react-redux';
+import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import LinearGradient from 'react-native-linear-gradient';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { ScaledSheet } from 'react-native-size-matters';
+import SeedWordsView from 'src/components/SeedWordsView';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import * as bip39 from 'bip39';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -252,8 +254,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid == true
                           ? {
-                            borderColor: '#F58E6F',
-                          }
+                              borderColor: '#F58E6F',
+                            }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}

@@ -107,8 +107,6 @@ const SigningDeviceDetails = ({ route }) => {
     }
   };
 
-  console.log('date', signer.lastHealthCheck);
-
   const getColdCardDetails = async () => {
     const { xpub, path: derivationPath, xfp } = await scanMK4();
     return { xpub, derivationPath, xfp };

@@ -7,6 +7,7 @@ import {
   StatusBar,
   StyleSheet,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -22,6 +23,7 @@ import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
@@ -33,6 +35,7 @@ import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import Success from 'src/assets/images/Success.svg';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
@@ -434,7 +437,8 @@ const SignerList = ({
   );
 };
 
-const VaultDetails = () => {
+const VaultDetails = ({ route }) => {
+  const { vaultTransferSuccessful = false } = route.params;
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
@@ -445,8 +449,8 @@ const VaultDetails = () => {
     .filter((vault) => !vault.archived)[0];
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const transactions = vault?.specs?.transactions || [];
-
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
@@ -463,6 +467,10 @@ const VaultDetails = () => {
     setPullRefresh(true);
     dispatch(refreshWallets([vault], { hardRefresh: true }));
     setPullRefresh(false);
+  };
+
+  const closeVaultCreatedDialog = () => {
+    setVaultCreated(false);
   };
 
   const styles = getStyles(top);
@@ -490,6 +498,26 @@ const VaultDetails = () => {
           <Footer vault={vault} />
         </VStack>
       </VStack>
+      <KeeperModal
+        visible={vaultCreated}
+        title={'New Vault Created'}
+        subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        buttonText={'View Vault'}
+        primaryCallback={closeVaultCreatedDialog}
+        close={closeVaultCreatedDialog}
+        Content={() => {
+          return (
+            <View>
+              <Success />
+              <Text>
+                {
+                  'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
+                }
+              </Text>
+            </View>
+          );
+        }}
+      />
     </LinearGradient>
   );
 };

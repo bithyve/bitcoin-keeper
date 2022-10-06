@@ -184,7 +184,7 @@ const SetupTapsigner = () => {
               letterSpacing={0.65}
               color={'light.modalText'}
             >
-              Lorem ipsum dolor sit amet, consectetur eiusmod tempor
+              You will be scanning the TAPSIGNER after this step
             </Text>
             <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />

@@ -295,7 +295,7 @@
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View Vault",
     "AddNow": "Add Now",
-    "SelectSigner": "Select Signing Devices",
+    "SelectSigner": "Select Signing Device",
     "ForVault": "For your Vault",
     "VaultInfo": "A Signing Device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
