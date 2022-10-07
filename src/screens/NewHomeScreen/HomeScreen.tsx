@@ -11,7 +11,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import Instabug, {BugReporting} from 'instabug-reactnative';
+import Instabug, { BugReporting } from 'instabug-reactnative';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import FileViewer from 'react-native-file-viewer';
@@ -535,15 +535,16 @@ export const NextIcon = ({ pressHandler }) => {
 const HomeScreen = () => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
-
   useEffect(() => {
-    setTimeout(() => {
+    try {
+      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [Instabug.invocationEvent.shake, Instabug.invocationEvent.screenshot])
       BugReporting.setOptions([BugReporting.option.emailFieldHidden])
       BugReporting.setInvocationEvents([Instabug.invocationEvent.shake, Instabug.invocationEvent.screenshot])
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback])
       Instabug.setPrimaryColor('rgb(7, 62, 57)')
-      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [Instabug.invocationEvent.none])
-    }, 2000);
+    } catch (error) {
+      console.log(error)
+    }
   }, [])
 
   const data = {

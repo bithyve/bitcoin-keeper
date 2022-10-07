@@ -17,6 +17,10 @@ export const StoreSubscriptionSchema: ObjectSchema = {
       type: 'string?',
       default: '',
     },
+    level: {
+      type: 'int',
+      default: 0,
+    },
   },
 };
 
