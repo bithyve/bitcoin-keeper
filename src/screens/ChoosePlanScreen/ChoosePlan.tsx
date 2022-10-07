@@ -64,6 +64,8 @@ const plans = [
     icon: <Hodler />,
     iconFocused: <HodlerFocused />,
     price: '',
+    name: 'Hodler',
+    productId: 'hodler',
   },
   {
     benifits: [
@@ -77,6 +79,8 @@ const plans = [
     icon: <DiamondHands />,
     iconFocused: <DiamondHandsFocused />,
     price: '',
+    name: 'Diamond Hands',
+    productId: 'diamondhands',
   },
 ];
 
@@ -106,6 +110,7 @@ const ChoosePlan = (props) => {
             productId: purchase.productId,
             receipt: receipt,
             name: sub[0].title.split(' ')[0],
+            level: 1 // todo get level
           };
 
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
@@ -149,21 +154,21 @@ const ChoosePlan = (props) => {
 
   async function init() {
     try {
-      const subscriptions = await getSubscriptions([
-        'io.hexawallet.keeper.development.hodler',
-        'io.hexawallet.keeper.development.whale',
-      ]);
-      const data = [plans[0]];
-
-      subscriptions.forEach((subscription, index) => {
-        data.push({
-          ...subscription,
-          ...plans[index + 1],
-          price: getAmt(subscription),
-          name: subscription.title.split(' (')[0],
-        });
-      });
-      setItems([...data]);
+      /* const subscriptions = await getSubscriptions([
+         'io.hexawallet.keeper.development.hodler',
+         'io.hexawallet.keeper.development.whale',
+       ]);
+       const data = [plans[0]];
+ 
+       subscriptions.forEach((subscription, index) => {
+         data.push({
+           ...subscription,
+           ...plans[index + 1],
+           price: getAmt(subscription),
+           name: subscription.title.split(' (')[0],
+         });
+       });*/
+      setItems(plans);
       setLoading(false);
       // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
@@ -171,13 +176,14 @@ const ChoosePlan = (props) => {
     }
   }
 
-  async function processSubscription(item: Subscription) {
+  async function processSubscription(item: Subscription, level: number) {
     try {
       const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const sub: SubScription = {
         productId: item.productId,
         receipt: 'mock-purchase',
         name: item.name.split(' (')[0],
+        level,
       };
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
@@ -260,7 +266,7 @@ const ChoosePlan = (props) => {
         >
           <ChoosePlanCarousel
             data={items}
-            onPress={async (item) => processSubscription(item)}
+            onPress={(item, level) => processSubscription(item, level)}
             onChange={(item) => setCurrentPosition(item)}
           />
           <Box mx={5} my={5}>

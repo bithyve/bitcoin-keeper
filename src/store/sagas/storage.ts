@@ -59,6 +59,7 @@ function* setupKeeperAppWorker({ payload }) {
       subscription: {
         productId: SubscriptionTier.PLEB,
         name: SubscriptionTier.PLEB,
+        level: 0
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
@@ -121,6 +122,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       subscription: {
         productId: subscription.productId,
         name: subscription.name,
+        level: 0
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
