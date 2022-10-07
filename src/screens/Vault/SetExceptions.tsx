@@ -90,7 +90,6 @@ const SetExceptions = ({ navigation, route }) => {
                 const policy: SignerPolicy = {
                   verification: {
                     method: VerificationType.TWO_FA,
-                    verifier: {},
                   },
                   restrictions: route.params.restrictions,
                   exceptions,
@@ -98,7 +97,7 @@ const SetExceptions = ({ navigation, route }) => {
 
                 dispatch(registerWithSigningServer(policy));
                 navigation.dispatch(
-                  CommonActions.navigate({ name: 'SetupSigningServer', params: {} })
+                  CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
                 );
               }}
             />

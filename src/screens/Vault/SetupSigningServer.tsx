@@ -29,6 +29,7 @@ import idx from 'idx';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
+import { SignerPolicy } from 'src/core/services/interfaces';
 
 const SetupSigningServer = ({ route }: { route }) => {
   const dispatch = useDispatch();
@@ -59,6 +60,7 @@ const SetupSigningServer = ({ route }: { route }) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
 
+    const policy: SignerPolicy = route.params.policy;
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
       type: SignerType.POLICY_SERVER,
@@ -67,8 +69,8 @@ const SetupSigningServer = ({ route }: { route }) => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.WARM,
+      signerPolicy: policy,
     };
-
     dispatch(addSigningDevice(signingServerKey));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
