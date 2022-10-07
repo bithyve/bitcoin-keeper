@@ -17,9 +17,7 @@ export enum VerificationType {
 
 export interface SingerVerification {
   method: VerificationType;
-  verifier: {
-    twoFAKey?: string;
-  };
+  verifier?: string;
 }
 
 export interface SignerRestriction {

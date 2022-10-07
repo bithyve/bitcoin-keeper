@@ -585,7 +585,7 @@ export function* registerWithSigningServerWorker({ payload }: { payload: { polic
   if (setupData.verification.method === VerificationType.TWO_FA) {
     const twoFADetails: TwoFADetails = {
       signingServerXpub: setupData.bhXpub,
-      twoFAKey: setupData.verification.verifier.twoFAKey,
+      twoFAKey: setupData.verification.verifier,
     };
     yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
   }
