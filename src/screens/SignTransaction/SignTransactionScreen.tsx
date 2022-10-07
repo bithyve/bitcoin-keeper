@@ -283,7 +283,7 @@ const SignTransactionScreen = () => {
       case SignerType.POLICY_SERVER:
         if (signerPolicy) {
           const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-            (envelop) => envelop.signerId === activeSignerId
+            (envelop) => envelop.signerId === signerId
           )[0];
           const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
           if (
