@@ -227,7 +227,7 @@ const SignTransactionScreen = () => {
             if (!childIndexArray) throw new Error('Invalid signing payload');
             const { signedPSBT } = await SigningServer.signPSBT(
               keeper.id,
-              Number(signingServerOTP),
+              signingServerOTP ? Number(signingServerOTP) : null,
               serializedPSBT,
               childIndexArray,
               outgoing
@@ -235,7 +235,7 @@ const SignTransactionScreen = () => {
             if (!signedPSBT) throw new Error('signing server: failed to sign');
             dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));
           } catch (err) {
-            Alert.alert(err);
+            Alert.alert(err.message);
           }
         } else if (SignerType.SEED_WORDS === signerType) {
           try {
@@ -265,7 +265,7 @@ const SignTransactionScreen = () => {
     [activeSignerId, serializedPSBTEnvelops]
   );
 
-  const callbackForSigners = ({ type, signerId }: VaultSigner) => {
+  const callbackForSigners = ({ type, signerId, signerPolicy }: VaultSigner) => {
     setActiveSignerId(signerId);
     switch (type) {
       case SignerType.TAPSIGNER:
@@ -281,7 +281,18 @@ const SignTransactionScreen = () => {
         setPasswordModal(true);
         break;
       case SignerType.POLICY_SERVER:
-        showOTPModal(true);
+        if (signerPolicy) {
+          const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+            (envelop) => envelop.signerId === activeSignerId
+          )[0];
+          const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
+          if (
+            !signerPolicy.exceptions.none &&
+            outgoing <= signerPolicy.exceptions.transactionAmount
+          ) {
+            signTransaction({}); // case: OTP not required
+          } else showOTPModal(true);
+        } else showOTPModal(true);
         break;
       case SignerType.SEED_WORDS:
         navigation.dispatch(
