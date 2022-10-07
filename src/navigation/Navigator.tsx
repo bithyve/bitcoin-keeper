@@ -168,7 +168,7 @@ const AppStack = () => {
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
-  const { appLoading } = useContext(AppContext);
+  const { appLoading, loadingContent } = useContext(AppContext);
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
@@ -182,6 +182,7 @@ const Navigator = () => {
       </Stack.Navigator>
       <KeeperLoader
         visible={appLoading}
+        loadingContent={loadingContent}
         close={() => { }}
         title={'please wait'}
         subTitle={'loading'}
