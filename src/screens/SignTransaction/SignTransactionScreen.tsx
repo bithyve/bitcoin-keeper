@@ -102,15 +102,18 @@ const SignTransactionScreen = () => {
 
   const signTransaction = useCallback(
     async ({
+      signerId,
       signingServerOTP,
       seedBasedSingerMnemonic,
     }: {
+      signerId?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
     } = {}) => {
+      const activeId = signerId || activeSignerId;
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-          (envelop) => envelop.signerId === activeSignerId
+          (envelop) => envelop.signerId === activeId
         )[0];
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
         const { signerType, serializedPSBT, signingPayload, signerId } = copySerializedPSBTEnvelop;
@@ -290,7 +293,7 @@ const SignTransactionScreen = () => {
             !signerPolicy.exceptions.none &&
             outgoing <= signerPolicy.exceptions.transactionAmount
           ) {
-            signTransaction({}); // case: OTP not required
+            signTransaction({ signerId }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);
         break;
