@@ -45,7 +45,7 @@ const initialState: WalletsState = {
   testCoinsFailed: false,
 
   resetTwoFALoader: false,
-  introModal: false
+  introModal: true
 };
 
 const walletSlice = createSlice({
