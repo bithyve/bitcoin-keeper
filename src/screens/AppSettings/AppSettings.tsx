@@ -245,14 +245,14 @@ const AppSettings = ({ navigation }) => {
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
 
-          <SettingsSwitchCard
+          {/* <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
-          />
+          /> */}
           <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}
