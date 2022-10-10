@@ -61,6 +61,7 @@ import { routingInstrumentation } from 'src/core/services/sentry';
 import KeeperLoader from 'src/components/KeeperLoader';
 import { AppContext } from 'src/common/content/AppContext';
 import AddDescription from 'src/screens/Vault/AddDescription';
+import VaultTransactions from 'src/screens/Vault/VaultTransactions';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -163,6 +164,7 @@ const AppStack = () => {
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
         <Stack.Screen name="SigningServer" component={SigningServer} />
         <Stack.Screen name="AddDescription" component={AddDescription} />
+        <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
       </Stack.Navigator>
     </RealmProvider>
   );
