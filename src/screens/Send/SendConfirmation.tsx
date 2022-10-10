@@ -460,8 +460,8 @@ const SendConfirmation = ({ route }) => {
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
-          title="Sending to address"
-          subtitle="Lorem ipsum dolor sit amet,"
+          title="Transfer Funds to the New Vault"
+          subtitle="On-chain transaction incurs fees"
           onPressHandler={() => navigtaion.goBack()}
         />
       </Box>
