@@ -58,7 +58,7 @@ const TransactionDetails = ({ }) => {
           <HeaderTitle
             onPressHandler={() => navigation.goBack()}
             title={'Transaction Details'}
-            subtitle={'Lorem ipsum dolor sit amet'}
+            subtitle={''}
             paddingTop={hp(20)}
           />
         </Box>
