@@ -1,4 +1,4 @@
-import { Box, HStack, Text, VStack } from 'native-base';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -29,6 +29,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
@@ -44,6 +45,9 @@ import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import KeeperModal from 'src/components/KeeperModal';
+import { setIntroModal } from 'src/store/reducers/vaults';
+import { useAppSelector } from 'src/store/hooks';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
@@ -436,6 +440,7 @@ const SignerList = ({
 
 const VaultDetails = () => {
   const dispatch = useDispatch();
+  const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
@@ -467,6 +472,27 @@ const VaultDetails = () => {
 
   const styles = getStyles(top);
 
+
+  const VaultContent = () => {
+    return (
+      <View marginY={5}>
+        <Box alignSelf={'center'}>
+          <VaultSetupIcon />
+        </Box>
+        <Text marginTop={hp(20)} color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+          {
+            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+          }
+        </Text>
+        <Text color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+          {
+            'There are also some additional options if you do not have hardware Signing Devices'
+          }
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <LinearGradient
       colors={['#B17F44', '#6E4A35']}
@@ -490,6 +516,21 @@ const VaultDetails = () => {
           <Footer vault={vault} />
         </VStack>
       </VStack>
+      <KeeperModal
+        visible={introModal}
+        close={() => { dispatch(setIntroModal(false)) }}
+        title={'Transactions from Keeper Vault'}
+        subTitle={'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'}
+        modalBackground={['#00836A', '#073E39']}
+        textColor={'#FFF'}
+        Content={VaultContent}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={'Continue'}
+        buttonTextColor={'#073E39'}
+        buttonCallback={() => { dispatch(setIntroModal(false)) }}
+        DarkCloseIcon={true}
+        learnMore={true}
+      />
     </LinearGradient>
   );
 };

@@ -61,7 +61,8 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    open();
+    // open();
+    navigation.navigate('InheritanceSetup')
   };
 
   const close = () => setVisible(false);
@@ -532,7 +533,7 @@ export const NextIcon = ({ pressHandler }) => {
   );
 };
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   useEffect(() => {
@@ -705,7 +706,7 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Pressable onPress={askPermission}>
+      <Pressable onPress={() => { navigation.navigate('InheritanceSetup') }}>
         <InheritanceComponent />
       </Pressable>
       <LinkedWallets
