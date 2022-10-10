@@ -13,7 +13,6 @@ import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import Instabug, { BugReporting } from 'instabug-reactnative';
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Chain from 'src/assets/icons/illustration_homescreen.svg';
@@ -36,14 +35,12 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
-import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import dbManager from 'src/storage/realm/dbManager';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { identifyUser } from 'src/core/services/sentry';
@@ -63,7 +60,8 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    open();
+    // open();
+    navigation.navigate('InheritanceSetup');
   };
 
   const close = () => setVisible(false);
@@ -529,7 +527,7 @@ export const NextIcon = ({ pressHandler }) => {
   );
 };
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   useEffect(() => {
@@ -544,6 +542,8 @@ const HomeScreen = () => {
         Instabug.invocationEvent.screenshot,
       ]);
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
+      BugReporting.setShakingThresholdForiPhone(100);
+      BugReporting.setShakingThresholdForAndroid(100);
       Instabug.setPrimaryColor('rgb(7, 62, 57)');
     } catch (error) {
       console.log(error);
@@ -708,7 +708,11 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Pressable onPress={askPermission}>
+      <Pressable
+        onPress={() => {
+          navigation.navigate('InheritanceSetup');
+        }}
+      >
         <InheritanceComponent />
       </Pressable>
       <LinkedWallets

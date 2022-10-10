@@ -31,6 +31,7 @@ export type VaultState = {
   hasMigrationFailed: boolean;
   intrimVault: Vault;
   error: string;
+  introModal: boolean;
 };
 
 const initialState: VaultState = {
@@ -43,6 +44,7 @@ const initialState: VaultState = {
   hasMigrationFailed: false,
   intrimVault: null,
   error: null,
+  introModal: true,
 };
 
 const vaultSlice = createSlice({
@@ -79,6 +81,9 @@ const vaultSlice = createSlice({
     updateIntrimVault: (state, action: PayloadAction<Vault>) => {
       state.intrimVault = action.payload;
     },
+    setIntroModal: (state, action: PayloadAction<boolean>) => {
+      state.introModal = action.payload;
+    },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {
       const { isMigratingNewVault, hasMigrationSucceeded, hasMigrationFailed, error } =
         action.payload;
@@ -107,6 +112,7 @@ export const {
   vaultMigrationCompleted,
   removeSigningDevice,
   updateIntrimVault,
+  setIntroModal
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

@@ -1,4 +1,4 @@
-import { Box, HStack, Text, VStack } from 'native-base';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -7,7 +7,6 @@ import {
   StatusBar,
   StyleSheet,
   TouchableOpacity,
-  View,
 } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -26,8 +25,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import NFC from 'src/core/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -40,11 +37,14 @@ import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { WalletMap } from '../Vault/WalletMap';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { setIntroModal } from 'src/store/reducers/vaults';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -440,6 +440,7 @@ const SignerList = ({
 const VaultDetails = ({ route }) => {
   const { vaultTransferSuccessful = false } = route.params;
   const dispatch = useDispatch();
+  const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
@@ -474,6 +475,39 @@ const VaultDetails = ({ route }) => {
   };
 
   const styles = getStyles(top);
+
+  const VaultContent = () => {
+    return (
+      <View marginY={5}>
+        <Box alignSelf={'center'}>
+          <VaultSetupIcon />
+        </Box>
+        <Text
+          marginTop={hp(20)}
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
+          {
+            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+          }
+        </Text>
+        <Text
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
+          {'There are also some additional options if you do not have hardware Signing Devices'}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <LinearGradient
@@ -517,6 +551,27 @@ const VaultDetails = ({ route }) => {
             </View>
           );
         }}
+      />
+      <KeeperModal
+        visible={introModal}
+        close={() => {
+          dispatch(setIntroModal(false));
+        }}
+        title={'Transactions from Keeper Vault'}
+        subTitle={
+          'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'
+        }
+        modalBackground={['#00836A', '#073E39']}
+        textColor={'#FFF'}
+        Content={VaultContent}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={'Continue'}
+        buttonTextColor={'#073E39'}
+        buttonCallback={() => {
+          dispatch(setIntroModal(false));
+        }}
+        DarkCloseIcon={true}
+        learnMore={true}
       />
     </LinearGradient>
   );
