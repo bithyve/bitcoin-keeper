@@ -10,21 +10,28 @@ import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import { CommonActions } from '@react-navigation/native';
 import { SignerRestriction } from 'src/core/services/interfaces';
+import idx from 'idx';
 
-const ChoosePolicy = ({ navigation }) => {
-  const [maxTransaction, setMaxTransaction] = useState('0');
-  const [selectedPolicy, setSelectedPolicy] = useState('No Restrictions');
+const ChoosePolicy = ({ navigation, route }) => {
+  const existingRestrictions: SignerRestriction = route.params.restrictions;
+  const existingMaxTransaction = idx(existingRestrictions, (_) => _.maxTransactionAmount);
+  const [maxTransaction, setMaxTransaction] = useState(
+    existingMaxTransaction ? `${existingMaxTransaction}` : '0'
+  );
+  const [selectedPolicy, setSelectedPolicy] = useState(
+    existingMaxTransaction ? 'Max Transaction amount' : 'No Restrictions'
+  );
 
   useEffect(() => {
-    selectedPolicy == 'No Restrictions' && setMaxTransaction('0')
-  }, [selectedPolicy])
+    selectedPolicy == 'No Restrictions' && setMaxTransaction('0');
+  }, [selectedPolicy]);
 
   const CheckOption = ({
     title,
     subTitle,
     isChecked = title == selectedPolicy,
     showInput = false,
-    onPress = () => { }
+    onPress = () => {},
   }) => {
     return (
       <Box
@@ -109,8 +116,17 @@ const ChoosePolicy = ({ navigation }) => {
                   none: maxAmount === 0,
                   maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
                 };
+
                 navigation.dispatch(
-                  CommonActions.navigate({ name: 'SetExceptions', params: { restrictions } })
+                  CommonActions.navigate({
+                    name: 'SetExceptions',
+                    params: {
+                      restrictions,
+                      exceptions: route.params.exceptions, // existing exceptions, if any
+                      update: route.params.update,
+                      signer: route.params.signer,
+                    },
+                  })
                 );
               }}
             />
@@ -120,11 +136,11 @@ const ChoosePolicy = ({ navigation }) => {
       {/* {keypad} */}
       <Box position={'absolute'} bottom={10}>
         <AppNumPad
-          setValue={selectedPolicy === 'Max Transaction amount' ? setMaxTransaction : () => { }}
+          setValue={selectedPolicy === 'Max Transaction amount' ? setMaxTransaction : () => {}}
           ok={() => {
             console.log('ok');
           }}
-          clear={() => { }}
+          clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
