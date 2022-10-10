@@ -2,8 +2,8 @@ import * as bip39 from 'bip39';
 
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -135,19 +135,13 @@ const LedgerSetupContent = () => {
       </Box>
       <Box marginTop={'4'} flex={1} alignItems={'center'} justifyContent={'center'}>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mr={wp(19)}>
-            <Text>{'\u2022'}</Text>
-          </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
-            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'}>
+            {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mr={wp(10)}>
-            <Text>{'\u2022'}</Text>
-          </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
-            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
+          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'}>
+            {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
           </Text>
         </Box>
       </Box>

@@ -40,7 +40,7 @@ const SignTransactionScreen = () => {
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signers, id: vaultId } = defaultVault;
+  const { signers, id: vaultId, scheme } = defaultVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -315,8 +315,9 @@ const SignTransactionScreen = () => {
 
   return (
     <ScreenWrapper>
-      <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
+      <Header title="Sign Transaction" subtitle={`Chose any ${scheme.m} to sign the transaction`} />
       <FlatList
+        contentContainerStyle={{ paddingTop: '10%' }}
         data={signers}
         keyExtractor={(item) => item.signerId}
         renderItem={({ item }) => (
@@ -326,6 +327,13 @@ const SignTransactionScreen = () => {
             envelops={serializedPSBTEnvelops}
           />
         )}
+      />
+      <Note
+        title={'Note'}
+        subtitle={
+          'Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted.'
+        }
+        subtitleColor={'GreyText'}
       />
       <Box alignItems={'flex-end'} marginY={5}>
         {broadcasting ? (
@@ -348,14 +356,6 @@ const SignTransactionScreen = () => {
             }}
           />
         )}
-        <Note
-          title={'Note'}
-          subtitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
-          }
-          subtitleColor={'GreyText'}
-          width={wp(300)}
-        />
       </Box>
       <SignerModals
         signers={signers}
