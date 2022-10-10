@@ -532,7 +532,7 @@ export const NextIcon = ({ pressHandler }) => {
   );
 };
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
 
   useEffect(() => {
@@ -705,7 +705,7 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Pressable onPress={askPermission}>
+      <Pressable onPress={() => { navigation.navigate('InheritanceSetup') }}>
         <InheritanceComponent />
       </Pressable>
       <LinkedWallets

@@ -161,8 +161,8 @@ const SetupInheritance = () => {
         </Text>
         <Box marginTop={hp(50)}>
           <Buttons
-            primaryText='Setup Inheritance'
-            primaryCallback={() => { console.log('Setup Inheritance') }}
+            primaryText='comming soon'
+            primaryCallback={() => { console.log('comming soon') }}
           />
         </Box>
       </Box>

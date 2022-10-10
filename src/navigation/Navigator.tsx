@@ -128,7 +128,7 @@ const AppStack = () => {
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
-        <Stack.Screen name="InheritanceSetup" component={InheritanceSetup} />
+        <Stack.Screen name="InheritanceSetup" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
