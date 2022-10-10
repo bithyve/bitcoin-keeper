@@ -1,6 +1,7 @@
-import { Alert, Box, HStack, Pressable, VStack } from 'native-base';
-import { FlatList, Text, View } from 'react-native';
+import { Alert, Box, HStack, Pressable, VStack, Text } from 'native-base';
+import { FlatList, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import SuccessSvg from 'src/assets/images/svgs/successSvg.svg';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/icons/addSigner.svg';
@@ -18,6 +19,8 @@ import { setVaultMetaData } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import Note from 'src/components/Note/Note';
+import KeeperModal from 'src/components/KeeperModal';
 
 const SignerItem = ({ signer, index }: { signer: any | undefined; index: number }) => {
   const { navigate } = useNavigation();
@@ -95,6 +98,7 @@ const VaultRecovery = () => {
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState([]);
   const [disable, setDisable] = useState(false);
+  const [successModal, setSuccessModal] = useState(false);
 
   const getVaultMetaDataRelay = async (signerId) => {
     const data = await Relay.getVaultMetaData(signerId);
@@ -122,43 +126,74 @@ const VaultRecovery = () => {
 
   useEffect(() => {
     if (appId) {
-      navigate('App');
+      setSuccessModal(true);
     }
   }, [appId]);
+
+  const SuccessModalContent = () => (
+    <View>
+      <Box alignSelf={'center'}>
+        <SuccessSvg />
+      </Box>
+      <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        The BIP-85 wallets in the app are new as they can’t be recovered using this method
+      </Text>
+    </View>
+  );
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
       <Header
-        title={'Verify Signing Devices'}
-        subtitle={'to recover your vault'}
+        title={'Add Signing Devices'}
+        subtitle={'to recover your inherited Vault'}
         headerTitleColor={'light.textBlack'}
       />
-      {vaultMetaData.m ? (
-        <FlatList
-          data={signersList}
-          keyExtractor={(item, index) => item?.signerId ?? index}
-          renderItem={renderSigner}
-          style={{
-            marginTop: hp(52),
-          }}
-        />
-      ) : (
-        <TouchableOpacity onPress={() => navigate('LoginStack', { screen: 'SignersList' })}>
-          <Box alignSelf={'center'} alignItems={'center'}>
-            <AddSignerIcon />
-          </Box>
-        </TouchableOpacity>
-      )}
-      {signingDevices && signingDevices.length === vaultMetaData.m && (
-        <Box position={'absolute'} bottom={10} width={'100%'}>
-          <Buttons
-            primaryText="Recover Vault"
-            primaryDisable={disable}
-            primaryCallback={startRecovery}
+      <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        {vaultMetaData.m ? (
+          <FlatList
+            data={signersList}
+            keyExtractor={(item, index) => item?.signerId ?? index}
+            renderItem={renderSigner}
+            style={{
+              marginTop: hp(52),
+            }}
           />
-        </Box>
-      )}
+        ) : (
+          <Box alignItems={'center'} style={{ flex: 1, justifyContent: 'center' }}>
+            <TouchableOpacity onPress={() => navigate('LoginStack', { screen: 'SignersList' })}>
+              <Box alignItems={'center'}>
+                <AddSignerIcon />
+              </Box>
+            </TouchableOpacity>
+            <Text style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
+              You can use any one of the Signing Devices to start with
+            </Text>
+          </Box>
+        )}
+        {signingDevices && signingDevices.length === vaultMetaData.m && (
+          <Box position={'absolute'} bottom={10} width={'100%'}>
+            <Buttons
+              primaryText="Recover Vault"
+              primaryDisable={disable}
+              primaryCallback={startRecovery}
+            />
+          </Box>
+        )}
+        <Note
+          title={'Note'}
+          subtitle={'Signing Server cannot be used as the first Signing Device while recovering'}
+        />
+      </View>
+      <KeeperModal
+        visible={successModal}
+        title={'Vault Recovered!'}
+        subTitle={'Your Keeper vault has successfully been recovered.'}
+        buttonText={'View Vault'}
+        Content={SuccessModalContent}
+        close={() => setSuccessModal(false)}
+        buttonCallback={() => navigate('App')}
+      />
     </ScreenWrapper>
   );
 };
