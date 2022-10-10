@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation, route }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
-  const { setAppLoading } = useContext(AppContext);
+  const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const login = translations['login'];
   const common = translations['common'];
 
@@ -58,6 +58,14 @@ const LoginScreen = ({ navigation, route }) => {
       attemptLogin(passcode);
     }
   }, [loggingIn]);
+
+  useEffect(() => {
+    setLoadingContent({
+      title: 'Logging in to your Keeper',
+      subTitle: 'Shake your device or take a screenshot to send feedback',
+      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+    })
+  }, []);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -160,6 +168,11 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      })
       setAppLoading(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
@@ -172,6 +185,11 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      })
       setAppLoading(false)
       if (relogin) {
         navigation.goBack();

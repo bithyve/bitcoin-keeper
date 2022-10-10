@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Modal, Text } from 'native-base';
-import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import { Image, Platform, StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -13,10 +13,28 @@ const KeeperLoader = (props) => {
     close,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     textColor = '#000',
-    subTitleColor = textColor,
+    subTitleColor = 'light.lightBlack2',
+    loadingContent,
     Content = () => {
-      return (<Box alignSelf={'center'} height={hp(70)}>
-        <ActivityIndicator />
+      return (<Box>
+        <Image
+          source={require('src/assets/video/Loader.gif')}
+          style={{
+            width: wp(250),
+            height: wp(100),
+            alignSelf: 'center',
+            marginTop: hp(30)
+          }} />
+        <Text
+          color={'light.modalText'}
+          fontWeight={200}
+          fontSize={13}
+          letterSpacing={0.65}
+          marginTop={hp(60)}
+          width={wp(240)}
+        >
+          {loadingContent?.message}
+        </Text>
       </Box>)
     },
     dismissible = true,
@@ -36,7 +54,10 @@ const KeeperLoader = (props) => {
       closeOnOverlayClick={false}
     >
 
-      <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
+      <Modal.Content
+        borderRadius={10}
+        marginBottom={bottomMargin}
+      >
         <GestureHandlerRootView>
           <LinearGradient
             start={{ x: 0, y: 0 }}
@@ -48,10 +69,10 @@ const KeeperLoader = (props) => {
               alignSelf={'flex-start'}
               borderBottomWidth={0}
               backgroundColor={'transparent'}
-              width={'90%'}
+              width={wp(240)}
             >
               <Text style={styles.title} fontFamily={'body'} fontWeight={'200'} color={textColor}>
-                Loading
+                {loadingContent?.title}
               </Text>
               <Text
                 style={styles.subTitle}
@@ -59,7 +80,7 @@ const KeeperLoader = (props) => {
                 fontWeight={'200'}
                 color={subTitleColor}
               >
-                Please wait
+                {loadingContent.subTitle}
               </Text>
             </Modal.Header>
             <Modal.Body>
@@ -77,7 +98,7 @@ export default KeeperLoader;
 const styles = StyleSheet.create({
   container: {
     borderRadius: 10,
-    alignItems: 'center',
+    // alignItems: 'center',
     padding: '4%',
   },
   title: {
@@ -85,15 +106,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   subTitle: {
-    fontSize: 12,
-    letterSpacing: 1,
-  },
-  cta: {
-    borderRadius: 10,
-    width: wp(110),
-    height: hp(45),
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontSize: 13,
+    letterSpacing: 1.3,
+    marginTop: hp(5)
   },
   close: {
     alignSelf: 'flex-end',
