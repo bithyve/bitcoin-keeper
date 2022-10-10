@@ -1,26 +1,81 @@
-import { Box, Text } from 'native-base';
-import React, { useCallback, useState } from 'react';
+import { Box, Input, Text } from 'native-base';
+import React, { useCallback, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Pressable, StyleSheet, TextInput } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, TextInput } from 'react-native';
 import Fonts from 'src/common/Fonts';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import { SignerException, SignerPolicy, VerificationType } from 'src/core/services/interfaces';
 import { CommonActions } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
+import { registerWithSigningServer, updateSignerPolicy } from 'src/store/sagaActions/wallets';
+import idx from 'idx';
 
 const SetExceptions = ({ navigation, route }) => {
-  const [maxTransaction, setMaxTransaction] = useState('0');
+  const isUpdate = route.params.update;
+  const existingExceptions: SignerException = route.params.exceptions;
+  const existingMaxTransaction = idx(existingExceptions, (_) => _.transactionAmount);
+
+  const [selectedPolicy, setSelectedPolicy] = useState(
+    existingMaxTransaction ? 'Max Transaction amount' : 'No Restrictions'
+  );
+  const [maxTransaction, setMaxTransaction] = useState(
+    existingMaxTransaction ? `${existingMaxTransaction}` : '0'
+  );
   const dispatch = useDispatch();
 
-  const CheckOption = ({ title, subTitle, isChecked = false, showInput = false }) => {
+  useEffect(() => {
+    selectedPolicy == 'No Restrictions' && setMaxTransaction('0');
+  }, [selectedPolicy]);
+
+  const setupSignerPolicy = () => {
+    const maxAmount = Number(maxTransaction); // in sats
+    const exceptions: SignerException = {
+      none: maxAmount === 0,
+      transactionAmount: maxAmount === 0 ? null : maxAmount,
+    };
+
+    if (isUpdate) {
+      const updates = {
+        restrictions: route.params.restrictions,
+        exceptions,
+      };
+      dispatch(updateSignerPolicy(route.params.signer, updates));
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+    } else {
+      const policy: SignerPolicy = {
+        verification: {
+          method: VerificationType.TWO_FA,
+        },
+        restrictions: route.params.restrictions,
+        exceptions,
+      };
+
+      dispatch(registerWithSigningServer(policy));
+      navigation.dispatch(
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+      );
+    }
+  };
+
+  const CheckOption = ({
+    title,
+    subTitle,
+    isChecked = title == selectedPolicy,
+    showInput = false,
+    onPress = () => {},
+  }) => {
     return (
-      <Box flexDirection={'row'} alignItems={'center'} marginTop={hp(40)}>
-        <Pressable>
+      <Box
+        flexDirection={'row'}
+        alignItems={'center'}
+        marginTop={hp(40)}
+        opacity={title == selectedPolicy ? 1 : 0.5}
+      >
+        <Pressable onPress={onPress}>
           <Box
             height={hp(27)}
             width={wp(27)}
@@ -41,8 +96,13 @@ const SetExceptions = ({ navigation, route }) => {
         </Box>
         {showInput && (
           <Box>
-            <Box marginLeft={wp(20)}>
-              <TextInput style={styles.textInput} value={maxTransaction} />
+            <Box marginLeft={wp(20)} width={wp(90)}>
+              <Input
+                onFocus={() => Keyboard.dismiss()}
+                style={styles.textInput}
+                value={maxTransaction}
+                isDisabled={!isChecked}
+              />
             </Box>
           </Box>
         )}
@@ -61,7 +121,7 @@ const SetExceptions = ({ navigation, route }) => {
             title="Set Exceptions"
             subtitle="for the signing server"
             paddingTop={hp(20)}
-            showToggler={true}
+            showToggler={false}
           />
           {/* {check options } */}
           <Box
@@ -69,45 +129,28 @@ const SetExceptions = ({ navigation, route }) => {
               paddingHorizontal: wp(15),
             }}
           >
-            <CheckOption title={'No Exceptions'} subTitle={'Lorem ipsum dolor sit amet,'} />
+            <CheckOption
+              title={'No Exceptions'}
+              subTitle={'Lorem ipsum dolor sit amet,'}
+              onPress={() => setSelectedPolicy('No Restrictions')}
+            />
             <CheckOption
               title={'Max Transaction amount'}
               subTitle={'Lorem ipsum dolor sit amet,'}
               showInput={true}
+              onPress={() => setSelectedPolicy('Max Transaction amount')}
             />
           </Box>
           {/* {button} */}
           <Box marginTop={hp(80)}>
-            <Buttons
-              primaryText="Next"
-              primaryCallback={() => {
-                const maxAmount = Number(maxTransaction); // in sats
-                const exceptions: SignerException = {
-                  none: maxAmount === 0,
-                  transactionAmount: maxAmount === 0 ? null : maxAmount,
-                };
-
-                const policy: SignerPolicy = {
-                  verification: {
-                    method: VerificationType.TWO_FA,
-                  },
-                  restrictions: route.params.restrictions,
-                  exceptions,
-                };
-
-                dispatch(registerWithSigningServer(policy));
-                navigation.dispatch(
-                  CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
-                );
-              }}
-            />
+            <Buttons primaryText="Next" primaryCallback={setupSignerPolicy} />
           </Box>
         </Box>
       </ScreenWrapper>
       {/* {keypad} */}
       <Box position={'absolute'} bottom={10}>
         <AppNumPad
-          setValue={setMaxTransaction}
+          setValue={selectedPolicy === 'Max Transaction amount' ? setMaxTransaction : () => {}}
           ok={() => {
             console.log('ok');
           }}

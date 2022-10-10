@@ -1,6 +1,11 @@
 import { AxiosResponse } from 'axios';
 import config from '../../config';
-import { SignerPolicy, SingerVerification } from '../interfaces';
+import {
+  SignerException,
+  SignerPolicy,
+  SignerRestriction,
+  SingerVerification,
+} from '../interfaces';
 import RestClient from '../rest/RestClient';
 const { HEXA_ID, SIGNING_SERVER } = config;
 
@@ -56,6 +61,34 @@ export default class SigningServer {
 
     return {
       valid,
+    };
+  };
+
+  static updatePolicy = async (
+    appId: string,
+    updates: {
+      restrictions?: SignerRestriction;
+      exceptions?: SignerException;
+    }
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/updateSignerPolicy`, {
+        HEXA_ID,
+        appId,
+        updates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Signer setup failed');
+    return {
+      updated,
     };
   };
 
