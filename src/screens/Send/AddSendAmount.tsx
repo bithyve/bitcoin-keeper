@@ -1,6 +1,6 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
@@ -14,8 +14,10 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -32,8 +34,13 @@ const AddSendAmount = ({ route }) => {
       recipients,
     });
   };
+  const { showToast } = useToastMessage();
 
   const executeSendPhaseOne = () => {
+    if (wallet.specs.balances.confirmed < Number(amount)) {
+      showToast('You have insuffecient balnce at this time.', null, 1000);
+      return;
+    }
     const recipients = [];
     recipients.push({
       address,
@@ -48,18 +55,23 @@ const AddSendAmount = ({ route }) => {
     navigateToNext(recipients);
   };
 
+  useEffect(() => {
+    return () => {
+      dispatch(sendPhaseOneReset());
+    };
+  }, []);
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box marginLeft={3}>
         <Header
-          title="Sending to address"
-          subtitle="Lorem ipsum dolor sit amet,"
+          title={`Enter the amount`}
+          subtitle={`Sending to ${address}`}
           onPressHandler={() => navigation.goBack()}
         />
       </Box>
-      {/*       
-      <Box
+      {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
         justifyContent={'space-between'}
@@ -94,15 +106,21 @@ const AddSendAmount = ({ route }) => {
             {address}
           </Text>
         </Box>
-
         <DollarInput />
       </Box> */}
 
       {/* { Transaction list} */}
       <Box marginTop={hp(32)} marginBottom={hp(32)}>
-        <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
+        <Transactions
+          transactions={[
+            {
+              address,
+              amount,
+            },
+          ]}
+          addTransaction={() => {}}
+        />
       </Box>
-
       <Box
         alignItems={'center'}
         style={{

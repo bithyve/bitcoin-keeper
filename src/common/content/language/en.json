@@ -36,6 +36,7 @@
     "back": "Back",
     "receive": "Receive",
     "learnMore": "Learn More",
+    "seeFAQs": "See FAQs",
     "More": "More",
     "copied": "Copied Successfully",
     "amount": "Amount",
@@ -295,7 +296,7 @@
     "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
     "ViewVault": "View Vault",
     "AddNow": "Add Now",
-    "SelectSigner": "Select Signing Devices",
+    "SelectSigner": "Select Signing Device",
     "ForVault": "For your Vault",
     "VaultInfo": "A Signing Device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
@@ -414,23 +415,23 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition"
   },
   "onboarding": {
-    "slide01Title": "Most secure way to\nstore your bitcoin",
-    "slide01Paragraph": "Keeper works with most of the trusted hardware signers which hold your keys in an air-gapped and/ or multisig manner",
+    "slide01Title": "Comprehensive security for\n your bitcoin keys",
+    "slide01Paragraph": "Use trusted Signing Devices (Hardware Wallets) for air-gapped signing or multi-sig. Add BIP 85 hot wallets or set up for inheritance.",
     "slide02Title": "Security should not\ncome at the cost of privacy",
-    "slide02Paragraph": "We are neither centralized, nor do we collect PIIs under the garb of providing security. Security comes from a multi-device, decentralized approach.",
+    "slide02Paragraph": "You do not need to register or provide any PII to use Keeper. Run your own node. Connect via. Tor.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
     "slide04Paragraph": "BIP 85 hot wallets, auto-transfer to vault, buy bitcoin directly in to your cold storage, and much more",
     "slide05Title": "Works just with the mobile app,\nno computer needed",
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signers, without any intermediate step",
-    "slide06Title": "Affordable plans\nand a great offer",
-    "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your Vault now."
+    "slide06Title": "Upgrade Keeper, with your bitcoin journey",
+    "slide06Paragraph": "Pleb - Hodler - Diamond Hands. Three levels for the Vault with increased multi-sig security. The last tier enables inheritance."
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store. After trail period the subscription auto renews monthly"
+    "noteSubTitle": "The subscription should be confirmed on the Play/ App Store. After trail period the subscription auto renews monthly"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Seed Words",

@@ -253,7 +253,9 @@ export const encryptVAC = (vac: string, xpubs: string[]) => {
   let encrytedVac = vac;
   xpubs = xpubs.sort();
   xpubs.forEach((xpub) => {
-    const key = generateKeyFromXpub(xpub, config.NETWORK);
+    const networkType = WalletUtilities.getNetworkFromXpub(xpub);
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const key = generateKeyFromXpub(xpub, network);
     encrytedVac = encrypt(key, encrytedVac);
   });
   return encrytedVac;
@@ -263,7 +265,9 @@ export const decryptVAC = (encryptedVac: string, xpubs: string[]) => {
   let decryptedVAC = encryptedVac;
   xpubs = xpubs.sort().reverse();
   xpubs.forEach((xpub) => {
-    const key = generateKeyFromXpub(xpub, config.NETWORK);
+    const networkType = WalletUtilities.getNetworkFromXpub(xpub);
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const key = generateKeyFromXpub(xpub, network);
     decryptedVAC = decrypt(key, decryptedVAC);
   });
   return decryptedVAC;

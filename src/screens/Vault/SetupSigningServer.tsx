@@ -4,6 +4,7 @@ import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import { ActivityIndicator } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -17,6 +18,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
+import { SignerPolicy } from 'src/core/services/interfaces';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -57,11 +59,8 @@ const SetupSigningServer = ({ route }: { route }) => {
   const setupSigningServerKey = async () => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    // const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
-    //   primaryMnemonic,
-    //   networkType
-    // );
 
+    const policy: SignerPolicy = route.params.policy;
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
       type: SignerType.POLICY_SERVER,
@@ -70,8 +69,8 @@ const SetupSigningServer = ({ route }: { route }) => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.WARM,
+      signerPolicy: policy,
     };
-
     dispatch(addSigningDevice(signingServerKey));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
@@ -113,8 +112,8 @@ const SetupSigningServer = ({ route }: { route }) => {
             color={'light.modalText'}
             marginTop={2}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et
+            If you lose your authenticator app, use the other Signing Devices to reset the Signing
+            Server
           </Text>
           <Box mt={10} alignSelf={'flex-end'} mr={2}>
             <Box>
@@ -122,7 +121,7 @@ const SetupSigningServer = ({ route }: { route }) => {
                 onPress={() => {
                   dispatch(validateSigningServerRegistration(Number(otp)));
                 }}
-                value={'proceed'}
+                value={'Confirm'}
               />
             </Box>
           </Box>
@@ -143,31 +142,39 @@ const SetupSigningServer = ({ route }: { route }) => {
       <Box>
         <Header
           title={'Set up 2FA for Signing Server'}
-          subtitle={'Lorem ipsum dolor sit amet,'}
+          subtitle={'Scan on any 2FA auth app'}
           onPressHandler={() => navigation.goBack()}
           headerTitleColor={'light.headerText'}
         />
       </Box>
-      <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={hp(250)}>
-        <Text
-          color={'light.recieverAddress'}
-          fontFamily={'body'}
-          fontWeight={300}
-          fontSize={12}
-          letterSpacing={1.08}
-          width={hp(250)}
-          noOfLines={1}
-          style={{
-            marginVertical: hp(30),
-          }}
-        >
-          Scan the QR below to add Backup Key
-        </Text>
-        <QRCode
-          value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
-          logoBackgroundColor="transparent"
-          size={hp(250)}
-        />
+      <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={wp(250)}>
+        {twoFAKey === '' ? (
+          <Box height={hp(250)} justifyContent={'center'}>
+            <ActivityIndicator animating={true} size="small" />
+          </Box>
+        ) : (
+          <Box alignItems={'center'} alignSelf={'center'} width={hp(200)}>
+            <QRCode
+              value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
+              logoBackgroundColor="transparent"
+              size={hp(200)}
+            />
+            <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
+              <Text
+                textAlign={'center'}
+                color={'light.recieverAddress'}
+                fontFamily={'body'}
+                fontWeight={300}
+                fontSize={12}
+                letterSpacing={1.08}
+                width={'100%'}
+                noOfLines={1}
+              >
+                {`2FA Signing Server`}
+              </Text>
+            </Box>
+          </Box>
+        )}
       </Box>
 
       {/* {Bottom note} */}
@@ -175,9 +182,7 @@ const SetupSigningServer = ({ route }: { route }) => {
         <Box marginBottom={hp(30)}>
           <InfoBox
             title={'Note'}
-            desciption={
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
-            }
+            desciption={'It is a good idea to have the authenticator app on another device'}
             width={300}
           />
         </Box>
@@ -198,7 +203,7 @@ const SetupSigningServer = ({ route }: { route }) => {
           showValidationModal(false);
         }}
         title={'Confirm OTP to setup 2FA'}
-        subTitle={'Lorem ipsum dolor sit amet, '}
+        subTitle={'To complete setting up the Signing Server'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
         Content={otpContent}

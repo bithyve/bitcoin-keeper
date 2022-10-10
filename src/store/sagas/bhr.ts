@@ -54,20 +54,24 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import { captureError } from 'src/core/services/sentry';
 import { createWatcher } from '../utilities';
+import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import { refreshWallets } from '../sagaActions/wallets';
 import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
 import { translations } from 'src/common/content/LocContext';
 import { uaiActionedEntity } from '../sagaActions/uai';
-import crypto from 'crypto';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
-
-  const { primarySeed, appID, walletShellInstances, primaryMnemonic, subscription }: KeeperApp =
-    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const {
+    primarySeed,
+    appID,
+    walletShellInstances,
+    primaryMnemonic,
+    subscription,
+    networkType,
+  }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.WalletShell,
@@ -92,6 +96,7 @@ function* updateAppImageWorker({ payload }) {
     Relay.updateAppImage({
       appID,
       walletObject,
+      networkType,
       walletShellInstances: JSON.stringify(walletShellInstances),
       walletShells: JSON.stringify(walletShells[0]),
       subscription: JSON.stringify(subscription),
@@ -136,12 +141,24 @@ function* updateVaultImageWorker({ payload }) {
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
   const vault: Vault = vaults[vaults.length - 1];
   const m = vault.scheme.m;
-  var signersIds = [];
-  var signerIdXpubMap = {};
+  let signersIds = [];
+  let signerIdXpubMap = {};
   for (let signer of vault.signers) {
     signerIdXpubMap[signer.signerId] = signer.xpub;
     signersIds.push(signer.signerId);
   }
+
+  // updating signerIdXpubMap if the signer was created through automated mock flow
+  let signerIdsToFilter = [];
+  for (let signer of vault.signers) {
+    if (signer.amfData && signer.amfData.xpub) {
+      signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
+      signersIds.push(signer.amfData.signerId);
+      signerIdsToFilter.push(signer.signerId);
+    }
+  }
+  signersIds = signersIds.filter((signerId) => !signerIdsToFilter.includes(signerId));
+
   const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
   const subscriptionStrings = JSON.stringify(subscription);
   const encryptionKey = generateEncryptionKey(primarySeed);
@@ -380,6 +397,7 @@ function* getAppImageWorker({ payload }) {
         vaultShellInstances: appImage.vaultShellInstances
           ? JSON.parse(appImage.vaultShellInstances)
           : null,
+        networkType: appImage.networkType,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
       yield call(
@@ -474,21 +492,21 @@ function* healthCheckSignerWorker({
   };
 }) {
   try {
-    let { vaultId, signerId } = payload;
+    const { vaultId, signerId } = payload;
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
 
-    const updatedSigners = vault.signers.map((signer) => {
-      console.log('signer', signer);
+    let signers = [];
+    for (let signer of vault.signers) {
       if (signer.signerId === signerId) {
-        const updatedSigner = getJSONFromRealmObject(signer);
+        let updatedSigner = JSON.parse(JSON.stringify(signer));
         updatedSigner.lastHealthCheck = new Date();
-        return updatedSigner;
-      } else {
-        return signer;
+        yield put(uaiActionedEntity(signer.signerId));
+        signers.push(updatedSigner);
       }
-    });
-    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, { signers: updatedSigners });
-    yield put(uaiActionedEntity(signerId));
+    }
+    let updatedVault: Vault = JSON.parse(JSON.stringify(vault));
+    updatedVault.signers = signers;
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);
   } catch (err) {
     console.log(err);
   }

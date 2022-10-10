@@ -8,9 +8,9 @@ import {
 } from 'src/core/wallets/interfaces/';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
+import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
 import { TxPriority } from 'src/core/wallets/enums';
-import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;
@@ -228,6 +228,18 @@ const sendAndReceiveSlice = createSlice({
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
     },
+    sendPhaseOneReset: (state) => {
+      state.sendPhaseOne = initialState.sendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
+    sendPhaseTwoReset: (state) => {
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
+    sendPhaseThreeReset: (state) => {
+      state.sendPhaseThree = initialState.sendPhaseThree;
+    },
   },
 });
 
@@ -239,6 +251,9 @@ export const {
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
   sendPhasesReset,
+  sendPhaseOneReset,
+  sendPhaseTwoReset,
+  sendPhaseThreeReset,
   updatePSBTEnvelops,
 } = sendAndReceiveSlice.actions;
 export default sendAndReceiveSlice.reducer;

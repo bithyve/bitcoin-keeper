@@ -79,10 +79,14 @@ const SetupTapsigner = () => {
     })();
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
     if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      return getMockTapsignerDetails(true);
+      // AMF flow
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
+      const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+      return getMockTapsignerDetails({ signerId, xpub });
     }
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const signer: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      signerId,
       type: SignerType.TAPSIGNER,
       signerName: 'Tapsigner',
       xpub,
@@ -94,6 +98,7 @@ const SetupTapsigner = () => {
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
     };
+
     return signer;
   };
 
@@ -109,20 +114,19 @@ const SetupTapsigner = () => {
     }
   }, [cvc]);
 
-  const getMockTapsignerDetails = (automatedFlow = false) => {
+  const getMockTapsignerDetails = (amfData = null) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = automatedFlow
-      ? generateMockExtendedKey(EntityKind.VAULT, config.NETWORK_TYPE)
-      : generateMockExtendedKeyForSigner(
-          EntityKind.VAULT,
-          SignerType.TAPSIGNER,
-          config.NETWORK_TYPE
-        );
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.TAPSIGNER,
+      networkType
+    );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const tapsigner: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      signerId,
       type: SignerType.TAPSIGNER,
-      signerName: 'Tapsigner (Mock)',
+      signerName: 'Tapsigner**',
       isMock: true,
       xpub,
       xpriv,
@@ -134,6 +138,10 @@ const SetupTapsigner = () => {
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
     };
+    if (amfData) {
+      tapsigner.amfData = amfData;
+      tapsigner.signerName = 'Tapsigner*';
+    }
     return tapsigner;
   };
 
@@ -176,7 +184,7 @@ const SetupTapsigner = () => {
               letterSpacing={0.65}
               color={'light.modalText'}
             >
-              Lorem ipsum dolor sit amet, consectetur eiusmod tempor
+              You will be scanning the TAPSIGNER after this step
             </Text>
             <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />

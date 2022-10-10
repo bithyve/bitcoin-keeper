@@ -3,6 +3,7 @@ import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
+import config, { APP_STAGE } from 'src/core/config';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -14,7 +15,7 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
@@ -56,8 +57,7 @@ const TapSignerRecovery = () => {
   const verifyTapsigner = React.useCallback(async () => {
     try {
       const tapsigner = await getTapsignerDetails();
-      const networkType = config.NETWORK_TYPE;
-      const network = WalletUtilities.getNetworkByType(networkType);
+      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
       const sigingDeivceDetails: SigningDeviceRecovery = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(tapsigner.xpub, network),
         xpub: tapsigner.xpub,
@@ -91,9 +91,38 @@ const TapSignerRecovery = () => {
     return signerDetails;
   };
 
+  const getMockTapsignerDetails = () => {
+    const networkType = config.NETWORK_TYPE;
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const { xpub } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.TAPSIGNER,
+      networkType
+    );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    const tapsigner: SigningDeviceRecovery = {
+      signerId,
+      type: SignerType.TAPSIGNER,
+      xpub,
+    };
+    return tapsigner;
+  };
+
+  const addMockTapsigner = React.useCallback(async () => {
+    try {
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockTapsigner: SigningDeviceRecovery = getMockTapsignerDetails();
+        dispatch(setSigningDevices(mockTapsigner));
+        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      }
+    } catch (err) {
+      Alert.alert(err.toString());
+    }
+  }, [cvc]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <TapGestureHandler>
+      <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle

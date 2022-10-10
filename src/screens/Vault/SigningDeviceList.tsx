@@ -1,21 +1,26 @@
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import Alert from 'src/assets/images/alert_illustration.svg';
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SignerType } from 'src/core/wallets/enums';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { TouchableOpacity } from 'react-native';
 import { WalletMap } from './WalletMap';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { manager } from 'src/core/services/ble';
 import { useAppSelector } from 'src/store/hooks';
-import useToastMessage from 'src/hooks/useToastMessage';
 
 type HWProps = {
   type: SignerType;
@@ -23,37 +28,130 @@ type HWProps = {
   last?: boolean;
 };
 
+const findKeyInServer = (vaultSigners, type: SignerType) => {
+  return vaultSigners.find((element) => element.type === type);
+};
+
 const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
-  const [nfcAlert, setNfcAlert] = useState(false);
-  const vault = translations['vault'];
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
 
-  useEffect(() => {
-    getNfcSupport();
-  }, []);
+  const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
+  const vaultSigners = useAppSelector((state) => state.vault.signers);
+
+  const [nfcAlert, setNfcAlert] = useState(false);
+  const [isNfcSupported, setNfcSupport] = useState(true);
+  const [isBLESupported, setBLESupport] = useState(false);
+  const vault = translations['vault'];
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
-    setNfcAlert(!isSupported);
+    setNfcSupport(isSupported);
   };
 
-  const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
-    const disabled = useAppSelector((state) =>
-      state.vault.signers.filter(
-        (signer) =>
-          signer.type === type &&
-          (type === SignerType.MOBILE_KEY || type === SignerType.POLICY_SERVER)
-      )
-    );
-    const [visible, setVisible] = useState(false);
-    const { showToast } = useToastMessage();
-    const onPress = () => {
-      if (!!disabled.length) {
-        showToast(
-          `There can only be one ${type.toLowerCase().split('_').join(' ')} to create a Vault`
-        );
-        return;
+  const getBluetoothSupport = () => {
+    manager.onStateChange((state) => {
+      if (state === 'PoweredOn') {
+        setBLESupport(true);
+      } else {
+        setBLESupport(false);
       }
+    }, true);
+  };
+
+  const openNFCError = () => {
+    setNfcAlert(true);
+  };
+
+  const getDisabled = (type: SignerType) => {
+    // Keys Incase of level 1 we have level 1
+    if (isOnPleb) {
+      return { disabled: true, message: 'Upgrade to use these keys' };
+    }
+    // Keys Incase of already added
+    if (findKeyInServer(vaultSigners, type)) {
+      return { disabled: true, message: 'Key already added to the Vault.' };
+    }
+    return { disabled: false, message: '' };
+  };
+
+  useEffect(() => {
+    getNfcSupport();
+    getBluetoothSupport();
+  }, []);
+
+  const getDeviceStatus = (type: SignerType) => {
+    switch (type) {
+      case SignerType.COLDCARD:
+        return {
+          message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+          disabled: !__DEV__ && !isNfcSupported,
+        };
+      case SignerType.LEDGER:
+        return {
+          message: !isBLESupported ? 'BLE is not enabled in your device' : '',
+          disabled: !__DEV__ && !isBLESupported,
+        };
+      case SignerType.MOBILE_KEY:
+        return {
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
+        };
+      case SignerType.POLICY_SERVER:
+        return {
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
+        };
+      case SignerType.TAPSIGNER:
+        return {
+          message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+          disabled: !__DEV__ && !isNfcSupported,
+        };
+      case SignerType.SEED_WORDS:
+        return {
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
+        };
+      case SignerType.KEEPER:
+        return {
+          message: getDisabled(type).message,
+          disabled: getDisabled(type).disabled,
+        };
+      case SignerType.TREZOR:
+      case SignerType.JADE:
+      case SignerType.KEYSTONE:
+        return {
+          message: 'Coming soon',
+          disabled: false,
+        };
+      default:
+        return {
+          message: '',
+          disabled: false,
+        };
+    }
+  };
+
+  const sortedSigners = [
+    SignerType.COLDCARD,
+    SignerType.LEDGER,
+    SignerType.TREZOR,
+    SignerType.TAPSIGNER,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
+    SignerType.PASSPORT,
+    SignerType.JADE,
+    SignerType.KEEPER,
+    SignerType.SEED_WORDS,
+    SignerType.KEYSTONE,
+  ];
+  const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
+    const [visible, setVisible] = useState(false);
+
+    const onPress = () => {
       open();
     };
 
@@ -61,8 +159,15 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     const close = () => setVisible(false);
 
     return (
-      <>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+      <React.Fragment key={type}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onPress}
+          disabled={getDeviceStatus(type).disabled}
+          style={{
+            opacity: getDeviceStatus(type).disabled ? 0.4 : 1,
+          }}
+        >
           <Box
             backgroundColor={'light.lightYellow'}
             borderTopRadius={first ? 15 : 0}
@@ -88,9 +193,20 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
               <Box
                 style={{
                   marginLeft: wp(23),
+                  justifyContent: 'flex-end',
+                  marginTop: hp(20),
                 }}
               >
                 {WalletMap(type).Logo}
+                <Text
+                  color={'light.inActiveMsg'}
+                  fontSize={10}
+                  fontWeight={200}
+                  letterSpacing={1.3}
+                  marginTop={hp(5)}
+                >
+                  {getDeviceStatus(type).message}
+                </Text>
               </Box>
             </Box>
             <Box
@@ -102,7 +218,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           </Box>
         </TouchableOpacity>
         <HardwareModalMap visible={visible} close={close} type={type} />
-      </>
+      </React.Fragment>
     );
   };
 
@@ -134,39 +250,28 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         headerTitleColor={'light.headerTextTwo'}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
-        <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
-            {[
-              'MOBILE_KEY',
-              'POLICY_SERVER',
-              'KEEPER',
-              'TAPSIGNER',
-              'COLDCARD',
-              'TREZOR',
-              'LEDGER',
-              'PASSPORT',
-              'JADE',
-              'KEYSTONE',
-              'SEED_WORDS',
-            ].map((type: SignerType, index: number) => (
+            {sortedSigners?.map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
-        </ScrollView>
-        <Text
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-          fontWeight={100}
-          color={'light.lightBlack'}
-          width={wp(300)}
-          lineHeight={20}
-          marginTop={hp(20)}
-        >
-          {vault.VaultInfo}{' '}
-          <Text fontStyle={'italic'} fontWeight={'bold'}>
-            Contact Us
+          <Text
+            fontSize={RFValue(12)}
+            letterSpacing={0.6}
+            fontWeight={100}
+            color={'light.lightBlack'}
+            width={wp(300)}
+            lineHeight={20}
+            marginTop={hp(20)}
+          >
+            {vault.VaultInfo}{' '}
+            <Text fontStyle={'italic'} fontWeight={'bold'}>
+              Contact Us
+            </Text>
           </Text>
-        </Text>
+        </ScrollView>
+
         <KeeperModal
           visible={nfcAlert}
           close={() => {

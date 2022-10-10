@@ -1,3 +1,4 @@
+import { SignerPolicy } from 'src/core/services/interfaces';
 import {
   ActiveAddresses,
   BIP85Config,
@@ -66,6 +67,8 @@ export interface VaultSigner {
   lastHealthCheck: Date;
   addedOn: Date;
   hasSigned?: boolean;
+  amfData?: any;
+  signerPolicy?: SignerPolicy;
 }
 
 export interface Vault {

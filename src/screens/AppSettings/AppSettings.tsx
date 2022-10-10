@@ -1,17 +1,18 @@
-import { Alert, NativeModules, Platform, SafeAreaView, TouchableOpacity } from 'react-native';
-import { Box, Pressable, ScrollView, StatusBar, Text, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
+import { Alert, NativeModules } from 'react-native';
+import { Box, Pressable, ScrollView, Text, useColorMode } from 'native-base';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
+import Twitter from 'src/assets/images/svgs/Twitter.svg';
+import Telegram from 'src/assets/images/svgs/Telegram.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import TorModalMap from './TorModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import Note from 'src/components/Note/Note';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -19,6 +20,8 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { setTorEnabled } from 'src/store/reducers/settings';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const GoogleDrive = NativeModules.GoogleDrive;
@@ -27,7 +30,7 @@ const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
   const { appId } = useAppSelector((state) => state.storage);
-  const { backupWarning } = useAppSelector((state) => state.bhr);
+  const { backupMethod } = useAppSelector((state) => state.bhr);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -35,10 +38,31 @@ const AppSettings = ({ navigation }) => {
   const { translations, formatString } = useContext(LocalizationContext);
   const common = translations['common'];
   const { settings } = translations;
+  const [showTorModal, setShowTorModal] = useState(false);
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+
+  const onChangeTorStatus = (status: TorStatus, message) => {
+    settorStatus(status);
+  };
+
+  useEffect(() => {
+    RestClient.subToTorStatus(onChangeTorStatus);
+    return () => {
+      RestClient.unsubscribe(onChangeTorStatus);
+    };
+  }, []);
 
   useEffect(() => {
     init();
   }, []);
+
+  const RenderTorStatus = useCallback(() => {
+    return (
+      <Box backgroundColor="#E3BE96" py={0.5} px={1.5} borderRadius={10}>
+        <Text fontSize={11}>{torStatus}</Text>
+      </Box>
+    );
+  }, [torStatus]);
 
   const init = async () => {
     try {
@@ -48,8 +72,8 @@ const AppSettings = ({ navigation }) => {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -125,7 +149,7 @@ const AppSettings = ({ navigation }) => {
         {Icon && (
           <Box position={'relative'} style={{ width: wp(40) }}>
             {/* { Notification indicator } */}
-            {backupWarning && (
+            {backupMethod === null && (
               <Box
                 height={3}
                 width={3}
@@ -134,7 +158,7 @@ const AppSettings = ({ navigation }) => {
                 borderColor={'light.white1'}
                 borderWidth={0.3}
                 position={'absolute'}
-                right={wp(10)}
+                right={wp(-2)}
                 zIndex={999}
               />
             )}
@@ -165,6 +189,18 @@ const AppSettings = ({ navigation }) => {
     );
   };
 
+  const onPressTor = () => {
+    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
+      setShowTorModal(true);
+      RestClient.setUseTor(true);
+      dispatch(setTorEnabled(true));
+    } else {
+      RestClient.setUseTor(false);
+      dispatch(setTorEnabled(false));
+      setShowTorModal(false);
+    }
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
@@ -181,7 +217,7 @@ const AppSettings = ({ navigation }) => {
           <CurrencyTypeSwitch />
         </Box>
       </Box>
-      <Box flex={1}>
+      <Box flex={1} position={'relative'}>
         <ScrollView
           overScrollMode="never"
           bounces={false}
@@ -203,125 +239,192 @@ const AppSettings = ({ navigation }) => {
           <SettingsSwitchCard
             title={sensorType}
             description={formatString(settings.UseBiometricSubTitle, sensorType)}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => onChangeLoginMethod()}
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
 
-          <SettingsSwitchCard
+          {/* <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
-          />
+          /> */}
           <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
           />
-          <SettingsCard
+          <SettingsSwitchCard
             title={'Tor'}
             description={'Tor daemon settings'}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onPress={() => navigation.navigate('TorSettings')}
+            onSwitchToggle={onPressTor}
+            renderStatus={(torStatus === TorStatus.OFF || torStatus === TorStatus.CONNECTED) ? null : RenderTorStatus}
+            value={torStatus === TorStatus.CONNECTED}
           />
           <SettingsCard
             title={settings.LanguageCountry}
             description={settings.LanguageCountrySubTitle}
-            my={2}
+            my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
         </ScrollView>
 
-        <Pressable onPress={() => openLink('https://t.me/HexaWallet')}>
-          <Box
-            flexDirection={'row'}
-            justifyContent={'space-evenly'}
-            height={hp(40)}
-            borderRadius={8}
-            marginBottom={hp(8)}
-            backgroundColor={'light.lightYellow'}
-            alignItems={'center'}
-          >
-            <Box>
-              <Text
-                color={'light.textColor2'}
-                fontWeight={200}
-                fontSize={RFValue(13)}
-                letterSpacing={0.79}
-                fontFamily={'body'}
+        <Box
+          width={wp(340)}
+          position={'absolute'}
+          bottom={-hp(20)}
+          backgroundColor={'light.ReceiveBackground'}
+        >
+          <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
+            <Pressable onPress={() => console.log('Telegram')}>
+              <Box
+                flexDirection={'row'}
+                justifyContent={'space-evenly'}
+                height={hp(45)}
+                width={wp(169)}
+                borderRadius={8}
+                marginBottom={hp(8)}
+                backgroundColor={'light.lightYellow'}
+                alignItems={'center'}
               >
-                {settings.KeeperCommunityTelegramGroup}
-              </Text>
-            </Box>
-            <Box flex={0.1} justifyContent={'center'} alignItems={'center'}>
-              <LinkIcon />
-            </Box>
-          </Box>
-        </Pressable>
+                <Box
+                  flexDirection={'row'}
+                  alignItems={'center'}
+                  style={{ marginRight: wp(3) }}
 
-        <Box style={{ flex: hp(0.15) }}>
-          <Box
-            flexDirection={'row'}
-            justifyContent={'space-evenly'}
-            alignItems={'center'}
-            borderRadius={8}
-            p={2}
-            height={hp(45)}
-            bg={'light.lightYellow'}
-          >
-            <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
-              <Text
-                fontSize={13}
-                fontWeight={200}
-                letterSpacing={0.79}
-                fontFamily={'body'}
-                color={`${colorMode}.textColor2`}
-              >
-                {common.FAQs}
-              </Text>
+                >
+                  <Telegram />
+                  <Box style={{ marginLeft: wp(10) }}>
+                    <Text
+                      color={'light.textColor2'}
+                      fontWeight={200}
+                      fontSize={RFValue(13)}
+                      letterSpacing={0.79}
+                      fontFamily={'body'}
+                    >
+                      Keeper Telegram
+                    </Text>
+                  </Box>
+                </Box>
+                <Box
+                  flex={0.1}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                >
+                  <LinkIcon />
+                </Box>
+              </Box>
             </Pressable>
-            <Text fontFamily={'body'} color={'light.textColor2'}>
-              |
-            </Text>
-            <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
-              <Text
-                fontSize={13}
-                fontWeight={200}
-                letterSpacing={0.79}
-                fontFamily={'body'}
-                color={`${colorMode}.textColor2`}
+            <Pressable onPress={() => console.log('Twitter')}>
+              <Box
+                flexDirection={'row'}
+                justifyContent={'space-evenly'}
+                height={hp(45)}
+                width={wp(165)}
+                borderRadius={8}
+                marginBottom={hp(8)}
+                backgroundColor={'light.lightYellow'}
+                alignItems={'center'}
               >
-                {common.TermsConditions}
-              </Text>
+                <Box
+                  flexDirection={'row'}
+                  alignItems={'center'}
+                  style={{ marginRight: wp(3) }}
+                >
+                  <Twitter />
+                  <Box style={{ marginLeft: wp(10) }}>
+                    <Text
+                      color={'light.textColor2'}
+                      fontWeight={200}
+                      fontSize={RFValue(13)}
+                      letterSpacing={0.79}
+                      fontFamily={'body'}
+                    >
+                      Keeper Twitter
+                    </Text>
+                  </Box>
+                </Box>
+                <Box
+                  flex={0.1}
+                  justifyContent={'center'}
+                  alignItems={'center'}
+                >
+                  <LinkIcon />
+                </Box>
+              </Box>
             </Pressable>
-            <Text fontFamily={'body'} color={'light.textColor2'}>
-              |
-            </Text>
-            <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
-              <Text
-                fontSize={13}
-                fontWeight={200}
-                letterSpacing={0.79}
-                fontFamily={'body'}
-                color={`${colorMode}.textColor2`}
-              >
-                {common.PrivacyPolicy}
+          </Box>
+
+          <Box style={{ flex: hp(0.15) }}>
+            <Box
+              flexDirection={'row'}
+              justifyContent={'space-evenly'}
+              alignItems={'center'}
+              borderRadius={8}
+              p={2}
+              height={hp(45)}
+              bg={'light.lightYellow'}
+            >
+              <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
+                <Text
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.79}
+                  fontFamily={'body'}
+                  color={`${colorMode}.textColor2`}
+                >
+                  {common.FAQs}
+                </Text>
+              </Pressable>
+              <Text fontFamily={'body'} color={'light.textColor2'}>
+                |
               </Text>
-            </Pressable>
+              <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
+                <Text
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.79}
+                  fontFamily={'body'}
+                  color={`${colorMode}.textColor2`}
+                >
+                  {common.TermsConditions}
+                </Text>
+              </Pressable>
+              <Text fontFamily={'body'} color={'light.textColor2'}>
+                |
+              </Text>
+              <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
+                <Text
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.79}
+                  fontFamily={'body'}
+                  color={`${colorMode}.textColor2`}
+                >
+                  {common.PrivacyPolicy}
+                </Text>
+              </Pressable>
+            </Box>
           </Box>
         </Box>
       </Box>
+      <TorModalMap
+        onPressTryAgain={onPressTor}
+        visible={showTorModal}
+        close={() => setShowTorModal(false)}
+      />
     </ScreenWrapper>
   );
 };

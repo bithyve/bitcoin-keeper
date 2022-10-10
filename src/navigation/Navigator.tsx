@@ -1,5 +1,5 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -16,9 +16,9 @@ import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScre
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
+import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -33,9 +33,11 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
+import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
+import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
@@ -44,15 +46,20 @@ import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
+import VaultSettings from 'src/screens/Vault/VaultSettings';
 import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransactionDetails';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import ChoosePolicy from 'src/screens/Vault/ChoosePolicy';
+import SetExceptions from 'src/screens/Vault/SetExceptions';
+import SigningServer from 'src/screens/Vault/SigningServer';
+import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
-import VaultSettings from 'src/screens/Vault/VaultSettings';
+import KeeperLoader from 'src/components/KeeperLoader';
+import { AppContext } from 'src/common/content/AppContext';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -121,7 +128,7 @@ const AppStack = () => {
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
-        <Stack.Screen name="InheritanceSetup" component={InheritanceSetup} />
+        <Stack.Screen name="InheritanceSetup" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
@@ -149,6 +156,11 @@ const AppStack = () => {
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
+        <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
+        <Stack.Screen name="ChoosePolicy" component={ChoosePolicy} />
+        <Stack.Screen name="SetExceptions" component={SetExceptions} />
+        <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
+        <Stack.Screen name="SigningServer" component={SigningServer} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -156,6 +168,7 @@ const AppStack = () => {
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
+  const { appLoading, loadingContent } = useContext(AppContext);
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
@@ -167,6 +180,15 @@ const Navigator = () => {
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />
       </Stack.Navigator>
+      <KeeperLoader
+        visible={appLoading}
+        loadingContent={loadingContent}
+        close={() => { }}
+        title={'please wait'}
+        subTitle={'loading'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#000'}
+      />
     </NavigationContainer>
   );
 };

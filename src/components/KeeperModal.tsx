@@ -1,5 +1,6 @@
-import { Box, Modal, Text } from 'native-base';
+import { Box, Link, Modal, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Close from 'src/assets/icons/modal_close.svg';
 import CloseGreen from 'src/assets/icons/modal_close_green.svg';
@@ -7,7 +8,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { wp } from 'src/common/data/responsiveness/responsive';
 
 const KeeperModal = (props) => {
   const {
@@ -21,8 +21,13 @@ const KeeperModal = (props) => {
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
     textColor = '#000',
+    subTitleColor = textColor,
     DarkCloseIcon = false,
     Content = () => <></>,
+    dismissible = true,
+    showButtons = true,
+    learnMore = false,
+    learnMoreCallback = () => {},
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -30,7 +35,7 @@ const KeeperModal = (props) => {
   return (
     <Modal
       isOpen={visible}
-      onClose={close}
+      onClose={dismissible ? close : null}
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
@@ -45,7 +50,7 @@ const KeeperModal = (props) => {
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
-              {DarkCloseIcon ? <CloseGreen /> : <Close />}
+              {showButtons ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
             </TouchableOpacity>
             <Modal.Header
               alignSelf={'flex-start'}
@@ -59,8 +64,8 @@ const KeeperModal = (props) => {
               <Text
                 style={styles.subTitle}
                 fontFamily={'body'}
-                fontWeight={'100'}
-                color={textColor}
+                fontWeight={'200'}
+                color={subTitleColor}
               >
                 {subTitle}
               </Text>
@@ -68,26 +73,63 @@ const KeeperModal = (props) => {
             <Modal.Body>
               <Content />
             </Modal.Body>
-            {buttonText && (
-              <Box alignSelf={'flex-end'} bg={'transparent'}>
-                <TouchableOpacity onPress={buttonCallback}>
-                  <LinearGradient
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    colors={buttonBackground}
-                    style={styles.cta}
+            {((showButtons && learnMore) || buttonText) && (
+              <Box
+                flexDirection={'row'}
+                justifyContent={'space-between'}
+                alignItems={'center'}
+                width={'100%'}
+              >
+                {learnMore ? (
+                  <Box
+                    borderColor={'light.yellow2'}
+                    borderRadius={hp(40)}
+                    borderWidth={1}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    backgroundColor={'#00433A'}
+                    style={{
+                      height: hp(34),
+                      width: wp(110),
+                      marginLeft: wp(10),
+                    }}
                   >
-                    <Text
-                      fontSize={13}
-                      fontFamily={'body'}
-                      fontWeight={'300'}
-                      letterSpacing={1}
-                      color={buttonTextColor}
-                    >
-                      {buttonText}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
+                    <Link onPress={learnMoreCallback}>
+                      <Text
+                        color={'light.yellow2'}
+                        fontSize={13}
+                        fontFamily={'body'}
+                        fontWeight={'300'}
+                      >
+                        {'See FAQs'}
+                      </Text>
+                    </Link>
+                  </Box>
+                ) : (
+                  <Box></Box>
+                )}
+                {buttonText && (
+                  <Box alignSelf={'flex-end'} bg={'transparent'}>
+                    <TouchableOpacity onPress={buttonCallback}>
+                      <LinearGradient
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        colors={buttonBackground}
+                        style={styles.cta}
+                      >
+                        <Text
+                          fontSize={13}
+                          fontFamily={'body'}
+                          fontWeight={'300'}
+                          letterSpacing={1}
+                          color={buttonTextColor}
+                        >
+                          {showButtons ? buttonText : null}
+                        </Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </Box>
+                )}
               </Box>
             )}
           </LinearGradient>
@@ -114,9 +156,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   cta: {
-    paddingVertical: 10,
-    paddingHorizontal: wp(20),
     borderRadius: 10,
+    width: wp(110),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   close: {
     alignSelf: 'flex-end',

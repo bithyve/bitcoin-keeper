@@ -27,6 +27,6 @@ const styles = ScaledSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F7F2EC',
-    padding: '20@s',
+    padding: '15@s',
   },
 });

@@ -17,6 +17,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 type Props = {
   title: string;
@@ -150,7 +151,7 @@ const VaultSettings = ({ route }) => {
         <VaultCard
           vaultName={name}
           vaultDescription={description}
-          vaultBalance={confirmed + unconfirmed}
+          vaultBalance={getAmount(confirmed + unconfirmed)}
         />
 
       </Box>

@@ -1,8 +1,9 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
+import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendingFailed, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import { crossTransfer, sendPhaseTwo, sendingFailed } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
@@ -12,25 +13,28 @@ import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import CustomPriorityModal from './CustomPriorityModal';
 import Header from 'src/components/Header';
+import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import Transactions from './Transactions';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import Transactions from './Transactions';
-import SuccessModal from 'src/components/HealthCheck/SuccessModal';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -51,25 +55,26 @@ const SendConfirmation = ({ route }) => {
   const common = translations['common'];
   const walletTransactions = translations['wallet'];
 
-  // Sending process is still not executed
-  const [sendingModal, setSendingModal] = useState(false);
-  const openSendModal = () => setSendingModal(true);
-  const closeSendModal = () => setSendingModal(false);
+  // // Sending process is still not executed
+  // const [sendingModal, setSendingModal] = useState(false);
+  // const openSendModal = () => setSendingModal(true);
+  // const closeSendModal = () => setSendingModal(false);
 
-  // Send is Successful
-  const [visible, setVisible] = useState(false);
-  const open = () => setVisible(true);
-  const close = () => setVisible(false);
+  // // Send is Successful
+  // const [visible, setVisible] = useState(false);
+  // const open = () => setVisible(true);
+  // const close = () => setVisible(false);
 
-  // Send Failed
-  const [sendFailed, setSendFailed] = useState(false);
-  const openFailedModal = () => setSendFailed(true);
-  const closeFailModal = () => setSendFailed(false);
+  // // Send Failed
+  // const [sendFailed, setSendFailed] = useState(false);
+  // const openFailedModal = () => setSendFailed(true);
+  // const closeFailModal = () => setSendFailed(false);
 
-  // taken from hexa --> TransactionPriority.tsx - line 98
-  const setCustomTransactionPriority = () => {
-    // logic for custom transaction priority
-  };
+  // const closeAllModal = () => {
+  //   closeFailModal();
+  //   close()
+  //   closeSendModal()
+  // }
 
   const SendSuccessfulContent = () => {
     return (
@@ -89,12 +94,20 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
+  // const openLoaders = () => {
+  //   setTimeout(() => {
+  //     closeAllModal();
+  //     openSendModal();
+  //   }, 2000);
+  // };
+
   const onProceed = () => {
+    // closeAllModal();
     if (isVaultTransfer) {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      openSendModal();
+      // openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
@@ -109,7 +122,7 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      openSendModal();
+      // openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -118,6 +131,12 @@ const SendConfirmation = ({ route }) => {
       );
     }
   };
+
+  useEffect(() => {
+    return () => {
+      dispatch(sendPhaseTwoReset());
+    };
+  }, []);
 
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
@@ -143,21 +162,20 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
-    close();
+    // close();
     navigation.navigate('WalletDetails');
   };
 
-  useEffect(() => {
-    if (sendHasFailed) {
-      closeSendModal();
-      openFailedModal();
-    }
-  }, [sendHasFailed]);
+  // useEffect(() => {
+  //   if (sendHasFailed) {
+  //     closeSendModal();
+  //     openFailedModal();
+  //   }
+  // }, [sendHasFailed]);
 
   useEffect(() => {
     if (walletSendSuccessful) {
-      closeSendModal();
-      open();
+      viewDetails();
     }
   }, [walletSendSuccessful]);
 
@@ -207,9 +225,9 @@ const SendConfirmation = ({ route }) => {
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
                 {isVaultTransfer && defaultWallet && isSend
-                  ? (defaultWallet as Wallet).specs.balances.confirmed / 10e8
+                  ? getAmount((defaultWallet as Wallet).specs.balances.confirmed)
                   : ''}
-                {wallet ? (wallet as Wallet).specs.balances.confirmed / 10e8 : ''}
+                {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
                 {!isSend && isVaultTransfer ? '0.0001' : ''}
               </Text>
             </Box>
@@ -413,22 +431,22 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  const handleCustomPriority = () => {
-    const { translations } = useContext(LocalizationContext);
-    const vault = translations['vault'];
-    const common = translations['common'];
+  // const handleCustomPriority = () => {
+  //   const { translations } = useContext(LocalizationContext);
+  //   const vault = translations['vault'];
+  //   const common = translations['common'];
 
-    return (
-      <CustomPriorityModal
-        visible={visible}
-        title={vault.CustomPriority}
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-        info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-        close={close}
-        buttonText={common.confirm}
-      />
-    );
-  };
+  //   return (
+  //     <CustomPriorityModal
+  //       visible={visible}
+  //       title={vault.CustomPriority}
+  //       subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+  //       info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+  //       close={close}
+  //       buttonText={common.confirm}
+  //     />
+  //   );
+  // };
 
   return (
     <Box
@@ -436,6 +454,7 @@ const SendConfirmation = ({ route }) => {
       paddingX={5}
       background={'light.ReceiveBackground'}
       flexGrow={1}
+      flex={1}
       position={'relative'}
     >
       <StatusBarComponent padding={50} />
@@ -447,8 +466,12 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <Box marginTop={hp(32)} marginBottom={hp(32)}>
-          <Transactions transactions={[1, 2, 3]} addTransaction={() => {}} />
+        <Box marginTop={windowHeight * 0.01}>
+          <Transaction />
+        </Box>
+
+        <Box>
+          <SendingPriority />
         </Box>
 
         <Box flexDirection={'row'} justifyContent={'space-between'}>
@@ -466,28 +489,6 @@ const SendConfirmation = ({ route }) => {
             0.024
           </Text>
         </Box>
-        <Box
-          alignItems={'center'}
-          style={{
-            marginTop: hp(30),
-            marginBottom: hp(10),
-          }}
-        >
-          <Box
-            borderBottomColor={'light.Border'}
-            borderBottomWidth={1}
-            width={wp(280)}
-            opacity={0.1}
-          />
-        </Box>
-
-        <Box marginTop={windowHeight * 0.01}>
-          <Transaction />
-        </Box>
-
-        <Box>
-          <SendingPriority />
-        </Box>
       </Box>
 
       <CustomPriorityBox />
@@ -503,8 +504,17 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
 
-      {/* Success modal for Send Successful */}
-      <SuccessModal
+      {/* {showOverlay && (
+        <View
+          height={windowHeight}
+          width={windowWidth}
+          zIndex={99}
+          opacity={0.4}
+          bg={'#000'}
+          position={'absolute'}
+        ></View>
+      )} */}
+      {/* <KeeperModal
         visible={visible}
         close={close}
         title={walletTransactions.SendSuccess}
@@ -518,29 +528,25 @@ const SendConfirmation = ({ route }) => {
         buttonPressed={viewDetails}
       />
 
-      {/* waiting loader after sending */}
-      <SuccessModal
+      <KeeperModal
         visible={sendingModal}
         close={closeSendModal}
         title={'Send Loader'}
         subTitle={'Sending...'}
         textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
+        dismissible={false}
+        showButtons={false}
         // Content={SendSuccessfulContent}
-        buttonPressed={viewDetails}
       />
 
-      {/* Send failed modal  */}
-      <SuccessModal
+      <KeeperModal
         visible={sendFailed}
         close={closeFailModal}
         title={'Sending Failed'}
         subTitle={failedMsg}
         textColor={'#073B36'}
-        // buttonTextColor={'#FAFAFA'}
         // Content={SendSuccessfulContent}
-        // buttonPressed={viewDetails}
-      />
+      /> */}
     </Box>
   );
 };

@@ -133,7 +133,7 @@ const AddLedger = ({}) => {
     const ledger: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       type: SignerType.LEDGER,
-      signerName: 'Nano X (Mock)',
+      signerName: 'Nano X**',
       isMock: true,
       xpub,
       xpriv,

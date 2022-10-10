@@ -229,6 +229,7 @@ export interface SigningPayload {
       value: number;
     };
   }>;
+  outgoing?: number;
 }
 
 export interface SerializedPSBTEnvelop {

@@ -11,6 +11,7 @@ import {
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
+  TEST_SATS_RECIEVE,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -30,7 +31,12 @@ import {
   vaultMigrationCompleted,
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
-import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
+import {
+  setNetBalance,
+  setTestCoinsFailed,
+  setTestCoinsReceived,
+  signingServerRegistrationVerified,
+} from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
@@ -49,6 +55,8 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
+import Relay from 'src/core/services/operations/Relay';
+import { SingerVerification, VerificationType } from 'src/core/services/interfaces';
 
 export interface newWalletDetails {
   name?: string;
@@ -559,17 +567,28 @@ export const updateWalletSettingsWatcher = createWatcher(
   UPDATE_WALLET_SETTINGS
 );
 
-export function* registerWithSigningServerWorker() {
+export function* registerWithSigningServerWorker({ payload }: { payload: { policy } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (app.twoFADetails && app.twoFADetails.signingServerXpub)
     throw new Error('registration already in progress');
 
-  const { setupData } = yield call(SigningServer.register, app.id);
-  const twoFADetails: TwoFADetails = {
-    signingServerXpub: setupData.bhXpub,
-    twoFAKey: setupData.secret,
-  };
-  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+  const { policy } = payload;
+  const {
+    setupData,
+  }: {
+    setupData: {
+      verification: SingerVerification;
+      bhXpub: string;
+    };
+  } = yield call(SigningServer.register, app.id, policy);
+
+  if (setupData.verification.method === VerificationType.TWO_FA) {
+    const twoFADetails: TwoFADetails = {
+      signingServerXpub: setupData.bhXpub,
+      twoFAKey: setupData.verification.verifier,
+    };
+    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+  }
 }
 
 export const registerWithSigningServerWatcher = createWatcher(
@@ -577,11 +596,11 @@ export const registerWithSigningServerWatcher = createWatcher(
   REGISTER_WITH_SIGNING_SERVER
 );
 
-function* validateSigningServerRegistrationWorker({ payload }: { payload: { token: number } }) {
+function* validateSigningServerRegistrationWorker({ payload }: { payload: { verificationToken } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const { token } = payload;
+  const { verificationToken } = payload;
   try {
-    const { valid } = yield call(SigningServer.validate, app.id, token);
+    const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
     if (valid) {
       yield put(signingServerRegistrationVerified(true));
       const twoFADetails = { ...app.twoFADetails };
@@ -597,3 +616,21 @@ export const validateSigningServerRegistrationWatcher = createWatcher(
   validateSigningServerRegistrationWorker,
   VALIDATE_SIGNING_SERVER_REGISTRATION
 );
+
+function* testcoinsWorker({ payload }) {
+  const { wallet } = payload;
+  console.log({ wallet });
+  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  console.log({ receivingAddress, network });
+  const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
+
+  if (!txid) {
+    yield put(setTestCoinsFailed(true));
+  } else {
+    yield put(setTestCoinsReceived(true));
+    yield put(refreshWallets([wallet], { hardRefresh: true }));
+  }
+}
+
+export const testcoinsWatcher = createWatcher(testcoinsWorker, TEST_SATS_RECIEVE);
