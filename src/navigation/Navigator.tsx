@@ -60,6 +60,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import KeeperLoader from 'src/components/KeeperLoader';
 import { AppContext } from 'src/common/content/AppContext';
+import AddDescription from 'src/screens/Vault/AddDescription';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -119,6 +120,7 @@ const AppStack = () => {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
