@@ -1,10 +1,10 @@
-import { Box, Text } from 'native-base';
+import { Box, Input, Text } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Pressable, StyleSheet, TextInput } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, TextInput } from 'react-native';
 import Fonts from 'src/common/Fonts';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
@@ -13,11 +13,27 @@ import { SignerRestriction } from 'src/core/services/interfaces';
 
 const ChoosePolicy = ({ navigation }) => {
   const [maxTransaction, setMaxTransaction] = useState('0');
+  const [selectedPolicy, setSelectedPolicy] = useState('No Restrictions');
 
-  const CheckOption = ({ title, subTitle, isChecked = false, showInput = false }) => {
+  useEffect(() => {
+    selectedPolicy == 'No Restrictions' && setMaxTransaction('0')
+  }, [selectedPolicy])
+
+  const CheckOption = ({
+    title,
+    subTitle,
+    isChecked = title == selectedPolicy,
+    showInput = false,
+    onPress = () => { }
+  }) => {
     return (
-      <Box flexDirection={'row'} alignItems={'center'} marginTop={hp(40)}>
-        <Pressable>
+      <Box
+        flexDirection={'row'}
+        alignItems={'center'}
+        marginTop={hp(40)}
+        opacity={title == selectedPolicy ? 1 : 0.5}
+      >
+        <Pressable onPress={onPress}>
           <Box
             height={hp(27)}
             width={wp(27)}
@@ -38,8 +54,13 @@ const ChoosePolicy = ({ navigation }) => {
         </Box>
         {showInput && (
           <Box>
-            <Box marginLeft={wp(20)}>
-              <TextInput style={styles.textInput} value={maxTransaction} />
+            <Box marginLeft={wp(20)} width={wp(90)}>
+              <Input
+                onFocus={() => Keyboard.dismiss()}
+                style={styles.textInput}
+                value={maxTransaction}
+                isDisabled={!isChecked}
+              />
             </Box>
           </Box>
         )}
@@ -58,7 +79,7 @@ const ChoosePolicy = ({ navigation }) => {
             title="Choose Policy"
             subtitle="for the signing server"
             paddingTop={hp(20)}
-            showToggler={true}
+            showToggler={false}
           />
           {/* {check options } */}
           <Box
@@ -66,11 +87,16 @@ const ChoosePolicy = ({ navigation }) => {
               paddingHorizontal: wp(15),
             }}
           >
-            <CheckOption title={'No Restrictions'} subTitle={'Lorem ipsum dolor sit amet,'} />
+            <CheckOption
+              title={'No Restrictions'}
+              subTitle={'Lorem ipsum dolor sit amet,'}
+              onPress={() => setSelectedPolicy('No Restrictions')}
+            />
             <CheckOption
               title={'Max Transaction amount'}
               subTitle={'Lorem ipsum dolor sit amet,'}
               showInput={true}
+              onPress={() => setSelectedPolicy('Max Transaction amount')}
             />
           </Box>
           {/* {button} */}
@@ -94,11 +120,11 @@ const ChoosePolicy = ({ navigation }) => {
       {/* {keypad} */}
       <Box position={'absolute'} bottom={10}>
         <AppNumPad
-          setValue={setMaxTransaction}
+          setValue={selectedPolicy === 'Max Transaction amount' ? setMaxTransaction : () => { }}
           ok={() => {
             console.log('ok');
           }}
-          clear={() => {}}
+          clear={() => { }}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
