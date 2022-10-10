@@ -1,9 +1,9 @@
 import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { SignerPolicy } from 'src/core/services/interfaces';
+import { SignerException, SignerPolicy, SignerRestriction } from 'src/core/services/interfaces';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -18,6 +18,7 @@ export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
 export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
 export const REGISTER_WITH_SIGNING_SERVER = 'REGISTER_WITH_SIGNING_SERVER';
+export const UPDATE_SIGNER_POLICY = 'UPDATE_SIGNER_POLICY';
 export const VALIDATE_SIGNING_SERVER_REGISTRATION = 'VALIDATE_SIGNING_SERVER_REGISTRATION';
 export const SETUP_DONATION_WALLET = 'SETUP_DONATION_WALLET';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
@@ -122,6 +123,22 @@ export const validateSigningServerRegistration = (verificationToken) => {
     type: VALIDATE_SIGNING_SERVER_REGISTRATION,
     payload: {
       verificationToken,
+    },
+  };
+};
+
+export const updateSignerPolicy = (
+  signer: VaultSigner,
+  updates: {
+    restrictions?: SignerRestriction;
+    exceptions?: SignerException;
+  }
+) => {
+  return {
+    type: UPDATE_SIGNER_POLICY,
+    payload: {
+      signer,
+      updates,
     },
   };
 };

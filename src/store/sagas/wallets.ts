@@ -12,6 +12,7 @@ import {
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
   TEST_SATS_RECIEVE,
+  UPDATE_SIGNER_POLICY,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -56,7 +57,13 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 import Relay from 'src/core/services/operations/Relay';
-import { SingerVerification, VerificationType } from 'src/core/services/interfaces';
+import {
+  SignerException,
+  SignerRestriction,
+  SingerVerification,
+  VerificationType,
+} from 'src/core/services/interfaces';
+import { vs } from 'react-native-size-matters';
 
 export interface newWalletDetails {
   name?: string;
@@ -615,6 +622,48 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { veri
 export const validateSigningServerRegistrationWatcher = createWatcher(
   validateSigningServerRegistrationWorker,
   VALIDATE_SIGNING_SERVER_REGISTRATION
+);
+
+export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+  const {
+    signer,
+    updates,
+  }: {
+    signer: VaultSigner;
+    updates: {
+      restrictions?: SignerRestriction;
+      exceptions?: SignerException;
+    };
+  } = payload;
+
+  const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
+
+  if (!updated) throw new Error('Failed to update the policy');
+
+  // TODO: generalise it for multiple vaults as the feature gets introduced
+  const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
+  const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
+  for (let i = 0; i < signers.length; i++) {
+    let current = signers[i];
+    if (current.signerId === signer.signerId) {
+      current.signerPolicy = {
+        ...current.signerPolicy,
+        restrictions: updates.restrictions,
+        exceptions: updates.exceptions,
+      };
+      break;
+    }
+  }
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, defaultVault.id, {
+    signers,
+  });
+}
+
+export const updateSignerPolicyWatcher = createWatcher(
+  updateSignerPolicyWorker,
+  UPDATE_SIGNER_POLICY
 );
 
 function* testcoinsWorker({ payload }) {
