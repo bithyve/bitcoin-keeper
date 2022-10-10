@@ -8,7 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import { Box, HStack, Text, VStack, View, Button } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
@@ -39,6 +39,9 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useDispatch } from 'react-redux';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import idx from 'idx';
+import _ from 'lodash';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -325,6 +328,22 @@ const SigningDeviceDetails = ({ route }) => {
     }
   };
 
+  const navigateToPolicyChange = (signer: VaultSigner) => {
+    const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
+    const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ChoosePolicy',
+        params: {
+          restrictions,
+          exceptions,
+          update: true,
+          signer,
+        },
+      })
+    );
+  };
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -393,6 +412,15 @@ const SigningDeviceDetails = ({ route }) => {
           primaryDisable={false}
           secondaryDisable={false}
         />
+        {signer.type === SignerType.POLICY_SERVER && (
+          <Buttons
+            primaryText={'Advance Settings'}
+            primaryCallback={() => {
+              navigateToPolicyChange(signer);
+            }}
+            primaryDisable={false}
+          />
+        )}
         <EditDescriptionModal
           visible={editDescriptionModal}
           closeHealthCheck={closeEditDescription}
