@@ -120,7 +120,6 @@ const AppStack = () => {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
@@ -163,6 +162,7 @@ const AppStack = () => {
         <Stack.Screen name="SetExceptions" component={SetExceptions} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
         <Stack.Screen name="SigningServer" component={SigningServer} />
+        <Stack.Screen name="AddDescription" component={AddDescription} />
       </Stack.Navigator>
     </RealmProvider>
   );
