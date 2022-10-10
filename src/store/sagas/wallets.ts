@@ -64,6 +64,7 @@ import {
   VerificationType,
 } from 'src/core/services/interfaces';
 import { vs } from 'react-native-size-matters';
+import { Alert } from 'react-native';
 
 export interface newWalletDetails {
   name?: string;
@@ -640,7 +641,10 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
 
   const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
 
-  if (!updated) throw new Error('Failed to update the policy');
+  if (!updated) {
+    Alert.alert('Failed to update signer policy, try again.');
+    throw new Error('Failed to update the policy');
+  }
 
   // TODO: generalise it for multiple vaults as the feature gets introduced
   const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
