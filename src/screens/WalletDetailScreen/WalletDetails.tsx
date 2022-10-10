@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, Text } from 'native-base';
+import { Box, Pressable, Text, View } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Carousel from 'react-native-snap-carousel';
@@ -24,6 +24,7 @@ import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Recieve from 'src/assets/images/svgs/receive.svg';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -42,15 +43,20 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { getAmount } from 'src/common/constants/Bitcoin';
+import KeeperModal from 'src/components/KeeperModal';
+import { setIntroModal } from 'src/store/reducers/wallets';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+
   const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
+  const introModal = useAppSelector((state) => state.wallet.introModal);
+
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
 
@@ -250,7 +256,25 @@ const WalletDetails = () => {
       </LinearGradient>
     );
   };
-
+  const LinkedWalletContent = () => {
+    return (
+      <View marginY={5}>
+        <Box alignSelf={'center'}>
+          <VaultSetupIcon />
+        </Box>
+        <Text marginTop={hp(20)} color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+          {
+            'You can use the individual wallet’s recovery phrases to connect other bitcoin apps to Keeper'
+          }
+        </Text>
+        <Text color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+          {
+            'When the funds in a wallet cross a threshold, a transfer to the Vault is triggered. This ensures you don’t have more sats in hot wallets than you need.'
+          }
+        </Text>
+      </View>
+    );
+  };
   return (
     <Box
       backgroundColor={'light.lightYellow'}
@@ -472,6 +496,17 @@ const WalletDetails = () => {
           </Text>
         </Box>
       )}
+      <KeeperModal
+        visible={introModal}
+        close={() => { dispatch(setIntroModal(false)) }}
+        title={'Bip-85 Wallets'}
+        subTitle={'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'}
+        modalBackground={['#00836A', '#073E39']}
+        textColor={'#FFF'}
+        Content={LinkedWalletContent}
+        DarkCloseIcon={true}
+        learnMore={true}
+      />
     </Box>
   );
 };

@@ -101,7 +101,7 @@ const KeeperModal = (props) => {
                         fontFamily={'body'}
                         fontWeight={'200'}
                       >
-                        {'Learn More'}
+                        {'See FAQs'}
                       </Text>
                     </Link>
                   </Box>
