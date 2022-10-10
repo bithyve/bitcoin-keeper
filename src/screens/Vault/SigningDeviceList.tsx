@@ -21,7 +21,6 @@ import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { manager } from 'src/core/services/ble';
 import { useAppSelector } from 'src/store/hooks';
-import useSigningList from 'src/hooks/useSigningList';
 
 type HWProps = {
   type: SignerType;
@@ -30,10 +29,7 @@ type HWProps = {
 };
 
 const findKeyInServer = (vaultSigners, type: SignerType) => {
-  return vaultSigners.find(
-    (element) =>
-      element.type === type
-  );
+  return vaultSigners.find((element) => element.type === type);
 };
 
 const SigningDeviceList = ({ navigation }: { navigation }) => {
@@ -66,6 +62,10 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     }, true);
   };
 
+  const openNFCError = () => {
+    setNfcAlert(true);
+  };
+
   const getDisabled = (type: SignerType) => {
     // Keys Incase of level 1 we have level 1
     if (isOnPleb) {
@@ -88,12 +88,12 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
       case SignerType.COLDCARD:
         return {
           message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-          disabled: !isNfcSupported,
+          disabled: !__DEV__ && !isNfcSupported,
         };
       case SignerType.LEDGER:
         return {
           message: !isBLESupported ? 'BLE is not enabled in your device' : '',
-          disabled: !isBLESupported,
+          disabled: !__DEV__ && !isBLESupported,
         };
       case SignerType.MOBILE_KEY:
         return {
@@ -108,7 +108,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
       case SignerType.TAPSIGNER:
         return {
           message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-          disabled: !isNfcSupported,
+          disabled: !__DEV__ && !isNfcSupported,
         };
       case SignerType.SEED_WORDS:
         return {
@@ -120,6 +120,13 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           message: getDisabled(type).message,
           disabled: getDisabled(type).disabled,
         };
+      case SignerType.TREZOR:
+      case SignerType.JADE:
+      case SignerType.KEYSTONE:
+        return {
+          message: 'Coming soon',
+          disabled: false,
+        };
       default:
         return {
           message: '',
@@ -128,7 +135,19 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     }
   };
 
-  const sortedSigners = useSigningList(isNfcSupported, isBLESupported, getDeviceStatus);
+  const sortedSigners = [
+    SignerType.COLDCARD,
+    SignerType.LEDGER,
+    SignerType.TREZOR,
+    SignerType.TAPSIGNER,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
+    SignerType.PASSPORT,
+    SignerType.JADE,
+    SignerType.KEEPER,
+    SignerType.SEED_WORDS,
+    SignerType.KEYSTONE,
+  ];
   const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
 
@@ -231,27 +250,28 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         headerTitleColor={'light.headerTextTwo'}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
-        <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
           <Box paddingY={'4'}>
             {sortedSigners?.map((type: SignerType, index: number) => (
               <HardWareWallet type={type} first={index === 0} last={index === 9} />
             ))}
           </Box>
-        </ScrollView>
-        <Text
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-          fontWeight={100}
-          color={'light.lightBlack'}
-          width={wp(300)}
-          lineHeight={20}
-          marginTop={hp(20)}
-        >
-          {vault.VaultInfo}{' '}
-          <Text fontStyle={'italic'} fontWeight={'bold'}>
-            Contact Us
+          <Text
+            fontSize={RFValue(12)}
+            letterSpacing={0.6}
+            fontWeight={100}
+            color={'light.lightBlack'}
+            width={wp(300)}
+            lineHeight={20}
+            marginTop={hp(20)}
+          >
+            {vault.VaultInfo}{' '}
+            <Text fontStyle={'italic'} fontWeight={'bold'}>
+              Contact Us
+            </Text>
           </Text>
-        </Text>
+        </ScrollView>
+
         <KeeperModal
           visible={nfcAlert}
           close={() => {

@@ -1,10 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import { ActivityIndicator } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -18,6 +18,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
+import { SignerPolicy } from 'src/core/services/interfaces';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -29,7 +30,6 @@ import idx from 'idx';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
-import { SignerPolicy } from 'src/core/services/interfaces';
 
 const SetupSigningServer = ({ route }: { route }) => {
   const dispatch = useDispatch();
@@ -112,8 +112,8 @@ const SetupSigningServer = ({ route }: { route }) => {
             color={'light.modalText'}
             marginTop={2}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et
+            If you lose your authenticator app, use the other Signing Devices to reset the Signing
+            Server
           </Text>
           <Box mt={10} alignSelf={'flex-end'} mr={2}>
             <Box>
@@ -142,7 +142,7 @@ const SetupSigningServer = ({ route }: { route }) => {
       <Box>
         <Header
           title={'Set up 2FA for Signing Server'}
-          subtitle={'Lorem ipsum dolor sit amet,'}
+          subtitle={'Scan on any 2FA auth app'}
           onPressHandler={() => navigation.goBack()}
           headerTitleColor={'light.headerText'}
         />
@@ -154,20 +154,6 @@ const SetupSigningServer = ({ route }: { route }) => {
           </Box>
         ) : (
           <Box alignItems={'center'} alignSelf={'center'} width={hp(200)}>
-            <Text
-              color={'light.recieverAddress'}
-              fontFamily={'body'}
-              fontWeight={300}
-              fontSize={12}
-              letterSpacing={1.08}
-              noOfLines={1}
-              backgroundColor={'amber.400'}
-              style={{
-                marginVertical: hp(30),
-              }}
-            >
-              Scan the QR below to add Backup Key
-            </Text>
             <QRCode
               value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
               logoBackgroundColor="transparent"
@@ -184,7 +170,7 @@ const SetupSigningServer = ({ route }: { route }) => {
                 width={'100%'}
                 noOfLines={1}
               >
-                {twoFAKey}
+                {`2FA Signing Server`}
               </Text>
             </Box>
           </Box>
@@ -196,9 +182,7 @@ const SetupSigningServer = ({ route }: { route }) => {
         <Box marginBottom={hp(30)}>
           <InfoBox
             title={'Note'}
-            desciption={
-              'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
-            }
+            desciption={'It is a good idea to have the authenticator app on another device'}
             width={300}
           />
         </Box>
@@ -219,7 +203,7 @@ const SetupSigningServer = ({ route }: { route }) => {
           showValidationModal(false);
         }}
         title={'Confirm OTP to setup 2FA'}
-        subTitle={'Lorem ipsum dolor sit amet, '}
+        subTitle={'To complete setting up the Signing Server'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
         Content={otpContent}

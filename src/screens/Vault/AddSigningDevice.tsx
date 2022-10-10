@@ -72,7 +72,7 @@ const AddSigningDevice = () => {
   const planStatus = hasPlanChanged(activeVault, keeper);
 
   useEffect(() => {
-    if (activeVault) {
+    if (activeVault && !vaultSigners.length) {
       dispatch(addSigningDevice(activeVault.signers));
     }
     checkSigningDevice('7FBC64C9');
@@ -122,7 +122,14 @@ const AddSigningDevice = () => {
     const netBanalce = confirmed + unconfirmed;
     if (netBanalce === 0) {
       dispatch(finaliseVaultMigration(oldVault.id));
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
       return;
     }
     const { updatedWallet, receivingAddress } =
@@ -155,7 +162,10 @@ const AddSigningDevice = () => {
       if (freshVault && !activeVault) {
         const navigationState = {
           index: 1,
-          routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
+          routes: [
+            { name: 'NewHome' },
+            { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+          ],
         };
         navigation.dispatch(CommonActions.reset(navigationState));
       }
@@ -168,6 +178,14 @@ const AddSigningDevice = () => {
 
   const triggerVaultCreation = () => {
     setCreating(true);
+  };
+
+  const getPlaceholder = (index) => {
+    const mainIndex = index + 1;
+    if (mainIndex == 1) return mainIndex + 'st';
+    else if (mainIndex == 2) return mainIndex + 'nd';
+    else if (mainIndex == 3) return mainIndex + 'rd';
+    else return mainIndex + 'th';
   };
 
   const SignerItem = ({ signer, index }: { signer: VaultSigner | undefined; index: number }) => {
@@ -186,10 +204,10 @@ const AddSigningDevice = () => {
                     alignItems={'center'}
                     letterSpacing={1.12}
                   >
-                    {`Add Signer ${index + 1}`}
+                    {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
                   <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-                    {`Lorem ipsum dolor sit amet, consectetur`}
+                    {`Select Signing Device`}
                   </Text>
                 </VStack>
               </HStack>
@@ -245,8 +263,8 @@ const AddSigningDevice = () => {
   return (
     <ScreenWrapper>
       <Header
-        title={'Add Signers'}
-        subtitle={'Lorem ipsum dolor sit amet, consectetur'}
+        title={'Add Signing Devices'}
+        subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
       />
       <FlatList

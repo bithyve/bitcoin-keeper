@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import ScreenWrapper from 'src/components/ScreenWrapper';
-import Header from 'src/components/Header';
 import { Box, ScrollView, Text, View } from 'native-base';
-import AddSignerIcon from 'src/assets/icons/addSigner.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { SignerType } from 'src/core/wallets/enums';
-import { WalletMap } from '../Vault/WalletMap';
-import HardwareModalMap from '../Vault/HardwareModalMap';
-import KeeperModal from 'src/components/KeeperModal';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { useNavigation } from '@react-navigation/native';
+
+import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
+import HardwareModalMap from '../Vault/HardwareModalMap';
+import Header from 'src/components/Header';
+import KeeperModal from 'src/components/KeeperModal';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { SignerType } from 'src/core/wallets/enums';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { WalletMap } from '../Vault/WalletMap';
+import { useNavigation } from '@react-navigation/native';
 
 const TapsignerSetupContent = () => {
   return (
@@ -156,7 +157,7 @@ const SignersList = () => {
   return (
     <ScreenWrapper>
       <Header
-        title={'Select Signing Devices'}
+        title={'Select Signing Device'}
         subtitle={'to recover your vault'}
         headerTitleColor={'light.textBlack'}
       />
