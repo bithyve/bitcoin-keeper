@@ -61,7 +61,8 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    open();
+    // open();
+    navigation.navigate('InheritanceSetup')
   };
 
   const close = () => setVisible(false);
