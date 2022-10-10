@@ -30,7 +30,7 @@ const AppSettings = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
   const { appId } = useAppSelector((state) => state.storage);
-  const { backupWarning } = useAppSelector((state) => state.bhr);
+  const { backupMethod } = useAppSelector((state) => state.bhr);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -149,7 +149,7 @@ const AppSettings = ({ navigation }) => {
         {Icon && (
           <Box position={'relative'} style={{ width: wp(40) }}>
             {/* { Notification indicator } */}
-            {backupWarning && (
+            {backupMethod === null && (
               <Box
                 height={3}
                 width={3}
@@ -158,7 +158,7 @@ const AppSettings = ({ navigation }) => {
                 borderColor={'light.white1'}
                 borderWidth={0.3}
                 position={'absolute'}
-                right={wp(10)}
+                right={wp(-2)}
                 zIndex={999}
               />
             )}
@@ -245,14 +245,14 @@ const AppSettings = ({ navigation }) => {
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
 
-          <SettingsSwitchCard
+          {/* <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
-          />
+          /> */}
           <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}

@@ -542,6 +542,8 @@ const HomeScreen = ({ navigation }) => {
       BugReporting.setOptions([BugReporting.option.emailFieldHidden])
       BugReporting.setInvocationEvents([Instabug.invocationEvent.shake, Instabug.invocationEvent.screenshot])
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback])
+      BugReporting.setShakingThresholdForiPhone(100);
+      BugReporting.setShakingThresholdForAndroid(100);
       Instabug.setPrimaryColor('rgb(7, 62, 57)')
     } catch (error) {
       console.log(error)
