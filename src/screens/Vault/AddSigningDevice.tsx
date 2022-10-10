@@ -72,7 +72,7 @@ const AddSigningDevice = () => {
   const planStatus = hasPlanChanged(activeVault, keeper);
 
   useEffect(() => {
-    if (activeVault) {
+    if (activeVault && !vaultSigners.length) {
       dispatch(addSigningDevice(activeVault.signers));
     }
     checkSigningDevice('7FBC64C9');

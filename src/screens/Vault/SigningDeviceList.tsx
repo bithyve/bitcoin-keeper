@@ -21,7 +21,6 @@ import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { manager } from 'src/core/services/ble';
 import { useAppSelector } from 'src/store/hooks';
-import useSigningList from 'src/hooks/useSigningList';
 
 type HWProps = {
   type: SignerType;
@@ -89,12 +88,12 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
       case SignerType.COLDCARD:
         return {
           message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-          disabled: !isNfcSupported,
+          disabled: !__DEV__ && !isNfcSupported,
         };
       case SignerType.LEDGER:
         return {
           message: !isBLESupported ? 'BLE is not enabled in your device' : '',
-          disabled: !isBLESupported,
+          disabled: !__DEV__ && !isBLESupported,
         };
       case SignerType.MOBILE_KEY:
         return {
@@ -109,7 +108,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
       case SignerType.TAPSIGNER:
         return {
           message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-          disabled: !isNfcSupported,
+          disabled: !__DEV__ && !isNfcSupported,
         };
       case SignerType.SEED_WORDS:
         return {
@@ -120,6 +119,13 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         return {
           message: getDisabled(type).message,
           disabled: getDisabled(type).disabled,
+        };
+      case SignerType.TREZOR:
+      case SignerType.JADE:
+      case SignerType.KEYSTONE:
+        return {
+          message: 'Coming soon',
+          disabled: false,
         };
       default:
         return {

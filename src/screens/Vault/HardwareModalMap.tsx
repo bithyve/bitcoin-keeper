@@ -102,31 +102,28 @@ const ColdCardSetupContent = () => {
         <ColdCardSetupImage />
       </Box>
       <Box marginTop={'4'}>
-        <Box flex={1} flexDirection={'row'}>
-          <Box mb={hp(19)} mx={wp(2)}>
-            <Text>{'\u2022 Step 1'}</Text>
-          </Box>
-          <Text
-            color={'#073B36'}
-            fontSize={13}
-            fontWeight={200}
-            letterSpacing={0.65}
-            style={{
-              marginLeft: wp(10),
-              width: wp(210),
-            }}
-          >
-            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
-          </Text>
-        </Box>
-        <Box flex={1} flexDirection={'row'} marginTop={2}>
-          <Box mb={hp(19)} mx={wp(2)}>
-            <Text>{'\u2022 Step 2'}</Text>
-          </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
-            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
-          </Text>
-        </Box>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your Vault).\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
+        </Text>
       </Box>
     </View>
   );

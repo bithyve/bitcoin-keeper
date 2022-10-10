@@ -1,5 +1,6 @@
 import { Box, Link, Modal, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Close from 'src/assets/icons/modal_close.svg';
 import CloseGreen from 'src/assets/icons/modal_close_green.svg';
@@ -7,7 +8,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const KeeperModal = (props) => {
   const {
@@ -27,7 +27,7 @@ const KeeperModal = (props) => {
     dismissible = true,
     showButtons = true,
     learnMore = false,
-    learnMoreCallback = () => { },
+    learnMoreCallback = () => {},
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -99,9 +99,9 @@ const KeeperModal = (props) => {
                         color={'light.yellow2'}
                         fontSize={13}
                         fontFamily={'body'}
-                        fontWeight={'200'}
+                        fontWeight={'300'}
                       >
-                        {'Learn More'}
+                        {'See FAQs'}
                       </Text>
                     </Link>
                   </Box>
