@@ -1,5 +1,5 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -54,8 +54,12 @@ import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import ChoosePolicy from 'src/screens/Vault/ChoosePolicy';
 import SetExceptions from 'src/screens/Vault/SetExceptions';
+import SigningServer from 'src/screens/Vault/SigningServer';
+import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
+import KeeperLoader from 'src/components/KeeperLoader';
+import { AppContext } from 'src/common/content/AppContext';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -155,6 +159,8 @@ const AppStack = () => {
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="ChoosePolicy" component={ChoosePolicy} />
         <Stack.Screen name="SetExceptions" component={SetExceptions} />
+        <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
+        <Stack.Screen name="SigningServer" component={SigningServer} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -162,6 +168,7 @@ const AppStack = () => {
 const Navigator = () => {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
+  const { appLoading, loadingContent } = useContext(AppContext);
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
@@ -173,6 +180,15 @@ const Navigator = () => {
         <Stack.Screen name="LoginStack" component={LoginStack} />
         <Stack.Screen name="App" component={AppStack} />
       </Stack.Navigator>
+      <KeeperLoader
+        visible={appLoading}
+        loadingContent={loadingContent}
+        close={() => { }}
+        title={'please wait'}
+        subTitle={'loading'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#000'}
+      />
     </NavigationContainer>
   );
 };

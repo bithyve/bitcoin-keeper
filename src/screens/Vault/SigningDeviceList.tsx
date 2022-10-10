@@ -39,7 +39,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     getJSONFromRealmObject
   )[0];
 
-  const isOnPleb = subscription.name === SubscriptionTier.PLEB;
+  const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
 
   const [nfcAlert, setNfcAlert] = useState(false);

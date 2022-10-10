@@ -7,6 +7,7 @@ import JADEICON from 'src/assets/images/jade_icon.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
 import KEEPERAPP from 'src/assets/icons/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/icons/KeeperIconLight.svg';
+import KEEPERICON from 'src/assets/images/Keeper.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';

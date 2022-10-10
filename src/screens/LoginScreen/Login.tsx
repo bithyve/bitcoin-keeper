@@ -24,6 +24,7 @@ import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
+import { AppContext } from 'src/common/content/AppContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 
 const TIMEOUT = 60;
@@ -48,6 +49,7 @@ const LoginScreen = ({ navigation, route }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
+  const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const login = translations['login'];
   const common = translations['common'];
 
@@ -56,6 +58,14 @@ const LoginScreen = ({ navigation, route }) => {
       attemptLogin(passcode);
     }
   }, [loggingIn]);
+
+  useEffect(() => {
+    setLoadingContent({
+      title: 'Logging in to your Keeper',
+      subTitle: 'Shake your device or take a screenshot to send feedback',
+      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+    })
+  }, []);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -158,6 +168,12 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      })
+      setAppLoading(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
@@ -169,6 +185,12 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      })
+      setAppLoading(false)
       if (relogin) {
         navigation.goBack();
       } else {
@@ -193,6 +215,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
+    setAppLoading(true)
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -289,7 +312,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}

@@ -18,6 +18,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
+import { SignerPolicy } from 'src/core/services/interfaces';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -58,11 +59,8 @@ const SetupSigningServer = ({ route }: { route }) => {
   const setupSigningServerKey = async () => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
-    // const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
-    //   primaryMnemonic,
-    //   networkType
-    // );
 
+    const policy: SignerPolicy = route.params.policy;
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
       type: SignerType.POLICY_SERVER,
@@ -71,8 +69,8 @@ const SetupSigningServer = ({ route }: { route }) => {
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.WARM,
+      signerPolicy: policy,
     };
-
     dispatch(addSigningDevice(signingServerKey));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
@@ -149,13 +147,7 @@ const SetupSigningServer = ({ route }: { route }) => {
           headerTitleColor={'light.headerText'}
         />
       </Box>
-      <Box
-        height={'60%'}
-        alignItems={'center'}
-        alignSelf={'center'}
-        justifyContent={'center'}
-        width={wp(250)}
-      >
+      <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={wp(250)}>
         {twoFAKey === '' ? (
           <Box height={hp(250)} justifyContent={'center'}>
             <ActivityIndicator animating={true} size="small" />

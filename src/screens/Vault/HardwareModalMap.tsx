@@ -31,7 +31,6 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
-import { registerWithSigningServer } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 
@@ -234,8 +233,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const navigateToSigningServerSetup = () => {
     close();
-    dispatch(registerWithSigningServer());
-    navigation.dispatch(CommonActions.navigate({ name: 'SetupSigningServer', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicy', params: {} }));
   };
 
   const navigateToSeedWordSetup = () => {
