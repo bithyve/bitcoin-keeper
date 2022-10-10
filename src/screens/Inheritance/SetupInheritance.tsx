@@ -10,15 +10,19 @@ import Header from 'src/components/Header';
 import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/svgs/vault.svg';
 import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
-
+import { setInheritance } from 'src/store/reducers/settings';
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
+  const dispatch = useAppDispatch();
+  const introModal = useAppSelector((state) => state.settings.inheritanceModal);
+
   const [modalVisiblity, setModalVisiblity] = useState(true);
   const inheritanceData = [
     {
@@ -174,8 +178,8 @@ const SetupInheritance = () => {
         />
       </Box>
       <KeeperModal
-        visible={modalVisiblity}
-        close={() => { setModalVisiblity(false) }}
+        visible={introModal}
+        close={() => { dispatch(setInheritance(false)) }}
         title={'Inheritance'}
         subTitle={'Securely bequeath your bitcoin'}
         modalBackground={['#00836A', '#073E39']}
