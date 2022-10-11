@@ -3,11 +3,12 @@ import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import React from 'react';
+import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteIcon from 'src/assets/images/delete.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { useAppSelector } from 'src/store/hooks';
 
 const CustomPriorityModal = (props) => {
   const {
@@ -19,17 +20,57 @@ const CustomPriorityModal = (props) => {
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = 'Button text',
     buttonTextColor = 'white',
-    buttonCallback = props.close || null,
+    buttonCallback,
     textColor = '#000',
+    network,
   } = props;
   const { bottom } = useSafeAreaInsets();
+  const [customPriorityFee, setCustomPriorityFee] = useState('');
+  const [customEstBlocks, setCustomEstBlock] = useState('');
+  const averageTxFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
 
-  const onPressHandler = () => {
-    return console.log('onPressHandler');
+  const onPressNumber = (text) => {
+    let currentFee = customPriorityFee;
+    if (text != 'x') {
+      currentFee += text;
+      updateFeeAndBlock(currentFee);
+    } else if (currentFee && text == 'x') {
+      updateFeeAndBlock(currentFee.slice(0, -1));
+    }
   };
 
-  const onDeletePressed = (text) => {
-    return console.log('onDeletePressed');
+  const updateFeeAndBlock = (value) => {
+    if (averageTxFees && averageTxFees[network].feeRates) {
+      const { feeRates } = averageTxFees[network];
+      const customFeeRatePerByte = parseInt(value);
+      let customEstimatedBlock = 0;
+      // handling extremes
+      if (customFeeRatePerByte > feeRates['2']) {
+        customEstimatedBlock = 1;
+      } else if (customFeeRatePerByte < feeRates['144']) {
+        customEstimatedBlock = 200;
+      } else {
+        const closestFeeRatePerByte = Object.values(feeRates).reduce(function (prev, curr) {
+          return Math.abs(curr - customFeeRatePerByte) < Math.abs(prev - customFeeRatePerByte)
+            ? curr
+            : prev;
+        });
+
+        const etimatedBlock = Object.keys(feeRates).find(
+          (key) => feeRates[key] === closestFeeRatePerByte
+        );
+        customEstimatedBlock = parseInt(etimatedBlock);
+      }
+
+      if (parseInt(value) >= 1) setCustomEstBlock(`${customEstimatedBlock}`);
+      else setCustomPriorityFee('');
+    }
+
+    setCustomPriorityFee(value);
+  };
+
+  const onDeletePressed = () => {
+    updateFeeAndBlock(customPriorityFee.slice(0, customPriorityFee.length - 1));
   };
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
@@ -72,7 +113,13 @@ const CustomPriorityModal = (props) => {
               </Text>
             </Modal.Header>
             <Box alignItems="center">
-              <Input mx="3" placeholder="Enter Amount" w="100%" variant="unstyled" />
+              <Input
+                mx="3"
+                placeholder="Enter Amount"
+                w="100%"
+                variant="unstyled"
+                value={customPriorityFee}
+              />
             </Box>
             <Box my={windowHeight * 0.02}>
               <Text
@@ -92,7 +139,11 @@ const CustomPriorityModal = (props) => {
               alignItems={'center'}
               my={windowWidth * 0.031}
             >
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setCustomPriorityFee('');
+                }}
+              >
                 <Text
                   mr={windowWidth * 0.07}
                   color={'#073E39'}
@@ -103,7 +154,11 @@ const CustomPriorityModal = (props) => {
                   Start Over
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={buttonCallback}>
+              <TouchableOpacity
+                onPress={() => {
+                  buttonCallback(customPriorityFee, customEstBlocks);
+                }}
+              >
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -125,7 +180,7 @@ const CustomPriorityModal = (props) => {
               </TouchableOpacity>
             </Box>
             <KeyPadView
-              onPressNumber={onPressHandler}
+              onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
               keyColor={'light.lightBlack'}
               ClearIcon={<DeleteIcon />}
