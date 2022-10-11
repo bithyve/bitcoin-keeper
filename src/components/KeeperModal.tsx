@@ -9,7 +9,25 @@ import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const KeeperModal = (props) => {
+const KeeperModal = (props: {
+  visible: boolean;
+  close: any;
+  title?: string;
+  subTitle?: string;
+  modalBackground?: string[];
+  buttonBackground?: string[];
+  buttonText?: string;
+  buttonTextColor?: string;
+  buttonCallback?: any;
+  textColor?: string;
+  subTitleColor?: string;
+  DarkCloseIcon?: any;
+  Content?: any;
+  dismissible?: boolean;
+  showButtons?: boolean;
+  learnMore?: boolean;
+  learnMoreCallback?: any;
+}) => {
   const {
     visible,
     close,

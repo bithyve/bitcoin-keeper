@@ -425,7 +425,7 @@ const SignerList = ({
                   letterSpacing={0.6}
                   textAlign={'center'}
                 >
-                  {`${moment(signer.addedOn).fromNow()}`}
+                  {`Added ${moment(signer.addedOn).fromNow()}`}
                 </Text>
               </VStack>
             </TouchableOpacity>
