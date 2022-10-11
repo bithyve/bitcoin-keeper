@@ -63,12 +63,12 @@ const OnBoardingSlides = ({ navigation }) => {
     //   paragraph: onboarding.slide05Paragraph,
     //   illustration: <Illustration_6 />,
     // },
-    {
-      id: '6',
-      title: onboarding.slide06Title,
-      paragraph: onboarding.slide06Paragraph,
-      illustration: <Illustration_3 />,
-    },
+    // {
+    //   id: '6',
+    //   title: onboarding.slide06Title,
+    //   paragraph: onboarding.slide06Paragraph,
+    //   illustration: <Illustration_3 />,
+    // },
   ]);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -82,7 +82,7 @@ const OnBoardingSlides = ({ navigation }) => {
         <SafeAreaView style={{ flex: 1 }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
           <Box justifyContent={'center'} mr={4} mt={10}>
-            {currentPosition != 2 && (
+            {currentPosition != 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}

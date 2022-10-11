@@ -46,7 +46,10 @@ const SendScreen = ({ route }) => {
   const [paymentInfo, setPaymentInfo] = useState('');
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const otherWallets: Wallet[] = allWallets.filter(
+    (existingWallet) => existingWallet.id !== wallet.id
+  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -164,7 +167,7 @@ const SendScreen = ({ route }) => {
                 backgroundColor={'light.textInputBackground'}
               >
                 <FlatList
-                  data={wallets}
+                  data={otherWallets}
                   renderItem={renderWallets}
                   keyExtractor={(item) => item.id}
                   horizontal

@@ -45,7 +45,9 @@ const UaiDisplay = ({ uaiStack }) => {
         return {
           modalDetails: {
             heading: 'Trasfer to Vault',
-            btnText: 'Transfer details',
+            subTitle:
+              'Your Auto-transfer policy has triggered a transaction that needs your approval',
+            btnText: ' Transfer Now',
           },
           cta: () => {
             navigtaion.navigate('SendConfirmation', { isVaultTransfer: true, uaiSetActionFalse });
@@ -120,13 +122,18 @@ const UaiDisplay = ({ uaiStack }) => {
           visible={showModal}
           close={() => setShowModal(false)}
           title={uaiConfig?.modalDetails?.heading}
+          subTitle={uaiConfig?.modalDetails?.subTitle}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
           buttonTextColor={'#FAFAFA'}
           buttonCallback={uaiConfig?.cta}
           textColor={'#000'}
-          Content={() => <Text>{uai?.displayText}</Text>}
+          Content={() => (
+            <Text fontWeight={200} color={'#073B36'}>
+              {uai?.displayText}
+            </Text>
+          )}
         />
       </>
     );
