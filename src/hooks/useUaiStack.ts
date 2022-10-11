@@ -55,7 +55,7 @@ export const useUaiStack = () => {
           true,
           uaiType.VAULT_TRANSFER,
           70,
-          'Your wallet balance is above 10,000sats'
+          'Once approved, bitcoin will be transferred from the Wallets to the Vault for safekeeping You can change the policy that triggers auto-transfer to suit your needs'
         )
       );
     }
