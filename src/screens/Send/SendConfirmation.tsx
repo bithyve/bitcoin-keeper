@@ -2,7 +2,11 @@ import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import {
+  calculateCustomFee,
+  crossTransfer,
+  sendPhaseTwo,
+} from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
@@ -36,7 +40,7 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const { isVaultTransfer, uaiSetActionFalse, wallet, recipients } = route.params; // isVaultTransfer: switches between automated transfer and typical send
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -417,12 +421,23 @@ const SendConfirmation = ({ route }) => {
           </Box>
         </TouchableOpacity>
         <CustomPriorityModal
-          visible={visible}
+          visible={false}
           close={close}
           title="Custom Priority"
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
           buttonText="Confirm"
+          buttonCallback={(customFeePerByte, customEstimatedBlocks) => {
+            dispatch(
+              calculateCustomFee({
+                wallet,
+                recipients,
+                feePerByte: customFeePerByte,
+                customEstimatedBlocks,
+              })
+            );
+          }}
+          network={(wallet as Wallet).networkType}
         />
       </Box>
     );
