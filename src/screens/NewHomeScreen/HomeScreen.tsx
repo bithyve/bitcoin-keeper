@@ -542,7 +542,7 @@ const HomeScreen = ({ navigation }) => {
         Instabug.invocationEvent.screenshot,
       ]);
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
-      BugReporting.setShakingThresholdForiPhone(100);
+      BugReporting.setShakingThresholdForiPhone(1.0);
       BugReporting.setShakingThresholdForAndroid(100);
       Instabug.setPrimaryColor('rgb(7, 62, 57)');
     } catch (error) {
