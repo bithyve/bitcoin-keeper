@@ -178,7 +178,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           </Text>
           <Tile
             title={'Start New'}
-            subTitle={'New Vault and Wallets'}
+            subTitle={'New vault and wallets'}
             Icon={<App />}
             onPress={() => {
               setInitiating(true);

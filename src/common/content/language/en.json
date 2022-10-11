@@ -416,7 +416,7 @@
   },
   "onboarding": {
     "slide01Title": "Comprehensive security for\n your bitcoin keys",
-    "slide01Paragraph": "Use trusted Signing Devices (Hardware Wallets) for air-gapped signing or multi-sig. Add BIP 85 hot wallets or set up for inheritance.",
+    "slide01Paragraph": "Use trusted signing devices (hardware wallets) for air-gapped signing or multi-sig. Add BIP 85 hot wallets or set up inheritance.",
     "slide02Title": "Security should not\ncome at the cost of privacy",
     "slide02Paragraph": "You do not need to register or provide any PII to use Keeper. Run your own node. Connect via. Tor.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
