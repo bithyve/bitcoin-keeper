@@ -1,4 +1,4 @@
-import { ActivityIndicator, Alert, FlatList, Platform } from 'react-native';
+import { Alert, FlatList, Platform } from 'react-native';
 import AppClient, { PsbtV2, WalletPolicy } from 'src/hardware/ledger';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
@@ -33,7 +33,6 @@ import idx from 'idx';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { wp } from 'src/common/data/responsiveness/responsive';
 
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -111,6 +110,7 @@ const SignTransactionScreen = () => {
       seedBasedSingerMnemonic?: string;
     } = {}) => {
       const activeId = signerId || activeSignerId;
+      const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.signerId === activeId
@@ -131,25 +131,43 @@ const SignTransactionScreen = () => {
             });
           };
           const { inputsToSign } = signingPayload[0];
-          await withModal(async () => {
-            try {
-              const status = await card.first_look();
-              if (status.path) {
-                for (let i = 0; i < inputsToSign.length; i++) {
-                  const input = inputsToSign[i];
-                  const digest = Buffer.from(input.digest, 'hex');
-                  const subpath = input.subPath;
-                  const signature = await card.sign_digest(textRef.current, 0, digest, subpath);
-                  input.signature = signature.slice(1).toString('hex');
+          //AMF flow for signing
+          if (currentSigner.amfData && currentSigner.amfData.xpub) {
+            await withModal(async () => {
+              await card.first_look();
+              await card.read(textRef.current);
+            })();
+            const { xpriv } = currentSigner;
+            const inputs = idx(signingPayload, (_) => _[0].inputsToSign);
+            if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+              defaultVault,
+              inputs,
+              serializedPSBT,
+              xpriv
+            );
+            dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          } else {
+            await withModal(async () => {
+              try {
+                const status = await card.first_look();
+                if (status.path) {
+                  for (let i = 0; i < inputsToSign.length; i++) {
+                    const input = inputsToSign[i];
+                    const digest = Buffer.from(input.digest, 'hex');
+                    const subpath = input.subPath;
+                    const signature = await card.sign_digest(textRef.current, 0, digest, subpath);
+                    input.signature = signature.slice(1).toString('hex');
+                  }
+                  dispatch(updatePSBTSignatures({ signingPayload, signerId }));
+                } else {
+                  Alert.alert('Please setup card before signing!');
                 }
-                dispatch(updatePSBTSignatures({ signingPayload, signerId }));
-              } else {
-                Alert.alert('Please setup card before signing!');
+              } catch (e) {
+                console.log(e);
               }
-            } catch (e) {
-              console.log(e);
-            }
-          })().catch(console.log);
+            })().catch(console.log);
+          }
         } else if (SignerType.COLDCARD === signerType) {
           try {
             setColdCardModal(false);
@@ -336,26 +354,24 @@ const SignTransactionScreen = () => {
         subtitleColor={'GreyText'}
       />
       <Box alignItems={'flex-end'} marginY={5}>
-        {broadcasting ? (
-          <ActivityIndicator size={30} style={{ marginHorizontal: '10%' }} />
-        ) : (
-          <Buttons
-            primaryText={'Boradcast'}
-            primaryCallback={() => {
-              if (areSignaturesSufficient()) {
-                setBroadcasting(true);
-                dispatch(
-                  sendPhaseThree({
-                    wallet: defaultVault,
-                    txnPriority: TxPriority.LOW,
-                  })
-                );
-              } else {
-                Alert.alert(`Sorry there aren't enough signatures!`);
-              }
-            }}
-          />
-        )}
+        <Buttons
+          primaryDisable={!areSignaturesSufficient()}
+          primaryLoading={broadcasting}
+          primaryText={'Boradcast'}
+          primaryCallback={() => {
+            if (areSignaturesSufficient()) {
+              setBroadcasting(true);
+              dispatch(
+                sendPhaseThree({
+                  wallet: defaultVault,
+                  txnPriority: TxPriority.LOW,
+                })
+              );
+            } else {
+              Alert.alert(`Sorry there aren't enough signatures!`);
+            }
+          }}
+        />
       </Box>
       <SignerModals
         signers={signers}

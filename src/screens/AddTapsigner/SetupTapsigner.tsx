@@ -22,6 +22,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
 const SetupTapsigner = () => {
@@ -54,6 +55,7 @@ const SetupTapsigner = () => {
     }
   };
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const onDeletePressed = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
@@ -110,7 +112,22 @@ const SetupTapsigner = () => {
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      Alert.alert(err.toString());
+      if (err.toString().includes('401')) {
+        showToast('Please check the cvc entered and try again!', null, 2000, true);
+      } else if (err.toString().includes('429')) {
+        showToast(
+          'You have exceed the cvc retry limit. Please unlock the card and try again!',
+          null,
+          2000,
+          true
+        );
+      } else if (err.toString().includes('205')) {
+        showToast('Please try again!', null, 2000);
+      } else {
+        showToast(err.toString(), null, 2000, true);
+      }
+      setNfcVisible(false);
+      card.endNfcSession();
     }
   }, [cvc]);
 
@@ -141,6 +158,7 @@ const SetupTapsigner = () => {
     if (amfData) {
       tapsigner.amfData = amfData;
       tapsigner.signerName = 'Tapsigner*';
+      tapsigner.isMock = false;
     }
     return tapsigner;
   };
@@ -153,7 +171,7 @@ const SetupTapsigner = () => {
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     } catch (err) {
-      Alert.alert(err.toString());
+      showToast(err.toString(), null, 2000, true);
     }
   }, [cvc]);
 
