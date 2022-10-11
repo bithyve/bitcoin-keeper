@@ -60,6 +60,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import KeeperLoader from 'src/components/KeeperLoader';
 import { AppContext } from 'src/common/content/AppContext';
+import AddDescription from 'src/screens/Vault/AddDescription';
+import VaultTransactions from 'src/screens/Vault/VaultTransactions';
+import TransactionDetails from 'src/screens/Vault/TransactionDetails';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -161,6 +164,9 @@ const AppStack = () => {
         <Stack.Screen name="SetExceptions" component={SetExceptions} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
         <Stack.Screen name="SigningServer" component={SigningServer} />
+        <Stack.Screen name="AddDescription" component={AddDescription} />
+        <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
+        <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
       </Stack.Navigator>
     </RealmProvider>
   );

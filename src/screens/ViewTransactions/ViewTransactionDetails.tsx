@@ -22,6 +22,7 @@ import AddNew from 'src/assets/images/svgs/icon_add_new.svg';
 import IconEdit from 'src/assets/images/svgs/icon_edit.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
+//To-Do: @raheel Migrate the logic to the new screen
 const Title = () => {
   const { translations } = useContext(LocalizationContext);
   const transactions = translations['transactions'];
@@ -214,7 +215,7 @@ const ViewTransactionDetails = ({ route }) => {
         <Title />
         <ScrollView>
           <TransactionBody transaction={transaction} />
-          <UserTags transaction={transaction} />
+
           <Address transaction={transaction.recipientAddresses} title={'To Address'} />
           <Address transaction={transaction.senderAddresses} title={'From Address'} />
           <Address transaction={transaction.txid} title={'Transaction ID'} />

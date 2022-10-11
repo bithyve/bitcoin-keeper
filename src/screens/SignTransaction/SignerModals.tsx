@@ -68,23 +68,20 @@ const LedgerContent = ({ onSelectDevice }) => {
   );
 };
 
-const ColdCardContent = ({ signTransaction, id }) => {
-  // const { useQuery } = useContext(RealmWrapperContext);
-  // const { signers }: { signers: VaultSigner[]; id: string } = useQuery(RealmSchema.Vault).map(
-  //   getJSONFromRealmObject
-  // )[0];
-  // const coldcard = signers.filter((signer) => signer.signerId === id)[0];
-  // const { hasSigned, isMock } = coldcard;
-
+const ColdCardContent = ({ register }) => {
   return (
     <Box>
       <ColdCardSVG />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65} noOfLines={2}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {register
+            ? `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`
+            : `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`}
         </Text>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65} noOfLines={2}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {register
+            ? ``
+            : `\u2022 On the Mk4 main menu, choose the 'Sign a transaction' option and choose the nfc option.`}
         </Text>
       </Box>
     </Box>
@@ -283,8 +280,9 @@ const SignerModals = ({
             );
           case SignerType.COLDCARD:
             const { hasSigned, isMock } = signer;
-            const resigter = !hasSigned && !isMock;
+            const register = !hasSigned && !isMock;
             const navigateToSignWithColdCard = () => {
+              setColdCardModal(false);
               navigation.dispatch(
                 CommonActions.navigate('SignWithColdCard', { signTransaction, signer })
               );
@@ -293,13 +291,11 @@ const SignerModals = ({
               <KeeperModal
                 visible={currentSigner && coldCardModal}
                 close={() => setColdCardModal(false)}
-                title={resigter ? 'Register ColdCard' : 'Upload Multi-sig data'}
-                subTitle={'Keep your ColdCard ready before proceeding'}
+                title={register ? 'Register ColdCard' : 'Upload Multi-sig data'}
+                subTitle={'Keep your Mk4 ready before proceeding'}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                Content={() => (
-                  <ColdCardContent signTransaction={signTransaction} id={activeSignerId} />
-                )}
-                buttonText={resigter ? 'Register' : 'Proceed'}
+                Content={() => <ColdCardContent register={register} />}
+                buttonText={register ? 'Register' : 'Proceed'}
                 buttonCallback={navigateToSignWithColdCard}
               />
             );
@@ -313,7 +309,7 @@ const SignerModals = ({
                 subTitle={'Power up your Ledger Nano X and open the BTC app...'}
                 modalBackground={['#00836A', '#073E39']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonText={LedgerCom.current ? 'SIGN' : false}
+                buttonText={LedgerCom.current ? 'SIGN' : ''}
                 buttonTextColor={'#073E39'}
                 buttonCallback={signTransaction}
                 textColor={'#FFF'}

@@ -1,11 +1,9 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from '@gorhom/bottom-sheet';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendPhaseTwo, sendingFailed } from 'src/store/sagaActions/send_and_receive';
+import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
@@ -13,19 +11,18 @@ import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import CustomPriorityModal from './CustomPriorityModal';
 import Header from 'src/components/Header';
-import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
-import SuccessModal from 'src/components/HealthCheck/SuccessModal';
-import Transactions from './Transactions';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
+import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
@@ -34,7 +31,7 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -449,22 +446,8 @@ const SendConfirmation = ({ route }) => {
   // };
 
   return (
-    <Box
-      padding={windowHeight * 0.01}
-      paddingX={5}
-      background={'light.ReceiveBackground'}
-      flexGrow={1}
-      flex={1}
-      position={'relative'}
-    >
-      <StatusBarComponent padding={50} />
-      <Box marginLeft={3}>
-        <Header
-          title="Sending to address"
-          subtitle="Lorem ipsum dolor sit amet,"
-          onPressHandler={() => navigtaion.goBack()}
-        />
-      </Box>
+    <ScreenWrapper>
+      <Header title="Sending to address" subtitle="Lorem ipsum dolor sit amet," />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
@@ -547,7 +530,7 @@ const SendConfirmation = ({ route }) => {
         textColor={'#073B36'}
         // Content={SendSuccessfulContent}
       /> */}
-    </Box>
+    </ScreenWrapper>
   );
 };
 export default SendConfirmation;

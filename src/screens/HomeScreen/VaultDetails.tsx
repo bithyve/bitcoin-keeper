@@ -55,69 +55,69 @@ const renderTransactionElement = ({ item }) => {
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   const navigation = useNavigation();
   return (
-    <Box
-      flexDirection={'row'}
-      height={getTransactionPadding()}
-      borderRadius={10}
-      justifyContent={'space-between'}
-      alignItems={'center'}
-      marginTop={hp(25)}
+    <TouchableOpacity
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate('ViewTransactionDetails', {
+            transaction,
+          })
+        );
+      }}
     >
-      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-        {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-        <Box flexDirection={'column'} marginLeft={1.5}>
+      <Box
+        flexDirection={'row'}
+        height={getTransactionPadding()}
+        borderRadius={10}
+        justifyContent={'space-between'}
+        alignItems={'center'}
+        marginTop={hp(25)}
+      >
+        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
+          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
+          <Box flexDirection={'column'} marginLeft={1.5}>
+            <Text
+              color={'light.GreyText'}
+              marginX={1}
+              fontSize={13}
+              fontWeight={200}
+              letterSpacing={0.6}
+              numberOfLines={1}
+              width={wp(125)}
+            >
+              {transaction?.txid}
+            </Text>
+            <Text
+              color={'light.dateText'}
+              marginX={1}
+              fontSize={11}
+              fontWeight={100}
+              letterSpacing={0.5}
+              opacity={0.82}
+            >
+              {transaction.date}
+            </Text>
+          </Box>
+        </Box>
+        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
+          <Box>
+            <BtcBlack />
+          </Box>
           <Text
-            color={'light.GreyText'}
-            marginX={1}
-            fontSize={13}
+            color={'light.textBlack'}
+            fontSize={19}
             fontWeight={200}
-            letterSpacing={0.6}
-            numberOfLines={1}
-            width={wp(125)}
+            letterSpacing={0.95}
+            marginX={2}
+            marginRight={3}
           >
-            {transaction?.txid}
+            {transaction.amount}
           </Text>
-          <Text
-            color={'light.dateText'}
-            marginX={1}
-            fontSize={11}
-            fontWeight={100}
-            letterSpacing={0.5}
-            opacity={0.82}
-          >
-            {transaction.date}
-          </Text>
-        </Box>
-      </Box>
-      <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-        <Box>
-          <BtcBlack />
-        </Box>
-        <Text
-          color={'light.textBlack'}
-          fontSize={19}
-          fontWeight={200}
-          letterSpacing={0.95}
-          marginX={2}
-          marginRight={3}
-        >
-          {transaction.amount}
-        </Text>
-        <Box>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('ViewTransactionDetails', {
-                  transaction,
-                })
-              );
-            }}
-          >
+          <Box>
             <IconArrowGrey />
-          </TouchableOpacity>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </TouchableOpacity>
   );
 };
 
@@ -288,7 +288,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
                 navigation.dispatch(
                   CommonActions.navigate('ViewAllTransactions', {
                     title: 'Vault Transactions',
-                    subtitle: 'Lorem ipsium dolor sit amet,',
+                    subtitle: 'All incoming and outgoing transactions',
                   })
                 );
               }}
@@ -425,7 +425,7 @@ const SignerList = ({
                   letterSpacing={0.6}
                   textAlign={'center'}
                 >
-                  {`${moment(signer.addedOn).fromNow()}`}
+                  {`Added ${moment(signer.addedOn).fromNow()}`}
                 </Text>
               </VStack>
             </TouchableOpacity>

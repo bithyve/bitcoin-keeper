@@ -45,13 +45,14 @@ const Header = ({
               fontFamily={'body'}
               fontWeight={'200'}
               fontSize={RFValue(fontSize)}
+              noOfLines={2}
             >
               {title}
             </Text>
           )}
           {subtitle && (
             <Text
-              numberOfLines={1}
+              numberOfLines={2}
               style={styles.addWalletDescription}
               color={'light.lightBlack'}
               fontFamily={'body'}
