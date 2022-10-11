@@ -1,9 +1,10 @@
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Platform,
   SafeAreaView,
-  ScrollView,
   TouchableOpacity,
+  ScrollView,
+  Platform
 } from 'react-native';
 import { Box, StatusBar, Text } from 'native-base';
 import RNIap, {
@@ -12,9 +13,7 @@ import RNIap, {
   purchaseUpdatedListener,
   requestSubscription,
 } from 'react-native-iap';
-import React, { useContext, useEffect, useState } from 'react';
-
-import BackIcon from 'src/assets/icons/back.svg';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
 import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
@@ -32,15 +31,17 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { Subscription } from 'react-native-iap';
 import dbManager from 'src/storage/realm/dbManager';
+import TierUpgradeModal from './TierUpgradeModal';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { useNavigation } from '@react-navigation/native';
 
 const plans = [
   {
     description: 'A good place to start',
     benifits: [
-      'Add multiple wallets',
-      'Encrypted iCloud/ Google Drive backup for wallets',
-      'Add one hardware signer',
-      'Air-gapped Vault (single-sig)',
+      'Add multiple BIP-85 wallets',
+      'Autotransfer to Vault',
+      'Add one air gapped Signing Device',
       'Community support',
     ],
     name: 'Pleb',
@@ -54,8 +55,8 @@ const plans = [
   {
     benifits: [
       'All features of Pleb tier',
-      'Import wallets',
-      'Add up to 3 hardware signers',
+      'Link wallets',
+      'Add three Signing Devices',
       '2 of 3 multi-sig Vault',
       'Email support',
     ],
@@ -63,19 +64,23 @@ const plans = [
     icon: <Hodler />,
     iconFocused: <HodlerFocused />,
     price: '',
+    name: 'Hodler',
+    productId: 'hodler',
   },
   {
     benifits: [
-      'All features of Whale tier',
-      'Add up to 5 hardware wallets',
+      'All features of the Hodler tier',
+      'Add five Signing Devices',
       '3 of 5 multi-sig Vault',
-      'Inheritance and independent recovery',
+      'Inheritance support',
       'Dedicated email support',
     ],
     subTitle: 'Includes Inheritance',
     icon: <DiamondHands />,
     iconFocused: <DiamondHandsFocused />,
     price: '',
+    name: 'Diamond Hands',
+    productId: 'diamondhands',
   },
 ];
 
@@ -85,6 +90,11 @@ const ChoosePlan = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [isUpgrade, setIsUpgrade] = useState(false)
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const navigation = useNavigation()
 
   useEffect(() => {
     let purchaseUpdateSubscription;
@@ -100,6 +110,7 @@ const ChoosePlan = (props) => {
             productId: purchase.productId,
             receipt: receipt,
             name: sub[0].title.split(' ')[0],
+            level: 1 // todo get level
           };
 
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
@@ -143,21 +154,21 @@ const ChoosePlan = (props) => {
 
   async function init() {
     try {
-      const subscriptions = await getSubscriptions([
-        'io.hexawallet.keeper.development.hodler',
-        'io.hexawallet.keeper.development.whale',
-      ]);
-      const data = [plans[0]];
-
-      subscriptions.forEach((subscription, index) => {
-        data.push({
-          ...subscription,
-          ...plans[index + 1],
-          price: getAmt(subscription),
-          name: subscription.title.split(' (')[0],
-        });
-      });
-      setItems([...data]);
+      /* const subscriptions = await getSubscriptions([
+         'io.hexawallet.keeper.development.hodler',
+         'io.hexawallet.keeper.development.whale',
+       ]);
+       const data = [plans[0]];
+ 
+       subscriptions.forEach((subscription, index) => {
+         data.push({
+           ...subscription,
+           ...plans[index + 1],
+           price: getAmt(subscription),
+           name: subscription.title.split(' (')[0],
+         });
+       });*/
+      setItems(plans);
       setLoading(false);
       // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
@@ -165,17 +176,29 @@ const ChoosePlan = (props) => {
     }
   }
 
-  async function processSubscription(subscription: Subscription) {
+  async function processSubscription(item: Subscription, level: number) {
     try {
       const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const sub: SubScription = {
-        productId: subscription.productId,
+        productId: item.productId,
         receipt: 'mock-purchase',
-        name: subscription.name.split(' (')[0],
+        name: item.name.split(' (')[0],
+        level,
       };
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
       });
+      if (item.productId === SubscriptionTier.PLEB) {
+        setIsUpgrade(false)
+      } else if (
+        item.name.split(' ')[0] === SubscriptionTier.HODLER &&
+        subscription.name === SubscriptionTier.DIAMOND_HANDS
+      ) {
+        setIsUpgrade(false)
+      } else {
+        setIsUpgrade(true)
+      }
+      setShowUpgradeModal(true)
       return;
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
@@ -211,10 +234,29 @@ const ChoosePlan = (props) => {
     }
   }
 
+  const onPressModalBtn = () => {
+    setShowUpgradeModal(false)
+    navigation.navigate('AddSigningDevice')
+  }
+
+  const getBenifitsTitle = (name) => {
+    if (name === 'Diamond Hands') {
+      return `${name} means`
+    } else {
+      return `A ${name} gets`
+    }
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
 
+      <TierUpgradeModal
+        visible={showUpgradeModal}
+        close={() => setShowUpgradeModal(false)}
+        onPress={onPressModalBtn}
+        isUpgrade={isUpgrade}
+      />
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
@@ -224,23 +266,23 @@ const ChoosePlan = (props) => {
         >
           <ChoosePlanCarousel
             data={items}
-            onPress={async (item) => processSubscription(item)}
+            onPress={(item, level) => processSubscription(item, level)}
             onChange={(item) => setCurrentPosition(item)}
           />
-          <Box mx={10} my={5}>
+          <Box mx={5} my={5}>
             <Text
               fontSize={RFValue(14)}
               color={'light.lightBlack'}
               fontWeight={'bold'}
               fontFamily={'body'}
             >
-              {`Benefits of going ${items[currentPosition].name}`}
+              {getBenifitsTitle(items[currentPosition].name)}
             </Text>
             {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
             {items[currentPosition].subTitle}
           </Text> */}
           </Box>
-          <Box mx={12}>
+          <Box mx={7}>
             {items[currentPosition].benifits.map((i) => (
               <Box flexDirection={'row'} alignItems={'center'}>
                 <Text

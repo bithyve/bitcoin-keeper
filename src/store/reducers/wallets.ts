@@ -23,6 +23,7 @@ export type WalletsState = {
   testCoinsFailed: boolean;
 
   resetTwoFALoader: boolean;
+  introModal: boolean
 };
 
 const initialState: WalletsState = {
@@ -44,6 +45,7 @@ const initialState: WalletsState = {
   testCoinsFailed: false,
 
   resetTwoFALoader: false,
+  introModal: true
 };
 
 const walletSlice = createSlice({
@@ -65,6 +67,9 @@ const walletSlice = createSlice({
     setTestCoinsFailed: (state, action: PayloadAction<boolean>) => {
       state.testCoinsFailed = action.payload;
     },
+    setIntroModal: (state, action: PayloadAction<boolean>) => {
+      state.introModal = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -81,6 +86,7 @@ export const {
   signingServerRegistrationVerified,
   setTestCoinsReceived,
   setTestCoinsFailed,
+  setIntroModal
 } = walletSlice.actions;
 
 const walletPersistConfig = {

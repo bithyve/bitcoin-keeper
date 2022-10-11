@@ -1,22 +1,30 @@
 import { AxiosResponse } from 'axios';
 import config from '../../config';
+import {
+  SignerException,
+  SignerPolicy,
+  SignerRestriction,
+  SingerVerification,
+} from '../interfaces';
 import RestClient from '../rest/RestClient';
 const { HEXA_ID, SIGNING_SERVER } = config;
 
 export default class SigningServer {
   static register = async (
-    walletID: string
+    appId: string,
+    policy: SignerPolicy
   ): Promise<{
     setupData: {
-      secret: string;
+      verification: SingerVerification;
       bhXpub: string;
     };
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}setup2FA`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/setupSigner`, {
         HEXA_ID,
-        walletID,
+        appId,
+        policy,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -24,24 +32,24 @@ export default class SigningServer {
     }
 
     const { setupSuccessful, setupData } = res.data;
-    if (!setupSuccessful) throw new Error('2FA setup failed');
+    if (!setupSuccessful) throw new Error('Signer setup failed');
     return {
       setupData,
     };
   };
 
   static validate = async (
-    walletID: string,
-    token: number
+    appId: string,
+    verificationToken
   ): Promise<{
     valid: Boolean;
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}validate2FASetup`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/validateSingerSetup`, {
         HEXA_ID,
-        walletID,
-        token,
+        appId,
+        verificationToken,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -49,16 +57,44 @@ export default class SigningServer {
     }
 
     const { valid } = res.data;
-    if (!valid) throw new Error('2FA validation failed');
+    if (!valid) throw new Error('Signer validation failed');
 
     return {
       valid,
     };
   };
 
+  static updatePolicy = async (
+    appId: string,
+    updates: {
+      restrictions?: SignerRestriction;
+      exceptions?: SignerException;
+    }
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/updateSignerPolicy`, {
+        HEXA_ID,
+        appId,
+        updates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Signer setup failed');
+    return {
+      updated,
+    };
+  };
+
   static signPSBT = async (
-    walletId: string,
-    token: number,
+    appId: string,
+    verificationToken: number,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -67,19 +103,21 @@ export default class SigningServer {
         vout: number;
         value: number;
       };
-    }>
+    }>,
+    outgoing: number
   ): Promise<{
     signedPSBT: string;
   }> => {
     let res: AxiosResponse;
 
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}securePSBTTransaction`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/signTransaction`, {
         HEXA_ID: config.HEXA_ID,
-        walletID: walletId,
-        token,
+        appId,
+        verificationToken,
         serializedPSBT,
         childIndexArray,
+        outgoing,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);

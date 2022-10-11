@@ -40,7 +40,7 @@ const SignTransactionScreen = () => {
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signers, id: vaultId } = defaultVault;
+  const { signers, id: vaultId, scheme } = defaultVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -102,15 +102,18 @@ const SignTransactionScreen = () => {
 
   const signTransaction = useCallback(
     async ({
+      signerId,
       signingServerOTP,
       seedBasedSingerMnemonic,
     }: {
+      signerId?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
     } = {}) => {
+      const activeId = signerId || activeSignerId;
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-          (envelop) => envelop.signerId === activeSignerId
+          (envelop) => envelop.signerId === activeId
         )[0];
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
         const { signerType, serializedPSBT, signingPayload, signerId } = copySerializedPSBTEnvelop;
@@ -222,17 +225,20 @@ const SignTransactionScreen = () => {
           try {
             showOTPModal(false);
             const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+            const outgoing = idx(signingPayload, (_) => _[0].outgoing);
+
             if (!childIndexArray) throw new Error('Invalid signing payload');
             const { signedPSBT } = await SigningServer.signPSBT(
               keeper.id,
-              Number(signingServerOTP),
+              signingServerOTP ? Number(signingServerOTP) : null,
               serializedPSBT,
-              childIndexArray
+              childIndexArray,
+              outgoing
             );
             if (!signedPSBT) throw new Error('signing server: failed to sign');
             dispatch(updatePSBTSignatures({ signedSerializedPSBT: signedPSBT, signerId }));
           } catch (err) {
-            Alert.alert(err);
+            Alert.alert(err.message);
           }
         } else if (SignerType.SEED_WORDS === signerType) {
           try {
@@ -262,7 +268,7 @@ const SignTransactionScreen = () => {
     [activeSignerId, serializedPSBTEnvelops]
   );
 
-  const callbackForSigners = ({ type, signerId }: VaultSigner) => {
+  const callbackForSigners = ({ type, signerId, signerPolicy }: VaultSigner) => {
     setActiveSignerId(signerId);
     switch (type) {
       case SignerType.TAPSIGNER:
@@ -278,7 +284,18 @@ const SignTransactionScreen = () => {
         setPasswordModal(true);
         break;
       case SignerType.POLICY_SERVER:
-        showOTPModal(true);
+        if (signerPolicy) {
+          const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
+            (envelop) => envelop.signerId === signerId
+          )[0];
+          const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
+          if (
+            !signerPolicy.exceptions.none &&
+            outgoing <= signerPolicy.exceptions.transactionAmount
+          ) {
+            signTransaction({ signerId }); // case: OTP not required
+          } else showOTPModal(true);
+        } else showOTPModal(true);
         break;
       case SignerType.SEED_WORDS:
         navigation.dispatch(
@@ -298,8 +315,9 @@ const SignTransactionScreen = () => {
 
   return (
     <ScreenWrapper>
-      <Header title="Sign Transaction" subtitle="Lorem ipsum dolor sit amet," />
+      <Header title="Sign Transaction" subtitle={`Chose any ${scheme.m} to sign the transaction`} />
       <FlatList
+        contentContainerStyle={{ paddingTop: '10%' }}
         data={signers}
         keyExtractor={(item) => item.signerId}
         renderItem={({ item }) => (
@@ -309,6 +327,13 @@ const SignTransactionScreen = () => {
             envelops={serializedPSBTEnvelops}
           />
         )}
+      />
+      <Note
+        title={'Note'}
+        subtitle={
+          'Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted.'
+        }
+        subtitleColor={'GreyText'}
       />
       <Box alignItems={'flex-end'} marginY={5}>
         {broadcasting ? (
@@ -331,14 +356,6 @@ const SignTransactionScreen = () => {
             }}
           />
         )}
-        <Note
-          title={'Note'}
-          subtitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
-          }
-          subtitleColor={'GreyText'}
-          width={wp(300)}
-        />
       </Box>
       <SignerModals
         signers={signers}

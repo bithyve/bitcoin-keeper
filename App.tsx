@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { Platform, StatusBar, UIManager } from 'react-native';
 import { persistor, store } from './src/store/store';
-import Instabug from 'instabug-reactnative';
 import * as Sentry from '@sentry/react-native';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -14,6 +13,7 @@ import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
 import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext } from 'react-native-iap';
+import { AppContextProvider } from 'src/common/content/AppContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -31,8 +31,7 @@ if (Platform.OS === 'android') {
 const App = () => {
 
   useEffect(() => {
-    Sentry.init(sentryConfig);
-    Instabug.start('d68ca4d54b1cccbf5916086af360edec', [Instabug.invocationEvent.shake, Instabug.invocationEvent.screenshot]);
+    Sentry.init(sentryConfig)
   }, [])
 
 
@@ -42,7 +41,9 @@ const App = () => {
         <NativeBaseProvider theme={customTheme}>
           <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
           <LocalizationProvider>
-            <Navigator />
+            <AppContextProvider>
+              <Navigator />
+            </AppContextProvider>
           </LocalizationProvider>
         </NativeBaseProvider>
       </BottomSheetModalProvider>

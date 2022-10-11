@@ -1,18 +1,19 @@
-import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
+
+import React from 'react';
 
 type Props = {
   title: string;
   subtitle: string;
   subtitleColor?: string;
-  width?: string | number
+  width?: string | number;
 };
 
 const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) => {
   const { colorMode } = useColorMode();
 
   return (
-    <Box bg={`${colorMode}.offWhite`} mx={5} p={3}>
+    <Box bg={`${colorMode}.offWhite`} p={2}>
       <Box opacity={1}>
         <Text fontSize={14} fontFamily={'body'} color={`light.lightBlack`} fontWeight={200}>
           {title}

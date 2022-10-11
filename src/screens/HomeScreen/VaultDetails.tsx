@@ -1,15 +1,14 @@
-import { Box, HStack, Text, VStack } from 'native-base';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
-  InteractionManager,
   Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
@@ -23,10 +22,9 @@ import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import NFC from 'src/core/services/nfc';
-import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -34,16 +32,21 @@ import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import Success from 'src/assets/images/Success.svg';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { WalletMap } from '../Vault/WalletMap';
+import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { setIntroModal } from 'src/store/reducers/vaults';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getAmount } from 'src/common/constants/Bitcoin';
 
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
@@ -52,69 +55,69 @@ const renderTransactionElement = ({ item }) => {
 const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
   const navigation = useNavigation();
   return (
-    <Box
-      flexDirection={'row'}
-      height={getTransactionPadding()}
-      borderRadius={10}
-      justifyContent={'space-between'}
-      alignItems={'center'}
-      marginTop={hp(25)}
+    <TouchableOpacity
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate('ViewTransactionDetails', {
+            transaction,
+          })
+        );
+      }}
     >
-      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-        {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-        <Box flexDirection={'column'} marginLeft={1.5}>
+      <Box
+        flexDirection={'row'}
+        height={getTransactionPadding()}
+        borderRadius={10}
+        justifyContent={'space-between'}
+        alignItems={'center'}
+        marginTop={hp(25)}
+      >
+        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
+          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
+          <Box flexDirection={'column'} marginLeft={1.5}>
+            <Text
+              color={'light.GreyText'}
+              marginX={1}
+              fontSize={13}
+              fontWeight={200}
+              letterSpacing={0.6}
+              numberOfLines={1}
+              width={wp(125)}
+            >
+              {transaction?.txid}
+            </Text>
+            <Text
+              color={'light.dateText'}
+              marginX={1}
+              fontSize={11}
+              fontWeight={100}
+              letterSpacing={0.5}
+              opacity={0.82}
+            >
+              {transaction.date}
+            </Text>
+          </Box>
+        </Box>
+        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
+          <Box>
+            <BtcBlack />
+          </Box>
           <Text
-            color={'light.GreyText'}
-            marginX={1}
-            fontSize={13}
+            color={'light.textBlack'}
+            fontSize={19}
             fontWeight={200}
-            letterSpacing={0.6}
-            numberOfLines={1}
-            width={wp(125)}
+            letterSpacing={0.95}
+            marginX={2}
+            marginRight={3}
           >
-            {transaction?.txid}
+            {transaction.amount}
           </Text>
-          <Text
-            color={'light.dateText'}
-            marginX={1}
-            fontSize={11}
-            fontWeight={100}
-            letterSpacing={0.5}
-            opacity={0.82}
-          >
-            {transaction.date}
-          </Text>
-        </Box>
-      </Box>
-      <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-        <Box>
-          <BtcBlack />
-        </Box>
-        <Text
-          color={'light.textBlack'}
-          fontSize={19}
-          fontWeight={200}
-          letterSpacing={0.95}
-          marginX={2}
-          marginRight={3}
-        >
-          {transaction.amount}
-        </Text>
-        <Box>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('ViewTransactionDetails', {
-                  transaction,
-                })
-              );
-            }}
-          >
+          <Box>
             <IconArrowGrey />
-          </TouchableOpacity>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </TouchableOpacity>
   );
 };
 
@@ -156,7 +159,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.navigate('VaultSettings')
+            navigation.navigate('VaultSettings');
           }}
         >
           <IconSettings />
@@ -285,7 +288,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
                 navigation.dispatch(
                   CommonActions.navigate('ViewAllTransactions', {
                     title: 'Vault Transactions',
-                    subtitle: 'Lorem ipsium dolor sit amet,',
+                    subtitle: 'All incoming and outgoing transactions',
                   })
                 );
               }}
@@ -422,7 +425,7 @@ const SignerList = ({
                   letterSpacing={0.6}
                   textAlign={'center'}
                 >
-                  {`Hardware Wallet`}
+                  {`Added ${moment(signer.addedOn).fromNow()}`}
                 </Text>
               </VStack>
             </TouchableOpacity>
@@ -434,8 +437,10 @@ const SignerList = ({
   );
 };
 
-const VaultDetails = () => {
+const VaultDetails = ({ route }) => {
+  const { vaultTransferSuccessful = false } = route.params;
   const dispatch = useDispatch();
+  const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
@@ -445,11 +450,11 @@ const VaultDetails = () => {
     .filter((vault) => !vault.archived)[0];
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const transactions = vault?.specs?.transactions || [];
-
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
@@ -465,7 +470,44 @@ const VaultDetails = () => {
     setPullRefresh(false);
   };
 
+  const closeVaultCreatedDialog = () => {
+    setVaultCreated(false);
+  };
+
   const styles = getStyles(top);
+
+  const VaultContent = () => {
+    return (
+      <View marginY={5}>
+        <Box alignSelf={'center'}>
+          <VaultSetupIcon />
+        </Box>
+        <Text
+          marginTop={hp(20)}
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
+          {
+            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+          }
+        </Text>
+        <Text
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
+          {'There are also some additional options if you do not have hardware Signing Devices'}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <LinearGradient
@@ -490,6 +532,47 @@ const VaultDetails = () => {
           <Footer vault={vault} />
         </VStack>
       </VStack>
+      <KeeperModal
+        visible={vaultCreated}
+        title={'New Vault Created'}
+        subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        buttonText={'View Vault'}
+        primaryCallback={closeVaultCreatedDialog}
+        close={closeVaultCreatedDialog}
+        Content={() => {
+          return (
+            <View>
+              <Success />
+              <Text>
+                {
+                  'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
+                }
+              </Text>
+            </View>
+          );
+        }}
+      />
+      <KeeperModal
+        visible={introModal}
+        close={() => {
+          dispatch(setIntroModal(false));
+        }}
+        title={'Transactions from Keeper Vault'}
+        subTitle={
+          'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'
+        }
+        modalBackground={['#00836A', '#073E39']}
+        textColor={'#FFF'}
+        Content={VaultContent}
+        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonText={'Continue'}
+        buttonTextColor={'#073E39'}
+        buttonCallback={() => {
+          dispatch(setIntroModal(false));
+        }}
+        DarkCloseIcon={true}
+        learnMore={true}
+      />
     </LinearGradient>
   );
 };

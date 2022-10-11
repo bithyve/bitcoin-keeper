@@ -17,6 +17,7 @@ export enum RealmSchema {
   VaultSigner = 'VaultSigner',
   VaultPresentationData = 'VaultPresentationData',
   VaultShellInstances = 'VaultShellInstances',
+  SignerPolicy = 'SignerPolicy',
   InheritancePolicy = 'InheritancePolicy',
   TriggerPolicy = 'TriggerPolicy',
   TwoFADetails = 'TwoFADetails',

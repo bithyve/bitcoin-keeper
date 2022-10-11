@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
+import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -14,8 +15,8 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import CustomPriorityModal from '../Send/CustomPriorityModal';
+import Chain from 'src/assets/icons/illustration_homescreen.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
@@ -26,37 +27,27 @@ import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
-// import Elite from 'src/assets/images/svgs/elite.svg';
-// import Pro from 'src/assets/images/svgs/pro.svg';
-// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
-// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
-// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import TapsignerIcon from 'src/assets/images/tapsigner.svg';
+import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
-import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import dbManager from 'src/storage/realm/dbManager';
+import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import { walletData } from 'src/common/data/defaultData/defaultData';
-import Chain from 'src/assets/icons/illustration_homescreen.svg';
-import { getAmount } from 'src/common/constants/Bitcoin';
+
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -69,7 +60,8 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    open();
+    // open();
+    navigation.navigate('InheritanceSetup');
   };
 
   const close = () => setVisible(false);
@@ -204,17 +196,10 @@ const VaultSetupContent = () => {
   return (
     <View>
       <Box alignSelf={'center'}>
-        <VaultSetupIcon />
+        <SigningDevicesIllustration />
       </Box>
       <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-        {
-          'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
-        }
-      </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-        {
-          'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
-        }
+        {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
       </Text>
     </View>
   );
@@ -414,8 +399,10 @@ const VaultStatus = (props) => {
       <KeeperModal
         visible={visible}
         close={close}
-        title={vaultTranslations.SetupyourVault}
-        subTitle={vaultTranslations.VaultDesc}
+        title={'Signing Devices'}
+        subTitle={
+          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your Vault'
+        }
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         buttonText={vaultTranslations.AddNow}
@@ -540,8 +527,28 @@ export const NextIcon = ({ pressHandler }) => {
   );
 };
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
+
+  useEffect(() => {
+    try {
+      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [
+        Instabug.invocationEvent.shake,
+        Instabug.invocationEvent.screenshot,
+      ]);
+      BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
+      BugReporting.setInvocationEvents([
+        Instabug.invocationEvent.shake,
+        Instabug.invocationEvent.screenshot,
+      ]);
+      BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
+      BugReporting.setShakingThresholdForiPhone(100);
+      BugReporting.setShakingThresholdForAndroid(100);
+      Instabug.setPrimaryColor('rgb(7, 62, 57)');
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   const data = {
     name: 'Tonny Hill',
@@ -701,7 +708,11 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Pressable onPress={askPermission}>
+      <Pressable
+        onPress={() => {
+          navigation.navigate('InheritanceSetup');
+        }}
+      >
         <InheritanceComponent />
       </Pressable>
       <LinkedWallets

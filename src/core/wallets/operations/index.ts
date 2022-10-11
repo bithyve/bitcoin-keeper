@@ -899,7 +899,8 @@ export default class WalletOperations {
     wallet: Vault,
     inputs: any,
     PSBT: bitcoinJS.Psbt,
-    signer: VaultSigner
+    signer: VaultSigner,
+    outgoing: number
   ):
     | {
         signedPSBT: bitcoinJS.Psbt;
@@ -958,7 +959,7 @@ export default class WalletOperations {
             },
           });
         }
-        signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray });
+        signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
       }
     }
 
@@ -1092,12 +1093,18 @@ export default class WalletOperations {
     if (wallet.entityKind === EntityKind.VAULT) {
       const signers = (wallet as Vault).signers;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
+      let outgoing = 0;
+      recipients.forEach((recipient) => {
+        outgoing += recipient.amount;
+      });
+
       for (const signer of signers) {
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
           inputs,
           PSBT,
-          signer
+          signer,
+          outgoing
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }

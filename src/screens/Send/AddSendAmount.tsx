@@ -10,7 +10,7 @@ import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
 import Header from 'src/components/Header';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -62,15 +62,8 @@ const AddSendAmount = ({ route }) => {
   }, []);
 
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
-      <Box marginLeft={3}>
-        <Header
-          title={`Enter the amount`}
-          subtitle={`Sending to ${address}`}
-          onPressHandler={() => navigation.goBack()}
-        />
-      </Box>
+    <ScreenWrapper>
+      <Header title={`Enter the amount`} subtitle={`Sending to ${address}`} />
       {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
@@ -221,7 +214,7 @@ const AddSendAmount = ({ route }) => {
         color={'#073E39'}
         height={windowHeight >= 850 ? 80 : 60}
       />
-    </Box>
+    </ScreenWrapper>
   );
 };
 const styles = ScaledSheet.create({

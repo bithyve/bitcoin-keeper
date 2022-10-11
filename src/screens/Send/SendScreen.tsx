@@ -24,6 +24,7 @@ import { RNCamera } from 'react-native-camera';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -105,94 +106,85 @@ const SendScreen = ({ route }) => {
       </Box>
     );
   };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      enabled
-      keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-      style={styles.Container}
-    >
-      <StatusBarComponent padding={50} />
-      <Box marginX={3}>
+    <ScreenWrapper>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled
+        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+      >
         <Header
           title={common.send}
           subtitle={common.smalldesc}
-          onPressHandler={() => navigation.goBack()}
           headerTitleColor={'light.textBlack'}
         />
-      </Box>
-      {/* {QR Scanner} */}
-
-      <ScrollView>
-        <Box style={styles.qrcontainer}>
-          <RNCamera
-            style={styles.cameraView}
-            captureAudio={false}
-            onBarCodeRead={(data) => {
-              handleTextChange(data.data);
-            }}
-          />
-        </Box>
-        {/* send manually option */}
-        <Box
-          flexDirection={'row'}
-          marginY={hp(2)}
-          width={'100%'}
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
-          <TextInput
-            placeholder="or enter address manually"
-            style={styles.textInput}
-            value={paymentInfo}
-            onChangeText={handleTextChange}
-          />
-        </Box>
-
-        {/* Send to Wallet options */}
-        <Box marginTop={hp(40)}>
-          <Text
-            marginX={5}
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontFamily={'body'}
-            fontSize={14}
-            letterSpacing={0.6}
+        <ScrollView>
+          <Box style={styles.qrcontainer}>
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={(data) => {
+                handleTextChange(data.data);
+              }}
+            />
+          </Box>
+          {/* send manually option */}
+          <Box
+            flexDirection={'row'}
+            marginY={hp(2)}
+            width={'100%'}
+            justifyContent={'center'}
+            alignItems={'center'}
           >
-            Send to Wallet
-          </Text>
-          <View>
-            <View
-              flexDirection={'row'}
-              style={styles.walletContainer}
-              backgroundColor={'light.textInputBackground'}
-            >
-              <FlatList
-                data={wallets}
-                renderItem={renderWallets}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-              />
-            </View>
-          </View>
-        </Box>
+            <TextInput
+              placeholder="or enter address manually"
+              style={styles.textInput}
+              value={paymentInfo}
+              onChangeText={handleTextChange}
+            />
+          </Box>
 
-        {/* {Bottom note} */}
-        <Box marginTop={hp(40)} marginX={2}>
-          <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
-        </Box>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {/* Send to Wallet options */}
+          <Box marginTop={hp(40)}>
+            <Text
+              marginX={5}
+              color={'light.GreyText'}
+              fontWeight={200}
+              fontFamily={'body'}
+              fontSize={14}
+              letterSpacing={0.6}
+            >
+              Send to Wallet
+            </Text>
+            <View>
+              <View
+                flexDirection={'row'}
+                style={styles.walletContainer}
+                backgroundColor={'light.textInputBackground'}
+              >
+                <FlatList
+                  data={wallets}
+                  renderItem={renderWallets}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+            </View>
+          </Box>
+
+          {/* {Bottom note} */}
+          <Box marginTop={hp(40)} marginX={2}>
+            <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
+          </Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ScreenWrapper>
   );
 };
 
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
-  },
   linearGradient: {
     borderRadius: 6,
     marginTop: hp(3),

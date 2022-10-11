@@ -12,6 +12,7 @@ import {
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
   TEST_SATS_RECIEVE,
+  UPDATE_SIGNER_POLICY,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -56,6 +57,14 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 import Relay from 'src/core/services/operations/Relay';
+import {
+  SignerException,
+  SignerRestriction,
+  SingerVerification,
+  VerificationType,
+} from 'src/core/services/interfaces';
+import { vs } from 'react-native-size-matters';
+import { Alert } from 'react-native';
 
 export interface newWalletDetails {
   name?: string;
@@ -566,17 +575,28 @@ export const updateWalletSettingsWatcher = createWatcher(
   UPDATE_WALLET_SETTINGS
 );
 
-export function* registerWithSigningServerWorker() {
+export function* registerWithSigningServerWorker({ payload }: { payload: { policy } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (app.twoFADetails && app.twoFADetails.signingServerXpub)
     throw new Error('registration already in progress');
 
-  const { setupData } = yield call(SigningServer.register, app.id);
-  const twoFADetails: TwoFADetails = {
-    signingServerXpub: setupData.bhXpub,
-    twoFAKey: setupData.secret,
-  };
-  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+  const { policy } = payload;
+  const {
+    setupData,
+  }: {
+    setupData: {
+      verification: SingerVerification;
+      bhXpub: string;
+    };
+  } = yield call(SigningServer.register, app.id, policy);
+
+  if (setupData.verification.method === VerificationType.TWO_FA) {
+    const twoFADetails: TwoFADetails = {
+      signingServerXpub: setupData.bhXpub,
+      twoFAKey: setupData.verification.verifier,
+    };
+    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+  }
 }
 
 export const registerWithSigningServerWatcher = createWatcher(
@@ -584,11 +604,11 @@ export const registerWithSigningServerWatcher = createWatcher(
   REGISTER_WITH_SIGNING_SERVER
 );
 
-function* validateSigningServerRegistrationWorker({ payload }: { payload: { token: number } }) {
+function* validateSigningServerRegistrationWorker({ payload }: { payload: { verificationToken } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const { token } = payload;
+  const { verificationToken } = payload;
   try {
-    const { valid } = yield call(SigningServer.validate, app.id, token);
+    const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
     if (valid) {
       yield put(signingServerRegistrationVerified(true));
       const twoFADetails = { ...app.twoFADetails };
@@ -603,6 +623,51 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { toke
 export const validateSigningServerRegistrationWatcher = createWatcher(
   validateSigningServerRegistrationWorker,
   VALIDATE_SIGNING_SERVER_REGISTRATION
+);
+
+export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+  const {
+    signer,
+    updates,
+  }: {
+    signer: VaultSigner;
+    updates: {
+      restrictions?: SignerRestriction;
+      exceptions?: SignerException;
+    };
+  } = payload;
+
+  const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
+
+  if (!updated) {
+    Alert.alert('Failed to update signer policy, try again.');
+    throw new Error('Failed to update the policy');
+  }
+
+  // TODO: generalise it for multiple vaults as the feature gets introduced
+  const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
+  const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
+  for (let i = 0; i < signers.length; i++) {
+    let current = signers[i];
+    if (current.signerId === signer.signerId) {
+      current.signerPolicy = {
+        ...current.signerPolicy,
+        restrictions: updates.restrictions,
+        exceptions: updates.exceptions,
+      };
+      break;
+    }
+  }
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, defaultVault.id, {
+    signers,
+  });
+}
+
+export const updateSignerPolicyWatcher = createWatcher(
+  updateSignerPolicyWorker,
+  UPDATE_SIGNER_POLICY
 );
 
 function* testcoinsWorker({ payload }) {

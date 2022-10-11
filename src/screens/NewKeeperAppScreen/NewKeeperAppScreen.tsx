@@ -17,11 +17,11 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import config from 'src/core/config';
+import messaging from '@react-native-firebase/messaging';
 import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
-import useToastMessage from 'src/hooks/useToastMessage';
-import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -149,6 +149,12 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
     setTestnet(isTestnet ? false : true);
   };
 
+  useEffect(() => {
+    if (keeperInitiating) {
+      dispatch(setupKeeperApp());
+    }
+  }, [keeperInitiating]);
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <ScrollView
@@ -174,7 +180,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
-              dispatch(setupKeeperApp());
             }}
             loading={keeperInitiating}
           />

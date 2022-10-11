@@ -25,7 +25,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 const { width, height } = Dimensions.get('window');
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const OnBoardingSlides = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
@@ -45,29 +45,29 @@ const OnBoardingSlides = ({ navigation }) => {
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
-    {
-      id: '3',
-      title: onboarding.slide03Title,
-      paragraph: onboarding.slide03Paragraph,
-      illustration: <Illustration_3 />,
-    },
-    {
-      id: '4',
-      title: onboarding.slide04Title,
-      paragraph: onboarding.slide04Paragraph,
-      illustration: <Illustration_4 />,
-    },
-    {
-      id: '5',
-      title: onboarding.slide05Title,
-      paragraph: onboarding.slide05Paragraph,
-      illustration: <Illustration_6 />,
-    },
+    // {
+    //   id: '3',
+    //   title: onboarding.slide03Title,
+    //   paragraph: onboarding.slide03Paragraph,
+    //   illustration: <Illustration_3 />,
+    // },
+    // {
+    //   id: '4',
+    //   title: onboarding.slide04Title,
+    //   paragraph: onboarding.slide04Paragraph,
+    //   illustration: <Illustration_4 />,
+    // },
+    // {
+    //   id: '5',
+    //   title: onboarding.slide05Title,
+    //   paragraph: onboarding.slide05Paragraph,
+    //   illustration: <Illustration_6 />,
+    // },
     {
       id: '6',
       title: onboarding.slide06Title,
       paragraph: onboarding.slide06Paragraph,
-      illustration: <Illustration_5 />,
+      illustration: <Illustration_3 />,
     },
   ]);
 
@@ -82,7 +82,7 @@ const OnBoardingSlides = ({ navigation }) => {
         <SafeAreaView style={{ flex: 1 }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
           <Box justifyContent={'center'} mr={4} mt={10}>
-            {currentPosition != 5 && (
+            {currentPosition != 2 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
@@ -135,19 +135,40 @@ const OnBoardingSlides = ({ navigation }) => {
                   justifyContent={'center'}
                 >
                   <Text color={'light.borderColor2'} fontSize={RFValue(14)} fontWeight={300}>
-                    {common.learnMore}
+                    {common.seeFAQs}
                   </Text>
                 </Box>
               </TouchableOpacity>
             </Box>
-            {items.map((item, index) => {
+            {currentPosition < items.length - 1 ? items.map((item, index) => {
+              console.log(index)
               return (
                 <Box
                   key={index}
                   style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
                 />
               );
-            })}
+            }) :
+              <Box alignSelf={'center'} bg={'transparent'}>
+                <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
+                  <LinearGradient
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    colors={['#FFFFFF', '#80A8A1']}
+                    style={styles.cta}
+                  >
+                    <Text
+                      fontSize={13}
+                      fontFamily={'body'}
+                      fontWeight={'300'}
+                      letterSpacing={1}
+                      color={'light.greenText'}
+                    >
+                      Start App
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Box>}
           </Box>
         </SafeAreaView>
       </ImageBackground>
@@ -171,5 +192,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#89AEA7',
     marginEnd: 5,
+  },
+  cta: {
+    borderRadius: 10,
+    width: wp(110),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
