@@ -54,15 +54,23 @@ const AddLedger = ({}) => {
 
   useEffect(() => {
     open();
+  }, []);
+
+  useEffect(() => {
+    if (transport) {
+      close();
+      fetchAddress();
+    }
+  }, [transport]);
+
+  useEffect(() => {
+    scanForDevices();
     return () => {
       disconnectFromDevice();
     };
   }, []);
 
   const LedgerSetupContent = () => {
-    useEffect(() => {
-      scanForDevices();
-    }, []);
     return (
       <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
         <View>
@@ -116,11 +124,6 @@ const AddLedger = ({}) => {
       Alert.alert(error.toString());
     }
   };
-  useEffect(() => {
-    if (transport) {
-      fetchAddress();
-    }
-  }, [transport]);
 
   const addMockLedger = () => {
     const networkType = config.NETWORK_TYPE;
@@ -151,18 +154,16 @@ const AddLedger = ({}) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {!transport ? (
-        <KeeperModal
-          visible={visible}
-          close={close}
-          title={ledger.ScanningBT}
-          subTitle={ledger.KeepLedgerReady}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          textColor={'#041513'}
-          Content={LedgerSetupContent}
-        />
-      ) : null}
+      <KeeperModal
+        visible={visible}
+        close={close}
+        title={ledger.ScanningBT}
+        subTitle={ledger.KeepLedgerReady}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        textColor={'#041513'}
+        Content={LedgerSetupContent}
+      />
     </SafeAreaView>
   );
 };
