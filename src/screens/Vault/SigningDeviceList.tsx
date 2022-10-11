@@ -84,14 +84,10 @@ const getDeviceStatus = (
         message: getDisabled(type, isOnPleb, vaultSigners).message,
         disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
       };
-    case SignerType.KEEPER:
-      return {
-        message: getDisabled(type, isOnPleb, vaultSigners).message,
-        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
-      };
     case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.KEYSTONE:
+    case SignerType.KEEPER:
       return {
         message: 'Coming soon',
         disabled: false,

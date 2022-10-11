@@ -8,11 +8,6 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 
-// import {
-//   heightPercentageToDP as hp,
-//   widthPercentageToDP as wp,
-// } from 'react-native-responsive-screen';
-
 const Buttons = ({
   primaryText = '',
   secondaryText = '',
