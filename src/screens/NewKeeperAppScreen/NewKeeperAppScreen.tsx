@@ -1,5 +1,5 @@
 import { ActivityIndicator, Platform } from 'react-native';
-import { Box, HStack, Pressable, ScrollView, Switch, Text } from 'native-base';
+import { Box, HStack, Image, Pressable, ScrollView, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -22,6 +22,7 @@ import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import useToastMessage from 'src/hooks/useToastMessage';
+import KeeperLoader from 'src/components/KeeperLoader';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -100,6 +101,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
   useEffect(() => {
     if (appCreated) {
+      setInitiating(false);
       navigation.navigate('App', { screen: 'NewHome' });
       updateFCM();
     }
@@ -274,7 +276,39 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           dispatch(recoverBackup(password, selectedBackup.encData));
         }}
       />
-
+      <KeeperLoader
+        visible={keeperInitiating}
+        loadingContent={{
+          title: 'Share Feedback (Testnet only)',
+          subTitle: 'Shake your device or take a screenshot to send feedback'
+        }}
+        close={() => { }}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#000'}
+        Content={() => {
+          return (
+            <Box>
+              <Image
+                source={require('src/assets/video/test-net.gif')}
+                style={{
+                  width: wp(250),
+                  height: wp(120),
+                  alignSelf: 'center',
+                  marginTop: hp(30)
+                }} />
+              <Text
+                color={'light.modalText'}
+                fontWeight={200}
+                fontSize={13}
+                letterSpacing={0.65}
+                marginTop={hp(60)}
+                width={wp(240)}
+              >
+                {'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'}
+              </Text>
+            </Box>)
+        }}
+      />
       <ModalWrapper
         visible={createCloudBackupModal}
         onSwipeComplete={() => setCreateCloudBackupModal(false)}
