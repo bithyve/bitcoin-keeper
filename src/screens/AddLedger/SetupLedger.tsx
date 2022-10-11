@@ -58,7 +58,6 @@ const AddLedger = ({}) => {
 
   useEffect(() => {
     if (transport) {
-      close();
       fetchAddress();
     }
   }, [transport]);
@@ -66,6 +65,7 @@ const AddLedger = ({}) => {
   useEffect(() => {
     scanForDevices();
     return () => {
+      close();
       disconnectFromDevice();
     };
   }, []);
