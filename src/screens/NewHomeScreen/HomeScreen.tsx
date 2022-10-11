@@ -717,7 +717,7 @@ const HomeScreen = ({ navigation }) => {
       </Pressable>
       <LinkedWallets
         onAmountPress={() => {
-          setShowHideAmounts(!showHideAmounts);
+          // setShowHideAmounts(!showHideAmounts);
         }}
         showHideAmounts={showHideAmounts}
       />
