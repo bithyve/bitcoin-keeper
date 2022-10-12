@@ -181,7 +181,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   close: {
-    // alignSelf: 'flex-end',
     position: 'absolute',
     right: 20,
     top: 20,

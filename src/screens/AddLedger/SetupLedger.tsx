@@ -45,6 +45,8 @@ const AddLedger = ({}) => {
     });
   };
   const [visible, setVisible] = useState(true);
+  const [connecting, setConnecting] = useState(false);
+
   const { translations } = useContext(LocalizationContext);
   const ledger = translations['ledger'];
   const open = () => setVisible(true);
@@ -70,20 +72,34 @@ const AddLedger = ({}) => {
     };
   }, []);
 
+  const Item = ({ device }) => {
+    return (
+      <TouchableOpacity
+        style={styles.deviceItem}
+        onPress={() => {
+          setConnecting(true);
+          connectToDevice(device);
+        }}
+      >
+        <Text style={styles.deviceName}>{device.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const LedgerSetupContent = () => {
     return (
       <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
         <View>
-          <Box ml={wp(21)}>
-            {isScanning ? <ActivityIndicator /> : null}
-            {allDevices.map((device) => {
-              return (
-                <TouchableOpacity style={styles.deviceItem} onPress={() => connectToDevice(device)}>
-                  <Text style={styles.deviceName}>{device.name}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </Box>
+          {isScanning ? <ActivityIndicator /> : null}
+          {connecting ? (
+            <ActivityIndicator />
+          ) : (
+            <Box ml={wp(21)}>
+              {allDevices.map((device) => {
+                return <Item device={device} />;
+              })}
+            </Box>
+          )}
           <Box marginTop={'4'}>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
               {`Please stay on the BTC app before connecting to the deivce`}

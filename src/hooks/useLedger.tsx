@@ -84,8 +84,6 @@ function useBLE(): BluetoothLowEnergyApi {
 
   const connectToDevice = async (device: Device) => {
     try {
-      const deviceConnection = await bleManager.connectToDevice(device.id);
-      setConnectedDevice(deviceConnection);
       bleManager.stopDeviceScan();
       setScanning(false);
       const ledgerTransport = await TransportBLE.open(device);
