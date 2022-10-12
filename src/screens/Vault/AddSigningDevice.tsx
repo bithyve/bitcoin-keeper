@@ -75,7 +75,6 @@ const AddSigningDevice = () => {
     if (activeVault && !vaultSigners.length) {
       dispatch(addSigningDevice(activeVault.signers));
     }
-    checkSigningDevice('7FBC64C9');
   }, []);
 
   useEffect(() => {
