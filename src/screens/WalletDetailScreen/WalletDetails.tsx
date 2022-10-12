@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Box, Pressable, Text, View } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -82,7 +82,7 @@ const WalletDetails = () => {
         startColor={'#e4e4e4'}
         offset={[0, 14]}
         viewStyle={{
-          height: hp(140),
+          height: hp(150),
         }}
       >
         <LinearGradient
@@ -92,7 +92,7 @@ const WalletDetails = () => {
           style={{
             borderRadius: hp(10),
             width: wp(170),
-            height: hp(150),
+            height: hp(Platform.OS === 'android' ? 170 : 160),
             position: 'relative',
             marginLeft: 0,
           }}
@@ -330,7 +330,7 @@ const WalletDetails = () => {
           renderItem={_renderItem}
           sliderWidth={windowWidth}
           itemWidth={wp(170)}
-          itemHeight={hp(160)}
+          itemHeight={hp(180)}
           layout={'default'}
           activeSlideAlignment='start'
 
