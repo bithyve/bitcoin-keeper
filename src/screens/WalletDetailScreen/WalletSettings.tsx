@@ -166,7 +166,9 @@ const WalletSettings = ({ route }) => {
         borderBottomColor={'light.divider'}
         borderBottomWidth={0.2}
         marginTop={hp(60)}
-        paddingX={wp(25)}
+        style={{
+          marginLeft: wp(25)
+        }}
       >
         <WalletCard
           walletName={wallet.presentationData?.name}
@@ -182,7 +184,11 @@ const WalletSettings = ({ route }) => {
           Icon={true}
         /> */}
       </Box>
-      <Box alignItems={'center'} paddingX={wp(25)}>
+      <Box alignItems={'center'}
+        style={{
+          marginLeft: wp(25)
+        }}
+      >
         <Option
           title={'Wallet Details'}
           subTitle={'Change wallet name & description'}
