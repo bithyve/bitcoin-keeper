@@ -15,9 +15,9 @@ import { WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { Text } from 'react-native-svg';
 
 const EnterWalletDetailScreen = ({ route }) => {
-
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -26,7 +26,6 @@ const EnterWalletDetailScreen = ({ route }) => {
 
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
-
 
   const createNewWallet = useCallback(() => {
     const newWallet: newWalletInfo = {
@@ -60,6 +59,18 @@ const EnterWalletDetailScreen = ({ route }) => {
           marginY={2}
           borderWidth={'0'}
         />
+        <Input
+          placeholder={wallet.SinglesigWallet}
+          placeholderTextColor={'light.greenText'}
+          backgroundColor={'light.lightYellow'}
+          value={walletDescription}
+          onChangeText={(value) => setWalletDescription(value)}
+          style={styles.inputField}
+          borderRadius={10}
+          borderWidth={'0'}
+          marginY={2}
+        />
+
         <Input
           placeholder={wallet.SinglesigWallet}
           placeholderTextColor={'light.greenText'}

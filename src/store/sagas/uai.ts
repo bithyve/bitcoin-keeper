@@ -67,12 +67,12 @@ function* uaiChecksWorker({ payload }) {
 }
 
 function* uaiActionedEntityWorker({ payload }) {
-  const { entityId } = payload;
+  const { entityId, action } = payload;
   const uais = yield call(dbManager.getObjectByField, RealmSchema.UAI, entityId, 'entityId');
   if (uais.length > 0) {
     const uai = uais[0];
     let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
-    updatedUai = { ...updatedUai, isActioned: true };
+    updatedUai = { ...updatedUai, isActioned: action };
     yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, updatedUai);
   }
 }

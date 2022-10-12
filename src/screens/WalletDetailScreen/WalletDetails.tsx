@@ -69,12 +69,12 @@ const WalletDetails = () => {
     setWalletIndex(index);
   };
 
-  const _renderItem = ({ item, index }: { item, index }) => {
+  const _renderItem = ({ item, index }: { item; index }) => {
     const walletName = item?.presentationData?.name;
     const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
-    const isActive = index === walletIndex
+    const isActive = index === walletIndex;
 
     return (
       <Shadow
@@ -119,7 +119,6 @@ const WalletDetails = () => {
               </Text>
             </TouchableOpacity>
           ) : (
-
             <Box
               marginTop={hp(20)}
               style={{
@@ -154,12 +153,7 @@ const WalletDetails = () => {
                 <Box marginRight={1}>
                   <BtcWallet />
                 </Box>
-                <Text
-                  color={'light.white'}
-                  letterSpacing={1.2}
-                  fontSize={hp(24)}
-                  fontWeight={200}
-                >
+                <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
                   {getAmount(walletBalance)}
                 </Text>
               </Box>
@@ -262,12 +256,27 @@ const WalletDetails = () => {
         <Box alignSelf={'center'}>
           <VaultSetupIcon />
         </Box>
-        <Text marginTop={hp(20)} color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+        <Text
+          marginTop={hp(20)}
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
           {
             'You can use the individual wallet’s recovery phrases to connect other bitcoin apps to Keeper'
           }
         </Text>
-        <Text color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+        <Text
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
           {
             'When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This ensures you don’t have more sats in hot wallets than you need.'
           }
@@ -295,9 +304,7 @@ const WalletDetails = () => {
         <BackIcon />
       </Pressable>
 
-      <Box
-        alignItems={'center'}
-      >
+      <Box alignItems={'center'}>
         <Text
           color={'light.textWallet'}
           letterSpacing={0.96}
@@ -318,11 +325,7 @@ const WalletDetails = () => {
         </Box>
       </Box>
 
-      <Box
-        marginTop={18}
-        height={hp(180)}
-        width={'100%'}
-      >
+      <Box marginTop={18} height={hp(180)} width={'100%'}>
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -332,8 +335,7 @@ const WalletDetails = () => {
           itemWidth={wp(170)}
           itemHeight={hp(180)}
           layout={'default'}
-          activeSlideAlignment='start'
-
+          activeSlideAlignment="start"
           inactiveSlideOpacity={1}
         />
       </Box>
@@ -358,12 +360,18 @@ const WalletDetails = () => {
                 fontSize={RFValue(12)}
                 fontWeight={200}
               >
-                Transfer Policy is set at{'  '}<Text fontWeight={'bold'}>0.0001฿</Text>
+                Transfer Policy is set at{'  '}
+                <Text fontWeight={'bold'}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
               </Text>
             </Box>
 
             <Pressable
-              onPress={() => navigation.navigate('SendConfirmation', { isVaultTransfer: true })}
+              onPress={() =>
+                navigation.navigate('SendConfirmation', {
+                  isVaultTransfer: true,
+                  walletId: wallets[walletIndex].id,
+                })
+              }
             >
               <Arrow />
             </Pressable>
@@ -400,11 +408,7 @@ const WalletDetails = () => {
             </Box>
           </Box>
 
-          <Box
-            marginTop={hp(10)}
-            height={hp(250)}
-            position={'relative'}
-          >
+          <Box marginTop={hp(10)} height={hp(250)} position={'relative'}>
             <FlatList
               refreshControl={
                 <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
@@ -415,18 +419,8 @@ const WalletDetails = () => {
               showsVerticalScrollIndicator={false}
             />
           </Box>
-          <Box
-            position={'absolute'}
-            bottom={0}
-            width={wp(375)}
-            paddingX={5}
-          >
-            <Box
-              borderWidth={0.5}
-              borderColor={'light.GreyText'}
-              borderRadius={20}
-              opacity={0.2}
-            />
+          <Box position={'absolute'} bottom={0} width={wp(375)} paddingX={5}>
+            <Box borderWidth={0.5} borderColor={'light.GreyText'} borderRadius={20} opacity={0.2} />
             <Box
               flexDirection={'row'}
               marginTop={4}
@@ -498,9 +492,13 @@ const WalletDetails = () => {
       )}
       <KeeperModal
         visible={introModal}
-        close={() => { dispatch(setIntroModal(false)) }}
+        close={() => {
+          dispatch(setIntroModal(false));
+        }}
         title={'Bip-85 Wallets'}
-        subTitle={'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'}
+        subTitle={
+          'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'
+        }
         modalBackground={['#00836A', '#073E39']}
         textColor={'#FFF'}
         Content={LinkedWalletContent}
