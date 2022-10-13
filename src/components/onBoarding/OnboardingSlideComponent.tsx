@@ -23,7 +23,7 @@ const OnboardingSlideComponent = (props) => {
           {props.title}
         </Text>
       </Box>
-      <Box flex={0.6} justifyContent={'center'} mt={hp(40)}>
+      <Box flex={0.6} justifyContent={'center'} mt={hp(70)}>
         {props.illustration}
       </Box>
 

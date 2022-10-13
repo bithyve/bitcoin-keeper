@@ -405,7 +405,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={'A Signing Server will hold one of the keys in the Vault'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Proceed'}
+        buttonText={'Continue'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToSigningServerSetup}
         textColor={'#041513'}

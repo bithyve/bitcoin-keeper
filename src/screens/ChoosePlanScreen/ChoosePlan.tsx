@@ -40,8 +40,8 @@ const plans = [
     description: 'A good place to start',
     benifits: [
       'Add multiple BIP-85 wallets',
-      'Autotransfer to Vault',
-      'Add one air gapped Signing Device',
+      'Autotransfer to vault',
+      'Add one air gapped signing device',
       'Community support',
     ],
     name: 'Pleb',
@@ -56,8 +56,8 @@ const plans = [
     benifits: [
       'All features of Pleb tier',
       'Link wallets',
-      'Add three Signing Devices',
-      '2 of 3 multi-sig Vault',
+      'Add three signing devices',
+      '2 of 3 multi-sig vault',
       'Email support',
     ],
     subTitle: 'Multi-sig security',
@@ -70,8 +70,8 @@ const plans = [
   {
     benifits: [
       'All features of the Hodler tier',
-      'Add five Signing Devices',
-      '3 of 5 multi-sig Vault',
+      'Add five signing devices',
+      '3 of 5 multi-sig vault',
       'Inheritance support',
       'Dedicated email support',
     ],

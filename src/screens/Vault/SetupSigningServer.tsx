@@ -1,10 +1,10 @@
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { ActivityIndicator } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -31,9 +31,15 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
 
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
+
+
 const SetupSigningServer = ({ route }: { route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   const [validationModal, showValidationModal] = useState(false);
   const [twoFAKey, setTwoFAKey] = useState('');
   const { useQuery } = useContext(RealmWrapperContext);
@@ -153,11 +159,33 @@ const SetupSigningServer = ({ route }: { route }) => {
             <ActivityIndicator animating={true} size="small" />
           </Box>
         ) : (
-          <Box alignItems={'center'} alignSelf={'center'} width={hp(200)}>
+          <Box
+            alignItems={'center'}
+            alignSelf={'center'}
+            width={hp(200)}
+            style={{
+              marginTop: hp(30),
+            }}
+          >
+            {/* <Text
+              color={'light.recieverAddress'}
+              fontFamily={'body'}
+              fontWeight={300}
+              fontSize={12}
+              letterSpacing={1.08}
+              noOfLines={1}
+              backgroundColor={'amber.400'}
+              style={{
+                marginVertical: hp(30),
+              }}
+            >
+              Scan the QR below to add Backup Key
+            </Text> */}
             <QRCode
               value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
               logoBackgroundColor="transparent"
               size={hp(200)}
+
             />
             <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
               <Text
@@ -170,8 +198,44 @@ const SetupSigningServer = ({ route }: { route }) => {
                 width={'100%'}
                 noOfLines={1}
               >
-                {`2FA Signing Server`}
+                {/* {twoFAKey} */}
+                2FA Signing Server
               </Text>
+            </Box>
+            <Box
+              alignItems={'center'}
+              marginTop={hp(30)}
+              width={wp(320)}
+            >
+              <Box
+                flexDirection={'row'}
+                width={'90%'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+                backgroundColor={'light.textInputBackground'}
+                borderBottomLeftRadius={10}
+                borderTopLeftRadius={10}
+              >
+                <Text width={'80%'} marginLeft={4} noOfLines={1}>
+                  {twoFAKey}
+                </Text>
+                <TouchableOpacity
+                  activeOpacity={0.4}
+                  onPress={() => {
+                    Clipboard.setString(twoFAKey);
+                    showToast('Address Copied Successfully', <TickIcon />);
+                  }}
+                >
+                  <Box
+                    backgroundColor={'light.copyBackground'}
+                    padding={3}
+                    borderTopRightRadius={10}
+                    borderBottomRightRadius={10}
+                  >
+                    <CopyIcon />
+                  </Box>
+                </TouchableOpacity>
+              </Box>
             </Box>
           </Box>
         )}

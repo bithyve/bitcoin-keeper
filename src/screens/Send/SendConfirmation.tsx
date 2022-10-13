@@ -421,7 +421,7 @@ const SendConfirmation = ({ route }) => {
           </Box>
         </TouchableOpacity>
         <CustomPriorityModal
-          visible={false}
+          visible={visible}
           close={close}
           title="Custom Priority"
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
@@ -489,7 +489,7 @@ const SendConfirmation = ({ route }) => {
         </Box>
       </Box>
 
-      <CustomPriorityBox />
+      {/* <CustomPriorityBox /> */}
 
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
