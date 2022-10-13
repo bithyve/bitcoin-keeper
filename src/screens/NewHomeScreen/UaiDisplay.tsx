@@ -70,6 +70,12 @@ const UaiDisplay = ({ uaiStack }) => {
             navigtaion.navigate('VaultDetails');
           },
         };
+      case uaiType.DEFAULT:
+        return {
+          cta: () => {
+            navigtaion.navigate('VaultDetails');
+          },
+        };
     }
   };
 
