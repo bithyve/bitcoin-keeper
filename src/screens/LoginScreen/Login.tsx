@@ -1,4 +1,4 @@
-import { Box, Text } from 'native-base';
+import { Box, HStack, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import {
@@ -26,6 +26,8 @@ import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
 import { AppContext } from 'src/common/content/AppContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import { NetworkType } from 'src/core/wallets/enums';
+import config from 'src/core/config';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -43,6 +45,7 @@ const LoginScreen = ({ navigation, route }) => {
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
+  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
   const [canLogin, setCanLogin] = useState(false);
@@ -93,7 +96,10 @@ const LoginScreen = ({ navigation, route }) => {
     }
     setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
-
+  const switchConfig = () => {
+    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
+    setTestnet(isTestnet ? false : true);
+  };
   // useEffect(() => {
   //   if (timeout) {
   //     const interval = setInterval(() => {
@@ -254,7 +260,9 @@ const LoginScreen = ({ navigation, route }) => {
                 </Text> */}
               </Text>
               {/* pin input view */}
-              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              <Box marginTop={hp(7)}>
+                <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              </Box>
               {/*  */}
             </Box>
 
@@ -269,7 +277,24 @@ const LoginScreen = ({ navigation, route }) => {
                 {errMessage}
               </Text>
             )}
-
+            <HStack justifyContent={'space-between'} paddingTop={'2'}>
+              <Text
+                color={'light.white1'}
+                fontWeight={'200'}
+                px={'8'}
+                fontSize={13}
+                letterSpacing={1}
+              >
+                Use bitcoin testnet
+              </Text>
+              <Switch
+                defaultIsChecked
+                trackColor={{ true: '#FFFA' }}
+                thumbColor={'#358475'}
+                style={{ marginRight: '5%' }}
+              // onChange={switchConfig} testnet fixed 
+              />
+            </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
               {passcode.length == 4 && (
                 <Box>
@@ -307,6 +332,7 @@ const LoginScreen = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
           )}
+
           {/* keyboardview start */}
           <KeyPadView
             disabled={!canLogin}
