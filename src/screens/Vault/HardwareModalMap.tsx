@@ -227,7 +227,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const navigateToSigningServerSetup = () => {
     close();
-    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicy', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
   };
 
   const navigateToSeedWordSetup = () => {
