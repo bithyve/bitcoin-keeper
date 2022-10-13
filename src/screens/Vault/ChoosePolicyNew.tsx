@@ -8,15 +8,74 @@ import { StyleSheet } from 'react-native';
 import Fonts from 'src/common/Fonts';
 import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
+import {
+  SignerException,
+  SignerPolicy,
+  SignerRestriction,
+  VerificationType,
+} from 'src/core/services/interfaces';
+import idx from 'idx';
+import { useDispatch } from 'react-redux';
+import { registerWithSigningServer, updateSignerPolicy } from 'src/store/sagaActions/wallets';
+import { CommonActions } from '@react-navigation/native';
 
 const ChoosePolicyNew = ({ navigation, route }) => {
   const [selectedPolicy, setSelectedPolicy] = useState('max');
 
-  const [maxTransaction, setMaxTransaction] = useState('');
-  const [minTransaction, setMinTransaction] = useState('');
+  const isUpdate = route.params.update;
+  const existingRestrictions: SignerRestriction = route.params.restrictions;
+  const existingMaxTransactionRestriction = idx(
+    existingRestrictions,
+    (_) => _.maxTransactionAmount
+  );
+  const existingExceptions: SignerException = route.params.exceptions;
+  const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
+
+  const [maxTransaction, setMaxTransaction] = useState(
+    existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '0'
+  );
+  const [minTransaction, setMinTransaction] = useState(
+    existingMaxTransactionException ? `${existingMaxTransactionException}` : '0'
+  );
+
+  const dispatch = useDispatch();
 
   const onNext = () => {
-    console.log({ max: Number(maxTransaction), min: Number(minTransaction) });
+    const maxAmount = Number(maxTransaction);
+    const restrictions: SignerRestriction = {
+      none: maxAmount === 0,
+      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
+    };
+
+    const minAmount = Number(minTransaction);
+    const exceptions: SignerException = {
+      none: minAmount === 0,
+      transactionAmount: minAmount === 0 ? null : minAmount,
+    };
+
+    if (isUpdate) {
+      const updates = {
+        restrictions,
+        exceptions,
+      };
+      dispatch(updateSignerPolicy(route.params.signer, updates));
+      navigation.dispatch(
+        CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
+      );
+    } else {
+      const policy: SignerPolicy = {
+        verification: {
+          method: VerificationType.TWO_FA,
+        },
+        restrictions,
+        exceptions,
+      };
+
+      dispatch(registerWithSigningServer(policy));
+      navigation.dispatch(
+        CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
+      );
+    }
   };
 
   const Field = ({ title, subTitle, value, onPress }) => {

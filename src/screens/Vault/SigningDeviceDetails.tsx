@@ -342,7 +342,7 @@ const SigningDeviceDetails = ({ route }) => {
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'ChoosePolicy',
+        name: 'ChoosePolicyNew',
         params: {
           restrictions,
           exceptions,
@@ -441,7 +441,9 @@ const SigningDeviceDetails = ({ route }) => {
           <FooterItem
             Icon={AdvnaceOptions}
             title={'Advance Options'}
-            onPress={() => console.log('Advance Options')}
+            onPress={() => {
+              if (signer.type === SignerType.POLICY_SERVER) navigateToPolicyChange(signer);
+            }}
           />
         </HStack>
         {/* <Buttons
