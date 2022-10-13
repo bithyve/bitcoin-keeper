@@ -184,6 +184,7 @@ const LoginScreen = ({ navigation, route }) => {
       setErrMessage('Incorrect password');
       setPasscode('');
       setAttempts(attempts + 1);
+      setLogging(false)
     } else {
       setLoginError(false);
     }
