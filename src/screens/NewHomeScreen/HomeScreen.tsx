@@ -165,7 +165,7 @@ const LinkedWallets = (props) => {
               fontWeight={200}
               marginLeft={'1'}
             >
-              Linked Wallet
+              Linked Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
