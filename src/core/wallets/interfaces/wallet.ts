@@ -41,6 +41,7 @@ export interface WalletSpecs {
   transactionNote: {
     [txId: string]: string;
   };
+  transferPolicy: number;
   // transactionsMeta?: TransactionMetaData[];
 }
 

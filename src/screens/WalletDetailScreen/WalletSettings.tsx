@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -24,6 +24,10 @@ import { useAppSelector } from 'src/store/hooks';
 import { Alert } from 'react-native';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 import { getAmount } from 'src/common/constants/Bitcoin';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
 
 type Props = {
   title: string;
@@ -78,7 +82,11 @@ const WalletSettings = ({ route }) => {
   const dispatch = useDispatch();
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const wallet: Wallet = route?.params?.wallet;
+  const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
+  const walletRoute: Wallet = route?.params?.wallet;
+  const { useQuery } = useContext(RealmWrapperContext);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const wallet = wallets.find((item) => item.id == walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
 
   const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
@@ -167,13 +175,15 @@ const WalletSettings = ({ route }) => {
         borderBottomWidth={0.2}
         marginTop={hp(60)}
         style={{
-          marginLeft: wp(25)
+          marginLeft: wp(25),
         }}
       >
         <WalletCard
           walletName={wallet.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
-          walletBalance={getAmount(wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed)}
+          walletBalance={getAmount(
+            wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
+          )}
         />
         {/* <Option
           title={'Wallet Backup'}
@@ -184,10 +194,12 @@ const WalletSettings = ({ route }) => {
           Icon={true}
         /> */}
       </Box>
-      <Box alignItems={'center'}
+      <Box
+        alignItems={'center'}
         style={{
-          marginLeft: wp(25)
+          marginLeft: wp(25),
         }}
+        height={60}
       >
         <Option
           title={'Wallet Details'}
@@ -213,6 +225,15 @@ const WalletSettings = ({ route }) => {
           }}
           Icon={false}
         />
+        <Option
+          title={'Transfer Policy'}
+          subTitle={`Secure to Vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
+          onPress={() => {
+            setTransferPolicyVisible(true);
+          }}
+          Icon={false}
+        />
+
         <Option
           title={'Receive Test Sats'}
           subTitle={'Recieve Test Sats to this address'}
@@ -250,6 +271,17 @@ const WalletSettings = ({ route }) => {
             closeBottomSheet={() => {
               setConfirmPassVisible(false);
             }}
+          />
+        </ModalWrapper>
+        <ModalWrapper
+          visible={transferPolicyVisible}
+          onSwipeComplete={() => setTransferPolicyVisible(false)}
+        >
+          <TransferPolicy
+            closeBottomSheet={() => {
+              setTransferPolicyVisible(false);
+            }}
+            wallet={wallet}
           />
         </ModalWrapper>
       </Box>

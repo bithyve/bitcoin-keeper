@@ -51,11 +51,12 @@ export const uaiChecks = (isFirstLogin: boolean = false) => {
   };
 };
 
-export const uaiActionedEntity = (entityId: string) => {
+export const uaiActionedEntity = (entityId: string, action: boolean = true) => {
   return {
     type: UAI_ACTIONED_ENTITY,
     payload: {
       entityId,
+      action,
     },
   };
 };

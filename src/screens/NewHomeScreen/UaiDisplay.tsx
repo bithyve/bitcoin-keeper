@@ -50,14 +50,18 @@ const UaiDisplay = ({ uaiStack }) => {
             btnText: ' Transfer Now',
           },
           cta: () => {
-            navigtaion.navigate('SendConfirmation', { isVaultTransfer: true, uaiSetActionFalse });
+            navigtaion.navigate('SendConfirmation', {
+              isVaultTransfer: true,
+              uaiSetActionFalse,
+              walletId: uai?.entityId,
+            });
             setShowModal(false);
           },
         };
       case uaiType.SECURE_VAULT:
         return {
           cta: () => {
-            navigtaion.navigate('HardwareSetup');
+            navigtaion.navigate('AddSigningDevice');
           },
         };
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:

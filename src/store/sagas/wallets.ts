@@ -69,6 +69,7 @@ import { Alert } from 'react-native';
 export interface newWalletDetails {
   name?: string;
   description?: string;
+  transferPolicy?: number;
 }
 export interface newWalletInfo {
   walletType: WalletType;
@@ -88,7 +89,7 @@ function* addNewWallet(
 ) {
   const { primaryMnemonic } = app;
   const { walletInstances } = walletShell;
-  const { name: walletName, description: walletDescription } = walletDetails;
+  const { name: walletName, description: walletDescription, transferPolicy } = walletDetails;
 
   switch (walletType) {
     case WalletType.CHECKING:
@@ -100,6 +101,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return checkingWallet;
 
@@ -112,6 +114,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : '',
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return lnWallet;
 
@@ -124,6 +127,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedMnemonic: importDetails.primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return importedWallet;
 
@@ -136,6 +140,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedXpub: importDetails.xpub,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return readOnlyWallet;
   }
@@ -672,10 +677,9 @@ export const updateSignerPolicyWatcher = createWatcher(
 
 function* testcoinsWorker({ payload }) {
   const { wallet } = payload;
-  console.log({ wallet });
   const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
-  console.log({ receivingAddress, network });
+
   const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
 
   if (!txid) {
