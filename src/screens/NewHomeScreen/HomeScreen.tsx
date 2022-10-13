@@ -41,7 +41,7 @@ import VaultImage from 'src/assets/images/Vault.png';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
@@ -177,6 +177,14 @@ const LinkedWallets = (props) => {
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
                 {getAmount(netBalance)}
+                <Text
+                  color={'light.white1'}
+                  letterSpacing={0.6}
+                  fontSize={hp(12)}
+                  fontWeight={200}
+                >
+                  {getUnit()}
+                </Text>
               </Text>
             </Box>
           ) : (
@@ -363,15 +371,26 @@ const VaultStatus = (props) => {
             <BTC style={{ height: '20%' }} />
             <Pressable>
               {props.showHideAmounts ? (
-                <Text
-                  p={1}
-                  color={'light.white1'}
-                  letterSpacing={0.8}
-                  fontSize={hp(30)}
-                  fontWeight={200}
-                >
-                  {getAmount(vaultBalance)}
-                </Text>
+                <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
+                  <Text
+                    p={1}
+                    color={'light.white1'}
+                    letterSpacing={0.8}
+                    fontSize={hp(30)}
+                    fontWeight={200}
+                  >
+                    {getAmount(vaultBalance)}
+
+                  </Text>
+                  <Text
+                    color={'light.white1'}
+                    letterSpacing={0.6}
+                    fontSize={hp(12)}
+                    fontWeight={200}
+                  >
+                    {getUnit()}
+                  </Text>
+                </Box>
               ) : (
                 <Box marginY={5}>
                   <Hidden />
