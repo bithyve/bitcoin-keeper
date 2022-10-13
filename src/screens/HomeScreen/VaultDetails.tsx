@@ -48,7 +48,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { height, width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
 };
@@ -270,7 +270,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
   const navigation = useNavigation();
   return (
     <>
-      <VStack style={{ paddingTop: height * 0.1 }}>
+      <VStack style={{ paddingTop: height * 0.12 }}>
         <HStack justifyContent={'space-between'}>
           <Text
             color={'light.textBlack'}

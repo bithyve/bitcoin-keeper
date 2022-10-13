@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import Alert from 'src/assets/images/alert_illustration.svg';
+import { BleManager } from 'react-native-ble-plx';
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -19,7 +20,6 @@ import { SignerType } from 'src/core/wallets/enums';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { manager } from 'src/core/services/ble';
 import { useAppSelector } from 'src/store/hooks';
 
 type HWProps = {
@@ -124,7 +124,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   };
 
   const getBluetoothSupport = () => {
-    manager.onStateChange((state) => {
+    new BleManager().onStateChange((state) => {
       if (state === 'PoweredOn') {
         setBLESupport(true);
       } else {

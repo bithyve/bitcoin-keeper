@@ -327,36 +327,32 @@ const VaultStatus = (props) => {
               opacity={0.8}
               paddingBottom={1}
             >
-              {
-                !signers.length
-                  ? 'Add Signers to upgrade '
-                  : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`
-              }
+              {!signers.length
+                ? 'Add Signers to upgrade '
+                : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`}
             </Text>
 
-
-            {!signers.length ?
+            {!signers.length ? (
               <Box marginTop={hp(11.5)}>
                 <Chain />
               </Box>
-              : (
-                <Box flexDirection={'row'} marginTop={hp(10)}>
-                  {signers.map((signer) => (
-                    <Box
-                      width={30}
-                      height={30}
-                      borderRadius={30}
-                      bg={'#FAC48B'}
-                      justifyContent={'center'}
-                      alignItems={'center'}
-                      marginX={1}
-                    >
-                      {WalletMap(signer.type).Icon}
-                    </Box>
-                  ))}
-                </Box>
-              )}
-
+            ) : (
+              <Box flexDirection={'row'} marginTop={hp(10)}>
+                {signers.map((signer) => (
+                  <Box
+                    width={30}
+                    height={30}
+                    borderRadius={30}
+                    bg={'#FAC48B'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    marginX={1}
+                  >
+                    {WalletMap(signer.type).Icon}
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
 
           <HStack alignItems={'center'} marginTop={hp(windowHeight > 700 ? 20 : 10)}>
@@ -386,19 +382,13 @@ const VaultStatus = (props) => {
             borderRadius={hp(10)}
             style={{
               height: hp(22),
-              width: wp(90)
+              width: wp(90),
             }}
             onPress={() => props.onAmountPress()}
           >
-            <Text
-              color={'light.sendMax'}
-              fontWeight={300}
-              fontSize={11}
-              letterSpacing={0.88}
-            >
+            <Text color={'light.sendMax'} fontWeight={300} fontSize={11} letterSpacing={0.88}>
               {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
             </Text>
-
           </Pressable>
         </ImageBackground>
       </TouchableOpacity>
@@ -407,7 +397,7 @@ const VaultStatus = (props) => {
         close={close}
         title={'Signing Devices'}
         subTitle={
-          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your Vault'
+          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your vault'
         }
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}

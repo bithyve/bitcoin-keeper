@@ -90,7 +90,7 @@ const SetupTapsigner = () => {
     const signer: VaultSigner = {
       signerId,
       type: SignerType.TAPSIGNER,
-      signerName: 'Tapsigner',
+      signerName: 'TAPSIGNER',
       xpub,
       xpubInfo: {
         derivationPath,
@@ -143,7 +143,7 @@ const SetupTapsigner = () => {
     const tapsigner: VaultSigner = {
       signerId,
       type: SignerType.TAPSIGNER,
-      signerName: 'Tapsigner**',
+      signerName: 'TAPSIGNER**',
       isMock: true,
       xpub,
       xpriv,
@@ -157,8 +157,7 @@ const SetupTapsigner = () => {
     };
     if (amfData) {
       tapsigner.amfData = amfData;
-      tapsigner.signerName = 'Tapsigner*';
-      tapsigner.isMock = false;
+      tapsigner.signerName = 'TAPSIGNER*';
     }
     return tapsigner;
   };
@@ -171,7 +170,7 @@ const SetupTapsigner = () => {
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     } catch (err) {
-      showToast(err.toString(), null, 2000, true);
+      Alert.alert(err.toString());
     }
   }, [cvc]);
 
