@@ -185,7 +185,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             }}
             loading={keeperInitiating}
           />
-          <HStack justifyContent={'space-between'} paddingTop={'2'}>
+          {/* <HStack justifyContent={'space-between'} paddingTop={'2'}>
             <Text
               color={'light.blackHeaderText'}
               fontFamily={'heading'}
@@ -200,7 +200,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               style={{ marginRight: '5%' }}
               onChange={switchConfig}
             />
-          </HStack>
+          </HStack> */}
           <Text
             color={'light.blackHeaderText'}
             fontSize={RFValue(20)}
@@ -231,8 +231,8 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             }}
           />
           <Tile
-            title={'Inheritance Keeper Vault'}
-            subTitle={'Using Signing Devices'}
+            title={'Inheritance Keeper vault'}
+            subTitle={'Using signing devices'}
             onPress={() => {
               navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
             }}
