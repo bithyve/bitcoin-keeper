@@ -42,7 +42,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import KeeperModal from 'src/components/KeeperModal';
 import { setIntroModal } from 'src/store/reducers/wallets';
 
@@ -155,6 +155,14 @@ const WalletDetails = () => {
                 </Box>
                 <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
                   {getAmount(walletBalance)}
+                  <Text
+                    color={'light.sats'}
+                    letterSpacing={0.6}
+                    fontSize={hp(12)}
+                    fontWeight={200}
+                  >
+                    {getUnit()}
+                  </Text>
                 </Text>
               </Box>
             </Box>
@@ -223,6 +231,14 @@ const WalletDetails = () => {
             marginRight={3}
           >
             {getAmount(transaction.amount)}
+            <Text
+              color={'light.dateText'}
+              letterSpacing={0.6}
+              fontSize={hp(12)}
+              fontWeight={200}
+            >
+              {getUnit()}
+            </Text>
           </Text>
           <Box>
             <IconArrowGrey />
@@ -321,6 +337,14 @@ const WalletDetails = () => {
           </Box>
           <Text color={'light.textWallet'} letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
             {getAmount(netBalance)}
+            <Text
+              color={'light.satsDark'}
+              letterSpacing={0.6}
+              fontSize={hp(12)}
+              fontWeight={200}
+            >
+              {getUnit()}
+            </Text>
           </Text>
         </Box>
       </Box>

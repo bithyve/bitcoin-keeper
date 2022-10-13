@@ -288,7 +288,7 @@ const AppSettings = ({ navigation }) => {
           backgroundColor={'light.ReceiveBackground'}
         >
           <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <Pressable onPress={() => console.log('Telegram')}>
+            <Pressable onPress={() => openLink('https://t.me/+n0QXLUgwsh9iZWU8')}>
               <Box
                 flexDirection={'row'}
                 justifyContent={'space-evenly'}
@@ -327,7 +327,7 @@ const AppSettings = ({ navigation }) => {
                 </Box>
               </Box>
             </Pressable>
-            <Pressable onPress={() => console.log('Twitter')}>
+            <Pressable onPress={() => openLink('https://twitter.com/@bitcoinKeeper')}>
               <Box
                 flexDirection={'row'}
                 justifyContent={'space-evenly'}
