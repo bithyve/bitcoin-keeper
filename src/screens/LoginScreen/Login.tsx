@@ -8,6 +8,7 @@ import {
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
+import { AppContext } from 'src/common/content/AppContext';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import FogotPassword from './components/FogotPassword';
@@ -17,17 +18,16 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ResetPassSuccess from './components/ResetPassSuccess';
+import config from 'src/core/config';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
-import { AppContext } from 'src/common/content/AppContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
-import { NetworkType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -45,7 +45,6 @@ const LoginScreen = ({ navigation, route }) => {
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
-  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
   const [attempts, setAttempts] = useState(0);
   // const [timeout, setTimeout] = useState(0)
   const [canLogin, setCanLogin] = useState(false);
@@ -66,8 +65,9 @@ const LoginScreen = ({ navigation, route }) => {
     setLoadingContent({
       title: 'Logging in to your Keeper',
       subTitle: 'Shake your device or take a screenshot to send feedback',
-      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
-    })
+      message:
+        'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.',
+    });
   }, []);
 
   useEffect(() => {
@@ -96,10 +96,7 @@ const LoginScreen = ({ navigation, route }) => {
     }
     setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
-  const switchConfig = () => {
-    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
-    setTestnet(isTestnet ? false : true);
-  };
+
   // useEffect(() => {
   //   if (timeout) {
   //     const interval = setInterval(() => {
@@ -177,14 +174,14 @@ const LoginScreen = ({ navigation, route }) => {
       setLoadingContent({
         title: '',
         subTitle: '',
-        message: ''
-      })
+        message: '',
+      });
       setAppLoading(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
       setAttempts(attempts + 1);
-      setLogging(false)
+      setLogging(false);
     } else {
       setLoginError(false);
     }
@@ -195,9 +192,9 @@ const LoginScreen = ({ navigation, route }) => {
       setLoadingContent({
         title: '',
         subTitle: '',
-        message: ''
-      })
-      setAppLoading(false)
+        message: '',
+      });
+      setAppLoading(false);
       if (relogin) {
         navigation.goBack();
       } else {
@@ -222,7 +219,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
-    setAppLoading(true)
+    setAppLoading(true);
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -278,24 +275,6 @@ const LoginScreen = ({ navigation, route }) => {
                 {errMessage}
               </Text>
             )}
-            <HStack justifyContent={'space-between'} paddingTop={'2'}>
-              <Text
-                color={'light.white1'}
-                fontWeight={'200'}
-                px={'8'}
-                fontSize={13}
-                letterSpacing={1}
-              >
-                Use bitcoin testnet
-              </Text>
-              <Switch
-                defaultIsChecked
-                trackColor={{ true: '#FFFA' }}
-                thumbColor={'#358475'}
-                style={{ marginRight: '5%' }}
-              // onChange={switchConfig} testnet fixed 
-              />
-            </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
               {passcode.length == 4 && (
                 <Box>
@@ -339,7 +318,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}

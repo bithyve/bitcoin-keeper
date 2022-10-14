@@ -1,23 +1,26 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, StatusBar, Dimensions } from 'react-native';
 import { Box, HStack, Switch, Text } from 'native-base';
+import { Dimensions, StatusBar, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  widthPercentageToDP as wp,
   heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
-import LinearGradient from 'react-native-linear-gradient';
-import CustomButton from 'src/components/CustomButton/CustomButton';
-import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+
+import CustomButton from 'src/components/CustomButton/CustomButton';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { NetworkType } from 'src/core/wallets/enums';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import config from 'src/core/config';
 import messaging from '@react-native-firebase/messaging';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -30,6 +33,7 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
 
   const { translations } = useContext(LocalizationContext);
   const login = translations['login'];
@@ -49,6 +53,11 @@ export default function CreatePin(props) {
       props.navigation.navigate('OnBoardingSlides');
     }
   }, [hasCreds]);
+
+  const switchConfig = () => {
+    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
+    setTestnet(isTestnet ? false : true);
+  };
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -220,7 +229,7 @@ export default function CreatePin(props) {
                 trackColor={{ true: '#FFFA' }}
                 thumbColor={'#358475'}
                 style={{ marginRight: '5%' }}
-                // onChange={switchConfig} testnet fixed
+                onChange={switchConfig}
               />
             </HStack>
           </Box>

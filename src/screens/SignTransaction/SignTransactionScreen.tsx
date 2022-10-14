@@ -1,8 +1,8 @@
 import { Alert, FlatList, Platform } from 'react-native';
 import AppClient, { PsbtV2, WalletPolicy } from 'src/hardware/ledger';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { NetworkType, SignerType, TxPriority } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 
 import { Box } from 'native-base';
@@ -110,7 +110,9 @@ const SignTransactionScreen = () => {
       seedBasedSingerMnemonic?: string;
     } = {}) => {
       const activeId = signerId || activeSignerId;
+      console.log({ activeId });
       const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
+      console.log({ currentSigner });
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.signerId === activeId
@@ -193,24 +195,36 @@ const SignTransactionScreen = () => {
         } else if (SignerType.LEDGER === signerType) {
           try {
             setLedgerModal(false);
-            const app = new AppClient(LedgerCom.current);
-            const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
-            const multisigWalletPolicy = new WalletPolicy(
-              'ColdStorage',
-              'sh(wsh(sortedmulti(1,@0,@1)))',
-              signers.map((signer) => {
-                const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
-                  signer.xpubInfo.derivationPath.indexOf('/')
-                )}`;
-                return `[${path}]${signer.xpub}/**`;
-              })
-            );
-            const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
-            const psbt = new PsbtV2(); //??
-            psbt.deserialize(buff);
-            console.log({ psbt });
-            const signed = await app.signPsbt(psbt, multisigWalletPolicy, null);
-            console.log(signed);
+            if (currentSigner.amfData && currentSigner.amfData.xpub) {
+              const { xpriv } = currentSigner;
+              const inputs = idx(signingPayload, (_) => _[0].inputs);
+              if (!inputs) throw new Error('Invalid signing payload, inputs missing');
+              const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+                defaultVault,
+                inputs,
+                serializedPSBT,
+                xpriv
+              );
+              dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+            }
+            // const app = new AppClient(LedgerCom.current);
+            // const buff = Buffer.from(serializedPSBTEnvelop.serializedPSBT, 'base64');
+            // const multisigWalletPolicy = new WalletPolicy(
+            //   'ColdStorage',
+            //   'sh(wsh(sortedmulti(1,@0,@1)))',
+            //   signers.map((signer) => {
+            //     const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
+            //       signer.xpubInfo.derivationPath.indexOf('/')
+            //     )}`;
+            //     return `[${path}]${signer.xpub}/**`;
+            //   })
+            // );
+            // const [policyId, policyHmac] = await app.registerWallet(multisigWalletPolicy);
+            // const psbt = new PsbtV2(); //??
+            // psbt.deserialize(buff);
+            // console.log({ psbt });
+            // const signed = await app.signPsbt(psbt, multisigWalletPolicy, null);
+            // console.log(signed);
           } catch (error) {
             switch (error.message) {
               case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':

@@ -158,6 +158,7 @@ const SetupTapsigner = () => {
     if (amfData) {
       tapsigner.amfData = amfData;
       tapsigner.signerName = 'TAPSIGNER*';
+      tapsigner.isMock = false;
     }
     return tapsigner;
   };

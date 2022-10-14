@@ -9,6 +9,7 @@ import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
+import KeeperLoader from 'src/components/KeeperLoader';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { NetworkType } from 'src/core/wallets/enums';
@@ -22,7 +23,6 @@ import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import useToastMessage from 'src/hooks/useToastMessage';
-import KeeperLoader from 'src/components/KeeperLoader';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -98,7 +98,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
-  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
+
   useEffect(() => {
     if (appCreated) {
       setInitiating(false);
@@ -145,11 +145,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   };
 
   const closeCloudModal = () => setCloudModal(false);
-
-  const switchConfig = () => {
-    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
-    setTestnet(isTestnet ? false : true);
-  };
 
   useEffect(() => {
     if (keeperInitiating) {
@@ -280,9 +275,9 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         visible={keeperInitiating}
         loadingContent={{
           title: 'Share Feedback (Testnet only)',
-          subTitle: 'Shake your device or take a screenshot to send feedback'
+          subTitle: 'Shake your device or take a screenshot to send feedback',
         }}
-        close={() => { }}
+        close={() => {}}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#000'}
         Content={() => {
@@ -294,8 +289,9 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
                   width: wp(250),
                   height: wp(120),
                   alignSelf: 'center',
-                  marginTop: hp(30)
-                }} />
+                  marginTop: hp(30),
+                }}
+              />
               <Text
                 color={'light.modalText'}
                 fontWeight={200}
@@ -304,9 +300,12 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
                 marginTop={hp(60)}
                 width={wp(240)}
               >
-                {'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'}
+                {
+                  'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+                }
               </Text>
-            </Box>)
+            </Box>
+          );
         }}
       />
       <ModalWrapper

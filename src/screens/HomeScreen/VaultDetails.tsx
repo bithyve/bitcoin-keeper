@@ -438,7 +438,7 @@ const SignerList = ({
 };
 
 const VaultDetails = ({ route }) => {
-  const { vaultTransferSuccessful = false } = route.params;
+  const { vaultTransferSuccessful = false } = route.params || {};
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);

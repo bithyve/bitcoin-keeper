@@ -110,38 +110,7 @@ const AddLedger = ({}) => {
     );
   };
 
-  const fetchAddress = async () => {
-    try {
-      const app = new AppClient(transport);
-      const networkType = config.NETWORK_TYPE;
-      const path = networkType === NetworkType.TESTNET ? "m/48'/1'/0'/1'" : "m/48'/0'/0'/1'"; // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
-      const xpub = await app.getExtendedPubkey(path);
-      const masterfp = await app.getMasterFingerprint();
-      const network = WalletUtilities.getNetworkByType(networkType);
-      const signer: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.LEDGER,
-        signerName: 'Nano X',
-        xpub,
-        xpubInfo: {
-          derivationPath: path,
-          xfp: masterfp,
-        },
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
-        storageType: SignerStorage.COLD,
-      };
-      dispatch(addSigningDevice(signer));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      const exsists = await checkSigningDevice(signer.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
-    } catch (error) {
-      captureError(error);
-      Alert.alert(error.toString());
-    }
-  };
-
-  const addMockLedger = () => {
+  const getMockLedgerDetails = (amfData = null) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
     const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
@@ -149,8 +118,9 @@ const AddLedger = ({}) => {
       SignerType.LEDGER,
       networkType
     );
+    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
     const ledger: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      signerId,
       type: SignerType.LEDGER,
       signerName: 'Nano X**',
       isMock: true,
@@ -164,6 +134,52 @@ const AddLedger = ({}) => {
       addedOn: new Date(),
       storageType: SignerStorage.COLD,
     };
+    if (amfData) {
+      ledger.amfData = amfData;
+      ledger.signerName = 'Nano X*';
+      ledger.isMock = false;
+    }
+    return ledger;
+  };
+
+  const fetchAddress = async () => {
+    try {
+      const app = new AppClient(transport);
+      const networkType = config.NETWORK_TYPE;
+      const path = networkType === NetworkType.TESTNET ? "m/48'/1'/0'/1'" : "m/48'/0'/0'/1'"; // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
+      const xpub = await app.getExtendedPubkey(path);
+      const masterfp = await app.getMasterFingerprint();
+      const network = WalletUtilities.getNetworkByType(networkType);
+      const ledger: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.LEDGER,
+        signerName: 'Nano X',
+        xpub,
+        xpubInfo: {
+          derivationPath: path,
+          xfp: masterfp,
+        },
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+        storageType: SignerStorage.COLD,
+      };
+      if (networkType === NetworkType.TESTNET) {
+        const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+        addMockLedger({ signerId, xpub });
+        return;
+      }
+      dispatch(addSigningDevice(ledger));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      const exsists = await checkSigningDevice(ledger.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+    } catch (error) {
+      captureError(error);
+      Alert.alert(error.toString());
+    }
+  };
+
+  const addMockLedger = (amfData = null) => {
+    const ledger = getMockLedgerDetails(amfData);
     dispatch(addSigningDevice(ledger));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };

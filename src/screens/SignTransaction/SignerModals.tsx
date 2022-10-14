@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Box, DeleteIcon, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -21,7 +21,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
-import useScanLedger from '../AddLedger/useScanLedger';
+import useBLE from 'src/hooks/useLedger';
 
 const { width } = Dimensions.get('screen');
 
@@ -53,18 +53,32 @@ const DeviceItem = ({ device, onSelectDevice }) => {
   );
 };
 
-const LedgerContent = ({ onSelectDevice }) => {
-  const { error, devices, scanning } = useScanLedger();
-  if (error) {
-    <Text style={styles.errorTitle}>{String(error.message)}</Text>;
-  }
+const LedgerContent = ({ signTransaction }) => {
+  const { scanForPeripherals, requestPermissions, allDevices, disconnectFromDevice, isScanning } =
+    useBLE();
+
+  const scanForDevices = () => {
+    requestPermissions((isGranted) => {
+      if (isGranted) {
+        scanForPeripherals();
+      }
+    });
+  };
+
+  useEffect(() => {
+    scanForDevices();
+    return () => {
+      disconnectFromDevice();
+    };
+  }, []);
+
   return (
-    <>
-      {scanning ? <ActivityIndicator /> : null}
-      {devices.map((device) => (
-        <DeviceItem device={device} onSelectDevice={onSelectDevice} key={device.id} />
+    <React.Fragment>
+      {isScanning ? <ActivityIndicator /> : null}
+      {allDevices.map((device) => (
+        <DeviceItem device={device} onSelectDevice={signTransaction} key={device.id} />
       ))}
-    </>
+    </React.Fragment>
   );
 };
 
@@ -242,20 +256,21 @@ const SignerModals = ({
   textRef,
   signers,
 }) => {
-  const onSelectDevice = useCallback(async (device) => {
-    try {
-      const transport = await TransportBLE.open(device);
-      transport.on('disconnect', () => {
-        LedgerCom.current = null;
-      });
-      LedgerCom.current = transport;
-      signTransaction();
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
+  // const onSelectDevice = useCallback(async (device) => {
+  //   try {
+  //     const transport = await TransportBLE.open(device);
+  //     transport.on('disconnect', () => {
+  //       LedgerCom.current = null;
+  //     });
+  //     LedgerCom.current = transport;
+  //     signTransaction();
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }, []);
 
   const navigation = useNavigation();
+
   return (
     <>
       {signers.map((signer) => {
@@ -309,12 +324,11 @@ const SignerModals = ({
                 subTitle={'Power up your Ledger Nano X and open the BTC app...'}
                 modalBackground={['#00836A', '#073E39']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonText={LedgerCom.current ? 'SIGN' : ''}
+                buttonText={LedgerCom.current ? 'SIGN' : null}
                 buttonTextColor={'#073E39'}
-                buttonCallback={signTransaction}
                 textColor={'#FFF'}
                 DarkCloseIcon={true}
-                Content={() => <LedgerContent onSelectDevice={onSelectDevice} />}
+                Content={() => <LedgerContent signTransaction={signTransaction} />}
               />
             );
           case SignerType.MOBILE_KEY:
