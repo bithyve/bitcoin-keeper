@@ -47,6 +47,7 @@ const LoginScreen = ({ navigation, route }) => {
   const [loggingIn, setLogging] = useState(false);
   const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
   const [attempts, setAttempts] = useState(0);
+  const [testnetSwitch, setTestnetSwitch] = useState(true);
   // const [timeout, setTimeout] = useState(0)
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
@@ -66,8 +67,9 @@ const LoginScreen = ({ navigation, route }) => {
     setLoadingContent({
       title: 'Logging in to your Keeper',
       subTitle: 'Shake your device or take a screenshot to send feedback',
-      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
-    })
+      message:
+        'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.',
+    });
   }, []);
 
   useEffect(() => {
@@ -177,14 +179,14 @@ const LoginScreen = ({ navigation, route }) => {
       setLoadingContent({
         title: '',
         subTitle: '',
-        message: ''
-      })
+        message: '',
+      });
       setAppLoading(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
       setAttempts(attempts + 1);
-      setLogging(false)
+      setLogging(false);
     } else {
       setLoginError(false);
     }
@@ -195,9 +197,9 @@ const LoginScreen = ({ navigation, route }) => {
       setLoadingContent({
         title: '',
         subTitle: '',
-        message: ''
-      })
-      setAppLoading(false)
+        message: '',
+      });
+      setAppLoading(false);
       if (relogin) {
         navigation.goBack();
       } else {
@@ -222,7 +224,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
-    setAppLoading(true)
+    setAppLoading(true);
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -286,14 +288,16 @@ const LoginScreen = ({ navigation, route }) => {
                 fontSize={13}
                 letterSpacing={1}
               >
-                Use bitcoin testnet
+                {testnetSwitch ? 'Bitcoin testnet' : 'Use bitcoin testnet'}
               </Text>
               <Switch
                 defaultIsChecked
+                disabled={true}
                 trackColor={{ true: '#FFFA' }}
                 thumbColor={'#358475'}
                 style={{ marginRight: '5%' }}
-              // onChange={switchConfig} testnet fixed 
+                onChange={() => setTestnetSwitch(!testnetSwitch)}
+                // onChange={switchConfig} testnet fixed
               />
             </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
@@ -339,7 +343,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}

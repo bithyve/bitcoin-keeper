@@ -30,6 +30,7 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [testnetSwitch, setTestnetSwitch] = useState(true);
 
   const { translations } = useContext(LocalizationContext);
   const login = translations['login'];
@@ -213,13 +214,14 @@ export default function CreatePin(props) {
                 fontSize={13}
                 letterSpacing={1}
               >
-                Use bitcoin testnet
+                {testnetSwitch ? 'Bitcoin testnet' : 'Use bitcoin testnet'}
               </Text>
               <Switch
                 defaultIsChecked
                 trackColor={{ true: '#FFFA' }}
                 thumbColor={'#358475'}
                 style={{ marginRight: '5%' }}
+                onChange={() => setTestnetSwitch(!testnetSwitch)}
                 // onChange={switchConfig} testnet fixed
               />
             </HStack>
