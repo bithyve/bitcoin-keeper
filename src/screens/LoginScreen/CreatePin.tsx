@@ -222,7 +222,7 @@ export default function CreatePin(props) {
                 fontSize={13}
                 letterSpacing={1}
               >
-                Use bitcoin testnet
+                {'Use bitcoin testnet'}
               </Text>
               <Switch
                 defaultIsChecked
