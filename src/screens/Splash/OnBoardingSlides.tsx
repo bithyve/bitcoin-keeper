@@ -35,13 +35,31 @@ const OnBoardingSlides = ({ navigation }) => {
   const [items, setItems] = useState([
     {
       id: '1',
-      title: onboarding.slide01Title,
+      title:
+        <>
+          {onboarding.Comprehensive + " "}
+          <Text
+            fontStyle={'italic'}
+            fontWeight={900}
+          >
+            {onboarding.security}
+          </Text>
+          {' ' + onboarding.slide01Title}
+        </>,
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration_1 />,
     },
     {
       id: '2',
-      title: onboarding.slide02Title,
+      title: <>
+        {onboarding.slide02Title + " "}
+        <Text
+          fontStyle={'italic'}
+          fontWeight={900}
+        >
+          {onboarding.privacy}
+        </Text>
+      </>,
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },

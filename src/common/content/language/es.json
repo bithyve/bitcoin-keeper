@@ -415,9 +415,12 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition"
   },
   "onboarding": {
-    "slide01Title": "Most secure way to\nstore your bitcoin",
+    "Comprehensive": "Comprehensive",
+    "security": "security",
+    "privacy": "privacy",
+    "slide01Title": "for\n your bitcoin keys",
     "slide01Paragraph": "Keeper works with most of the trusted hardware signers which hold your keys in an air-gapped and/ or multisig manner",
-    "slide02Title": "Security should not\ncome at the cost of privacy",
+    "slide02Title": "Security should not\ncome at the cost of",
     "slide02Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
