@@ -200,18 +200,18 @@ const LinkedWallets = (props) => {
   );
 };
 
-const VaultSetupContent = () => {
-  return (
-    <View>
-      <Box alignSelf={'center'}>
-        <SigningDevicesIllustration />
-      </Box>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-        {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
-      </Text>
-    </View>
-  );
-};
+// const VaultSetupContent = () => {
+//   return (
+//     <View>
+//       <Box alignSelf={'center'}>
+//         <SigningDevicesIllustration />
+//       </Box>
+//       <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
+//         {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
+//       </Text>
+//     </View>
+//   );
+// };
 
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
@@ -239,12 +239,13 @@ const VaultStatus = (props) => {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
     } else {
       setModalVisible(true);
+      navigateToHardwareSetup();
     }
   };
   const close = () => setModalVisible(false);
 
   const navigateToHardwareSetup = () => {
-    close();
+    // close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
@@ -411,7 +412,7 @@ const VaultStatus = (props) => {
           </Pressable>
         </ImageBackground>
       </TouchableOpacity>
-      <KeeperModal
+      {/* <KeeperModal
         visible={visible}
         close={close}
         title={'Signing Devices'}
@@ -427,7 +428,7 @@ const VaultStatus = (props) => {
         Content={VaultSetupContent}
         DarkCloseIcon={true}
         learnMore={true}
-      />
+      /> */}
     </Box>
   );
 };
