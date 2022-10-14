@@ -87,6 +87,8 @@ const vaultSlice = createSlice({
       state.introModal = action.payload;
     },
     setSdIntroModal: (state, action: PayloadAction<boolean>) => {
+      console.log('dfsd');
+
       state.sdIntroModal = action.payload;
     },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {

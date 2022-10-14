@@ -7,6 +7,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 type Props = {
   title?: string;
@@ -17,6 +18,8 @@ type Props = {
   paddingLeft?: number;
   paddingTop?: number;
   showToggler?: boolean;
+  learnMore?: boolean;
+  learnMorePressed?: () => void;
 };
 const HeaderTitle = ({
   title = '',
@@ -26,18 +29,45 @@ const HeaderTitle = ({
   headerTitleColor = 'light.headerText',
   paddingLeft = 0,
   paddingTop = 0,
-  showToggler = false
+  showToggler = false,
+  learnMore = false,
+  learnMorePressed = () => { }
 }: Props) => {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <TouchableOpacity
-          onPress={onPressHandler ? onPressHandler : navigation.goBack}
+        <Box
           style={styles.back}
         >
-          <BackButton />
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          >
+            <BackButton />
+          </TouchableOpacity>
+          {learnMore &&
+            <TouchableOpacity onPress={learnMorePressed}>
+              <Box
+                height={hp(20)}
+                width={wp(70)}
+                borderColor={'light.brownborder'}
+                borderWidth={0.5}
+                borderRadius={5}
+                backgroundColor={'light.yellow2'}
+                justifyContent={'center'}
+                alignItems={'center'}
+              >
+                <Text
+                  color={'light.brownborder'}
+                  fontWeight={200}
+                  letterSpacing={0.6}
+                  fontSize={12}
+                >
+                  Learn More
+                </Text>
+              </Box>
+            </TouchableOpacity>}
+        </Box>
       )}
       <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
         <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
@@ -88,6 +118,8 @@ const styles = ScaledSheet.create({
     paddingHorizontal: '20@s',
   },
   back: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
     paddingHorizontal: '5@s',
     paddingVertical: '15@s',
   },

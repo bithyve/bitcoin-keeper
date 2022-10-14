@@ -112,7 +112,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
-  console.log(sdModal);
+  console.log('sdModal', sdModal);
 
   const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -272,6 +272,8 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
         headerTitleColor={'light.headerTextTwo'}
+        learnMore={true}
+        learnMorePressed={() => { dispatch(setSdIntroModal(true)) }}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
         <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
