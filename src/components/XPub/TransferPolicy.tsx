@@ -73,7 +73,7 @@ const TransferPolicy = (props) => {
             {'Edit Transfer Policy'}
           </Text>
           <Text fontSize={RFValue(13)} color={'light.lightBlack2'} fontFamily={'body'}>
-            {'Threshold mount at which transfer is triggered'}
+            {'Threshold amount at which transfer is triggered'}
           </Text>
         </Box>
       </Box>

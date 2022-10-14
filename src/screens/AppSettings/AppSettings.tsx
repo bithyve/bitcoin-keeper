@@ -207,10 +207,10 @@ const AppSettings = ({ navigation }) => {
       <Box mx={'4'} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
         <Box w={'60%'}>
           <Text fontSize={RFValue(20)} fontWeight={200} letterSpacing={1}>
-            {common.settings}
+            {"App " + common.settings}
           </Text>
           <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6}>
-            {settings.selectCurrency}
+            {'For the vault and wallets'}
           </Text>
         </Box>
         <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>

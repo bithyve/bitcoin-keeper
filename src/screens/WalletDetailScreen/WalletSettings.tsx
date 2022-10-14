@@ -164,7 +164,7 @@ const WalletSettings = ({ route }) => {
       <Box>
         <Header
           title={'Wallet Settings'}
-          subtitle={'Lorem Ipsum Dolor'}
+          subtitle={'Setting for the wallet only'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.textBlack'}
           fontSize={20}
@@ -227,7 +227,7 @@ const WalletSettings = ({ route }) => {
         />
         <Option
           title={'Transfer Policy'}
-          subTitle={`Secure to Vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
+          subTitle={`Secure to vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
           onPress={() => {
             setTransferPolicyVisible(true);
           }}

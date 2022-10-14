@@ -133,7 +133,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           <SigningDevicesIllustration />
         </Box>
         <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-          {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
+          {`For the Pleb tier, you need to select one signing device to activate your Vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
     );
@@ -335,7 +335,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           close={() => { dispatch(setSdIntroModal(false)) }}
           title={'Signing Devices'}
           subTitle={
-            'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your vault'
+            'A signing device is a piece of hardware or software that stores one of the private keys needed for your vault'
           }
           modalBackground={['#00836A', '#073E39']}
           buttonBackground={['#FFFFFF', '#80A8A1']}

@@ -75,7 +75,10 @@ const AddSendAmount = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header title={`Enter the amount`} subtitle={`Sending to ${address}`} />
+      <Header
+        title={`Enter the amount`}
+      // subtitle={`Sending to ${address}`}
+      />
       {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
@@ -123,7 +126,7 @@ const AddSendAmount = ({ route }) => {
               amount,
             },
           ]}
-          addTransaction={() => {}}
+          addTransaction={() => { }}
         />
       </Box>
       <Box

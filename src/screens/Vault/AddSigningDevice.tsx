@@ -210,7 +210,7 @@ const AddSigningDevice = () => {
                     {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
                   <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-                    {`Select Signing Device`}
+                    {`Select signing device`}
                   </Text>
                 </VStack>
               </HStack>
@@ -300,14 +300,14 @@ const AddSigningDevice = () => {
         {signersState.every((signer) => {
           return !!signer;
         }) && (
-          <Buttons
-            primaryLoading={vaultCreating}
-            primaryText="Create Vault"
-            primaryCallback={triggerVaultCreation}
-            secondaryText={'Cancel'}
-            secondaryCallback={navigation.goBack}
-          />
-        )}
+            <Buttons
+              primaryLoading={vaultCreating}
+              primaryText="Create Vault"
+              primaryCallback={triggerVaultCreation}
+              secondaryText={'Cancel'}
+              secondaryCallback={navigation.goBack}
+            />
+          )}
       </Box>
     </ScreenWrapper>
   );

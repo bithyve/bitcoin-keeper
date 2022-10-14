@@ -35,6 +35,7 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
+import Fonts from 'src/common/Fonts';
 
 const SendScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -119,7 +120,7 @@ const SendScreen = ({ route }) => {
       >
         <Header
           title={common.send}
-          subtitle={common.smalldesc}
+          subtitle={'Scan a bitcoin address'}
           headerTitleColor={'light.textBlack'}
         />
         <ScrollView>
@@ -142,6 +143,7 @@ const SendScreen = ({ route }) => {
           >
             <TextInput
               placeholder="or enter address manually"
+              placeholderTextColor={'#4F5955'}
               style={styles.textInput}
               value={paymentInfo}
               onChangeText={handleTextChange}
@@ -152,13 +154,12 @@ const SendScreen = ({ route }) => {
           <Box marginTop={hp(40)}>
             <Text
               marginX={5}
-              color={'light.GreyText'}
               fontWeight={200}
               fontFamily={'body'}
               fontSize={14}
-              letterSpacing={0.6}
+              letterSpacing={1.12}
             >
-              Send to Wallet
+              or send to a wallet
             </Text>
             <View>
               <View
@@ -179,7 +180,7 @@ const SendScreen = ({ route }) => {
 
           {/* {Bottom note} */}
           <Box marginTop={hp(40)} marginX={2}>
-            <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
+            <InfoBox title={common.note} desciption={'Make sure the address or QR is the one where you want to send the funds to'} width={300} />
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -218,6 +219,9 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 15,
+    fontFamily: Fonts.RobotoCondensedRegular,
+    opacity: 0.5
+
   },
   cameraView: {
     height: hp(250),
