@@ -561,7 +561,7 @@ const VaultDetails = ({ route }) => {
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title={'Transactions from Keeper Vault'}
+        title={'Keeper Vault'}
         subTitle={
           'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'
         }

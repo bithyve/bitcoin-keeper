@@ -1,4 +1,4 @@
-import { ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -20,7 +20,9 @@ import { SignerType } from 'src/core/wallets/enums';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
+import { setSdIntroModal } from 'src/store/reducers/vaults';
 
 type HWProps = {
   type: SignerType;
@@ -106,9 +108,10 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-
+  const dispatch = useAppDispatch();
   const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
   const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
@@ -121,6 +124,19 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     const isSupported = await NFC.isNFCSupported();
     setNfcSupport(isSupported);
     setSignersLoaded(true);
+  };
+
+  const VaultSetupContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>
+          <SigningDevicesIllustration />
+        </Box>
+        <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
+          {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
+        </Text>
+      </View>
+    );
   };
 
   const getBluetoothSupport = () => {
@@ -255,6 +271,8 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
         headerTitleColor={'light.headerTextTwo'}
+        learnMore={true}
+        learnMorePressed={() => { dispatch(setSdIntroModal(true)) }}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
         <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
@@ -311,6 +329,23 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           buttonTextColor={'#FAFAFA'}
           textColor={'#041513'}
           Content={nfcAlertConternt}
+        />
+        <KeeperModal
+          visible={sdModal}
+          close={() => { dispatch(setSdIntroModal(false)) }}
+          title={'Signing Devices'}
+          subTitle={
+            'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your vault'
+          }
+          modalBackground={['#00836A', '#073E39']}
+          buttonBackground={['#FFFFFF', '#80A8A1']}
+          buttonText={'Add Now'}
+          buttonTextColor={'#073E39'}
+          buttonCallback={() => { dispatch(setSdIntroModal(false)) }}
+          textColor={'#FFF'}
+          Content={VaultSetupContent}
+          DarkCloseIcon={true}
+          learnMore={true}
         />
       </Box>
     </ScreenWrapper>

@@ -288,7 +288,7 @@ const AppSettings = ({ navigation }) => {
           backgroundColor={'light.ReceiveBackground'}
         >
           <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <Pressable onPress={() => openLink('https://t.me/+n0QXLUgwsh9iZWU8')}>
+            <Pressable onPress={() => openLink(' https://t.me/bitcoinkeeper')}>
               <Box
                 flexDirection={'row'}
                 justifyContent={'space-evenly'}
