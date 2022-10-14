@@ -69,34 +69,36 @@ const HeaderTitle = ({
             </TouchableOpacity>}
         </Box>
       )}
-      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
-        <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
-          {title && (
-            <Text
-              numberOfLines={1}
-              style={styles.addWalletText}
-              color={headerTitleColor}
-              fontFamily={'body'}
-              fontWeight={'200'}
-            >
-              {title}
-            </Text>
-          )}
-          {subtitle && (
-            <Text
-              style={styles.addWalletDescription}
-              color={'light.lightBlack'}
-              fontFamily={'body'}
-              fontWeight={'100'}
-            >
-              {subtitle}
-            </Text>
-          )}
+      {title || subtitle &&
+        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
+          <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
+            {title && (
+              <Text
+                numberOfLines={1}
+                style={styles.addWalletText}
+                color={headerTitleColor}
+                fontFamily={'body'}
+                fontWeight={'200'}
+              >
+                {title}
+              </Text>
+            )}
+            {subtitle && (
+              <Text
+                style={styles.addWalletDescription}
+                color={'light.lightBlack'}
+                fontFamily={'body'}
+                fontWeight={'100'}
+              >
+                {subtitle}
+              </Text>
+            )}
+          </Box>
+          {showToggler && <Box paddingTop={paddingTop}>
+            <CurrencyTypeSwitch />
+          </Box>}
         </Box>
-        {showToggler && <Box paddingTop={paddingTop}>
-          <CurrencyTypeSwitch />
-        </Box>}
-      </Box>
+      }
     </Box>
   );
 };
