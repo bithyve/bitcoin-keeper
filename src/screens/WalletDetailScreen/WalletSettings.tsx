@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import { Box, Text, Pressable, ScrollView } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import Header from 'src/components/Header';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import KeeperModal from 'src/components/KeeperModal';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
@@ -42,7 +43,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
       flexDirection={'row'}
       alignItems={'center'}
       width={'100%'}
-      style={{ marginVertical: hp(20) }}
+      style={{ marginVertical: hp(15) }}
       onPress={onPress}
     >
       {Icon && (
@@ -80,6 +81,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
+
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
@@ -199,49 +201,51 @@ const WalletSettings = ({ route }) => {
         style={{
           marginLeft: wp(25),
         }}
-        height={60}
+        height={hp(350)}
       >
-        <Option
-          title={'Wallet Details'}
-          subTitle={'Change wallet name & description'}
-          onPress={() => {
-            console.log('Wallet Details');
-          }}
-          Icon={false}
-        />
-        <Option
-          title={'Show xPub'}
-          subTitle={'Use to create a external watch-only wallet'}
-          onPress={() => {
-            setXPubVisible(true);
-          }}
-          Icon={false}
-        />
-        <Option
-          title={'Wallet seed words'}
-          subTitle={'Use to link external wallets to Keeper'}
-          onPress={() => {
-            setConfirmPassVisible(true);
-          }}
-          Icon={false}
-        />
-        <Option
-          title={'Transfer Policy'}
-          subTitle={`Secure to vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
-          onPress={() => {
-            setTransferPolicyVisible(true);
-          }}
-          Icon={false}
-        />
+        <ScrollView>
+          <Option
+            title={'Wallet Details'}
+            subTitle={'Change wallet name & description'}
+            onPress={() => {
+              console.log('Wallet Details');
+            }}
+            Icon={false}
+          />
+          <Option
+            title={'Show xPub'}
+            subTitle={'Use to create a external watch-only wallet'}
+            onPress={() => {
+              setXPubVisible(true);
+            }}
+            Icon={false}
+          />
+          <Option
+            title={'Wallet seed words'}
+            subTitle={'Use to link external wallets to Keeper'}
+            onPress={() => {
+              setConfirmPassVisible(true);
+            }}
+            Icon={false}
+          />
+          <Option
+            title={'Transfer Policy'}
+            subTitle={`Secure to vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
+            onPress={() => {
+              setTransferPolicyVisible(true);
+            }}
+            Icon={false}
+          />
 
-        <Option
-          title={'Receive Test Sats'}
-          subTitle={'Recieve Test Sats to this address'}
-          onPress={() => {
-            getTestSats();
-          }}
-          Icon={false}
-        />
+          <Option
+            title={'Receive Test Sats'}
+            subTitle={'Recieve Test Sats to this address'}
+            onPress={() => {
+              getTestSats();
+            }}
+            Icon={false}
+          />
+        </ScrollView>
       </Box>
 
       {/* {Bottom note} */}
@@ -256,13 +260,13 @@ const WalletSettings = ({ route }) => {
       </Box>
       {/* Modals */}
       <Box>
-        <ModalWrapper visible={xpubVisible} onSwipeComplete={() => setXPubVisible(false)}>
+        {/* <ModalWrapper visible={xpubVisible} onSwipeComplete={() => setXPubVisible(false)}>
           <ShowXPub
             closeBottomSheet={() => {
               setXPubVisible(false);
             }}
           />
-        </ModalWrapper>
+        </ModalWrapper> */}
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -284,6 +288,18 @@ const WalletSettings = ({ route }) => {
             wallet={wallet}
           />
         </ModalWrapper>
+        <KeeperModal
+          visible={xpubVisible}
+          close={() => setXPubVisible(false)}
+          title={'Account xPub'}
+          subTitle={
+            'Scan or copy paste the xPub in another app for generating new addresses and fetching balances'
+          }
+          subTitleColor={'#5F6965'}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor={'#041513'}
+          Content={ShowXPub}
+        />
       </Box>
       {/* end */}
     </Box>
