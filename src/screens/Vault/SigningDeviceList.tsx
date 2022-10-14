@@ -112,7 +112,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
-  console.log('sdModal', sdModal);
 
   const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
