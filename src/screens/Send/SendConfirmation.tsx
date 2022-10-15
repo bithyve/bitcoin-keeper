@@ -467,7 +467,10 @@ const SendConfirmation = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header title="Sending to address" subtitle="Lorem ipsum dolor sit amet," />
+      <Header
+        title="Sending to address"
+        subtitle="Choose priority and fee"
+      />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend={true} />
         <SendingCard isSend={false} />

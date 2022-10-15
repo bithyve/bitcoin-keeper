@@ -282,7 +282,7 @@ const WalletDetails = () => {
           p={1}
         >
           {
-            'You can use the individual wallet’s recovery phrases to connect other bitcoin apps to Keeper'
+            'You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper'
           }
         </Text>
         <Text

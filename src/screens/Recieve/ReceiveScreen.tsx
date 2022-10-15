@@ -50,7 +50,7 @@ const ReceiveScreen = ({ route }: { route }) => {
     <ScreenWrapper>
       <Header
         title={common.receive}
-        subtitle={common.smalldesc}
+        subtitle={'Native segwit address'}
         onPressHandler={() => navigtaion.goBack()}
         headerTitleColor={'light.textBlack'}
       />
@@ -71,7 +71,7 @@ const ReceiveScreen = ({ route }: { route }) => {
             width={'100%'}
             noOfLines={1}
           >
-            {paymentURI || receivingAddress}
+            {'Recieve Address'}
           </Text>
         </Box>
       </Box>
@@ -147,7 +147,7 @@ const ReceiveScreen = ({ route }: { route }) => {
                 fontSize={12}
                 letterSpacing={0.6}
               >
-                Lorem ipsum dolor sit amet, con
+                Add a specific invoice amount
               </Text>
             </Box>
           </Box>
