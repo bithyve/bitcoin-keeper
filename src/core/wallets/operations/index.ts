@@ -18,6 +18,7 @@ import {
   UTXO,
 } from '../interfaces/';
 import {
+  BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
   NetworkType,
@@ -661,7 +662,8 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     input: InputUTXOs,
     network: bitcoinJS.networks.Network,
-    derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84
+    derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84,
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ) => {
     if (wallet.entityKind === EntityKind.WALLET) {
       const { publicKey, subPath } = WalletUtilities.addressToKey(
@@ -736,17 +738,30 @@ export default class WalletOperations {
         }
       }
 
-      PSBT.addInput({
-        hash: input.txId,
-        index: input.vout,
-        bip32Derivation,
-        witnessUtxo: {
-          script: p2sh.output,
-          value: input.value,
-        },
-        redeemScript: p2wsh.output,
-        witnessScript: p2ms.output,
-      });
+      if (scriptType === BIP48ScriptTypes.NATIVE_SEGWIT) {
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          bip32Derivation,
+          witnessUtxo: {
+            script: p2wsh.output,
+            value: input.value,
+          },
+          witnessScript: p2ms.output,
+        });
+      } else if (scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT) {
+        PSBT.addInput({
+          hash: input.txId,
+          index: input.vout,
+          bip32Derivation,
+          witnessUtxo: {
+            script: p2sh.output,
+            value: input.value,
+          },
+          redeemScript: p2wsh.output,
+          witnessScript: p2ms.output,
+        });
+      }
     }
   };
 
@@ -789,7 +804,8 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
-    customTxPrerequisites?: TransactionPrerequisiteElements
+    customTxPrerequisites?: TransactionPrerequisiteElements,
+    scriptType?: BIP48ScriptTypes
   ): Promise<{
     PSBT: bitcoinJS.Psbt;
   }> => {
@@ -808,7 +824,7 @@ export default class WalletOperations {
         network,
       });
 
-      for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network);
+      for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network, scriptType);
 
       const {
         outputs: outputsWithChange,
