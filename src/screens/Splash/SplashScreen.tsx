@@ -13,15 +13,16 @@ const SplashScreen = ({ navigation }) => {
 
   useEffect(() => {
     RestClient.setUseTor(torEnbled);
-    setTimeout(async () => {
-      const hasCreds = await SecureStore.hasPin();
-      if (hasCreds) {
-        navigation.replace('Login', { relogin: false });
-      } else {
-        navigation.replace('CreatePin');
-      }
-    }, 2000);
   }, []);
+
+  const navigateToApp =async () => {
+    const hasCreds = await SecureStore.hasPin();
+    if (hasCreds) {
+      navigation.replace('Login', { relogin: false });
+    } else {
+      navigation.replace('CreatePin');
+    }
+  }
 
   return (
     <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={SplashBackground}>
@@ -34,8 +35,8 @@ const SplashScreen = ({ navigation }) => {
         muted={true}
         repeat={false}
         resizeMode={'cover'}
-        rate={4.0}
         ignoreSilentSwitch={'obey'}
+        onEnd={navigateToApp}
       />
     </ImageBackground>
   );
