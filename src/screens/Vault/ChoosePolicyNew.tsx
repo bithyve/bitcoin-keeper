@@ -1,23 +1,23 @@
 import { Box, Input, Text } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-
-import HeaderTitle from 'src/components/HeaderTitle';
-import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet } from 'react-native';
-import Fonts from 'src/common/Fonts';
-import Buttons from 'src/components/Buttons';
-import AppNumPad from 'src/components/AppNumPad';
 import {
   SignerException,
   SignerPolicy,
   SignerRestriction,
   VerificationType,
 } from 'src/core/services/interfaces';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { registerWithSigningServer, updateSignerPolicy } from 'src/store/sagaActions/wallets';
+
+import AppNumPad from 'src/components/AppNumPad';
+import Buttons from 'src/components/Buttons';
+import { CommonActions } from '@react-navigation/native';
+import Fonts from 'src/common/Fonts';
+import HeaderTitle from 'src/components/HeaderTitle';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { StyleSheet } from 'react-native';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
-import { registerWithSigningServer, updateSignerPolicy } from 'src/store/sagaActions/wallets';
-import { CommonActions } from '@react-navigation/native';
 
 const ChoosePolicyNew = ({ navigation, route }) => {
   const [selectedPolicy, setSelectedPolicy] = useState('max');
@@ -92,7 +92,12 @@ const ChoosePolicyNew = ({ navigation, route }) => {
 
         <Box>
           <Box marginLeft={wp(20)} width={wp(100)}>
-            <Input onPressIn={onPress} style={styles.textInput} value={value} />
+            <Input
+              onPressIn={onPress}
+              style={styles.textInput}
+              value={value}
+              showSoftInputOnFocus={false}
+            />
           </Box>
         </Box>
       </Box>

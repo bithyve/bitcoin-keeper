@@ -1,11 +1,11 @@
-import React from 'react';
 import { Box, Text } from 'native-base';
-import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import React from 'react';
 
-
-const Content = () => {
+const Content = ({ isUpgrade }) => {
   return (
     <Box width={wp(270)}>
       <Box alignItems={'center'}>
@@ -20,23 +20,26 @@ const Content = () => {
           p={1}
           letterSpacing={0.65}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+          {isUpgrade
+            ? `To use the vault, add signing devices`
+            : 'To use the vault, remove signing devices'}
         </Text>
       </Box>
     </Box>
   );
 };
 
-
-
-const TierUpgradeModal = ({ visible, close, onPress, isUpgrade }) => {
-
+const TierUpgradeModal = ({ visible, close, onPress, isUpgrade, plan }) => {
   return (
     <KeeperModal
       visible={visible}
       close={close}
       title={isUpgrade ? 'Upgrade Successful' : 'Downgrade Successful'}
-      subTitle={'Ipsum amet incididunt irure Lorem fugiat tempor. Ipsum amet incididunt irure Lorem fugiat tempor. '}
+      subTitle={
+        isUpgrade
+          ? `You have successfully upgraded to ${plan}`
+          : `You have successfully downgraded to ${plan}`
+      }
       subTitleColor={'#5F6965'}
       modalBackground={['#F7F2EC', '#F7F2EC']}
       buttonBackground={['#00836A', '#073E39']}
@@ -44,7 +47,7 @@ const TierUpgradeModal = ({ visible, close, onPress, isUpgrade }) => {
       buttonTextColor={'#FAFAFA'}
       buttonCallback={onPress}
       textColor={'#041513'}
-      Content={Content}
+      Content={() => <Content isUpgrade={isUpgrade} />}
     />
   );
 };
