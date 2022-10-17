@@ -32,7 +32,7 @@ export const useUaiStack = () => {
       if (!uai_SECURE_VAULT) {
         dispatch(
           addToUaiStack(
-            'Add a Signing Device to activate your Vault',
+            'Add a signing device to activate your vault',
             false,
             uaiType.SECURE_VAULT,
             80,
@@ -51,14 +51,15 @@ export const useUaiStack = () => {
 
   useEffect(() => {
     wallets.map((wallet) => {
-      if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) {
+      if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
         const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
         if (uai) {
-          dispatch(uaiActionedEntity(uai.entityId, false));
+          if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) return;
+          else dispatch(uaiActionedEntity(uai.entityId, false));
         } else {
           dispatch(
             addToUaiStack(
-              `Transfer Fund to Vault for ${wallet.presentationData.name}`,
+              `Transfer fund to vault for ${wallet.presentationData.name}`,
               false,
               uaiType.VAULT_TRANSFER,
               100,
