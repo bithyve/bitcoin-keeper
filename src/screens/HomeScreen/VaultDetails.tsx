@@ -3,12 +3,13 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   Dimensions,
   FlatList,
+  Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
@@ -33,6 +34,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
@@ -437,7 +439,7 @@ const SignerList = ({
   );
 };
 
-const VaultDetails = ({ route }) => {
+const VaultDetails = ({ route, navigation }) => {
   const { vaultTransferSuccessful = false } = route.params || {};
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
@@ -451,6 +453,13 @@ const VaultDetails = ({ route }) => {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const [tireChangeModal, setTireChangeModal] = useState(false);
+
+  const onPressModalBtn = () => {
+    setTireChangeModal(false);
+    navigation.navigate('AddSigningDevice');
+  };
+
   const transactions = vault?.specs?.transactions || [];
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
@@ -473,6 +482,12 @@ const VaultDetails = ({ route }) => {
   const closeVaultCreatedDialog = () => {
     setVaultCreated(false);
   };
+
+  useEffect(() => {
+    if (hasPlanChanged() !== VaultMigrationType.CHANGE) {
+      setTireChangeModal(true);
+    }
+  }, []);
 
   const styles = getStyles(top);
 
@@ -536,6 +551,12 @@ const VaultDetails = ({ route }) => {
         />
         <Footer vault={vault} />
       </VStack>
+      <TierUpgradeModal
+        visible={tireChangeModal}
+        close={() => setTireChangeModal(false)}
+        onPress={onPressModalBtn}
+        isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
+      />
       <KeeperModal
         visible={vaultCreated}
         title={'New Vault Created'}
@@ -610,7 +631,7 @@ const getStyles = (top) =>
     },
     scrollContainer: {
       padding: '8%',
-      width: '100%',
+      width: Platform.select({ android: null, ios: '100%' }),
     },
     knowMore: {
       backgroundColor: '#725436',
