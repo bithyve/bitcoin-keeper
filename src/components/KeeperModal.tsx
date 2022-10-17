@@ -27,6 +27,7 @@ const KeeperModal = (props: {
   showButtons?: boolean;
   learnMore?: boolean;
   learnMoreCallback?: any;
+  closeOnOverlayClick?: boolean;
 }) => {
   const {
     visible,
@@ -46,12 +47,14 @@ const KeeperModal = (props: {
     showButtons = true,
     learnMore = false,
     learnMoreCallback = () => {},
+    closeOnOverlayClick = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   return (
     <Modal
+      closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
       avoidKeyboard

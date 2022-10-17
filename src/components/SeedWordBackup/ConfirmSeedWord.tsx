@@ -1,9 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { Box, Input, Text } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
+
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { TouchableOpacity } from 'react-native';
 
 const ConfirmSeedWord = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -79,7 +80,7 @@ const ConfirmSeedWord = (props) => {
           {BackupWallet.confirmSeedWord}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
-          Lorem ipsum dolor sit amet
+          Exactly as they were displayed
         </Text>
       </Box>
       <Box>

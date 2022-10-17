@@ -95,7 +95,7 @@ const ColdCardContent = ({ register }) => {
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
           {register
             ? ``
-            : `\u2022 On the Mk4 main menu, choose the 'Sign a transaction' option and choose the nfc option.`}
+            : `\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option.`}
         </Text>
       </Box>
     </Box>

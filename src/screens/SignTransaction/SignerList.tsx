@@ -57,7 +57,7 @@ const SignerList = ({
                 fontFamily={'body'}
                 letterSpacing={0.6}
               >
-                {`Added on ${moment(signer.addedOn).calendar()}`}
+                {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
               </Text>
             </View>
           </Box>
