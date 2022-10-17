@@ -249,7 +249,10 @@ const ChoosePlan = (props) => {
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
+      <HeaderTitle
+        title={choosePlan.choosePlantitle}
+        subtitle={choosePlan.choosePlanSubTitle}
+      />
 
       <TierUpgradeModal
         visible={showUpgradeModal}
