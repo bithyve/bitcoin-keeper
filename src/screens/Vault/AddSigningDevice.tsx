@@ -248,7 +248,7 @@ const AddSigningDevice = () => {
                 {signer.signerName}
               </Text>
               <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
-                {`Added ${moment(signer.lastHealthCheck).calendar()}`}
+                {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
               </Text>
             </VStack>
           </HStack>
@@ -273,7 +273,13 @@ const AddSigningDevice = () => {
   return (
     <ScreenWrapper>
       <Header
-        title={'Add Signing Devices'}
+        title={`${
+          planStatus === VaultMigrationType.DOWNGRADE
+            ? 'Remove'
+            : planStatus === VaultMigrationType.UPGRADE
+            ? 'Add'
+            : 'Change'
+        } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
       />
@@ -293,21 +299,21 @@ const AddSigningDevice = () => {
               title={common.note}
               subtitle={`* ${AstrixSigners.join(
                 ' and '
-              )} does not support testnet directly, so the app creates a proxy testnet key for use in the beta app`}
+              )} does not support Testnet directly, so the app creates a proxy Testnet key for use in the beta app`}
             />
           </Box>
         ) : null}
         {signersState.every((signer) => {
           return !!signer;
         }) && (
-            <Buttons
-              primaryLoading={vaultCreating}
-              primaryText="Create Vault"
-              primaryCallback={triggerVaultCreation}
-              secondaryText={'Cancel'}
-              secondaryCallback={navigation.goBack}
-            />
-          )}
+          <Buttons
+            primaryLoading={vaultCreating}
+            primaryText="Create Vault"
+            primaryCallback={triggerVaultCreation}
+            secondaryText={'Cancel'}
+            secondaryCallback={navigation.goBack}
+          />
+        )}
       </Box>
     </ScreenWrapper>
   );

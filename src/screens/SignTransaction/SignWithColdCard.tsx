@@ -118,15 +118,15 @@ const SignWithColdCard = ({ route }) => {
     <ScreenWrapper>
       <VStack justifyContent={'space-between'} flex={1}>
         <VStack>
-          {resigter ? (
+          {true ? (
             <>
               <HeaderTitle
                 title="Register Device"
-                subtitle="The Vault needs to be registered only once"
+                subtitle="The vault needs to be registered only once"
               />
               <Card
                 message={
-                  'You will register the new Vault with Coldcard so that it allows you to sign every time'
+                  'You will register the new vault with Coldcard so that it allows you to sign every time'
                 }
                 buttonText={'Scan'}
                 buttonCallBack={register}
@@ -135,12 +135,12 @@ const SignWithColdCard = ({ route }) => {
           ) : null}
           <HeaderTitle title="Sign Transaction" subtitle="Two step process" enableBack={false} />
           <Card
-            message={'Send PSBT from the app to ColdCard'}
+            message={'Send PSBT from the app to Coldcard'}
             buttonText={'Send'}
             buttonCallBack={signTransaction}
           />
           <Card
-            message={'Receive signed PSBT from ColdCard'}
+            message={'Receive signed PSBT from Coldcard'}
             buttonText={'Receive'}
             buttonCallBack={receiveAndBroadCast}
           />
@@ -154,7 +154,7 @@ const SignWithColdCard = ({ route }) => {
             </Box>
             <HStack alignItems={'center'}>
               <Text fontSize={13} fontFamily={'body'}>
-                {'ColdCard is showing an error?'}
+                {'Coldcard is showing an error?'}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -172,8 +172,8 @@ const SignWithColdCard = ({ route }) => {
       <KeeperModal
         visible={mk4Helper}
         close={() => showMk4Helper(false)}
-        title="Need help with ColdCard?"
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        title="Need help with Coldcard?"
+        subTitle="Try to map the error on your Coldcard to one of the options here"
         Content={() => {
           return (
             <Box>
@@ -187,7 +187,7 @@ const SignWithColdCard = ({ route }) => {
               >
                 <VStack width={'97%'}>
                   <Text fontSize={14} fontFamily={'body'}>
-                    {'Manually Register Cold Card'}
+                    {'Manually Register Mk4'}
                   </Text>
                   <Text fontSize={12} fontFamily={'body'}>
                     {'Please resigister the Vault if not already registered'}

@@ -2,6 +2,7 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import Alert from 'src/assets/images/alert_illustration.svg';
 import { BleManager } from 'react-native-ble-plx';
@@ -17,11 +18,10 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
+import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector, useAppDispatch } from 'src/store/hooks';
-import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 
 type HWProps = {
@@ -133,7 +133,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           <SigningDevicesIllustration />
         </Box>
         <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-          {`For the Pleb tier, you need to select one signing device to activate your Vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+          {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
     );
@@ -272,7 +272,9 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         subtitle={vault.ForVault}
         headerTitleColor={'light.headerTextTwo'}
         learnMore={true}
-        learnMorePressed={() => { dispatch(setSdIntroModal(true)) }}
+        learnMorePressed={() => {
+          dispatch(setSdIntroModal(true));
+        }}
       />
       <Box alignItems={'center'} justifyContent={'center'}>
         <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
@@ -332,7 +334,9 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         />
         <KeeperModal
           visible={sdModal}
-          close={() => { dispatch(setSdIntroModal(false)) }}
+          close={() => {
+            dispatch(setSdIntroModal(false));
+          }}
           title={'Signing Devices'}
           subTitle={
             'A signing device is a piece of hardware or software that stores one of the private keys needed for your vault'
@@ -341,7 +345,9 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText={'Add Now'}
           buttonTextColor={'#073E39'}
-          buttonCallback={() => { dispatch(setSdIntroModal(false)) }}
+          buttonCallback={() => {
+            dispatch(setSdIntroModal(false));
+          }}
           textColor={'#FFF'}
           Content={VaultSetupContent}
           DarkCloseIcon={true}

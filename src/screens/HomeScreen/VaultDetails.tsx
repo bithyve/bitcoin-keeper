@@ -365,7 +365,7 @@ const SignerList = ({
                 letterSpacing={0.6}
                 textAlign={'center'}
               >
-                {'Add Signers to Upgrade'}
+                {'Add signing device to upgrade'}
               </Text>
             </VStack>
           </TouchableOpacity>
@@ -425,7 +425,7 @@ const SignerList = ({
                   letterSpacing={0.6}
                   textAlign={'center'}
                 >
-                  {`Added ${moment(signer.addedOn).fromNow()}`}
+                  {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
                 </Text>
               </VStack>
             </TouchableOpacity>

@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Alert,
+  Image,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
@@ -10,6 +11,7 @@ import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppClient from 'src/hardware/ledger';
 import KeeperModal from 'src/components/KeeperModal';
@@ -24,7 +26,6 @@ import config from 'src/core/config';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
-import { wp } from 'src/common/data/responsiveness/responsive';
 
 const AddLedger = ({}) => {
   const {
@@ -50,8 +51,10 @@ const AddLedger = ({}) => {
   const { translations } = useContext(LocalizationContext);
   const ledger = translations['ledger'];
   const open = () => setVisible(true);
-  const close = () => setVisible(false);
   const navigation = useNavigation();
+  const close = () => {
+    navigation.goBack();
+  };
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -67,7 +70,7 @@ const AddLedger = ({}) => {
   useEffect(() => {
     scanForDevices();
     return () => {
-      close();
+      setVisible(false);
       disconnectFromDevice();
     };
   }, []);
@@ -90,7 +93,17 @@ const AddLedger = ({}) => {
     return (
       <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
         <View>
-          {isScanning ? <ActivityIndicator /> : null}
+          {isScanning && !allDevices.length ? (
+            <Image
+              source={require('src/assets/video/Loader.gif')}
+              style={{
+                width: wp(250),
+                height: wp(100),
+                alignSelf: 'center',
+                marginTop: hp(30),
+              }}
+            />
+          ) : null}
           {connecting ? (
             <ActivityIndicator />
           ) : (
@@ -102,7 +115,7 @@ const AddLedger = ({}) => {
           )}
           <Box marginTop={'4'}>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-              {`Please stay on the BTC app before connecting to the deivce`}
+              {`Please open on the BTC app before connecting to the deivce`}
             </Text>
           </Box>
         </View>
@@ -187,6 +200,7 @@ const AddLedger = ({}) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <KeeperModal
+        closeOnOverlayClick={false}
         visible={visible}
         close={close}
         title={ledger.ScanningBT}

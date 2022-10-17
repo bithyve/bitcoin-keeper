@@ -1,13 +1,13 @@
 import { Box, Text } from 'native-base';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
+import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 type Props = {
   title?: string;
@@ -31,21 +31,17 @@ const HeaderTitle = ({
   paddingTop = 0,
   showToggler = false,
   learnMore = false,
-  learnMorePressed = () => { }
+  learnMorePressed = () => {},
 }: Props) => {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <Box
-          style={styles.back}
-        >
-          <TouchableOpacity
-            onPress={onPressHandler ? onPressHandler : navigation.goBack}
-          >
+        <Box style={styles.back}>
+          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}>
             <BackButton />
           </TouchableOpacity>
-          {learnMore &&
+          {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
                 height={hp(20)}
@@ -66,10 +62,11 @@ const HeaderTitle = ({
                   Learn More
                 </Text>
               </Box>
-            </TouchableOpacity>}
+            </TouchableOpacity>
+          )}
         </Box>
       )}
-      {title || subtitle &&
+      {(title || subtitle) && (
         <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
           <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
             {title && (
@@ -94,11 +91,13 @@ const HeaderTitle = ({
               </Text>
             )}
           </Box>
-          {showToggler && <Box paddingTop={paddingTop}>
-            <CurrencyTypeSwitch />
-          </Box>}
+          {showToggler && (
+            <Box paddingTop={paddingTop}>
+              <CurrencyTypeSwitch />
+            </Box>
+          )}
         </Box>
-      }
+      )}
     </Box>
   );
 };

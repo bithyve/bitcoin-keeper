@@ -1,15 +1,15 @@
-import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import HeaderTitle from 'src/components/HeaderTitle';
+import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { useNavigation } from '@react-navigation/native';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const SetupSeedWordSigner = ({ route, navigation }) => {
   const navigtaion = useNavigation();
@@ -72,7 +72,7 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title={seedText.ExportSeed}
+        title={'Soft Key'}
         subtitle={seedText.SeedDesc}
         color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}

@@ -224,13 +224,13 @@
     "Transferbitcoincustody": "Transfer bitcoin custody",
     "ActivateTransfer": "Activate Transfer",
     "Thebestinheritance": "The best inheritance in history",
-    "UpgradetoElitetier": "Upgrade to Elite tier and setup the Vault with 5 Signers",
+    "UpgradetoElitetier": "Upgrade to Elite tier and setup the vault with 5 Signers",
     "ActivateInheritance": "Activate Inheritance",
     "Downloadandsafelykeepinheritencedocuments": "Download and safely keep inheritence documents. Safekeeping best practices. Will template for digital assets. Inheritance recovery instructions",
     "Setupfalserecoveryalert": "Setup false recovery alert (optional)",
     "tryingtorecoveryourwallet": "If someone is trying to recover your wallet, make sure you get notified to approve or deny the recovery",
     "IndependentRecovery": "Independent Recovery",
-    "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your Vault even without the Keeper app or any service from the company",
+    "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your vault even without the Keeper app or any service from the company",
     "Practicehealthcheck": "Practice health check",
     "Makessureyousignersareaccessible": "Make sure you signers are accessible. Change them if that is not the case"
   },
@@ -250,7 +250,7 @@
     "BlueWallet": "Blue Wallet",
     "MunnWallet": "Munn Wallet",
     "Blockchain": "Blockchain.com",
-    "AddVault": "Add a Vault",
+    "AddVault": "Add a vault",
     "AddWallet": "Add a Wallet",
     "Setupawalletforyoubitcoin": "Set up a wallet for you bitcoin",
     "Creatingyourwallet": "Creating your wallet",
@@ -281,8 +281,8 @@
     "ViewDetails": "View Details"
   },
   "vault": {
-    "SetupyourVault": "Setup your Vault",
-    "VaultDesc": "A Signing Device is an an air gapped device which helps you keep your Vault safe",
+    "SetupyourVault": "Setup your vault",
+    "VaultDesc": "A signing device is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signer",
     "Vault": "Vault",
@@ -292,9 +292,9 @@
     "Inheritance": "Inheritance",
     "Setupinheritancetoyoursats": "Set up inheritance to your sats",
     "Setup": "Setup",
-    "VaultCreated": "Vault Created",
-    "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
-    "ViewVault": "View Vault",
+    "VaultCreated": "Vault created",
+    "VaultCreationDesc": "Your Basic vault has been successfully setup You can start receiving bitcoin in it",
+    "ViewVault": "View vault",
     "AddNow": "Add Now",
     "SelectSigner": "Select a Signing Devices",
     "ForVault": "For your vault",
@@ -316,7 +316,7 @@
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
   },
   "healthcheck": {
-    "ChangeSigningDevice": "Change Signing Device",
+    "ChangeSigningDevice": "Change signing device",
     "HealthCheck": "Health Check",
     "SkippingHealthCheck": "Skipping Health Check",
     "EnterCVV": "Enter the CVV",
@@ -429,7 +429,7 @@
     "slide05Title": "Works just with the mobile app,\nno computer needed",
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signers, without any intermediate step",
     "slide06Title": "Affordable plans\nand a great offer",
-    "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your Vault now."
+    "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your vault now."
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",

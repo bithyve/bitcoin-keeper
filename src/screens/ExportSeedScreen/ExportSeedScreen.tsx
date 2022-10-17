@@ -1,18 +1,18 @@
-import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
-import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { seedBackedUp } from 'src/store/sagaActions/bhr';
+import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+
+import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
+import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import HeaderTitle from 'src/components/HeaderTitle';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { seedBackedUp } from 'src/store/sagaActions/bhr';
+import { useNavigation } from '@react-navigation/native';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const ExportSeedScreen = ({ route, navigation }) => {
   const navigtaion = useNavigation();

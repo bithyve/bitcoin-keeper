@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   SafeAreaView,
-  TouchableOpacity,
   ScrollView,
-  Platform
+  TouchableOpacity,
 } from 'react-native';
 import { Box, StatusBar, Text } from 'native-base';
 import RNIap, {
@@ -13,7 +12,8 @@ import RNIap, {
   purchaseUpdatedListener,
   requestSubscription,
 } from 'react-native-iap';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import React, { useContext, useEffect, useState } from 'react';
+
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
 import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
@@ -27,12 +27,13 @@ import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { Subscription } from 'react-native-iap';
-import dbManager from 'src/storage/realm/dbManager';
-import TierUpgradeModal from './TierUpgradeModal';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import TierUpgradeModal from './TierUpgradeModal';
+import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 
 const plans = [
@@ -57,7 +58,7 @@ const plans = [
       'All features of Pleb tier',
       'Link wallets',
       'Add three signing devices',
-      '2 of 3 multi-sig vault',
+      '2 of 3 multisig vault',
       'Email support',
     ],
     subTitle: 'Multi-sig security',
@@ -71,7 +72,7 @@ const plans = [
     benifits: [
       'All features of the Hodler tier',
       'Add five signing devices',
-      '3 of 5 multi-sig vault',
+      '3 of 5 multisig vault',
       'Inheritance support',
       'Dedicated email support',
     ],
@@ -90,11 +91,11 @@ const ChoosePlan = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [isUpgrade, setIsUpgrade] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isUpgrade, setIsUpgrade] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   useEffect(() => {
     let purchaseUpdateSubscription;
@@ -110,7 +111,7 @@ const ChoosePlan = (props) => {
             productId: purchase.productId,
             receipt: receipt,
             name: sub[0].title.split(' ')[0],
-            level: 1 // todo get level
+            level: 1, // todo get level
           };
 
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
@@ -189,16 +190,16 @@ const ChoosePlan = (props) => {
         subscription: sub,
       });
       if (item.productId === SubscriptionTier.PLEB) {
-        setIsUpgrade(false)
+        setIsUpgrade(false);
       } else if (
         item.name.split(' ')[0] === SubscriptionTier.HODLER &&
         subscription.name === SubscriptionTier.DIAMOND_HANDS
       ) {
-        setIsUpgrade(false)
+        setIsUpgrade(false);
       } else {
-        setIsUpgrade(true)
+        setIsUpgrade(true);
       }
-      setShowUpgradeModal(true)
+      setShowUpgradeModal(true);
       return;
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
@@ -235,21 +236,28 @@ const ChoosePlan = (props) => {
   }
 
   const onPressModalBtn = () => {
-    setShowUpgradeModal(false)
-    navigation.navigate('AddSigningDevice')
-  }
+    setShowUpgradeModal(false);
+    navigation.navigate('AddSigningDevice');
+  };
 
   const getBenifitsTitle = (name) => {
     if (name === 'Diamond Hands') {
-      return `${name} means`
+      return `${name} means`;
     } else {
-      return `A ${name} gets`
+      return `A ${name} gets`;
     }
-  }
+  };
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
+      <HeaderTitle
+        title={choosePlan.choosePlantitle}
+        subtitle={
+          subscription.name === 'Diamond Hands'
+            ? `You are currently a ${subscription.name.slice(0, -1)}`
+            : `You are currently a ${subscription.name}`
+        }
+      />
 
       <TierUpgradeModal
         visible={showUpgradeModal}

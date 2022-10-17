@@ -275,6 +275,25 @@ const LoginScreen = ({ navigation, route }) => {
                 {errMessage}
               </Text>
             )}
+            <HStack justifyContent={'space-between'} paddingTop={'2'}>
+              <Text
+                color={'light.white1'}
+                fontWeight={'200'}
+                px={'8'}
+                fontSize={13}
+                letterSpacing={1}
+              >
+                {'Use bitcoin testnet'}
+              </Text>
+              <Switch
+                defaultIsChecked
+                disabled={true}
+                trackColor={{ true: '#FFFA' }}
+                thumbColor={'#358475'}
+                style={{ marginRight: '5%' }}
+                onChange={() => {}}
+              />
+            </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
               {passcode.length == 4 && (
                 <Box>
