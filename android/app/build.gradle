@@ -279,7 +279,7 @@ android {
         }
         development {
             minSdkVersion rootProject.ext.minSdkVersion
-            applicationId "io.hexawallet.keeper.development"
+            applicationId "io.hexawallet.bitcoinkeeper"
             targetSdkVersion rootProject.ext.targetSdkVersion
             resValue "string", "build_config_package", "io.hexawallet.keeper"
         }
