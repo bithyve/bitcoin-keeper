@@ -206,10 +206,16 @@ const AddSigningDevice = () => {
                     numberOfLines={2}
                     alignItems={'center'}
                     letterSpacing={1.12}
+                    fontWeight={200}
                   >
                     {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
-                  <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
+                  <Text
+                    fontWeight={200}
+                    color={'light.GreyText'}
+                    fontSize={13}
+                    letterSpacing={0.6}
+                  >
                     {`Select signing device`}
                   </Text>
                 </VStack>
@@ -243,17 +249,26 @@ const AddSigningDevice = () => {
                 fontSize={15}
                 numberOfLines={2}
                 alignItems={'center'}
+                fontWeight={200}
                 letterSpacing={1.12}
               >
                 {signer.signerName}
               </Text>
-              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+              <Text
+                color={'light.GreyText'}
+                fontSize={12}
+                fontWeight={200}
+                letterSpacing={0.6}>
                 {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
               </Text>
             </VStack>
           </HStack>
           <Pressable style={styles.remove} onPress={() => removeSigner(signer)}>
-            <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+            <Text
+              fontWeight={200}
+              color={'light.GreyText'}
+              fontSize={12}
+              letterSpacing={0.6}>
               {`Remove`}
             </Text>
           </Pressable>
@@ -273,13 +288,12 @@ const AddSigningDevice = () => {
   return (
     <ScreenWrapper>
       <Header
-        title={`${
-          planStatus === VaultMigrationType.DOWNGRADE
-            ? 'Remove'
-            : planStatus === VaultMigrationType.UPGRADE
+        title={`${planStatus === VaultMigrationType.DOWNGRADE
+          ? 'Remove'
+          : planStatus === VaultMigrationType.UPGRADE
             ? 'Add'
             : 'Change'
-        } Signing Devices`}
+          } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
       />
@@ -306,14 +320,14 @@ const AddSigningDevice = () => {
         {signersState.every((signer) => {
           return !!signer;
         }) && (
-          <Buttons
-            primaryLoading={vaultCreating}
-            primaryText="Create Vault"
-            primaryCallback={triggerVaultCreation}
-            secondaryText={'Cancel'}
-            secondaryCallback={navigation.goBack}
-          />
-        )}
+            <Buttons
+              primaryLoading={vaultCreating}
+              primaryText="Create Vault"
+              primaryCallback={triggerVaultCreation}
+              secondaryText={'Cancel'}
+              secondaryCallback={navigation.goBack}
+            />
+          )}
       </Box>
     </ScreenWrapper>
   );

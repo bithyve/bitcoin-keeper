@@ -556,6 +556,7 @@ const VaultDetails = ({ route, navigation }) => {
         close={() => setTireChangeModal(false)}
         onPress={onPressModalBtn}
         isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
+        plan={keeper.subscription.name}
       />
       <KeeperModal
         visible={vaultCreated}

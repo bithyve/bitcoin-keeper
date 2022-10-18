@@ -34,8 +34,9 @@ const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
       flexDirection={'row'}
       alignItems={'center'}
       width={'90%'}
-      style={{ marginTop: hp(10) }}
+      style={{ marginTop: hp(10), height: hp(110) }}
       marginLeft={'5%'}
+      paddingX={2}
     >
       <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>
       <Box
@@ -51,9 +52,9 @@ const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
           color={'light.lightBlack'}
           fontFamily={'body'}
           fontWeight={200}
-          fontSize={RFValue(13)}
-          letterSpacing={0.65}
-          width={'80%'}
+          fontSize={RFValue(14)}
+          letterSpacing={1.12}
+          width={'90%'}
         >
           {title}
         </Text>
@@ -173,18 +174,33 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           paddingTop: '5%',
         }}
       >
-        <Box marginTop={5}>
-          <Text
-            color={'light.blackHeaderText'}
-            fontSize={RFValue(20)}
-            fontFamily={'heading'}
-            px={'8'}
+        <Box>
+          <Box
+            style={{
+              marginBottom: hp(10),
+            }}
           >
-            New Keeper App
-          </Text>
-          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} px={'8'}>
-            Use this option if you want to create a new Keeper app
-          </Text>
+            <Text
+              color={'light.blackHeaderText'}
+              fontSize={RFValue(18)}
+              fontFamily={'heading'}
+              px={'8'}
+              fontWeight={200}
+              letterSpacing={0.9}
+            >
+              New Keeper App
+            </Text>
+            <Text
+              fontWeight={200}
+              color={'light.GreyText'}
+              fontSize={RFValue(12)}
+              fontFamily={'body'}
+              px={'8'}
+              letterSpacing={0.6}
+            >
+              Use this option if you want to create a new Keeper app
+            </Text>
+          </Box>
           <Tile
             title={'Start New'}
             subTitle={'New vault and wallets'}
@@ -211,13 +227,18 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               onChange={switchConfig}
             />
           </HStack> */}
-          <Box marginTop={10}>
+          <Box
+            style={{
+              marginTop: hp(70),
+            }}
+          >
             <Text
               color={'light.blackHeaderText'}
-              fontSize={RFValue(20)}
-              style={{ marginTop: 10 }}
+              fontSize={RFValue(18)}
               fontFamily={'heading'}
               px={'8'}
+              fontWeight={200}
+              letterSpacing={0.9}
             >
               Exsisting Keeper App
             </Text>
