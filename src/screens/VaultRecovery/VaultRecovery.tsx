@@ -146,7 +146,7 @@ const VaultRecovery = () => {
   return (
     <ScreenWrapper>
       <Header
-        title={'Add Signing Devices'}
+        title={'Add signing devices'}
         subtitle={'to recover your inherited Vault'}
         headerTitleColor={'light.textBlack'}
       />
@@ -173,7 +173,7 @@ const VaultRecovery = () => {
           </Box>
         )}
         {signingDevices && signingDevices.length === vaultMetaData.m && (
-          <Box position={'absolute'} bottom={10} width={'100%'}>
+          <Box position={'absolute'} bottom={10} width={'100%'} marginBottom={10}>
             <Buttons
               primaryText="Recover Vault"
               primaryDisable={disable}

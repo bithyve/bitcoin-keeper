@@ -371,7 +371,7 @@ const SignTransactionScreen = () => {
         <Buttons
           primaryDisable={!areSignaturesSufficient()}
           primaryLoading={broadcasting}
-          primaryText={'Boradcast'}
+          primaryText={'Broadcast'}
           primaryCallback={() => {
             if (areSignaturesSufficient()) {
               setBroadcasting(true);
