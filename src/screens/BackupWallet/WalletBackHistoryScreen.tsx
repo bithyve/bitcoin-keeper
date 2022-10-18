@@ -33,9 +33,9 @@ const WalletBackHistoryScreen = ({ navigation }) => {
         <Text color={'light.headerText'} fontSize={RFValue(16)} fontFamily={'heading'} pl={10}>
           {BackupWallet.myWalletBackupTitle}
         </Text>
-        <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+        {/* <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
           Lorem ipsum dolor sit amet
-        </Text>
+        </Text> */}
       </Box>
       <Box mx={wp(5)}>
         <BackupHealthCheckList />
