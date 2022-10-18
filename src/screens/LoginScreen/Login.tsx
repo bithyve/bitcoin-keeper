@@ -79,7 +79,7 @@ const LoginScreen = ({ navigation, route }) => {
         return;
       } else {
         setTimeout(() => {
-          // setLoginError(true);
+          setLoginError(true);
           setErrMessage(`Please try after sometime`);
           setCanLogin(false);
         }, 100);
