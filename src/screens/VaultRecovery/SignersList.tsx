@@ -121,8 +121,8 @@ const SignersList = () => {
         <KeeperModal
           visible={visible && type === SignerType.TAPSIGNER}
           close={close}
-          title={'Verify Tapsigner'}
-          subTitle={'Keep you tapsigner ready'}
+          title={'Verify TAPSIGNER'}
+          subTitle={'Keep you TAPSIGNER ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Verify'}
@@ -137,8 +137,8 @@ const SignersList = () => {
         <KeeperModal
           visible={visible && type === SignerType.COLDCARD}
           close={close}
-          title={'Verify ColdCard'}
-          subTitle={'Keep you ColdCard ready'}
+          title={'Verify Coldcard'}
+          subTitle={'Keep you Coldard ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Proceed'}
