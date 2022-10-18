@@ -17,10 +17,9 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { WalletSpecs } from 'src/core/wallets/interfaces/wallet';
+import Buttons from '../Buttons';
 
-const TransferPolicy = (props) => {
-  const { wallet } = props;
-  const navigation = useNavigation();
+const TransferPolicy = ({ wallet, close }) => {
   const { translations } = useContext(LocalizationContext);
   const common = translations['common'];
   const walletTrans = translations['wallet'];
@@ -46,99 +45,62 @@ const TransferPolicy = (props) => {
     specs.transferPolicy = Number(policyText);
     dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
     Alert.alert('Transfer Policy Changed');
-    props.closeBottomSheet();
   };
 
   return (
-    <Box bg={'#F7F2EC'} borderRadius={10}>
-      <TouchableOpacity onPress={() => props.closeBottomSheet()}>
-        <Box
-          m={5}
-          bg={'#E3BE96'}
-          borderRadius={32}
-          h={8}
-          w={8}
-          alignItems={'center'}
+    <Box
+      bg={'light.ReceiveBackground'}
+      width={wp(275)}
+      borderRadius={10}
+    >
+      <Box justifyContent={'center'} alignItems={'center'}>
+        <View
+          marginX={'5%'}
+          flexDirection={'row'}
+          width={'100%'}
           justifyContent={'center'}
-          alignSelf={'flex-end'}
+          alignItems={'center'}
+          borderRadius={5}
+          backgroundColor={'light.lightYellow'}
+          padding={3}
         >
-          <Text fontSize={18} color={'#FFF'}>
-            X
+          <View marginLeft={4}>
+            <BtcInput />
+          </View>
+          <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
+          <Text
+            fontWeight={300}
+            fontSize={15}
+            color={'light.greenText'}
+            marginLeft={3}
+            width={'100%'}
+            letterSpacing={3}
+          >
+            {policyText && `${policyText} sats`}
           </Text>
-        </Box>
-      </TouchableOpacity>
-      <Box flexDirection={'row'}>
-        <Box p={10}>
-          <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
-            {'Edit Transfer Policy'}
-          </Text>
-          <Text fontSize={RFValue(13)} color={'light.lightBlack2'} fontFamily={'body'}>
-            {'Threshold amount at which transfer is triggered'}
-          </Text>
-        </Box>
-      </Box>
-      <View
-        marginX={'5%'}
-        flexDirection={'row'}
-        width={'90%'}
-        justifyContent={'center'}
-        alignItems={'center'}
-        borderRadius={5}
-        backgroundColor={'light.lightYellow'}
-        padding={3}
-      >
-        <View marginLeft={4}>
-          <BtcInput />
         </View>
-        <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
-        <Text width={'100%'}>{policyText && `${policyText} sats`}</Text>
-      </View>
-
-      <Box px={10} py={5}>
-        <Text fontSize={RFValue(13)} color={'light.modalText'} fontFamily={'body'}>
+      </Box>
+      <Box py={5}>
+        <Text
+          fontSize={RFValue(13)}
+          color={'light.modalText'}
+          fontFamily={'body'}
+          fontWeight={200}
+          letterSpacing={0.65}
+        >
           {
             'This will only trigger a transfer request which you need to approve before the transfer is done'
           }
         </Text>
       </Box>
-      <Box
-        p={10}
-        alignItems={'center'}
-        alignSelf={'flex-end'}
-        bg={'transparent'}
-        flexDirection={'row'}
-      >
-        <TouchableOpacity onPress={() => props.closeBottomSheet()}>
-          <Text
-            fontSize={13}
-            fontFamily={'body'}
-            fontWeight={'300'}
-            letterSpacing={1}
-            color={'light.greenText'}
-            mr={wp(18)}
-          >
-            {common.cancel}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={presshandler}>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            colors={['#00836A', '#073E39']}
-            style={{ paddingVertical: 10, paddingHorizontal: 15, borderRadius: 10 }}
-          >
-            <Text
-              fontSize={13}
-              fontFamily={'body'}
-              fontWeight={'300'}
-              letterSpacing={1}
-              color={'light.white'}
-            >
-              {common.confirm}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </Box>
+
+      <Buttons
+        primaryCallback={presshandler}
+        primaryText={common.confirm}
+        secondaryCallback={close}
+        secondaryText={common.cancel}
+        paddingHorizontal={wp(30)}
+      />
       {/* keyboardview start */}
       <KeyPadView
         onPressNumber={onPressNumber}
