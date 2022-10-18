@@ -23,6 +23,8 @@ import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import useToastMessage from 'src/hooks/useToastMessage';
+import KeeperModal from 'src/components/KeeperModal';
+import SignupIcon from 'src/assets/images/signup.svg';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -99,11 +101,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (appCreated) {
       setInitiating(false);
-      navigation.navigate('App', { screen: 'NewHome' });
       updateFCM();
     }
   }, [appCreated]);
@@ -153,6 +155,18 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
     }
   }, [keeperInitiating]);
 
+  const SignUpModalContent = () => {
+    return (
+      <Box justifyContent={'center'}>
+        <SignupIcon />
+        <Text fontWeight={200} marginTop={5}>
+          These are generally offline and to keep them secure is your responsibility. Losing them
+          may lead to permanent loss of your bitcoin.
+        </Text>
+      </Box>
+    );
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <ScrollView
@@ -190,6 +204,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             subTitle={'New vault and wallets'}
             Icon={<App />}
             onPress={() => {
+              setModalVisible(true);
               setInitiating(true);
             }}
             loading={keeperInitiating}
@@ -347,6 +362,19 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       >
         <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
       </ModalWrapper>
+      <KeeperModal
+        dismissible={false}
+        close={() => {}}
+        visible={modalVisible}
+        title={'Keep your signing devices safe'}
+        subTitle={'Signing devices are what control your funds.'}
+        Content={SignUpModalContent}
+        buttonText={appCreated ? 'Next' : null}
+        buttonCallback={() => {
+          setModalVisible(false);
+          navigation.navigate('App', { screen: 'NewHome' });
+        }}
+      />
     </ScreenWrapper>
   );
 };
