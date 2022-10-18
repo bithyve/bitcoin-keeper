@@ -131,7 +131,7 @@ const SetupInheritance = () => {
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
-      <Box>
+      <Box marginBottom={-7}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
           learnMore={true}
@@ -188,6 +188,7 @@ const SetupInheritance = () => {
           <Buttons
             primaryText='Select Country'
             primaryCallback={() => { console.log('comming soon') }}
+            paddingHorizontal={wp(20)}
           />
         </Box>
         <Box position={'absolute'} bottom={hp(20)} width={wp(320)} justifyContent={'center'}>
