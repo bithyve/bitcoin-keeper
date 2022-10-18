@@ -8,7 +8,6 @@ import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factor
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { Alert } from 'react-native';
-import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -21,6 +20,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import { StyleSheet } from 'react-native';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
@@ -58,12 +58,14 @@ const SetupSuccessfully = () => {
 
 const BulletPoint = ({ text }) => {
   return (
-    <Box marginTop={'4'} flexDirection={'row'} alignItems={'center'}>
+    <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
         style={{
           height: hp(5),
           width: wp(5),
         }}
+        m={1}
+        top={2}
         backgroundColor={'light.modalText'}
         borderRadius={10}
         marginRight={wp(5)}
@@ -74,7 +76,7 @@ const BulletPoint = ({ text }) => {
         fontFamily={'body'}
         fontWeight={'200'}
         p={1}
-        letterSpacing={1.65}
+        letterSpacing={1}
       >
         {text}
       </Text>
@@ -136,7 +138,7 @@ const LedgerSetupContent = () => {
       <Box marginTop={'4'} flex={1} alignItems={'center'} justifyContent={'center'}>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'}>
-            {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the ledger based on the your current BTC network`}
+            {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
@@ -182,12 +184,12 @@ const SetUpMobileKey = () => {
 const SetupSeedWords = () => {
   return (
     <Box>
-      <AlertIllustration />
+      <SeedWordsIllustration />
+      <BulletPoint text={'Once the transaction is signed the key is not stored on the app'} />
       <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
-      />
-      <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        text={
+          'Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer'
+        }
       />
     </Box>
   );
@@ -227,7 +229,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const navigateToSigningServerSetup = () => {
     close();
-    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicy', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
   };
 
   const navigateToSeedWordSetup = () => {
@@ -402,10 +404,10 @@ const HardwareModalMap = ({ type, visible, close }) => {
         visible={visible && type === SignerType.POLICY_SERVER}
         close={close}
         title={'Setting up a Signing Server'}
-        subTitle={'A Signing Server will hold one of the keys in the Vault'}
+        subTitle={'A Signing Server will hold one of the keys in the vault'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Proceed'}
+        buttonText={'Continue'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToSigningServerSetup}
         textColor={'#041513'}
@@ -443,8 +445,10 @@ const HardwareModalMap = ({ type, visible, close }) => {
       <KeeperModal
         visible={visible && type === SignerType.SEED_WORDS}
         close={close}
-        title={'Setup Seed Words Based Signer'}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+        title={'Keep your Soft Signer ready'}
+        subTitle={
+          'This is the twelve word Recovery Phrase you would have noted down when creating the vault'
+        }
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText={'Proceed'}

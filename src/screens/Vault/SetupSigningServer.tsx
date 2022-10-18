@@ -1,12 +1,13 @@
+import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { ActivityIndicator } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import Header from 'src/components/Header';
 import InfoBox from '../../components/InfoBox';
@@ -20,6 +21,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import { SignerPolicy } from 'src/core/services/interfaces';
 import StatusBarComponent from 'src/components/StatusBarComponent';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -29,11 +31,13 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
 
 const SetupSigningServer = ({ route }: { route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   const [validationModal, showValidationModal] = useState(false);
   const [twoFAKey, setTwoFAKey] = useState('');
   const { useQuery } = useContext(RealmWrapperContext);
@@ -153,7 +157,28 @@ const SetupSigningServer = ({ route }: { route }) => {
             <ActivityIndicator animating={true} size="small" />
           </Box>
         ) : (
-          <Box alignItems={'center'} alignSelf={'center'} width={hp(200)}>
+          <Box
+            alignItems={'center'}
+            alignSelf={'center'}
+            width={hp(200)}
+            style={{
+              marginTop: hp(30),
+            }}
+          >
+            {/* <Text
+              color={'light.recieverAddress'}
+              fontFamily={'body'}
+              fontWeight={300}
+              fontSize={12}
+              letterSpacing={1.08}
+              noOfLines={1}
+              backgroundColor={'amber.400'}
+              style={{
+                marginVertical: hp(30),
+              }}
+            >
+              Scan the QR below to add Backup Key
+            </Text> */}
             <QRCode
               value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
               logoBackgroundColor="transparent"
@@ -170,8 +195,40 @@ const SetupSigningServer = ({ route }: { route }) => {
                 width={'100%'}
                 noOfLines={1}
               >
-                {`2FA Signing Server`}
+                {/* {twoFAKey} */}
+                2FA Signing Server
               </Text>
+            </Box>
+            <Box alignItems={'center'} marginTop={hp(30)} width={wp(320)}>
+              <Box
+                flexDirection={'row'}
+                width={'90%'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+                backgroundColor={'light.textInputBackground'}
+                borderBottomLeftRadius={10}
+                borderTopLeftRadius={10}
+              >
+                <Text width={'80%'} marginLeft={4} noOfLines={1}>
+                  {twoFAKey}
+                </Text>
+                <TouchableOpacity
+                  activeOpacity={0.4}
+                  onPress={() => {
+                    Clipboard.setString(twoFAKey);
+                    showToast('Address Copied Successfully', <TickIcon />);
+                  }}
+                >
+                  <Box
+                    backgroundColor={'light.copyBackground'}
+                    padding={3}
+                    borderTopRightRadius={10}
+                    borderBottomRightRadius={10}
+                  >
+                    <CopyIcon />
+                  </Box>
+                </TouchableOpacity>
+              </Box>
             </Box>
           </Box>
         )}
@@ -203,7 +260,7 @@ const SetupSigningServer = ({ route }: { route }) => {
           showValidationModal(false);
         }}
         title={'Confirm OTP to setup 2FA'}
-        subTitle={'To complete setting up the Signing Server'}
+        subTitle={'To complete setting up the signing server'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
         Content={otpContent}

@@ -22,6 +22,7 @@ export const generateWallet = async ({
   importedMnemonic,
   importedXpub,
   networkType,
+  transferPolicy,
 }: {
   type: WalletType;
   instanceNum: number;
@@ -32,6 +33,7 @@ export const generateWallet = async ({
   importedMnemonic?: string;
   importedXpub?: string;
   networkType: NetworkType;
+  transferPolicy: number;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
   let xpriv: string, xpub: string, id: string, derivationDetails: WalletDerivationDetails;
@@ -103,6 +105,7 @@ export const generateWallet = async ({
     txIdCache: {},
     transactionMapping: [],
     transactionNote: {},
+    transferPolicy,
   };
 
   const wallet: Wallet = {

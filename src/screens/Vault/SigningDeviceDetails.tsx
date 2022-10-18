@@ -8,22 +8,20 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, HStack, Text, VStack, View, Button } from 'native-base';
+import { Box, Button, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
-import Change from 'src/assets/images/svgs/change.svg';
-import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
+
 import AdvnaceOptions from 'src/assets/images/svgs/Advancedoptions.svg';
-
-import Settings from 'src/assets/images/svgs/settings.svg';
-
 import BackIcon from 'src/assets/icons/back.svg';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
+import Change from 'src/assets/images/svgs/change.svg';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
+import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -36,19 +34,20 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
+import Settings from 'src/assets/images/svgs/settings.svg';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { WalletMap } from './WalletMap';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { useDispatch } from 'react-redux';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import idx from 'idx';
-import _ from 'lodash';
 import moment from 'moment';
-import { WalletMap } from './WalletMap';
+import { useDispatch } from 'react-redux';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -324,7 +323,6 @@ const SigningDeviceDetails = ({ route }) => {
   };
 
   const openHealthCheckModal = (signerType) => {
-    console.log('asdfsd');
     switch (signerType) {
       case SignerType.TAPSIGNER:
         setHealthCheckViewTapsigner(true);
@@ -333,7 +331,7 @@ const SigningDeviceDetails = ({ route }) => {
         setHealthCheckViewColdCard(true);
         break;
       default:
-        Alert.alert('Healt Check Not Supported currently');
+        Alert.alert('Health check for this device is not supported currently');
     }
   };
 
@@ -342,7 +340,7 @@ const SigningDeviceDetails = ({ route }) => {
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'ChoosePolicy',
+        name: 'ChoosePolicyNew',
         params: {
           restrictions,
           exceptions,
@@ -398,9 +396,9 @@ const SigningDeviceDetails = ({ route }) => {
             <Box marginTop={2} width={'75%'} flexDirection={'row'} justifyContent={'space-between'}>
               <Box flexDirection={'column'}>
                 <Text fontSize={15}>{signer.signerName}</Text>
-                <Text fontSize={13}>{`Added on ${moment(signer.addedOn).format(
-                  'DD MMM YYYY, hh:mmA'
-                )}`}</Text>
+                <Text fontSize={13}>{`Added on ${moment(signer.addedOn)
+                  .format('DD MMM YYYY, hh:mmA')
+                  .toLowerCase()}`}</Text>
               </Box>
               <Box marginTop={3}>
                 <TouchableOpacity
@@ -441,7 +439,9 @@ const SigningDeviceDetails = ({ route }) => {
           <FooterItem
             Icon={AdvnaceOptions}
             title={'Advance Options'}
-            onPress={() => console.log('Advance Options')}
+            onPress={() => {
+              if (signer.type === SignerType.POLICY_SERVER) navigateToPolicyChange(signer);
+            }}
           />
         </HStack>
         {/* <Buttons

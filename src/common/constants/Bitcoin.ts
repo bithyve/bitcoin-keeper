@@ -1,6 +1,8 @@
+import React from 'react'
+import { Text } from 'native-base'
+
 import config from 'src/core/config'
 import { NetworkType } from 'src/core/wallets/enums'
-
 export const SATOSHIS_IN_BTC = 1e8
 
 export const getAmount = (amountInSats: number) => {
@@ -8,5 +10,12 @@ export const getAmount = (amountInSats: number) => {
     return (amountInSats / SATOSHIS_IN_BTC).toFixed(4);
   } else {
     return amountInSats;
+  }
+}
+export const getUnit = () => {
+  if (config.NETWORK_TYPE === NetworkType.MAINNET) {
+    return '';
+  } else {
+    return 'sats';
   }
 }

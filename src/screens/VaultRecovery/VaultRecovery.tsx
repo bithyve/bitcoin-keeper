@@ -1,16 +1,19 @@
-import { Alert, Box, HStack, Pressable, VStack, Text } from 'native-base';
+import { Alert, Box, HStack, Pressable, Text, VStack } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import SuccessSvg from 'src/assets/images/svgs/successSvg.svg';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import Buttons from 'src/components/Buttons';
 import Header from 'src/components/Header';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import Note from 'src/components/Note/Note';
 import Relay from 'src/core/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import SuccessSvg from 'src/assets/images/svgs/successSvg.svg';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { WalletMap } from '../Vault/WalletMap';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -18,9 +21,6 @@ import { reoverVault } from 'src/store/sagaActions/bhr';
 import { setVaultMetaData } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import Note from 'src/components/Note/Note';
-import KeeperModal from 'src/components/KeeperModal';
 
 const SignerItem = ({ signer, index }: { signer: any | undefined; index: number }) => {
   const { navigate } = useNavigation();
@@ -38,10 +38,15 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
                   numberOfLines={2}
                   alignItems={'center'}
                   letterSpacing={1.12}
+                  fontWeight={200}
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
+                <Text
+                  color={'light.GreyText'}
+                  fontSize={13}
+                  fontWeight={200}
+                  letterSpacing={0.6}>
                   {`Lorem ipsum dolor sit amet, consectetur`}
                 </Text>
               </VStack>
@@ -76,13 +81,18 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
               numberOfLines={2}
               alignItems={'center'}
               letterSpacing={1.12}
+              fontWeight={200}
             >
               {signer.type}
             </Text>
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+          <Text
+            color={'light.GreyText'}
+            fontWeight={200}
+            fontSize={12} letterSpacing={0.6}
+          >
             {`Remove`}
           </Text>
         </Pressable>
@@ -142,6 +152,7 @@ const VaultRecovery = () => {
   );
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
+  const navigation = useNavigation();
   return (
     <ScreenWrapper>
       <Header
@@ -166,7 +177,7 @@ const VaultRecovery = () => {
                 <AddSignerIcon />
               </Box>
             </TouchableOpacity>
-            <Text style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
+            <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
               You can use any one of the Signing Devices to start with
             </Text>
           </Box>
@@ -192,7 +203,9 @@ const VaultRecovery = () => {
         buttonText={'View Vault'}
         Content={SuccessModalContent}
         close={() => setSuccessModal(false)}
-        buttonCallback={() => navigate('App')}
+        buttonCallback={() =>
+          navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }))
+        }
       />
     </ScreenWrapper>
   );

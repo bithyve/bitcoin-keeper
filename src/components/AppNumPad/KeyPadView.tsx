@@ -53,7 +53,7 @@ const KeyPadView: React.FC<Props> = ({
           activeOpacity={1}
           style={styles.keyPadElementTouchable}
         >
-          <Text color={keyColor} fontSize={RFValue(25)} fontStyle={'normal'}>
+          <Text fontWeight={'200'} color={keyColor} fontSize={RFValue(25)} fontStyle={'normal'}>
             0
           </Text>
         </TouchableOpacity>

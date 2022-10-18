@@ -10,7 +10,7 @@ import {
 import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import Arrow from 'src/assets/images/svgs/arrow.svg';
@@ -41,7 +41,7 @@ import VaultImage from 'src/assets/images/Vault.png';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
@@ -93,7 +93,7 @@ const InheritanceComponent = () => {
               fontWeight={100}
               marginTop={-1}
             >
-              Upgrade to secure your Vault
+              Upgrade to secure your vault
             </Text>
           </Box>
         </Box>
@@ -165,7 +165,7 @@ const LinkedWallets = (props) => {
               fontWeight={200}
               marginLeft={'1'}
             >
-              Linked Wallet
+              Linked Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
@@ -177,6 +177,14 @@ const LinkedWallets = (props) => {
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
                 {getAmount(netBalance)}
+                <Text
+                  color={'light.white1'}
+                  letterSpacing={0.6}
+                  fontSize={hp(12)}
+                  fontWeight={200}
+                >
+                  {getUnit()}
+                </Text>
               </Text>
             </Box>
           ) : (
@@ -192,18 +200,18 @@ const LinkedWallets = (props) => {
   );
 };
 
-const VaultSetupContent = () => {
-  return (
-    <View>
-      <Box alignSelf={'center'}>
-        <SigningDevicesIllustration />
-      </Box>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-        {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
-      </Text>
-    </View>
-  );
-};
+// const VaultSetupContent = () => {
+//   return (
+//     <View>
+//       <Box alignSelf={'center'}>
+//         <SigningDevicesIllustration />
+//       </Box>
+//       <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
+//         {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
+//       </Text>
+//     </View>
+//   );
+// };
 
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
@@ -231,12 +239,13 @@ const VaultStatus = (props) => {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
     } else {
       setModalVisible(true);
+      navigateToHardwareSetup();
     }
   };
   const close = () => setModalVisible(false);
 
   const navigateToHardwareSetup = () => {
-    close();
+    // close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
@@ -309,7 +318,7 @@ const VaultStatus = (props) => {
               {getTorStatusText}
             </Text>
           </Box>
-          <Box marginTop={hp(64.5)} alignItems={'center'}>
+          <Box marginTop={hp(windowHeight > 700 ? 60.5 : 25)} alignItems={'center'}>
             <Text
               color={'light.white1'}
               letterSpacing={0.8}
@@ -328,10 +337,15 @@ const VaultStatus = (props) => {
               paddingBottom={1}
             >
               {!signers.length
-                ? 'Activate Now '
+                ? 'Add a signing device to upgrade '
                 : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`}
             </Text>
-            {!signers.length ? null : (
+
+            {!signers.length ? (
+              <Box marginTop={hp(11.5)}>
+                <Chain />
+              </Box>
+            ) : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
                 {signers.map((signer) => (
                   <Box
@@ -349,59 +363,61 @@ const VaultStatus = (props) => {
               </Box>
             )}
           </Box>
-          {!signers.length ? (
-            <Box marginTop={hp(31.5)}>
-              {/* <Image
-                source={require('src/assets/images/illustration.png')}
-                style={{ width: wp(123.95), height: hp(122.3) }}
-                resizeMode="contain"
-              /> */}
 
-              <Chain />
-            </Box>
-          ) : null}
-          {signers.length ? (
-            <HStack alignItems={'center'} marginTop={'10%'}>
-              <BTC style={{ height: '20%' }} />
-              <Pressable onPress={() => props.onAmountPress()}>
-                {props.showHideAmounts ? (
+          <HStack alignItems={'center'} marginTop={hp(windowHeight > 700 ? 20 : 10)}>
+            <BTC style={{ height: '20%' }} />
+            <Pressable>
+              {props.showHideAmounts ? (
+                <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
                   <Text
                     p={1}
                     color={'light.white1'}
                     letterSpacing={0.8}
-                    fontSize={hp(34)}
+                    fontSize={hp(30)}
                     fontWeight={200}
                   >
                     {getAmount(vaultBalance)}
+
                   </Text>
-                ) : (
+                  <Text
+                    color={'light.white1'}
+                    letterSpacing={0.6}
+                    fontSize={hp(12)}
+                    fontWeight={200}
+                  >
+                    {getUnit()}
+                  </Text>
+                </Box>
+              ) : (
+                <Box marginY={5}>
                   <Hidden />
-                )}
-              </Pressable>
-            </HStack>
-          ) : null}
+                </Box>
+              )}
+            </Pressable>
+          </HStack>
+          <Pressable
+            backgroundColor={'light.yellow1'}
+            justifyContent={'center'}
+            alignItems={'center'}
+            borderRadius={hp(10)}
+            style={{
+              height: hp(22),
+              width: wp(90),
+            }}
+            onPress={() => props.onAmountPress()}
+          >
+            <Text color={'light.sendMax'} fontWeight={300} fontSize={11} letterSpacing={0.88}>
+              {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
+            </Text>
+          </Pressable>
         </ImageBackground>
       </TouchableOpacity>
-      {/* Vault creation successful modal */}
       {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={vaultTranslations.VaultCreated}
-        subTitle={vaultTranslations.VaultCreationDesc}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText={vaultTranslations.ViewVault}
-        buttonTextColor={'#FAFAFA'}
-        buttonCallback={navigateToHardwareSetup}
-        textColor={'#5F6965'}
-        Content={VaultCreationContent}
-      /> */}
-      <KeeperModal
         visible={visible}
         close={close}
         title={'Signing Devices'}
         subTitle={
-          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your Vault'
+          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your vault'
         }
         modalBackground={['#00836A', '#073E39']}
         buttonBackground={['#FFFFFF', '#80A8A1']}
@@ -412,7 +428,7 @@ const VaultStatus = (props) => {
         Content={VaultSetupContent}
         DarkCloseIcon={true}
         learnMore={true}
-      />
+      /> */}
     </Box>
   );
 };
@@ -542,7 +558,7 @@ const HomeScreen = ({ navigation }) => {
         Instabug.invocationEvent.screenshot,
       ]);
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
-      BugReporting.setShakingThresholdForiPhone(100);
+      BugReporting.setShakingThresholdForiPhone(1.0);
       BugReporting.setShakingThresholdForAndroid(100);
       Instabug.setPrimaryColor('rgb(7, 62, 57)');
     } catch (error) {
@@ -717,7 +733,7 @@ const HomeScreen = ({ navigation }) => {
       </Pressable>
       <LinkedWallets
         onAmountPress={() => {
-          setShowHideAmounts(!showHideAmounts);
+          // setShowHideAmounts(!showHideAmounts);
         }}
         showHideAmounts={showHideAmounts}
       />

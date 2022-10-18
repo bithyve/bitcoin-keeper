@@ -1,8 +1,12 @@
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
+import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import {
+  calculateCustomFee,
+  crossTransfer,
+  sendPhaseTwo,
+} from 'src/store/sagaActions/send_and_receive';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
@@ -36,11 +40,12 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const { isVaultTransfer, uaiSetActionFalse, wallet, recipients, walletId } = route.params; // isVaultTransfer: switches between automated transfer and typical send
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
-  const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const sourceWallet = wallets.find((item) => item.id === walletId);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -101,6 +106,10 @@ const SendConfirmation = ({ route }) => {
   const onProceed = () => {
     // closeAllModal();
     if (isVaultTransfer) {
+      if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
+        Alert.alert('Not enough Balance');
+        return;
+      }
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
@@ -108,9 +117,9 @@ const SendConfirmation = ({ route }) => {
       if (defaultVault) {
         dispatch(
           crossTransfer({
-            sender: defaultWallet,
+            sender: sourceWallet,
             recipient: defaultVault,
-            amount: 10e3,
+            amount: sourceWallet.specs.transferPolicy,
           })
         );
         if (uaiSetActionFalse) {
@@ -215,17 +224,17 @@ const SendConfirmation = ({ route }) => {
             </Text>
             <Box flexDirection={'row'}>
               <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`}
+                {isVaultTransfer && !isSend ? '' : `Policy ${' '}`}
               </Text>
               <Box justifyContent={'center'}>
                 <BTC />
               </Box>
               <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {isVaultTransfer && defaultWallet && isSend
-                  ? getAmount((defaultWallet as Wallet).specs.balances.confirmed)
+                {isVaultTransfer && sourceWallet && isSend
+                  ? ` ${getAmount((sourceWallet as Wallet).specs.transferPolicy)}sats `
                   : ''}
                 {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
-                {!isSend && isVaultTransfer ? '0.0001' : ''}
+                {!isSend && isVaultTransfer ? defaultVault.specs.balances.confirmed : ''}
               </Text>
             </Box>
           </Box>
@@ -423,6 +432,17 @@ const SendConfirmation = ({ route }) => {
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
           buttonText="Confirm"
+          buttonCallback={(customFeePerByte, customEstimatedBlocks) => {
+            dispatch(
+              calculateCustomFee({
+                wallet,
+                recipients,
+                feePerByte: customFeePerByte,
+                customEstimatedBlocks,
+              })
+            );
+          }}
+          network={(wallet as Wallet).networkType}
         />
       </Box>
     );
@@ -447,8 +467,13 @@ const SendConfirmation = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header title="Sending to address" subtitle="Lorem ipsum dolor sit amet," />
+      <Header
+        title="Sending to address"
+        subtitle="Choose priority and fee"
+      />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
+        <SendingCard isSend={true} />
+        <SendingCard isSend={false} />
         <Box marginTop={windowHeight * 0.01}>
           <Transaction />
         </Box>
@@ -474,7 +499,7 @@ const SendConfirmation = ({ route }) => {
         </Box>
       </Box>
 
-      <CustomPriorityBox />
+      {/* <CustomPriorityBox /> */}
 
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons

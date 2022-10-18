@@ -1,6 +1,7 @@
 import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
+  Dimensions,
   FlatList,
   Platform,
   RefreshControl,
@@ -8,7 +9,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
@@ -33,6 +34,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
@@ -48,6 +50,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+const { height } = Dimensions.get('window');
 const renderTransactionElement = ({ item }) => {
   return <TransactionElement transaction={item} />;
 };
@@ -238,7 +241,7 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
           </Text>
         </HStack>
       </HStack>
-      <HStack justifyContent={'space-between'} paddingY={8}>
+      <HStack justifyContent={'space-between'} paddingBottom={10} paddingTop={6}>
         <Text
           color={'light.white1'}
           marginLeft={wp(3)}
@@ -266,56 +269,55 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
 };
 
 const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) => {
-  let line = '# Keeper Multisig setup file\n';
   const navigation = useNavigation();
-
   return (
-    <VStack paddingTop={'25%'}>
-      <HStack justifyContent={'space-between'}>
-        <Text
-          color={'light.textBlack'}
-          marginLeft={wp(3)}
-          fontSize={16}
-          fontWeight={200}
-          letterSpacing={1.28}
-        >
-          Transactions
-        </Text>
-        <TouchableOpacity>
-          <HStack alignItems={'center'}>
-            <TouchableOpacity
-              onPress={() => {
-                navigation.dispatch(
-                  CommonActions.navigate('ViewAllTransactions', {
-                    title: 'Vault Transactions',
-                    subtitle: 'All incoming and outgoing transactions',
-                  })
-                );
-              }}
-            >
-              <Text
-                color={'light.light'}
-                marginRight={1}
-                fontSize={11}
-                fontWeight={300}
-                letterSpacing={0.6}
+    <>
+      <VStack style={{ paddingTop: height * 0.12 }}>
+        <HStack justifyContent={'space-between'}>
+          <Text
+            color={'light.textBlack'}
+            marginLeft={wp(3)}
+            fontSize={16}
+            fontWeight={200}
+            letterSpacing={1.28}
+          >
+            Transactions
+          </Text>
+          <TouchableOpacity>
+            <HStack alignItems={'center'}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.dispatch(
+                    CommonActions.navigate('ViewAllTransactions', {
+                      title: 'Vault Transactions',
+                      subtitle: 'All incoming and outgoing transactions',
+                    })
+                  );
+                }}
               >
-                View All
-              </Text>
-            </TouchableOpacity>
-            <IconArrowBlack />
-          </HStack>
-        </TouchableOpacity>
-      </HStack>
+                <Text
+                  color={'light.light'}
+                  marginRight={1}
+                  fontSize={11}
+                  fontWeight={300}
+                  letterSpacing={0.6}
+                >
+                  View All
+                </Text>
+              </TouchableOpacity>
+              <IconArrowBlack />
+            </HStack>
+          </TouchableOpacity>
+        </HStack>
+      </VStack>
       <FlatList
-        style={{ height: '75%' }}
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
         keyExtractor={(item) => item}
         showsVerticalScrollIndicator={false}
       />
-    </VStack>
+    </>
   );
 };
 
@@ -365,7 +367,7 @@ const SignerList = ({
                 letterSpacing={0.6}
                 textAlign={'center'}
               >
-                {'Add Signers to Upgrade'}
+                {'Add signing device to upgrade'}
               </Text>
             </VStack>
           </TouchableOpacity>
@@ -377,7 +379,7 @@ const SignerList = ({
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', bottom: '80%' }}
+      style={{ position: 'absolute', bottom: '80%', zIndex: 1 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -425,7 +427,7 @@ const SignerList = ({
                   letterSpacing={0.6}
                   textAlign={'center'}
                 >
-                  {`Added ${moment(signer.addedOn).fromNow()}`}
+                  {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
                 </Text>
               </VStack>
             </TouchableOpacity>
@@ -437,8 +439,8 @@ const SignerList = ({
   );
 };
 
-const VaultDetails = ({ route }) => {
-  const { vaultTransferSuccessful = false } = route.params;
+const VaultDetails = ({ route, navigation }) => {
+  const { vaultTransferSuccessful = false } = route.params || {};
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -451,6 +453,13 @@ const VaultDetails = ({ route }) => {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const [tireChangeModal, setTireChangeModal] = useState(false);
+
+  const onPressModalBtn = () => {
+    setTireChangeModal(false);
+    navigation.navigate('AddSigningDevice');
+  };
+
   const transactions = vault?.specs?.transactions || [];
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
@@ -473,6 +482,12 @@ const VaultDetails = ({ route }) => {
   const closeVaultCreatedDialog = () => {
     setVaultCreated(false);
   };
+
+  useEffect(() => {
+    if (hasPlanChanged() !== VaultMigrationType.CHANGE) {
+      setTireChangeModal(true);
+    }
+  }, []);
 
   const styles = getStyles(top);
 
@@ -520,24 +535,35 @@ const VaultDetails = ({ route }) => {
         <Header />
         <VaultInfo vault={vault} />
       </VStack>
-      <VStack backgroundColor={'light.lightYellow'} px={wp(28)} borderTopLeftRadius={20} flex={1}>
-        <VStack justifyContent={'space-between'}>
-          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
-          <TransactionList
-            transactions={transactions}
-            pullDownRefresh={syncVault}
-            pullRefresh={pullRefresh}
-            vault={vault}
-          />
-          <Footer vault={vault} />
-        </VStack>
+      <VStack
+        backgroundColor={'light.lightYellow'}
+        px={wp(28)}
+        borderTopLeftRadius={20}
+        flex={1}
+        justifyContent={'space-between'}
+      >
+        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
+        <TransactionList
+          transactions={transactions}
+          pullDownRefresh={syncVault}
+          pullRefresh={pullRefresh}
+          vault={vault}
+        />
+        <Footer vault={vault} />
       </VStack>
+      <TierUpgradeModal
+        visible={tireChangeModal}
+        close={() => setTireChangeModal(false)}
+        onPress={onPressModalBtn}
+        isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
+        plan={keeper.subscription.name}
+      />
       <KeeperModal
         visible={vaultCreated}
         title={'New Vault Created'}
         subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
-        primaryCallback={closeVaultCreatedDialog}
+        buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={() => {
           return (
@@ -557,7 +583,7 @@ const VaultDetails = ({ route }) => {
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title={'Transactions from Keeper Vault'}
+        title={'Keeper Vault'}
         subTitle={
           'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'
         }
@@ -580,18 +606,13 @@ const VaultDetails = ({ route }) => {
 const getStyles = (top) =>
   StyleSheet.create({
     container: {
-      paddingTop: hp(top * Platform.select({ android: 1.5, ios: 1 })),
+      paddingTop: Math.max(top, 35),
       justifyContent: 'space-between',
       flex: 1,
     },
     IconText: {
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    addWalletContainer: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100%',
     },
     signerCard: {
       elevation: 4,
@@ -611,6 +632,7 @@ const getStyles = (top) =>
     },
     scrollContainer: {
       padding: '8%',
+      width: Platform.select({ android: null, ios: '100%' }),
     },
     knowMore: {
       backgroundColor: '#725436',

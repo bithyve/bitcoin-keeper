@@ -1,5 +1,5 @@
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import { addToUaiStack, updateUaiStack } from 'src/store/sagaActions/uai';
+import { addToUaiStack, uaiActionedEntity, updateUaiStack } from 'src/store/sagaActions/uai';
 import { useContext, useEffect, useState } from 'react';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -8,11 +8,12 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export const useUaiStack = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const [uaiStack, setuaiStack] = useState([]);
-  const UAIcollection = useQuery(RealmSchema.UAI);
+  const UAIcollection: UAI[] = useQuery(RealmSchema.UAI);
   const dispatch = useDispatch();
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
@@ -20,6 +21,7 @@ export const useUaiStack = () => {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
 
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet);
   //creation of default stack
   useEffect(() => {
     const uai_SECURE_VAULT = UAIcollection.filter(
@@ -30,7 +32,7 @@ export const useUaiStack = () => {
       if (!uai_SECURE_VAULT) {
         dispatch(
           addToUaiStack(
-            'Add a Signing Device to activate your Vault',
+            'Add a signing device to activate your vault',
             false,
             uaiType.SECURE_VAULT,
             80,
@@ -48,18 +50,27 @@ export const useUaiStack = () => {
   }, [defaultVault]);
 
   useEffect(() => {
-    if (netBalance >= 10000) {
-      dispatch(
-        addToUaiStack(
-          'Approve Vault transfer',
-          true,
-          uaiType.VAULT_TRANSFER,
-          70,
-          'Your wallet balance is above 10,000sats'
-        )
-      );
-    }
-  }, [netBalance]);
+    wallets.map((wallet) => {
+      if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+        const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
+        if (uai) {
+          if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) return;
+          else dispatch(uaiActionedEntity(uai.entityId, false));
+        } else {
+          dispatch(
+            addToUaiStack(
+              `Transfer fund to vault for ${wallet.presentationData.name}`,
+              false,
+              uaiType.VAULT_TRANSFER,
+              100,
+              null,
+              wallet.id
+            )
+          );
+        }
+      }
+    });
+  }, []);
 
   //TO-DO: fetch notifications and converto UAI
 

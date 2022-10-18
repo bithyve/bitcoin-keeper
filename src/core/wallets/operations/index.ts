@@ -17,7 +17,14 @@ import {
   TransactionToAddressMapping,
   UTXO,
 } from '../interfaces/';
-import { DerivationPurpose, EntityKind, SignerType, TxPriority, WalletType } from '../enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  NetworkType,
+  SignerType,
+  TxPriority,
+  WalletType,
+} from '../enums';
 import { Vault, VaultSigner } from '../interfaces/vault';
 
 import ECPairFactory from 'ecpair';
@@ -25,6 +32,8 @@ import { Wallet } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 import coinselect from 'coinselect';
 import coinselectSplit from 'coinselect/split';
+import config from 'src/core/config';
+import { parseInt } from 'lodash';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -873,26 +882,36 @@ export default class WalletOperations {
     serializedPSBT: string,
     xpriv: string
   ): { signedSerializedPSBT: string } => {
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+    try {
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
+      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
 
-    let vin = 0;
-    for (const input of inputs) {
-      let keyPair;
-      const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-      const [internal, index] = subPath;
-      const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-        xpriv,
-        !!internal,
-        index,
-        network
-      );
-      keyPair = WalletUtilities.getKeyPair(privateKey, network);
-      PSBT.signInput(vin, keyPair);
-      vin++;
+      let vin = 0;
+      for (const input of inputs) {
+        let keyPair, internal, index;
+        if (input.subPath) {
+          const [i, j, k] = input.subPath.split('/');
+          internal = parseInt(j);
+          index = parseInt(k);
+        } else {
+          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+          [internal, index] = subPath;
+        }
+        const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
+          xpriv,
+          !!internal,
+          index,
+          network
+        );
+        keyPair = WalletUtilities.getKeyPair(privateKey, network);
+        PSBT.signInput(vin, keyPair);
+        vin++;
+      }
+
+      return { signedSerializedPSBT: PSBT.toBase64() };
+    } catch (err) {
+      console.log(err);
     }
-
-    return { signedSerializedPSBT: PSBT.toBase64() };
   };
 
   static signVaultTransaction = (
@@ -962,7 +981,9 @@ export default class WalletOperations {
         signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
       }
     }
-
+    if (signer.amfData && signer.amfData.xpub) {
+      signingPayload.push({ payloadTarget: signer.type, inputs });
+    }
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
       signerId: signer.signerId,
@@ -1136,7 +1157,7 @@ export default class WalletOperations {
     for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
       const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
       const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
-      if (signerType === SignerType.TAPSIGNER) {
+      if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
         for (const { inputsToSign } of signingPayload) {
           for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
             PSBT.addSignedDisgest(

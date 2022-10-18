@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Input, View } from 'native-base';
+import { Box, Input, View, Text } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -17,7 +17,6 @@ import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 const EnterWalletDetailScreen = ({ route }) => {
-
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -26,19 +25,19 @@ const EnterWalletDetailScreen = ({ route }) => {
 
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
-
-
+  const [transferPolicy, setTransferPolicy] = useState('5000');
   const createNewWallet = useCallback(() => {
     const newWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: walletName,
         description: walletDescription,
+        transferPolicy: Number(transferPolicy),
       },
     };
     dispatch(addNewWallets([newWallet]));
     navigtaion.goBack();
-  }, [walletName, walletDescription]);
+  }, [walletName, walletDescription, transferPolicy]);
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
@@ -71,6 +70,20 @@ const EnterWalletDetailScreen = ({ route }) => {
           borderWidth={'0'}
           marginY={2}
         />
+        <Box marginTop={10}>
+          <Text fontWeight={'200'}>Transfer Policy</Text>
+          <Input
+            placeholder={wallet.TransferPolicy}
+            placeholderTextColor={'light.greenText'}
+            backgroundColor={'light.lightYellow'}
+            value={transferPolicy}
+            onChangeText={(value) => setTransferPolicy(value)}
+            style={styles.inputField}
+            borderRadius={10}
+            borderWidth={'0'}
+            marginY={2}
+          />
+        </Box>
         <View marginY={20}>
           <Buttons
             secondaryText={common.cancel}

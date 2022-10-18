@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:941693293750:android:4895ec62cc8e10fd400217",
+        "mobilesdk_app_id": "1:941693293750:android:39dca11973c599ec400217",
         "android_client_info": {
-          "package_name": "io.hexawallet.keeper"
+          "package_name": "io.hexawallet.bitcoinkeeper"
         }
       },
       "oauth_client": [
@@ -29,6 +29,57 @@
             {
               "client_id": "941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "941693293750-2ivnnn0ojnarq8vpb2bastk0i9gd7gai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.hexawallet.keeper"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941693293750:android:4895ec62cc8e10fd400217",
+        "android_client_info": {
+          "package_name": "io.hexawallet.keeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "941693293750-211nkg8gbdtlsibldje72kecbcsdeq3r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.hexawallet.keeper",
+            "certificate_hash": "f1201988a730f7b266acec3762ff7c7c189e9f56"
+          }
+        },
+        {
+          "client_id": "941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANmBM5Vs5R_pfA7gyxtkjUv9AIdMAlK8o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "941693293750-2ivnnn0ojnarq8vpb2bastk0i9gd7gai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.hexawallet.keeper"
+              }
             }
           ]
         }
@@ -43,6 +94,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "941693293750-qibp4u3i76mbi5a0nm0i882o51k8nt8a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.hexawallet.keeper.development",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "941693293750-t7uaq1ish5bv4ss4r2aa2n93h3ifr832.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.hexawallet.keeper.development",
+            "certificate_hash": "074f28a8ab075e168737d7bfd5fa746d0a6b9e96"
+          }
+        },
+        {
           "client_id": "941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -58,6 +125,13 @@
             {
               "client_id": "941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "941693293750-2ivnnn0ojnarq8vpb2bastk0i9gd7gai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.hexawallet.keeper"
+              }
             }
           ]
         }
@@ -87,6 +161,13 @@
             {
               "client_id": "941693293750-vs0qf25erem5ges485bcd2njn55luc07.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "941693293750-2ivnnn0ojnarq8vpb2bastk0i9gd7gai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.hexawallet.keeper"
+              }
             }
           ]
         }

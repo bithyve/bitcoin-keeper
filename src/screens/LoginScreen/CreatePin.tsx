@@ -1,23 +1,26 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, StatusBar, Dimensions } from 'react-native';
-import { Box, Text } from 'native-base';
+import { Box, HStack, Switch, Text } from 'native-base';
+import { Dimensions, StatusBar, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  widthPercentageToDP as wp,
   heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
-import LinearGradient from 'react-native-linear-gradient';
-import CustomButton from 'src/components/CustomButton/CustomButton';
-import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+
+import CustomButton from 'src/components/CustomButton/CustomButton';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { NetworkType } from 'src/core/wallets/enums';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import config from 'src/core/config';
 import messaging from '@react-native-firebase/messaging';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -30,6 +33,7 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
 
   const { translations } = useContext(LocalizationContext);
   const login = translations['login'];
@@ -37,9 +41,23 @@ export default function CreatePin(props) {
 
   useEffect(() => {
     if (hasCreds) {
+      dispatch(
+        addToUaiStack(
+          'Make sure your signing devices are safe and accessible',
+          false,
+          uaiType.DEFAULT,
+          10,
+          null
+        )
+      );
       props.navigation.navigate('OnBoardingSlides');
     }
   }, [hasCreds]);
+
+  const switchConfig = () => {
+    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
+    setTestnet(isTestnet ? false : true);
+  };
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -177,12 +195,31 @@ export default function CreatePin(props) {
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                      // mt={hp('1.5%')}
+                    // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
+                <HStack justifyContent={'space-between'} paddingTop={'7'}>
+                  <Text
+                    color={'light.white1'}
+                    fontWeight={'200'}
+                    px={'8'}
+                    fontSize={13}
+                    letterSpacing={1}
+                  >
+                    {'Use bitcoin testnet'}
+                  </Text>
+                  <Switch
+                    defaultIsChecked
+                    trackColor={{ true: '#FFFA' }}
+                    thumbColor={'#358475'}
+                    style={{ marginRight: '5%' }}
+                    onChange={switchConfig}
+                    disabled
+                  />
+                </HStack>
                 <Box alignSelf={'flex-end'} mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
@@ -199,8 +236,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.lightBlack'}
-            // ClearIcon={<DeleteIcon />}
+          // keyColor={'light.lightBlack'}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

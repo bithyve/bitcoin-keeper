@@ -27,6 +27,7 @@ const KeeperModal = (props: {
   showButtons?: boolean;
   learnMore?: boolean;
   learnMoreCallback?: any;
+  closeOnOverlayClick?: boolean;
 }) => {
   const {
     visible,
@@ -46,12 +47,14 @@ const KeeperModal = (props: {
     showButtons = true,
     learnMore = false,
     learnMoreCallback = () => {},
+    closeOnOverlayClick = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
-  const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
+  const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   return (
     <Modal
+      closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
       avoidKeyboard
@@ -59,7 +62,7 @@ const KeeperModal = (props: {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
     >
-      <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
+      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight={'full'}>
         <GestureHandlerRootView>
           <LinearGradient
             start={{ x: 0, y: 0 }}
@@ -181,6 +184,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   close: {
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 20,
+    top: 20,
   },
 });

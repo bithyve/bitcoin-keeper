@@ -8,19 +8,15 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 
-// import {
-//   heightPercentageToDP as hp,
-//   widthPercentageToDP as wp,
-// } from 'react-native-responsive-screen';
-
 const Buttons = ({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => {},
-  secondaryCallback = () => {},
+  primaryCallback = () => { },
+  secondaryCallback = () => { },
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
+  paddingHorizontal = wp(40)
 }) => {
   return (
     <View
@@ -60,7 +56,7 @@ const Buttons = ({
           <TouchableOpacity onPress={primaryCallback} disabled={primaryDisable}>
             <Shadow distance={10} startColor={'#073E3926'} offset={[3, 4]}>
               <LinearGradient
-                style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1 }]}
+                style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal: paddingHorizontal }]}
                 start={{ x: 0, y: 0.75 }}
                 end={{ x: 1, y: 0.25 }}
                 colors={['#00836A', '#073E39']}
@@ -89,7 +85,6 @@ const Buttons = ({
 
 const styles = ScaledSheet.create({
   createBtn: {
-    paddingHorizontal: wp(40),
     paddingVertical: hp(15),
     borderRadius: '10@s',
   },

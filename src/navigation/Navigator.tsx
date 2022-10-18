@@ -52,8 +52,6 @@ import ViewTransactionDetails from 'src/screens/ViewTransactions/ViewTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
-import ChoosePolicy from 'src/screens/Vault/ChoosePolicy';
-import SetExceptions from 'src/screens/Vault/SetExceptions';
 import SigningServer from 'src/screens/Vault/SigningServer';
 import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -63,6 +61,8 @@ import { AppContext } from 'src/common/content/AppContext';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
 import TransactionDetails from 'src/screens/Vault/TransactionDetails';
+import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
+import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -160,13 +160,13 @@ const AppStack = () => {
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
         <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
-        <Stack.Screen name="ChoosePolicy" component={ChoosePolicy} />
-        <Stack.Screen name="SetExceptions" component={SetExceptions} />
+        <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
         <Stack.Screen name="SigningServer" component={SigningServer} />
         <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
+        <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

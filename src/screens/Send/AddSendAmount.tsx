@@ -13,11 +13,12 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useAppSelector } from 'src/store/hooks';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -28,6 +29,17 @@ const AddSendAmount = ({ route }) => {
     amount: prefillAmount,
   }: { wallet: Wallet; address: string; amount: string } = route.params;
   const [amount, setAmount] = useState(prefillAmount ? prefillAmount : '');
+  const [recipientCount, setReicipientCount] = useState(1);
+  const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+
+  useEffect(() => {
+    const confirmBalance = wallet.specs.balances.confirmed;
+    if (sendMaxFee && confirmBalance) {
+      const sendMaxBalance = confirmBalance - sendMaxFee;
+      setAmount(`${sendMaxBalance}`);
+    }
+  }, [sendMaxFee]);
+
   const navigateToNext = (recipients) => {
     navigation.navigate('SendConfirmation', {
       wallet,
@@ -63,7 +75,10 @@ const AddSendAmount = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header title={`Enter the amount`} subtitle={`Sending to ${address}`} />
+      <Header
+        title={`Enter the amount`}
+      // subtitle={`Sending to ${address}`}
+      />
       {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
@@ -111,7 +126,7 @@ const AddSendAmount = ({ route }) => {
               amount,
             },
           ]}
-          addTransaction={() => {}}
+          addTransaction={() => { }}
         />
       </Box>
       <Box
@@ -165,7 +180,11 @@ const AddSendAmount = ({ route }) => {
             />
           </Box>
           <Pressable
-            onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
+            onPress={() => {
+              const confirmBalance = wallet.specs.balances.confirmed;
+              if (confirmBalance)
+                dispatch(calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet }));
+            }}
             style={{
               paddingHorizontal: 10,
               paddingVertical: 3,

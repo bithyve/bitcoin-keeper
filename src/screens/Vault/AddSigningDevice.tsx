@@ -1,6 +1,7 @@
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ScaledSheet, s } from 'react-native-size-matters';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
@@ -15,12 +16,13 @@ import Buttons from 'src/components/Buttons';
 import Header from 'src/components/Header';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import { Pressable } from 'react-native';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Relay from 'src/core/services/operations/Relay';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { WalletMap } from './WalletMap';
 import WalletOperations from 'src/core/wallets/operations';
@@ -63,6 +65,8 @@ const AddSigningDevice = () => {
   const [vaultCreating, setCreating] = useState(false);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
   const activeVault: Vault = useQuery(RealmSchema.Vault)
@@ -75,7 +79,6 @@ const AddSigningDevice = () => {
     if (activeVault && !vaultSigners.length) {
       dispatch(addSigningDevice(activeVault.signers));
     }
-    checkSigningDevice('7FBC64C9');
   }, []);
 
   useEffect(() => {
@@ -203,11 +206,17 @@ const AddSigningDevice = () => {
                     numberOfLines={2}
                     alignItems={'center'}
                     letterSpacing={1.12}
+                    fontWeight={200}
                   >
                     {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
-                  <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-                    {`Select Signing Device`}
+                  <Text
+                    fontWeight={200}
+                    color={'light.GreyText'}
+                    fontSize={13}
+                    letterSpacing={0.6}
+                  >
+                    {`Select signing device`}
                   </Text>
                 </VStack>
               </HStack>
@@ -240,17 +249,26 @@ const AddSigningDevice = () => {
                 fontSize={15}
                 numberOfLines={2}
                 alignItems={'center'}
+                fontWeight={200}
                 letterSpacing={1.12}
               >
                 {signer.signerName}
               </Text>
-              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
-                {`Added ${moment(signer.lastHealthCheck).calendar()}`}
+              <Text
+                color={'light.GreyText'}
+                fontSize={12}
+                fontWeight={200}
+                letterSpacing={0.6}>
+                {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
               </Text>
             </VStack>
           </HStack>
           <Pressable style={styles.remove} onPress={() => removeSigner(signer)}>
-            <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+            <Text
+              fontWeight={200}
+              color={'light.GreyText'}
+              fontSize={12}
+              letterSpacing={0.6}>
               {`Remove`}
             </Text>
           </Pressable>
@@ -260,10 +278,22 @@ const AddSigningDevice = () => {
   };
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
+  const common = translations['common'];
+  const AstrixSigners = [];
+  signersState.forEach((signer: VaultSigner) => {
+    if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))
+      AstrixSigners.push(signer.type);
+  });
+
   return (
     <ScreenWrapper>
       <Header
-        title={'Add Signing Devices'}
+        title={`${planStatus === VaultMigrationType.DOWNGRADE
+          ? 'Remove'
+          : planStatus === VaultMigrationType.UPGRADE
+            ? 'Add'
+            : 'Change'
+          } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
       />
@@ -276,19 +306,29 @@ const AddSigningDevice = () => {
           marginTop: hp(52),
         }}
       />
-      {signersState.every((signer) => {
-        return !!signer;
-      }) && (
-        <Box position={'absolute'} bottom={10} width={'100%'}>
-          <Buttons
-            primaryLoading={vaultCreating}
-            primaryText="Create Vault"
-            primaryCallback={triggerVaultCreation}
-            secondaryText={'Cancel'}
-            secondaryCallback={navigation.goBack}
-          />
-        </Box>
-      )}
+      <Box position={'absolute'} bottom={10} width={'100%'}>
+        {!!AstrixSigners.length ? (
+          <Box padding={'4'}>
+            <Note
+              title={common.note}
+              subtitle={`* ${AstrixSigners.join(
+                ' and '
+              )} does not support Testnet directly, so the app creates a proxy Testnet key for use in the beta app`}
+            />
+          </Box>
+        ) : null}
+        {signersState.every((signer) => {
+          return !!signer;
+        }) && (
+            <Buttons
+              primaryLoading={vaultCreating}
+              primaryText="Create Vault"
+              primaryCallback={triggerVaultCreation}
+              secondaryText={'Cancel'}
+              secondaryCallback={navigation.goBack}
+            />
+          )}
+      </Box>
     </ScreenWrapper>
   );
 };

@@ -2,6 +2,8 @@ import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
+
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 export interface Props {
   value: string;
   onPress?: Function;
@@ -46,14 +48,14 @@ const CustomYellowButton = (props: Props) => {
 const styles = StyleSheet.create({
   button: {
     width: 80,
-    height: 35,
+    height: 30,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   linearGradient: {
-    width: 80,
-    height: 35,
+    width: 75,
+    height: 30,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',

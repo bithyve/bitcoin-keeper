@@ -4,10 +4,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';
-import {
-  generateMockExtendedKey,
-  generateMockExtendedKeyForSigner,
-} from 'src/core/wallets/factories/VaultFactory';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -21,7 +17,9 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
 const SetupTapsigner = () => {
@@ -54,6 +52,7 @@ const SetupTapsigner = () => {
     }
   };
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const onDeletePressed = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
@@ -88,7 +87,7 @@ const SetupTapsigner = () => {
     const signer: VaultSigner = {
       signerId,
       type: SignerType.TAPSIGNER,
-      signerName: 'Tapsigner',
+      signerName: 'TAPSIGNER',
       xpub,
       xpubInfo: {
         derivationPath,
@@ -110,7 +109,22 @@ const SetupTapsigner = () => {
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      Alert.alert(err.toString());
+      if (err.toString().includes('401')) {
+        showToast('Please check the cvc entered and try again!', null, 2000, true);
+      } else if (err.toString().includes('429')) {
+        showToast(
+          'You have exceed the cvc retry limit. Please unlock the card and try again!',
+          null,
+          2000,
+          true
+        );
+      } else if (err.toString().includes('205')) {
+        showToast('Please try again!', null, 2000);
+      } else {
+        showToast(err.toString(), null, 2000, true);
+      }
+      setNfcVisible(false);
+      card.endNfcSession();
     }
   }, [cvc]);
 
@@ -126,7 +140,7 @@ const SetupTapsigner = () => {
     const tapsigner: VaultSigner = {
       signerId,
       type: SignerType.TAPSIGNER,
-      signerName: 'Tapsigner**',
+      signerName: 'TAPSIGNER**',
       isMock: true,
       xpub,
       xpriv,
@@ -140,7 +154,8 @@ const SetupTapsigner = () => {
     };
     if (amfData) {
       tapsigner.amfData = amfData;
-      tapsigner.signerName = 'Tapsigner*';
+      tapsigner.signerName = 'TAPSIGNER*';
+      tapsigner.isMock = false;
     }
     return tapsigner;
   };
@@ -159,15 +174,15 @@ const SetupTapsigner = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
-        <Box flex={1}>
-          <Box style={styles.header}>
-            <HeaderTitle
-              title="Setting up Tapsigner"
-              subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
-              onPressHandler={() => navigation.goBack()}
-            />
-          </Box>
+      <Box flex={1}>
+        <Box style={styles.header}>
+          <HeaderTitle
+            title="Setting up Tapsigner"
+            subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+            onPressHandler={() => navigation.goBack()}
+          />
+        </Box>
+        <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
           <ScrollView>
             <TextInput
               style={styles.input}
@@ -190,15 +205,15 @@ const SetupTapsigner = () => {
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
-          <KeyPadView
-            onPressNumber={onPressHandler}
-            keyColor={'#041513'}
-            ClearIcon={<DeleteIcon />}
-            onDeletePressed={onDeletePressed}
-          />
-          <NfcPrompt visible={nfcVisible} />
-        </Box>
-      </TapGestureHandler>
+        </TapGestureHandler>
+        <KeyPadView
+          onPressNumber={onPressHandler}
+          keyColor={'#041513'}
+          ClearIcon={<DeleteIcon />}
+          onDeletePressed={onDeletePressed}
+        />
+        <NfcPrompt visible={nfcVisible} />
+      </Box>
     </SafeAreaView>
   );
 };

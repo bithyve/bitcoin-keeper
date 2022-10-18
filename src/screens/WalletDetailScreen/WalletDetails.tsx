@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Box, Pressable, Text, View } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -42,7 +42,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import KeeperModal from 'src/components/KeeperModal';
 import { setIntroModal } from 'src/store/reducers/wallets';
 
@@ -69,12 +69,12 @@ const WalletDetails = () => {
     setWalletIndex(index);
   };
 
-  const _renderItem = ({ item, index }: { item, index }) => {
+  const _renderItem = ({ item, index }: { item; index }) => {
     const walletName = item?.presentationData?.name;
     const walletDescription = item?.presentationData?.description;
     const balances = item?.specs?.balances;
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
-    const isActive = index === walletIndex
+    const isActive = index === walletIndex;
 
     return (
       <Shadow
@@ -82,7 +82,7 @@ const WalletDetails = () => {
         startColor={'#e4e4e4'}
         offset={[0, 14]}
         viewStyle={{
-          height: hp(140),
+          height: hp(150),
         }}
       >
         <LinearGradient
@@ -92,7 +92,7 @@ const WalletDetails = () => {
           style={{
             borderRadius: hp(10),
             width: wp(170),
-            height: hp(150),
+            height: hp(Platform.OS === 'android' ? 170 : 160),
             position: 'relative',
             marginLeft: 0,
           }}
@@ -119,7 +119,6 @@ const WalletDetails = () => {
               </Text>
             </TouchableOpacity>
           ) : (
-
             <Box
               marginTop={hp(20)}
               style={{
@@ -154,13 +153,16 @@ const WalletDetails = () => {
                 <Box marginRight={1}>
                   <BtcWallet />
                 </Box>
-                <Text
-                  color={'light.white'}
-                  letterSpacing={1.2}
-                  fontSize={hp(24)}
-                  fontWeight={200}
-                >
+                <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
                   {getAmount(walletBalance)}
+                  <Text
+                    color={'light.sats'}
+                    letterSpacing={0.6}
+                    fontSize={hp(12)}
+                    fontWeight={200}
+                  >
+                    {getUnit()}
+                  </Text>
                 </Text>
               </Box>
             </Box>
@@ -229,6 +231,14 @@ const WalletDetails = () => {
             marginRight={3}
           >
             {getAmount(transaction.amount)}
+            <Text
+              color={'light.dateText'}
+              letterSpacing={0.6}
+              fontSize={hp(12)}
+              fontWeight={200}
+            >
+              {getUnit()}
+            </Text>
           </Text>
           <Box>
             <IconArrowGrey />
@@ -262,14 +272,29 @@ const WalletDetails = () => {
         <Box alignSelf={'center'}>
           <VaultSetupIcon />
         </Box>
-        <Text marginTop={hp(20)} color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+        <Text
+          marginTop={hp(20)}
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
           {
-            'You can use the individual wallet’s recovery phrases to connect other bitcoin apps to Keeper'
+            'You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper'
           }
         </Text>
-        <Text color={'white'} fontSize={13} letterSpacing={0.65} fontFamily={'body'} fontWeight={'200'} p={1}>
+        <Text
+          color={'white'}
+          fontSize={13}
+          letterSpacing={0.65}
+          fontFamily={'body'}
+          fontWeight={'200'}
+          p={1}
+        >
           {
-            'When the funds in a wallet cross a threshold, a transfer to the Vault is triggered. This ensures you don’t have more sats in hot wallets than you need.'
+            'When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This ensures you don’t have more sats in hot wallets than you need.'
           }
         </Text>
       </View>
@@ -295,9 +320,7 @@ const WalletDetails = () => {
         <BackIcon />
       </Pressable>
 
-      <Box
-        alignItems={'center'}
-      >
+      <Box alignItems={'center'}>
         <Text
           color={'light.textWallet'}
           letterSpacing={0.96}
@@ -314,15 +337,19 @@ const WalletDetails = () => {
           </Box>
           <Text color={'light.textWallet'} letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
             {getAmount(netBalance)}
+            <Text
+              color={'light.satsDark'}
+              letterSpacing={0.6}
+              fontSize={hp(12)}
+              fontWeight={200}
+            >
+              {getUnit()}
+            </Text>
           </Text>
         </Box>
       </Box>
 
-      <Box
-        marginTop={18}
-        height={hp(180)}
-        width={'100%'}
-      >
+      <Box marginTop={18} height={hp(180)} width={'100%'}>
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -330,10 +357,9 @@ const WalletDetails = () => {
           renderItem={_renderItem}
           sliderWidth={windowWidth}
           itemWidth={wp(170)}
-          itemHeight={hp(160)}
+          itemHeight={hp(180)}
           layout={'default'}
-          activeSlideAlignment='start'
-
+          activeSlideAlignment="start"
           inactiveSlideOpacity={1}
         />
       </Box>
@@ -358,12 +384,18 @@ const WalletDetails = () => {
                 fontSize={RFValue(12)}
                 fontWeight={200}
               >
-                Transfer Policy is set at{'  '}<Text fontWeight={'bold'}>0.0001฿</Text>
+                Transfer Policy is set at{'  '}
+                <Text fontWeight={'bold'}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
               </Text>
             </Box>
 
             <Pressable
-              onPress={() => navigation.navigate('SendConfirmation', { isVaultTransfer: true })}
+              onPress={() =>
+                navigation.navigate('SendConfirmation', {
+                  isVaultTransfer: true,
+                  walletId: wallets[walletIndex].id,
+                })
+              }
             >
               <Arrow />
             </Pressable>
@@ -400,11 +432,7 @@ const WalletDetails = () => {
             </Box>
           </Box>
 
-          <Box
-            marginTop={hp(10)}
-            height={hp(250)}
-            position={'relative'}
-          >
+          <Box marginTop={hp(10)} height={hp(250)} position={'relative'}>
             <FlatList
               refreshControl={
                 <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
@@ -415,18 +443,8 @@ const WalletDetails = () => {
               showsVerticalScrollIndicator={false}
             />
           </Box>
-          <Box
-            position={'absolute'}
-            bottom={0}
-            width={wp(375)}
-            paddingX={5}
-          >
-            <Box
-              borderWidth={0.5}
-              borderColor={'light.GreyText'}
-              borderRadius={20}
-              opacity={0.2}
-            />
+          <Box position={'absolute'} bottom={0} width={wp(375)} paddingX={5}>
+            <Box borderWidth={0.5} borderColor={'light.GreyText'} borderRadius={20} opacity={0.2} />
             <Box
               flexDirection={'row'}
               marginTop={4}
@@ -498,9 +516,13 @@ const WalletDetails = () => {
       )}
       <KeeperModal
         visible={introModal}
-        close={() => { dispatch(setIntroModal(false)) }}
+        close={() => {
+          dispatch(setIntroModal(false));
+        }}
         title={'Bip-85 Wallets'}
-        subTitle={'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'}
+        subTitle={
+          'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'
+        }
         modalBackground={['#00836A', '#073E39']}
         textColor={'#FFF'}
         Content={LinkedWalletContent}
