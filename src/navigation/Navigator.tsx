@@ -62,6 +62,7 @@ import AddDescription from 'src/screens/Vault/AddDescription';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
 import TransactionDetails from 'src/screens/Vault/TransactionDetails';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
+import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -165,6 +166,7 @@ const AppStack = () => {
         <Stack.Screen name="AddDescription" component={AddDescription} />
         <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
+        <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -187,7 +189,7 @@ const Navigator = () => {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title={'please wait'}
         subTitle={'loading'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
