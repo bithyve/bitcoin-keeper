@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     //   borderColor: Colors.borderColor,
   },
   textCurrency: {
-    fontFamily: Fonts.FiraSansMedium,
+    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: RFValue(18),
     color: '#00836A',
     fontWeight: '700'
@@ -253,9 +253,11 @@ const ChangeLanguage = () => {
                         >
                           <Text
                             style={{
-                              fontFamily: Fonts.FiraSansRegular,
+                              fontFamily: Fonts.RobotoCondensedRegular,
                               fontSize: RFValue(13),
                               marginLeft: wp('3%'),
+                              letterSpacing: 0.6,
+                              color: '#4F5955'
                             }}
                           >
                             {item.code}
@@ -344,9 +346,11 @@ const ChangeLanguage = () => {
                       >
                         <Text
                           style={{
-                            fontFamily: Fonts.FiraSansRegular,
+                            fontFamily: Fonts.RobotoCondensedRegular,
                             fontSize: RFValue(13),
                             marginLeft: wp('3%'),
+                            letterSpacing: 0.6,
+                            color: '#4F5955'
                           }}
                         >
                           <Text style={{

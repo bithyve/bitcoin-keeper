@@ -22,11 +22,15 @@ const AppVersionHistory = ({ navigation }) => {
       </Box>
 
       <Box mx={10} mb={5}>
-        <Text color={'light.headerText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(16)} fontFamily={'heading'} pl={10}>
+        <Text
+          color={'light.headerText'}
+          fontWeight={200}
+          letterSpacing={1}
+          fontSize={RFValue(16)}
+          fontFamily={'heading'}
+          pl={10}
+        >
           Version History
-        </Text>
-        <Text color={'light.GreyText'} fontWeight={200} letterSpacing={0.8} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
-          Lorem ipsum dolor sit amet
         </Text>
       </Box>
       <ScrollView>
