@@ -175,9 +175,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         }}
       >
         <Box>
-          <Box style={{
-            marginBottom: hp(10)
-          }}>
+          <Box
+            style={{
+              marginBottom: hp(10),
+            }}
+          >
             <Text
               color={'light.blackHeaderText'}
               fontSize={RFValue(18)}
@@ -225,9 +227,11 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               onChange={switchConfig}
             />
           </HStack> */}
-          <Box style={{
-            marginTop: hp(70)
-          }}>
+          <Box
+            style={{
+              marginTop: hp(70),
+            }}
+          >
             <Text
               color={'light.blackHeaderText'}
               fontSize={RFValue(18)}
@@ -239,17 +243,14 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               Exsisting Keeper App
             </Text>
             <Text
-              fontWeight={200}
-              color={'light.GreyText'}
+              color={'light.blackHeaderText'}
               fontSize={RFValue(12)}
               fontFamily={'body'}
               px={'8'}
-              letterSpacing={0.6}
             >
               If you previously had a Keeper wallet you can recover it
             </Text>
-          </Box>
-          {/* <Tile
+            {/* <Tile
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
             Icon={<Recover />}
@@ -258,33 +259,27 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               setCloudModal(true);
             }}
           /> */}
-          <Tile
-            title={'Recover for myself'}
-            subTitle={'Using Seed'}
-            Icon={<Recover />}
-            onPress={() => {
-              navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
-            }}
-          />
-          <Tile
-            title={'Inheritance Keeper vault'}
-            subTitle={'Using signing devices'}
-            onPress={() => {
-              navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-            }}
-            Icon={<Inheritance />}
-          />
+            <Tile
+              title={'Recover for myself'}
+              subTitle={'Using Seed'}
+              Icon={<Recover />}
+              onPress={() => {
+                navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
+              }}
+            />
+            <Tile
+              title={'Inheritance Keeper vault'}
+              subTitle={'Using signing devices'}
+              onPress={() => {
+                navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+              }}
+              Icon={<Inheritance />}
+            />
+          </Box>
         </Box>
       </ScrollView>
-      <Text
-        px={'10%'}
-        py={'5%'}
-        color={'light.lightBlack'}
-        fontSize={12}
-        fontWeight={100}
-        letterSpacing={0.6}
-      >
-        When you use Signing Devices to restore Keeper, only Vault is restored and the app has new
+      <Text px={'10%'} py={'5%'} color={'light.lightBlack'} fontSize={12}>
+        When you use signing devices to restore Keeper, only vault is restored and the app has new
         wallets
       </Text>
       <CloudRecoveryModal
@@ -325,7 +320,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           title: 'Share Feedback (Testnet only)',
           subTitle: 'Shake your device or take a screenshot to send feedback',
         }}
-        close={() => { }}
+        close={() => {}}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#000'}
         Content={() => {
