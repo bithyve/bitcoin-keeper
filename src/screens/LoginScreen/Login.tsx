@@ -79,7 +79,7 @@ const LoginScreen = ({ navigation, route }) => {
         return;
       } else {
         setTimeout(() => {
-          setLoginError(true);
+          // setLoginError(true);
           setErrMessage(`Please try after sometime`);
           setCanLogin(false);
         }, 100);
@@ -275,7 +275,7 @@ const LoginScreen = ({ navigation, route }) => {
                 {errMessage}
               </Text>
             )}
-            <HStack justifyContent={'space-between'} paddingTop={'2'}>
+            <HStack justifyContent={'space-between'} mr={10} paddingTop={'2'}>
               <Text
                 color={'light.white1'}
                 fontWeight={'200'}
@@ -290,8 +290,7 @@ const LoginScreen = ({ navigation, route }) => {
                 disabled={true}
                 trackColor={{ true: '#FFFA' }}
                 thumbColor={'#358475'}
-                style={{ marginRight: '5%' }}
-                onChange={() => {}}
+                onChange={() => { }}
               />
             </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
@@ -337,7 +336,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
