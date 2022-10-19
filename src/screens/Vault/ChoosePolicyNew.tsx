@@ -137,7 +137,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
             <Field
               title={'Max Transaction amount'}
               subTitle={
-                'Signing server will not sign is ten amount is more than this. You will have to use other signing devices'
+                'If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it.'
               }
               onPress={() => setSelectedPolicy('max')}
               value={maxTransaction}
