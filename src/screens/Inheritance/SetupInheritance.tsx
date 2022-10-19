@@ -33,7 +33,7 @@ const SetupInheritance = () => {
     },
     {
       title: 'Letter to the Attorney',
-      subTitle: 'For the Estate Management Company',
+      subTitle: 'For the estate management company',
       description: 'A partly pre-filled pdf template uniquely identifying the Vault and ability to add the beneficiary details',
       Icon: SettingUp
     },
