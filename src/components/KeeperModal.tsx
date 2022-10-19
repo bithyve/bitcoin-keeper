@@ -14,6 +14,7 @@ const KeeperModal = (props: {
   close: any;
   title?: string;
   subTitle?: string;
+  subTitleWidth?: number;
   modalBackground?: string[];
   buttonBackground?: string[];
   buttonText?: string;
@@ -34,6 +35,7 @@ const KeeperModal = (props: {
     close,
     title = 'Title',
     subTitle = null,
+    subTitleWidth = wp(270),
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = null,
@@ -46,7 +48,7 @@ const KeeperModal = (props: {
     dismissible = true,
     showButtons = true,
     learnMore = false,
-    learnMoreCallback = () => {},
+    learnMoreCallback = () => { },
     closeOnOverlayClick = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
@@ -87,6 +89,7 @@ const KeeperModal = (props: {
                 fontFamily={'body'}
                 fontWeight={'200'}
                 color={subTitleColor}
+                width={subTitleWidth}
               >
                 {subTitle}
               </Text>
