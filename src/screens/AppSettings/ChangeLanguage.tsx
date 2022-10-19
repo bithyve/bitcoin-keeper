@@ -280,8 +280,8 @@ const ChangeLanguage = () => {
           />
           <Menu
             onPress={() => {
-              setShowLanguages(!showLanguages)
-              setIsDisabled(false)
+              // setShowLanguages(!showLanguages)
+              // setIsDisabled(false)
             }}
             arrow={showLanguages}
             label={selectedLanguage.flag}
@@ -368,14 +368,14 @@ const ChangeLanguage = () => {
             </View>
           )}
         </ScrollView>
-        <View style={{ marginBottom: 10 }}>
+        {/* <View style={{ marginBottom: 10 }}>
           <LanguageNote
             title={settings.HelpUstranslate}
             subtitle={
               settings.desc
             }
           />
-        </View>
+        </View> */}
       </Box>
     </SafeAreaView>
   );
