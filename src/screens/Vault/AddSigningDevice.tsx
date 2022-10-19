@@ -1,3 +1,4 @@
+import { Alert, Pressable } from 'react-native';
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -10,6 +11,7 @@ import {
   removeSigningDevice,
   updateIntrimVault,
 } from 'src/store/reducers/vaults';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -18,7 +20,6 @@ import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
-import { Pressable } from 'react-native';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Relay from 'src/core/services/operations/Relay';
@@ -63,6 +64,7 @@ const AddSigningDevice = () => {
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const [signersState, setSignersState] = useState(vaultSigners);
   const [vaultCreating, setCreating] = useState(false);
+  const [recipients, setRecepients] = useState<any[]>();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -72,6 +74,10 @@ const AddSigningDevice = () => {
   const activeVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
+  const { confirmed, unconfirmed } = activeVault?.specs?.balances ?? {
+    confirmed: 0,
+    unconfirmed: 0,
+  };
 
   const planStatus = hasPlanChanged(activeVault, keeper);
 
@@ -91,13 +97,13 @@ const AddSigningDevice = () => {
 
   useEffect(() => {
     if (temporaryVault) {
-      sweepVaultFunds(activeVault, temporaryVault, activeVault.specs.balances.confirmed.toString());
+      createNewVault();
     }
   }, [temporaryVault]);
 
   useEffect(() => {
     if (vaultCreating) {
-      createNewVault();
+      initiateNewVault();
     }
   }, [vaultCreating]);
 
@@ -119,12 +125,69 @@ const AddSigningDevice = () => {
       return false;
     }
   }, []);
+  const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
-  const sweepVaultFunds = (oldVault: Vault, newVault: Vault, amount?: string) => {
-    const { confirmed, unconfirmed } = activeVault.specs.balances;
+  useEffect(() => {
+    if (sendMaxFee) {
+      const sendMaxBalance = confirmed - sendMaxFee;
+      const { updatedWallet, receivingAddress } =
+        WalletOperations.getNextFreeExternalAddress(temporaryVault);
+      setRecepients([
+        {
+          address: receivingAddress,
+          amount: sendMaxBalance,
+        },
+      ]);
+      dispatch(updateIntrimVault(updatedWallet as Vault));
+      dispatch(
+        sendPhaseOne({
+          wallet: activeVault,
+          recipients: [
+            {
+              address: receivingAddress,
+              amount: sendMaxBalance,
+            },
+          ],
+        })
+      );
+    }
+  }, [sendMaxFee]);
+
+  useEffect(() => {
+    if (sendPhaseOneState.isSuccessful) {
+      navigation.dispatch(
+        CommonActions.navigate('SendConfirmation', {
+          wallet: activeVault,
+          recipients,
+          uiMetaData: {
+            title: 'Transfer Funds to the New Vault',
+            subtitle: 'On-chain transaction incurs fees',
+            from: 'Old Vault',
+            to: 'New Vault',
+            vaultToVault: true,
+          },
+        })
+      );
+    } else if (sendPhaseOneState.hasFailed) {
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+        Alert.alert('You have insufficient balance at this time.');
+      else Alert.alert(sendPhaseOneState.failedErrorMessage);
+    }
+  }, [sendPhaseOneState]);
+
+  const initiateSweep = () => {
+    if (confirmed) {
+      dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: activeVault }));
+    } else {
+      Alert.alert('You have unconfirmed balance, please try again later!');
+    }
+  };
+
+  const createNewVault = () => {
     const netBanalce = confirmed + unconfirmed;
     if (netBanalce === 0) {
-      dispatch(finaliseVaultMigration(oldVault.id));
+      dispatch(finaliseVaultMigration(activeVault.id));
       const navigationState = {
         index: 1,
         routes: [
@@ -134,20 +197,12 @@ const AddSigningDevice = () => {
       };
       navigation.dispatch(CommonActions.reset(navigationState));
       return;
+    } else {
+      initiateSweep();
     }
-    const { updatedWallet, receivingAddress } =
-      WalletOperations.getNextFreeExternalAddress(newVault);
-    dispatch(updateIntrimVault(updatedWallet as Vault));
-    navigation.dispatch(
-      CommonActions.navigate('AddSendAmount', {
-        wallet: oldVault,
-        address: receivingAddress,
-        amount,
-      })
-    );
   };
 
-  const createNewVault = () => {
+  const initiateNewVault = () => {
     const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (activeVault) {
       const newVaultInfo: newVaultInfo = {
@@ -210,12 +265,7 @@ const AddSigningDevice = () => {
                   >
                     {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
-                  <Text
-                    fontWeight={200}
-                    color={'light.GreyText'}
-                    fontSize={13}
-                    letterSpacing={0.6}
-                  >
+                  <Text fontWeight={200} color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
                     {`Select signing device`}
                   </Text>
                 </VStack>
@@ -254,21 +304,13 @@ const AddSigningDevice = () => {
               >
                 {signer.signerName}
               </Text>
-              <Text
-                color={'light.GreyText'}
-                fontSize={12}
-                fontWeight={200}
-                letterSpacing={0.6}>
+              <Text color={'light.GreyText'} fontSize={12} fontWeight={200} letterSpacing={0.6}>
                 {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
               </Text>
             </VStack>
           </HStack>
           <Pressable style={styles.remove} onPress={() => removeSigner(signer)}>
-            <Text
-              fontWeight={200}
-              color={'light.GreyText'}
-              fontSize={12}
-              letterSpacing={0.6}>
+            <Text fontWeight={200} color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
               {`Remove`}
             </Text>
           </Pressable>
@@ -288,12 +330,13 @@ const AddSigningDevice = () => {
   return (
     <ScreenWrapper>
       <Header
-        title={`${planStatus === VaultMigrationType.DOWNGRADE
-          ? 'Remove'
-          : planStatus === VaultMigrationType.UPGRADE
+        title={`${
+          planStatus === VaultMigrationType.DOWNGRADE
+            ? 'Remove'
+            : planStatus === VaultMigrationType.UPGRADE
             ? 'Add'
             : 'Change'
-          } Signing Devices`}
+        } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
       />
@@ -320,14 +363,14 @@ const AddSigningDevice = () => {
         {signersState.every((signer) => {
           return !!signer;
         }) && (
-            <Buttons
-              primaryLoading={vaultCreating}
-              primaryText="Create Vault"
-              primaryCallback={triggerVaultCreation}
-              secondaryText={'Cancel'}
-              secondaryCallback={navigation.goBack}
-            />
-          )}
+          <Buttons
+            primaryLoading={vaultCreating}
+            primaryText="Create Vault"
+            primaryCallback={triggerVaultCreation}
+            secondaryText={'Cancel'}
+            secondaryCallback={navigation.goBack}
+          />
+        )}
       </Box>
     </ScreenWrapper>
   );
