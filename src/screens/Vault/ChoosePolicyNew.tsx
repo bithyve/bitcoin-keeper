@@ -145,7 +145,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
             <Field
               title={'Minimum transaction amount'}
               subTitle={
-                'Minimum Signing Server will not need a 2FA to sign and broadcast this amount'
+                'The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code'
               }
               onPress={() => setSelectedPolicy('min')}
               value={minTransaction}
