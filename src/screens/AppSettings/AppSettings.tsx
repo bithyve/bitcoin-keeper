@@ -288,7 +288,7 @@ const AppSettings = ({ navigation }) => {
           backgroundColor={'light.ReceiveBackground'}
         >
           <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <Pressable onPress={() => openLink(' https://t.me/bitcoinkeeper')}>
+            <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
               <Box
                 flexDirection={'row'}
                 justifyContent={'space-evenly'}
@@ -327,7 +327,7 @@ const AppSettings = ({ navigation }) => {
                 </Box>
               </Box>
             </Pressable>
-            <Pressable onPress={() => openLink('https://twitter.com/@bitcoinKeeper')}>
+            <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
               <Box
                 flexDirection={'row'}
                 justifyContent={'space-evenly'}
@@ -377,7 +377,7 @@ const AppSettings = ({ navigation }) => {
               height={hp(45)}
               bg={'light.lightYellow'}
             >
-              <Pressable onPress={() => openLink('https://hexawallet.io/faq/')}>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
                   fontSize={13}
                   fontWeight={200}
@@ -391,7 +391,7 @@ const AppSettings = ({ navigation }) => {
               <Text fontFamily={'body'} color={'light.textColor2'}>
                 |
               </Text>
-              <Pressable onPress={() => openLink('https://hexawallet.io/terms-of-service/')}>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
                   fontSize={13}
                   fontWeight={200}
@@ -405,7 +405,7 @@ const AppSettings = ({ navigation }) => {
               <Text fontFamily={'body'} color={'light.textColor2'}>
                 |
               </Text>
-              <Pressable onPress={() => openLink('http://hexawallet.io/privacy-policy')}>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
                   fontSize={13}
                   fontWeight={200}
