@@ -32,10 +32,10 @@ const ChoosePolicyNew = ({ navigation, route }) => {
   const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
 
   const [maxTransaction, setMaxTransaction] = useState(
-    existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '0'
+    existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
   );
   const [minTransaction, setMinTransaction] = useState(
-    existingMaxTransactionException ? `${existingMaxTransactionException}` : '0'
+    existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
   );
 
   const dispatch = useDispatch();
@@ -125,20 +125,20 @@ const ChoosePolicyNew = ({ navigation, route }) => {
             }}
           >
             <Field
-              title={'Max Transaction amount'}
+              title={'Max no-check amount'}
               subTitle={
-                'Signing server will not sign is ten amount is more than this. You will have to use other signing devices'
-              }
-              onPress={() => setSelectedPolicy('max')}
-              value={maxTransaction}
-            />
-            <Field
-              title={'Minimum transaction amount'}
-              subTitle={
-                'Minimum Signing Server will not need a 2FA to sign and broadcast this amount'
+                'The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code.'
               }
               onPress={() => setSelectedPolicy('min')}
               value={minTransaction}
+            />
+            <Field
+              title={'Max allowed amount'}
+              subTitle={
+                'If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it.'
+              }
+              onPress={() => setSelectedPolicy('max')}
+              value={maxTransaction}
             />
           </Box>
 

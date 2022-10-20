@@ -616,7 +616,7 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { veri
     const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
     if (valid) {
       yield put(signingServerRegistrationVerified(true));
-      const twoFADetails = { ...app.twoFADetails };
+      const twoFADetails = getJSONFromRealmObject(app.twoFADetails);
       twoFADetails.twoFAValidated = true;
       yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
     } else yield put(signingServerRegistrationVerified(false));
