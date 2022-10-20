@@ -65,16 +65,23 @@ const SignTransactionScreen = () => {
   const card = useRef(new CKTapCard()).current;
 
   useEffect(() => {
+    const navigationState = {
+      index: 1,
+      routes: [
+        { name: 'NewHome' },
+        { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+      ],
+    };
     if (isMigratingNewVault) {
       if (sendSuccessful) {
         dispatch(finaliseVaultMigration(vaultId));
-        navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+        navigation.dispatch(CommonActions.reset(navigationState));
       } else {
         return;
       }
     } else {
       if (sendSuccessful) {
-        navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+        navigation.dispatch(CommonActions.reset(navigationState));
       }
     }
   }, [sendSuccessful, isMigratingNewVault]);
@@ -110,9 +117,7 @@ const SignTransactionScreen = () => {
       seedBasedSingerMnemonic?: string;
     } = {}) => {
       const activeId = signerId || activeSignerId;
-      console.log({ activeId });
       const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
-      console.log({ currentSigner });
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.signerId === activeId

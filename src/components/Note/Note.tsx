@@ -13,7 +13,7 @@ const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }:
   const { colorMode } = useColorMode();
 
   return (
-    <Box bg={`${colorMode}.offWhite`} p={2}>
+    <Box bg={`${colorMode}.offWhite`} p={4}>
       <Box opacity={1}>
         <Text
           fontSize={14}

@@ -162,7 +162,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.navigate('VaultSettings');
+            // navigation.navigate('VaultSettings');
           }}
         >
           <IconSettings />
