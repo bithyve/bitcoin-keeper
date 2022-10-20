@@ -102,7 +102,7 @@ const HealthCheckComponent = (props) => {
           {BackupWallet.healthCheck}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
-          Lorem ipsum dolor sit amet
+          For the Recovery Phrase
         </Text>
       </Box>
       <Box>

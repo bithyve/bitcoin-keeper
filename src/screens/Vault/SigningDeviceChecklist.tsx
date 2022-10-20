@@ -40,12 +40,7 @@ const SigningDeviceChecklist = ({ date }) => {
             {item.date}
           </Text>
           <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-            <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
-              {item.title}
-            </Text>
-            <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
-              {item.subTitle}
-            </Text>
+            <Text fontWeight={200}>{item.title}</Text>
           </Box>
         </Box>
       ))}

@@ -195,13 +195,31 @@ export default function CreatePin(props) {
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                      // mt={hp('1.5%')}
+                    // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
-
+                <HStack justifyContent={'space-between'} paddingTop={'7'}>
+                  <Text
+                    color={'light.white1'}
+                    fontWeight={'200'}
+                    px={'8'}
+                    fontSize={13}
+                    letterSpacing={1}
+                  >
+                    {'Use bitcoin testnet'}
+                  </Text>
+                  <Switch
+                    defaultIsChecked
+                    trackColor={{ true: '#FFFA' }}
+                    thumbColor={'#358475'}
+                    style={{ marginRight: '5%' }}
+                    onChange={switchConfig}
+                    disabled
+                  />
+                </HStack>
                 <Box alignSelf={'flex-end'} mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
@@ -214,30 +232,12 @@ export default function CreatePin(props) {
                 </Box>
               </Box>
             ) : null}
-            <HStack justifyContent={'space-between'} paddingTop={'7'}>
-              <Text
-                color={'light.white1'}
-                fontWeight={'200'}
-                px={'8'}
-                fontSize={13}
-                letterSpacing={1}
-              >
-                {'Use bitcoin testnet'}
-              </Text>
-              <Switch
-                defaultIsChecked
-                trackColor={{ true: '#FFFA' }}
-                thumbColor={'#358475'}
-                style={{ marginRight: '5%' }}
-                onChange={switchConfig}
-              />
-            </HStack>
           </Box>
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.lightBlack'}
-            // ClearIcon={<DeleteIcon />}
+          // keyColor={'light.lightBlack'}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

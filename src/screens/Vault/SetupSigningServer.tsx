@@ -58,7 +58,7 @@ const SetupSigningServer = ({ route }: { route }) => {
       setSettingSigningServerKey(true);
       setupSigningServerKey();
     }
-  }, [signingServerVerified, isTwoFAAlreadyVerified]);
+  }, [signingServerVerified, isTwoFAAlreadyVerified, settingSigningServerKey]);
 
   const setupSigningServerKey = async () => {
     const networkType = config.NETWORK_TYPE;

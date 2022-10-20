@@ -47,7 +47,7 @@ function* uaiChecksWorker({ payload }) {
         if (!uais.length) {
           yield put(
             addToUaiStack(
-              `Health Check for ${signer.signerName} is due`,
+              `Health check for ${signer.signerName} is due`,
               false,
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               100,

@@ -13,14 +13,26 @@ const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }:
   const { colorMode } = useColorMode();
 
   return (
-    <Box bg={`${colorMode}.offWhite`} p={2}>
+    <Box bg={`${colorMode}.offWhite`} p={4}>
       <Box opacity={1}>
-        <Text fontSize={14} fontFamily={'body'} color={`light.lightBlack`} fontWeight={200}>
+        <Text
+          fontSize={14}
+          fontFamily={'body'}
+          color={`light.lightBlack`}
+          fontWeight={200}
+          letterSpacing={1.12}
+        >
           {title}
         </Text>
       </Box>
       <Box>
-        <Text fontSize={12} width={width} fontFamily={'body'} color={`light.${subtitleColor}`}>
+        <Text
+          fontSize={12}
+          width={width}
+          fontWeight={200}
+          color={`light.${subtitleColor}`}
+          letterSpacing={0.6}
+        >
           {subtitle}
         </Text>
       </Box>

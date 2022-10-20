@@ -1,13 +1,13 @@
-import { Box, Text, View } from 'native-base';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import {
   calculateCustomFee,
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
@@ -16,11 +16,11 @@ import Buttons from 'src/components/Buttons';
 import CustomPriorityModal from './CustomPriorityModal';
 import Header from 'src/components/Header';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -28,6 +28,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import moment from 'moment';
 import { sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
 import { useAppSelector } from 'src/store/hooks';
@@ -40,7 +41,25 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse, wallet, recipients, walletId } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const {
+    isVaultTransfer,
+    uaiSetActionFalse,
+    wallet,
+    recipients,
+    walletId,
+    uiMetaData = {},
+  } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const {
+    title = 'Sending to address',
+    subtitle = 'Choose priority and fee',
+    from = 'Funds',
+    to = 'Funds',
+    note = '',
+    vaultToVault = false,
+    walletToVault = false,
+    vaultToWallet = false,
+    walletToWallet = false,
+  } = uiMetaData;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -220,22 +239,62 @@ const SendConfirmation = ({ route }) => {
               letterSpacing={1.12}
               fontWeight={200}
             >
-              {isVaultTransfer && !isSend ? 'Vault' : 'Funds'}
+              {isVaultTransfer && !isSend ? 'Vault' : isSend ? from : to}
             </Text>
             <Box flexDirection={'row'}>
-              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                {isVaultTransfer && !isSend ? '' : `Policy ${' '}`}
-              </Text>
-              <Box justifyContent={'center'}>
-                <BTC />
-              </Box>
-              <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {isVaultTransfer && sourceWallet && isSend
-                  ? ` ${getAmount((sourceWallet as Wallet).specs.transferPolicy)}sats `
-                  : ''}
-                {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
-                {!isSend && isVaultTransfer ? defaultVault.specs.balances.confirmed : ''}
-              </Text>
+              {vaultToVault ? (
+                !isSend ? (
+                  <Text
+                    color={'light.GreyText'}
+                    fontSize={12}
+                    letterSpacing={0.24}
+                    fontWeight={100}
+                  >
+                    {`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
+                  </Text>
+                ) : (
+                  <>
+                    <Text
+                      color={'light.GreyText'}
+                      fontSize={12}
+                      letterSpacing={0.24}
+                      fontWeight={100}
+                    >
+                      {`Moving Funds  `}
+                      <BTC />
+                    </Text>
+                    <Text
+                      color={'light.GreyText'}
+                      fontSize={14}
+                      letterSpacing={1.4}
+                      fontWeight={300}
+                    >
+                      {` ${getAmount(recipients[0].amount)}`}
+                    </Text>
+                  </>
+                )
+              ) : (
+                <>
+                  <Text
+                    color={'light.GreyText'}
+                    fontSize={12}
+                    letterSpacing={0.24}
+                    fontWeight={100}
+                  >
+                    {isVaultTransfer && !isSend ? '' : `Policy ${' '}`}
+                  </Text>
+                  <Box justifyContent={'center'}>
+                    <BTC />
+                  </Box>
+                  <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
+                    {isVaultTransfer && sourceWallet && isSend
+                      ? ` ${getAmount((sourceWallet as Wallet).specs.transferPolicy)}sats `
+                      : ''}
+                    {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
+                    {!isSend && isVaultTransfer ? defaultVault.specs.balances.confirmed : ''}
+                  </Text>
+                </>
+              )}
             </Box>
           </Box>
         </Box>
@@ -271,6 +330,7 @@ const SendConfirmation = ({ route }) => {
   const SendingPriority = () => {
     return (
       <Box flexDirection={'column'}>
+        <Transaction />
         <Box flexDirection={'row'} justifyContent={'space-between'}>
           <Box
             style={{
@@ -465,42 +525,56 @@ const SendConfirmation = ({ route }) => {
   //   );
   // };
 
+  const FeeInfo = () => {
+    return (
+      <HStack width={windowWidth * 0.75} justifyContent={'space-between'} alignItems={'center'}>
+        <VStack>
+          <Text
+            color={'light.lightBlack'}
+            fontSize={14}
+            letterSpacing={1.12}
+            fontWeight={200}
+            marginTop={windowHeight * 0.011}
+          >
+            {'Fees'}
+          </Text>
+          <Text color={'light.lightBlack'} fontSize={12} letterSpacing={1.12} fontWeight={100}>
+            {'~ 10 - 30 mins'}
+          </Text>
+        </VStack>
+        <Text
+          color={'light.lightBlack'}
+          fontSize={14}
+          letterSpacing={1.12}
+          fontWeight={200}
+          marginTop={windowHeight * 0.011}
+        >
+          {<BTC />}
+          {` ${getAmount(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}`}
+        </Text>
+      </HStack>
+    );
+  };
+
   return (
     <ScreenWrapper>
-      <Header
-        title="Sending to address"
-        subtitle="Choose priority and fee"
-      />
+      <Header title={title} subtitle={subtitle} />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend={true} />
         <SendingCard isSend={false} />
         <Box marginTop={windowHeight * 0.01}>
-          <Transaction />
-        </Box>
-
-        <Box>
-          <SendingPriority />
-        </Box>
-
-        <Box flexDirection={'row'} justifyContent={'space-between'}>
-          <Text
-            color={'light.lightBlack'}
-            fontSize={14}
-            fontWeight={200}
-            letterSpacing={0.24}
-            width={wp(48)}
-            noOfLines={2}
-          >
-            Total Amount
-          </Text>
-          <Text color={'light.sendCardHeading'} fontSize={24} fontWeight={200} letterSpacing={0.24}>
-            0.024
-          </Text>
+          {vaultToVault ? <FeeInfo /> : <SendingPriority />}
         </Box>
       </Box>
-
-      {/* <CustomPriorityBox /> */}
-
+      <Box position={'absolute'} bottom={windowHeight * 0.14}>
+        {vaultToVault ? (
+          <Note
+            title="Note"
+            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
+            width={'70%'}
+          />
+        ) : null}
+      </Box>
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"

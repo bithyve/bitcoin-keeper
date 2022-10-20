@@ -31,6 +31,7 @@ const AddSendAmount = ({ route }) => {
   const [amount, setAmount] = useState(prefillAmount ? prefillAmount : '');
   const [recipientCount, setReicipientCount] = useState(1);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
   useEffect(() => {
     const confirmBalance = wallet.specs.balances.confirmed;
@@ -49,10 +50,6 @@ const AddSendAmount = ({ route }) => {
   const { showToast } = useToastMessage();
 
   const executeSendPhaseOne = () => {
-    if (wallet.specs.balances.confirmed < Number(amount)) {
-      showToast('You have insuffecient balnce at this time.', null, 1000);
-      return;
-    }
     const recipients = [];
     recipients.push({
       address,
@@ -64,8 +61,22 @@ const AddSendAmount = ({ route }) => {
         recipients,
       })
     );
-    navigateToNext(recipients);
   };
+
+  useEffect(() => {
+    if (sendPhaseOneState.isSuccessful) {
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: parseInt(amount),
+      });
+      navigateToNext(recipients);
+    } else if (sendPhaseOneState.hasFailed) {
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+        showToast('You have insufficient balance at this time.', null, 1000);
+      else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
+    }
+  }, [sendPhaseOneState]);
 
   useEffect(() => {
     return () => {
@@ -77,7 +88,7 @@ const AddSendAmount = ({ route }) => {
     <ScreenWrapper>
       <Header
         title={`Enter the amount`}
-      // subtitle={`Sending to ${address}`}
+        // subtitle={`Sending to ${address}`}
       />
       {/* <Box
         flexDirection={'row'}
@@ -126,7 +137,7 @@ const AddSendAmount = ({ route }) => {
               amount,
             },
           ]}
-          addTransaction={() => { }}
+          addTransaction={() => {}}
         />
       </Box>
       <Box

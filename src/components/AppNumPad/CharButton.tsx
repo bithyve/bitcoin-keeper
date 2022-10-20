@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
+import Fonts from 'src/common/Fonts';
 
 const CharButton = ({ char, Icon, pressHandler, color, height }) => {
   return (
@@ -12,7 +13,17 @@ const CharButton = ({ char, Icon, pressHandler, color, height }) => {
 export default CharButton;
 
 const styles = StyleSheet.create({
-  charContainer: { width: '33%', justifyContent: 'center' },
-  char: { textAlign: 'center', fontSize: 20, color: '#FDF7F0' },
-  icon: { alignSelf: 'center' },
+  charContainer: {
+    width: '33%',
+    justifyContent: 'center'
+  },
+  char: {
+    textAlign: 'center',
+    fontSize: 25,
+    color: '#041513',
+    fontFamily: Fonts.RobotoCondensedRegular
+  },
+  icon: {
+    alignSelf: 'center'
+  },
 });

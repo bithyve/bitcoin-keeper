@@ -323,7 +323,6 @@ const SigningDeviceDetails = ({ route }) => {
   };
 
   const openHealthCheckModal = (signerType) => {
-    console.log('asdfsd');
     switch (signerType) {
       case SignerType.TAPSIGNER:
         setHealthCheckViewTapsigner(true);
@@ -332,7 +331,7 @@ const SigningDeviceDetails = ({ route }) => {
         setHealthCheckViewColdCard(true);
         break;
       default:
-        Alert.alert('Healt Check Not Supported currently');
+        Alert.alert('Health check for this device is not supported currently');
     }
   };
 

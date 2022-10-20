@@ -277,21 +277,11 @@ const WalletSettings = ({ route }) => {
             }}
           />
         </ModalWrapper>
-        <ModalWrapper
-          visible={transferPolicyVisible}
-          onSwipeComplete={() => setTransferPolicyVisible(false)}
-        >
-          <TransferPolicy
-            closeBottomSheet={() => {
-              setTransferPolicyVisible(false);
-            }}
-            wallet={wallet}
-          />
-        </ModalWrapper>
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
-          title={'Account xPub'}
+          title={'Wallet xPub'}
+          subTitleWidth={wp(240)}
           subTitle={
             'Scan or copy paste the xPub in another app for generating new addresses and fetching balances'
           }
@@ -299,6 +289,25 @@ const WalletSettings = ({ route }) => {
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
           Content={ShowXPub}
+        />
+        <KeeperModal
+          visible={transferPolicyVisible}
+          close={() => setTransferPolicyVisible(false)}
+          title={'Edit Transfer Policy'}
+          subTitle={
+            'Threshold amount at which transfer is triggered'
+          }
+          subTitleColor={'#5F6965'}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor={'#041513'}
+          Content={() => {
+            return (
+              <TransferPolicy
+                wallet={wallet}
+                close={() => setTransferPolicyVisible(false)}
+              />
+            );
+          }}
         />
       </Box>
       {/* end */}

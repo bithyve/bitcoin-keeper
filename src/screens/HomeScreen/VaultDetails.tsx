@@ -162,7 +162,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.navigate('VaultSettings');
+            // navigation.navigate('VaultSettings');
           }}
         >
           <IconSettings />
@@ -569,7 +569,13 @@ const VaultDetails = ({ route, navigation }) => {
           return (
             <View>
               <Success />
-              <Text>
+              <Text
+                fontWeight={200}
+                fontSize={13}
+                letterSpacing={0.65}
+                color={'light.modalText'}
+                marginTop={3}
+              >
                 {
                   'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
                 }

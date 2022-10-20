@@ -77,7 +77,8 @@ export const customTheme = extendTheme({
       inActiveMsg: '#959595',
       vaultCardText: '#FFE5C6',
       sats: '#CEDFD8',
-      satsDark: '#486560'
+      satsDark: '#486560',
+      time: '#3D4252'
     },
     dark: {
       black: '#000000',
