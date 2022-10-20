@@ -280,7 +280,8 @@ const WalletSettings = ({ route }) => {
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
-          title={'Account xPub'}
+          title={'Wallet xPub'}
+          subTitleWidth={wp(240)}
           subTitle={
             'Scan or copy paste the xPub in another app for generating new addresses and fetching balances'
           }

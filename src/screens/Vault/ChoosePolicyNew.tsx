@@ -32,10 +32,10 @@ const ChoosePolicyNew = ({ navigation, route }) => {
   const existingMaxTransactionException = idx(existingExceptions, (_) => _.transactionAmount);
 
   const [maxTransaction, setMaxTransaction] = useState(
-    existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '0'
+    existingMaxTransactionRestriction ? `${existingMaxTransactionRestriction}` : '10000000'
   );
   const [minTransaction, setMinTransaction] = useState(
-    existingMaxTransactionException ? `${existingMaxTransactionException}` : '0'
+    existingMaxTransactionException ? `${existingMaxTransactionException}` : '1000000'
   );
 
   const dispatch = useDispatch();
@@ -81,17 +81,27 @@ const ChoosePolicyNew = ({ navigation, route }) => {
   const Field = ({ title, subTitle, value, onPress }) => {
     return (
       <Box flexDirection={'row'} alignItems={'center'} marginTop={hp(40)}>
-        <Box width={'55%'}>
+        <Box width={wp(175)}>
           <Text fontWeight={200} fontSize={13} letterSpacing={0.96}>
             {title}
           </Text>
-          <Text color={'light.GreyText'} fontWeight={200} fontSize={10} letterSpacing={0.5}>
+          <Text
+            color={'light.GreyText'}
+            fontWeight={200}
+            fontSize={10}
+            letterSpacing={0.5}
+          >
             {subTitle}
           </Text>
         </Box>
 
         <Box>
-          <Box marginLeft={wp(20)} width={wp(100)}>
+          <Box
+            style={{
+              marginLeft: wp(25),
+              width: wp(100)
+            }}
+          >
             <Input
               onPressIn={onPress}
               style={styles.textInput}
@@ -125,36 +135,36 @@ const ChoosePolicyNew = ({ navigation, route }) => {
             }}
           >
             <Field
-              title={'Max Transaction amount'}
+              title={'Max no-check amount'}
               subTitle={
-                'Signing server will not sign is ten amount is more than this. You will have to use other signing devices'
-              }
-              onPress={() => setSelectedPolicy('max')}
-              value={maxTransaction}
-            />
-            <Field
-              title={'Minimum transaction amount'}
-              subTitle={
-                'Minimum Signing Server will not need a 2FA to sign and broadcast this amount'
+                'If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it.'
               }
               onPress={() => setSelectedPolicy('min')}
               value={minTransaction}
             />
+            <Field
+              title={'Max allowed amount'}
+              subTitle={
+                'The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code'
+              }
+              onPress={() => setSelectedPolicy('max')}
+              value={maxTransaction}
+            />
           </Box>
 
-          <Box marginTop={hp(40)} marginBottom={hp(40)}>
+          <Box marginTop={hp(windowHeight > 700 ? 40 : 0)} >
             <Buttons primaryText="Next" primaryCallback={onNext} />
           </Box>
         </Box>
       </ScreenWrapper>
 
-      <Box position={'absolute'} bottom={10}>
+      <Box position={'absolute'} bottom={0}>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
           ok={() => {
             console.log('ok');
           }}
-          clear={() => {}}
+          clear={() => { }}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}

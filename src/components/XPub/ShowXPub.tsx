@@ -14,66 +14,67 @@ const ShowXPub = () => {
   const wallet = translations['wallet'];
   const common = translations['common'];
   return (
-    <Box
-      justifyContent={'center'}
-      alignItems={'center'}
-      width={wp(275)}
-    >
-      <Box >
-        <Image style={{ height: 200, width: 200 }} source={QrCode} />
-        <Box bg={'light.QrCode'} alignItems={'center'} justifyContent={'center'} p={1} w={200}>
-          <Text fontSize={RFValue(12)} color={'light.recieverAddress'} fontFamily={'body'}>
-            {wallet.AccountXpub}
-          </Text>
-        </Box>
-      </Box>
-      <Box p={2}>
-        <Box
-          flexDirection={'row'}
-          bg={'light.textInputBackground'}
-          borderTopLeftRadius={10}
-          borderBottomLeftRadius={10}
-          width={wp(220)}
-          marginTop={hp(30)}
-          marginBottom={hp(30)}
-        >
-          <Box
-            py={2}
-            alignItems={'center'}
-          >
-            <Text
-              fontSize={RFValue(12)}
-              fontFamily={'body'}
-              noOfLines={1}
-              px={3}
-            >
-              lk2j3429-85213-5134=50t-934285…
+    <>
+      <Box
+        justifyContent={'center'}
+        alignItems={'center'}
+        width={wp(275)}
+      >
+        <Box >
+          <Image style={{ height: 200, width: 200 }} source={QrCode} />
+          <Box bg={'light.QrCode'} alignItems={'center'} justifyContent={'center'} p={1} w={200}>
+            <Text fontSize={RFValue(12)} color={'light.recieverAddress'} fontFamily={'body'}>
+              {wallet.AccountXpub}
             </Text>
           </Box>
-          <TouchableOpacity
-            style={{
-              width: '15%',
-              paddingVertical: 3,
-              backgroundColor: '#CDD8D6',
-              borderTopRightRadius: 5,
-              borderBottomRightRadius: 5,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+        </Box>
+        <Box p={2}>
+          <Box
+            flexDirection={'row'}
+            bg={'light.textInputBackground'}
+            borderTopLeftRadius={10}
+            borderBottomLeftRadius={10}
+            width={wp(220)}
+            marginTop={hp(30)}
+            marginBottom={hp(30)}
           >
-            <Box>
-              <CopyIcon />
+            <Box
+              py={2}
+              alignItems={'center'}
+            >
+              <Text
+                fontSize={RFValue(12)}
+                fontFamily={'body'}
+                noOfLines={1}
+                px={3}
+              >
+                lk2j3429-85213-5134=50t-934285…
+              </Text>
             </Box>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                width: '15%',
+                paddingVertical: 3,
+                backgroundColor: '#CDD8D6',
+                borderTopRightRadius: 5,
+                borderBottomRightRadius: 5,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Box>
+                <CopyIcon />
+              </Box>
+            </TouchableOpacity>
+          </Box>
         </Box>
       </Box>
-      <Box >
-        <InfoBox
-          title={common.note}
-          desciption={wallet.AccountXpubNote}
-        />
-      </Box>
-    </Box>
+      <InfoBox
+        title={common.note}
+        desciption={wallet.AccountXpubNote}
+        width={wp(210)}
+      />
+    </>
   );
 };
 export default ShowXPub;
