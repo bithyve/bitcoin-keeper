@@ -41,7 +41,7 @@ const ChoosePlanCarousel = (props) => {
 
   const _renderItem = ({ item, index }) => {
     return (
-      <Pressable onPress={() => setCurrentPosition(index)}>
+      <Pressable onPress={() => _onSnapToItem(index)}>
         <LinearGradient
           colors={currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484']}
           style={{

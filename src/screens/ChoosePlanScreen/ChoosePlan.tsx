@@ -266,6 +266,7 @@ const ChoosePlan = (props) => {
         close={() => setShowUpgradeModal(false)}
         onPress={onPressModalBtn}
         isUpgrade={isUpgrade}
+        plan={subscription.name}
       />
       {loading ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />

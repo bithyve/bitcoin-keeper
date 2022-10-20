@@ -4,7 +4,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 //components and functions
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
@@ -33,7 +33,7 @@ const SetupInheritance = () => {
     },
     {
       title: 'Letter to the Attorney',
-      subTitle: 'For the Estate Management Company',
+      subTitle: 'For the estate management company',
       description: 'A partly pre-filled pdf template uniquely identifying the Vault and ability to add the beneficiary details',
       Icon: SettingUp
     },
@@ -48,9 +48,12 @@ const SetupInheritance = () => {
 
   const InheritancePoint = ({ title, subTitle, description, Icon }) => {
     return (
-      <Box marginBottom={hp(25)}>
+      <Box
+        style={{
+          marginBottom: hp(25),
+        }}>
         <Box
-          width={hp(300)}
+          width={wp(300)}
           flexDir={'row'}
           alignItems={'center'}
         >
@@ -80,7 +83,7 @@ const SetupInheritance = () => {
         <Text
           color={'light.white1'}
           fontSize={14}
-          marginTop={wp(16)}
+          marginTop={hp(16)}
           alignItems={'center'}
           width={wp(300)}
           fontWeight={200}
@@ -135,6 +138,7 @@ const SetupInheritance = () => {
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
           learnMore={true}
+          learnMorePressed={() => { dispatch(setInheritance(true)) }}
         />
       </Box>
       <Box
@@ -184,14 +188,14 @@ const SetupInheritance = () => {
         >
           This can be activated once you are at the Diamond Hands level
         </Text>
-        <Box marginTop={hp(50)}>
+        <Box marginTop={hp(windowHeight > 700 ? 50 : 0)}>
           <Buttons
             primaryText='Select Country'
             primaryCallback={() => { console.log('comming soon') }}
             paddingHorizontal={wp(20)}
           />
         </Box>
-        <Box position={'absolute'} bottom={hp(20)} width={wp(320)} justifyContent={'center'}>
+        <Box position={'absolute'} bottom={hp(10)} width={wp(320)} justifyContent={'center'}>
           <Note
             title={'Note'}
             subtitle={'Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction'}
