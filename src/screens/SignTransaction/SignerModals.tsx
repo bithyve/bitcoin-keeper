@@ -154,8 +154,7 @@ const PasswordEnter = ({ signTransaction }) => {
           color={'light.modalText'}
           marginTop={2}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
+
         </Text>
         <Box mt={10} alignSelf={'flex-end'} mr={2}>
           <Box>
@@ -339,7 +338,7 @@ const SignerModals = ({
                   setPasswordModal(false);
                 }}
                 title={'Enter your password'}
-                subTitle={'Lorem ipsum dolor sit amet, '}
+                subTitle={''}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
                 Content={() => <PasswordEnter signTransaction={signTransaction} />}
