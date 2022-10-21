@@ -301,7 +301,7 @@
     "VaultInfo": "A signing device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
-    "Description": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor"
+    "Description": ""
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
