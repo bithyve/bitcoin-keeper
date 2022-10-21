@@ -34,13 +34,13 @@ const SetupInheritance = () => {
     {
       title: 'Letter to the Attorney',
       subTitle: 'For the estate management company',
-      description: 'A partly pre-filled pdf template uniquely identifying the Vault and ability to add the beneficiary details',
+      description: 'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
       Icon: SettingUp
     },
     {
       title: 'Recovery Instructions',
       subTitle: 'For the heir or beneficiary',
-      description: 'A document that will help the beneficiary recover the Vault with or without the Keeper app',
+      description: 'A document that will help the beneficiary recover the vault with or without the Keeper app',
       Icon: Recovery
 
     }

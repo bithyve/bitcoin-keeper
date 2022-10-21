@@ -419,9 +419,7 @@ const SigningDeviceDetails = ({ route }) => {
         </Box>
       </ScrollView>
       <Box px={'10%'} py={'10%'}>
-        <Text fontSize={13}>
-          You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-        </Text>
+        <Text fontSize={13}>You will be reminded in 90 for the health check</Text>
 
         <HStack justifyContent={'space-between'}>
           <FooterItem
