@@ -15,9 +15,9 @@ enableAndroidFontFix();
 
 Text.defaultProps = Text.defaultProps || {};
 Text.defaultProps.allowFontScaling = false;
-Input.defaultProps = Text.defaultProps || {};
+Input.defaultProps = Input.defaultProps || {};
 Input.defaultProps.allowFontScaling = false;
-NativeText.defaultProps = Text.defaultProps || {};
+NativeText.defaultProps = NativeText.defaultProps || {};
 NativeText.defaultProps.allowFontScaling = false;
 
 AppRegistry.registerComponent(appName, () => App);
