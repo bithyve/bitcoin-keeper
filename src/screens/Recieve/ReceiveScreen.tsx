@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import InfoBox from '../../components/InfoBox';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import QRCode from 'react-native-qrcode-svg';
@@ -48,11 +48,12 @@ const ReceiveScreen = ({ route }: { route }) => {
 
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={common.receive}
         subtitle={'Native segwit address'}
         onPressHandler={() => navigtaion.goBack()}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(6)}
       />
       <Box marginTop={hp(80)} alignItems={'center'} alignSelf={'center'} width={hp(200)}>
         <QRCode

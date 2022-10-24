@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { ScaledSheet } from 'react-native-size-matters';
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -207,10 +207,11 @@ const ViewTransactionDetails = ({ route }) => {
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.headerText'}
-          fontSize={16}
+          titleFontSize={16}
+          paddingTop={hp(5)}
         />
         <Title />
         <ScrollView>

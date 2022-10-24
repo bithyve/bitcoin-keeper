@@ -15,7 +15,7 @@ import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_an
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -329,16 +329,16 @@ const AddSigningDevice = () => {
 
   return (
     <ScreenWrapper>
-      <Header
-        title={`${
-          planStatus === VaultMigrationType.DOWNGRADE
+      <HeaderTitle
+        title={`${planStatus === VaultMigrationType.DOWNGRADE
             ? 'Remove'
             : planStatus === VaultMigrationType.UPGRADE
-            ? 'Add'
-            : 'Change'
-        } Signing Devices`}
+              ? 'Add'
+              : 'Change'
+          } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <FlatList
         extraData={vaultSigners}
@@ -363,14 +363,14 @@ const AddSigningDevice = () => {
         {signersState.every((signer) => {
           return !!signer;
         }) && (
-          <Buttons
-            primaryLoading={vaultCreating}
-            primaryText="Create Vault"
-            primaryCallback={triggerVaultCreation}
-            secondaryText={'Cancel'}
-            secondaryCallback={navigation.goBack}
-          />
-        )}
+            <Buttons
+              primaryLoading={vaultCreating}
+              primaryText="Create Vault"
+              primaryCallback={triggerVaultCreation}
+              secondaryText={'Cancel'}
+              secondaryCallback={navigation.goBack}
+            />
+          )}
       </Box>
     </ScreenWrapper>
   );

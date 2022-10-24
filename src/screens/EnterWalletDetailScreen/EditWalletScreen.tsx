@@ -6,7 +6,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
@@ -28,10 +28,11 @@ const EditWalletScreen = () => {
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
-      <Header
+      <HeaderTitle
         title={common.EditDetails}
         subtitle={'Lorem ipsum dolor sit amet'}
         onPressHandler={() => navigtaion.goBack()}
+        paddingTop={3}
       />
       <View marginX={4} marginY={windowHeight / 12}>
         <Input

@@ -14,7 +14,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
 import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
@@ -142,10 +142,11 @@ const ViewAllTransactions = ({ route }) => {
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.headerText'}
-          fontSize={16}
+          titleFontSize={16}
+          paddingTop={hp(5)}
         />
         <Title title={title} subtitle={subtitle} />
       </Box>

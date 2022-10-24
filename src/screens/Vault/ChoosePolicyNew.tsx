@@ -121,7 +121,6 @@ const ChoosePolicyNew = ({ navigation, route }) => {
             title="Choose Policy"
             subtitle="for the signing server"
             paddingTop={hp(20)}
-            showToggler={false}
           />
 
           <Box
@@ -159,7 +158,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
           ok={() => {
             console.log('ok');
           }}
-          clear={() => {}}
+          clear={() => { }}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
