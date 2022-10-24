@@ -5,6 +5,7 @@ import { TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import Buttons from '../Buttons';
 
 const SkipHealthCheck = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -44,7 +45,7 @@ const SkipHealthCheck = (props) => {
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>
-      <Box alignItems={'center'} flexDirection={'row'} w={'95%'} py={5}>
+      {/* <Box alignItems={'center'} flexDirection={'row'} w={'95%'} py={5}>
         <TouchableOpacity
           onPress={() => props.closeBottomSheet()}
           style={{ width: '60%', paddingLeft: '15%' }}
@@ -61,7 +62,15 @@ const SkipHealthCheck = (props) => {
             value={'Confirm Seeds'}
           />
         </Box>
-      </Box>
+      </Box> */}
+      <Buttons
+        secondaryText={common.skip}
+        secondaryCallback={() => {
+          props.closeBottomSheet();
+        }}
+        primaryText={'Confirm Seeds'}
+        primaryCallback={props.confirmBtnPress()}
+      />
     </Box>
   );
 };
