@@ -5,6 +5,7 @@ import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity } from 'react-native';
+import Buttons from '../Buttons';
 
 const ConfirmSeedWord = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -118,8 +119,8 @@ const ConfirmSeedWord = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.seedWordNote}</Text>
       </Box>
-      <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
-        <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
+      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}> */}
+      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
           <Text fontSize={RFValue(14)} textAlign={'center'}>
             {BackupWallet.startOver}
           </Text>
@@ -135,8 +136,22 @@ const ConfirmSeedWord = (props) => {
             }}
             value={common.confirm}
           />
-        </Box>
-      </Box>
+        </Box> 
+        </Box>*/}
+      <Buttons
+        secondaryText={BackupWallet.startOver}
+        secondaryCallback={() => {
+          props.closeBottomSheet();
+        }}
+        primaryText={common.confirm}
+        primaryCallback={() => {
+          if (seedWord === words[index]) {
+            props.confirmBtnPress();
+          } else {
+            setInvalid(true);
+          }
+        }}
+      />
     </Box>
   );
 };
