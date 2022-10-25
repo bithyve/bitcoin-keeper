@@ -96,7 +96,6 @@ const SignWithColdCard = ({ route }) => {
       updatePSBTSignatures({ signedSerializedPSBT: payload.psbt, signerId: signer.signerId })
     );
   };
-
   const register = async () => {
     setNfcVisible(true);
     let line = '';
