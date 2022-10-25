@@ -28,93 +28,7 @@ import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
-
-const Title = (title, subtitle) => {
-  console.log(JSON.stringify(title));
-  return (
-    <Box flexDirection={'row'} px={'2%'} py={'5%'}>
-      <StatusBar barStyle={'light-content'} />
-      <VaultIcon />
-      <View style={{ flexDirection: 'column', marginLeft: 20 }}>
-        <Text fontSize={16} color={'light.headerText'}>
-          {title.title}
-        </Text>
-        <Text color={'light.GreyText'}>{title.subtitle}</Text>
-      </View>
-    </Box>
-  );
-};
-
-const renderTransactionElement = ({ item }) => {
-  return <TransactionElement transaction={item} />;
-};
-
-const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
-  const navigation = useNavigation();
-  return (
-    <Box
-      flexDirection={'row'}
-      height={getTransactionPadding()}
-      borderRadius={10}
-      justifyContent={'space-between'}
-      alignItems={'center'}
-      marginTop={hp(25)}
-    >
-      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-        {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-        <Box flexDirection={'column'} marginLeft={1.5}>
-          <Text
-            color={'light.GreyText'}
-            marginX={1}
-            fontSize={13}
-            fontWeight={200}
-            letterSpacing={0.6}
-            numberOfLines={1}
-            width={wp(125)}
-          >
-            {transaction?.txid}
-          </Text>
-          <Text
-            color={'light.dateText'}
-            marginX={1}
-            fontSize={11}
-            fontWeight={100}
-            letterSpacing={0.5}
-            opacity={0.82}
-          >
-            {transaction.date}
-          </Text>
-        </Box>
-      </Box>
-      <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-        <Box>
-          <BtcBlack />
-        </Box>
-        <Text
-          color={'light.textBlack'}
-          fontSize={19}
-          fontWeight={200}
-          letterSpacing={0.95}
-          marginX={2}
-          marginRight={3}
-        >
-          {transaction.amount}
-        </Text>
-        <Box>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('TransactionDetails', {
-                transaction: transaction,
-              });
-            }}
-          >
-            <IconArrowGrey />
-          </TouchableOpacity>
-        </Box>
-      </Box>
-    </Box>
-  );
-};
+import TransactionElement from 'src/components/TransactionElement';
 
 const ViewAllTransactions = ({ route }) => {
   const dispatch = useDispatch();
@@ -125,8 +39,8 @@ const ViewAllTransactions = ({ route }) => {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
   const transactions = vault?.specs?.transactions || [];
-  const title = route.params.title;
-  const subtitle = route.params.subtitle;
+  const title = route?.params?.title;
+  const subtitle = route?.params?.subtitle;
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -138,6 +52,18 @@ const ViewAllTransactions = ({ route }) => {
     dispatch(refreshWallets([vault], { hardRefresh: true }));
   };
 
+  const renderTransactionElement = ({ item }) => {
+    return (
+      <TransactionElement
+        transaction={item}
+        onPress={() => {
+          navigtaion.navigate('TransactionDetails', {
+            transaction: item,
+          });
+        }} />
+    )
+  };
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -147,8 +73,9 @@ const ViewAllTransactions = ({ route }) => {
           headerTitleColor={'light.headerText'}
           titleFontSize={16}
           paddingTop={hp(5)}
+          title={title}
+          subtitle={subtitle}
         />
-        <Title title={title} subtitle={subtitle} />
       </Box>
       <FlatList
         style={{ height: '75%' }}
