@@ -227,7 +227,7 @@ const AddSendAmount = ({ route }) => {
             <Buttons
               secondaryText={'Cancel'}
               secondaryCallback={() => {
-                console.log('Cancel');
+                navigation.goBack();
               }}
               primaryText={'Send'}
               primaryCallback={executeSendPhaseOne}
