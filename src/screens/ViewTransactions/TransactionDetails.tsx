@@ -12,12 +12,13 @@ import { Transaction } from 'src/core/wallets/interfaces';
 import IconRecieve from 'src/assets/images/svgs/icon_received_lg.svg';
 import IconSend from 'src/assets/images/svgs/icon_send_lg.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { useNavigation } from '@react-navigation/native';
 
 const TransactionDetails = ({ route }) => {
 
+  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const transactions = translations['transactions'];
-
   const transaction: Transaction = route.params.transaction;
 
   const InfoCard = ({ title, describtion, width = 300 }) => {
