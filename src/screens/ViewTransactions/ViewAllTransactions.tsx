@@ -103,7 +103,7 @@ const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
         <Box>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('ViewTransactionDetails', {
+              navigation.navigate('TransactionDetails', {
                 transaction: transaction,
               });
             }}

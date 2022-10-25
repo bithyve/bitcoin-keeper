@@ -1,7 +1,6 @@
 import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
-  Dimensions,
   FlatList,
   Platform,
   RefreshControl,
@@ -10,119 +9,42 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
-
-import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
-import BTC from 'src/assets/images/btc_white.svg';
-import BackIcon from 'src/assets/images/svgs/back_white.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
-import Buy from 'src/assets/images/svgs/icon_buy.svg';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import IconSent from 'src/assets/images/svgs/icon_sent.svg';
-import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { ScrollView } from 'react-native-gesture-handler';
+import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// components, hooks and functions
+import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import Recieve from 'src/assets/images/svgs/receive.svg';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
-import { ScrollView } from 'react-native-gesture-handler';
-import Send from 'src/assets/images/svgs/send.svg';
-import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
-import Success from 'src/assets/images/Success.svg';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { WalletMap } from '../Vault/WalletMap';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const { height } = Dimensions.get('window');
-const renderTransactionElement = ({ item }) => {
-  return <TransactionElement transaction={item} />;
-};
-
-const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
-  const navigation = useNavigation();
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        navigation.dispatch(
-          CommonActions.navigate('ViewTransactionDetails', {
-            transaction,
-          })
-        );
-      }}
-    >
-      <Box
-        flexDirection={'row'}
-        height={getTransactionPadding()}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(25)}
-      >
-        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-          <Box flexDirection={'column'} marginLeft={1.5}>
-            <Text
-              color={'light.GreyText'}
-              marginX={1}
-              fontSize={13}
-              fontWeight={200}
-              letterSpacing={0.6}
-              numberOfLines={1}
-              width={wp(125)}
-            >
-              {transaction?.txid}
-            </Text>
-            <Text
-              color={'light.dateText'}
-              marginX={1}
-              fontSize={11}
-              fontWeight={100}
-              letterSpacing={0.5}
-              opacity={0.82}
-            >
-              {transaction.date}
-            </Text>
-          </Box>
-        </Box>
-        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-          <Box>
-            <BtcBlack />
-          </Box>
-          <Text
-            color={'light.textBlack'}
-            fontSize={19}
-            fontWeight={200}
-            letterSpacing={0.95}
-            marginX={2}
-            marginRight={3}
-          >
-            {transaction.amount}
-          </Text>
-          <Box>
-            <IconArrowGrey />
-          </Box>
-        </Box>
-      </Box>
-    </TouchableOpacity>
-  );
-};
+import TransactionElement from 'src/components/TransactionElement';
+// asserts
+import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
+import BTC from 'src/assets/images/btc_white.svg';
+import BackIcon from 'src/assets/images/svgs/back_white.svg';
+import Buy from 'src/assets/images/svgs/icon_buy.svg';
+import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import Recieve from 'src/assets/images/svgs/receive.svg';
+import Send from 'src/assets/images/svgs/send.svg';
+import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import Success from 'src/assets/images/Success.svg';
+import VaultIcon from 'src/assets/images/icon_vault.svg';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 
 const Footer = ({ vault }: { vault: Vault }) => {
   const navigation = useNavigation();
@@ -270,9 +192,36 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
 
 const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) => {
   const navigation = useNavigation();
+
+  const renderTransactionElement = ({ item }) => {
+    return (
+      <TransactionElement
+        transaction={item}
+        onPress={() => {
+          navigation.dispatch(
+            CommonActions.navigate('TransactionDetails', {
+              // transaction: item,
+              transaction: {
+                recipientAddresses: 123,
+                txid: 'sfdkjhs',
+                date: '12 otc',
+                transactionType: 'Received',
+                amount: 1234,
+                senderAddresses: 123,
+                fee: 2312,
+                confirmations: '',
+                type: ''
+              },
+            })
+          );
+        }}
+      />
+    )
+  };
+
   return (
     <>
-      <VStack style={{ paddingTop: height * 0.12 }}>
+      <VStack style={{ paddingTop: windowHeight * 0.12 }}>
         <HStack justifyContent={'space-between'}>
           <Text
             color={'light.textBlack'}
