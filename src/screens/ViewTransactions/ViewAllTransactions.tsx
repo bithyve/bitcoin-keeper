@@ -1,30 +1,18 @@
-import { Box, HStack, Text, VStack } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Box } from 'native-base';
+import { useNavigation } from '@react-navigation/native';
 import {
   FlatList,
-  InteractionManager,
-  Platform,
   RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-  View,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+import React, { useContext, useState } from 'react';
+import { hp } from 'src/common/data/responsiveness/responsive';
 
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { Transaction } from 'src/core/wallets/interfaces';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
