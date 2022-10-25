@@ -89,7 +89,7 @@ const EnterWalletDetailScreen = ({ route }) => {
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
-              console.log('Cancel');
+              navigtaion.goBack();
             }}
             primaryText={common.create}
             primaryCallback={createNewWallet}
