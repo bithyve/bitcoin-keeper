@@ -279,7 +279,7 @@ const LoginScreen = ({ navigation, route }) => {
               <Text
                 color={'light.white1'}
                 fontWeight={'200'}
-                px={'8'}
+                px={'5'}
                 fontSize={13}
                 letterSpacing={1}
               >

@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
-
 import { RFValue } from 'react-native-responsive-fontsize';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
 
+import { hp } from 'src/common/data/responsiveness/responsive';
 import DotView from 'src/components/DotView';
 export interface Props {
   passCode?: string;
@@ -29,10 +25,13 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
 
   return (
     <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
+      <Box flexDirection={'row'} width={'auto'}
+        style={{
+          marginTop: hp(5),
+          marginBottom: hp(25)
+        }}>
         <Box
-          height={wp('12.5%')}
-          width={wp('12.5%')}
+          size={hp(48)}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -65,8 +64,7 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           </Box>
         </Box>
         <Box
-          height={wp('12.5%')}
-          width={wp('12.5%')}
+          size={hp(48)}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -99,8 +97,7 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           </Box>
         </Box>
         <Box
-          height={wp('12.5%')}
-          width={wp('12.5%')}
+          size={hp(48)}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -133,8 +130,7 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           </Box>
         </Box>
         <Box
-          height={wp('12.5%')}
-          width={wp('12.5%')}
+          size={hp(48)}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
