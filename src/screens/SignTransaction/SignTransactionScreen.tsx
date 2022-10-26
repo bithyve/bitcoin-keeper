@@ -8,7 +8,6 @@ import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import Header from 'src/components/Header';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -33,6 +32,8 @@ import idx from 'idx';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import HeaderTitle from 'src/components/HeaderTitle';
+import { hp } from 'src/common/data/responsiveness/responsive';
 
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -357,7 +358,11 @@ const SignTransactionScreen = () => {
 
   return (
     <ScreenWrapper>
-      <Header title="Sign Transaction" subtitle={`Chose any ${scheme.m} to sign the transaction`} />
+      <HeaderTitle
+        title="Sign Transaction"
+        subtitle={`Chose any ${scheme.m} to sign the transaction`}
+        paddingTop={hp(5)}
+      />
       <FlatList
         contentContainerStyle={{ paddingTop: '10%' }}
         data={signers}

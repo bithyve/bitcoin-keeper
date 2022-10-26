@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import Buttons from 'src/components/Buttons';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
@@ -155,10 +155,11 @@ const VaultRecovery = () => {
   const navigation = useNavigation();
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={'Add signing devices'}
         subtitle={'to recover your inherited Vault'}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
         {vaultMetaData.m ? (

@@ -8,7 +8,7 @@ import Modal from 'react-native-modal';
 //components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -164,12 +164,13 @@ const WalletSettings = ({ route }) => {
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           title={'Wallet Settings'}
           subtitle={'Setting for the wallet only'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.textBlack'}
-          fontSize={20}
+          titleFontSize={20}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box

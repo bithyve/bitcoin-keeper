@@ -5,7 +5,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import HardwareModalMap from '../Vault/HardwareModalMap';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
@@ -156,10 +156,11 @@ const SignersList = () => {
 
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={'Select Signing Device'}
         subtitle={'to recover your vault'}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY={'4'}>

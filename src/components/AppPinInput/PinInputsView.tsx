@@ -31,8 +31,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
     <Box alignSelf={'baseline'}>
       <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
         <Box
-          height={wp('13%')}
-          width={wp('13%')}
+          height={wp('12.5%')}
+          width={wp('12.5%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -65,8 +65,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           </Box>
         </Box>
         <Box
-          height={wp('13%')}
-          width={wp('13%')}
+          height={wp('12.5%')}
+          width={wp('12.5%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -99,8 +99,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           </Box>
         </Box>
         <Box
-          height={wp('13%')}
-          width={wp('13%')}
+          height={wp('12.5%')}
+          width={wp('12.5%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}
@@ -133,8 +133,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           </Box>
         </Box>
         <Box
-          height={wp('13%')}
-          width={wp('13%')}
+          height={wp('12.5%')}
+          width={wp('12.5%')}
           borderRadius={7}
           ml={5}
           alignItems={'center'}

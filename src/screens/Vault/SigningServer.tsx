@@ -122,68 +122,6 @@ const SigningServer = ({ navigation }) => {
     )
   }
 
-  const TransactionElement = ({ transaction = {} }: { transaction?: Transaction }) => {
-    return (
-      <Box
-        flexDirection={'row'}
-        height={getTransactionPadding()}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(20)}
-      >
-        <Box
-          flexDirection={'row'}
-          alignItems={'center'}
-          justifyContent={'center'}
-        >
-          <IconRecieve />
-          <Box flexDirection={'column'} marginLeft={1.5}>
-            <Text
-              color={'light.GreyText'}
-              marginX={1}
-              fontSize={13}
-              fontWeight={200}
-              letterSpacing={0.6}
-              numberOfLines={1}
-              width={wp(125)}
-            >
-              {'bjkdfie79583…'}
-            </Text>
-            <Text
-              color={'light.dateText'}
-              marginX={1}
-              fontSize={11}
-              fontWeight={100}
-              letterSpacing={0.5}
-              opacity={0.82}
-            >
-              {'30 May 22 11:00am'}
-            </Text>
-          </Box>
-        </Box>
-        <Box
-          flexDirection={'row'}
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
-          <Box>
-            <BtcBlack />
-          </Box>
-          <Text
-            color={'light.recieverAddress'}
-            fontSize={19}
-            fontWeight={200}
-            letterSpacing={0.95}
-            marginX={2}
-            marginRight={3}
-          >
-            {0.00015}
-          </Text>
-        </Box>
-      </Box>
-    );
-  };
   return (
     <SafeAreaView
       style={{
