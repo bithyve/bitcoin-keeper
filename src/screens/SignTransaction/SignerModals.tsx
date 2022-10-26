@@ -11,6 +11,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import { BulletPoint } from '../Vault/HardwareModalMap';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -18,6 +19,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SignerType } from 'src/core/wallets/enums';
+import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
@@ -102,15 +104,13 @@ const ColdCardContent = ({ register }) => {
   );
 };
 
-const InputCvc = ({ textRef }) => {
+const TapsignerContent = () => {
   return (
-    <TextInput
-      style={styles.input}
-      secureTextEntry={true}
-      onChangeText={(text) => {
-        textRef.current = text;
-      }}
-    />
+    <>
+      <TapsignerSetupSVG />
+      <BulletPoint text={'TAPSIGNER communicates with the app over NFC'} />
+      <BulletPoint text={'You will need the CVC/ Pin on the back of the card'} />
+    </>
   );
 };
 
@@ -153,9 +153,7 @@ const PasswordEnter = ({ signTransaction }) => {
           width={wp(290)}
           color={'light.modalText'}
           marginTop={2}
-        >
-
-        </Text>
+        ></Text>
         <Box mt={10} alignSelf={'flex-end'} mr={2}>
           <Box>
             <CustomGreenButton
@@ -276,20 +274,21 @@ const SignerModals = ({
         const currentSigner = signer.signerId === activeSignerId;
         switch (signer.type) {
           case SignerType.TAPSIGNER:
+            const navigateToSignWithTapsigner = () => {
+              setTapsignerModal(false);
+              navigation.dispatch(
+                CommonActions.navigate('SignWithTapsigner', { signTransaction, signer, textRef })
+              );
+            };
             return (
               <KeeperModal
                 visible={currentSigner && tapsignerModal}
                 close={() => setTapsignerModal(false)}
-                title={'Enter CVC'}
-                subTitle={'Please enter the 6-32 digit CVC of the TapSigner'}
-                modalBackground={['#00836A', '#073E39']}
-                buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonText={'SIGN'}
-                buttonTextColor={'#073E39'}
-                buttonCallback={signTransaction}
-                textColor={'#FFF'}
-                Content={() => InputCvc({ textRef })}
-                DarkCloseIcon={true}
+                title={'Keep your TAPSIGNER ready'}
+                subTitle={'Keep your TAPSIGNER ready before proceeding'}
+                buttonText={'Proceed'}
+                buttonCallback={navigateToSignWithTapsigner}
+                Content={() => <TapsignerContent />}
               />
             );
           case SignerType.COLDCARD:
