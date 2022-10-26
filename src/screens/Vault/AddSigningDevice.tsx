@@ -129,7 +129,7 @@ const AddSigningDevice = () => {
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
   useEffect(() => {
-    if (sendMaxFee) {
+    if (sendMaxFee && temporaryVault) {
       const sendMaxBalance = confirmed - sendMaxFee;
       const { updatedWallet, receivingAddress } =
         WalletOperations.getNextFreeExternalAddress(temporaryVault);

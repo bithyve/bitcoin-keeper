@@ -56,7 +56,7 @@ const SetupSuccessfully = () => {
   );
 };
 
-const BulletPoint = ({ text }) => {
+export const BulletPoint = ({ text }) => {
   return (
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box

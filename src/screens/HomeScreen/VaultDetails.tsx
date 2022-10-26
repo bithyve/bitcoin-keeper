@@ -355,6 +355,7 @@ const SignerList = ({
                   fontWeight={200}
                   letterSpacing={0.6}
                   textAlign={'center'}
+                  noOfLines={1}
                 >
                   {signer.signerName}
                 </Text>

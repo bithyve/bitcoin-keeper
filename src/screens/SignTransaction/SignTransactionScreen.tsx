@@ -82,7 +82,12 @@ const SignTransactionScreen = () => {
       }
     } else {
       if (sendSuccessful) {
-        navigation.dispatch(CommonActions.reset(navigationState));
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
+          })
+        );
       }
     }
   }, [sendSuccessful, isMigratingNewVault]);

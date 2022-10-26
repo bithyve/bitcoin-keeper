@@ -10,6 +10,7 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -109,20 +110,18 @@ const SetupTapsigner = () => {
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
+      let message;
       if (err.toString().includes('401')) {
-        showToast('Please check the cvc entered and try again!', null, 2000, true);
+        message = 'Please check the cvc entered and try again!';
       } else if (err.toString().includes('429')) {
-        showToast(
-          'You have exceed the cvc retry limit. Please unlock the card and try again!',
-          null,
-          2000,
-          true
-        );
+        message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
       } else if (err.toString().includes('205')) {
-        showToast('Please try again!', null, 2000);
+        message = 'Something went wrong, please try again!';
       } else {
-        showToast(err.toString(), null, 2000, true);
+        message = err.toString();
       }
+      NFC.showiOSMessage(message);
+      showToast(message, null, 2000, true);
       setNfcVisible(false);
       card.endNfcSession();
     }

@@ -108,4 +108,8 @@ export default class NFC {
   public static isNFCSupported = async () => {
     return NfcManager.isSupported();
   };
+
+  public static showiOSMessage = async (message: string) => {
+    return NfcManager.setAlertMessageIOS(message);
+  };
 }

@@ -14,7 +14,7 @@ const Buttons = ({
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
-  paddingHorizontal = wp(40)
+  paddingHorizontal = wp(40),
 }) => {
   return (
     <View
