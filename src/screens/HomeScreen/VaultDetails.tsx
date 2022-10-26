@@ -200,18 +200,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
         onPress={() => {
           navigation.dispatch(
             CommonActions.navigate('TransactionDetails', {
-              // transaction: item,
-              transaction: {
-                recipientAddresses: 123,
-                txid: 'sfdkjhs',
-                date: '12 otc',
-                transactionType: 'Received',
-                amount: 1234,
-                senderAddresses: 123,
-                fee: 2312,
-                confirmations: '',
-                type: ''
-              },
+              transaction: item,
             })
           );
         }}
