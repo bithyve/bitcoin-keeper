@@ -4,66 +4,92 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 //components and functions
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/svgs/vault.svg';
 import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
-
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
+  const dispatch = useAppDispatch();
+  const introModal = useAppSelector((state) => state.settings.inheritanceModal);
+  const { showToast } = useToastMessage();
+
   const [modalVisiblity, setModalVisiblity] = useState(true);
   const inheritanceData = [
     {
-      title: 'Setup Vault',
-      subTitle: 'Upgrade the Vault to Elite with 5 Signing Devices Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',
+      title: 'Safeguarding Tips',
+      subTitle: 'For yourself',
+      description: 'Consists of tips on things to consider while storing your signing devices for the purpose of inheritance (when it will be needed by someone else)',
       Icon: Vault
     },
     {
-      title: 'Activate Inheritance',
-      subTitle: 'Download documents: Will Addendum for Digital Assets and Recovery Instructions. Understand safekeeping best practices',
+      title: 'Letter to the Attorney',
+      subTitle: 'For the estate management company',
+      description: 'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
       Icon: SettingUp
     },
     {
-      title: 'Independent Recovery (optional)',
-      subTitle: 'Understand how you can recover your Vault even without teh Keeper app or any service from the company',
+      title: 'Recovery Instructions',
+      subTitle: 'For the heir or beneficiary',
+      description: 'A document that will help the beneficiary recover the vault with or without the Keeper app',
       Icon: Recovery
 
     }
   ]
 
-  const InheritancePoint = ({ title, description, Icon }) => {
+  const InheritancePoint = ({ title, subTitle, description, Icon }) => {
     return (
-      <Box marginBottom={hp(20)}>
+      <Box
+        style={{
+          marginBottom: hp(25),
+        }}>
         <Box
-          width={hp(300)}
+          width={wp(300)}
           flexDir={'row'}
           alignItems={'center'}
         >
           <Icon />
-          <Text
-            color={'light.white1'}
-            fontSize={15}
+          <Box
             marginLeft={wp(15)}
-            numberOfLines={2}
-            alignItems={'center'}
           >
-            {title}
-          </Text>
+            <Text
+              color={'light.white1'}
+              fontSize={15}
+              numberOfLines={2}
+              fontWeight={200}
+            >
+              {title}
+            </Text>
+            <Text
+              color={'light.white1'}
+              fontSize={12}
+              numberOfLines={2}
+              fontWeight={200}
+              opacity={0.7}
+            >
+              {subTitle}
+            </Text>
+          </Box>
         </Box>
         <Text
           color={'light.white1'}
-          fontSize={15}
-          marginTop={wp(16)}
+          fontSize={14}
+          marginTop={hp(16)}
           alignItems={'center'}
           width={wp(300)}
+          fontWeight={200}
+          letterSpacing={0.65}
         >
           {description}
         </Text>
@@ -78,7 +104,8 @@ const SetupInheritance = () => {
           return (
             <InheritancePoint
               title={item.title}
-              description={item.subTitle}
+              description={item.description}
+              subTitle={item.subTitle}
               Icon={item.Icon}
             />
           );
@@ -109,11 +136,11 @@ const SetupInheritance = () => {
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
-      <Box>
-        <Header
+      <Box marginBottom={-7}>
+        <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor={'light.headerText'}
-          fontSize={16}
+          learnMore={true}
+          learnMorePressed={() => { dispatch(setInheritance(true)) }}
         />
       </Box>
       <Box
@@ -127,18 +154,20 @@ const SetupInheritance = () => {
             fontSize={16}
             letterSpacing={0.96}
             marginTop={hp(10)}
+            fontWeight={200}
           >
-            Inheritance
+            Inheritance Support
           </Text>
           <Text
             color={'light.lightBlack2'}
             fontSize={13}
-            letterSpacing={1.13}
+            letterSpacing={1.3}
             marginTop={hp(4)}
             width={wp(250)}
             textAlign={'center'}
+            fontWeight={200}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+            Keeper provides you with the tips and tools you need to include the vault in your estate planning
           </Text>
         </Box>
       </Box>
@@ -146,45 +175,49 @@ const SetupInheritance = () => {
       <Box
         marginTop={hp(50)}
         alignItems={'center'}
+        flex={1}
       >
         <Assert />
         <Text
-          color={'light.lightBlack2'}
-          fontSize={13}
-          letterSpacing={1.13}
+          fontSize={12}
+          letterSpacing={0.6}
           marginTop={hp(36)}
-          width={wp(250)}
+          width={wp(220)}
           textAlign={'center'}
           numberOfLines={2}
+          opacity={0.85}
+          fontWeight={100}
         >
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          This can be activated once you are at the Diamond Hands level
         </Text>
-        <Box marginTop={hp(50)}>
+        <Box marginTop={hp(windowHeight > 700 ? 50 : 0)}>
           <Buttons
-            primaryText='Setup Inheritance'
-            primaryCallback={() => { console.log('Setup Inheritance') }}
+            primaryText='Select Country'
+            primaryCallback={() => { showToast('Inheritance flow coming soon') }}
+            paddingHorizontal={wp(20)}
+          />
+        </Box>
+        <Box position={'absolute'} bottom={hp(10)} width={wp(320)} justifyContent={'center'}>
+          <Note
+            title={'Note'}
+            subtitle={'Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction'}
+            subtitleColor={'GreyText'}
           />
         </Box>
       </Box>
-      <Box position={'absolute'} bottom={hp(40)} width={wp(320)}>
-        <Note
-          title={'Note'}
-          subtitle={'Make sure that your node is accessible at all times for the app to be able to connect to it'}
-          subtitleColor={'GreyText'}
-        />
-      </Box>
       <KeeperModal
-        visible={modalVisiblity}
-        close={() => { setModalVisiblity(false) }}
+        visible={introModal}
+        close={() => { dispatch(setInheritance(false)) }}
         title={'Inheritance'}
         subTitle={'Securely bequeath your bitcoin'}
         modalBackground={['#00836A', '#073E39']}
         textColor={'#FFFFFF'}
-        buttonText={'Add Now'}
+        buttonText={'Proceed'}
         buttonTextColor={'#073E39'}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         Content={InheritanceContent}
         DarkCloseIcon={true}
+        learnMore={true}
       />
     </Box >
   );

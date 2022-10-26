@@ -1,14 +1,14 @@
-import React, { useCallback } from 'react';
-import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { useToast } from 'native-base';
 import HexaToastMessages from 'src/components/ToastMessages';
+import React from 'react';
+import { useToast } from 'native-base';
 
 const useToastMessage = () => {
   const Toast = useToast();
 
-  function showToast(title, image?) {
+  function showToast(title, image?, duration = 3000, error = false) {
     Toast.show({
-      render: () => <HexaToastMessages title={title} Image={image} />,
+      render: () => <HexaToastMessages title={title} Image={image} error={error} />,
+      duration,
     });
   }
 

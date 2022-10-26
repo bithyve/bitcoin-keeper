@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { BackupType } from 'src/common/data/enums/BHR';
+import Buttons from '../Buttons';
 
 const HealthCheckComponent = (props) => {
   const navigation = useNavigation();
@@ -102,7 +103,7 @@ const HealthCheckComponent = (props) => {
           {BackupWallet.healthCheck}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
-          Lorem ipsum dolor sit amet
+          For the Recovery Phrase
         </Text>
       </Box>
       <Box>
@@ -137,7 +138,7 @@ const HealthCheckComponent = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.healthCheckNote}</Text>
       </Box>
-      <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
+      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
         <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
           <Text fontSize={RFValue(14)} textAlign={'center'}>
             {common.skip}
@@ -145,8 +146,16 @@ const HealthCheckComponent = (props) => {
         </TouchableOpacity>
         <Box>
           <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
-        </Box>
-      </Box>
+        </Box> 
+         </Box>*/}
+      <Buttons
+        secondaryText={common.skip}
+        secondaryCallback={() => {
+          props.closeBottomSheet();
+        }}
+        primaryText={common.confirm}
+        primaryCallback={onPressConfirm}
+      />
     </Box>
   );
 };

@@ -1,43 +1,188 @@
+import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import Alert from 'src/assets/images/alert_illustration.svg';
+import { BleManager } from 'react-native-ble-plx';
 import HardwareModalMap from './HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import { TouchableOpacity } from 'react-native';
+import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { setSdIntroModal } from 'src/store/reducers/vaults';
 
 type HWProps = {
   type: SignerType;
+  disabled: boolean;
+  message: string;
   first?: boolean;
   last?: boolean;
 };
 
+const findKeyInServer = (vaultSigners, type: SignerType) => {
+  return vaultSigners.find((element) => element.type === type);
+};
+
+const getDisabled = (type: SignerType, isOnPleb, vaultSigners) => {
+  // Keys Incase of level 1 we have level 1
+  if (isOnPleb) {
+    return { disabled: true, message: 'Upgrade to use these keys' };
+  }
+  // Keys Incase of already added
+  if (findKeyInServer(vaultSigners, type)) {
+    return { disabled: true, message: 'Key already added to the Vault.' };
+  }
+  return { disabled: false, message: '' };
+};
+
+const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  isBLESupported,
+  isOnPleb,
+  vaultSigners
+) => {
+  switch (type) {
+    case SignerType.COLDCARD:
+      return {
+        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
+      };
+    case SignerType.LEDGER:
+      return {
+        message: !isBLESupported ? 'BLE is not enabled in your device' : '',
+        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isBLESupported,
+      };
+    case SignerType.MOBILE_KEY:
+      return {
+        message: getDisabled(type, isOnPleb, vaultSigners).message,
+        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
+      };
+    case SignerType.POLICY_SERVER:
+      return {
+        message: getDisabled(type, isOnPleb, vaultSigners).message,
+        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
+      };
+    case SignerType.TAPSIGNER:
+      return {
+        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
+      };
+    case SignerType.SEED_WORDS:
+      return {
+        message: getDisabled(type, isOnPleb, vaultSigners).message,
+        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
+      };
+    case SignerType.TREZOR:
+    case SignerType.JADE:
+    case SignerType.KEYSTONE:
+    case SignerType.KEEPER:
+    case SignerType.PASSPORT:
+      return {
+        message: 'Coming soon',
+        disabled: false,
+      };
+    default:
+      return {
+        message: '',
+        disabled: false,
+      };
+  }
+};
+
 const SigningDeviceList = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
-  const [nfcAlert, setNfcAlert] = useState(false);
-  const vault = translations['vault'];
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+  const dispatch = useAppDispatch();
+  const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
+  const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
-  useEffect(() => {
-    getNfcSupport();
-  }, []);
+  const [nfcAlert, setNfcAlert] = useState(false);
+  const [isNfcSupported, setNfcSupport] = useState(true);
+  const [isBLESupported, setBLESupport] = useState(false);
+  const [signersLoaded, setSignersLoaded] = useState(false);
+
+  const vault = translations['vault'];
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
-    setNfcAlert(!isSupported);
+    setNfcSupport(isSupported);
+    setSignersLoaded(true);
   };
 
-  const HardWareWallet = ({ type, first = false, last = false }: HWProps) => {
+  const VaultSetupContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>
+          <SigningDevicesIllustration />
+        </Box>
+        <Text
+          color={'white'}
+          letterSpacing={0.65}
+          fontSize={13}
+          fontWeight={'200'}
+          marginTop={5}
+          p={1}
+        >
+          {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+        </Text>
+      </View>
+    );
+  };
+
+  const getBluetoothSupport = () => {
+    new BleManager().onStateChange((state) => {
+      if (state === 'PoweredOn') {
+        setBLESupport(true);
+      } else {
+        setBLESupport(false);
+      }
+    }, true);
+  };
+
+  const openNFCError = () => {
+    setNfcAlert(true);
+  };
+
+  useEffect(() => {
+    getBluetoothSupport();
+    getNfcSupport();
+  }, []);
+
+  const sortedSigners = [
+    SignerType.COLDCARD,
+    SignerType.LEDGER,
+    SignerType.TREZOR,
+    SignerType.TAPSIGNER,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
+    SignerType.PASSPORT,
+    SignerType.JADE,
+    SignerType.KEEPER,
+    SignerType.SEED_WORDS,
+    SignerType.KEYSTONE,
+  ];
+  const HardWareWallet = ({ type, disabled, message, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
+
     const onPress = () => {
       open();
     };
@@ -46,8 +191,15 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     const close = () => setVisible(false);
 
     return (
-      <>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+      <React.Fragment key={type}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onPress}
+          disabled={disabled}
+          style={{
+            opacity: disabled ? 0.4 : 1,
+          }}
+        >
           <Box
             backgroundColor={'light.lightYellow'}
             borderTopRadius={first ? 15 : 0}
@@ -58,7 +210,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
               height={windowHeight * 0.08}
               flexDirection={'row'}
               style={{
-                paddingVertical: hp(25),
                 paddingLeft: wp(40),
               }}
             >
@@ -74,9 +225,20 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
               <Box
                 style={{
                   marginLeft: wp(23),
+                  justifyContent: 'flex-end',
+                  marginTop: hp(20),
                 }}
               >
                 {WalletMap(type).Logo}
+                <Text
+                  color={'light.inActiveMsg'}
+                  fontSize={10}
+                  fontWeight={200}
+                  letterSpacing={1.3}
+                  marginTop={hp(5)}
+                >
+                  {message}
+                </Text>
               </Box>
             </Box>
             <Box
@@ -88,7 +250,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           </Box>
         </TouchableOpacity>
         <HardwareModalMap visible={visible} close={close} type={type} />
-      </>
+      </React.Fragment>
     );
   };
 
@@ -113,49 +275,57 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   };
 
   return (
-    <Box style={styles.container}>
-      <StatusBarComponent padding={50} />
-      <Box marginX={10}>
-        <HeaderTitle
-          title={vault.SelectSigner}
-          subtitle={vault.ForVault}
-          onPressHandler={() => navigation.navigate('NewHome')}
-          headerTitleColor={'light.headerTextTwo'}
-        />
-      </Box>
+    <ScreenWrapper>
+      <HeaderTitle
+        title={vault.SelectSigner}
+        subtitle={vault.ForVault}
+        headerTitleColor={'light.headerTextTwo'}
+        learnMore={true}
+        learnMorePressed={() => {
+          dispatch(setSdIntroModal(true));
+        }}
+      />
       <Box alignItems={'center'} justifyContent={'center'}>
-        <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
-          <Box paddingY={'4'}>
-            {[
-              'COLDCARD',
-              'TAPSIGNER',
-              'LEDGER',
-              'TREZOR',
-              'KEYSTONE',
-              'PASSPORT',
-              'JADE',
-              // 'KEEPER',
-              'POLICY_SERVER',
-              'MOBILE_KEY',
-            ].map((type: SignerType, index: number) => (
-              <HardWareWallet type={type} first={index === 0} last={index === 9} />
-            ))}
-          </Box>
+        <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
+          {!signersLoaded ? (
+            <ActivityIndicator />
+          ) : (
+            <Box paddingY={'4'}>
+              {sortedSigners?.map((type: SignerType, index: number) => {
+                const { disabled, message } = getDeviceStatus(
+                  type,
+                  isNfcSupported,
+                  isBLESupported,
+                  isOnPleb,
+                  vaultSigners
+                );
+                return (
+                  <HardWareWallet
+                    type={type}
+                    first={index === 0}
+                    last={index === 9}
+                    disabled={disabled}
+                    message={message}
+                  />
+                );
+              })}
+              <Text
+                fontSize={RFValue(12)}
+                letterSpacing={0.6}
+                fontWeight={100}
+                color={'light.lightBlack'}
+                width={wp(300)}
+                lineHeight={20}
+                marginTop={hp(20)}
+              >
+                {vault.VaultInfo}{' '}
+                <Text fontStyle={'italic'} fontWeight={'bold'}>
+                  Contact Us
+                </Text>
+              </Text>
+            </Box>
+          )}
         </ScrollView>
-        <Text
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-          fontWeight={100}
-          color={'light.lightBlack'}
-          width={wp(300)}
-          lineHeight={20}
-          marginTop={hp(20)}
-        >
-          {vault.VaultInfo}{' '}
-          <Text fontStyle={'italic'} fontWeight={'bold'}>
-            Contact Us
-          </Text>
-        </Text>
         <KeeperModal
           visible={nfcAlert}
           close={() => {
@@ -168,18 +338,32 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           buttonText={'  CTA  '}
           buttonTextColor={'#FAFAFA'}
           textColor={'#041513'}
-          butt
           Content={nfcAlertConternt}
         />
+        <KeeperModal
+          visible={sdModal}
+          close={() => {
+            dispatch(setSdIntroModal(false));
+          }}
+          title={'Signing Devices'}
+          subTitle={
+            'A signing device is a piece of hardware or software that stores one of the private keys needed for your vault'
+          }
+          modalBackground={['#00836A', '#073E39']}
+          buttonBackground={['#FFFFFF', '#80A8A1']}
+          buttonText={'Add Now'}
+          buttonTextColor={'#073E39'}
+          buttonCallback={() => {
+            dispatch(setSdIntroModal(false));
+          }}
+          textColor={'#FFF'}
+          Content={VaultSetupContent}
+          DarkCloseIcon={true}
+          learnMore={true}
+        />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 };
-
-const styles = ScaledSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default SigningDeviceList;

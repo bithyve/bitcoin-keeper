@@ -1,4 +1,5 @@
 import { extendTheme } from 'native-base';
+import Colors from 'src/theme/Colors';
 import Fonts from './Fonts';
 export const customTheme = extendTheme({
   fontConfig: {
@@ -72,6 +73,15 @@ export const customTheme = extendTheme({
       inheritanceTitle: '#055146',
       modalText: '#073B36',
       indicator: '#F86B50',
+      addTransactionText: '#252C23',
+      sendMax: '#453228',
+      inActiveMsg: '#959595',
+      vaultCardText: '#FFE5C6',
+      sats: '#CEDFD8',
+      satsDark: '#486560',
+      time: '#3D4252',
+      lgStart: Colors.linearGradientStart, // linearGradient
+      lgEnd: Colors.linearGradientEnd, // linearGradient
     },
     dark: {
       black: '#000000',

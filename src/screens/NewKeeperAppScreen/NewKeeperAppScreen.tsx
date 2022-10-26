@@ -1,24 +1,32 @@
+import { ActivityIndicator, Platform } from 'react-native';
+import { Box, HStack, Image, Pressable, ScrollView, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, ScrollView, StatusBar, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity, Platform, View } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { setupKeeperApp, SETUP_KEEPER_APP } from 'src/store/sagaActions/storage';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
-import { getCloudData, recoverBackup } from 'src/store/sagaActions/bhr';
-import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
-import App from 'src/assets/images/svgs/app.svg';
-import Recover from 'src/assets/images/svgs/recover.svg';
-import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import PasswordModal from 'src/components/PasswordModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
-import useToastMessage from 'src/hooks/useToastMessage';
-import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 
-const Tile = ({ title, subTitle, onPress, Icon }) => {
+import App from 'src/assets/images/svgs/app.svg';
+import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
+import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
+import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
+import KeeperLoader from 'src/components/KeeperLoader';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
+import PasswordModal from 'src/components/PasswordModal';
+import { RFValue } from 'react-native-responsive-fontsize';
+import Recover from 'src/assets/images/svgs/recover.svg';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import SignupIcon from 'src/assets/images/signup.svg';
+import config from 'src/core/config';
+import messaging from '@react-native-firebase/messaging';
+import { recoverBackup } from 'src/store/sagaActions/bhr';
+import { setupKeeperApp } from 'src/store/sagaActions/storage';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
+import useToastMessage from 'src/hooks/useToastMessage';
+
+const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
     <Pressable
       onPress={onPress}
@@ -26,8 +34,9 @@ const Tile = ({ title, subTitle, onPress, Icon }) => {
       flexDirection={'row'}
       alignItems={'center'}
       width={'90%'}
-      style={{ marginTop: hp(10) }}
+      style={{ marginTop: hp(10), height: hp(110) }}
       marginLeft={'5%'}
+      paddingX={2}
     >
       <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>
       <Box
@@ -36,16 +45,16 @@ const Tile = ({ title, subTitle, onPress, Icon }) => {
           paddingVertical: hp(20),
           paddingLeft: wp(24),
           borderRadius: hp(10),
-          width: wp(250),
+          width: '80%',
         }}
       >
         <Text
           color={'light.lightBlack'}
           fontFamily={'body'}
           fontWeight={200}
-          fontSize={RFValue(13)}
-          letterSpacing={0.65}
-          width={wp(233)}
+          fontSize={RFValue(14)}
+          letterSpacing={1.12}
+          width={'90%'}
         >
           {title}
         </Text>
@@ -55,13 +64,18 @@ const Tile = ({ title, subTitle, onPress, Icon }) => {
           fontWeight={200}
           fontSize={RFValue(12)}
           letterSpacing={0.6}
-          width={wp(240)}
-          marginTop={hp(5)}
+          width={'80%'}
         >
           {subTitle}
         </Text>
       </Box>
-      <ArrowIcon />
+      {loading ? (
+        <Box marginRight={'10'}>
+          <ActivityIndicator />
+        </Box>
+      ) : (
+        <ArrowIcon />
+      )}
     </Pressable>
   );
 };
@@ -81,10 +95,29 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
     appImageError,
     appImagerecoveryRetry,
   } = useAppSelector((state) => state.bhr);
+  const appCreated = useAppSelector((state) => state.storage.appId);
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const { showToast } = useToastMessage();
+  const [keeperInitiating, setInitiating] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (appCreated) {
+      setInitiating(false);
+      updateFCM();
+    }
+  }, [appCreated]);
+
+  async function updateFCM() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(updateFCMTokens([token]));
+    } catch (error) {
+      //
+    }
+  }
 
   useEffect(() => {
     if (appImageError) {
@@ -116,59 +149,108 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
 
   const closeCloudModal = () => setCloudModal(false);
 
+  useEffect(() => {
+    if (keeperInitiating) {
+      dispatch(setupKeeperApp());
+    }
+  }, [keeperInitiating]);
+
+  const SignUpModalContent = () => {
+    return (
+      <Box justifyContent={'center'}>
+        <SignupIcon />
+        <Text fontWeight={200} marginTop={5}>
+          These are generally offline and to keep them secure is your responsibility. Losing them
+          may lead to permanent loss of your bitcoin.
+        </Text>
+      </Box>
+    );
+  };
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: 'light.ReceiveBackground',
-      }}
-    >
-      <StatusBar backgroundColor={'light.ReceiveBackground'} barStyle="dark-content" />
+    <ScreenWrapper barStyle="dark-content">
       <ScrollView
         style={{
-          paddingTop: 50,
+          paddingTop: '5%',
         }}
       >
-        <Box mx={3}>
-          <Text
-            color={'light.blackHeaderText'}
-            fontSize={RFValue(20)}
-            fontFamily={'heading'}
-            pl={10}
+        <Box>
+          <Box
+            style={{
+              marginBottom: hp(10),
+            }}
           >
-            New Keeper App
-          </Text>
-          <Text
-            px={'5%'}
-            color={'light.blackHeaderText'}
-            fontSize={RFValue(12)}
-            fontFamily={'body'}
-            pl={10}
-          >
-            Use this option if you want to create a new Keeper app
-          </Text>
+            <Text
+              color={'light.blackHeaderText'}
+              fontSize={RFValue(18)}
+              fontFamily={'heading'}
+              px={'8'}
+              fontWeight={200}
+              letterSpacing={0.9}
+            >
+              New Keeper App
+            </Text>
+            <Text
+              fontWeight={200}
+              color={'light.GreyText'}
+              fontSize={RFValue(12)}
+              fontFamily={'body'}
+              px={'8'}
+              letterSpacing={0.6}
+            >
+              Use this option if you want to create a new Keeper app
+            </Text>
+          </Box>
           <Tile
             title={'Start New'}
-            subTitle={'New Vault and Wallets'}
+            subTitle={'New vault and wallets'}
             Icon={<App />}
             onPress={() => {
-              dispatch(setupKeeperApp());
-              navigation.navigate('App', { screen: 'NewHome' });
+              setModalVisible(true);
+              setInitiating(true);
             }}
+            loading={keeperInitiating}
           />
-          <Text
-            color={'light.blackHeaderText'}
-            fontSize={RFValue(20)}
-            style={{ marginTop: 50 }}
-            fontFamily={'heading'}
-            pl={10}
+          {/* <HStack justifyContent={'space-between'} paddingTop={'2'}>
+            <Text
+              color={'light.blackHeaderText'}
+              fontFamily={'heading'}
+              fontWeight={'300'}
+              px={'8'}
+            >
+              Use TESTNET:
+            </Text>
+            <Switch
+              defaultIsChecked
+              trackColor={{ true: 'green' }}
+              style={{ marginRight: '5%' }}
+              onChange={switchConfig}
+            />
+          </HStack> */}
+          <Box
+            style={{
+              marginTop: hp(70),
+            }}
           >
-            Exsisting Keeper App
-          </Text>
-          <Text color={'light.blackHeaderText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
-            If you previously had a Keeper wallet you can recover it
-          </Text>
-          {/* <Tile
+            <Text
+              color={'light.blackHeaderText'}
+              fontSize={RFValue(18)}
+              fontFamily={'heading'}
+              px={'8'}
+              fontWeight={200}
+              letterSpacing={0.9}
+            >
+              Exsisting Keeper App
+            </Text>
+            <Text
+              color={'light.blackHeaderText'}
+              fontSize={RFValue(12)}
+              fontFamily={'body'}
+              px={'8'}
+            >
+              If you previously had a Keeper wallet you can recover it
+            </Text>
+            {/* <Tile
             title={'Recover for myself'}
             subTitle={'Using Cloud'}
             Icon={<Recover />}
@@ -177,24 +259,27 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               setCloudModal(true);
             }}
           /> */}
-          <Tile
-            title={'Recover for myself'}
-            subTitle={'Using Seed'}
-            Icon={<Recover />}
-            onPress={() => {
-              navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
-            }}
-          />
-          <Tile
-            title={'Inheritance Keeper Vault'}
-            subTitle={'Using Signing Devices'}
-            onPress={() => console.log('using Signing Devices')}
-            Icon={<Inheritance />}
-          />
+            <Tile
+              title={'Recover for myself'}
+              subTitle={'Using Seed'}
+              Icon={<Recover />}
+              onPress={() => {
+                navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
+              }}
+            />
+            <Tile
+              title={'Inheritance Keeper vault'}
+              subTitle={'Using signing devices'}
+              onPress={() => {
+                navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+              }}
+              Icon={<Inheritance />}
+            />
+          </Box>
         </Box>
       </ScrollView>
-      <Text px={'10%'} color={'light.lightBlack'} fontSize={12}>
-        When you use Signing Devices to restore Keeper, only Vault is restored and the app has new
+      <Text px={'10%'} py={'5%'} color={'light.lightBlack'} fontSize={12}>
+        When you use signing devices to restore Keeper, only vault is restored and the app has new
         wallets
       </Text>
       <CloudRecoveryModal
@@ -229,14 +314,26 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           dispatch(recoverBackup(password, selectedBackup.encData));
         }}
       />
-
       <ModalWrapper
         visible={createCloudBackupModal}
         onSwipeComplete={() => setCreateCloudBackupModal(false)}
       >
         <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
       </ModalWrapper>
-    </SafeAreaView>
+      <KeeperModal
+        dismissible={false}
+        close={() => {}}
+        visible={modalVisible}
+        title={'Keep your signing devices safe'}
+        subTitle={'Signing devices are what control your funds.'}
+        Content={SignUpModalContent}
+        buttonText={appCreated ? 'Next' : null}
+        buttonCallback={() => {
+          setModalVisible(false);
+          navigation.navigate('App', { screen: 'NewHome' });
+        }}
+      />
+    </ScreenWrapper>
   );
 };
 export default NewKeeperApp;

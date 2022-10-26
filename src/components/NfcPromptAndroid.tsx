@@ -1,8 +1,14 @@
-import { Animated, Image, Modal, StyleSheet, Text, View } from 'react-native';
+import { Animated, Modal, Platform, StyleSheet } from 'react-native';
+import { Text, View } from 'native-base';
 
+import NFC from 'src/assets/images/nfc.svg';
 import React from 'react';
 
 function NfcPrompt({ visible }) {
+  if (Platform.OS === 'ios') {
+    return null;
+  }
+
   const animation = React.useRef(new Animated.Value(0)).current;
 
   visible
@@ -38,13 +44,10 @@ function NfcPrompt({ visible }) {
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Image
-              source={require('src/assets/images/nfc-512.png')}
-              style={{ width: 120, height: 120, padding: 20 }}
-              resizeMode="contain"
-            />
-            <Text>{'Scanning'}</Text>
-            <Text>{`Please tap until the modal dismisses...`}</Text>
+            <NFC />
+            <Text style={{ textAlign: 'center', color: '#073E39' }}>
+              {`Please hold until the scanning is complete...`}
+            </Text>
           </View>
         </Animated.View>
         <Animated.View style={[styles.promptBg, bgAnimStyle]} />
@@ -72,7 +75,7 @@ const styles = StyleSheet.create({
     height: 300,
     alignSelf: 'stretch',
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#F7F2EC',
     borderRadius: 20,
     margin: 20,
     zIndex: 2,

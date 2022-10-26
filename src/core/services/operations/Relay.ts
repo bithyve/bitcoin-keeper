@@ -1,10 +1,13 @@
-import { AxiosResponse } from 'axios';
-import config from '../../config';
-import idx from 'idx';
-import { INotification } from '../interfaces';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { AxiosResponse } from 'axios';
+import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
+import { captureError } from '../sentry';
+import config from '../../config';
+import { getAppImage } from 'src/store/sagaActions/bhr';
+import idx from 'idx';
+import { NetworkType } from 'src/core/wallets/enums';
+import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
 
 const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
@@ -277,13 +280,13 @@ export default class Relay {
     message?: undefined;
   }> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      res = res.json || res.data;
+      let res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      res = res.data;
       return {
         status: res.status,
       };
     } catch (err) {
+      captureError(err);
       throw new Error('Failed to update App Image');
     }
   };
@@ -300,26 +303,96 @@ export default class Relay {
   }> => {
     try {
       let res;
+
       res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+
       res = res.json || res.data;
       return {
         status: res.status,
       };
     } catch (err) {
+      captureError(err);
       throw new Error('Failed to update Vault Image');
     }
   };
 
   public static getAppImage = async (appId): Promise<any> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}getAppImage`, {
+      const res = await RestClient.post(`${RELAY}getAppImage`, {
         id: appId,
+      });
+      const data = res.data;
+      return data;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get App Image');
+    }
+  };
+
+  public static getVaultMetaData = async (signerId): Promise<any> => {
+    try {
+      let res;
+      res = await RestClient.post(`${RELAY}getVaultMetaData`, {
+        signerId,
       });
       const data = res.data || res.json;
       return data;
     } catch (err) {
-      throw new Error('Failed get App Image');
+      captureError(err);
+      throw new Error('Failed get Vault Meta Data');
+    }
+  };
+
+  public static getSignerIdInfo = async (signerId): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
+        signerId,
+      });
+      const data = res.data || res.json;
+      return data.exsists;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get SignerId Info');
+    }
+  };
+
+  public static getVac = async (signerIdsHash): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}getVac`, {
+        signerIdsHash,
+      });
+      const data = res.data || res.json;
+      return data.encryptedVac;
+    } catch (err) {
+      captureError(err);
+      throw new Error('Failed get Vac');
+    }
+  };
+
+  public static getTestcoins = async (
+    recipientAddress: string,
+    network: any
+  ): Promise<{
+    txid: any;
+    funded: any;
+  }> => {
+    if (network === NetworkType.MAINNET) {
+      throw new Error('Invalid network: failed to fund via testnet');
+    }
+    const amount = 5000 / SATOSHIS_IN_BTC;
+    try {
+      const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
+        recipientAddress,
+        amount,
+      });
+      const { txid, funded } = res.data;
+      return {
+        txid,
+        funded,
+      };
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
     }
   };
 }

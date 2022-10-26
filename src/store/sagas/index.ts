@@ -7,8 +7,12 @@ import {
   importNewWalletWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
+  registerWithSigningServerWatcher,
   syncWalletsWatcher,
+  testcoinsWatcher,
+  updateSignerPolicyWatcher,
   updateWalletSettingsWatcher,
+  validateSigningServerRegistrationWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -34,6 +38,7 @@ import {
   healthCheckSignerWatcher,
   initCloudBackupWatcher,
   recoverBackupWatcher,
+  recoverVaultWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
@@ -51,7 +56,8 @@ import {
 } from './send_and_receive';
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
-import { setupKeeperAppWatcher } from './storage';
+import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
+import { updateSignerPolicy } from '../sagaActions/wallets';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -74,6 +80,10 @@ export const rootSaga = function* () {
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
+    registerWithSigningServerWatcher,
+    validateSigningServerRegistrationWatcher,
+    updateSignerPolicyWatcher,
+    testcoinsWatcher,
 
     // vaults
     addNewVaultWatcher,
@@ -110,6 +120,8 @@ export const rootSaga = function* () {
     recoverBackupWatcher,
     healthCheckSignerWatcher,
     backupWarningWatcher,
+    recoverVaultWatcher,
+    setupKeeperVaultRecoveryAppWatcher,
   ];
 
   yield all(

@@ -1,6 +1,8 @@
+import { Alert, Pressable } from 'react-native';
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ScaledSheet, s } from 'react-native-size-matters';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
@@ -9,17 +11,19 @@ import {
   removeSigningDevice,
   updateIntrimVault,
 } from 'src/store/reducers/vaults';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { Pressable } from 'react-native';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import Relay from 'src/core/services/operations/Relay';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { WalletMap } from './WalletMap';
 import WalletOperations from 'src/core/wallets/operations';
@@ -33,7 +37,7 @@ import { useDispatch } from 'react-redux';
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     } else if (currentScheme.m < subscriptionScheme.m) {
@@ -46,26 +50,39 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
   }
 };
 
+export const checkSigningDevice = async (id) => {
+  const exisits = await Relay.getSignerIdInfo(id);
+  return exisits;
+};
+
 const AddSigningDevice = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
   const currentSignerLimit = subscriptionScheme.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const [signersState, setSignersState] = useState(vaultSigners);
+  const [vaultCreating, setCreating] = useState(false);
+  const [recipients, setRecepients] = useState<any[]>();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
   const activeVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
+  const { confirmed, unconfirmed } = activeVault?.specs?.balances ?? {
+    confirmed: 0,
+    unconfirmed: 0,
+  };
 
   const planStatus = hasPlanChanged(activeVault, keeper);
 
   useEffect(() => {
-    if (activeVault) {
+    if (activeVault && !vaultSigners.length) {
       dispatch(addSigningDevice(activeVault.signers));
     }
   }, []);
@@ -80,9 +97,15 @@ const AddSigningDevice = () => {
 
   useEffect(() => {
     if (temporaryVault) {
-      sweepVaultFunds(activeVault, temporaryVault, activeVault.specs.balances.confirmed.toString());
+      createNewVault();
     }
   }, [temporaryVault]);
+
+  useEffect(() => {
+    if (vaultCreating) {
+      initiateNewVault();
+    }
+  }, [vaultCreating]);
 
   const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
@@ -102,29 +125,85 @@ const AddSigningDevice = () => {
       return false;
     }
   }, []);
+  const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
-  const sweepVaultFunds = (oldVault: Vault, newVault: Vault, amount?: string) => {
-    const { confirmed, unconfirmed } = activeVault.specs.balances;
-    const netBanalce = confirmed + unconfirmed;
-    if (netBanalce === 0) {
-      dispatch(finaliseVaultMigration(oldVault.id));
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
-      return;
+  useEffect(() => {
+    if (sendMaxFee && temporaryVault) {
+      const sendMaxBalance = confirmed - sendMaxFee;
+      const { updatedWallet, receivingAddress } =
+        WalletOperations.getNextFreeExternalAddress(temporaryVault);
+      setRecepients([
+        {
+          address: receivingAddress,
+          amount: sendMaxBalance,
+        },
+      ]);
+      dispatch(updateIntrimVault(updatedWallet as Vault));
+      dispatch(
+        sendPhaseOne({
+          wallet: activeVault,
+          recipients: [
+            {
+              address: receivingAddress,
+              amount: sendMaxBalance,
+            },
+          ],
+        })
+      );
     }
-    const { updatedWallet, receivingAddress } =
-      WalletOperations.getNextFreeExternalAddress(newVault);
-    dispatch(updateIntrimVault(updatedWallet as Vault));
-    navigation.dispatch(
-      CommonActions.navigate('AddSendAmount', {
-        wallet: oldVault,
-        address: receivingAddress,
-        amount,
-      })
-    );
+  }, [sendMaxFee]);
+
+  useEffect(() => {
+    if (sendPhaseOneState.isSuccessful) {
+      navigation.dispatch(
+        CommonActions.navigate('SendConfirmation', {
+          wallet: activeVault,
+          recipients,
+          uiMetaData: {
+            title: 'Transfer Funds to the New Vault',
+            subtitle: 'On-chain transaction incurs fees',
+            from: 'Old Vault',
+            to: 'New Vault',
+            vaultToVault: true,
+          },
+        })
+      );
+    } else if (sendPhaseOneState.hasFailed) {
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+        Alert.alert('You have insufficient balance at this time.');
+      else Alert.alert(sendPhaseOneState.failedErrorMessage);
+    }
+  }, [sendPhaseOneState]);
+
+  const initiateSweep = () => {
+    if (confirmed) {
+      dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: activeVault }));
+    } else {
+      Alert.alert('You have unconfirmed balance, please try again later!');
+    }
   };
 
-  const onProceed = () => {
-    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name];
+  const createNewVault = () => {
+    const netBanalce = confirmed + unconfirmed;
+    if (netBanalce === 0) {
+      dispatch(finaliseVaultMigration(activeVault.id));
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+      return;
+    } else {
+      initiateSweep();
+    }
+  };
+
+  const initiateNewVault = () => {
+    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (activeVault) {
       const newVaultInfo: newVaultInfo = {
         vaultType: VaultType.DEFAULT,
@@ -139,13 +218,32 @@ const AddSigningDevice = () => {
     } else {
       const freshVault = createVault(signersState, currentScheme);
       if (freshVault && !activeVault) {
-        navigation.dispatch(CommonActions.navigate('NewHome'));
+        const navigationState = {
+          index: 1,
+          routes: [
+            { name: 'NewHome' },
+            { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+          ],
+        };
+        navigation.dispatch(CommonActions.reset(navigationState));
       }
     }
   };
 
   const removeSigner = (signer) => {
     dispatch(removeSigningDevice(signer));
+  };
+
+  const triggerVaultCreation = () => {
+    setCreating(true);
+  };
+
+  const getPlaceholder = (index) => {
+    const mainIndex = index + 1;
+    if (mainIndex == 1) return mainIndex + 'st';
+    else if (mainIndex == 2) return mainIndex + 'nd';
+    else if (mainIndex == 3) return mainIndex + 'rd';
+    else return mainIndex + 'th';
   };
 
   const SignerItem = ({ signer, index }: { signer: VaultSigner | undefined; index: number }) => {
@@ -163,11 +261,12 @@ const AddSigningDevice = () => {
                     numberOfLines={2}
                     alignItems={'center'}
                     letterSpacing={1.12}
+                    fontWeight={200}
                   >
-                    {`Add Signer ${index + 1}`}
+                    {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
-                  <Text color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-                    {`Lorem ipsum dolor sit amet, consectetur`}
+                  <Text fontWeight={200} color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
+                    {`Select signing device`}
                   </Text>
                 </VStack>
               </HStack>
@@ -200,17 +299,18 @@ const AddSigningDevice = () => {
                 fontSize={15}
                 numberOfLines={2}
                 alignItems={'center'}
+                fontWeight={200}
                 letterSpacing={1.12}
               >
                 {signer.signerName}
               </Text>
-              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
-                {`Added ${moment(signer.lastHealthCheck).calendar()}`}
+              <Text color={'light.GreyText'} fontSize={12} fontWeight={200} letterSpacing={0.6}>
+                {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
               </Text>
             </VStack>
           </HStack>
           <Pressable style={styles.remove} onPress={() => removeSigner(signer)}>
-            <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
+            <Text fontWeight={200} color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
               {`Remove`}
             </Text>
           </Pressable>
@@ -220,12 +320,25 @@ const AddSigningDevice = () => {
   };
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
+  const common = translations['common'];
+  const AstrixSigners = [];
+  signersState.forEach((signer: VaultSigner) => {
+    if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))
+      AstrixSigners.push(signer.type);
+  });
+
   return (
     <ScreenWrapper>
-      <Header
-        title={'Add Signers'}
-        subtitle={'Lorem ipsum dolor sit amet, consectetur'}
+      <HeaderTitle
+        title={`${planStatus === VaultMigrationType.DOWNGRADE
+            ? 'Remove'
+            : planStatus === VaultMigrationType.UPGRADE
+              ? 'Add'
+              : 'Change'
+          } Signing Devices`}
+        subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <FlatList
         extraData={vaultSigners}
@@ -236,18 +349,29 @@ const AddSigningDevice = () => {
           marginTop: hp(52),
         }}
       />
-      {signersState.every((signer) => {
-        return !!signer;
-      }) && (
-        <Box position={'absolute'} bottom={10} width={'100%'}>
-          <Buttons
-            primaryText="Create Vault"
-            primaryCallback={onProceed}
-            secondaryText={'Cancel'}
-            secondaryCallback={navigation.goBack}
-          />
-        </Box>
-      )}
+      <Box position={'absolute'} bottom={10} width={'100%'}>
+        {!!AstrixSigners.length ? (
+          <Box padding={'4'}>
+            <Note
+              title={common.note}
+              subtitle={`* ${AstrixSigners.join(
+                ' and '
+              )} does not support Testnet directly, so the app creates a proxy Testnet key for use in the beta app`}
+            />
+          </Box>
+        ) : null}
+        {signersState.every((signer) => {
+          return !!signer;
+        }) && (
+            <Buttons
+              primaryLoading={vaultCreating}
+              primaryText="Create Vault"
+              primaryCallback={triggerVaultCreation}
+              secondaryText={'Cancel'}
+              secondaryCallback={navigation.goBack}
+            />
+          )}
+      </Box>
     </ScreenWrapper>
   );
 };

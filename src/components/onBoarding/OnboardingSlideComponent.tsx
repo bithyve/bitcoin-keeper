@@ -10,7 +10,13 @@ const { width } = Dimensions.get('window');
 
 const OnboardingSlideComponent = (props) => {
   return (
-    <Box width={width} alignItems={'center'} justifyContent={'center'} p={5} flex={1}>
+    <Box
+      width={width}
+      alignItems={'center'}
+      justifyContent={'center'}
+      p={5}
+      flex={1}
+    >
       <Box flex={0.2}>
         <Text
           fontSize={RFValue(18)}
@@ -23,11 +29,11 @@ const OnboardingSlideComponent = (props) => {
           {props.title}
         </Text>
       </Box>
-      <Box flex={0.6} justifyContent={'center'} mt={props.currentPosition >= 1 ? hp(40) : 0}>
+      <Box flex={0.6} justifyContent={'center'} mt={hp(-10)}>
         {props.illustration}
       </Box>
 
-      <Box flex={0.3} justifyContent={'center'} marginTop={hp(30)}>
+      <Box flex={0.3} justifyContent={'center'} marginTop={hp(40)}>
         <Text
           fontSize={RFValue(14)}
           color={'light.white'}

@@ -1,8 +1,9 @@
 import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { SignerException, SignerPolicy, SignerRestriction } from 'src/core/services/interfaces';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -16,8 +17,9 @@ export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
 export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
 export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
-export const REMOVE_TWO_FA = 'REMOVE_TWO_FA';
-export const VALIDATE_TWO_FA = 'VALIDATE_TWO_FA';
+export const REGISTER_WITH_SIGNING_SERVER = 'REGISTER_WITH_SIGNING_SERVER';
+export const UPDATE_SIGNER_POLICY = 'UPDATE_SIGNER_POLICY';
+export const VALIDATE_SIGNING_SERVER_REGISTRATION = 'VALIDATE_SIGNING_SERVER_REGISTRATION';
 export const SETUP_DONATION_WALLET = 'SETUP_DONATION_WALLET';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
 export const IMPORT_NEW_WALLET = 'IMPORT_NEW_WALLET';
@@ -27,6 +29,8 @@ export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
+export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
+export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -106,11 +110,36 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => {
   };
 };
 
-export const validateTwoFA = (token: number) => {
+export const registerWithSigningServer = (policy: SignerPolicy) => {
   return {
-    type: VALIDATE_TWO_FA,
+    type: REGISTER_WITH_SIGNING_SERVER,
     payload: {
-      token,
+      policy,
+    },
+  };
+};
+
+export const validateSigningServerRegistration = (verificationToken) => {
+  return {
+    type: VALIDATE_SIGNING_SERVER_REGISTRATION,
+    payload: {
+      verificationToken,
+    },
+  };
+};
+
+export const updateSignerPolicy = (
+  signer: VaultSigner,
+  updates: {
+    restrictions?: SignerRestriction;
+    exceptions?: SignerException;
+  }
+) => {
+  return {
+    type: UPDATE_SIGNER_POLICY,
+    payload: {
+      signer,
+      updates,
     },
   };
 };
@@ -209,7 +238,6 @@ export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
 export const TRANSACTIONS_FETCHED = 'TRANSACTIONS_FETCHED';
 export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
 export const SECONDARY_XPRIV_GENERATED = 'SECONDARY_XPRIV_GENERATED';
-export const TWO_FA_VALID = 'TWO_FA_VALID';
 export const TWO_FA_RESETTED = 'TWO_FA_RESETTED';
 export const SETTED_DONATION_WALLET = 'SETTED_DONATION_WALLET';
 export const NEW_WALLET_ADD_FAILED = 'NEW_WALLET_ADD_FAILED';
@@ -246,15 +274,6 @@ export const secondaryXprivGenerated = (generated) => {
     type: SECONDARY_XPRIV_GENERATED,
     payload: {
       generated,
-    },
-  };
-};
-
-export const twoFAValid = (isValid: boolean) => {
-  return {
-    type: TWO_FA_VALID,
-    payload: {
-      isValid,
     },
   };
 };
@@ -310,6 +329,15 @@ export const loginWithHexa = (authToken, walletName) => {
     payload: {
       authToken,
       walletName,
+    },
+  };
+};
+
+export const testSatsRecieve = (wallet: Wallet) => {
+  return {
+    type: TEST_SATS_RECIEVE,
+    payload: {
+      wallet,
     },
   };
 };

@@ -43,6 +43,7 @@ import _ from 'lodash';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import idx from 'idx';
+import { updatVaultImage } from '../sagaActions/bhr';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return '';
@@ -229,6 +230,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
+    yield put(updatVaultImage());
   } catch (err) {
     yield put(
       sendPhaseThreeExecuted({

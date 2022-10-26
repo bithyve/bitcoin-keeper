@@ -1,32 +1,35 @@
-import { Box, Text, View, ScrollView } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import * as bip39 from 'bip39';
+
+import { Box, ScrollView, Text, View } from 'native-base';
 import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  FlatList,
+  Platform,
+  StyleSheet,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import SeedWordsView from 'src/components/SeedWordsView';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import LinearGradient from 'react-native-linear-gradient';
-import KeeperModal from 'src/components/KeeperModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import React, { useContext, useEffect, useState } from 'react';
+
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import { useDispatch } from 'react-redux';
+import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import LinearGradient from 'react-native-linear-gradient';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { ScaledSheet } from 'react-native-size-matters';
+import SeedWordsView from 'src/components/SeedWordsView';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import * as bip39 from 'bip39';
+import Fonts from 'src/common/Fonts';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -115,13 +118,11 @@ const EnterSeedScreen = () => {
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
-  const {
-    appImageRecoverd,
-    appRecreated,
-    appRecoveryLoading,
-    appImageError,
-    appImagerecoveryRetry,
-  } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
+
+  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -136,7 +137,7 @@ const EnterSeedScreen = () => {
         navigation.navigate('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
+  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError]);
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
@@ -153,7 +154,7 @@ const EnterSeedScreen = () => {
     for (let i = 0; i < 12; i++) {
       seedWord += seedData[i].name + ' ';
     }
-    return seedWord;
+    return seedWord.trim();
   };
 
   const onPressNext = async () => {
@@ -181,9 +182,7 @@ const EnterSeedScreen = () => {
           <InvalidSeeds />
         </Box>
         <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit'
-          }
+          {'Make sure the words are entered in the correct sequence'}
         </Text>
       </View>
     );
@@ -243,9 +242,10 @@ const EnterSeedScreen = () => {
                         width: 22,
                         fontSize: 16,
                         color: '#00836A',
-                        fontWeight: 'bold',
                         marginTop: 8,
+                        letterSpacing: 1.23
                       }}
+                      fontWeight={'300'}
                     >
                       {getFormattedNumber(index)}
                     </Text>
@@ -254,8 +254,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid == true
                           ? {
-                              borderColor: '#F58E6F',
-                            }
+                            borderColor: '#F58E6F',
+                          }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -279,13 +279,25 @@ const EnterSeedScreen = () => {
                           setSeedData(data);
                         }
                       }}
+                      onFocus={() => {
+                        const data = [...seedData];
+                        data[index].invalid = false;
+                        setSeedData(data);
+                      }}
                     />
                   </View>
                 );
               }}
             />
           </View>
-          <Text color={'#4F5955'} marginX={10} marginY={10} fontSize={12}>
+          <Text
+            fontWeight={200}
+            color={'#4F5955'}
+            marginX={10}
+            marginY={10}
+            fontSize={12}
+            letterSpacing={0.6}
+          >
             {seed.seedDescription}
           </Text>
           <View
@@ -312,7 +324,7 @@ const EnterSeedScreen = () => {
                   {common.needHelp}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext}>
+              <TouchableOpacity onPress={onPressNext} disabled={appRecoveryLoading}>
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -407,6 +419,7 @@ const styles = ScaledSheet.create({
   },
   input: {
     backgroundColor: '#FDF7F0',
+    color: '#073E39',
     shadowOpacity: 0.4,
     shadowColor: 'rgba(0, 0, 0, 0.05)',
     elevation: 6,
@@ -419,6 +432,8 @@ const styles = ScaledSheet.create({
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
+    fontFamily: Fonts.RobotoCondensedRegular,
+    letterSpacing: 1.32
   },
 });
 

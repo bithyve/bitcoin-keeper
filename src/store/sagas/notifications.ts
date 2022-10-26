@@ -1,4 +1,4 @@
-import { call, put, select } from 'redux-saga/effects';
+import { all, call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import {
   UPDATE_FCM_TOKENS,
@@ -12,10 +12,17 @@ import {
   fetchNotificationStarted,
   storeMessagesTimeStamp,
   messageFetched,
-  setFcmToken
+  setFcmToken,
 } from '../reducers/notifications';
 import Relay from 'src/core/services/operations/Relay';
 import { RootState } from '../store';
+import { useDispatch } from 'react-redux';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { Platform } from 'react-native';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useUaiStack } from 'src/hooks/useUaiStack';
 
 function* updateFCMTokensWorker({ payload }) {
   try {
@@ -25,11 +32,11 @@ function* updateFCMTokensWorker({ payload }) {
     }
     const appId = yield select((state: RootState) => state.storage.appId);
     const { updated } = yield call(Relay.updateFCMTokens, appId, payload.FCMs);
-    if (updated){
-      yield put(setFcmToken(FCMs[0]))
-      } else {
-        console.log('Failed to update FCMs on the server')
-      }
+    if (updated) {
+      yield put(setFcmToken(FCMs[0]));
+    } else {
+      console.log('Failed to update FCMs on the server');
+    }
   } catch (err) {
     console.log('err', err);
   }
@@ -65,9 +72,34 @@ export function* getMessageWorker() {
     )
   );
 
+  for (let i = 0; i < messages.length; i++) {
+    yield call(dbManager.createObject, RealmSchema.Notification, {
+      ...messages[i],
+      additionalInfo: {
+        notes: Platform.select({
+          ios: messages[i].additionalInfo.notes.ios,
+          android: messages[i].additionalInfo.notes.android,
+        }),
+      },
+    });
+  }
+
+  const storedNotifications = yield call(dbManager.getCollection, RealmSchema.Notification);
+
+  for (let i = 0; i < storedNotifications.length; i++) {
+    yield put(
+      addToUaiStack(
+        storedNotifications[i].title,
+        false,
+        storedNotifications[i].type,
+        20,
+        storedNotifications[i].additionalInfo.notes
+      )
+    );
+  }
+
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
-
   yield put(fetchNotificationStarted(false));
 }
 
@@ -84,7 +116,6 @@ export function* updateMessageStatusInAppWorker({ payload }) {
         }
       : message
   );
-  console.log('messageArray', messageArray);
   yield put(messageFetched(messageArray));
 }
 

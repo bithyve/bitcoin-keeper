@@ -1,14 +1,15 @@
-import React from 'react';
+import { Box, Text } from 'native-base';
 
-import { Text, Box } from 'native-base';
+import React from 'react';
 
 const HexaToastMessages: React.FunctionComponent<{
   title: string;
   Image?: any;
-}> = ({ title, Image }) => {
+  error?: boolean;
+}> = ({ title, Image, error }) => {
   return (
     <Box
-      bg="light.yellow1"
+      bg={error ? 'error.500' : 'light.yellow1'}
       flexDirection={'row'}
       borderRadius={10}
       alignItems={'center'}
@@ -18,7 +19,7 @@ const HexaToastMessages: React.FunctionComponent<{
       fontSize={13}
     >
       <Box marginLeft={5}>{Image}</Box>
-      <Text width={270} marginLeft={3}>
+      <Text width={270} marginLeft={3} color={error ? 'error.200' : null}>
         {title}
       </Text>
     </Box>

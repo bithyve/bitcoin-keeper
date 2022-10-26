@@ -22,7 +22,6 @@ const healthCheckRemider = (signer: VaultSigner) => {
 
 function* addToUaiStackWorker({ payload }) {
   const { uai } = payload;
-  console.log('uai to be added', uai);
   let uaiData = { ...uai, timeStamp: new Date() };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uaiData);
@@ -43,12 +42,12 @@ function* uaiChecksWorker({ payload }) {
   for (var vault of vaults) {
     for (var signer of vault.signers) {
       const lastHealthCheckDays = healthCheckRemider(signer);
-      if (lastHealthCheckDays >= 1) {
+      if (lastHealthCheckDays >= 90) {
         const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
         if (!uais.length) {
           yield put(
             addToUaiStack(
-              `Health Check for ${signer.signerName} is due`,
+              `Health check for ${signer.signerName} is due`,
               false,
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               100,
@@ -68,12 +67,14 @@ function* uaiChecksWorker({ payload }) {
 }
 
 function* uaiActionedEntityWorker({ payload }) {
-  const { entityId } = payload;
+  const { entityId, action } = payload;
   const uais = yield call(dbManager.getObjectByField, RealmSchema.UAI, entityId, 'entityId');
-  const uai = uais[0];
-  let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
-  updatedUai = { ...updatedUai, isActioned: true };
-  yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, updatedUai);
+  if (uais.length > 0) {
+    const uai = uais[0];
+    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
+    updatedUai = { ...updatedUai, isActioned: action };
+    yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, updatedUai);
+  }
 }
 
 export const uaiChecksWatcher = createWatcher(uaiChecksWorker, UAI_CHECKS);

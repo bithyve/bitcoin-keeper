@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 
 import { BleManager } from 'react-native-ble-plx';
 
-export const manager = new BleManager();
-
 export const useBleDevices = (deviceName: string = '') => {
+  const manager = new BleManager();
   const [devices, setDevices] = useState([]);
 
   const scanAndConnect = () => {
