@@ -270,7 +270,9 @@ const LoginScreen = ({ navigation, route }) => {
                 fontSize={RFValue(12)}
                 fontStyle={'italic'}
                 textAlign={'right'}
-                mr={20}
+                fontWeight={200}
+                letterSpacing={0.65}
+                mr={12}
               >
                 {errMessage}
               </Text>
