@@ -58,7 +58,7 @@ const InheritanceComponent = () => {
   const seed = translations['seed'];
   const onPress = () => {
     // open();
-    navigation.navigate('InheritanceSetup');
+    navigation.navigate('SetupInheritance');
   };
 
   const close = () => setVisible(false);
@@ -709,7 +709,7 @@ const HomeScreen = ({ navigation }) => {
       />
       <Pressable
         onPress={() => {
-          navigation.navigate('InheritanceSetup');
+          navigation.navigate('SetupInheritance');
         }}
       >
         <InheritanceComponent />

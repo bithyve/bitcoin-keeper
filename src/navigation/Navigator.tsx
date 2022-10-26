@@ -17,7 +17,6 @@ import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
-import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
@@ -130,7 +129,7 @@ const AppStack = () => {
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
-        <Stack.Screen name="InheritanceSetup" component={SetupInheritance} />
+        <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
@@ -145,7 +144,6 @@ const AppStack = () => {
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
-        <Stack.Screen name="SetupInheritance" component={NewKeeperApp} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
