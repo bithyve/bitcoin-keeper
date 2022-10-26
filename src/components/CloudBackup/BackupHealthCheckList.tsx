@@ -1,15 +1,15 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { FlatList, Box, Text, ScrollView } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
+import moment from 'moment';
+
 import DotView from '../DotView';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import moment from 'moment';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { BackupHistory, BackupType } from 'src/common/data/enums/BHR';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import {
@@ -20,7 +20,8 @@ import {
 import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Buttons from '../Buttons';
 
 const BackupHealthCheckList = () => {
   const { translations } = useContext(LocalizationContext);
@@ -58,7 +59,7 @@ const BackupHealthCheckList = () => {
 
   return (
     <Box>
-      <ScrollView height={windowHeight >= 800 ? hp(500) : hp(570)}>
+      <ScrollView height={hp(530)}>
         <FlatList
           data={history}
           contentContainerStyle={{ flexGrow: 1 }}
@@ -80,6 +81,7 @@ const BackupHealthCheckList = () => {
                 fontWeight={'300'}
                 ml={5}
                 opacity={0.7}
+                letterSpacing={0.6}
               >
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
@@ -94,23 +96,38 @@ const BackupHealthCheckList = () => {
                 ml={wp(3.5)}
                 position="relative"
               >
-                <Text color={'light.headerText'} fontSize={RFValue(14)} fontFamily={'heading'}>
+                <Text
+                  color={'light.headerText'}
+                  fontSize={RFValue(14)}
+                  fontFamily={'heading'}
+                  fontWeight={200}
+                  letterSpacing={1}
+                >
                   {strings[item.title]}
                 </Text>
                 {item.subtitle !== '' && (
-                  <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'}>
+                  <Text
+                    color={'light.GreyText'}
+                    fontSize={RFValue(12)}
+                    fontFamily={'body'}
+                    fontWeight={200}
+                    letterSpacing={0.6}
+                  >
                     {item.subtitle}
                   </Text>
                 )}
               </Box>
             </Box>
           )}
-          keyExtractor={(item) => `${item.date}`}
+          keyExtractor={(item) => `${item}`}
         />
       </ScrollView>
 
-      <Box my={wp(15)} p={2}>
-        <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
+      <Box alignItems={'flex-start'}>
+        <Buttons
+          primaryText={common.confirm}
+          primaryCallback={onPressConfirm}
+        />
       </Box>
 
       <ModalWrapper
