@@ -481,7 +481,7 @@ PODS:
     - React-jsi (= 0.69.5)
     - React-logger (= 0.69.5)
     - React-perflogger (= 0.69.5)
-  - RealmJS (10.20.0-beta.5):
+  - RealmJS (11.0.0):
     - React
   - RNDeviceInfo (10.0.2):
     - React-Core
@@ -699,6 +699,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes/hermes-engine.podspec"
+  Permission-BluetoothPeripheral:
+    :path: "../node_modules/react-native-permissions/ios/BluetoothPeripheral"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -848,7 +850,7 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 3d02b25ca00c2d456734d0bcff864cbc62f6ae1a
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
-  GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
+  GoogleUtilities: 1d20a6ad97ef46f67bbdec158ce00563a671ebb7
   hermes-engine: 479687cd0904b24f1b2ae71d1196b44786af5601
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   MMKV: 9c4663aa7ca255d478ff10f2f5cb7d17c1651ccd
@@ -901,7 +903,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 42b34fde72e42446d9b08d2b9a3ddc2fa9ac6189
   React-runtimeexecutor: c778439c3c430a5719d027d3c67423b390a221fe
   ReactCommon: ab1003b81be740fecd82509c370a45b1a7dda0c1
-  RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
+  RealmJS: 55a0d0d600a0da7d5f0cf42ecbabcd09708c7601
   RNDeviceInfo: 0a7c1d2532aa7691f9b9925a27e43af006db4dae
   RNFBApp: 9646e09d041ea159b84584865212e4cf33acd179
   RNFBMessaging: 3e2682ea5e15fe86da24d16d16019395a881f33c
@@ -912,6 +914,7 @@ SPEC CHECKSUMS:
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
   RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
+  RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
   RNReanimated: 2cf7451318bb9cc430abeec8d67693f9cf4e039c
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNSentry: 1cd4360f7c668f4d7e8f860e41da884f00e7d814
@@ -923,6 +926,6 @@ SPEC CHECKSUMS:
   Yoga: c2b1f2494060865ac1f27e49639e72371b1205fa
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 41b58dd1075317693c28c585acbca0756b21f84f
+PODFILE CHECKSUM: 84cbcc5b20dce32689e4fce3e8d0cbf7d4fe7b8f
 
 COCOAPODS: 1.11.3
