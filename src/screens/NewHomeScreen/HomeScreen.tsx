@@ -1,52 +1,49 @@
-import { Box, HStack, Pressable, Text, View } from 'native-base';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
-  Image,
   ImageBackground,
   PermissionsAndroid,
   Platform,
   TouchableOpacity,
 } from 'react-native';
 import Instabug, { BugReporting } from 'instabug-reactnative';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
-import Arrow from 'src/assets/images/svgs/arrow.svg';
-import BTC from 'src/assets/images/svgs/btc.svg';
-import Chain from 'src/assets/icons/illustration_homescreen.svg';
-import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import FileViewer from 'react-native-file-viewer';
-import Hidden from 'src/assets/images/svgs/hidden.svg';
-import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
-import Inheritance from 'src/assets/images/svgs/inheritance.svg';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
-import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import NewWalletModal from 'src/components/NewWalletModal';
-import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { useDispatch } from 'react-redux';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
-import UaiDisplay from './UaiDisplay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import VaultImage from 'src/assets/images/Vault.png';
+// components, hooks, data and functions.
+import { identifyUser } from 'src/core/services/sentry';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import NewWalletModal from 'src/components/NewWalletModal';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import UaiDisplay from './UaiDisplay';
+// asserts (svgs, pngs)
+import Arrow from 'src/assets/images/svgs/arrow.svg';
+import BTC from 'src/assets/images/svgs/btc.svg';
+import Chain from 'src/assets/icons/illustration_homescreen.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
+import Hidden from 'src/assets/images/svgs/hidden.svg';
+import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
+import Inheritance from 'src/assets/images/svgs/inheritance.svg';
+import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
+import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import VaultImage from 'src/assets/images/Vault.png';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -68,12 +65,19 @@ const InheritanceComponent = () => {
   const open = () => setVisible(true);
 
   return (
-    <Box alignItems={'center'} marginTop={hp(19.96)}>
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+    <Box
+      alignItems={'center'}
+      marginTop={hp(19.96)}
+    >
+      <Box
         style={styles.bottomCard}
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1]
+          }
+        }}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
           <Inheritance />
@@ -124,7 +128,7 @@ const InheritanceComponent = () => {
             textColor={'#041513'}
           />
         </>
-      </LinearGradient>
+      </Box>
     </Box>
   );
 };
@@ -141,10 +145,14 @@ const LinkedWallets = (props) => {
       marginTop={hp(8)}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1]
+          }
+        }}
         style={styles.bottomCard}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
@@ -195,23 +203,11 @@ const LinkedWallets = (props) => {
             </Box>
           )}
         </Pressable>
-      </LinearGradient>
+      </Box>
     </Pressable>
   );
 };
 
-// const VaultSetupContent = () => {
-//   return (
-//     <View>
-//       <Box alignSelf={'center'}>
-//         <SigningDevicesIllustration />
-//       </Box>
-//       <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-//         {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
-//       </Text>
-//     </View>
-//   );
-// };
 
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
@@ -412,23 +408,6 @@ const VaultStatus = (props) => {
           </Pressable>
         </ImageBackground>
       </TouchableOpacity>
-      {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={'Signing Devices'}
-        subTitle={
-          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your vault'
-        }
-        modalBackground={['#00836A', '#073E39']}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vaultTranslations.AddNow}
-        buttonTextColor={'#073E39'}
-        buttonCallback={navigateToHardwareSetup}
-        textColor={'#FFF'}
-        Content={VaultSetupContent}
-        DarkCloseIcon={true}
-        learnMore={true}
-      /> */}
     </Box>
   );
 };
@@ -481,10 +460,14 @@ const VaultInfo = () => {
   }
 
   return (
-    <LinearGradient
-      colors={['#00836A', '#073E39']}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 1, y: 0 }}
+    <Box
+      bg={{
+        linearGradient: {
+          colors: ['light.lgStart', 'light.lgEnd'],
+          start: [0, 0],
+          end: [1, 1]
+        }
+      }}
       style={styles.linearGradient}
     >
       <Box paddingX={10} alignItems={'center'}>
@@ -521,7 +504,7 @@ const VaultInfo = () => {
         </Box>
         <UaiDisplay uaiStack={uaiStack} />
       </Box>
-    </LinearGradient>
+    </Box>
   );
 };
 
