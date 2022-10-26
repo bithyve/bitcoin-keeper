@@ -2,14 +2,17 @@ import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
+import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
+import { AppContext } from 'src/common/content/AppContext';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
 import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
+import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
@@ -19,6 +22,7 @@ import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InheritanceSetup from 'src/screens/Inheritance/InheritanceSetup';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
+import KeeperLoader from 'src/components/KeeperLoader';
 import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -38,30 +42,27 @@ import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
+import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
+import SigningServer from 'src/screens/Vault/SigningServer';
+import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
+import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
+import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
 import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
+import VaultTransactions from 'src/screens/Vault/VaultTransactions';
 import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
-import SigningServer from 'src/screens/Vault/SigningServer';
-import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-import KeeperLoader from 'src/components/KeeperLoader';
-import { AppContext } from 'src/common/content/AppContext';
-import AddDescription from 'src/screens/Vault/AddDescription';
-import VaultTransactions from 'src/screens/Vault/VaultTransactions';
-import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
-import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
-import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -124,6 +125,7 @@ const AppStack = () => {
         <Stack.Screen name="NewHome" component={HomeScreen} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
+        <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="AddLedger" component={SetupLedger} />
         <Stack.Screen name="QRscanner" component={QRscannerScreen} />
@@ -187,7 +189,7 @@ const Navigator = () => {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title={'please wait'}
         subTitle={'loading'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
