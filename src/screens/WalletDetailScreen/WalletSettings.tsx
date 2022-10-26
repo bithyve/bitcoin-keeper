@@ -3,8 +3,6 @@ import { Box, Text, Pressable, ScrollView } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import Modal from 'react-native-modal';
-
 //components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
@@ -17,7 +15,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import LinearGradient from 'react-native-linear-gradient';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -93,10 +90,14 @@ const WalletSettings = ({ route }) => {
 
   const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
     return (
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1]
+          }
+        }}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -137,7 +138,7 @@ const WalletSettings = ({ route }) => {
             {walletBalance}
           </Text>
         </Box>
-      </LinearGradient>
+      </Box>
     );
   };
 
