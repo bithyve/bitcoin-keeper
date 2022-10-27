@@ -241,9 +241,11 @@ const LoginScreen = ({ navigation, route }) => {
               ml={5}
               color={'light.textLight'}
               fontSize={RFValue(22)}
-              mt={hp('10%')}
-              fontWeight={'bold'}
+              fontWeight={'200'}
               fontFamily={'heading'}
+              style={{
+                marginTop: hp('10%')
+              }}
             >
               {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}

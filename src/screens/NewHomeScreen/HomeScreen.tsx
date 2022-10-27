@@ -718,8 +718,8 @@ const styles = ScaledSheet.create({
     borderBottomRightRadius: 15,
   },
   vault: {
-    width: wp(271.28),
-    height: hp(346.04),
+    width: wp(280),
+    height: hp(Platform.OS == 'android' ? 400 : 350),
     alignItems: 'center',
   },
   bottomCard: {
