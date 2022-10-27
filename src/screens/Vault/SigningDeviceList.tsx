@@ -1,6 +1,7 @@
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -59,12 +60,12 @@ const getDeviceStatus = (
     case SignerType.COLDCARD:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: !__DEV__ && !isNfcSupported,
+        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
       };
     case SignerType.LEDGER:
       return {
         message: !isBLESupported ? 'BLE is not enabled in your device' : '',
-        disabled: !__DEV__ && !isBLESupported,
+        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isBLESupported,
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -79,7 +80,7 @@ const getDeviceStatus = (
     case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: !__DEV__ && !isNfcSupported,
+        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
       };
     case SignerType.SEED_WORDS:
       return {
@@ -90,6 +91,7 @@ const getDeviceStatus = (
     case SignerType.JADE:
     case SignerType.KEYSTONE:
     case SignerType.KEEPER:
+    case SignerType.PASSPORT:
       return {
         message: 'Coming soon',
         disabled: false,
@@ -324,7 +326,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
             </Box>
           )}
         </ScrollView>
-
         <KeeperModal
           visible={nfcAlert}
           close={() => {

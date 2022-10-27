@@ -11,6 +11,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import { BulletPoint } from '../Vault/HardwareModalMap';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -18,10 +19,17 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { SignerType } from 'src/core/wallets/enums';
+import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { hash512 } from 'src/core/services/operations/encryption';
-import { useAppSelector } from 'src/store/hooks';
 import useBLE from 'src/hooks/useLedger';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { credsAuth } from 'src/store/sagaActions/login';
+import ReactNativeBiometrics from 'react-native-biometrics';
+
+const RNBiometrics = new ReactNativeBiometrics();
 
 const { width } = Dimensions.get('screen');
 
@@ -102,22 +110,62 @@ const ColdCardContent = ({ register }) => {
   );
 };
 
-const InputCvc = ({ textRef }) => {
+const TapsignerContent = () => {
   return (
-    <TextInput
-      style={styles.input}
-      secureTextEntry={true}
-      onChangeText={(text) => {
-        textRef.current = text;
-      }}
-    />
+    <>
+      <TapsignerSetupSVG />
+      <BulletPoint text={'TAPSIGNER communicates with the app over NFC'} />
+      <BulletPoint text={'You will need the CVC/ Pin on the back of the card'} />
+    </>
   );
 };
 
 const PasswordEnter = ({ signTransaction }) => {
   const { pinHash } = useAppSelector((state) => state.storage);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod)
+  const appId = useAppSelector((state) => state.storage.appId);
+  const { isAuthenticated, authenticationFailed, } = useAppSelector((state) => state.login)
+  const dispatch = useAppDispatch();
 
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    biometricAuth();
+    return () => {
+      dispatch(credsAuthenticated(false))
+    }
+  }, []);
+
+  const biometricAuth = async () => {
+    if (loginMethod === LoginMethod.BIOMETRIC) {
+      try {
+        setTimeout(async () => {
+          const { success, signature } = await RNBiometrics.createSignature({
+            promptMessage: 'Authenticate',
+            payload: appId,
+            cancelButtonText: 'Use PIN',
+          });
+          if (success) {
+            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+          }
+        }, 200);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (authenticationFailed) {
+      console.log('authenticationFailed', authenticationFailed)
+    }
+  }, [authenticationFailed]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      signTransaction()
+    }
+  }, [isAuthenticated]);
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -153,10 +201,7 @@ const PasswordEnter = ({ signTransaction }) => {
           width={wp(290)}
           color={'light.modalText'}
           marginTop={2}
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
-        </Text>
+        ></Text>
         <Box mt={10} alignSelf={'flex-end'} mr={2}>
           <Box>
             <CustomGreenButton
@@ -277,20 +322,21 @@ const SignerModals = ({
         const currentSigner = signer.signerId === activeSignerId;
         switch (signer.type) {
           case SignerType.TAPSIGNER:
+            const navigateToSignWithTapsigner = () => {
+              setTapsignerModal(false);
+              navigation.dispatch(
+                CommonActions.navigate('SignWithTapsigner', { signTransaction, signer, textRef })
+              );
+            };
             return (
               <KeeperModal
                 visible={currentSigner && tapsignerModal}
                 close={() => setTapsignerModal(false)}
-                title={'Enter CVC'}
-                subTitle={'Please enter the 6-32 digit CVC of the TapSigner'}
-                modalBackground={['#00836A', '#073E39']}
-                buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonText={'SIGN'}
-                buttonTextColor={'#073E39'}
-                buttonCallback={signTransaction}
-                textColor={'#FFF'}
-                Content={() => InputCvc({ textRef })}
-                DarkCloseIcon={true}
+                title={'Keep your TAPSIGNER ready'}
+                subTitle={'Keep your TAPSIGNER ready before proceeding'}
+                buttonText={'Proceed'}
+                buttonCallback={navigateToSignWithTapsigner}
+                Content={() => <TapsignerContent />}
               />
             );
           case SignerType.COLDCARD:
@@ -339,7 +385,7 @@ const SignerModals = ({
                   setPasswordModal(false);
                 }}
                 title={'Enter your password'}
-                subTitle={'Lorem ipsum dolor sit amet, '}
+                subTitle={''}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
                 Content={() => <PasswordEnter signTransaction={signTransaction} />}

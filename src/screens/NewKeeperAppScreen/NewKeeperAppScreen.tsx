@@ -10,6 +10,7 @@ import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
 import KeeperLoader from 'src/components/KeeperLoader';
+import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { NetworkType } from 'src/core/wallets/enums';
@@ -17,14 +18,13 @@ import PasswordModal from 'src/components/PasswordModal';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import SignupIcon from 'src/assets/images/signup.svg';
 import config from 'src/core/config';
 import messaging from '@react-native-firebase/messaging';
 import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import useToastMessage from 'src/hooks/useToastMessage';
-import KeeperModal from 'src/components/KeeperModal';
-import SignupIcon from 'src/assets/images/signup.svg';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -312,43 +312,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
         backup={selectedBackup}
         onPressNext={(password) => {
           dispatch(recoverBackup(password, selectedBackup.encData));
-        }}
-      />
-      <KeeperLoader
-        visible={keeperInitiating}
-        loadingContent={{
-          title: 'Share Feedback (Testnet only)',
-          subTitle: 'Shake your device or take a screenshot to send feedback',
-        }}
-        close={() => {}}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#000'}
-        Content={() => {
-          return (
-            <Box>
-              <Image
-                source={require('src/assets/video/test-net.gif')}
-                style={{
-                  width: wp(250),
-                  height: wp(120),
-                  alignSelf: 'center',
-                  marginTop: hp(30),
-                }}
-              />
-              <Text
-                color={'light.modalText'}
-                fontWeight={200}
-                fontSize={13}
-                letterSpacing={0.65}
-                marginTop={hp(60)}
-                width={wp(240)}
-              >
-                {
-                  'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
-                }
-              </Text>
-            </Box>
-          );
         }}
       />
       <ModalWrapper

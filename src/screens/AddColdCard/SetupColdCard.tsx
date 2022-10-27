@@ -116,8 +116,8 @@ const SetupColdCard = () => {
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
-              title="Setting up ColdCard"
-              subtitle="Go to Settings > Multisig wallets > Export xPub on your ColdCard"
+              title="Setting up Coldcard"
+              subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={{ padding: 30 }}>

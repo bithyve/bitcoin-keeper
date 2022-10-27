@@ -5,7 +5,6 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Close from 'src/assets/icons/modal_close.svg';
 import CloseGreen from 'src/assets/icons/modal_close_green.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -54,6 +53,9 @@ const KeeperModal = (props: {
   const { bottom } = useSafeAreaInsets();
 
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  if (!visible) {
+    return null;
+  }
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -66,10 +68,14 @@ const KeeperModal = (props: {
     >
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight={'full'}>
         <GestureHandlerRootView>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            colors={modalBackground}
+          <Box
+            bg={{
+              linearGradient: {
+                colors: modalBackground,
+                start: [0, 0],
+                end: [1, 1]
+              }
+            }}
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
@@ -135,10 +141,14 @@ const KeeperModal = (props: {
                 {buttonText && (
                   <Box alignSelf={'flex-end'} bg={'transparent'}>
                     <TouchableOpacity onPress={buttonCallback}>
-                      <LinearGradient
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        colors={buttonBackground}
+                      <Box
+                        bg={{
+                          linearGradient: {
+                            colors: buttonBackground,
+                            start: [0, 0],
+                            end: [1, 1]
+                          }
+                        }}
                         style={styles.cta}
                       >
                         <Text
@@ -150,13 +160,13 @@ const KeeperModal = (props: {
                         >
                           {showButtons ? buttonText : null}
                         </Text>
-                      </LinearGradient>
+                      </Box>
                     </TouchableOpacity>
                   </Box>
                 )}
               </Box>
             )}
-          </LinearGradient>
+          </Box>
         </GestureHandlerRootView>
       </Modal.Content>
     </Modal>

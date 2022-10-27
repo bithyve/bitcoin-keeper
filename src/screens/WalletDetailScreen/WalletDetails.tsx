@@ -1,4 +1,11 @@
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Alert,
+} from 'react-native';
 import { Box, Pressable, Text, View } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -15,12 +22,8 @@ import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
 import BTC from 'src/assets/images/svgs/btc_wallet.svg';
 import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
 import BackIcon from 'src/assets/images/svgs/back.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import Buy from 'src/assets/images/svgs/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -30,14 +33,13 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import {
-  getTransactionPadding,
   hp,
   windowWidth,
   wp,
 } from 'src/common/data/responsiveness/responsive';
 //components and interfaces and hooks
+import TransactionElement from 'src/components/TransactionElement';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { Transaction } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -45,6 +47,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import KeeperModal from 'src/components/KeeperModal';
 import { setIntroModal } from 'src/store/reducers/wallets';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -53,6 +56,8 @@ const WalletDetails = () => {
   const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
+  const vaultExsist = Boolean(vaults.length);
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const introModal = useAppSelector((state) => state.wallet.introModal);
@@ -155,12 +160,7 @@ const WalletDetails = () => {
                 </Box>
                 <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
                   {getAmount(walletBalance)}
-                  <Text
-                    color={'light.sats'}
-                    letterSpacing={0.6}
-                    fontSize={hp(12)}
-                    fontWeight={200}
-                  >
+                  <Text color={'light.sats'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
                     {getUnit()}
                   </Text>
                 </Text>
@@ -179,73 +179,7 @@ const WalletDetails = () => {
   };
 
   const renderTransactionElement = ({ item }) => {
-    return <TransactionElement transaction={item} />;
-  };
-
-  const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
-    return (
-      <Box
-        flexDirection={'row'}
-        height={getTransactionPadding()}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(20)}
-      >
-        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-          <Box flexDirection={'column'} marginLeft={1.5}>
-            <Text
-              color={'light.GreyText'}
-              marginX={1}
-              fontSize={13}
-              fontWeight={200}
-              letterSpacing={0.6}
-              numberOfLines={1}
-              width={wp(125)}
-            >
-              {transaction?.txid}
-            </Text>
-            <Text
-              color={'light.dateText'}
-              marginX={1}
-              fontSize={11}
-              fontWeight={100}
-              letterSpacing={0.5}
-              opacity={0.82}
-            >
-              {transaction.date}
-            </Text>
-          </Box>
-        </Box>
-        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-          <Box>
-            <BtcBlack />
-          </Box>
-          <Text
-            color={'light.textBlack'}
-            fontSize={19}
-            fontWeight={200}
-            letterSpacing={0.95}
-            marginX={2}
-            marginRight={3}
-          >
-            {getAmount(transaction.amount)}
-            <Text
-              color={'light.dateText'}
-              letterSpacing={0.6}
-              fontSize={hp(12)}
-              fontWeight={200}
-            >
-              {getUnit()}
-            </Text>
-          </Text>
-          <Box>
-            <IconArrowGrey />
-          </Box>
-        </Box>
-      </Box>
-    );
+    return <TransactionElement transaction={item} />
   };
 
   const GradientIcon = ({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) => {
@@ -337,12 +271,7 @@ const WalletDetails = () => {
           </Box>
           <Text color={'light.textWallet'} letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
             {getAmount(netBalance)}
-            <Text
-              color={'light.satsDark'}
-              letterSpacing={0.6}
-              fontSize={hp(12)}
-              fontWeight={200}
-            >
+            <Text color={'light.satsDark'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
               {getUnit()}
             </Text>
           </Text>
@@ -367,39 +296,41 @@ const WalletDetails = () => {
       {walletIndex !== wallets.length ? (
         <>
           {/* {Transfer pollicy} */}
-          <Box
-            height={hp(50)}
-            width={'100%'}
-            borderRadius={hp(10)}
-            backgroundColor={'light.transactionPolicyCard'}
-            flexDirection={'row'}
-            justifyContent={'space-between'}
-            alignItems={'center'}
-            style={{ paddingHorizontal: wp(10) }}
-          >
-            <Box style={{ paddingLeft: wp(10) }}>
-              <Text
-                color={'light.brownborder'}
-                letterSpacing={0.6}
-                fontSize={RFValue(12)}
-                fontWeight={200}
-              >
-                Transfer Policy is set at{'  '}
-                <Text fontWeight={'bold'}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
-              </Text>
-            </Box>
-
-            <Pressable
-              onPress={() =>
+          <Pressable
+            onPress={() => {
+              if (vaultExsist) {
                 navigation.navigate('SendConfirmation', {
                   isVaultTransfer: true,
                   walletId: wallets[walletIndex].id,
-                })
-              }
+                });
+              } else Alert.alert('Vault is not created');
+            }}
+          >
+            <Box
+              height={hp(50)}
+              width={'100%'}
+              borderRadius={hp(10)}
+              backgroundColor={'light.transactionPolicyCard'}
+              flexDirection={'row'}
+              justifyContent={'space-between'}
+              alignItems={'center'}
+              style={{ paddingHorizontal: wp(10) }}
             >
+              <Box style={{ paddingLeft: wp(10) }}>
+                <Text
+                  color={'light.brownborder'}
+                  letterSpacing={0.6}
+                  fontSize={RFValue(12)}
+                  fontWeight={200}
+                >
+                  Transfer Policy is set at{'  '}
+                  <Text fontWeight={'bold'}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
+                </Text>
+              </Box>
+
               <Arrow />
-            </Pressable>
-          </Box>
+            </Box>
+          </Pressable>
 
           {/* {Transactions} */}
 

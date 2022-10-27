@@ -1,12 +1,13 @@
+import React, { useContext, useState, useEffect } from 'react';
 import * as bip39 from 'bip39';
-
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { credsAuth } from 'src/store/sagaActions/login';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { Alert } from 'react-native';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -33,6 +34,9 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import { credsAuthenticated } from 'src/store/reducers/login';
+
+const RNBiometrics = new ReactNativeBiometrics();
 
 const SetupSuccessfully = () => {
   return (
@@ -56,7 +60,7 @@ const SetupSuccessfully = () => {
   );
 };
 
-const BulletPoint = ({ text }) => {
+export const BulletPoint = ({ text }) => {
   return (
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
@@ -205,6 +209,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod)
+  const appId = useAppSelector((state) => state.storage.appId);
+  const { isAuthenticated, authenticationFailed, } = useAppSelector((state) => state.login)
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -299,6 +306,45 @@ const HardwareModalMap = ({ type, visible, close }) => {
   };
 
   const passwordEnter = () => {
+
+    useEffect(() => {
+      biometricAuth();
+      return () => {
+        dispatch(credsAuthenticated(false))
+      }
+    }, []);
+
+    const biometricAuth = async () => {
+      if (loginMethod === LoginMethod.BIOMETRIC) {
+        try {
+          setTimeout(async () => {
+            const { success, signature } = await RNBiometrics.createSignature({
+              promptMessage: 'Authenticate',
+              payload: appId,
+              cancelButtonText: 'Use PIN',
+            });
+            if (success) {
+              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+            }
+          }, 200);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+
+    useEffect(() => {
+      if (authenticationFailed) {
+        console.log('authenticationFailed', authenticationFailed)
+      }
+    }, [authenticationFailed]);
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        setupMobileKey()
+      }
+    }, [isAuthenticated]);
+
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {

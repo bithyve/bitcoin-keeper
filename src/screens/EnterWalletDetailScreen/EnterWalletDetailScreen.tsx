@@ -6,7 +6,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
@@ -42,10 +42,11 @@ const EnterWalletDetailScreen = ({ route }) => {
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
-      <Header
+      <HeaderTitle
         title={wallet.AddNewWallet}
         subtitle={wallet.Setupawalletforyoubitcoin}
         onPressHandler={() => navigtaion.goBack()}
+        paddingTop={3}
       />
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
@@ -88,7 +89,7 @@ const EnterWalletDetailScreen = ({ route }) => {
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
-              console.log('Cancel');
+              navigtaion.goBack();
             }}
             primaryText={common.create}
             primaryCallback={createNewWallet}
