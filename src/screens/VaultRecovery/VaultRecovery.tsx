@@ -157,7 +157,7 @@ const VaultRecovery = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Add signing devices'}
-        subtitle={'to recover your inherited Vault'}
+        subtitle={'to recover your inherited vault'}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
       />
@@ -179,7 +179,7 @@ const VaultRecovery = () => {
               </Box>
             </TouchableOpacity>
             <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
-              You can use any one of the Signing Devices to start with
+              You can use any one of the signing devices to start with
             </Text>
           </Box>
         )}
