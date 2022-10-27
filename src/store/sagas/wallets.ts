@@ -592,16 +592,21 @@ export function* registerWithSigningServerWorker({ payload }: { payload: { polic
     setupData: {
       verification: SingerVerification;
       bhXpub: string;
+      derivationPath: string;
+      masterFingerprint: string;
     };
   } = yield call(SigningServer.register, app.id, policy);
 
-  if (setupData.verification.method === VerificationType.TWO_FA) {
-    const twoFADetails: TwoFADetails = {
-      signingServerXpub: setupData.bhXpub,
-      twoFAKey: setupData.verification.verifier,
-    };
-    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
-  }
+  const twoFADetails: TwoFADetails = {
+    signingServerXpub: setupData.bhXpub,
+    derivationPath: setupData.derivationPath,
+    masterFingerprint: setupData.masterFingerprint,
+  };
+
+  if (setupData.verification.method === VerificationType.TWO_FA)
+    twoFADetails.twoFAKey = setupData.verification.verifier;
+
+  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
 }
 
 export const registerWithSigningServerWatcher = createWatcher(
