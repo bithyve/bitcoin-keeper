@@ -1,42 +1,26 @@
-import {
-  Alert,
-  FlatList,
-  InteractionManager,
-  Platform,
-  RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import { Box, Button, HStack, Text, VStack, View } from 'native-base';
+import { Alert, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import React, { useContext, useEffect, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+import React, { useContext, useState } from 'react';
 
 import AdvnaceOptions from 'src/assets/images/svgs/Advancedoptions.svg';
 import BackIcon from 'src/assets/icons/back.svg';
-import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import Change from 'src/assets/images/svgs/change.svg';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
 import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
 import Illustration from 'src/assets/images/illustration.svg';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
-import Settings from 'src/assets/images/svgs/settings.svg';
+import { SignerType } from 'src/core/wallets/enums';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -374,8 +358,7 @@ const SigningDeviceDetails = ({ route }) => {
     );
   };
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
+    <ScreenWrapper>
       <Box>
         <Header />
         <Box>
@@ -418,9 +401,8 @@ const SigningDeviceDetails = ({ route }) => {
           <SigningDeviceChecklist date={signer.lastHealthCheck} />
         </Box>
       </ScrollView>
-      <Box px={'10%'} py={'10%'}>
+      <Box py={'10%'}>
         <Text fontSize={13}>You will be reminded in 90 for the health check</Text>
-
         <HStack justifyContent={'space-between'}>
           <FooterItem
             Icon={Change}
@@ -439,6 +421,8 @@ const SigningDeviceDetails = ({ route }) => {
             title={'Advance Options'}
             onPress={() => {
               if (signer.type === SignerType.POLICY_SERVER) navigateToPolicyChange(signer);
+              else if (signer.type === SignerType.COLDCARD)
+                navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
             }}
           />
         </HStack>
@@ -553,7 +537,7 @@ const SigningDeviceDetails = ({ route }) => {
           Content={HealthCheckSuccessContent}
         />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 };
 

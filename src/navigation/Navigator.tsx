@@ -42,6 +42,7 @@ import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
+import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
@@ -165,6 +166,7 @@ const AppStack = () => {
         <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
+        <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );
