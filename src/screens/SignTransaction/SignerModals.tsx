@@ -22,8 +22,14 @@ import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { hash512 } from 'src/core/services/operations/encryption';
-import { useAppSelector } from 'src/store/hooks';
 import useBLE from 'src/hooks/useLedger';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { credsAuthenticated } from 'src/store/reducers/login';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { credsAuth } from 'src/store/sagaActions/login';
+import ReactNativeBiometrics from 'react-native-biometrics';
+
+const RNBiometrics = new ReactNativeBiometrics();
 
 const { width } = Dimensions.get('screen');
 
@@ -116,8 +122,50 @@ const TapsignerContent = () => {
 
 const PasswordEnter = ({ signTransaction }) => {
   const { pinHash } = useAppSelector((state) => state.storage);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod)
+  const appId = useAppSelector((state) => state.storage.appId);
+  const { isAuthenticated, authenticationFailed, } = useAppSelector((state) => state.login)
+  const dispatch = useAppDispatch();
 
   const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    biometricAuth();
+    return () => {
+      dispatch(credsAuthenticated(false))
+    }
+  }, []);
+
+  const biometricAuth = async () => {
+    if (loginMethod === LoginMethod.BIOMETRIC) {
+      try {
+        setTimeout(async () => {
+          const { success, signature } = await RNBiometrics.createSignature({
+            promptMessage: 'Authenticate',
+            payload: appId,
+            cancelButtonText: 'Use PIN',
+          });
+          if (success) {
+            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+          }
+        }, 200);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (authenticationFailed) {
+      console.log('authenticationFailed', authenticationFailed)
+    }
+  }, [authenticationFailed]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      signTransaction()
+    }
+  }, [isAuthenticated]);
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
