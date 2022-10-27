@@ -90,7 +90,9 @@ const AddSigningDevice = () => {
   useEffect(() => {
     const fills =
       planStatus === VaultMigrationType.DOWNGRADE
-        ? []
+        ? vaultSigners.length < currentSignerLimit
+          ? new Array(currentSignerLimit - vaultSigners.length).fill(null)
+          : []
         : new Array(currentSignerLimit - vaultSigners.length).fill(null);
     setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
@@ -330,12 +332,13 @@ const AddSigningDevice = () => {
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={`${planStatus === VaultMigrationType.DOWNGRADE
+        title={`${
+          planStatus === VaultMigrationType.DOWNGRADE
             ? 'Remove'
             : planStatus === VaultMigrationType.UPGRADE
-              ? 'Add'
-              : 'Change'
-          } Signing Devices`}
+            ? 'Add'
+            : 'Change'
+        } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
@@ -360,17 +363,21 @@ const AddSigningDevice = () => {
             />
           </Box>
         ) : null}
-        {signersState.every((signer) => {
-          return !!signer;
-        }) && (
-            <Buttons
-              primaryLoading={vaultCreating}
-              primaryText="Create Vault"
-              primaryCallback={triggerVaultCreation}
-              secondaryText={'Cancel'}
-              secondaryCallback={navigation.goBack}
-            />
-          )}
+        {
+          <Buttons
+            primaryDisable={
+              signersState.every((signer) => {
+                return !!!signer;
+              }) ||
+              (vaultSigners && vaultSigners.length !== currentSignerLimit)
+            }
+            primaryLoading={vaultCreating}
+            primaryText="Create Vault"
+            primaryCallback={triggerVaultCreation}
+            secondaryText={'Cancel'}
+            secondaryCallback={navigation.goBack}
+          />
+        }
       </Box>
     </ScreenWrapper>
   );

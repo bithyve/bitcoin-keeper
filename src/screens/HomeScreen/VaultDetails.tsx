@@ -9,29 +9,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import { ScrollView } from 'react-native-gesture-handler';
-import moment from 'moment';
-import { useDispatch } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // components, hooks and functions
-import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { VaultMigrationType } from 'src/core/wallets/enums';
-import { WalletMap } from '../Vault/WalletMap';
-import { getAmount } from 'src/common/constants/Bitcoin';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { setIntroModal } from 'src/store/reducers/vaults';
-import { useAppSelector } from 'src/store/hooks';
-import TransactionElement from 'src/components/TransactionElement';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+
 // asserts
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
@@ -39,12 +19,33 @@ import BackIcon from 'src/assets/images/svgs/back_white.svg';
 import Buy from 'src/assets/images/svgs/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperModal from 'src/components/KeeperModal';
+import LinearGradient from 'react-native-linear-gradient';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
+import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
+import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import TransactionElement from 'src/components/TransactionElement';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
+import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
+import { WalletMap } from '../Vault/WalletMap';
+import { getAmount } from 'src/common/constants/Bitcoin';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import moment from 'moment';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { setIntroModal } from 'src/store/reducers/vaults';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Footer = ({ vault }: { vault: Vault }) => {
   const navigation = useNavigation();
@@ -205,7 +206,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
           );
         }}
       />
-    )
+    );
   };
 
   return (
@@ -530,7 +531,7 @@ const VaultDetails = ({ route, navigation }) => {
         }}
         title={'Keeper Vault'}
         subTitle={
-          'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'
+          'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add signing devices to the vault'
         }
         modalBackground={['#00836A', '#073E39']}
         textColor={'#FFF'}
