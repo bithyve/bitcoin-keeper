@@ -270,6 +270,8 @@
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
+    "WalletDetails": "Wallet Details",
+    "EditWalletDeatils": "Edit wallet name and descrition",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
     "XPubTitle": "Wallet xPub",
     "XPubSubTitle": "Scan or copy paste the xPub in another app for generating new addresses and fetching balances",
