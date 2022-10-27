@@ -21,24 +21,27 @@ const TransactionDetails = ({ route }) => {
   const transactions = translations['transactions'];
   const transaction: Transaction = route.params.transaction;
 
-  const InfoCard = ({ title, describtion, width = 300 }) => {
+  const InfoCard = ({ title, describtion, width = 320 }) => {
     return (
       <Box
         backgroundColor={'light.lightYellow'}
         style={{
-          height: hp(58),
+          height: hp(65),
           width: wp(width),
           marginVertical: hp(7),
           justifyContent: 'center',
           paddingLeft: wp(15),
-          borderRadius: 10
+          borderRadius: 10,
+          padding: 3
         }}
       >
         <Text
           fontWeight={200}
-          fontSize={15}
+          fontSize={14}
           letterSpacing={1.12}
           color={'light.headerText'}
+          width={'90%'}
+          noOfLines={1}
         >
           {title}
         </Text>
@@ -47,6 +50,8 @@ const TransactionDetails = ({ route }) => {
           fontSize={12}
           letterSpacing={2.4}
           color={'light.GreyText'}
+          width={'90%'}
+          noOfLines={1}
         >
           {describtion}
         </Text>
@@ -59,43 +64,52 @@ const TransactionDetails = ({ route }) => {
       style={styles.Container}
     >
       <StatusBarComponent padding={50} />
-      <Box marginX={3} >
-        <Box width={wp(250)}>
-          <HeaderTitle
-            onPressHandler={() => navigation.goBack()}
-            title={transactions.TransactionDetails}
-            subtitle={''}
-            paddingTop={hp(20)}
-          />
-        </Box>
+      <Box width={wp(250)}>
+        <HeaderTitle
+          onPressHandler={() => navigation.goBack()}
+          title={transactions.TransactionDetails}
+          subtitle={''}
+          paddingTop={hp(20)}
+        />
         {/* {card} */}
         <Box
           flexDirection={'row'}
           alignItems={'center'}
           marginTop={hp(40)}
-          width={320}
-          justifyContent={'center'}
+          width={wp(320)}
+          justifyContent={'space-between'}
         >
-          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSend />}
-          <Box marginLeft={wp(10)} width={wp(100)}>
-            <Text
-              fontWeight={200}
-              fontSize={14}
-              letterSpacing={0.7}
-              color={'light.headerText'}
+          <Box
+            flexDirection={'row'}
+          >
+            {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSend />}
+            <Box
+              style={{
+                marginLeft: wp(10),
+                width: wp(100)
+              }}
             >
-              {transaction.address}
-            </Text>
-            <Text
-              fontWeight={200}
-              fontSize={10}
-              letterSpacing={0.5}
-              color={'light.dateText'}
-            >
-              {transaction.date}
-            </Text>
+              <Text
+                fontWeight={200}
+                fontSize={14}
+                letterSpacing={0.7}
+                color={'light.headerText'}
+                noOfLines={1}
+                width={wp(120)}
+              >
+                {transaction.address}
+              </Text>
+              <Text
+                fontWeight={200}
+                fontSize={10}
+                letterSpacing={0.5}
+                color={'light.dateText'}
+              >
+                {transaction.date}
+              </Text>
+            </Box>
           </Box>
-          <Box marginLeft={wp(50)}>
+          <Box >
             <Text
               fontWeight={200}
               fontSize={19}
@@ -108,27 +122,28 @@ const TransactionDetails = ({ route }) => {
             </Text>
           </Box>
         </Box>
-        {/* {flatlist} */}
-        <Box
-          alignItems={'center'}
-          marginTop={hp(40)}
-          width={320}
-          justifyContent={'center'}
-        >
-          <InfoCard title={'To Address'} describtion={transaction.recipientAddresses} />
-          <InfoCard title={'From Address'} describtion={transaction.senderAddresses} />
-          <InfoCard title={'Transaction ID'} describtion={transaction.txid} />
-          <Box flexDirection={'row'} justifyContent={'space-between'} width={'103%'}>
-            <InfoCard title={'Fee'} describtion={transaction.fee} width={145} />
-            <InfoCard title={'Transaction Type'} describtion={transaction.transactionType} width={145} />
-          </Box>
-          <Box flexDirection={'row'} justifyContent={'space-between'} width={'103%'}>
-            <InfoCard title={'Privacy'} describtion={transaction.type} width={145} />
-            <InfoCard title={'Confirmations'} describtion={transaction.confirmations} width={145} />
-          </Box>
+      </Box>
+
+      {/* {flatlist} */}
+      <Box
+        alignItems={'center'}
+        marginTop={hp(44)}
+        justifyContent={'center'}
+        marginX={3}
+      >
+        <InfoCard title={'To Address'} describtion={transaction.recipientAddresses} />
+        <InfoCard title={'From Address'} describtion={transaction.senderAddresses} />
+        <InfoCard title={'Transaction ID'} describtion={transaction.txid} />
+        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'} width={'100%'}>
+          <InfoCard title={'Fee'} describtion={transaction.fee} width={145} />
+          <InfoCard title={'Transaction Type'} describtion={transaction.transactionType} width={145} />
+        </Box>
+        <Box flexDirection={'row'} justifyContent={'space-between'} width={'100%'}>
+          <InfoCard title={'Privacy'} describtion={transaction.type} width={145} />
+          <InfoCard title={'Confirmations'} describtion={transaction.confirmations} width={145} />
         </Box>
       </Box>
-    </Box >
+    </Box>
   );
 };
 
@@ -138,35 +153,5 @@ const styles = ScaledSheet.create({
     padding: '20@s',
     backgroundColor: 'light.ReceiveBackground',
   },
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(3),
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  title: {
-    fontSize: RFValue(12),
-    letterSpacing: '0.24@s',
-  },
-  subtitle: {
-    fontSize: RFValue(10),
-    letterSpacing: '0.20@s',
-  },
-
-  textInput: {
-    width: '100%',
-    backgroundColor: '#FDF7F0',
-    borderRadius: 10,
-    opacity: 0.5,
-    padding: 15,
-  },
-
-
-
 });
 export default TransactionDetails;
