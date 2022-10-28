@@ -17,6 +17,8 @@ export default class SigningServer {
     setupData: {
       verification: SingerVerification;
       bhXpub: string;
+      derivationPath: string;
+      masterFingerprint: string;
     };
   }> => {
     let res: AxiosResponse;

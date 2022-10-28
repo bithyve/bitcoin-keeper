@@ -270,6 +270,8 @@
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
+    "WalletDetails": "Wallet Details",
+    "EditWalletDeatils": "Edit wallet name and descrition",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
     "XPubTitle": "Wallet xPub",
     "XPubSubTitle": "Scan or copy paste the xPub in another app for generating new addresses and fetching balances",
@@ -326,15 +328,15 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up TapSigner",
+    "SetupTitle": "Setting up TAPSIGNER",
     "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Keep your ColdCard ready",
-    "SetupDescription": "Keep your ColdCard ready before proceeding"
+    "SetupTitle": "Keep your Coldcard ready",
+    "SetupDescription": "Keep your Coldcard ready before proceeding"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",

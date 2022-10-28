@@ -39,17 +39,15 @@ const ColdCardSetupContent = () => {
       <Box marginTop={'4'} alignItems={'flex-start'}>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Box mb={hp(19)} mx={wp(10)} flexDirection={'row'}>
-            <Text>{'\u2022 Step 2'}</Text>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} ml={3}>
-              Send Assigned PSBT
+              {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
             </Text>
           </Box>
         </Box>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Box mb={hp(19)} mx={wp(10)} flexDirection={'row'}>
-            <Text>{'\u2022 Step 2'}</Text>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} ml={3}>
-              Recieve Assigned PSBT
+              {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
             </Text>
           </Box>
         </Box>
@@ -158,7 +156,7 @@ const SignersList = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Select Signing Device'}
-        subtitle={'to recover your vault'}
+        subtitle={'To recover your vault'}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
       />

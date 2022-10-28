@@ -45,7 +45,8 @@ const SetupSigningServer = ({ route }: { route }) => {
   const key = idx(keeper, (_) => _.twoFADetails.twoFAKey);
   const isTwoFAAlreadyVerified = idx(keeper, (_) => _.twoFADetails.twoFAValidated);
   const signingServerVerified = useAppSelector((state) => state.wallet.signingServer.verified);
-  const signingServerXpub = idx(keeper, (_) => _.twoFADetails.signingServerXpub);
+  const { signingServerXpub, derivationPath, masterFingerprint } =
+    idx(keeper, (_) => _.twoFADetails) || {};
 
   const [settingSigningServerKey, setSettingSigningServerKey] = useState(false);
 
@@ -70,6 +71,10 @@ const SetupSigningServer = ({ route }: { route }) => {
       type: SignerType.POLICY_SERVER,
       signerName: 'Signing Server',
       xpub: signingServerXpub,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.WARM,

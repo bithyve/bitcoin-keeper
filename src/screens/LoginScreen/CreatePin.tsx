@@ -98,7 +98,11 @@ export default function CreatePin(props) {
   }
 
   const onDeletePressed = (text) => {
-    setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+    if (passcodeFlag) {
+      setPasscode(passcode.slice(0, -1));
+    } else {
+      setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+    }
   };
 
   useEffect(() => {
@@ -195,7 +199,7 @@ export default function CreatePin(props) {
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                    // mt={hp('1.5%')}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -236,8 +240,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // keyColor={'light.lightBlack'}
-          // ClearIcon={<DeleteIcon />}
+            // keyColor={'light.lightBlack'}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>
