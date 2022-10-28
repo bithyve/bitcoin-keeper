@@ -127,7 +127,7 @@ const TapSignerRecovery = () => {
           <Box style={styles.header}>
             <HeaderTitle
               title="Recover using Tapsigner"
-              subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+              subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
               onPressHandler={() => navigation.goBack()}
             />
           </Box>

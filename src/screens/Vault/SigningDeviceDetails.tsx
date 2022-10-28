@@ -215,7 +215,7 @@ const SigningDeviceDetails = ({ route }) => {
           fontWeight={'200'}
           p={2}
         >
-          {'Health Check is initiated if a Signning Device is not used for the last 180 days'}
+          {'Health Check is initiated if a signning device is not used for the last 180 days'}
         </Text>
         <Text
           color={'light.lightBlack2'}
@@ -241,7 +241,7 @@ const SigningDeviceDetails = ({ route }) => {
           fontWeight={'200'}
           p={2}
         >
-          {'Health Check is initiated if a Signning Device is not used for the last 180 days'}
+          {'Health Check is initiated if a signning device is not used for the last 180 days'}
         </Text>
         <Text
           color={'light.lightBlack2'}
@@ -298,9 +298,7 @@ const SigningDeviceDetails = ({ route }) => {
           fontWeight={'200'}
           p={2}
         >
-          {
-            'You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,'
-          }
+          {'You will be reminded in 90 days for the health check'}
         </Text>
       </View>
     );
@@ -402,7 +400,7 @@ const SigningDeviceDetails = ({ route }) => {
         </Box>
       </ScrollView>
       <Box py={'10%'}>
-        <Text fontSize={13}>You will be reminded in 90 for the health check</Text>
+        <Text fontSize={13}>You will be reminded in 90 days for the health check</Text>
         <HStack justifyContent={'space-between'}>
           <FooterItem
             Icon={Change}

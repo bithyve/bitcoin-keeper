@@ -501,7 +501,7 @@ const VaultDetails = ({ route, navigation }) => {
       <KeeperModal
         visible={vaultCreated}
         title={'New Vault Created'}
-        subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
@@ -517,7 +517,7 @@ const VaultDetails = ({ route, navigation }) => {
                 marginTop={3}
               >
                 {
-                  'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
+                  'For sending out of the vault you will need the signing devices. This means no one can steal your bitcoin in the vault unless they also have the signing devices'
                 }
               </Text>
             </View>

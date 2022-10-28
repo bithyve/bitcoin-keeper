@@ -69,7 +69,7 @@ const SignerAdvanceSettings = ({ route }) => {
               {'Manual Registration'}
             </Text>
             <Text color={'light.lightBlack'} fontSize={12} fontFamily={'body'} fontWeight={'100'}>
-              {`Register your active Vault with the ${signerName}.`}
+              {`Register your active vault with the ${signerName}.`}
             </Text>
           </VStack>
           <RightArrowIcon />
