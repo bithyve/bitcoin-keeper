@@ -211,9 +211,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
-  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  const appId = useAppSelector((state) => state.storage.appId);
-  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
+  // const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  // const appId = useAppSelector((state) => state.storage.appId);
+  // const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -307,45 +307,33 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
+  // const biometricAuth = async () => {
+  //   if (loginMethod === LoginMethod.BIOMETRIC) {
+  //     try {
+  //       setTimeout(async () => {
+  //         const { success, signature } = await RNBiometrics.createSignature({
+  //           promptMessage: 'Authenticate',
+  //           payload: appId,
+  //           cancelButtonText: 'Use PIN',
+  //         });
+  //         if (success) {
+  //           dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+  //         }
+  //       }, 200);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     // biometric authentication
+  //     setupMobileKey();
+  //   }
+  // }, [isAuthenticated]);
+
   const passwordEnter = () => {
-    useEffect(() => {
-      biometricAuth();
-      return () => {
-        dispatch(credsAuthenticated(false));
-      };
-    }, []);
-
-    const biometricAuth = async () => {
-      if (loginMethod === LoginMethod.BIOMETRIC) {
-        try {
-          setTimeout(async () => {
-            const { success, signature } = await RNBiometrics.createSignature({
-              promptMessage: 'Authenticate',
-              payload: appId,
-              cancelButtonText: 'Use PIN',
-            });
-            if (success) {
-              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
-            }
-          }, 200);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    };
-
-    useEffect(() => {
-      if (authenticationFailed) {
-        console.log('authenticationFailed', authenticationFailed);
-      }
-    }, [authenticationFailed]);
-
-    useEffect(() => {
-      if (isAuthenticated) {
-        setupMobileKey();
-      }
-    }, [isAuthenticated]);
-
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {
