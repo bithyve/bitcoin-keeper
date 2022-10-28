@@ -6,6 +6,8 @@ export const TwoFADetailsSchema: ObjectSchema = {
   embedded: true,
   properties: {
     signingServerXpub: 'string?',
+    derivationPath: 'string?',
+    masterFingerprint: 'string?',
     twoFAKey: 'string?',
     twoFAValidated: 'bool?',
   },

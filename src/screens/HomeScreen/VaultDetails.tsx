@@ -447,7 +447,7 @@ const VaultDetails = ({ route, navigation }) => {
           p={1}
         >
           {
-            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+            'Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select'
           }
         </Text>
         <Text
@@ -458,7 +458,7 @@ const VaultDetails = ({ route, navigation }) => {
           fontWeight={'200'}
           p={1}
         >
-          {'There are also some additional options if you do not have hardware Signing Devices'}
+          {'There are also some additional options if you do not have hardware signing devices'}
         </Text>
       </View>
     );
@@ -501,7 +501,7 @@ const VaultDetails = ({ route, navigation }) => {
       <KeeperModal
         visible={vaultCreated}
         title={'New Vault Created'}
-        subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
@@ -517,7 +517,7 @@ const VaultDetails = ({ route, navigation }) => {
                 marginTop={3}
               >
                 {
-                  'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
+                  'For sending out of the vault you will need the signing devices. This means no one can steal your bitcoin in the vault unless they also have the signing devices'
                 }
               </Text>
             </View>

@@ -42,11 +42,7 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text
-                  color={'light.GreyText'}
-                  fontSize={13}
-                  fontWeight={200}
-                  letterSpacing={0.6}>
+                <Text color={'light.GreyText'} fontSize={13} fontWeight={200} letterSpacing={0.6}>
                   {`Lorem ipsum dolor sit amet, consectetur`}
                 </Text>
               </VStack>
@@ -88,11 +84,7 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontSize={12} letterSpacing={0.6}
-          >
+          <Text color={'light.GreyText'} fontWeight={200} fontSize={12} letterSpacing={0.6}>
             {`Remove`}
           </Text>
         </Pressable>
@@ -157,7 +149,7 @@ const VaultRecovery = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Add signing devices'}
-        subtitle={'to recover your inherited vault'}
+        subtitle={'To recover your inherited vault'}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
       />
@@ -194,7 +186,7 @@ const VaultRecovery = () => {
         )}
         <Note
           title={'Note'}
-          subtitle={'Signing Server cannot be used as the first Signing Device while recovering'}
+          subtitle={'Signing Server cannot be used as the first signing device while recovering'}
         />
       </View>
       <KeeperModal

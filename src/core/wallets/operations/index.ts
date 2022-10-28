@@ -724,16 +724,14 @@ export default class WalletOperations {
       const bip32Derivation = [];
       for (let i = 0; i < (wallet as Vault).signers.length; i++) {
         const signer = (wallet as Vault).signers[i];
-        if (signer.type === SignerType.COLDCARD) {
-          const derivationPath = signer.xpubInfo?.derivationPath;
-          const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
-          const path = derivationPath + `/${subPath.join('/')}`;
-          bip32Derivation.push({
-            masterFingerprint,
-            path,
-            pubkey: signerPubkeyMap.get(signer.xpub),
-          });
-        }
+        const derivationPath = signer.xpubInfo?.derivationPath;
+        const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
+        const path = derivationPath + `/${subPath.join('/')}`;
+        bip32Derivation.push({
+          masterFingerprint,
+          path,
+          pubkey: signerPubkeyMap.get(signer.xpub),
+        });
       }
 
       PSBT.addInput({
@@ -770,18 +768,15 @@ export default class WalletOperations {
     const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
     for (let i = 0; i < (wallet as Vault).signers.length; i++) {
       const signer = (wallet as Vault).signers[i];
-      if (signer.type === SignerType.COLDCARD) {
-        const derivationPath = signer.xpubInfo?.derivationPath;
-        const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
-        const path = derivationPath + `/${subPath.join('/')}`;
-        bip32Derivation.push({
-          masterFingerprint,
-          path,
-          pubkey: signerPubkeyMap.get(signer.xpub),
-        });
-      }
+      const derivationPath = signer.xpubInfo.derivationPath;
+      const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
+      const path = derivationPath + `/${subPath.join('/')}`;
+      bip32Derivation.push({
+        masterFingerprint,
+        path,
+        pubkey: signerPubkeyMap.get(signer.xpub),
+      });
     }
-
     return { bip32Derivation, redeemScript: p2wsh.output, witnessScript: p2ms.output };
   };
 
