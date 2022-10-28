@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import { Box, Text, Pressable, ScrollView } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
@@ -11,21 +13,21 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
-// icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
-import { Alert } from 'react-native';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+// icons
+import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type Props = {
   title: string;
@@ -78,6 +80,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -262,13 +265,7 @@ const WalletSettings = ({ route }) => {
       </Box>
       {/* Modals */}
       <Box>
-        {/* <ModalWrapper visible={xpubVisible} onSwipeComplete={() => setXPubVisible(false)}>
-          <ShowXPub
-            closeBottomSheet={() => {
-              setXPubVisible(false);
-            }}
-          />
-        </ModalWrapper> */}
+
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -290,7 +287,9 @@ const WalletSettings = ({ route }) => {
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={ShowXPub}
+          Content={() => <ShowXPub copy={() => {
+            showToast('Address Copied Successfully', <TickIcon />);
+          }} />}
         />
         <KeeperModal
           visible={transferPolicyVisible}
