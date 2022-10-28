@@ -57,7 +57,7 @@ export const RigisterToSD = ({ route }) => {
     switch (type) {
       case SignerType.COLDCARD:
         openNfc();
-        registerToColcard({ vault: Vault });
+        await registerToColcard({ vault: Vault });
         closeNfc();
         break;
       case SignerType.LEDGER:

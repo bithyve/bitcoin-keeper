@@ -99,7 +99,7 @@ const SignWithColdCard = ({ route }) => {
   };
   const registerCC = async () => {
     setNfcVisible(true);
-    registerToColcard({ vault: Vault });
+    await registerToColcard({ vault: Vault });
     setNfcVisible(false);
   };
   const { colorMode } = useColorMode();
