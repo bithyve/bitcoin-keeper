@@ -191,7 +191,7 @@ const VaultSettings = ({ route }) => {
         <InfoBox
           title={'Note'}
           desciption={
-            'These settings are for your Active Wallet only and does not affect other wallets'
+            'These settings are for your active wallet only and does not affect other wallets'
           }
           width={250}
         />
