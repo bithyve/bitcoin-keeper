@@ -67,14 +67,13 @@ export const BulletPoint = ({ text }) => {
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
         style={{
-          height: hp(5),
-          width: wp(5),
+          marginRight: wp(5)
         }}
+        size={hp(5)}
         m={1}
         top={2}
         backgroundColor={'light.modalText'}
         borderRadius={10}
-        marginRight={wp(5)}
       />
       <Text
         color={'light.modalText'}
