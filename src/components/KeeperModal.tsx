@@ -28,6 +28,7 @@ const KeeperModal = (props: {
   learnMore?: boolean;
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
+  showCloseIcon?: boolean;
 }) => {
   const {
     visible,
@@ -49,6 +50,7 @@ const KeeperModal = (props: {
     learnMore = false,
     learnMoreCallback = () => { },
     closeOnOverlayClick = true,
+    showCloseIcon = true
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -79,7 +81,7 @@ const KeeperModal = (props: {
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
-              {showButtons ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
+              {showCloseIcon ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
             </TouchableOpacity>
             <Modal.Header
               alignSelf={'flex-start'}
