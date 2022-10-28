@@ -326,15 +326,15 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up TapSigner",
+    "SetupTitle": "Setting up TAPSIGNER",
     "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Keep your ColdCard ready",
-    "SetupDescription": "Keep your ColdCard ready before proceeding"
+    "SetupTitle": "Keep your Coldcard ready",
+    "SetupDescription": "Keep your Coldcard ready before proceeding"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",

@@ -1,13 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react';
 import * as bip39 from 'bip39';
+
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { credsAuth } from 'src/store/sagaActions/login';
-import ReactNativeBiometrics from 'react-native-biometrics';
+
 import { Alert } from 'react-native';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -18,7 +17,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
@@ -30,11 +31,12 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
+import { credsAuth } from 'src/store/sagaActions/login';
+import { credsAuthenticated } from 'src/store/reducers/login';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { credsAuthenticated } from 'src/store/reducers/login';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -116,7 +118,7 @@ const ColdCardSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your Vault).\n`}
+          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
         </Text>
         <Text
           color={'#073B36'}
@@ -209,9 +211,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
-  const loginMethod = useAppSelector((state) => state.settings.loginMethod)
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
-  const { isAuthenticated, authenticationFailed, } = useAppSelector((state) => state.login)
+  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -306,12 +308,11 @@ const HardwareModalMap = ({ type, visible, close }) => {
   };
 
   const passwordEnter = () => {
-
     useEffect(() => {
       biometricAuth();
       return () => {
-        dispatch(credsAuthenticated(false))
-      }
+        dispatch(credsAuthenticated(false));
+      };
     }, []);
 
     const biometricAuth = async () => {
@@ -335,13 +336,13 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
     useEffect(() => {
       if (authenticationFailed) {
-        console.log('authenticationFailed', authenticationFailed)
+        console.log('authenticationFailed', authenticationFailed);
       }
     }, [authenticationFailed]);
 
     useEffect(() => {
       if (isAuthenticated) {
-        setupMobileKey()
+        setupMobileKey();
       }
     }, [isAuthenticated]);
 

@@ -139,7 +139,7 @@ const TapSignerRecovery = () => {
               secureTextEntry={true}
               showSoftInputOnFocus={false}
             />
-            <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+            <Text padding={5}>You will be scanning the TAPSIGNER after this step</Text>
             <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={verifyTapsigner} />
             </Box>

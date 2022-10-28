@@ -1,29 +1,28 @@
-import Cloud from 'src/assets/images/svgs/cloud.svg';
-import Mobile from 'src/assets/images/svgs/mobile.svg';
-import PDF from 'src/assets/images/svgs/pdf.svg';
-import Laptop from 'src/assets/images/svgs/laptop.svg';
-import Hardware from 'src/assets/images/svgs/hardware.svg';
-import Contact from 'src/assets/images/svgs/contacts.svg';
-import Key from 'src/assets/images/svgs/key.svg';
-import ColdCard from 'src/assets/images/svgs/coldcard.svg';
-import Ledger from 'src/assets/images/svgs/ledger.svg';
-import Trezor from 'src/assets/images/svgs/trezor.svg';
-import Seedsigner from 'src/assets/images/svgs/seedsigner.svg';
-import Foundationdevice from 'src/assets/images/svgs/foundationdevice.svg';
-
-import ColdCardTile from 'src/assets/images/svgs/coldcard_tile.svg';
-import LedgerTile from 'src/assets/images/svgs/ledger_tile.svg';
-import TrezorTile from 'src/assets/images/svgs/trezor_tile.svg';
-import SeedsignerTile from 'src/assets/images/svgs/seedsigner_tile.svg';
-import FoundationdeviceTile from 'src/assets/images/svgs/foundationdevice_tile.svg';
-import CloudTile from 'src/assets/images/svgs/cloud_tile.svg';
-import MobileTile from 'src/assets/images/svgs/mobile_tile.svg';
-import PDFTile from 'src/assets/images/svgs/pdf_tile.svg';
-import LaptopTile from 'src/assets/images/svgs/laptop_tile.svg';
-import HardwareTile from 'src/assets/images/svgs/hardware_tile.svg';
-import ContactTile from 'src/assets/images/svgs/contacts_tile.svg';
-import KeyTile from 'src/assets/images/svgs/key_tile.svg';
 import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
+import Cloud from 'src/assets/images/svgs/cloud.svg';
+import CloudTile from 'src/assets/images/svgs/cloud_tile.svg';
+import ColdCard from 'src/assets/images/svgs/coldcard.svg';
+import ColdCardTile from 'src/assets/images/svgs/coldcard_tile.svg';
+import Contact from 'src/assets/images/svgs/contacts.svg';
+import ContactTile from 'src/assets/images/svgs/contacts_tile.svg';
+import Foundationdevice from 'src/assets/images/svgs/foundationdevice.svg';
+import FoundationdeviceTile from 'src/assets/images/svgs/foundationdevice_tile.svg';
+import Hardware from 'src/assets/images/svgs/hardware.svg';
+import HardwareTile from 'src/assets/images/svgs/hardware_tile.svg';
+import Key from 'src/assets/images/svgs/key.svg';
+import KeyTile from 'src/assets/images/svgs/key_tile.svg';
+import Laptop from 'src/assets/images/svgs/laptop.svg';
+import LaptopTile from 'src/assets/images/svgs/laptop_tile.svg';
+import Ledger from 'src/assets/images/svgs/ledger.svg';
+import LedgerTile from 'src/assets/images/svgs/ledger_tile.svg';
+import Mobile from 'src/assets/images/svgs/mobile.svg';
+import MobileTile from 'src/assets/images/svgs/mobile_tile.svg';
+import PDF from 'src/assets/images/svgs/pdf.svg';
+import PDFTile from 'src/assets/images/svgs/pdf_tile.svg';
+import Seedsigner from 'src/assets/images/svgs/seedsigner.svg';
+import SeedsignerTile from 'src/assets/images/svgs/seedsigner_tile.svg';
+import Trezor from 'src/assets/images/svgs/trezor.svg';
+import TrezorTile from 'src/assets/images/svgs/trezor_tile.svg';
 
 export const Data: BACKUP_KEYS[] = [
   {
@@ -85,7 +84,7 @@ export const HardwareData: BACKUP_KEYS[] = [
   },
   {
     id: '10',
-    title: 'Cold Card',
+    title: 'Coldcard',
     subtitle: '',
     Icon: ColdCard,
   },

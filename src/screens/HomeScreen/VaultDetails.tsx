@@ -447,7 +447,7 @@ const VaultDetails = ({ route, navigation }) => {
           p={1}
         >
           {
-            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+            'Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select'
           }
         </Text>
         <Text
@@ -458,7 +458,7 @@ const VaultDetails = ({ route, navigation }) => {
           fontWeight={'200'}
           p={1}
         >
-          {'There are also some additional options if you do not have hardware Signing Devices'}
+          {'There are also some additional options if you do not have hardware signing devices'}
         </Text>
       </View>
     );
