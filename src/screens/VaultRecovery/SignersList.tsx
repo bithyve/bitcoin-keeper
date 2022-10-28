@@ -158,7 +158,7 @@ const SignersList = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Select Signing Device'}
-        subtitle={'to recover your vault'}
+        subtitle={'To recover your vault'}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
       />
