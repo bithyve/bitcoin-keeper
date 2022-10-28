@@ -100,6 +100,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
 
 const Header = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
     <Box flexDirection={'row'} justifyContent={'space-between'} px={'2%'}>
@@ -107,7 +108,7 @@ const Header = () => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <BackIcon />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.knowMore}>
+      <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
         <Text color={'light.white1'} fontSize={12} letterSpacing={0.84} fontWeight={100}>
           Know More
         </Text>
