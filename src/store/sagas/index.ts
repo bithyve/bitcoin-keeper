@@ -11,6 +11,7 @@ import {
   syncWalletsWatcher,
   testcoinsWatcher,
   updateSignerPolicyWatcher,
+  updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   validateSigningServerRegistrationWatcher,
 } from './wallets';
@@ -84,6 +85,7 @@ export const rootSaga = function* () {
     validateSigningServerRegistrationWatcher,
     updateSignerPolicyWatcher,
     testcoinsWatcher,
+    updateWalletDetailWatcher,
 
     // vaults
     addNewVaultWatcher,

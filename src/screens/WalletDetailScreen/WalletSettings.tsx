@@ -95,8 +95,8 @@ const WalletSettings = ({ route }) => {
           linearGradient: {
             colors: ['light.lgStart', 'light.lgEnd'],
             start: [0, 0],
-            end: [1, 1]
-          }
+            end: [1, 1],
+          },
         }}
         style={{
           borderRadius: hp(20),
@@ -210,7 +210,7 @@ const WalletSettings = ({ route }) => {
             title={'Wallet Details'}
             subTitle={'Change wallet name & description'}
             onPress={() => {
-              console.log('Wallet Details');
+              navigtaion.navigate('EditWalletDetails', { wallet: wallet });
             }}
             Icon={false}
           />
@@ -296,19 +296,12 @@ const WalletSettings = ({ route }) => {
           visible={transferPolicyVisible}
           close={() => setTransferPolicyVisible(false)}
           title={'Edit Transfer Policy'}
-          subTitle={
-            'Threshold amount at which transfer is triggered'
-          }
+          subTitle={'Threshold amount at which transfer is triggered'}
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
           Content={() => {
-            return (
-              <TransferPolicy
-                wallet={wallet}
-                close={() => setTransferPolicyVisible(false)}
-              />
-            );
+            return <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />;
           }}
         />
       </Box>
