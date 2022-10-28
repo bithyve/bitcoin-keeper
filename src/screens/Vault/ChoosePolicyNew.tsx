@@ -15,7 +15,7 @@ import { CommonActions } from '@react-navigation/native';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import { numberWithCommas } from 'src/common/utilities';
@@ -103,6 +103,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
               style={styles.textInput}
               value={value}
               showSoftInputOnFocus={false}
+              onFocus={() => Keyboard.dismiss()}
             />
           </Box>
         </Box>
@@ -170,7 +171,6 @@ const ChoosePolicyNew = ({ navigation, route }) => {
 };
 const styles = StyleSheet.create({
   textInput: {
-    width: wp(98),
     backgroundColor: '#FDF7F0',
     borderRadius: 10,
     padding: 15,

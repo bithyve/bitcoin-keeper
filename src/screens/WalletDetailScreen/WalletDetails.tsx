@@ -380,7 +380,7 @@ const WalletDetails = () => {
               flexDirection={'row'}
               marginTop={4}
               marginBottom={hp(2)}
-              justifyContent={'space-between'}
+              justifyContent={'space-evenly'}
               marginX={10}
             >
               <TouchableOpacity
@@ -405,12 +405,12 @@ const WalletDetails = () => {
                   Recieve
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.IconText}>
+              {/* <TouchableOpacity style={styles.IconText}>
                 <Buy />
                 <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
                   Buy
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {
