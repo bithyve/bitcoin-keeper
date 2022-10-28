@@ -19,6 +19,7 @@ import Vault from 'src/assets/images/svgs/vault.svg';
 import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
@@ -87,7 +88,7 @@ const SetupInheritance = () => {
           fontSize={14}
           marginTop={hp(16)}
           alignItems={'center'}
-          width={wp(300)}
+          width={wp(280)}
           fontWeight={200}
           letterSpacing={0.65}
         >
@@ -134,8 +135,7 @@ const SetupInheritance = () => {
   };
 
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
+    <ScreenWrapper>
       <Box marginBottom={-7}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
@@ -219,15 +219,10 @@ const SetupInheritance = () => {
         DarkCloseIcon={true}
         learnMore={true}
       />
-    </Box >
+    </ScreenWrapper >
   );
 };
 
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    position: 'relative',
-  },
 });
 export default SetupInheritance;
