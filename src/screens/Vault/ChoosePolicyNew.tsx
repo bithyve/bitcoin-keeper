@@ -18,6 +18,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
+import { numberWithCommas } from 'src/common/utilities';
 
 const ChoosePolicyNew = ({ navigation, route }) => {
   const [selectedPolicy, setSelectedPolicy] = useState('max');
@@ -134,7 +135,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
                 'The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code'
               }
               onPress={() => setSelectedPolicy('min')}
-              value={minTransaction}
+              value={numberWithCommas(minTransaction)}
             />
             <Field
               title={'Max allowed amount'}
@@ -142,7 +143,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
                 'If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it'
               }
               onPress={() => setSelectedPolicy('max')}
-              value={maxTransaction}
+              value={numberWithCommas(maxTransaction)}
             />
           </Box>
 
