@@ -14,7 +14,7 @@ import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import CustomPriorityModal from './CustomPriorityModal';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
@@ -558,7 +558,7 @@ const SendConfirmation = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header title={title} subtitle={subtitle} />
+      <HeaderTitle title={title} subtitle={subtitle} paddingTop={hp(5)} />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend={true} />
         <SendingCard isSend={false} />

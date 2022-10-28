@@ -7,7 +7,7 @@ import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -86,9 +86,9 @@ const AddSendAmount = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={`Enter the amount`}
-        // subtitle={`Sending to ${address}`}
+      // subtitle={`Sending to ${address}`}
       />
       {/* <Box
         flexDirection={'row'}
@@ -137,7 +137,7 @@ const AddSendAmount = ({ route }) => {
               amount,
             },
           ]}
-          addTransaction={() => {}}
+          addTransaction={() => { }}
         />
       </Box>
       <Box
@@ -227,7 +227,7 @@ const AddSendAmount = ({ route }) => {
             <Buttons
               secondaryText={'Cancel'}
               secondaryCallback={() => {
-                console.log('Cancel');
+                navigation.goBack();
               }}
               primaryText={'Send'}
               primaryCallback={executeSendPhaseOne}

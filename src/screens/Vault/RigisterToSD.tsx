@@ -6,9 +6,7 @@ import React, { useCallback, useContext, useRef, useState } from 'react';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
-import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -17,6 +15,7 @@ import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { captureError } from 'src/core/services/sentry';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { registerToColcard } from 'src/hardware/coldcard';
 import useScanLedger from '../AddLedger/useScanLedger';
 
 const SDInstructionMap = {
@@ -58,18 +57,7 @@ export const RigisterToSD = ({ route }) => {
     switch (type) {
       case SignerType.COLDCARD:
         openNfc();
-        let line = '';
-        line += `Name: Keeper ${new Date().getTime()}\n`;
-        line += `Policy: ${Vault.scheme.m} of ${Vault.scheme.n}\n`;
-        line += `Format: P2SH-P2WSH\n`;
-        line += `\n`;
-        Vault.signers.forEach((signer) => {
-          line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
-          line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
-        });
-        const enc = NFC.encodeForColdCard(line);
-        console.log(line);
-        await NFC.send(NfcTech.Ndef, enc);
+        await registerToColcard({ vault: Vault });
         closeNfc();
         break;
       case SignerType.LEDGER:

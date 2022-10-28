@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import Buttons from 'src/components/Buttons';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
@@ -42,11 +42,7 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text
-                  color={'light.GreyText'}
-                  fontSize={13}
-                  fontWeight={200}
-                  letterSpacing={0.6}>
+                <Text color={'light.GreyText'} fontSize={13} fontWeight={200} letterSpacing={0.6}>
                   {`Lorem ipsum dolor sit amet, consectetur`}
                 </Text>
               </VStack>
@@ -88,11 +84,7 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontSize={12} letterSpacing={0.6}
-          >
+          <Text color={'light.GreyText'} fontWeight={200} fontSize={12} letterSpacing={0.6}>
             {`Remove`}
           </Text>
         </Pressable>
@@ -155,10 +147,11 @@ const VaultRecovery = () => {
   const navigation = useNavigation();
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={'Add signing devices'}
-        subtitle={'to recover your inherited Vault'}
+        subtitle={'To recover your inherited vault'}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
         {vaultMetaData.m ? (
@@ -178,7 +171,7 @@ const VaultRecovery = () => {
               </Box>
             </TouchableOpacity>
             <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
-              You can use any one of the Signing Devices to start with
+              You can use any one of the signing devices to start with
             </Text>
           </Box>
         )}
@@ -193,7 +186,7 @@ const VaultRecovery = () => {
         )}
         <Note
           title={'Note'}
-          subtitle={'Signing Server cannot be used as the first Signing Device while recovering'}
+          subtitle={'Signing Server cannot be used as the first signing device while recovering'}
         />
       </View>
       <KeeperModal

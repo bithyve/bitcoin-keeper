@@ -15,7 +15,7 @@ import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_an
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -90,7 +90,9 @@ const AddSigningDevice = () => {
   useEffect(() => {
     const fills =
       planStatus === VaultMigrationType.DOWNGRADE
-        ? []
+        ? vaultSigners.length < currentSignerLimit
+          ? new Array(currentSignerLimit - vaultSigners.length).fill(null)
+          : []
         : new Array(currentSignerLimit - vaultSigners.length).fill(null);
     setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
@@ -129,7 +131,7 @@ const AddSigningDevice = () => {
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
   useEffect(() => {
-    if (sendMaxFee) {
+    if (sendMaxFee && temporaryVault) {
       const sendMaxBalance = confirmed - sendMaxFee;
       const { updatedWallet, receivingAddress } =
         WalletOperations.getNextFreeExternalAddress(temporaryVault);
@@ -329,7 +331,7 @@ const AddSigningDevice = () => {
 
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={`${
           planStatus === VaultMigrationType.DOWNGRADE
             ? 'Remove'
@@ -339,6 +341,7 @@ const AddSigningDevice = () => {
         } Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <FlatList
         extraData={vaultSigners}
@@ -360,17 +363,21 @@ const AddSigningDevice = () => {
             />
           </Box>
         ) : null}
-        {signersState.every((signer) => {
-          return !!signer;
-        }) && (
+        {
           <Buttons
+            primaryDisable={
+              signersState.every((signer) => {
+                return !!!signer;
+              }) ||
+              (vaultSigners && vaultSigners.length !== currentSignerLimit)
+            }
             primaryLoading={vaultCreating}
             primaryText="Create Vault"
             primaryCallback={triggerVaultCreation}
             secondaryText={'Cancel'}
             secondaryCallback={navigation.goBack}
           />
-        )}
+        }
       </Box>
     </ScreenWrapper>
   );

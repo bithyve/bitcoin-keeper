@@ -1,34 +1,33 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import { Box, Text, Pressable, ScrollView } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import Modal from 'react-native-modal';
-
 //components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
-// icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import LinearGradient from 'react-native-linear-gradient';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
-import { Alert } from 'react-native';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+// icons
+import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type Props = {
   title: string;
@@ -81,6 +80,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -93,10 +93,14 @@ const WalletSettings = ({ route }) => {
 
   const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
     return (
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -137,7 +141,7 @@ const WalletSettings = ({ route }) => {
             {walletBalance}
           </Text>
         </Box>
-      </LinearGradient>
+      </Box>
     );
   };
 
@@ -164,12 +168,13 @@ const WalletSettings = ({ route }) => {
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           title={'Wallet Settings'}
           subtitle={'Setting for the wallet only'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.textBlack'}
-          fontSize={20}
+          titleFontSize={20}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box
@@ -208,7 +213,7 @@ const WalletSettings = ({ route }) => {
             title={'Wallet Details'}
             subTitle={'Change wallet name & description'}
             onPress={() => {
-              console.log('Wallet Details');
+              navigtaion.navigate('EditWalletDetails', { wallet: wallet });
             }}
             Icon={false}
           />
@@ -260,13 +265,7 @@ const WalletSettings = ({ route }) => {
       </Box>
       {/* Modals */}
       <Box>
-        {/* <ModalWrapper visible={xpubVisible} onSwipeComplete={() => setXPubVisible(false)}>
-          <ShowXPub
-            closeBottomSheet={() => {
-              setXPubVisible(false);
-            }}
-          />
-        </ModalWrapper> */}
+
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -288,25 +287,20 @@ const WalletSettings = ({ route }) => {
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={ShowXPub}
+          Content={() => <ShowXPub copy={() => {
+            showToast('Address Copied Successfully', <TickIcon />);
+          }} />}
         />
         <KeeperModal
           visible={transferPolicyVisible}
           close={() => setTransferPolicyVisible(false)}
           title={'Edit Transfer Policy'}
-          subTitle={
-            'Threshold amount at which transfer is triggered'
-          }
+          subTitle={'Threshold amount at which transfer is triggered'}
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
           Content={() => {
-            return (
-              <TransferPolicy
-                wallet={wallet}
-                close={() => setTransferPolicyVisible(false)}
-              />
-            );
+            return <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />;
           }}
         />
       </Box>

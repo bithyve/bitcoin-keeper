@@ -1,7 +1,6 @@
 import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
-  Dimensions,
   FlatList,
   Platform,
   RefreshControl,
@@ -10,17 +9,15 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+// components, hooks and functions
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
+// asserts
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import Buy from 'src/assets/images/svgs/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
@@ -35,7 +32,7 @@ import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import { Transaction } from 'src/core/wallets/interfaces';
+import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
@@ -49,80 +46,6 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const { height } = Dimensions.get('window');
-const renderTransactionElement = ({ item }) => {
-  return <TransactionElement transaction={item} />;
-};
-
-const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
-  const navigation = useNavigation();
-  return (
-    <TouchableOpacity
-      onPress={() => {
-        navigation.dispatch(
-          CommonActions.navigate('ViewTransactionDetails', {
-            transaction,
-          })
-        );
-      }}
-    >
-      <Box
-        flexDirection={'row'}
-        height={getTransactionPadding()}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(25)}
-      >
-        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-          <Box flexDirection={'column'} marginLeft={1.5}>
-            <Text
-              color={'light.GreyText'}
-              marginX={1}
-              fontSize={13}
-              fontWeight={200}
-              letterSpacing={0.6}
-              numberOfLines={1}
-              width={wp(125)}
-            >
-              {transaction?.txid}
-            </Text>
-            <Text
-              color={'light.dateText'}
-              marginX={1}
-              fontSize={11}
-              fontWeight={100}
-              letterSpacing={0.5}
-              opacity={0.82}
-            >
-              {transaction.date}
-            </Text>
-          </Box>
-        </Box>
-        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-          <Box>
-            <BtcBlack />
-          </Box>
-          <Text
-            color={'light.textBlack'}
-            fontSize={19}
-            fontWeight={200}
-            letterSpacing={0.95}
-            marginX={2}
-            marginRight={3}
-          >
-            {transaction.amount}
-          </Text>
-          <Box>
-            <IconArrowGrey />
-          </Box>
-        </Box>
-      </Box>
-    </TouchableOpacity>
-  );
-};
 
 const Footer = ({ vault }: { vault: Vault }) => {
   const navigation = useNavigation();
@@ -177,6 +100,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
 
 const Header = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
     <Box flexDirection={'row'} justifyContent={'space-between'} px={'2%'}>
@@ -184,7 +108,7 @@ const Header = () => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <BackIcon />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.knowMore}>
+      <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
         <Text color={'light.white1'} fontSize={12} letterSpacing={0.84} fontWeight={100}>
           Know More
         </Text>
@@ -270,9 +194,25 @@ const VaultInfo = ({ vault }: { vault: Vault }) => {
 
 const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) => {
   const navigation = useNavigation();
+
+  const renderTransactionElement = ({ item }) => {
+    return (
+      <TransactionElement
+        transaction={item}
+        onPress={() => {
+          navigation.dispatch(
+            CommonActions.navigate('TransactionDetails', {
+              transaction: item,
+            })
+          );
+        }}
+      />
+    );
+  };
+
   return (
     <>
-      <VStack style={{ paddingTop: height * 0.12 }}>
+      <VStack style={{ paddingTop: windowHeight * 0.12 }}>
         <HStack justifyContent={'space-between'}>
           <Text
             color={'light.textBlack'}
@@ -417,6 +357,7 @@ const SignerList = ({
                   fontWeight={200}
                   letterSpacing={0.6}
                   textAlign={'center'}
+                  noOfLines={1}
                 >
                   {signer.signerName}
                 </Text>
@@ -507,7 +448,7 @@ const VaultDetails = ({ route, navigation }) => {
           p={1}
         >
           {
-            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+            'Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select'
           }
         </Text>
         <Text
@@ -518,7 +459,7 @@ const VaultDetails = ({ route, navigation }) => {
           fontWeight={'200'}
           p={1}
         >
-          {'There are also some additional options if you do not have hardware Signing Devices'}
+          {'There are also some additional options if you do not have hardware signing devices'}
         </Text>
       </View>
     );
@@ -561,7 +502,7 @@ const VaultDetails = ({ route, navigation }) => {
       <KeeperModal
         visible={vaultCreated}
         title={'New Vault Created'}
-        subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
@@ -577,7 +518,7 @@ const VaultDetails = ({ route, navigation }) => {
                 marginTop={3}
               >
                 {
-                  'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
+                  'For sending out of the vault you will need the signing devices. This means no one can steal your bitcoin in the vault unless they also have the signing devices'
                 }
               </Text>
             </View>
@@ -591,7 +532,7 @@ const VaultDetails = ({ route, navigation }) => {
         }}
         title={'Keeper Vault'}
         subTitle={
-          'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add Signing Devices to the Vault'
+          'Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add signing devices to the vault'
         }
         modalBackground={['#00836A', '#073E39']}
         textColor={'#FFF'}

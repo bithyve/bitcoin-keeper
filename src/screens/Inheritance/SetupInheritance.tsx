@@ -11,17 +11,20 @@ import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/svgs/vault.svg';
 import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
-import { setInheritance } from 'src/store/reducers/settings';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
+  const { showToast } = useToastMessage();
 
   const [modalVisiblity, setModalVisiblity] = useState(true);
   const inheritanceData = [
@@ -85,7 +88,7 @@ const SetupInheritance = () => {
           fontSize={14}
           marginTop={hp(16)}
           alignItems={'center'}
-          width={wp(300)}
+          width={wp(280)}
           fontWeight={200}
           letterSpacing={0.65}
         >
@@ -132,8 +135,7 @@ const SetupInheritance = () => {
   };
 
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
+    <ScreenWrapper>
       <Box marginBottom={-7}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
@@ -191,7 +193,7 @@ const SetupInheritance = () => {
         <Box marginTop={hp(windowHeight > 700 ? 50 : 0)}>
           <Buttons
             primaryText='Select Country'
-            primaryCallback={() => { console.log('comming soon') }}
+            primaryCallback={() => { showToast('Inheritance flow coming soon') }}
             paddingHorizontal={wp(20)}
           />
         </Box>
@@ -217,15 +219,10 @@ const SetupInheritance = () => {
         DarkCloseIcon={true}
         learnMore={true}
       />
-    </Box >
+    </ScreenWrapper >
   );
 };
 
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    position: 'relative',
-  },
 });
 export default SetupInheritance;

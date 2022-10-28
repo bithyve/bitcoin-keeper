@@ -2,8 +2,7 @@ import React, { useContext, useRef, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Carousel from 'react-native-snap-carousel';
-import LinearGradient from 'react-native-linear-gradient';
-import { FlatList, Dimensions, Pressable } from 'react-native';
+import { FlatList, Pressable } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -42,8 +41,14 @@ const ChoosePlanCarousel = (props) => {
   const _renderItem = ({ item, index }) => {
     return (
       <Pressable onPress={() => _onSnapToItem(index)}>
-        <LinearGradient
-          colors={currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484']}
+        <Box
+          bg={{
+            linearGradient: {
+              colors: currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484'],
+              start: [0, 0],
+              end: [1, 1]
+            }
+          }}
           style={{
             borderRadius: 20,
             marginHorizontal: wp(3),
@@ -92,7 +97,7 @@ const ChoosePlanCarousel = (props) => {
               </Box>
             ) : null}
           </Box>
-        </LinearGradient>
+        </Box>
       </Pressable>
     );
   };

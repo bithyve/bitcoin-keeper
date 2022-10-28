@@ -31,6 +31,7 @@ export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
 export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
+export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -338,6 +339,22 @@ export const testSatsRecieve = (wallet: Wallet) => {
     type: TEST_SATS_RECIEVE,
     payload: {
       wallet,
+    },
+  };
+};
+
+export const updateWalletDetails = (
+  wallet: Wallet,
+  details: {
+    name: string;
+    description: string;
+  }
+) => {
+  return {
+    type: UPDATE_WALLET_DETAILS,
+    payload: {
+      wallet,
+      details,
     },
   };
 };
