@@ -1,18 +1,14 @@
-import { Box, HStack, Pressable, Text, View } from 'native-base';
+import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import {
-  Image,
-  ImageBackground,
-  PermissionsAndroid,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
+import { ImageBackground, PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
 import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
+// asserts (svgs, pngs)
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Chain from 'src/assets/icons/illustration_homescreen.svg';
@@ -22,8 +18,6 @@ import Hidden from 'src/assets/images/svgs/hidden.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
@@ -34,15 +28,14 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+// components, hooks, data and functions.
 import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
@@ -61,7 +54,7 @@ const InheritanceComponent = () => {
   const seed = translations['seed'];
   const onPress = () => {
     // open();
-    navigation.navigate('InheritanceSetup');
+    navigation.navigate('SetupInheritance');
   };
 
   const close = () => setVisible(false);
@@ -69,11 +62,15 @@ const InheritanceComponent = () => {
 
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
         style={styles.bottomCard}
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
           <Inheritance />
@@ -124,7 +121,7 @@ const InheritanceComponent = () => {
             textColor={'#041513'}
           />
         </>
-      </LinearGradient>
+      </Box>
     </Box>
   );
 };
@@ -141,10 +138,14 @@ const LinkedWallets = (props) => {
       marginTop={hp(8)}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
         style={styles.bottomCard}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
@@ -177,12 +178,7 @@ const LinkedWallets = (props) => {
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
                 {getAmount(netBalance)}
-                <Text
-                  color={'light.white1'}
-                  letterSpacing={0.6}
-                  fontSize={hp(12)}
-                  fontWeight={200}
-                >
+                <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
                   {getUnit()}
                 </Text>
               </Text>
@@ -195,23 +191,10 @@ const LinkedWallets = (props) => {
             </Box>
           )}
         </Pressable>
-      </LinearGradient>
+      </Box>
     </Pressable>
   );
 };
-
-// const VaultSetupContent = () => {
-//   return (
-//     <View>
-//       <Box alignSelf={'center'}>
-//         <SigningDevicesIllustration />
-//       </Box>
-//       <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-//         {`For the Pleb tier, you need to select one Signing Device to activate your Vault. This can be upgraded to three Signing Devices and five Signing Devices on Hodler and Diamond Hands tiers\n\nIf a particular Signing Device is not supported, it will be indicated.`}
-//       </Text>
-//     </View>
-//   );
-// };
 
 const VaultStatus = (props) => {
   const [visible, setModalVisible] = useState(false);
@@ -377,7 +360,6 @@ const VaultStatus = (props) => {
                     fontWeight={200}
                   >
                     {getAmount(vaultBalance)}
-
                   </Text>
                   <Text
                     color={'light.white1'}
@@ -412,23 +394,6 @@ const VaultStatus = (props) => {
           </Pressable>
         </ImageBackground>
       </TouchableOpacity>
-      {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={'Signing Devices'}
-        subTitle={
-          'A Signing Device is a piece of hardware or software that stores one of the private keys needed for your vault'
-        }
-        modalBackground={['#00836A', '#073E39']}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vaultTranslations.AddNow}
-        buttonTextColor={'#073E39'}
-        buttonCallback={navigateToHardwareSetup}
-        textColor={'#FFF'}
-        Content={VaultSetupContent}
-        DarkCloseIcon={true}
-        learnMore={true}
-      /> */}
     </Box>
   );
 };
@@ -481,10 +446,14 @@ const VaultInfo = () => {
   }
 
   return (
-    <LinearGradient
-      colors={['#00836A', '#073E39']}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 1, y: 0 }}
+    <Box
+      bg={{
+        linearGradient: {
+          colors: ['light.lgStart', 'light.lgEnd'],
+          start: [0, 0],
+          end: [1, 1],
+        },
+      }}
       style={styles.linearGradient}
     >
       <Box paddingX={10} alignItems={'center'}>
@@ -521,7 +490,7 @@ const VaultInfo = () => {
         </Box>
         <UaiDisplay uaiStack={uaiStack} />
       </Box>
-    </LinearGradient>
+    </Box>
   );
 };
 
@@ -559,7 +528,6 @@ const HomeScreen = ({ navigation }) => {
       ]);
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
       BugReporting.setShakingThresholdForiPhone(1.0);
-      BugReporting.setShakingThresholdForAndroid(100);
       Instabug.setPrimaryColor('rgb(7, 62, 57)');
     } catch (error) {
       console.log(error);
@@ -726,7 +694,7 @@ const HomeScreen = ({ navigation }) => {
       />
       <Pressable
         onPress={() => {
-          navigation.navigate('InheritanceSetup');
+          navigation.navigate('SetupInheritance');
         }}
       >
         <InheritanceComponent />
@@ -750,8 +718,8 @@ const styles = ScaledSheet.create({
     borderBottomRightRadius: 15,
   },
   vault: {
-    width: wp(271.28),
-    height: hp(346.04),
+    width: wp(280),
+    height: hp(Platform.OS == 'android' ? 400 : 350),
     alignItems: 'center',
   },
   bottomCard: {

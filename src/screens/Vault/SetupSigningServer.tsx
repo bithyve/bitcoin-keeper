@@ -9,7 +9,7 @@ import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import InfoBox from '../../components/InfoBox';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
@@ -45,7 +45,8 @@ const SetupSigningServer = ({ route }: { route }) => {
   const key = idx(keeper, (_) => _.twoFADetails.twoFAKey);
   const isTwoFAAlreadyVerified = idx(keeper, (_) => _.twoFADetails.twoFAValidated);
   const signingServerVerified = useAppSelector((state) => state.wallet.signingServer.verified);
-  const signingServerXpub = idx(keeper, (_) => _.twoFADetails.signingServerXpub);
+  const { signingServerXpub, derivationPath, masterFingerprint } =
+    idx(keeper, (_) => _.twoFADetails) || {};
 
   const [settingSigningServerKey, setSettingSigningServerKey] = useState(false);
 
@@ -70,6 +71,10 @@ const SetupSigningServer = ({ route }: { route }) => {
       type: SignerType.POLICY_SERVER,
       signerName: 'Signing Server',
       xpub: signingServerXpub,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.WARM,
@@ -144,11 +149,12 @@ const SetupSigningServer = ({ route }: { route }) => {
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           title={'Set up 2FA for Signing Server'}
           subtitle={'Scan on any 2FA auth app'}
           onPressHandler={() => navigation.goBack()}
           headerTitleColor={'light.headerText'}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={wp(250)}>

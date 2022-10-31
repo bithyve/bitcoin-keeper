@@ -3,9 +3,8 @@ import { Box, Text, Pressable } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-
 //components and functions
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -147,12 +146,13 @@ const SigningServerSettings = ({ route }) => {
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           title={'Signing Server Settings'}
           subtitle={'Lorem Ipsum Dolor'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.textBlack'}
-          fontSize={20}
+          titleFontSize={20}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box

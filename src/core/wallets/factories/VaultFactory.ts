@@ -125,7 +125,7 @@ export const generateMobileKey = async (
 
   const DEFAULT_CHILD_PATH = 0;
   let xDerivationPath = WalletUtilities.getDerivationPath(
-    EntityKind.WALLET,
+    EntityKind.VAULT,
     networkType,
     DEFAULT_CHILD_PATH
   );
@@ -159,7 +159,7 @@ export const generateSeedWordsKey = (
 
   const DEFAULT_CHILD_PATH = 0;
   let xDerivationPath = WalletUtilities.getDerivationPath(
-    EntityKind.WALLET,
+    EntityKind.VAULT,
     networkType,
     DEFAULT_CHILD_PATH
   );

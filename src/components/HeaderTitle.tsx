@@ -17,9 +17,9 @@ type Props = {
   headerTitleColor?: string;
   paddingLeft?: number;
   paddingTop?: number;
-  showToggler?: boolean;
   learnMore?: boolean;
   learnMorePressed?: () => void;
+  titleFontSize?: number
 };
 const HeaderTitle = ({
   title = '',
@@ -29,9 +29,10 @@ const HeaderTitle = ({
   headerTitleColor = 'light.headerText',
   paddingLeft = 0,
   paddingTop = 0,
-  showToggler = false,
   learnMore = false,
   learnMorePressed = () => { },
+  titleFontSize = 16
+
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -75,6 +76,7 @@ const HeaderTitle = ({
               color={headerTitleColor}
               fontFamily={'body'}
               fontWeight={'200'}
+              fontSize={RFValue(titleFontSize)}
             >
               {title}
             </Text>
@@ -90,9 +92,9 @@ const HeaderTitle = ({
             </Text>
           )}
         </Box>
-        {showToggler && <Box paddingTop={paddingTop}>
-          <CurrencyTypeSwitch />
-        </Box>}
+        {/* {HeaderRight && <Box paddingTop={paddingTop}>
+          <HeaderRight />
+        </Box>} */}
       </Box>
     </Box>
   );
@@ -103,7 +105,6 @@ const styles = ScaledSheet.create({
     backgroundColor: 'transparent',
   },
   addWalletText: {
-    fontSize: RFValue(16),
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
     paddingHorizontal: '20@s',

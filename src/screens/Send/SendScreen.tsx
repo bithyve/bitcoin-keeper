@@ -34,8 +34,8 @@ import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { widthPercentageToDP } from 'react-native-responsive-screen';
 import Fonts from 'src/common/Fonts';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 const SendScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -118,10 +118,11 @@ const SendScreen = ({ route }) => {
         enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
       >
-        <Header
+        <HeaderTitle
           title={common.send}
           subtitle={'Scan a bitcoin address'}
           headerTitleColor={'light.textBlack'}
+          paddingTop={hp(5)}
         />
         <ScrollView>
           <Box style={styles.qrcontainer}>

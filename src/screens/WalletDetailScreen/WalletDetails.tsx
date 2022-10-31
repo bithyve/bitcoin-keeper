@@ -22,12 +22,8 @@ import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
 import BTC from 'src/assets/images/svgs/btc_wallet.svg';
 import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
 import BackIcon from 'src/assets/images/svgs/back.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import Buy from 'src/assets/images/svgs/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import Send from 'src/assets/images/svgs/send.svg';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -37,14 +33,13 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import {
-  getTransactionPadding,
   hp,
   windowWidth,
   wp,
 } from 'src/common/data/responsiveness/responsive';
 //components and interfaces and hooks
+import TransactionElement from 'src/components/TransactionElement';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { Transaction } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -184,68 +179,7 @@ const WalletDetails = () => {
   };
 
   const renderTransactionElement = ({ item }) => {
-    return <TransactionElement transaction={item} />;
-  };
-
-  const TransactionElement = ({ transaction }: { transaction: Transaction }) => {
-    return (
-      <Box
-        flexDirection={'row'}
-        height={getTransactionPadding()}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(20)}
-      >
-        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
-          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-          <Box flexDirection={'column'} marginLeft={1.5}>
-            <Text
-              color={'light.GreyText'}
-              marginX={1}
-              fontSize={13}
-              fontWeight={200}
-              letterSpacing={0.6}
-              numberOfLines={1}
-              width={wp(125)}
-            >
-              {transaction?.txid}
-            </Text>
-            <Text
-              color={'light.dateText'}
-              marginX={1}
-              fontSize={11}
-              fontWeight={100}
-              letterSpacing={0.5}
-              opacity={0.82}
-            >
-              {transaction.date}
-            </Text>
-          </Box>
-        </Box>
-        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
-          <Box>
-            <BtcBlack />
-          </Box>
-          <Text
-            color={'light.textBlack'}
-            fontSize={19}
-            fontWeight={200}
-            letterSpacing={0.95}
-            marginX={2}
-            marginRight={3}
-          >
-            {getAmount(transaction.amount)}
-            <Text color={'light.dateText'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
-              {getUnit()}
-            </Text>
-          </Text>
-          <Box>
-            <IconArrowGrey />
-          </Box>
-        </Box>
-      </Box>
-    );
+    return <TransactionElement transaction={item} />
   };
 
   const GradientIcon = ({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) => {
@@ -446,7 +380,7 @@ const WalletDetails = () => {
               flexDirection={'row'}
               marginTop={4}
               marginBottom={hp(2)}
-              justifyContent={'space-between'}
+              justifyContent={'space-evenly'}
               marginX={10}
             >
               <TouchableOpacity
@@ -471,12 +405,12 @@ const WalletDetails = () => {
                   Recieve
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.IconText}>
+              {/* <TouchableOpacity style={styles.IconText}>
                 <Buy />
                 <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
                   Buy
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {

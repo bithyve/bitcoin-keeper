@@ -7,8 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import Colors from 'src/theme/Colors';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import Tapsigner from 'src/assets/images/svgs/Tapsigner_brown.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -28,11 +27,12 @@ const AddDescription = ({ route }) => {
       <StatusBarComponent padding={50} />
       <Box marginX={3} >
         <Box width={wp(200)}>
-          <Header
+          <HeaderTitle
             title={'Add Description'}
             subtitle={'Optionally you can add a short description to the Signing Device'}
             onPressHandler={() => navigation.goBack()}
             headerTitleColor={'light.textBlack'}
+            paddingTop={hp(5)}
           />
         </Box>
         {/* {card} */}

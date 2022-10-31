@@ -10,5 +10,7 @@ const Colors = {
   ReceiveBackground: '#F7F2EC',
   borderColor: '#E3E3E3',
   textColorGrey: '#6C6C6C',
+  linearGradientStart: '#00836A',
+  linearGradientEnd: '#073E39'
 };
 export default Colors;

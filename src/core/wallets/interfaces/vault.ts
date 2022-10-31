@@ -59,9 +59,9 @@ export interface VaultSigner {
   xpub: string;
   xpriv?: string;
   signerName?: string;
-  xpubInfo?: {
-    derivationPath?: string;
-    xfp?: string;
+  xpubInfo: {
+    derivationPath: string;
+    xfp: string;
   };
   bip85Config?: BIP85Config; // configuration for mobile keys
   lastHealthCheck: Date;

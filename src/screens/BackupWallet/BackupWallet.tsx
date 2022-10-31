@@ -3,7 +3,7 @@ import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -108,10 +108,11 @@ const BackupWallet = () => {
           padding: hp(5),
         }}
       >
-        <Header
+        <HeaderTitle
           title={BackupWallet.backupWallet}
           subtitle={BackupWallet.backupWalletSubTitle}
           onPressHandler={() => navigation.goBack()}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>

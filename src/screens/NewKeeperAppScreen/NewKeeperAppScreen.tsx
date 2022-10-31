@@ -1,5 +1,5 @@
 import { ActivityIndicator, Platform } from 'react-native';
-import { Box, HStack, Image, Pressable, ScrollView, Switch, Text } from 'native-base';
+import { Box, Image, Pressable, ScrollView, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -9,22 +9,18 @@ import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
-import KeeperLoader from 'src/components/KeeperLoader';
+import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { NetworkType } from 'src/core/wallets/enums';
 import PasswordModal from 'src/components/PasswordModal';
 import { RFValue } from 'react-native-responsive-fontsize';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import config from 'src/core/config';
 import messaging from '@react-native-firebase/messaging';
 import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import useToastMessage from 'src/hooks/useToastMessage';
-import KeeperModal from 'src/components/KeeperModal';
-import SignupIcon from 'src/assets/images/signup.svg';
 
 const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
   return (
@@ -82,7 +78,6 @@ const Tile = ({ title, subTitle, onPress, Icon, loading = false }) => {
 
 const NewKeeperApp = ({ navigation }: { navigation }) => {
   const { translations } = useContext(LocalizationContext);
-  const inheritence = translations['inheritence'];
   const seed = translations['seed'];
   const dispatch = useAppDispatch();
   const [cloudModal, setCloudModal] = useState(false);
@@ -157,11 +152,22 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
 
   const SignUpModalContent = () => {
     return (
-      <Box justifyContent={'center'}>
-        <SignupIcon />
-        <Text fontWeight={200} marginTop={5}>
-          These are generally offline and to keep them secure is your responsibility. Losing them
-          may lead to permanent loss of your bitcoin.
+      <Box>
+        <Image
+          source={require('src/assets/video/test-net.gif')}
+          style={{
+            width: wp(270),
+            height: hp(200),
+            alignSelf: 'center',
+          }} />
+        <Text
+          color={'light.modalText'}
+          fontWeight={200}
+          fontSize={13}
+          letterSpacing={0.65}
+          width={wp(240)}
+        >
+          This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.
         </Text>
       </Box>
     );
@@ -211,22 +217,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             }}
             loading={keeperInitiating}
           />
-          {/* <HStack justifyContent={'space-between'} paddingTop={'2'}>
-            <Text
-              color={'light.blackHeaderText'}
-              fontFamily={'heading'}
-              fontWeight={'300'}
-              px={'8'}
-            >
-              Use TESTNET:
-            </Text>
-            <Switch
-              defaultIsChecked
-              trackColor={{ true: 'green' }}
-              style={{ marginRight: '5%' }}
-              onChange={switchConfig}
-            />
-          </HStack> */}
+
           <Box
             style={{
               marginTop: hp(70),
@@ -314,43 +305,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           dispatch(recoverBackup(password, selectedBackup.encData));
         }}
       />
-      <KeeperLoader
-        visible={keeperInitiating}
-        loadingContent={{
-          title: 'Share Feedback (Testnet only)',
-          subTitle: 'Shake your device or take a screenshot to send feedback',
-        }}
-        close={() => {}}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#000'}
-        Content={() => {
-          return (
-            <Box>
-              <Image
-                source={require('src/assets/video/test-net.gif')}
-                style={{
-                  width: wp(250),
-                  height: wp(120),
-                  alignSelf: 'center',
-                  marginTop: hp(30),
-                }}
-              />
-              <Text
-                color={'light.modalText'}
-                fontWeight={200}
-                fontSize={13}
-                letterSpacing={0.65}
-                marginTop={hp(60)}
-                width={wp(240)}
-              >
-                {
-                  'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
-                }
-              </Text>
-            </Box>
-          );
-        }}
-      />
       <ModalWrapper
         visible={createCloudBackupModal}
         onSwipeComplete={() => setCreateCloudBackupModal(false)}
@@ -359,16 +313,19 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
-        title={'Keep your signing devices safe'}
-        subTitle={'Signing devices are what control your funds.'}
+        title={'Shake to send feedback'}
+        subTitle={'Shake your device to send us a bug report or a feature request'}
         Content={SignUpModalContent}
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
           navigation.navigate('App', { screen: 'NewHome' });
         }}
+        subTitleColor={'#5F6965'}
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
       />
     </ScreenWrapper>
   );
