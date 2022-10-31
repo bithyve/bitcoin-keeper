@@ -1,26 +1,51 @@
 import {
-  FlatList,
+  FlatList, RefreshControl,
 } from 'react-native';
 // libraries
 import { Box, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useDispatch } from 'react-redux';
 // components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 // asserts
 import VaultIcon from 'src/assets/images/svgs/icon_vault_brown.svg';
 
-const VaultTransactions = () => {
+const VaultTransactions = ({ route }) => {
+
+  const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const [pullRefresh, setPullRefresh] = useState(false);
+
+  const vault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
+  const transactions = vault?.specs?.transactions || [];
+  const title = route?.params?.title;
+  const subtitle = route?.params?.subtitle;
 
   const renderTransactionElement = ({ item }) => {
     return <TransactionElement transaction={item} />;
+  };
+
+  const pullDownRefresh = () => {
+    setPullRefresh(true);
+    refreshVault();
+    setPullRefresh(false);
+  };
+
+  const refreshVault = () => {
+    dispatch(refreshWallets([vault], { hardRefresh: true }));
   };
 
   return (
@@ -47,7 +72,7 @@ const VaultTransactions = () => {
               letterSpacing={0.8}
               color={'light.headerText'}
             >
-              Vault Transactions
+              {title}
             </Text>
             <Text
               fontWeight={200}
@@ -55,7 +80,7 @@ const VaultTransactions = () => {
               letterSpacing={0.6}
               color={'light.modalText'}
             >
-              All incoming and outgoing transactions
+              {subtitle}
             </Text>
           </Box>
         </Box>
@@ -65,7 +90,8 @@ const VaultTransactions = () => {
           paddingBottom={hp(300)}
         >
           <FlatList
-            data={[1, 2, 3]}
+            data={transactions}
+            refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
             renderItem={renderTransactionElement}
             keyExtractor={(item) => item}
             showsVerticalScrollIndicator={false}
