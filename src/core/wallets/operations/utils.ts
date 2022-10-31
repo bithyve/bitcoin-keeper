@@ -290,7 +290,7 @@ export default class WalletUtilities {
 
   static addressToKey = (
     address: string,
-    wallet: Wallet,
+    wallet: Wallet | Vault,
     publicKey: boolean = false
   ):
     | {
@@ -302,7 +302,20 @@ export default class WalletUtilities {
         subPath: number[];
       } => {
     const { networkType } = wallet;
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    let xpub = null;
+    let xpriv = null;
+
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (!publicKey) throw new Error('internal xpriv not supported in case of Vault');
+      if ((wallet as Vault).isMultiSig) throw new Error('MultiSig should use: addressToMultiSig');
+
+      xpub = (wallet as Vault).specs.xpubs[0];
+    } else {
+      xpub = (wallet as Wallet).specs.xpub;
+      xpriv = (wallet as Wallet).specs.xpriv;
+    }
+
     const network = WalletUtilities.getNetworkByType(networkType);
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
@@ -612,13 +625,17 @@ export default class WalletUtilities {
           output.address = changeMultisig.address;
           return { outputs, changeMultisig };
         } else {
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
           output.address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
+            xpub,
             true,
             nextFreeChangeAddressIndex,
             network
           );
-          return { outputs, changeAddress };
+          return { outputs, changeAddress: output.address };
         }
       }
     }
