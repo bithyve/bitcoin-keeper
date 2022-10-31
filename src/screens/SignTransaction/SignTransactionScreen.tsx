@@ -153,7 +153,7 @@ const SignTransactionScreen = () => {
             const { xpriv } = currentSigner;
             const inputs = idx(signingPayload, (_) => _[0].inputsToSign);
             if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+            const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
               defaultVault,
               inputs,
               serializedPSBT,
@@ -210,7 +210,7 @@ const SignTransactionScreen = () => {
               const { xpriv } = currentSigner;
               const inputs = idx(signingPayload, (_) => _[0].inputs);
               if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-              const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+              const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
                 defaultVault,
                 inputs,
                 serializedPSBT,
@@ -257,7 +257,7 @@ const SignTransactionScreen = () => {
           if (!inputs) throw new Error('Invalid signing payload, inputs missing');
 
           const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
-          const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+          const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
             defaultVault,
             inputs,
             serializedPSBT,
@@ -293,7 +293,7 @@ const SignTransactionScreen = () => {
             const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType);
             if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
 
-            const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+            const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
               defaultVault,
               inputs,
               serializedPSBT,

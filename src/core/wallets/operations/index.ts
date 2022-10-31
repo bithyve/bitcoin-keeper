@@ -55,8 +55,12 @@ export default class WalletOperations {
         false
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       receivingAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         false,
         (wallet as Wallet).specs.nextFreeAddressIndex,
         network,
@@ -87,8 +91,12 @@ export default class WalletOperations {
         false
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       externalAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         false,
         wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
         network
@@ -105,8 +113,12 @@ export default class WalletOperations {
         true
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       internalAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
         network
@@ -205,12 +217,11 @@ export default class WalletOperations {
             false
           ).address;
         } else {
-          address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
-            false,
-            itr,
-            network
-          );
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
         }
 
         externalAddresses[address] = itr;
@@ -237,12 +248,11 @@ export default class WalletOperations {
             true
           ).address;
         } else {
-          address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
-            true,
-            itr,
-            network
-          );
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
         }
 
         internalAddresses[address] = itr;
@@ -399,12 +409,11 @@ export default class WalletOperations {
             false
           ).address;
         } else {
-          address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
-            false,
-            itr,
-            network
-          );
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
         }
 
         if (consumedUTXO.address === address) {
@@ -429,12 +438,11 @@ export default class WalletOperations {
               true
             ).address;
           } else {
-            address = WalletUtilities.getAddressByIndex(
-              (wallet as Wallet).specs.xpub,
-              true,
-              itr,
-              network
-            );
+            let xpub = null;
+            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+            else xpub = (wallet as Wallet).specs.xpub;
+
+            address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
           }
 
           if (consumedUTXO.address === address) {
@@ -459,8 +467,12 @@ export default class WalletOperations {
         true
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       changeAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex,
         network
@@ -663,12 +675,12 @@ export default class WalletOperations {
     network: bitcoinJS.networks.Network,
     derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84
   ) => {
-    if (wallet.entityKind === EntityKind.WALLET) {
-      const { publicKey, subPath } = WalletUtilities.addressToKey(
-        input.address,
-        wallet as Wallet,
-        true
-      ) as { publicKey: Buffer; subPath: number[] };
+    const isMultiSig = (wallet as Vault).isMultiSig;
+    if (!isMultiSig) {
+      const { publicKey, subPath } = WalletUtilities.addressToKey(input.address, wallet, true) as {
+        publicKey: Buffer;
+        subPath: number[];
+      };
       const p2wpkh = bitcoinJS.payments.p2wpkh({
         pubkey: publicKey,
         network,
@@ -680,10 +692,19 @@ export default class WalletOperations {
           redeem: p2wpkh,
         });
 
-      const path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
-      const masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
-        (wallet as Wallet).derivationDetails.mnemonic
-      );
+      let path;
+      let masterFingerprint;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        const signer = (wallet as Vault).signers[0];
+        const derivationPath = signer.xpubInfo.derivationPath;
+        path = derivationPath + `/${subPath.join('/')}`;
+        masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
+      } else {
+        path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
+        masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
+          (wallet as Wallet).derivationDetails.mnemonic
+        );
+      }
 
       const bip32Derivation = [
         {
@@ -715,7 +736,7 @@ export default class WalletOperations {
           redeemScript: p2wpkh.output,
         });
       }
-    } else if (wallet.entityKind === EntityKind.VAULT) {
+    } else {
       const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
@@ -823,15 +844,44 @@ export default class WalletOperations {
       });
 
       for (let output of outputsWithChange) {
-        if (wallet.entityKind === EntityKind.VAULT && output.address === changeMultisig.address) {
+        if (
+          wallet.entityKind === EntityKind.VAULT &&
+          (wallet as Vault).isMultiSig &&
+          output.address === changeMultisig?.address
+        ) {
+          // case: change output for multisig Vault
           const { bip32Derivation, witnessScript, redeemScript } =
             WalletOperations.getPSBTDataForChangeOutput(wallet as Vault, changeMultisig);
           PSBT.addOutput({ ...output, bip32Derivation, witnessScript, redeemScript });
-        } else {
-          PSBT.addOutput(output);
-        }
-      }
+        } else if (
+          wallet.entityKind === EntityKind.VAULT &&
+          !(wallet as Vault).isMultiSig &&
+          output.address === changeAddress
+        ) {
+          // case: change output for single-sig Vault(p2wpkh)
+          const { publicKey, subPath } = WalletUtilities.addressToKey(
+            changeAddress,
+            wallet,
+            true
+          ) as {
+            publicKey: Buffer;
+            subPath: number[];
+          };
+          const signer = (wallet as Vault).signers[0];
+          const derivationPath = signer.xpubInfo.derivationPath;
+          const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
+          const path = derivationPath + `/${subPath.join('/')}`;
+          const bip32Derivation = [
+            {
+              masterFingerprint,
+              path,
+              pubkey: publicKey,
+            },
+          ];
 
+          PSBT.addOutput({ ...output, bip32Derivation });
+        } else PSBT.addOutput(output);
+      }
       return {
         PSBT,
       };
@@ -871,7 +921,7 @@ export default class WalletOperations {
     }
   };
 
-  static signVaultPSBT = (
+  static internallySignVaultPSBT = (
     wallet: Vault,
     inputs: any,
     serializedPSBT: string,
@@ -889,8 +939,13 @@ export default class WalletOperations {
           internal = parseInt(j);
           index = parseInt(k);
         } else {
-          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-          [internal, index] = subPath;
+          if (wallet.isMultiSig) {
+            const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+            [internal, index] = subPath;
+          } else {
+            const { subPath } = WalletUtilities.addressToKey(input.address, wallet, true);
+            [internal, index] = subPath;
+          }
         }
         const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
           xpriv,
@@ -928,7 +983,7 @@ export default class WalletOperations {
     let isSigned = false;
     if (signer.isMock && signer.xpriv) {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
-      const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+      const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         wallet,
         inputs,
         PSBT.toBase64(),
@@ -960,10 +1015,20 @@ export default class WalletOperations {
       } else if (signer.type === SignerType.POLICY_SERVER) {
         const childIndexArray = [];
         for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-          const { subPath } = WalletUtilities.addressToMultiSig(
-            inputs[inputIndex].address,
-            wallet as Vault
-          );
+          let subPath;
+          if (wallet.isMultiSig) {
+            subPath = WalletUtilities.addressToMultiSig(
+              inputs[inputIndex].address,
+              wallet as Vault
+            ).subPath;
+          } else {
+            subPath = WalletUtilities.addressToKey(
+              inputs[inputIndex].address,
+              wallet,
+              true
+            ).subPath;
+          }
+
           childIndexArray.push({
             subPath,
             inputIdentifier: {
