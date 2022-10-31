@@ -25,81 +25,72 @@ const AddAmountScreen = ({ route }: { route }) => {
   const common = translations['common'];
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title={home.AddAmount}
-        subtitle={home.amountdesc}
-        onPressHandler={() => navigtaion.goBack()}
-        color={'light.ReceiveBackground'}
-      />
-      <View marginX={8} marginTop={hp(100)}>
-        <View
-          flexDirection={'row'}
-          width={'100%'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          borderRadius={10}
-          backgroundColor={'light.lightYellow'}
-          marginY={2}
-          padding={2}
-        >
-          <View marginLeft={6}>
-            <BtcInput />
+    <View flex={1}>
+      <View style={styles.Container} background={'light.ReceiveBackground'}>
+        <StatusBarComponent padding={50} />
+        <HeaderTitle
+          title={home.AddAmount}
+          subtitle={home.amountdesc}
+          onPressHandler={() => navigtaion.goBack()}
+        />
+        <View marginX={8} marginTop={hp(80)}>
+          <View
+            flexDirection={'row'}
+            width={'100%'}
+            justifyContent={'center'}
+            alignItems={'center'}
+            borderRadius={10}
+            backgroundColor={'light.lightYellow'}
+            marginY={2}
+            padding={2}
+          >
+            <View marginLeft={6}>
+              <BtcInput />
+            </View>
+            <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
+            <Input
+              placeholder={home.ConvertedAmount}
+              placeholderTextColor={'light.greenText'}
+              style={styles.inputField}
+              borderWidth={'0'}
+              value={amount}
+              onChangeText={(value) => setAmount(value)}
+              onFocus={() => Keyboard.dismiss()}
+            />
           </View>
-          <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
-          <Input
-            placeholder={home.ConvertedAmount}
-            placeholderTextColor={'light.greenText'}
-            style={styles.inputField}
-            borderWidth={'0'}
-            value={amount}
-            onChangeText={(value) => setAmount(value)}
-            onFocus={() => Keyboard.dismiss()}
-          />
-        </View>
 
-        <View marginY={hp(70)}>
-          <Buttons
-            secondaryText={common.cancel}
-            secondaryCallback={() => {
-              navigtaion.goBack();
-            }}
-            primaryText={'Add'}
-            primaryCallback={() => {
-              navigtaion.navigate('Receive', { amount, wallet });
-            }}
-          />
-        </View>
+          <View marginY={hp(70)}>
+            <Buttons
+              secondaryText={common.cancel}
+              secondaryCallback={() => {
+                navigtaion.goBack();
+              }}
+              primaryText={'Add'}
+              primaryCallback={() => {
+                navigtaion.navigate('Receive', { amount, wallet });
+              }}
+            />
+          </View>
 
+        </View>
       </View>
-      <AppNumPad
-        setValue={setAmount}
-        ok={() => {
-          console.log('ok');
-        }}
-        clear={() => setAmount('')}
-        color={'#073E39'}
-      />
+      <View position={'absolute'} bottom={0}>
+        <AppNumPad
+          setValue={setAmount}
+          ok={() => {
+            console.log('ok');
+          }}
+          clear={() => setAmount('')}
+          color={'#073E39'}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = ScaledSheet.create({
   Container: {
-    flex: 1,
     padding: '20@s',
-  },
-  addWalletText: {
-    fontSize: RFValue(22),
-    lineHeight: '20@s',
-    letterSpacing: '0.7@s',
-    marginTop: hp(5),
-  },
-  addWalletDescription: {
-    fontSize: RFValue(12),
-    lineHeight: '15@s',
-    letterSpacing: '0.5@s',
   },
   inputField: {
     color: '#073E39',
