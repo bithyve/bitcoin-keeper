@@ -22,7 +22,6 @@ import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
 import BTC from 'src/assets/images/svgs/btc_wallet.svg';
 import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
 import BackIcon from 'src/assets/images/svgs/back.svg';
-import Buy from 'src/assets/images/svgs/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import Send from 'src/assets/images/svgs/send.svg';
@@ -32,11 +31,7 @@ import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import {
-  hp,
-  windowWidth,
-  wp,
-} from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 //components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -179,7 +174,7 @@ const WalletDetails = () => {
   };
 
   const renderTransactionElement = ({ item }) => {
-    return <TransactionElement transaction={item} />
+    return <TransactionElement transaction={item} />;
   };
 
   const GradientIcon = ({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) => {

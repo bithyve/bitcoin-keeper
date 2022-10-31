@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React, { useRef } from 'react';
 import { RNCamera } from 'react-native-camera';
 

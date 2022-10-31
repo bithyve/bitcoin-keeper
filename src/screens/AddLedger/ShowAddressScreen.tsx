@@ -9,7 +9,6 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const ShowAddressScreen = ({ transport }) => {

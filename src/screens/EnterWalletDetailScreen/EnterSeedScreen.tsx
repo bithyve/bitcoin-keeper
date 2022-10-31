@@ -6,7 +6,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -243,7 +242,7 @@ const EnterSeedScreen = () => {
                         fontSize: 16,
                         color: '#00836A',
                         marginTop: 8,
-                        letterSpacing: 1.23
+                        letterSpacing: 1.23,
                       }}
                       fontWeight={'300'}
                     >
@@ -254,8 +253,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid == true
                           ? {
-                            borderColor: '#F58E6F',
-                          }
+                              borderColor: '#F58E6F',
+                            }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -433,7 +432,7 @@ const styles = ScaledSheet.create({
     borderWidth: 1,
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
-    letterSpacing: 1.32
+    letterSpacing: 1.32,
   },
 });
 

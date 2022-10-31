@@ -7,20 +7,18 @@ import { View, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
-import Laptop from 'src/assets/images/svgs/laptop.svg';
 import Next from 'src/assets/images/svgs/next.svg';
 import { BACKUP_KEYS } from 'src/common/data/defaultData/defaultData';
 
 type Props = {
-  title: string,
-  subtitle: string,
-  Icon: React.SFC<React.SVGProps<SVGSVGElement>>,
-  item: BACKUP_KEYS,
-  onPress: any,
-  showAccordian?: boolean,
-  touchable?: boolean,
+  title: string;
+  subtitle: string;
+  Icon: React.SFC<React.SVGProps<SVGSVGElement>>;
+  item: BACKUP_KEYS;
+  onPress: any;
+  showAccordian?: boolean;
+  touchable?: boolean;
 };
 
 const BackupListComponent = ({
@@ -93,7 +91,7 @@ const styles = ScaledSheet.create({
   subtitle: {
     fontSize: RFValue(10),
     letterSpacing: '0.20@s',
-    fontWeight: '100'
+    fontWeight: '100',
   },
 });
 export default BackupListComponent;

@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, Input } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import Buttons from '../Buttons';
 
 const SkipHealthCheck = (props) => {

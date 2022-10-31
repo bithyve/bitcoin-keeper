@@ -1,13 +1,11 @@
+import React from 'react';
 import { Box, Modal, Text, Input } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { useAppDispatch } from 'src/store/hooks';
 import moment from 'moment';
 
 const EditDescriptionModal = (props) => {

@@ -1,11 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { BackupType } from 'src/common/data/enums/BHR';
 import Buttons from '../Buttons';
 
