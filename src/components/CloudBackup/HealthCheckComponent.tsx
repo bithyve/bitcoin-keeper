@@ -136,16 +136,6 @@ const HealthCheckComponent = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.healthCheckNote}</Text>
       </Box>
-      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
-        <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
-          <Text fontSize={RFValue(14)} textAlign={'center'}>
-            {common.skip}
-          </Text>
-        </TouchableOpacity>
-        <Box>
-          <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
-        </Box> 
-         </Box>*/}
       <Buttons
         secondaryText={common.skip}
         secondaryCallback={() => {

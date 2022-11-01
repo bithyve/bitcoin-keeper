@@ -44,24 +44,6 @@ const SkipHealthCheck = (props) => {
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>
-      {/* <Box alignItems={'center'} flexDirection={'row'} w={'95%'} py={5}>
-        <TouchableOpacity
-          onPress={() => props.closeBottomSheet()}
-          style={{ width: '60%', paddingLeft: '15%' }}
-        >
-          <Text fontSize={RFValue(14)} textAlign={'center'} fontWeight={300}>
-            {common.skip}
-          </Text>
-        </TouchableOpacity>
-        <Box w={'40%'}>
-          <CustomGreenButton
-            onPress={() => {
-              props.confirmBtnPress();
-            }}
-            value={'Confirm Seeds'}
-          />
-        </Box>
-      </Box> */}
       <Buttons
         secondaryText={common.skip}
         secondaryCallback={() => {
