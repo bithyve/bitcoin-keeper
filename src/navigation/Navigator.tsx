@@ -189,7 +189,7 @@ const Navigator = () => {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title={'please wait'}
         subTitle={'loading'}
         modalBackground={['#F7F2EC', '#F7F2EC']}

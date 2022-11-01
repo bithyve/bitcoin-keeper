@@ -84,7 +84,7 @@
     "EnterNew": "Enter New",
     "Passcode": "Passcode",
     "ReEnter": "Re Enter",
-    "MismatchPasscode": "Mismatch Passcode",
+    "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot your passcode?",
     "forgotPasscodeDesc": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor",

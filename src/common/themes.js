@@ -82,6 +82,7 @@ export const customTheme = extendTheme({
       time: '#3D4252',
       lgStart: Colors.linearGradientStart, // linearGradient
       lgEnd: Colors.linearGradientEnd, // linearGradient
+      error: '#FF8F79'
     },
     dark: {
       black: '#000000',

@@ -228,7 +228,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
               <TouchableOpacity
                 onPress={() => {
                   navigation.dispatch(
-                    CommonActions.navigate('ViewAllTransactions', {
+                    CommonActions.navigate('VaultTransactions', {
                       title: 'Vault Transactions',
                       subtitle: 'All incoming and outgoing transactions',
                     })

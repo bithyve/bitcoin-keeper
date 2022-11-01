@@ -9,8 +9,15 @@ export interface Props {
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
   textColor?: boolean;
+  borderColor?: string;
 }
-const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: Props) => {
+const PinInputsView = ({
+  passCode,
+  passcodeFlag,
+  backgroundColor,
+  textColor,
+  borderColor = 'transparent',
+}: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -37,6 +44,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          borderColor={borderColor}
+          borderWidth={'1'}
         >
           <Box>
             {passCode.length == 1 ? (
@@ -70,6 +79,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          borderColor={borderColor}
+          borderWidth={'1'}
         >
           <Box>
             {passCode.length == 2 ? (
@@ -103,6 +114,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          borderColor={borderColor}
+          borderWidth={'1'}
         >
           <Box>
             {passCode.length == 3 ? (
@@ -136,6 +149,8 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
           alignItems={'center'}
           justifyContent={'center'}
           backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          borderColor={borderColor}
+          borderWidth={'1'}
         >
           <Box>
             {passCode.length == 4 && !hide ? (
