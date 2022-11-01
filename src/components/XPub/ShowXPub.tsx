@@ -3,26 +3,22 @@ import { Box, Text, Image } from 'native-base';
 import { Clipboard, TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 
-import InfoBox from '../InfoBox';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 import QrCode from 'src/assets/images/qrcode.png';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import Note from '../Note/Note';
 
-const ShowXPub = ({ copy = () => { } }) => {
+const ShowXPub = ({ copy = () => {} }) => {
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
   const common = translations['common'];
 
   return (
     <>
-      <Box
-        justifyContent={'center'}
-        alignItems={'center'}
-        width={wp(275)}
-      >
-        <Box >
+      <Box justifyContent={'center'} alignItems={'center'} width={wp(275)}>
+        <Box>
           <Image style={{ height: 200, width: 200 }} source={QrCode} />
           <Box bg={'light.QrCode'} alignItems={'center'} justifyContent={'center'} p={1} w={200}>
             <Text fontSize={RFValue(12)} color={'light.recieverAddress'} fontFamily={'body'}>
@@ -40,16 +36,8 @@ const ShowXPub = ({ copy = () => { } }) => {
             marginTop={hp(30)}
             marginBottom={hp(30)}
           >
-            <Box
-              py={2}
-              alignItems={'center'}
-            >
-              <Text
-                fontSize={RFValue(12)}
-                fontFamily={'body'}
-                noOfLines={1}
-                px={3}
-              >
+            <Box py={2} alignItems={'center'}>
+              <Text fontSize={RFValue(12)} fontFamily={'body'} noOfLines={1} px={3}>
                 lk2j3429-85213-5134=50t-934285…
               </Text>
             </Box>
@@ -75,11 +63,9 @@ const ShowXPub = ({ copy = () => { } }) => {
           </Box>
         </Box>
       </Box>
-      <InfoBox
-        title={common.note}
-        desciption={wallet.AccountXpubNote}
-        width={wp(210)}
-      />
+      <Box width={'85%'}>
+        <Note title={common.note} subtitle={wallet.AccountXpubNote} subtitleColor={'GreyText'} />
+      </Box>
     </>
   );
 };

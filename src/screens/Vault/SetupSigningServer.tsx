@@ -1,7 +1,7 @@
 import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -10,7 +10,6 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
-import InfoBox from '../../components/InfoBox';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -33,6 +32,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
+import Note from 'src/components/Note/Note';
 
 const SetupSigningServer = ({ route }: { route }) => {
   const dispatch = useDispatch();
@@ -241,12 +241,12 @@ const SetupSigningServer = ({ route }: { route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
+      <Box position={'absolute'} bottom={hp(45)} marginX={5} width={'100%'}>
         <Box marginBottom={hp(30)}>
-          <InfoBox
+          <Note
             title={'Note'}
-            desciption={'It is a good idea to have the authenticator app on another device'}
-            width={300}
+            subtitle={'It is a good idea to have the authenticator app on another device'}
+            subtitleColor={'GreyText'}
           />
         </Box>
         <Buttons

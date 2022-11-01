@@ -10,7 +10,6 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -28,6 +27,7 @@ import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Note from 'src/components/Note/Note';
 
 type Props = {
   title: string;
@@ -254,18 +254,17 @@ const WalletSettings = ({ route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
-        <InfoBox
+      <Box position={'absolute'} bottom={hp(45)} marginX={5} w={'90%'}>
+        <Note
           title={'Note'}
-          desciption={
+          subtitle={
             'These settings are for your Default Wallet only and does not affect other wallets'
           }
-          width={250}
+          subtitleColor={'GreyText'}
         />
       </Box>
       {/* Modals */}
       <Box>
-
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -287,9 +286,13 @@ const WalletSettings = ({ route }) => {
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={() => <ShowXPub copy={() => {
-            showToast('Address Copied Successfully', <TickIcon />);
-          }} />}
+          Content={() => (
+            <ShowXPub
+              copy={() => {
+                showToast('Address Copied Successfully', <TickIcon />);
+              }}
+            />
+          )}
         />
         <KeeperModal
           visible={transferPolicyVisible}
