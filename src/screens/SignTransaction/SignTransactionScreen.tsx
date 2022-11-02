@@ -8,6 +8,7 @@ import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -28,12 +29,11 @@ import dbManager from 'src/storage/realm/dbManager';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import idx from 'idx';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { hp } from 'src/common/data/responsiveness/responsive';
 
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -151,7 +151,7 @@ const SignTransactionScreen = () => {
               await card.read(textRef.current);
             })();
             const { xpriv } = currentSigner;
-            const inputs = idx(signingPayload, (_) => _[0].inputsToSign);
+            const inputs = idx(signingPayload, (_) => _[0].inputs);
             if (!inputs) throw new Error('Invalid signing payload, inputs missing');
             const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
               defaultVault,

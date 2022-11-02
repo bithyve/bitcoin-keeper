@@ -992,7 +992,7 @@ export default class WalletOperations {
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
     } else {
-      if (signer.type === SignerType.TAPSIGNER) {
+      if (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) {
         const inputsToSign = [];
         for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
           const { subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(

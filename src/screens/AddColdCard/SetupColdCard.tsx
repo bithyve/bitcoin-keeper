@@ -2,13 +2,12 @@ import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
+import { getCCGenericJSON, getCCxPubForMultisig } from 'src/hardware/coldcard';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { NfcTech } from 'react-native-nfc-manager';
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -17,31 +16,31 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
+import usePlan from 'src/hooks/usePlan';
 
 const SetupColdCard = () => {
   const [nfcVisible, setNfcVisible] = React.useState(false);
-
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const scanMK4 = async () => {
+  const getColdCardDetails = async () => {
     setNfcVisible(true);
     try {
-      const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
-      const path = data?.p2sh_p2wsh_deriv ?? '';
-      const xfp = data?.xfp ?? '';
-      setNfcVisible(false);
-      return { xpub, path, xfp };
+      if (isMultisig) {
+        const { xpub, path: derivationPath, xfp } = await getCCxPubForMultisig();
+        setNfcVisible(false);
+        return { xpub, derivationPath, xfp };
+      } else {
+        const { xpub, xfp, deriv: derivationPath } = await getCCGenericJSON();
+        setNfcVisible(false);
+        return { xpub, derivationPath, xfp };
+      }
     } catch (err) {
       console.log(err);
       setNfcVisible(false);
     }
-  };
-
-  const getColdCardDetails = async () => {
-    const { xpub, path: derivationPath, xfp } = await scanMK4();
-    return { xpub, derivationPath, xfp };
   };
 
   const saveColdCard = async (coldCardData) => {

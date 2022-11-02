@@ -28,6 +28,7 @@ import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useBLE from 'src/hooks/useLedger';
+import usePlan from 'src/hooks/usePlan';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -90,7 +91,7 @@ const LedgerContent = ({ signTransaction }) => {
   );
 };
 
-const ColdCardContent = ({ register }) => {
+const ColdCardContent = ({ register, isMultisig }) => {
   return (
     <Box>
       <ColdCardSVG />
@@ -98,7 +99,9 @@ const ColdCardContent = ({ register }) => {
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
           {register
             ? `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`
-            : `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`}
+            : isMultisig
+            ? `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`
+            : ''}
         </Text>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
           {register
@@ -315,6 +318,8 @@ const SignerModals = ({
   // }, []);
 
   const navigation = useNavigation();
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   return (
     <>
@@ -341,11 +346,11 @@ const SignerModals = ({
             );
           case SignerType.COLDCARD:
             const { hasSigned, isMock } = signer;
-            const register = !hasSigned && !isMock;
+            const register = !hasSigned && !isMock && isMultisig;
             const navigateToSignWithColdCard = () => {
               setColdCardModal(false);
               navigation.dispatch(
-                CommonActions.navigate('SignWithColdCard', { signTransaction, signer })
+                CommonActions.navigate('SignWithColdCard', { signTransaction, signer, isMultisig })
               );
             };
             return (
@@ -355,7 +360,7 @@ const SignerModals = ({
                 title={register ? 'Register Coldcard' : 'Upload Multi-sig data'}
                 subTitle={'Keep your Mk4 ready before proceeding'}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                Content={() => <ColdCardContent register={register} />}
+                Content={() => <ColdCardContent register={register} isMultisig={isMultisig} />}
                 buttonText={register ? 'Register' : 'Proceed'}
                 buttonCallback={navigateToSignWithColdCard}
               />

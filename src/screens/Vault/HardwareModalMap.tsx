@@ -31,12 +31,11 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
-import { credsAuth } from 'src/store/sagaActions/login';
-import { credsAuthenticated } from 'src/store/reducers/login';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import usePlan from 'src/hooks/usePlan';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -67,7 +66,7 @@ export const BulletPoint = ({ text }) => {
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
         style={{
-          marginRight: wp(5)
+          marginRight: wp(5),
         }}
         size={hp(5)}
         m={1}
@@ -102,6 +101,11 @@ const TapsignerSetupContent = () => {
 };
 
 const ColdCardSetupContent = () => {
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
+  const userInstruction = isMultisig
+    ? `Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`
+    : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -117,7 +121,7 @@ const ColdCardSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
+          {`\u2022 ${userInstruction}`}
         </Text>
         <Text
           color={'#073B36'}

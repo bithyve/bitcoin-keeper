@@ -1,20 +1,23 @@
-import React, { useEffect } from 'react';
-import { Platform, StatusBar, UIManager } from 'react-native';
-import { persistor, store } from './src/store/store';
 import * as Sentry from '@sentry/react-native';
+
+import { Platform, StatusBar, UIManager } from 'react-native';
+import React, { useEffect } from 'react';
+import { persistor, store } from './src/store/store';
+
+import { AppContextProvider } from 'src/common/content/AppContext';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationProvider } from './src/common/content/LocContext';
 import { LogBox } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
+import { Ndef } from 'react-native-nfc-manager';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
 import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext } from 'react-native-iap';
-import { AppContextProvider } from 'src/common/content/AppContext';
-import LinearGradient from 'react-native-linear-gradient';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -30,16 +33,15 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-
   useEffect(() => {
-    Sentry.init(sentryConfig)
-  }, [])
+    Sentry.init(sentryConfig);
+  }, []);
 
   // linear-gradient configs for NativeBase
   const config = {
     dependencies: {
-      'linear-gradient': LinearGradient
-    }
+      'linear-gradient': LinearGradient,
+    },
   };
 
   return (
@@ -54,7 +56,7 @@ const App = () => {
           </LocalizationProvider>
         </NativeBaseProvider>
       </BottomSheetModalProvider>
-    </GestureHandlerRootView >
+    </GestureHandlerRootView>
   );
 };
 

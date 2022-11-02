@@ -69,9 +69,13 @@ const SignWithColdCard = ({ route }) => {
   const Vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signer, signTransaction }: { signer: VaultSigner; signTransaction } = route.params;
+  const {
+    signer,
+    signTransaction,
+    isMultisig,
+  }: { signer: VaultSigner; signTransaction; isMultisig: boolean } = route.params;
   const { hasSigned, isMock } = signer;
-  const register = !hasSigned && !isMock;
+  const register = !hasSigned && !isMock && isMultisig;
   const dispatch = useDispatch();
   const receiveAndBroadCast = async () => {
     setNfcVisible(true);
