@@ -141,15 +141,6 @@ export default function CreatePin(props) {
     }
   }, [credsChanged]);
 
-  // if (isPinChangedFailed) {
-  //   setTimeout(() => {
-  //     setErrorMessageHeader('Passcode change error');
-  //     setErrorMessage('There was some error while changing the Passcode, please try again');
-  //   }, 2);
-  //   (ErrorBottomSheet as any).current.snapTo(1);
-  //   dispatch(pinChangedFailed(null));
-  // }
-
   useEffect(() => {
     if (passcode == confirmPasscode) {
       setIsDisabled(false);
