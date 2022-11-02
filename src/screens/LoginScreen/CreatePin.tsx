@@ -175,7 +175,11 @@ export default function CreatePin(props) {
               </Text>
 
               {/* pin input view */}
-              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              <PinInputsView
+                passCode={passcode}
+                passcodeFlag={passcodeFlag}
+                borderColor={passcode != confirmPasscode && confirmPasscode.length == 4 ? 'light.error' : 'transparent'}
+              />
               {/*  */}
             </Box>
             {passcode.length == 4 ? (
@@ -190,16 +194,18 @@ export default function CreatePin(props) {
                     passcodeFlag={
                       confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2 ? false : true
                     }
+                    borderColor={passcode != confirmPasscode && confirmPasscode.length == 4 ? 'light.error' : 'transparent'}
                   />
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                     <Text
-                      color={'light.errorRed'}
-                      fontSize={RFValue(13)}
+                      color={'light.error'}
+                      fontSize={RFValue(10)}
                       fontWeight={200}
                       width={wp('72%')}
                       textAlign={'right'}
-                      // mt={hp('1.5%')}
+                      fontStyle={'italic'}
+                    // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -240,8 +246,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.lightBlack'}
-            // ClearIcon={<DeleteIcon />}
+          // keyColor={'light.lightBlack'}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

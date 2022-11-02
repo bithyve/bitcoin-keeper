@@ -25,9 +25,11 @@ const ExportSeedScreen = ({ route, navigation }) => {
   const next = route.params.next;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
-  const [showWordIndex, setShowWordIndex] = useState('');
+  const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations['seed'];
+
+  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
   useEffect(() => {
     if (backupMethod !== null) {
@@ -43,7 +45,7 @@ const ExportSeedScreen = ({ route, navigation }) => {
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex(index);
+          setShowWordIndex((showWordIndex || showWordIndex === 0) ? '' : index);
         }}
       >
         <Box
@@ -89,7 +91,6 @@ const ExportSeedScreen = ({ route, navigation }) => {
       <HeaderTitle
         title={seedText.ExportSeed}
         subtitle={seedText.SeedDesc}
-        color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
 
