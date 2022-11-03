@@ -19,6 +19,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
+import WalletDetails from './WalletDetails';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -27,7 +28,18 @@ const AddSendAmount = ({ route }) => {
     wallet,
     address,
     amount: prefillAmount,
-  }: { wallet: Wallet; address: string; amount: string } = route.params;
+    availableAmt,
+    walletName,
+    from,
+  }: {
+    wallet: Wallet;
+    address: string;
+    amount: string;
+    availableAmt: string;
+    walletName: string;
+    from: string;
+  } = route.params;
+
   const [amount, setAmount] = useState(prefillAmount ? prefillAmount : '');
   const [recipientCount, setReicipientCount] = useState(1);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
@@ -87,8 +99,8 @@ const AddSendAmount = ({ route }) => {
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={`Enter the amount`}
-      // subtitle={`Sending to ${address}`}
+        title={from == 'Wallet' ? `Sending to Wallet` : `Enter the amount`}
+        // subtitle={`Sending to ${address}`}
       />
       {/* <Box
         flexDirection={'row'}
@@ -131,23 +143,31 @@ const AddSendAmount = ({ route }) => {
       {/* { Transaction list} */}
       <Box
         style={{
-          marginTop: hp(32),
-          marginBottom: hp(32)
-        }}>
-        <Transactions
-          transactions={[
-            {
-              address,
-              amount,
-            },
-          ]}
-          addTransaction={() => { }}
-        />
+          marginVertical: hp(5),
+        }}
+      >
+        <WalletDetails availableAmt={availableAmt} walletName={walletName} />
+      </Box>
+      <Box
+      // style={{
+      //   marginTop: hp(32),
+      //   marginBottom: hp(32),
+      // }}
+      >
+        {/* <Transactions
+            transactions={[
+              {
+                address,
+                amount,
+              },
+            ]}
+            addTransaction={() => {}}
+          /> */}
       </Box>
       <Box
         alignItems={'center'}
         style={{
-          marginBottom: hp(30),
+          marginVertical: hp(15),
         }}
       >
         <Box
@@ -166,7 +186,7 @@ const AddSendAmount = ({ route }) => {
           borderRadius={10}
           backgroundColor={'light.lightYellow'}
           style={{
-            marginVertical: hp(2)
+            marginVertical: hp(5),
           }}
           padding={3}
         >
@@ -249,12 +269,7 @@ const AddSendAmount = ({ route }) => {
           </Box>
         </Box>
       </Box>
-      <Box
-        position={'absolute'}
-        bottom={0}
-        alignItems={'center'}
-        width={wp(375)}
-      >
+      <Box position={'absolute'} bottom={0} alignItems={'center'} width={wp(375)}>
         <AppNumPad
           setValue={setAmount}
           ok={() => {

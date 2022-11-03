@@ -58,7 +58,7 @@ const SendScreen = ({ route }) => {
 
   const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
 
-  const navigateToNext = (address: string, amount?: string) => {
+  const navigateToNext = (address: string, amount?: string, from = 'Address') => {
     if (!avgFees) {
       Alert.alert("Average transaction fees couldn't be fetched!");
       return;
@@ -67,6 +67,9 @@ const SendScreen = ({ route }) => {
       wallet,
       address,
       amount,
+      availableAmt: wallet.specs.balances.confirmed,
+      walletName: wallet.presentationData.name,
+      from,
     });
   };
 
@@ -88,7 +91,7 @@ const SendScreen = ({ route }) => {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigateToNext(getNextFreeAddress(item));
+      navigateToNext(getNextFreeAddress(item), '0', 'Wallet');
     };
     return (
       <Box
