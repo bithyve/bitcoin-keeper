@@ -283,7 +283,9 @@ const VaultStatus = (props) => {
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
             backgroundColor={getTorStatusColor}
-            height={hp(16)}
+            style={{
+              height: hp(16)
+            }}
             borderRadius={hp(14)}
             justifyContent={'center'}
             alignItems={'center'}
