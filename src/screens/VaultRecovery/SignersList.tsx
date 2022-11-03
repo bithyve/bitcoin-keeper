@@ -2,9 +2,7 @@ import { Box, ScrollView, Text, View } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
-import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import HardwareModalMap from '../Vault/HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';

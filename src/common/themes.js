@@ -1,6 +1,6 @@
-import { extendTheme } from 'native-base';
 import Colors from 'src/theme/Colors';
 import Fonts from './Fonts';
+import { extendTheme } from 'native-base';
 export const customTheme = extendTheme({
   fontConfig: {
     Roboto: {
@@ -82,6 +82,7 @@ export const customTheme = extendTheme({
       time: '#3D4252',
       lgStart: Colors.linearGradientStart, // linearGradient
       lgEnd: Colors.linearGradientEnd, // linearGradient
+      error: '#FF8F79',
     },
     dark: {
       black: '#000000',
