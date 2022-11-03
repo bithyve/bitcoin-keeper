@@ -45,14 +45,16 @@ const HeaderTitle = ({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
-                height={hp(20)}
-                width={wp(70)}
                 borderColor={'light.brownborder'}
                 borderWidth={0.5}
                 borderRadius={5}
                 backgroundColor={'light.yellow2'}
                 justifyContent={'center'}
                 alignItems={'center'}
+                style={{
+                  height: hp(20),
+                  width: wp(70)
+                }}
               >
                 <Text
                   color={'light.brownborder'}
