@@ -1,9 +1,10 @@
-import { StyleSheet, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
 import DotView from 'src/components/DotView';
+import { RFValue } from 'react-native-responsive-fontsize';
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
@@ -32,11 +33,14 @@ const PinInputsView = ({
 
   return (
     <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} width={'auto'}
+      <Box
+        flexDirection={'row'}
+        width={'auto'}
         style={{
           marginTop: hp(5),
-          marginBottom: hp(25)
-        }}>
+          marginBottom: hp(25),
+        }}
+      >
         <View
           style={{
             ...styles.passcodeBox,
@@ -179,6 +183,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: hp(48),
     width: hp(48),
-  }
-})
+  },
+});
 export default PinInputsView;

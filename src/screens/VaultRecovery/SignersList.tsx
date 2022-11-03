@@ -1,6 +1,7 @@
 import { Box, ScrollView, Text, View } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';

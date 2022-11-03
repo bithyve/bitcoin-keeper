@@ -1,27 +1,25 @@
-import {
-  FlatList, RefreshControl,
-} from 'react-native';
 // libraries
 import { Box, Text } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { FlatList, RefreshControl } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { ScaledSheet } from 'react-native-size-matters';
-import { useDispatch } from 'react-redux';
+
 // components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
 // asserts
 import VaultIcon from 'src/assets/images/svgs/icon_vault_brown.svg';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const VaultTransactions = ({ route }) => {
-
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -49,46 +47,26 @@ const VaultTransactions = ({ route }) => {
   };
 
   return (
-    <Box
-      style={styles.Container}
-    >
+    <Box style={styles.Container}>
       <StatusBarComponent padding={50} />
-      <Box marginX={3} >
+      <Box marginX={3}>
         <Box width={wp(200)}>
-          <HeaderTitle
-            onPressHandler={() => navigation.goBack()}
-          />
+          <HeaderTitle onPressHandler={() => navigation.goBack()} />
         </Box>
         {/* {card} */}
-        <Box
-          flexDirection={'row'}
-          alignItems={'center'}
-        >
+        <Box flexDirection={'row'} alignItems={'center'}>
           <VaultIcon />
           <Box>
-            <Text
-              fontWeight={200}
-              fontSize={16}
-              letterSpacing={0.8}
-              color={'light.headerText'}
-            >
+            <Text fontWeight={200} fontSize={16} letterSpacing={0.8} color={'light.headerText'}>
               {title}
             </Text>
-            <Text
-              fontWeight={200}
-              fontSize={12}
-              letterSpacing={0.6}
-              color={'light.modalText'}
-            >
+            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color={'light.modalText'}>
               {subtitle}
             </Text>
           </Box>
         </Box>
         {/* {flatlist} */}
-        <Box
-          marginTop={hp(10)}
-          paddingBottom={hp(300)}
-        >
+        <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
             data={transactions}
             refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
