@@ -1,20 +1,19 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { Keyboard } from 'react-native';
-
 import { Input, View } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
+import React, { useContext, useEffect, useState } from 'react';
 
-import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
+import Buttons from 'src/components/Buttons';
+import Fonts from 'src/common/Fonts';
+import HeaderTitle from 'src/components/HeaderTitle';
+import { Keyboard } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { hp } from 'src/common/data/responsiveness/responsive';
+import { useNavigation } from '@react-navigation/native';
 
 const AddAmountScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
@@ -71,7 +70,6 @@ const AddAmountScreen = ({ route }: { route }) => {
               }}
             />
           </View>
-
         </View>
       </View>
       <View position={'absolute'} bottom={0}>
