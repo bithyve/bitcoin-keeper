@@ -167,7 +167,7 @@ const AddSendAmount = ({ route }) => {
       <Box
         alignItems={'center'}
         style={{
-          marginVertical: hp(15),
+          marginVertical: hp(20),
         }}
       >
         <Box
