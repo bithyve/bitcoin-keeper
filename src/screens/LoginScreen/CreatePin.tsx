@@ -141,15 +141,6 @@ export default function CreatePin(props) {
     }
   }, [credsChanged]);
 
-  // if (isPinChangedFailed) {
-  //   setTimeout(() => {
-  //     setErrorMessageHeader('Passcode change error');
-  //     setErrorMessage('There was some error while changing the Passcode, please try again');
-  //   }, 2);
-  //   (ErrorBottomSheet as any).current.snapTo(1);
-  //   dispatch(pinChangedFailed(null));
-  // }
-
   useEffect(() => {
     if (passcode == confirmPasscode) {
       setIsDisabled(false);
@@ -178,7 +169,11 @@ export default function CreatePin(props) {
               <PinInputsView
                 passCode={passcode}
                 passcodeFlag={passcodeFlag}
-                borderColor={passcode != confirmPasscode && confirmPasscode.length == 4 ? 'light.error' : 'transparent'}
+                borderColor={
+                  passcode != confirmPasscode && confirmPasscode.length == 4
+                    ? 'light.error'
+                    : 'transparent'
+                }
               />
               {/*  */}
             </Box>
@@ -194,7 +189,11 @@ export default function CreatePin(props) {
                     passcodeFlag={
                       confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2 ? false : true
                     }
-                    borderColor={passcode != confirmPasscode && confirmPasscode.length == 4 ? 'light.error' : 'transparent'}
+                    borderColor={
+                      passcode != confirmPasscode && confirmPasscode.length == 4
+                        ? 'light.error'
+                        : 'transparent'
+                    }
                   />
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
@@ -205,7 +204,7 @@ export default function CreatePin(props) {
                       width={wp('72%')}
                       textAlign={'right'}
                       fontStyle={'italic'}
-                    // mt={hp('1.5%')}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -246,8 +245,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // keyColor={'light.lightBlack'}
-          // ClearIcon={<DeleteIcon />}
+            // keyColor={'light.lightBlack'}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

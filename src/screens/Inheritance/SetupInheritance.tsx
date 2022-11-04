@@ -77,7 +77,7 @@ const SetupInheritance = () => {
         <Text
           color={'light.white1'}
           fontSize={14}
-          marginTop={hp(16)}
+          style={{ marginTop: hp(16) }}
           alignItems={'center'}
           width={wp(280)}
           fontWeight={200}

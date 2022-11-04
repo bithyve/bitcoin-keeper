@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { hp } from 'src/common/data/responsiveness/responsive';
 import DotView from 'src/components/DotView';
+import { RFValue } from 'react-native-responsive-fontsize';
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
@@ -32,20 +33,20 @@ const PinInputsView = ({
 
   return (
     <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} width={'auto'}
+      <Box
+        flexDirection={'row'}
+        width={'auto'}
         style={{
           marginTop: hp(5),
-          marginBottom: hp(25)
-        }}>
-        <Box
-          size={hp(48)}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-          borderColor={borderColor}
-          borderWidth={'1'}
+          marginBottom: hp(25),
+        }}
+      >
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 1 ? (
@@ -71,16 +72,13 @@ const PinInputsView = ({
               ''
             )}
           </Box>
-        </Box>
-        <Box
-          size={hp(48)}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-          borderColor={borderColor}
-          borderWidth={'1'}
+        </View>
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 2 ? (
@@ -106,16 +104,13 @@ const PinInputsView = ({
               ''
             )}
           </Box>
-        </Box>
-        <Box
-          size={hp(48)}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-          borderColor={borderColor}
-          borderWidth={'1'}
+        </View>
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 3 ? (
@@ -141,16 +136,13 @@ const PinInputsView = ({
               ''
             )}
           </Box>
-        </Box>
-        <Box
-          size={hp(48)}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-          borderColor={borderColor}
-          borderWidth={'1'}
+        </View>
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 4 && !hide ? (
@@ -176,9 +168,21 @@ const PinInputsView = ({
               ''
             )}
           </Box>
-        </Box>
+        </View>
       </Box>
     </Box>
   );
 };
+
+const styles = StyleSheet.create({
+  passcodeBox: {
+    marginLeft: wp(15),
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    height: hp(48),
+    width: hp(48),
+  },
+});
 export default PinInputsView;
