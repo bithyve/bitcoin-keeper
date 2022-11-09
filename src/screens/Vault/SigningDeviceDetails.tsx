@@ -268,7 +268,7 @@ const SigningDeviceDetails = ({ route }) => {
           p={2}
         >
           {
-            'You can choose to manually confirm the health of the Signing Device if you are sure that they are secure and accessible.'
+            'You can choose to manually confirm the health of the signing device if you are sure that they are secure and accessible.'
           }
         </Text>
         <Text
@@ -494,7 +494,7 @@ const SigningDeviceDetails = ({ route }) => {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle={
-            'It is very important that you keep your Signing Devices secure and fairly accessible at all times.'
+            'It is very important that you keep your signing devices secure and fairly accessible at all times.'
           }
           buttonText={'Manual Confirm'}
           buttonTextColor={'light.white'}

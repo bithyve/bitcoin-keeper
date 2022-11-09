@@ -67,7 +67,7 @@ export const BulletPoint = ({ text }) => {
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
         style={{
-          marginRight: wp(5)
+          marginRight: wp(5),
         }}
         size={hp(5)}
         m={1}
@@ -95,7 +95,7 @@ const TapsignerSetupContent = () => {
       <TapsignerSetupImage />
       <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
       <BulletPoint
-        text={`You should generally not use the same Signing Device on multiple wallets/apps`}
+        text={`You should generally not use the same signing device on multiple wallets/apps`}
       />
     </View>
   );
