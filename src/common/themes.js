@@ -96,8 +96,12 @@ export const customTheme = extendTheme({
     Text: {
       baseStyle: (props) => {
         return {
-          _light: { color: 'light.lightBlack', },
+          _light: {
+            color: 'light.lightBlack',
+            fontFamily: 'RobotoCondensed-Regular'
+          },
           _dark: { color: 'dark.black' },
+
         };
       },
     }
