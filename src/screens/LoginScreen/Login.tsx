@@ -401,8 +401,8 @@ const LoginScreen = ({ navigation, route }) => {
       <KeeperModal
         visible={loginModal}
         close={() => { }}
-        title={'Logging in to your Keeper'}
-        subTitle={'Shake your device or take a screenshot to send feedback'}
+        title={'Share Feedback (Testnet only)'}
+        subTitle={'Shake your device to send us a bug report or a feature request'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#000'}
         subTitleColor={'#5F6965'}
