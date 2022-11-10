@@ -19,7 +19,7 @@ type Props = {
   paddingTop?: number;
   learnMore?: boolean;
   learnMorePressed?: () => void;
-  titleFontSize?: number
+  titleFontSize?: number;
 };
 const HeaderTitle = ({
   title = '',
@@ -30,16 +30,18 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
-  titleFontSize = 16
-
+  learnMorePressed = () => {},
+  titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.back}>
-          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}>
+          <TouchableOpacity
+            style={styles.backButtonTouchable}
+            onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          >
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
@@ -53,7 +55,7 @@ const HeaderTitle = ({
                 alignItems={'center'}
                 style={{
                   height: hp(20),
-                  width: wp(70)
+                  width: wp(70),
                 }}
               >
                 <Text
@@ -120,8 +122,12 @@ const styles = ScaledSheet.create({
   back: {
     justifyContent: 'space-between',
     flexDirection: 'row',
-    paddingHorizontal: '5@s',
-    paddingVertical: '15@s',
+    paddingHorizontal: '2@s',
+    paddingVertical: '5@s',
+  },
+  backButtonTouchable: {
+    padding: '5%',
+    borderRadius: wp(10),
   },
 });
 export default HeaderTitle;
