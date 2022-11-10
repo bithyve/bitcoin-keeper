@@ -6,6 +6,7 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 type Props = {
   title?: string;
@@ -74,8 +75,8 @@ const styles = ScaledSheet.create({
     paddingBottom: '25@s',
   },
   back: {
-    paddingHorizontal: '5@s',
-    paddingVertical: '15@s',
+    borderRadius: wp(10),
+    padding: '5%',
   },
 });
 export default SeedWordsView;
