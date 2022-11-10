@@ -32,11 +32,7 @@ import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import {
-  hp,
-  windowWidth,
-  wp,
-} from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 //components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -179,7 +175,7 @@ const WalletDetails = () => {
   };
 
   const renderTransactionElement = ({ item }) => {
-    return <TransactionElement transaction={item} />
+    return <TransactionElement transaction={item} />;
   };
 
   const GradientIcon = ({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) => {
@@ -244,13 +240,7 @@ const WalletDetails = () => {
     >
       <StatusBarComponent padding={50} />
 
-      <Pressable
-        zIndex={999}
-        onPress={() => navigation.goBack()}
-        width={5}
-        padding={2}
-        alignItems={'center'}
-      >
+      <Pressable onPress={() => navigation.goBack()} style={styles.backButtonTouchable}>
         <BackIcon />
       </Pressable>
 
@@ -473,6 +463,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
+  },
+  backButtonTouchable: {
+    padding: '5%',
+    borderRadius: wp(8),
+    zIndex: 999,
+    width: 45,
+    alignItems: 'center',
   },
 });
 export default WalletDetails;
