@@ -98,7 +98,7 @@ export const customTheme = extendTheme({
         return {
           _light: {
             color: 'light.lightBlack',
-            fontFamily: 'RobotoCondensed-Regular'
+            // fontFamily: 'RobotoCondensed-Regular' 
           },
           _dark: { color: 'dark.black' },
 
