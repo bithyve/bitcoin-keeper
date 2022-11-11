@@ -39,7 +39,14 @@ const HeaderTitle = ({
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.back}>
-          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}>
+          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}
+            style={{
+              backgroundColor: 'red',
+              height: 20,
+              width: 20,
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}>
             <BackButton />
           </TouchableOpacity>
           {learnMore && (

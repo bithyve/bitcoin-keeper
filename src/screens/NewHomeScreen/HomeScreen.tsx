@@ -702,7 +702,7 @@ const HomeScreen = ({ navigation }) => {
         position={'absolute'}
         bottom={5}
         justifyContent={'center'}
-        width={hp(375)}
+        width={'100%'}
       >
         <Pressable
           onPress={() => {
