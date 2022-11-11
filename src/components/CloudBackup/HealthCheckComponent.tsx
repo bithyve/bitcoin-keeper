@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { BackupType } from 'src/common/data/enums/BHR';
 import Buttons from '../Buttons';
+import { StyleSheet } from 'react-native';
 
 const HealthCheckComponent = (props) => {
   const navigation = useNavigation();
@@ -95,7 +96,7 @@ const HealthCheckComponent = (props) => {
   };
 
   return (
-    <Box bg={'light.ReceiveBackground'} p={10} borderRadius={10}>
+    <Box bg={'light.ReceiveBackground'} style={styles.wrapper}>
       <Box>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'}>
           {BackupWallet.healthCheck}
@@ -118,11 +119,7 @@ const HealthCheckComponent = (props) => {
           onChangeText={(value) =>
             type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
           }
-          style={{
-            fontSize: RFValue(13),
-            letterSpacing: 0.96,
-            height: 50,
-          }}
+          style={styles.inputContainer}
           borderRadius={10}
           marginY={2}
           borderWidth={'0'}
@@ -147,4 +144,15 @@ const HealthCheckComponent = (props) => {
     </Box>
   );
 };
+const styles = StyleSheet.create({
+  wrapper: {
+    padding: 25,
+    borderRadius: 10,
+  },
+  inputContainer: {
+    fontSize: RFValue(13),
+    letterSpacing: 0.96,
+    height: 50,
+  },
+});
 export default HealthCheckComponent;
