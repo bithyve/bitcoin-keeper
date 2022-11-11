@@ -72,7 +72,7 @@ const BackupWallet = () => {
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box>
+        <Box width={'100%'}>
           <Text
             color={'light.lightBlack'}
             fontFamily={'body'}
@@ -82,15 +82,17 @@ const BackupWallet = () => {
           >
             {title}
           </Text>
-          <Text
-            color={'light.GreyText'}
-            fontFamily={'body'}
-            fontWeight={200}
-            fontSize={RFValue(12)}
-            letterSpacing={0.6}
-          >
-            {subTitle}
-          </Text>
+          {subTitle ? (
+            <Text
+              color={'light.GreyText'}
+              fontFamily={'body'}
+              fontWeight={200}
+              fontSize={RFValue(12)}
+              letterSpacing={0.6}
+            >
+              {subTitle}
+            </Text>
+          ) : null}
         </Box>
         <Box>
           <Arrow />
