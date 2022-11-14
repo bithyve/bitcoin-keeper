@@ -1,8 +1,8 @@
 import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Buttons from 'src/components/Buttons';

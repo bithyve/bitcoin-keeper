@@ -1,11 +1,9 @@
 import { Box, Input, Text } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import Buttons from '../Buttons';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { TouchableOpacity } from 'react-native';
-import Buttons from '../Buttons';
 
 const ConfirmSeedWord = (props) => {
   const { translations } = useContext(LocalizationContext);

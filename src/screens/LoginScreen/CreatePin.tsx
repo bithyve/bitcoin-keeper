@@ -9,7 +9,6 @@ import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -18,9 +17,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
-import messaging from '@react-native-firebase/messaging';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 const windowHeight = Dimensions.get('window').height;
 

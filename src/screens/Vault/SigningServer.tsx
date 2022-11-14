@@ -1,16 +1,14 @@
-import { Box, Pressable, Text } from 'native-base';
+import { Box, Text } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useContext, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+import React, { useContext } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 // asserts
 import BackIcon from 'src/assets/icons/back.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import Change from 'src/assets/images/svgs/change.svg';
 import DotView from 'src/components/DotView';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 // libraries
@@ -19,7 +17,6 @@ import Server from 'src/assets/images/svgs/server.svg';
 import Settings from 'src/assets/images/svgs/settings_brown.svg';
 // Components
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { Transaction } from 'src/core/wallets/interfaces';
 
 const SigningServer = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);

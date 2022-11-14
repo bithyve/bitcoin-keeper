@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
@@ -23,7 +16,6 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';

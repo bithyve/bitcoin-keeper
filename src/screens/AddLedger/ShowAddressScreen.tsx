@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useEffect, useRef, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { StyleSheet, Text, View } from 'react-native';
 
 import AppClient from 'src/hardware/ledger';
@@ -9,7 +9,6 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
-import { generateMockExtendedKey } from 'src/core/wallets/factories/VaultFactory';
 import { useDispatch } from 'react-redux';
 
 const ShowAddressScreen = ({ transport }) => {

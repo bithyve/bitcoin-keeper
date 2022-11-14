@@ -1,4 +1,4 @@
-import { Alert, Box, HStack, Pressable, Text, VStack } from 'native-base';
+import { Box, HStack, Pressable, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, View } from 'react-native';
 import React, { useEffect, useState } from 'react';

@@ -26,7 +26,6 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { WalletMap } from './WalletMap';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import idx from 'idx';

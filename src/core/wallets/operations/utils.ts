@@ -16,20 +16,16 @@ import {
   NetworkType,
   PaymentInfoKind,
   TransactionType,
-  WalletType,
 } from '../enums';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 import RestClient from 'src/core/services/rest/RestClient';
 import { Vault } from '../interfaces/vault';
 import { Wallet } from '../interfaces/wallet';
-import WalletOperations from '.';
 import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import config from '../../config';
-import idx from 'idx';
 
 const ECPair = ECPairFactory(ecc);
 
