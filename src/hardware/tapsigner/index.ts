@@ -1,6 +1,7 @@
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
 
+import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
@@ -49,4 +50,39 @@ export const getMockTapsignerDetails = (amfData = null) => {
     }
     return tapsigner;
   }
+};
+
+export const signWithTapsigner = async (
+  card: CKTapCard,
+  inputsToSign: {
+    digest: string;
+    subPath: string;
+    inputIndex: number;
+    sighashType: number;
+    publicKey: string;
+    signature?: string;
+  }[],
+  cvc
+) => {
+  try {
+    const status = await card.first_look();
+    if (status.path) {
+      for (const input of inputsToSign) {
+        const digest = Buffer.from(input.digest, 'hex');
+        const subpath = input.subPath;
+        const signature = await card.sign_digest(cvc, 0, digest, subpath);
+        input.signature = signature.slice(1).toString('hex');
+      }
+      return inputsToSign;
+    } else {
+      Alert.alert('Please setup card before signing!');
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const readTapsigner = async (card: CKTapCard, cvc: string) => {
+  await card.first_look();
+  await card.read(cvc);
 };

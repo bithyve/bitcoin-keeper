@@ -52,3 +52,8 @@ export const getMockColdcardDetails = () => {
     return cc;
   }
 };
+
+export const signWithColdCard = async (message) => {
+  const psbtBytes = NFC.encodeForColdCard(message);
+  return NFC.send([NfcTech.Ndef], psbtBytes);
+};
