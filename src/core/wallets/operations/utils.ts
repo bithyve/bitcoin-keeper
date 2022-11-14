@@ -360,7 +360,7 @@ export default class WalletUtilities {
     xpubs.forEach((xpub, i) => {
       signerPubkeyMap.set(xpub, pubkeys[i]);
     });
-    // pubkeys = pubkeys.sort(Buffer.compare); // bip-67 compatible
+
     pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
 
     const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(

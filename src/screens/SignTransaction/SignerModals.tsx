@@ -293,19 +293,6 @@ const SignerModals = ({
   textRef,
   signers,
 }) => {
-  // const onSelectDevice = useCallback(async (device) => {
-  //   try {
-  //     const transport = await TransportBLE.open(device);
-  //     transport.on('disconnect', () => {
-  //       LedgerCom.current = null;
-  //     });
-  //     LedgerCom.current = transport;
-  //     signTransaction();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }, []);
-
   const navigation = useNavigation();
 
   return (

@@ -76,27 +76,6 @@ const SendConfirmation = ({ route }) => {
   const common = translations['common'];
   const walletTransactions = translations['wallet'];
 
-  // // Sending process is still not executed
-  // const [sendingModal, setSendingModal] = useState(false);
-  // const openSendModal = () => setSendingModal(true);
-  // const closeSendModal = () => setSendingModal(false);
-
-  // // Send is Successful
-  // const [visible, setVisible] = useState(false);
-  // const open = () => setVisible(true);
-  // const close = () => setVisible(false);
-
-  // // Send Failed
-  // const [sendFailed, setSendFailed] = useState(false);
-  // const openFailedModal = () => setSendFailed(true);
-  // const closeFailModal = () => setSendFailed(false);
-
-  // const closeAllModal = () => {
-  //   closeFailModal();
-  //   close()
-  //   closeSendModal()
-  // }
-
   const SendSuccessfulContent = () => {
     return (
       <View>
@@ -115,15 +94,7 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  // const openLoaders = () => {
-  //   setTimeout(() => {
-  //     closeAllModal();
-  //     openSendModal();
-  //   }, 2000);
-  // };
-
   const onProceed = () => {
-    // closeAllModal();
     if (isVaultTransfer) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
         Alert.alert('Not enough Balance');
@@ -132,7 +103,6 @@ const SendConfirmation = ({ route }) => {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      // openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
@@ -147,7 +117,6 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      // openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -187,16 +156,8 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
-    // close();
     navigation.navigate('WalletDetails');
   };
-
-  // useEffect(() => {
-  //   if (sendHasFailed) {
-  //     closeSendModal();
-  //     openFailedModal();
-  //   }
-  // }, [sendHasFailed]);
 
   useEffect(() => {
     if (walletSendSuccessful) {
@@ -508,23 +469,6 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  // const handleCustomPriority = () => {
-  //   const { translations } = useContext(LocalizationContext);
-  //   const vault = translations['vault'];
-  //   const common = translations['common'];
-
-  //   return (
-  //     <CustomPriorityModal
-  //       visible={visible}
-  //       title={vault.CustomPriority}
-  //       subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-  //       info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-  //       close={close}
-  //       buttonText={common.confirm}
-  //     />
-  //   );
-  // };
-
   const FeeInfo = () => {
     return (
       <HStack width={windowWidth * 0.75} justifyContent={'space-between'} alignItems={'center'}>
@@ -585,50 +529,6 @@ const SendConfirmation = ({ route }) => {
           primaryCallback={onProceed}
         />
       </Box>
-
-      {/* {showOverlay && (
-        <View
-          height={windowHeight}
-          width={windowWidth}
-          zIndex={99}
-          opacity={0.4}
-          bg={'#000'}
-          position={'absolute'}
-        ></View>
-      )} */}
-      {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={walletTransactions.SendSuccess}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
-        buttonText={walletTransactions.ViewDetails}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        cancelButtonText={common.cancel}
-        cancelButtonColor={'#073E39'}
-        Content={SendSuccessfulContent}
-        buttonPressed={viewDetails}
-      />
-
-      <KeeperModal
-        visible={sendingModal}
-        close={closeSendModal}
-        title={'Send Loader'}
-        subTitle={'Sending...'}
-        textColor={'#073B36'}
-        dismissible={false}
-        showButtons={false}
-        // Content={SendSuccessfulContent}
-      />
-
-      <KeeperModal
-        visible={sendFailed}
-        close={closeFailModal}
-        title={'Sending Failed'}
-        subTitle={failedMsg}
-        textColor={'#073B36'}
-        // Content={SendSuccessfulContent}
-      /> */}
     </ScreenWrapper>
   );
 };
