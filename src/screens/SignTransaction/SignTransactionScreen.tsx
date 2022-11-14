@@ -1,13 +1,14 @@
 import { Alert, FlatList, Platform } from 'react-native';
-import AppClient, { PsbtV2, WalletPolicy } from 'src/hardware/ledger';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerType, TxPriority } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { SignerType, TxPriority } from 'src/core/wallets/enums';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -19,8 +20,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SignerList from './SignerList';
 import SignerModals from './SignerModals';
 import SigningServer from 'src/core/services/operations/SigningServer';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletOperations from 'src/core/wallets/operations';
 import { cloneDeep } from 'lodash';
 import config from 'src/core/config';
@@ -28,12 +27,11 @@ import dbManager from 'src/storage/realm/dbManager';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import idx from 'idx';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { hp } from 'src/common/data/responsiveness/responsive';
 
 const SignTransactionScreen = () => {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -165,8 +163,7 @@ const SignTransactionScreen = () => {
               try {
                 const status = await card.first_look();
                 if (status.path) {
-                  for (let i = 0; i < inputsToSign.length; i++) {
-                    const input = inputsToSign[i];
+                  for (const input of inputsToSign) {
                     const digest = Buffer.from(input.digest, 'hex');
                     const subpath = input.subPath;
                     const signature = await card.sign_digest(textRef.current, 0, digest, subpath);
@@ -240,10 +237,13 @@ const SignTransactionScreen = () => {
             switch (error.message) {
               case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
                 Alert.alert('Unlock the device to connect.');
+                break;
               case 'Ledger device: UNKNOWN_ERROR (0x6a15)':
                 Alert.alert('Navigate to the correct app in the Ledger.');
+                break;
               case 'Ledger device: UNKNOWN_ERROR (0x6511)':
                 Alert.alert('Open up the correct app in the Ledger.'); // no app selected
+                break;
               // unknown error
               default:
                 break;

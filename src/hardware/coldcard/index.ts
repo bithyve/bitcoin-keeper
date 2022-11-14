@@ -1,6 +1,11 @@
+import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import config, { APP_STAGE } from 'src/core/config';
+
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { generateSignerFromMetaData } from '..';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
@@ -15,4 +20,34 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const enc = NFC.encodeForColdCard(line);
   console.log(line);
   await NFC.send(NfcTech.Ndef, enc);
+};
+
+export const getColdcardDetails = async () => {
+  const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
+  const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
+  const derivationPath = data?.p2sh_p2wsh_deriv ?? '';
+  const xfp = data?.xfp ?? '';
+  return { xpub, derivationPath, xfp };
+};
+
+export const getMockColdcardDetails = () => {
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+    const networkType = config.NETWORK_TYPE;
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      SignerType.COLDCARD,
+      networkType
+    );
+
+    const cc: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      xpriv,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.TAPSIGNER,
+      storageType: SignerStorage.COLD,
+    });
+
+    return cc;
+  }
 };
