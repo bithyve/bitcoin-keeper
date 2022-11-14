@@ -504,6 +504,7 @@ const VaultDetails = ({ route, navigation }) => {
         title={'New Vault Created'}
         subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
+        subTitleColor={'light.lightBlack2'}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={() => {
