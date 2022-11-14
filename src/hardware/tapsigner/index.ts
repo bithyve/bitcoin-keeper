@@ -39,6 +39,7 @@ export const getMockTapsignerDetails = (amfData = null) => {
       xfp: masterFingerprint,
       signerType: SignerType.TAPSIGNER,
       storageType: SignerStorage.COLD,
+      isMock: true,
     });
 
     if (amfData) {
