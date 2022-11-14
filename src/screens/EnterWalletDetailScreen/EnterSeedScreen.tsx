@@ -1,32 +1,37 @@
-import { Box, Text, View, ScrollView } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import * as bip39 from 'bip39';
+
+import { Box, ScrollView, Text, View } from 'native-base';
 import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  FlatList,
+  Platform,
+  StyleSheet,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import SeedWordsView from 'src/components/SeedWordsView';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import LinearGradient from 'react-native-linear-gradient';
-import KeeperModal from 'src/components/KeeperModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import React, { useContext, useEffect, useState } from 'react';
+
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import { useDispatch } from 'react-redux';
+import InvalidSeeds from 'src/assets/images/seedillustration.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import LinearGradient from 'react-native-linear-gradient';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { ScaledSheet } from 'react-native-size-matters';
+import SeedWordsView from 'src/components/SeedWordsView';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import * as bip39 from 'bip39';
+import Fonts from 'src/common/Fonts';
+import Buttons from 'src/components/Buttons';
+import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -179,9 +184,7 @@ const EnterSeedScreen = () => {
           <InvalidSeeds />
         </Box>
         <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit'
-          }
+          {'Make sure the words are entered in the correct sequence'}
         </Text>
       </View>
     );
@@ -241,9 +244,10 @@ const EnterSeedScreen = () => {
                         width: 22,
                         fontSize: 16,
                         color: '#00836A',
-                        fontWeight: 'bold',
                         marginTop: 8,
+                        letterSpacing: 1.23
                       }}
+                      fontWeight={'300'}
                     >
                       {getFormattedNumber(index)}
                     </Text>
@@ -252,8 +256,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid == true
                           ? {
-                              borderColor: '#F58E6F',
-                            }
+                            borderColor: '#F58E6F',
+                          }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -277,91 +281,82 @@ const EnterSeedScreen = () => {
                           setSeedData(data);
                         }
                       }}
+                      onFocus={() => {
+                        const data = [...seedData];
+                        data[index].invalid = false;
+                        setSeedData(data);
+                      }}
                     />
                   </View>
                 );
               }}
             />
           </View>
-          <Text color={'#4F5955'} marginX={10} marginY={10} fontSize={12}>
+          <Text
+            fontWeight={200}
+            color={'#4F5955'}
+            marginX={10}
+            marginY={hp(10)}
+            fontSize={12}
+            letterSpacing={0.6}
+          >
             {seed.seedDescription}
           </Text>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
+              width: wp(375),
+              alignItems: 'center',
+              paddingHorizontal: wp(20)
             }}
           >
-            <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
+            <Box
+              bg={'transparent'}
+              flexDirection={'row'}
+              marginLeft={10}
+              marginTop={4}
+            >
               <View style={styles.dot}></View>
               <View style={styles.dash}></View>
             </Box>
-            <Box bg={'transparent'} flexDirection={'row'} marginRight={10}>
-              <TouchableOpacity>
-                <Text
-                  fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
-                  letterSpacing={1}
-                  marginTop={2}
-                  //   color={buttonCancelColor}
-                  marginRight={5}
-                >
-                  {common.needHelp}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext} disabled={appRecoveryLoading}>
-                <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={['#00836A', '#073E39']}
-                  style={styles.cta}
-                >
-                  <Text
-                    fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
-                    letterSpacing={1}
-                    color={'white'}
-                  >
-                    {common.next}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Box>
-            <KeeperModal
-              visible={invalidSeedsModal}
-              close={closeInvalidSeedsModal}
-              title={seed.InvalidSeeds}
-              subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
-              buttonBackground={['#00836A', '#073E39']}
-              buttonText={'Retry'}
-              buttonTextColor={'#FAFAFA'}
-              buttonCallback={closeInvalidSeedsModal}
-              textColor={'#041513'}
-              Content={InValidSeedsScreen}
+            <Buttons
+              primaryCallback={onPressNext}
+              primaryText={'Next'}
             />
-            <KeeperModal
-              visible={walletRecoverySuccessModal}
-              close={closeRecovery}
-              title={seed.walletRecoverySuccessful}
-              subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
-              buttonBackground={['#00836A', '#073E39']}
-              buttonText={'View Wallet'}
-              buttonTextColor={'#FAFAFA'}
-              buttonCallback={closeWalletSuccessModal}
-              textColor={'#041513'}
-              Content={RecoverWalletScreen}
-            />
-            <ModalWrapper
-              visible={createCloudBackupModal}
-              onSwipeComplete={() => setCreateCloudBackupModal(false)}
-            >
-              <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-            </ModalWrapper>
           </View>
+          <KeeperModal
+            visible={invalidSeedsModal}
+            close={closeInvalidSeedsModal}
+            title={seed.InvalidSeeds}
+            subTitle={seed.seedDescription}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonText={'Retry'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCallback={closeInvalidSeedsModal}
+            textColor={'#041513'}
+            Content={InValidSeedsScreen}
+          />
+          <KeeperModal
+            visible={walletRecoverySuccessModal}
+            close={closeRecovery}
+            title={seed.walletRecoverySuccessful}
+            subTitle={seed.seedDescription}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonText={'View Wallet'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCallback={closeWalletSuccessModal}
+            textColor={'#041513'}
+            Content={RecoverWalletScreen}
+          />
+          <ModalWrapper
+            visible={createCloudBackupModal}
+            onSwipeComplete={() => setCreateCloudBackupModal(false)}
+          >
+            <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+          </ModalWrapper>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -405,6 +400,7 @@ const styles = ScaledSheet.create({
   },
   input: {
     backgroundColor: '#FDF7F0',
+    color: '#073E39',
     shadowOpacity: 0.4,
     shadowColor: 'rgba(0, 0, 0, 0.05)',
     elevation: 6,
@@ -417,6 +413,8 @@ const styles = ScaledSheet.create({
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
+    fontFamily: Fonts.RobotoCondensedRegular,
+    letterSpacing: 1.32
   },
 });
 

@@ -205,7 +205,10 @@ export interface NodeConnect {
 }
 
 export interface TwoFADetails {
+  // TODO: modify to signing server payload(generic)
   signingServerXpub?: string;
+  derivationPath?: string;
+  masterFingerprint?: string;
   twoFAKey?: string;
   twoFAValidated?: boolean;
 }
@@ -229,6 +232,7 @@ export interface SigningPayload {
       value: number;
     };
   }>;
+  outgoing?: number;
 }
 
 export interface SerializedPSBTEnvelop {

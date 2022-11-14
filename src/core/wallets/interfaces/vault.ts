@@ -1,3 +1,4 @@
+import { SignerPolicy } from 'src/core/services/interfaces';
 import {
   ActiveAddresses,
   BIP85Config,
@@ -58,15 +59,16 @@ export interface VaultSigner {
   xpub: string;
   xpriv?: string;
   signerName?: string;
-  xpubInfo?: {
-    derivationPath?: string;
-    xfp?: string;
+  xpubInfo: {
+    derivationPath: string;
+    xfp: string;
   };
   bip85Config?: BIP85Config; // configuration for mobile keys
   lastHealthCheck: Date;
   addedOn: Date;
   hasSigned?: boolean;
   amfData?: any;
+  signerPolicy?: SignerPolicy;
 }
 
 export interface Vault {

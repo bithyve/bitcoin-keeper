@@ -10,6 +10,34 @@ export const Scheme = {
   },
 };
 
+export const SignerPolicy: ObjectSchema = {
+  name: RealmSchema.SignerPolicy,
+  embedded: true,
+  properties: {
+    verification: {
+      type: '{}?',
+      properties: {
+        method: 'string',
+        verifier: 'string?',
+      },
+    },
+    restrictions: {
+      type: '{}?',
+      properties: {
+        none: 'bool',
+        maxTransactionAmount: 'int?',
+      },
+    },
+    exceptions: {
+      type: '{}?',
+      properties: {
+        none: 'bool',
+        transactionAmount: 'int?',
+      },
+    },
+  },
+};
+
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
   embedded: true,
@@ -20,9 +48,10 @@ export const VaultSignerSchema: ObjectSchema = {
     xpriv: 'string?',
     signerName: 'string?',
     xpubInfo: {
-      type: '{}?',
+      type: '{}',
       properties: {
-        derivationPath: 'string?',
+        derivationPath: 'string',
+        xfp: 'string',
       },
     },
     lastHealthCheck: 'date',
@@ -31,6 +60,7 @@ export const VaultSignerSchema: ObjectSchema = {
     hasSigned: { type: 'bool?', default: false },
     storageType: 'string',
     amfData: '{}?',
+    signerPolicy: `${RealmSchema.SignerPolicy}?`,
   },
 };
 

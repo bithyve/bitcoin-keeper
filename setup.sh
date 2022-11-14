@@ -18,7 +18,6 @@ cp ./rnPatchFiles/react-native-netinfo.podspec ./node_modules/@react-native-comm
 # rm -rf ./node_modules/react-native-tcp/ios/CocoaAsyncSocket/
 # cp ./rnPatchFiles/TcpSockets.podspec ./node_modules/react-native-tcp/TcpSockets.podspec
 # ios dependency installation
-cp ./rnPatchFiles/BleTransport.js ./node_modules/@ledgerhq/react-native-hw-transport-ble/lib/BleTransport.js
 cd ios && pod deintegrate && pod install
 
 # android SDK location configuration

@@ -1,9 +1,11 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { Box, Input, Text } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
+
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { TouchableOpacity } from 'react-native';
+import Buttons from '../Buttons';
 
 const ConfirmSeedWord = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -79,7 +81,7 @@ const ConfirmSeedWord = (props) => {
           {BackupWallet.confirmSeedWord}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
-          Lorem ipsum dolor sit amet
+          Exactly as they were displayed
         </Text>
       </Box>
       <Box>
@@ -117,8 +119,8 @@ const ConfirmSeedWord = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.seedWordNote}</Text>
       </Box>
-      <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
-        <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
+      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}> */}
+      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
           <Text fontSize={RFValue(14)} textAlign={'center'}>
             {BackupWallet.startOver}
           </Text>
@@ -134,8 +136,22 @@ const ConfirmSeedWord = (props) => {
             }}
             value={common.confirm}
           />
-        </Box>
-      </Box>
+        </Box> 
+        </Box>*/}
+      <Buttons
+        secondaryText={BackupWallet.startOver}
+        secondaryCallback={() => {
+          props.closeBottomSheet();
+        }}
+        primaryText={common.confirm}
+        primaryCallback={() => {
+          if (seedWord === words[index]) {
+            props.confirmBtnPress();
+          } else {
+            setInvalid(true);
+          }
+        }}
+      />
     </Box>
   );
 };

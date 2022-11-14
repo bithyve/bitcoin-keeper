@@ -1,61 +1,46 @@
-import { Box, HStack, Pressable, Text, View } from 'native-base';
+import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import {
-  Image,
-  ImageBackground,
-  PermissionsAndroid,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
+import { ImageBackground, PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
+import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
+// asserts (svgs, pngs)
 import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
-import Basic from 'src/assets/images/svgs/basic.svg';
-import CustomPriorityModal from '../Send/CustomPriorityModal';
+import Chain from 'src/assets/icons/illustration_homescreen.svg';
+import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
-import Pleb from 'src/assets/images/svgs/pleb.svg';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
-// import Elite from 'src/assets/images/svgs/elite.svg';
-// import Pro from 'src/assets/images/svgs/pro.svg';
-// import ColdCard from 'src/assets/images/svgs/coldcard_home.svg';
-// import Ledger from 'src/assets/images/svgs/ledger_home.svg';
-// import Trezor from 'src/assets/images/svgs/trezor_home.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
-import TapsignerIcon from 'src/assets/images/tapsigner.svg';
 import UaiDisplay from './UaiDisplay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultImage from 'src/assets/images/Vault.png';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletMap } from '../Vault/WalletMap';
-import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import dbManager from 'src/storage/realm/dbManager';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+// components, hooks, data and functions.
 import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
-import { walletData } from 'src/common/data/defaultData/defaultData';
-import Chain from 'src/assets/icons/illustration_homescreen.svg';
+
 const InheritanceComponent = () => {
   const navigation = useNavigation();
 
@@ -68,7 +53,8 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    open();
+    // open();
+    navigation.navigate('SetupInheritance');
   };
 
   const close = () => setVisible(false);
@@ -76,11 +62,15 @@ const InheritanceComponent = () => {
 
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
         style={styles.bottomCard}
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
           <Inheritance />
@@ -100,7 +90,7 @@ const InheritanceComponent = () => {
               fontWeight={100}
               marginTop={-1}
             >
-              Upgrade to secure your Vault
+              Upgrade to secure your vault
             </Text>
           </Box>
         </Box>
@@ -131,7 +121,7 @@ const InheritanceComponent = () => {
             textColor={'#041513'}
           />
         </>
-      </LinearGradient>
+      </Box>
     </Box>
   );
 };
@@ -148,10 +138,14 @@ const LinkedWallets = (props) => {
       marginTop={hp(8)}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
-      <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <Box
+        bg={{
+          linearGradient: {
+            colors: ['light.lgStart', 'light.lgEnd'],
+            start: [0, 0],
+            end: [1, 1],
+          },
+        }}
         style={styles.bottomCard}
       >
         <Box marginLeft={wp(9.75)} flexDirection={'row'} alignItems={'center'}>
@@ -172,7 +166,7 @@ const LinkedWallets = (props) => {
               fontWeight={200}
               marginLeft={'1'}
             >
-              Linked Wallet
+              Linked Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
@@ -183,7 +177,10 @@ const LinkedWallets = (props) => {
                 <BTC />
               </Box>
               <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(30)} fontWeight={200}>
-                {netBalance}
+                {getAmount(netBalance)}
+                <Text color={'light.white1'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+                  {getUnit()}
+                </Text>
               </Text>
             </Box>
           ) : (
@@ -194,28 +191,8 @@ const LinkedWallets = (props) => {
             </Box>
           )}
         </Pressable>
-      </LinearGradient>
-    </Pressable>
-  );
-};
-
-const VaultSetupContent = () => {
-  return (
-    <View>
-      <Box alignSelf={'center'}>
-        <VaultSetupIcon />
       </Box>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-        {
-          'For the Basic tier, you need to select one Signer to activate your Vault. This can be upgraded to 3 Signers and 5 Signers when on Expert or Elite tier respectively'
-        }
-      </Text>
-      <Text color={'white'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={1}>
-        {
-          'To get started, you need to add a Signing Device (hardware wallet or a signer device) to Keeper'
-        }
-      </Text>
-    </View>
+    </Pressable>
   );
 };
 
@@ -245,12 +222,13 @@ const VaultStatus = (props) => {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
     } else {
       setModalVisible(true);
+      navigateToHardwareSetup();
     }
   };
   const close = () => setModalVisible(false);
 
   const navigateToHardwareSetup = () => {
-    close();
+    // close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
@@ -274,7 +252,7 @@ const VaultStatus = (props) => {
       case TorStatus.OFF:
         return 'Tor disabled';
       case TorStatus.CONNECTING:
-        return 'Tor connecting...';
+        return 'Connecting to Tor';
       case TorStatus.CONNECTED:
         return 'Tor enabled';
       case TorStatus.ERROR:
@@ -287,15 +265,15 @@ const VaultStatus = (props) => {
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'yellow.400';
+        return '#fac48b';
       case TorStatus.CONNECTING:
-        return 'orange.400';
+        return '#fac48b';
       case TorStatus.CONNECTED:
-        return 'green.400';
+        return '#c6ecae';
       case TorStatus.ERROR:
         return 'red.400';
       default:
-        return 'yellow.400';
+        return '#fac48b';
     }
   }, [torStatus]);
 
@@ -305,24 +283,27 @@ const VaultStatus = (props) => {
         <ImageBackground resizeMode="contain" style={styles.vault} source={VaultImage}>
           <Box
             backgroundColor={getTorStatusColor}
-            height={hp(16)}
-            borderRadius={hp(14)}
-            justifyContent={'center'}
-            alignItems={'center'}
-            marginTop={hp(30)}
-            paddingX={1}
+            style={{
+              height: hp(16),
+              paddingHorizontal: 10,
+              marginTop: hp(30),
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: hp(14)
+            }}
           >
             <Text
               color={'light.lightBlack'}
               letterSpacing={1}
-              fontSize={hp(11)}
+              fontSize={11}
               fontWeight={300}
               textAlign={'center'}
+              textTransform="uppercase"
             >
               {getTorStatusText}
             </Text>
           </Box>
-          <Box marginTop={hp(64.5)} alignItems={'center'}>
+          <Box marginTop={hp(windowHeight > 700 ? 60.5 : 25)} alignItems={'center'}>
             <Text
               color={'light.white1'}
               letterSpacing={0.8}
@@ -341,10 +322,15 @@ const VaultStatus = (props) => {
               paddingBottom={1}
             >
               {!signers.length
-                ? 'Activate Now '
+                ? 'Add a signing device to upgrade '
                 : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`}
             </Text>
-            {!signers.length ? null : (
+
+            {!signers.length ? (
+              <Box marginTop={hp(11.5)}>
+                <Chain />
+              </Box>
+            ) : (
               <Box flexDirection={'row'} marginTop={hp(10)}>
                 {signers.map((signer) => (
                   <Box
@@ -362,68 +348,54 @@ const VaultStatus = (props) => {
               </Box>
             )}
           </Box>
-          {!signers.length ? (
-            <Box marginTop={hp(31.5)}>
-              {/* <Image
-                source={require('src/assets/images/illustration.png')}
-                style={{ width: wp(123.95), height: hp(122.3) }}
-                resizeMode="contain"
-              /> */}
 
-              <Chain />
-            </Box>
-          ) : null}
-          {signers.length ? (
-            <HStack alignItems={'center'} marginTop={'10%'}>
-              <BTC style={{ height: '20%' }} />
-              <Pressable onPress={() => props.onAmountPress()}>
-                {props.showHideAmounts ? (
+          <HStack alignItems={'center'} marginTop={hp(windowHeight > 700 ? 20 : 10)}>
+            <BTC style={{ height: '20%' }} />
+            <Pressable>
+              {props.showHideAmounts ? (
+                <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
                   <Text
                     p={1}
                     color={'light.white1'}
                     letterSpacing={0.8}
-                    fontSize={hp(34)}
+                    fontSize={hp(30)}
                     fontWeight={200}
                   >
-                    {vaultBalance}
+                    {getAmount(vaultBalance)}
                   </Text>
-                ) : (
+                  <Text
+                    color={'light.white1'}
+                    letterSpacing={0.6}
+                    fontSize={hp(12)}
+                    fontWeight={200}
+                  >
+                    {getUnit()}
+                  </Text>
+                </Box>
+              ) : (
+                <Box marginY={5}>
                   <Hidden />
-                )}
-              </Pressable>
-            </HStack>
-          ) : null}
+                </Box>
+              )}
+            </Pressable>
+          </HStack>
+          <Pressable
+            backgroundColor={'light.yellow1'}
+            justifyContent={'center'}
+            alignItems={'center'}
+            borderRadius={hp(10)}
+            style={{
+              height: hp(22),
+              width: wp(90),
+            }}
+            onPress={() => props.onAmountPress()}
+          >
+            <Text color={'light.sendMax'} fontWeight={300} fontSize={11} letterSpacing={0.88}>
+              {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
+            </Text>
+          </Pressable>
         </ImageBackground>
       </TouchableOpacity>
-      {/* Vault creation successful modal */}
-      {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={vaultTranslations.VaultCreated}
-        subTitle={vaultTranslations.VaultCreationDesc}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText={vaultTranslations.ViewVault}
-        buttonTextColor={'#FAFAFA'}
-        buttonCallback={navigateToHardwareSetup}
-        textColor={'#5F6965'}
-        Content={VaultCreationContent}
-      /> */}
-      <KeeperModal
-        visible={visible}
-        close={close}
-        title={vaultTranslations.SetupyourVault}
-        subTitle={vaultTranslations.VaultDesc}
-        modalBackground={['#00836A', '#073E39']}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={vaultTranslations.AddNow}
-        buttonTextColor={'#073E39'}
-        buttonCallback={navigateToHardwareSetup}
-        textColor={'#FFF'}
-        Content={VaultSetupContent}
-        DarkCloseIcon={true}
-        learnMore={true}
-      />
     </Box>
   );
 };
@@ -466,7 +438,7 @@ const VaultInfo = () => {
   };
 
   function getPlanIcon() {
-    if (subscription.name.toLowerCase().includes('whale')) {
+    if (subscription.name.toLowerCase().includes('diamond')) {
       return <DiamondHandsFocused />;
     } else if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;
@@ -476,10 +448,14 @@ const VaultInfo = () => {
   }
 
   return (
-    <LinearGradient
-      colors={['#00836A', '#073E39']}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 1, y: 0 }}
+    <Box
+      bg={{
+        linearGradient: {
+          colors: ['light.lgStart', 'light.lgEnd'],
+          start: [0, 0],
+          end: [1, 1],
+        },
+      }}
       style={styles.linearGradient}
     >
       <Box paddingX={10} alignItems={'center'}>
@@ -516,7 +492,7 @@ const VaultInfo = () => {
         </Box>
         <UaiDisplay uaiStack={uaiStack} />
       </Box>
-    </LinearGradient>
+    </Box>
   );
 };
 
@@ -538,8 +514,27 @@ export const NextIcon = ({ pressHandler }) => {
   );
 };
 
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
+
+  useEffect(() => {
+    try {
+      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [
+        Instabug.invocationEvent.shake,
+        Instabug.invocationEvent.screenshot,
+      ]);
+      BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
+      BugReporting.setInvocationEvents([
+        Instabug.invocationEvent.shake,
+        Instabug.invocationEvent.screenshot,
+      ]);
+      BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
+      BugReporting.setShakingThresholdForiPhone(1.0);
+      Instabug.setPrimaryColor('rgb(7, 62, 57)');
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   const data = {
     name: 'Tonny Hill',
@@ -691,7 +686,11 @@ const HomeScreen = () => {
   };
 
   return (
-    <Box flex={1} backgroundColor={'light.lightYellow'}>
+    <Box
+      flex={1}
+      backgroundColor={'light.lightYellow'}
+      position={'relative'}
+    >
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {
@@ -699,15 +698,26 @@ const HomeScreen = () => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Pressable onPress={askPermission}>
-        <InheritanceComponent />
-      </Pressable>
-      <LinkedWallets
-        onAmountPress={() => {
-          setShowHideAmounts(!showHideAmounts);
-        }}
-        showHideAmounts={showHideAmounts}
-      />
+      <Box
+        position={'absolute'}
+        bottom={5}
+        justifyContent={'center'}
+        width={'100%'}
+      >
+        <Pressable
+          onPress={() => {
+            navigation.navigate('SetupInheritance');
+          }}
+        >
+          <InheritanceComponent />
+        </Pressable>
+        <LinkedWallets
+          onAmountPress={() => {
+            // setShowHideAmounts(!showHideAmounts);
+          }}
+          showHideAmounts={showHideAmounts}
+        />
+      </Box>
     </Box>
   );
 };
@@ -721,8 +731,8 @@ const styles = ScaledSheet.create({
     borderBottomRightRadius: 15,
   },
   vault: {
-    width: wp(271.28),
-    height: hp(346.04),
+    width: wp(280),
+    height: hp(Platform.OS == 'android' ? 400 : 350),
     alignItems: 'center',
   },
   bottomCard: {

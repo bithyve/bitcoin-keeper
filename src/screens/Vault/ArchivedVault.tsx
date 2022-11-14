@@ -11,9 +11,9 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import BTC from 'src/assets/images/svgs/btc_black.svg';
 import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 const ArchivedVault = () => {
-
   const { useQuery } = useContext(RealmWrapperContext);
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -31,7 +31,7 @@ const ArchivedVault = () => {
         style={{
           paddingHorizontal: 20,
           borderRadius: hp(10),
-          marginBottom: hp(16)
+          marginBottom: hp(16),
         }}
       >
         <Box>
@@ -39,15 +39,10 @@ const ArchivedVault = () => {
             flexDirection={'row'}
             alignItems={'center'}
             style={{
-              marginBottom: hp(10)
+              marginBottom: hp(10),
             }}
           >
-            <Text
-              color={'light.headerText'}
-              fontSize={16}
-              fontWeight={300}
-              fontFamily={'body'}
-            >
+            <Text color={'light.headerText'} fontSize={16} fontWeight={300} fontFamily={'body'}>
               {vaultItem?.specs?.transactions?.length}
             </Text>
             <Text
@@ -63,8 +58,9 @@ const ArchivedVault = () => {
           <Box
             flexDirection={'row'}
             style={{
-              marginBottom: hp(10)
-            }}>
+              marginBottom: hp(10),
+            }}
+          >
             <Box justifyContent={'center'} marginTop={2}>
               <BTC />
             </Box>
@@ -74,20 +70,16 @@ const ArchivedVault = () => {
               fontWeight={200}
               letterSpacing={1.12}
               style={{
-                marginLeft: wp(4)
+                marginLeft: wp(4),
               }}
             >
-              {vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed}
+              {getAmount(
+                vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed
+              )}
             </Text>
           </Box>
-          <Box
-            flexDirection={'row'}>
-            <Text
-              color={'light.textBlack'}
-              fontSize={12}
-              fontWeight={100}
-              letterSpacing={0.02}
-            >
+          <Box flexDirection={'row'}>
+            <Text color={'light.textBlack'} fontSize={12} fontWeight={100} letterSpacing={0.02}>
               Archived On
             </Text>
             <Text
@@ -114,7 +106,7 @@ const ArchivedVault = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Archived Vaults'}
-        subtitle={'Lorem ipsum dolor sit amet, consectetur'}
+        subtitle={'Previously used vaults'}
         headerTitleColor={'light.headerText'}
         paddingLeft={4}
         paddingTop={5}
@@ -128,7 +120,7 @@ const ArchivedVault = () => {
           showsVerticalScrollIndicator={false}
           style={{
             marginTop: hp(44),
-            marginBottom: hp(100)
+            marginBottom: hp(100),
           }}
         />
       </Box>

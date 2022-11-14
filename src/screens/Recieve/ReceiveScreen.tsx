@@ -1,31 +1,25 @@
-import { Box, Text, View } from 'native-base';
-import { Clipboard, Image, TouchableOpacity } from 'react-native';
+import { Box, Text } from 'native-base';
+import { Clipboard, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import InfoBox from '../../components/InfoBox';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import QRCode from 'react-native-qrcode-svg';
-import QrCode from 'src/assets/images/qrcode.png';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 
-// import { useDispatch } from 'react-redux';
-
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
-  // const dispatch = useDispatch();
 
   const wallet: Wallet = route?.params?.wallet;
   const amount = route?.params?.amount;
@@ -53,16 +47,14 @@ const ReceiveScreen = ({ route }: { route }) => {
   const { showToast } = useToastMessage();
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
-      <Box>
-        <Header
-          title={common.receive}
-          subtitle={common.smalldesc}
-          onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor={'light.textBlack'}
-        />
-      </Box>
+    <ScreenWrapper>
+      <HeaderTitle
+        title={common.receive}
+        subtitle={'Native segwit address'}
+        onPressHandler={() => navigtaion.goBack()}
+        headerTitleColor={'light.textBlack'}
+        paddingTop={hp(6)}
+      />
       <Box marginTop={hp(80)} alignItems={'center'} alignSelf={'center'} width={hp(200)}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
@@ -80,7 +72,7 @@ const ReceiveScreen = ({ route }: { route }) => {
             width={'100%'}
             noOfLines={1}
           >
-            {paymentURI || receivingAddress}
+            {'Recieve Address'}
           </Text>
         </Box>
       </Box>
@@ -156,7 +148,7 @@ const ReceiveScreen = ({ route }: { route }) => {
                 fontSize={12}
                 letterSpacing={0.6}
               >
-                Lorem ipsum dolor sit amet, con
+                Add a specific invoice amount
               </Text>
             </Box>
           </Box>
@@ -167,30 +159,8 @@ const ReceiveScreen = ({ route }: { route }) => {
       <Box position={'absolute'} bottom={hp(45)} marginX={5}>
         <InfoBox title={home.AddAmount} desciption={home.reflectSats} width={300} />
       </Box>
-    </View>
+    </ScreenWrapper>
   );
 };
 
-const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    position: 'relative',
-  },
-  title: {
-    fontSize: RFValue(12),
-    letterSpacing: '0.24@s',
-  },
-  subtitle: {
-    fontSize: RFValue(10),
-    letterSpacing: '0.20@s',
-  },
-  textBox: {
-    width: '80%',
-    // backgroundColor: Colors?.textInputBackground,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    padding: 20,
-  },
-});
 export default ReceiveScreen;

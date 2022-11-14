@@ -1,8 +1,9 @@
 import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { SignerException, SignerPolicy, SignerRestriction } from 'src/core/services/interfaces';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -17,6 +18,7 @@ export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
 export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
 export const REGISTER_WITH_SIGNING_SERVER = 'REGISTER_WITH_SIGNING_SERVER';
+export const UPDATE_SIGNER_POLICY = 'UPDATE_SIGNER_POLICY';
 export const VALIDATE_SIGNING_SERVER_REGISTRATION = 'VALIDATE_SIGNING_SERVER_REGISTRATION';
 export const SETUP_DONATION_WALLET = 'SETUP_DONATION_WALLET';
 export const ADD_NEW_WALLETS = 'ADD_NEW_WALLETS';
@@ -27,6 +29,9 @@ export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const CLEAR_RECEIVE_ADDRESS = 'CLEAR_RECEIVE_ADDRESS';
 export const RESET_WALLET_UPDATE_FLAG = 'RESET_WALLET_UPDATE_FLAG';
 export const RESET_TWO_FA_LOADER = 'RESET_TWO_FA_LOADER';
+export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
+export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
+export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -106,17 +111,36 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => {
   };
 };
 
-export const registerWithSigningServer = () => {
+export const registerWithSigningServer = (policy: SignerPolicy) => {
   return {
     type: REGISTER_WITH_SIGNING_SERVER,
+    payload: {
+      policy,
+    },
   };
 };
 
-export const validateSigningServerRegistration = (token: number) => {
+export const validateSigningServerRegistration = (verificationToken) => {
   return {
     type: VALIDATE_SIGNING_SERVER_REGISTRATION,
     payload: {
-      token,
+      verificationToken,
+    },
+  };
+};
+
+export const updateSignerPolicy = (
+  signer: VaultSigner,
+  updates: {
+    restrictions?: SignerRestriction;
+    exceptions?: SignerException;
+  }
+) => {
+  return {
+    type: UPDATE_SIGNER_POLICY,
+    payload: {
+      signer,
+      updates,
     },
   };
 };
@@ -306,6 +330,31 @@ export const loginWithHexa = (authToken, walletName) => {
     payload: {
       authToken,
       walletName,
+    },
+  };
+};
+
+export const testSatsRecieve = (wallet: Wallet) => {
+  return {
+    type: TEST_SATS_RECIEVE,
+    payload: {
+      wallet,
+    },
+  };
+};
+
+export const updateWalletDetails = (
+  wallet: Wallet,
+  details: {
+    name: string;
+    description: string;
+  }
+) => {
+  return {
+    type: UPDATE_WALLET_DETAILS,
+    payload: {
+      wallet,
+      details,
     },
   };
 };

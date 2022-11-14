@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
-
-import { RFValue } from 'react-native-responsive-fontsize';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import DotView from 'src/components/DotView';
+import { RFValue } from 'react-native-responsive-fontsize';
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
   textColor?: boolean;
+  borderColor?: string;
 }
-const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: Props) => {
+const PinInputsView = ({
+  passCode,
+  passcodeFlag,
+  backgroundColor,
+  textColor,
+  borderColor = 'transparent',
+}: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -29,15 +33,20 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
 
   return (
     <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+      <Box
+        flexDirection={'row'}
+        width={'auto'}
+        style={{
+          marginTop: hp(5),
+          marginBottom: hp(25),
+        }}
+      >
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 1 ? (
@@ -63,15 +72,13 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               ''
             )}
           </Box>
-        </Box>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        </View>
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 2 ? (
@@ -97,15 +104,13 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               ''
             )}
           </Box>
-        </Box>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        </View>
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 3 ? (
@@ -131,15 +136,13 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               ''
             )}
           </Box>
-        </Box>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+        </View>
+        <View
+          style={{
+            ...styles.passcodeBox,
+            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            borderColor: borderColor,
+          }}
         >
           <Box>
             {passCode.length == 4 && !hide ? (
@@ -165,9 +168,21 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
               ''
             )}
           </Box>
-        </Box>
+        </View>
       </Box>
     </Box>
   );
 };
+
+const styles = StyleSheet.create({
+  passcodeBox: {
+    marginLeft: wp(15),
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    height: hp(48),
+    width: hp(48),
+  },
+});
 export default PinInputsView;

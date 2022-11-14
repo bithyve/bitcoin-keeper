@@ -91,7 +91,7 @@ const SetupColdCard = () => {
           signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
           type: SignerType.COLDCARD,
           isMock: true,
-          signerName: 'Mk4 (Mock)',
+          signerName: 'Mk4**',
           xpub,
           xpriv,
           xpubInfo: {
@@ -116,8 +116,8 @@ const SetupColdCard = () => {
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
-              title="Setting up ColdCard"
-              subtitle="Go to Settings > Multisig wallets > Export xPub on your ColdCard"
+              title="Setting up Coldcard"
+              subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={{ padding: 30 }}>

@@ -1,31 +1,35 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { Box, HStack, Switch, Text, Image } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Text } from 'native-base';
-import messaging from '@react-native-firebase/messaging';
-
-import { RFValue } from 'react-native-responsive-fontsize';
 import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
+  heightPercentageToDP,
+  widthPercentageToDP,
 } from 'react-native-responsive-screen';
-import LinearGradient from 'react-native-linear-gradient';
-
-import { credsAuth } from '../../store/sagaActions/login';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import { credsAuthenticated } from '../../store/reducers/login';
-import KeyPadView from '../../components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import CustomButton from 'src/components/CustomButton/CustomButton';
-import ModalContainer from 'src/components/Modal/ModalContainer';
-import FogotPassword from './components/FogotPassword';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import ResetPassSuccess from './components/ResetPassSuccess';
-import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+
+import { AppContext } from 'src/common/content/AppContext';
+import CustomButton from 'src/components/CustomButton/CustomButton';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import FogotPassword from './components/FogotPassword';
+import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import { NetworkType } from 'src/core/wallets/enums';
+import PinInputsView from 'src/components/AppPinInput/PinInputsView';
+import { RFValue } from 'react-native-responsive-fontsize';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import ResetPassSuccess from './components/ResetPassSuccess';
+import config from 'src/core/config';
+import { credsAuth } from '../../store/sagaActions/login';
+import { credsAuthenticated } from '../../store/reducers/login';
+import messaging from '@react-native-firebase/messaging';
+import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import KeeperModal from 'src/components/KeeperModal';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -35,6 +39,7 @@ const LoginScreen = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
@@ -42,15 +47,22 @@ const LoginScreen = ({ navigation, route }) => {
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
-  const [Elevation, setElevation] = useState(10);
+  const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  // const [timeout, setTimeout] = useState(0)
+
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
   const login = translations['login'];
   const common = translations['common'];
+
+  useEffect(() => {
+    if (loggingIn) {
+      attemptLogin(passcode);
+    }
+  }, [loggingIn]);
+
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -153,17 +165,37 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
+      setLoginModal(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
       setAttempts(attempts + 1);
+      setLogging(false);
     } else {
       setLoginError(false);
     }
   }, [authenticationFailed]);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     setLoginModal(false);
+  //     if (relogin) {
+  //       navigation.goBack();
+  //     } else {
+  //       if (appId !== '') {
+  //         updateFCM();
+  //         navigation.replace('App');
+  //       } else {
+  //         navigation.replace('NewKeeperApp');
+  //       }
+  //     }
+  //     dispatch(credsAuthenticated(false));
+  //   }
+  // }, [isAuthenticated]);
+
+  const loginModalAction = () => {
     if (isAuthenticated) {
+      setLoginModal(false);
       if (relogin) {
         navigation.goBack();
       } else {
@@ -176,8 +208,7 @@ const LoginScreen = ({ navigation, route }) => {
       }
       dispatch(credsAuthenticated(false));
     }
-  }, [isAuthenticated]);
-
+  }
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
@@ -188,6 +219,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
+    setLoginModal(true);
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -198,7 +230,28 @@ const LoginScreen = ({ navigation, route }) => {
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
-
+  const LoginModalContent = () => {
+    return (
+      <Box>
+        <Image
+          source={require('src/assets/video/test-net.gif')}
+          style={{
+            width: wp(270),
+            height: hp(200),
+            alignSelf: 'center',
+          }} />
+        <Text
+          color={'light.modalText'}
+          fontWeight={200}
+          fontSize={13}
+          letterSpacing={0.65}
+          width={wp(260)}
+        >
+          This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.
+        </Text>
+      </Box>
+    );
+  };
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
@@ -209,9 +262,11 @@ const LoginScreen = ({ navigation, route }) => {
               ml={5}
               color={'light.textLight'}
               fontSize={RFValue(22)}
-              mt={hp('10%')}
-              fontWeight={'bold'}
+              fontWeight={'200'}
               fontFamily={'heading'}
+              style={{
+                marginTop: heightPercentageToDP('10%')
+              }}
             >
               {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}
@@ -226,7 +281,9 @@ const LoginScreen = ({ navigation, route }) => {
                 </Text> */}
               </Text>
               {/* pin input view */}
-              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              <Box marginTop={heightPercentageToDP(7)}>
+                <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              </Box>
               {/*  */}
             </Box>
 
@@ -236,21 +293,40 @@ const LoginScreen = ({ navigation, route }) => {
                 fontSize={RFValue(12)}
                 fontStyle={'italic'}
                 textAlign={'right'}
-                mr={20}
+                fontWeight={200}
+                letterSpacing={0.65}
+                mr={12}
               >
                 {errMessage}
               </Text>
             )}
-
+            <HStack justifyContent={'space-between'} mr={10} paddingTop={'2'}>
+              <Text
+                color={'light.white1'}
+                fontWeight={'200'}
+                px={'5'}
+                fontSize={13}
+                letterSpacing={1}
+              >
+                {'Use bitcoin testnet'}
+              </Text>
+              <Switch
+                defaultIsChecked
+                disabled={true}
+                trackColor={{ true: '#FFFA' }}
+                thumbColor={'#358475'}
+                onChange={() => { }}
+              />
+            </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
               {passcode.length == 4 && (
                 <Box>
                   <CustomButton
                     onPress={() => {
                       setLoginError(false);
-                      setElevation(0);
-                      attemptLogin(passcode);
+                      setLogging(true);
                     }}
+                    loading={loggingIn}
                     value={common.proceed}
                   />
                 </Box>
@@ -262,7 +338,7 @@ const LoginScreen = ({ navigation, route }) => {
               style={{
                 flex: 0.8,
                 justifyContent: 'flex-end',
-                elevation: Elevation,
+                elevation: loggingIn ? 0 : 10,
                 margin: 20,
               }}
               onPress={() => {
@@ -279,6 +355,7 @@ const LoginScreen = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
           )}
+
           {/* keyboardview start */}
           <KeyPadView
             disabled={!canLogin}
@@ -321,14 +398,28 @@ const LoginScreen = ({ navigation, route }) => {
           </ModalWrapper>
         </Box>
       </Box>
+      <KeeperModal
+        visible={loginModal}
+        close={() => { }}
+        title={'Share Feedback (Testnet only)'}
+        subTitle={'Shake your device to send us a bug report or a feature request'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#000'}
+        subTitleColor={'#5F6965'}
+        showCloseIcon={false}
+        buttonText={isAuthenticated ? 'Next' : null}
+        buttonCallback={loginModalAction}
+        Content={LoginModalContent}
+        subTitleWidth={wp(210)}
+      />
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   textBoxStyles: {
-    height: wp('13%'),
-    width: wp('13%'),
+    height: widthPercentageToDP('13%'),
+    width: widthPercentageToDP('13%'),
     borderRadius: 7,
     marginLeft: 20,
     alignItems: 'center',
@@ -336,8 +427,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
   },
   textBoxActive: {
-    height: wp('13%'),
-    width: wp('13%'),
+    height: widthPercentageToDP('13%'),
+    width: widthPercentageToDP('13%'),
     borderRadius: 7,
     marginLeft: 20,
     elevation: 10,

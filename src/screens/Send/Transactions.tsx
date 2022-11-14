@@ -38,7 +38,10 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
     );
   };
   const renderTranscation = ({ item, index }: { item, index }) => {
-
+    const {
+      address,
+      amount
+    } = item
     return (
       <>
         <Box
@@ -64,8 +67,9 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
                 numberOfLines={1}
                 letterSpacing={1.12}
                 color={'light.sendCardHeading'}
+                width={wp(100)}
               >
-                Default Wallet
+                {address}
               </Text>
               <Text
                 fontFamily={'body'}
@@ -73,7 +77,7 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
                 fontStyle={'italic'}
                 fontSize={10}
                 numberOfLines={1}>
-                N/A
+                {amount}
               </Text>
             </Box>
           </Box>
@@ -85,7 +89,7 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
           </TouchableOpacity>
         </Box>
 
-        {index == transactions.length - 1 &&
+        {/* {index == transactions.length - 1 &&
           <TouchableOpacity onPress={addTransaction} activeOpacity={0.5}>
             <Box
               alignItems={'center'}
@@ -113,7 +117,7 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
               </Box>
             </Box>
           </TouchableOpacity>
-        }
+        } */}
       </>
     );
   };

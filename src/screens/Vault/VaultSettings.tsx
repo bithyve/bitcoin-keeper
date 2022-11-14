@@ -5,7 +5,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 
 //components and functions
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -17,6 +17,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getAmount } from 'src/common/constants/Bitcoin';
 
 type Props = {
   title: string;
@@ -92,7 +93,7 @@ const VaultSettings = ({ route }) => {
           height: hp(75),
           position: 'relative',
           marginLeft: -wp(20),
-          marginBottom: hp(30)
+          marginBottom: hp(30),
         }}
       >
         <Box
@@ -123,22 +124,23 @@ const VaultSettings = ({ route }) => {
             </Text>
           </Box>
           <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
-            {vaultBalance}
+            {vaultBalance}sats
           </Text>
         </Box>
       </LinearGradient>
     );
-  }
+  };
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <Box>
-        <Header
+        <HeaderTitle
           title={'Vault Settings'}
-          subtitle={'Lorem Ipsum Dolor'}
+          subtitle={'See the app settings screen and the items that will go in here.'}
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor={'light.textBlack'}
-          fontSize={20}
+          titleFontSize={20}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box
@@ -150,13 +152,12 @@ const VaultSettings = ({ route }) => {
         <VaultCard
           vaultName={name}
           vaultDescription={description}
-          vaultBalance={confirmed + unconfirmed}
+          vaultBalance={getAmount(confirmed + unconfirmed)}
         />
-
       </Box>
       <Box alignItems={'center'} paddingX={wp(25)}>
         <Option
-          title={'Dolor sit amet'}
+          title={'Timelock Vault'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur'}
           onPress={() => {
             console.log('Wallet Details');
@@ -164,17 +165,22 @@ const VaultSettings = ({ route }) => {
           Icon={false}
         />
         <Option
+          title={'Generate Descriptors'}
+          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+          onPress={() => { }}
+          Icon={false}
+        />
+        <Option
           title={'Consectetur'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur'}
-          onPress={() => {
-          }}
+          onPress={() => { }}
           Icon={false}
         />
         <Option
           title={'Archived Vaults'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur'}
           onPress={() => {
-            navigtaion.navigate('ArchivedVault')
+            navigtaion.navigate('ArchivedVault');
           }}
           Icon={false}
         />
@@ -185,12 +191,11 @@ const VaultSettings = ({ route }) => {
         <InfoBox
           title={'Note'}
           desciption={
-            'These settings are for your Default Wallet only and does not affect other wallets'
+            'These settings are for your active wallet only and does not affect other wallets'
           }
           width={250}
         />
       </Box>
-
     </Box>
   );
 };

@@ -11,6 +11,9 @@ import {
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
+  TEST_SATS_RECIEVE,
+  UPDATE_SIGNER_POLICY,
+  UPDATE_WALLET_DETAILS,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
@@ -22,7 +25,7 @@ import {
 } from 'src/core/wallets/enums';
 import { Storage, getString, setItem } from 'src/storage';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { Wallet, WalletShell, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -30,7 +33,12 @@ import {
   vaultMigrationCompleted,
 } from '../reducers/vaults';
 import { call, put, select } from 'redux-saga/effects';
-import { setNetBalance, signingServerRegistrationVerified } from 'src/store/reducers/wallets';
+import {
+  setNetBalance,
+  setTestCoinsFailed,
+  setTestCoinsReceived,
+  signingServerRegistrationVerified,
+} from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
 import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
@@ -49,10 +57,20 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
+import Relay from 'src/core/services/operations/Relay';
+import {
+  SignerException,
+  SignerRestriction,
+  SingerVerification,
+  VerificationType,
+} from 'src/core/services/interfaces';
+import { vs } from 'react-native-size-matters';
+import { Alert } from 'react-native';
 
 export interface newWalletDetails {
   name?: string;
   description?: string;
+  transferPolicy?: number;
 }
 export interface newWalletInfo {
   walletType: WalletType;
@@ -72,7 +90,7 @@ function* addNewWallet(
 ) {
   const { primaryMnemonic } = app;
   const { walletInstances } = walletShell;
-  const { name: walletName, description: walletDescription } = walletDetails;
+  const { name: walletName, description: walletDescription, transferPolicy } = walletDetails;
 
   switch (walletType) {
     case WalletType.CHECKING:
@@ -84,6 +102,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return checkingWallet;
 
@@ -96,6 +115,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : '',
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return lnWallet;
 
@@ -108,6 +128,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedMnemonic: importDetails.primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return importedWallet;
 
@@ -120,6 +141,7 @@ function* addNewWallet(
         walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
         importedXpub: importDetails.xpub,
         networkType: config.NETWORK_TYPE,
+        transferPolicy,
       });
       return readOnlyWallet;
   }
@@ -559,16 +581,32 @@ export const updateWalletSettingsWatcher = createWatcher(
   UPDATE_WALLET_SETTINGS
 );
 
-export function* registerWithSigningServerWorker() {
+export function* registerWithSigningServerWorker({ payload }: { payload: { policy } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (app.twoFADetails && app.twoFADetails.signingServerXpub)
     throw new Error('registration already in progress');
 
-  const { setupData } = yield call(SigningServer.register, app.id);
+  const { policy } = payload;
+  const {
+    setupData,
+  }: {
+    setupData: {
+      verification: SingerVerification;
+      bhXpub: string;
+      derivationPath: string;
+      masterFingerprint: string;
+    };
+  } = yield call(SigningServer.register, app.id, policy);
+
   const twoFADetails: TwoFADetails = {
     signingServerXpub: setupData.bhXpub,
-    twoFAKey: setupData.secret,
+    derivationPath: setupData.derivationPath,
+    masterFingerprint: setupData.masterFingerprint,
   };
+
+  if (setupData.verification.method === VerificationType.TWO_FA)
+    twoFADetails.twoFAKey = setupData.verification.verifier;
+
   yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
 }
 
@@ -577,14 +615,14 @@ export const registerWithSigningServerWatcher = createWatcher(
   REGISTER_WITH_SIGNING_SERVER
 );
 
-function* validateSigningServerRegistrationWorker({ payload }: { payload: { token: number } }) {
+function* validateSigningServerRegistrationWorker({ payload }: { payload: { verificationToken } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const { token } = payload;
+  const { verificationToken } = payload;
   try {
-    const { valid } = yield call(SigningServer.validate, app.id, token);
+    const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
     if (valid) {
       yield put(signingServerRegistrationVerified(true));
-      const twoFADetails = { ...app.twoFADetails };
+      const twoFADetails = getJSONFromRealmObject(app.twoFADetails);
       twoFADetails.twoFAValidated = true;
       yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
     } else yield put(signingServerRegistrationVerified(false));
@@ -596,4 +634,92 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { toke
 export const validateSigningServerRegistrationWatcher = createWatcher(
   validateSigningServerRegistrationWorker,
   VALIDATE_SIGNING_SERVER_REGISTRATION
+);
+
+export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+  const {
+    signer,
+    updates,
+  }: {
+    signer: VaultSigner;
+    updates: {
+      restrictions?: SignerRestriction;
+      exceptions?: SignerException;
+    };
+  } = payload;
+
+  const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
+
+  if (!updated) {
+    Alert.alert('Failed to update signer policy, try again.');
+    throw new Error('Failed to update the policy');
+  }
+
+  // TODO: generalise it for multiple vaults as the feature gets introduced
+  const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
+  const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
+  for (let i = 0; i < signers.length; i++) {
+    let current = signers[i];
+    if (current.signerId === signer.signerId) {
+      current.signerPolicy = {
+        ...current.signerPolicy,
+        restrictions: updates.restrictions,
+        exceptions: updates.exceptions,
+      };
+      break;
+    }
+  }
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, defaultVault.id, {
+    signers,
+  });
+}
+
+export const updateSignerPolicyWatcher = createWatcher(
+  updateSignerPolicyWorker,
+  UPDATE_SIGNER_POLICY
+);
+
+function* testcoinsWorker({ payload }) {
+  const { wallet } = payload;
+  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+
+  const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
+
+  if (!txid) {
+    yield put(setTestCoinsFailed(true));
+  } else {
+    yield put(setTestCoinsReceived(true));
+    yield put(refreshWallets([wallet], { hardRefresh: true }));
+  }
+}
+
+export const testcoinsWatcher = createWatcher(testcoinsWorker, TEST_SATS_RECIEVE);
+
+function* updateWalletDetailsWorker({ payload }) {
+  const {
+    wallet,
+    details,
+  }: {
+    wallet: Wallet;
+    details: {
+      name: string;
+      description: string;
+    };
+  } = payload;
+  const presentationData: WalletPresentationData = {
+    name: details.name,
+    description: details.description,
+    visibility: wallet.presentationData.visibility,
+  };
+  yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+    presentationData,
+  });
+}
+
+export const updateWalletDetailWatcher = createWatcher(
+  updateWalletDetailsWorker,
+  UPDATE_WALLET_DETAILS
 );

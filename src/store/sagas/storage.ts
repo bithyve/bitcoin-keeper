@@ -58,7 +58,8 @@ function* setupKeeperAppWorker({ payload }) {
       },
       subscription: {
         productId: SubscriptionTier.PLEB,
-        name: SubscriptionTier.PLEB.toUpperCase(),
+        name: SubscriptionTier.PLEB,
+        level: 0
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
@@ -70,8 +71,9 @@ function* setupKeeperAppWorker({ payload }) {
     const defaultWallet: newWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
-        name: 'Mobile Wallet',
+        name: 'Wallet 1',
         description: 'Single-sig bitcoin wallet',
+        transferPolicy: 5000,
       },
     };
     yield put(addNewWallets([defaultWallet]));
@@ -121,6 +123,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       subscription: {
         productId: subscription.productId,
         name: subscription.name,
+        level: 0
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
@@ -134,6 +137,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       walletDetails: {
         name: 'Mobile Wallet',
         description: 'Single-sig bitcoin wallet',
+        transferPolicy: 5000,
       },
     };
     yield put(addNewWallets([defaultWallet]));

@@ -9,6 +9,9 @@ import {
   refreshWalletsWatcher,
   registerWithSigningServerWatcher,
   syncWalletsWatcher,
+  testcoinsWatcher,
+  updateSignerPolicyWatcher,
+  updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   validateSigningServerRegistrationWatcher,
 } from './wallets';
@@ -55,6 +58,7 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
+import { updateSignerPolicy } from '../sagaActions/wallets';
 
 export const rootSaga = function* () {
   const sagas = [
@@ -79,6 +83,9 @@ export const rootSaga = function* () {
     updateWalletSettingsWatcher,
     registerWithSigningServerWatcher,
     validateSigningServerRegistrationWatcher,
+    updateSignerPolicyWatcher,
+    testcoinsWatcher,
+    updateWalletDetailWatcher,
 
     // vaults
     addNewVaultWatcher,

@@ -115,3 +115,7 @@ export const getIndex = (levelData, type, selectedKeeper, keeperInfo) => {
   }
   return index
 }
+
+export function numberWithCommas(x: string) {
+  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

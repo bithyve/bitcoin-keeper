@@ -1,23 +1,29 @@
-import React from 'react';
-import { TouchableHighlight, StyleSheet } from 'react-native';
-import { Text } from 'native-base';
+import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native';
+
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
+import React from 'react';
+import { Text } from 'native-base';
+
 export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
   testID?: string;
+  loading?: boolean;
 }
-const CustomButton = (props: Props) => {
+const CustomButton = ({ value, onPress, disabled, testID, loading = false }: Props) => {
+  if (loading) {
+    return <ActivityIndicator />;
+  }
   return (
     <TouchableHighlight
       style={styles.button}
-      disabled={props.disabled}
+      disabled={disabled}
       underlayColor={'none'}
-      testID={props.testID ? props.testID : 'customButton'}
+      testID={testID ? testID : 'customButton'}
       onPress={() => {
-        props.onPress();
+        onPress();
       }}
     >
       <LinearGradient
@@ -39,7 +45,7 @@ const CustomButton = (props: Props) => {
         style={styles.linearGradient}
       >
         <Text color={'#073E39'} fontSize={RFValue(12)} fontWeight={'300'} fontFamily={'body'}>
-          {props.value}
+          {value}
         </Text>
       </LinearGradient>
     </TouchableHighlight>

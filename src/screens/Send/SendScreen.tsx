@@ -1,13 +1,14 @@
-// libraries
-import { Box, Text, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
+  Alert,
   FlatList,
   InteractionManager,
   ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+// libraries
+import { Box, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -23,6 +24,7 @@ import { RNCamera } from 'react-native-camera';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -30,11 +32,12 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { widthPercentageToDP } from 'react-native-responsive-screen';
+import Fonts from 'src/common/Fonts';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 const SendScreen = ({ route }) => {
-  const cameraRef = useRef<RNCamera>();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const wallet: Wallet = route.params.wallet;
@@ -44,7 +47,10 @@ const SendScreen = ({ route }) => {
   const [paymentInfo, setPaymentInfo] = useState('');
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const otherWallets: Wallet[] = allWallets.filter(
+    (existingWallet) => existingWallet.id !== wallet.id
+  );
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -52,7 +58,13 @@ const SendScreen = ({ route }) => {
     });
   }, []);
 
+  const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+
   const navigateToNext = (address: string, amount?: string) => {
+    if (!avgFees) {
+      Alert.alert("Average transaction fees couldn't be fetched!");
+      return;
+    }
     navigation.navigate('AddSendAmount', {
       wallet,
       address,
@@ -62,15 +74,14 @@ const SendScreen = ({ route }) => {
 
   const handleTextChange = (info: string) => {
     info = info.trim();
-    setPaymentInfo(info);
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
-
+    setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         navigateToNext(address);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        navigateToNext(address, amount.toString());
+        navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
         return;
@@ -79,9 +90,7 @@ const SendScreen = ({ route }) => {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigation.dispatch(
-        CommonActions.navigate('AddSendAmount', { wallet, address: getNextFreeAddress(item) })
-      );
+      navigateToNext(getNextFreeAddress(item));
     };
     return (
       <Box
@@ -101,88 +110,86 @@ const SendScreen = ({ route }) => {
       </Box>
     );
   };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      enabled
-      keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-      style={styles.Container}
-    >
-      <StatusBarComponent padding={50} />
-      <Box marginX={3}>
-        <Header
+    <ScreenWrapper>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled
+        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+      >
+        <HeaderTitle
           title={common.send}
-          subtitle={common.smalldesc}
-          onPressHandler={() => navigation.goBack()}
+          subtitle={'Scan a bitcoin address'}
           headerTitleColor={'light.textBlack'}
+          paddingTop={hp(5)}
         />
-      </Box>
-      {/* {QR Scanner} */}
-
-      <ScrollView>
-        <Box style={styles.qrcontainer}>
-          <RNCamera ref={cameraRef} style={styles.cameraView} captureAudio={false} />
-        </Box>
-        {/* send manually option */}
-        <Box
-          flexDirection={'row'}
-          marginY={hp(2)}
-          width={'100%'}
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
-          <TextInput
-            placeholder="or enter address manually"
-            style={styles.textInput}
-            value={paymentInfo}
-            onChangeText={handleTextChange}
-          />
-        </Box>
-
-        {/* Send to Wallet options */}
-        <Box marginTop={hp(40)}>
-          <Text
-            marginX={5}
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontFamily={'body'}
-            fontSize={14}
-            letterSpacing={0.6}
+        <ScrollView>
+          <Box style={styles.qrcontainer}>
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={(data) => {
+                handleTextChange(data.data);
+              }}
+            />
+          </Box>
+          {/* send manually option */}
+          <Box
+            flexDirection={'row'}
+            marginY={hp(2)}
+            width={'100%'}
+            justifyContent={'center'}
+            alignItems={'center'}
           >
-            Send to Wallet
-          </Text>
-          <View>
-            <View
-              flexDirection={'row'}
-              style={styles.walletContainer}
-              backgroundColor={'light.textInputBackground'}
-            >
-              <FlatList
-                data={wallets}
-                renderItem={renderWallets}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-              />
-            </View>
-          </View>
-        </Box>
+            <TextInput
+              placeholder="or enter address manually"
+              placeholderTextColor={'#4F5955'}
+              style={styles.textInput}
+              value={paymentInfo}
+              onChangeText={handleTextChange}
+            />
+          </Box>
 
-        {/* {Bottom note} */}
-        <Box marginTop={hp(40)} marginX={2}>
-          <InfoBox title={common.note} desciption={home.reflectSats} width={300} />
-        </Box>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          {/* Send to Wallet options */}
+          <Box marginTop={hp(40)}>
+            <Text
+              marginX={5}
+              fontWeight={200}
+              fontFamily={'body'}
+              fontSize={14}
+              letterSpacing={1.12}
+            >
+              or send to a wallet
+            </Text>
+            <View>
+              <View
+                flexDirection={'row'}
+                style={styles.walletContainer}
+                backgroundColor={'light.textInputBackground'}
+              >
+                <FlatList
+                  data={otherWallets}
+                  renderItem={renderWallets}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+            </View>
+          </Box>
+
+          {/* {Bottom note} */}
+          <Box marginTop={hp(40)} marginX={2}>
+            <InfoBox title={common.note} desciption={'Make sure the address or QR is the one where you want to send the funds to'} width={300} />
+          </Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ScreenWrapper>
   );
 };
 
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
-  },
   linearGradient: {
     borderRadius: 6,
     marginTop: hp(3),
@@ -213,6 +220,9 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 15,
+    fontFamily: Fonts.RobotoCondensedRegular,
+    opacity: 0.5
+
   },
   cameraView: {
     height: hp(250),

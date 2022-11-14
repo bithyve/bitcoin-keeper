@@ -25,7 +25,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 const { width, height } = Dimensions.get('window');
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const OnBoardingSlides = ({ navigation }) => {
   const { translations } = useContext(LocalizationContext);
@@ -35,40 +35,58 @@ const OnBoardingSlides = ({ navigation }) => {
   const [items, setItems] = useState([
     {
       id: '1',
-      title: onboarding.slide01Title,
+      title:
+        <>
+          {onboarding.Comprehensive + " "}
+          <Text
+            fontStyle={'italic'}
+            fontWeight={900}
+          >
+            {onboarding.security}
+          </Text>
+          {' ' + onboarding.slide01Title}
+        </>,
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration_1 />,
     },
     {
       id: '2',
-      title: onboarding.slide02Title,
+      title: <>
+        {onboarding.slide02Title + " "}
+        <Text
+          fontStyle={'italic'}
+          fontWeight={900}
+        >
+          {onboarding.privacy}
+        </Text>
+      </>,
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
-    {
-      id: '3',
-      title: onboarding.slide03Title,
-      paragraph: onboarding.slide03Paragraph,
-      illustration: <Illustration_3 />,
-    },
-    {
-      id: '4',
-      title: onboarding.slide04Title,
-      paragraph: onboarding.slide04Paragraph,
-      illustration: <Illustration_4 />,
-    },
-    {
-      id: '5',
-      title: onboarding.slide05Title,
-      paragraph: onboarding.slide05Paragraph,
-      illustration: <Illustration_6 />,
-    },
-    {
-      id: '6',
-      title: onboarding.slide06Title,
-      paragraph: onboarding.slide06Paragraph,
-      illustration: <Illustration_5 />,
-    },
+    // {
+    //   id: '3',
+    //   title: onboarding.slide03Title,
+    //   paragraph: onboarding.slide03Paragraph,
+    //   illustration: <Illustration_3 />,
+    // },
+    // {
+    //   id: '4',
+    //   title: onboarding.slide04Title,
+    //   paragraph: onboarding.slide04Paragraph,
+    //   illustration: <Illustration_4 />,
+    // },
+    // {
+    //   id: '5',
+    //   title: onboarding.slide05Title,
+    //   paragraph: onboarding.slide05Paragraph,
+    //   illustration: <Illustration_6 />,
+    // },
+    // {
+    //   id: '6',
+    //   title: onboarding.slide06Title,
+    //   paragraph: onboarding.slide06Paragraph,
+    //   illustration: <Illustration_3 />,
+    // },
   ]);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -79,10 +97,10 @@ const OnBoardingSlides = ({ navigation }) => {
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode='contain' style={{ flex: 1 }} source={OnboardingBackImage}>
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1, position: 'relative' }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
           <Box justifyContent={'center'} mr={4} mt={10}>
-            {currentPosition != 5 && (
+            {currentPosition != 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
@@ -101,7 +119,7 @@ const OnBoardingSlides = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </Box>
-          <Box flex={0.8}>
+          <Box flex={0.9}>
             <FlatList
               data={items}
               horizontal
@@ -122,7 +140,20 @@ const OnBoardingSlides = ({ navigation }) => {
               )}
             />
           </Box>
-          <Box flex={0.2} flexDirection={'row'} m={5} alignItems={'center'}>
+          <Box
+            position={'absolute'}
+            flex={0.2}
+            flexDirection={'row'}
+            m={5}
+            alignItems={'center'}
+            style={{
+              bottom: hp(20),
+              justifyContent: 'space-between',
+              width: wp(350),
+              paddingHorizontal: wp(20)
+
+            }}
+          >
             <Box w={'70%'}>
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
@@ -130,24 +161,49 @@ const OnBoardingSlides = ({ navigation }) => {
                   borderWidth={0.7}
                   borderRadius={30}
                   w={120}
-                  h={30}
                   alignItems={'center'}
                   justifyContent={'center'}
+                  style={{
+                    height: hp(40)
+                  }}
                 >
                   <Text color={'light.borderColor2'} fontSize={RFValue(14)} fontWeight={300}>
-                    {common.learnMore}
+                    {common.seeFAQs}
                   </Text>
                 </Box>
               </TouchableOpacity>
             </Box>
-            {items.map((item, index) => {
-              return (
-                <Box
-                  key={index}
-                  style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
-                />
-              );
-            })}
+            <Box flexDirection={'row'}>
+              {currentPosition < items.length - 1 ? items.map((item, index) => {
+                console.log(index)
+                return (
+                  <Box
+                    key={index}
+                    style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                  />
+                );
+              }) :
+                <Box alignSelf={'center'} bg={'transparent'}>
+                  <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
+                    <LinearGradient
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      colors={['#FFFFFF', '#80A8A1']}
+                      style={styles.cta}
+                    >
+                      <Text
+                        fontSize={13}
+                        fontFamily={'body'}
+                        fontWeight={'300'}
+                        letterSpacing={1}
+                        color={'light.greenText'}
+                      >
+                        Start App
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Box>}
+            </Box>
           </Box>
         </SafeAreaView>
       </ImageBackground>
@@ -171,5 +227,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#89AEA7',
     marginEnd: 5,
+  },
+  cta: {
+    borderRadius: 10,
+    width: wp(110),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

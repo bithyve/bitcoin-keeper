@@ -1099,7 +1099,7 @@ export default class WalletUtilities {
     let res;
     try {
       if (network === bitcoinJS.networks.testnet) {
-        res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX, txHex, {
+        res = await RestClient.post('https://blockstream.info/testnet/api/tx', txHex, {
           headers: {
             'Content-Type': 'text/plain',
           },

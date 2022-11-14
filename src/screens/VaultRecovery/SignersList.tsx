@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import ScreenWrapper from 'src/components/ScreenWrapper';
-import Header from 'src/components/Header';
 import { Box, ScrollView, Text, View } from 'native-base';
-import AddSignerIcon from 'src/assets/icons/addSigner.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { SignerType } from 'src/core/wallets/enums';
-import { WalletMap } from '../Vault/WalletMap';
-import HardwareModalMap from '../Vault/HardwareModalMap';
-import KeeperModal from 'src/components/KeeperModal';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { useNavigation } from '@react-navigation/native';
+
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
+import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperModal from 'src/components/KeeperModal';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { SignerType } from 'src/core/wallets/enums';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { WalletMap } from '../Vault/WalletMap';
+import { useNavigation } from '@react-navigation/native';
 
 const TapsignerSetupContent = () => {
   return (
@@ -31,26 +30,24 @@ const TapsignerSetupContent = () => {
 
 const ColdCardSetupContent = () => {
   return (
-    <View>
+    <View justifyContent={'flex-start'} width={wp(300)}>
       <Box ml={wp(21)}>
         <ColdCardSetupImage />
       </Box>
-      <Box marginTop={'4'}>
+      <Box marginTop={'4'} alignItems={'flex-start'}>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mx={wp(10)}>
-            <Text>{'\u2022 Step 1'}</Text>
+          <Box mb={hp(19)} mx={wp(10)} flexDirection={'row'}>
+            <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} ml={3}>
+              {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
+            </Text>
           </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
-            Send Assigned PSBT Lorem ipsum dolor sit amet, consectetur adipiscing elit
-          </Text>
         </Box>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
-          <Box mb={hp(19)} mx={wp(10)}>
-            <Text>{'\u2022 Step 2'}</Text>
+          <Box mb={hp(19)} mx={wp(10)} flexDirection={'row'}>
+            <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} ml={3}>
+              {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
+            </Text>
           </Box>
-          <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} mr={60}>
-            Recieve Assigned PSBT Lorem ipsum dolor sit amet, consectetur
-          </Text>
         </Box>
       </Box>
     </View>
@@ -120,8 +117,8 @@ const SignersList = () => {
         <KeeperModal
           visible={visible && type === SignerType.TAPSIGNER}
           close={close}
-          title={'Verify Tapsigner'}
-          subTitle={'Keep you tapsigner ready'}
+          title={'Verify TAPSIGNER'}
+          subTitle={'Keep you TAPSIGNER ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Verify'}
@@ -136,8 +133,8 @@ const SignersList = () => {
         <KeeperModal
           visible={visible && type === SignerType.COLDCARD}
           close={close}
-          title={'Verify ColdCard'}
-          subTitle={'Keep you ColdCard ready'}
+          title={'Verify Coldcard'}
+          subTitle={'Keep you Coldcard ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Proceed'}
@@ -155,10 +152,11 @@ const SignersList = () => {
 
   return (
     <ScreenWrapper>
-      <Header
-        title={'Select Signing Devices'}
-        subtitle={'to recover your vault'}
+      <HeaderTitle
+        title={'Select Signing Device'}
+        subtitle={'To recover your vault'}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(5)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY={'4'}>

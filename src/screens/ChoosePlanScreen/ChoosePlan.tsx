@@ -14,7 +14,6 @@ import RNIap, {
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 
-import BackIcon from 'src/assets/icons/back.svg';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
 import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
@@ -28,25 +27,29 @@ import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { Subscription } from 'react-native-iap';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import TierUpgradeModal from './TierUpgradeModal';
 import dbManager from 'src/storage/realm/dbManager';
+import { useNavigation } from '@react-navigation/native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const plans = [
   {
     description: 'A good place to start',
     benifits: [
-      'Add multiple wallets',
-      'Encrypted iCloud/ Google Drive backup for wallets',
-      'Add one hardware signer',
-      'Air-gapped Vault (single-sig)',
+      'Add multiple BIP-85 wallets',
+      'Autotransfer to vault',
+      'Add one air gapped signing device',
       'Community support',
     ],
-    name: 'PLEB',
-    productId: 'pleb',
+    name: 'Pleb',
+    productId: 'Pleb',
     productType: 'free',
-    subTitle: 'Always free',
+    subTitle: 'Beginner',
     icon: <Pleb />,
     iconFocused: <PlebFocused />,
     price: '',
@@ -54,28 +57,32 @@ const plans = [
   {
     benifits: [
       'All features of Pleb tier',
-      'Import wallets',
-      'Add up to 3 hardware signers',
-      '2 of 3 multi-sig Vault',
+      'Link wallets',
+      'Add three signing devices',
+      '2 of 3 multisig vault',
       'Email support',
     ],
-    subTitle: 'Multi-sig security',
+    subTitle: 'Intermediate',
     icon: <Hodler />,
     iconFocused: <HodlerFocused />,
     price: '',
+    name: 'Hodler',
+    productId: 'hodler',
   },
   {
     benifits: [
-      'All features of Whale tier',
-      'Add up to 5 hardware wallets',
-      '3 of 5 multi-sig Vault',
-      'Inheritance and independent recovery',
+      'All features of the Hodler tier',
+      'Add five signing devices',
+      '3 of 5 multisig vault',
+      'Inheritance support',
       'Dedicated email support',
     ],
-    subTitle: 'Includes Inheritance',
+    subTitle: 'Advanced',
     icon: <DiamondHands />,
     iconFocused: <DiamondHandsFocused />,
     price: '',
+    name: 'Diamond Hands',
+    productId: 'diamondhands',
   },
 ];
 
@@ -85,6 +92,11 @@ const ChoosePlan = (props) => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isUpgrade, setIsUpgrade] = useState(false);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const navigation = useNavigation();
 
   useEffect(() => {
     let purchaseUpdateSubscription;
@@ -100,6 +112,7 @@ const ChoosePlan = (props) => {
             productId: purchase.productId,
             receipt: receipt,
             name: sub[0].title.split(' ')[0],
+            level: 1, // todo get level
           };
 
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
@@ -143,21 +156,21 @@ const ChoosePlan = (props) => {
 
   async function init() {
     try {
-      const subscriptions = await getSubscriptions([
-        'io.hexawallet.keeper.development.hodler',
-        'io.hexawallet.keeper.development.whale',
-      ]);
-      const data = [plans[0]];
-
-      subscriptions.forEach((subscription, index) => {
-        data.push({
-          ...subscription,
-          ...plans[index + 1],
-          price: getAmt(subscription),
-          name: subscription.title,
-        });
-      });
-      setItems([...data]);
+      /* const subscriptions = await getSubscriptions([
+         'io.hexawallet.keeper.development.hodler',
+         'io.hexawallet.keeper.development.whale',
+       ]);
+       const data = [plans[0]];
+ 
+       subscriptions.forEach((subscription, index) => {
+         data.push({
+           ...subscription,
+           ...plans[index + 1],
+           price: getAmt(subscription),
+           name: subscription.title.split(' (')[0],
+         });
+       });*/
+      setItems(plans);
       setLoading(false);
       // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
@@ -165,8 +178,30 @@ const ChoosePlan = (props) => {
     }
   }
 
-  async function processSubscription(subscription: Subscription) {
+  async function processSubscription(item: Subscription, level: number) {
     try {
+      const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+      const sub: SubScription = {
+        productId: item.productId,
+        receipt: 'mock-purchase',
+        name: item.name.split(' (')[0],
+        level,
+      };
+      dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+        subscription: sub,
+      });
+      if (item.productId === SubscriptionTier.PLEB) {
+        setIsUpgrade(false);
+      } else if (
+        item.name.split(' ')[0] === SubscriptionTier.HODLER &&
+        subscription.name === SubscriptionTier.DIAMOND_HANDS
+      ) {
+        setIsUpgrade(false);
+      } else {
+        setIsUpgrade(true);
+      }
+      setShowUpgradeModal(true);
+      return;
       if (__DEV__) {
         const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
         const sub: SubScription = {
@@ -201,52 +236,101 @@ const ChoosePlan = (props) => {
     }
   }
 
-  return (
-    <ScreenWrapper barStyle="dark-content">
-      <HeaderTitle title={choosePlan.choosePlantitle} subtitle={choosePlan.choosePlanSubTitle} />
+  const onPressModalBtn = () => {
+    setShowUpgradeModal(false);
+    navigation.navigate('AddSigningDevice');
+  };
 
-      {loading ? (
-        <ActivityIndicator style={{ height: '70%' }} size="large" />
-      ) : (
-        <ScrollView style={{ height: '70%', marginVertical: 20 }}>
-          <ChoosePlanCarousel
-            data={items}
-            onPress={async (item) => processSubscription(item)}
-            onChange={(item) => setCurrentPosition(item)}
-          />
-          <Box mx={10} my={5}>
-            <Text
-              fontSize={RFValue(14)}
-              color={'light.lightBlack'}
-              fontWeight={'bold'}
-              fontFamily={'body'}
-            >
-              {`Benefits of going ${items[currentPosition].name}`}
-            </Text>
-            {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
+  const getBenifitsTitle = (name) => {
+    if (name === 'Diamond Hands') {
+      return `${name} means`;
+    } else {
+      return `A ${name} gets`;
+    }
+  };
+
+  return (
+    <ScreenWrapper barStyle="dark-content" >
+      <Box position={'relative'} flex={1}>
+        <HeaderTitle
+          title={choosePlan.choosePlantitle}
+          subtitle={
+            subscription.name === 'Diamond Hands'
+              ? `You are currently a ${subscription.name.slice(0, -1)}`
+              : `You are currently a ${subscription.name}`
+          }
+          headerTitleColor={'light.lightBlack'}
+        />
+
+        <TierUpgradeModal
+          visible={showUpgradeModal}
+          close={() => setShowUpgradeModal(false)}
+          onPress={onPressModalBtn}
+          isUpgrade={isUpgrade}
+          plan={subscription.name}
+        />
+        {loading ? (
+          <ActivityIndicator style={{ height: '70%' }} size="large" />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{ height: '80%', marginVertical: 0, }}
+          >
+            <ChoosePlanCarousel
+              data={items}
+              onPress={(item, level) => processSubscription(item, level)}
+              onChange={(item) => setCurrentPosition(item)}
+            />
+
+            <Box
+              opacity={0.1}
+              backgroundColor={'light.Border'}
+              width={'100%'}
+              height={0.5}
+              my={5}
+            />
+
+            <Box ml={8}>
+              <Box >
+                <Text
+                  fontSize={RFValue(14)}
+                  color={'light.lightBlack'}
+                  fontWeight={200}
+                  letterSpacing={1.12}
+                >
+                  {getBenifitsTitle(items[currentPosition].name)}:
+                </Text>
+                {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
             {items[currentPosition].subTitle}
           </Text> */}
-          </Box>
-          <Box mx={12}>
-            {items[currentPosition].benifits.map((i) => (
-              <Box flexDirection={'row'} alignItems={'center'}>
-                <Text
-                  fontSize={RFValue(13)}
-                  color={'light.GreyText'}
-                  mb={2}
-                  ml={3}
-                  fontFamily={'body'}
-                >
-                  {`• ${i}`}
-                </Text>
               </Box>
-            ))}
-          </Box>
-        </ScrollView>
-      )}
-
-      <Box height={'10%'} justifyContent={'flex-end'} pt={2}>
-        <Note title={'Note'} subtitle={choosePlan.noteSubTitle} />
+              <Box mt={3}>
+                {items[currentPosition].benifits.map((i) => (
+                  <Box flexDirection={'row'} alignItems={'center'}>
+                    <Text
+                      fontSize={RFValue(13)}
+                      color={'light.GreyText'}
+                      mb={2}
+                      ml={3}
+                      fontFamily={'body'}
+                      fontWeight={200}
+                      letterSpacing={0.65}
+                    >
+                      {`• ${i}`}
+                    </Text>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </ScrollView>
+        )}
+        <Box position={'absolute'} bottom={-10} justifyContent={'flex-end'} width={wp(285)}>
+          <Note
+            title={'Note'}
+            subtitle={choosePlan.noteSubTitle}
+            subtitleColor={'GreyText'}
+          />
+        </Box>
       </Box>
     </ScreenWrapper>
   );

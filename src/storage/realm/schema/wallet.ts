@@ -137,6 +137,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     txIdCache: '{}',
     transactionMapping: `${RealmSchema.TransactionToAddressMapping}[]`,
     transactionNote: '{}',
+    transferPolicy: 'int',
   },
 };
 
