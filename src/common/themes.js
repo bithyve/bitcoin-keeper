@@ -2,7 +2,6 @@ import Colors from 'src/theme/Colors';
 import Fonts from './Fonts';
 import { extendTheme } from 'native-base';
 export const customTheme = extendTheme({
-
   fontConfig: {
     'RobotoCondensed-Regular': {
       100: {
@@ -98,12 +97,11 @@ export const customTheme = extendTheme({
         return {
           _light: {
             color: 'light.lightBlack',
-            fontFamily: 'RobotoCondensed-Regular'
+            fontFamily: 'RobotoCondensed-Regular',
           },
           _dark: { color: 'dark.black' },
-
         };
       },
-    }
-  }
+    },
+  },
 });
