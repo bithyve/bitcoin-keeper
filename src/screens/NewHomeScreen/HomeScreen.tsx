@@ -284,13 +284,13 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={getTorStatusColor}
             style={{
-              height: hp(16)
+              height: hp(16),
+              paddingHorizontal: 10,
+              marginTop: hp(30),
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: hp(14)
             }}
-            borderRadius={hp(14)}
-            justifyContent={'center'}
-            alignItems={'center'}
-            marginTop={hp(30)}
-            paddingX={2}
           >
             <Text
               color={'light.lightBlack'}
@@ -686,7 +686,11 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <Box flex={1} backgroundColor={'light.lightYellow'}>
+    <Box
+      flex={1}
+      backgroundColor={'light.lightYellow'}
+      position={'relative'}
+    >
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {
@@ -694,19 +698,26 @@ const HomeScreen = ({ navigation }) => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Pressable
-        onPress={() => {
-          navigation.navigate('SetupInheritance');
-        }}
+      <Box
+        position={'absolute'}
+        bottom={5}
+        justifyContent={'center'}
+        width={'100%'}
       >
-        <InheritanceComponent />
-      </Pressable>
-      <LinkedWallets
-        onAmountPress={() => {
-          // setShowHideAmounts(!showHideAmounts);
-        }}
-        showHideAmounts={showHideAmounts}
-      />
+        <Pressable
+          onPress={() => {
+            navigation.navigate('SetupInheritance');
+          }}
+        >
+          <InheritanceComponent />
+        </Pressable>
+        <LinkedWallets
+          onAmountPress={() => {
+            // setShowHideAmounts(!showHideAmounts);
+          }}
+          showHideAmounts={showHideAmounts}
+        />
+      </Box>
     </Box>
   );
 };
