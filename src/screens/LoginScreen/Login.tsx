@@ -266,7 +266,7 @@ const LoginScreen = ({ navigation, route }) => {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
+              <Text fontSize={RFValue(13)} ml={5} letterSpacing={0.65} color={'light.textColor'} fontFamily={'body'} fontWeight={200}>
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
@@ -309,7 +309,7 @@ const LoginScreen = ({ navigation, route }) => {
                 disabled={true}
                 trackColor={{ true: '#FFFA' }}
                 thumbColor={'#358475'}
-                onChange={() => {}}
+                onChange={() => { }}
               />
             </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
@@ -355,7 +355,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
@@ -394,7 +394,7 @@ const LoginScreen = ({ navigation, route }) => {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={'Share Feedback (Testnet only)'}
         subTitle={'Shake your device to send us a bug report or a feature request'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
