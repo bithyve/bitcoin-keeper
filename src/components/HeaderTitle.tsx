@@ -2,7 +2,6 @@ import { Box, Text } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
-import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -19,7 +18,7 @@ type Props = {
   paddingTop?: number;
   learnMore?: boolean;
   learnMorePressed?: () => void;
-  titleFontSize?: number
+  titleFontSize?: number;
 };
 const HeaderTitle = ({
   title = '',
@@ -30,9 +29,8 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
-  titleFontSize = 16
-
+  learnMorePressed = () => {},
+  titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
   return (

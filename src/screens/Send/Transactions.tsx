@@ -1,22 +1,17 @@
 // libraries
 import { Box, Text, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import {
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
+import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 //asserts
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/icons/modal_close.svg';
-import AddIcon from 'src/assets/images/svgs/icon_add_white.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const Transactions = ({ transactions, addTransaction = () => { } }) => {
-
+const Transactions = ({ transactions, addTransaction = () => {} }) => {
   const navigation = useNavigation();
 
   const GradientIcon = ({ height, Icon }) => {
@@ -37,11 +32,8 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
       </LinearGradient>
     );
   };
-  const renderTranscation = ({ item, index }: { item, index }) => {
-    const {
-      address,
-      amount
-    } = item
+  const renderTranscation = ({ item, index }: { item; index }) => {
+    const { address, amount } = item;
     return (
       <>
         <Box
@@ -76,14 +68,17 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
                 fontWeight={'200'}
                 fontStyle={'italic'}
                 fontSize={10}
-                numberOfLines={1}>
+                numberOfLines={1}
+              >
                 {amount}
               </Text>
             </Box>
           </Box>
-          <TouchableOpacity style={{
-            marginRight: wp(5)
-          }} >
+          <TouchableOpacity
+            style={{
+              marginRight: wp(5),
+            }}
+          >
             {/* { Do not have right assert in xd} */}
             <Close />
           </TouchableOpacity>
@@ -122,16 +117,16 @@ const Transactions = ({ transactions, addTransaction = () => { } }) => {
     );
   };
   return (
-    <View
-      flexDirection={'row'}
-    >
-      <FlatList
-        data={transactions}
-        renderItem={renderTranscation}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-      />
+    <View flexDirection={'row'}>
+      {transactions && (
+        <FlatList
+          data={transactions}
+          renderItem={renderTranscation}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };
@@ -149,7 +144,7 @@ const styles = ScaledSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: wp(10)
+    marginLeft: wp(10),
   },
 });
 export default Transactions;

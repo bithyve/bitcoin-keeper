@@ -2,8 +2,6 @@ import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
-
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 export interface Props {
   value: string;
   onPress?: Function;

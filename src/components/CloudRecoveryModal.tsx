@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Modal, Text } from 'native-base';
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  View,
-  FlatList,
-} from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

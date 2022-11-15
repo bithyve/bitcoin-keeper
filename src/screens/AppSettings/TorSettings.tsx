@@ -1,7 +1,7 @@
 import { Box, Text, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ScreenWrapper from 'src/components/ScreenWrapper';

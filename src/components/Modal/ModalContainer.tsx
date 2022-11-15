@@ -7,6 +7,7 @@ import {
   Keyboard,
   Platform,
   AppState,
+  StyleSheet,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
@@ -58,23 +59,17 @@ const ModalContainer = ({
         closeBottomSheet ? closeBottomSheet() : null;
       }}
       transparent={true}
-      style={{
-        flex: 1,
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      style={styles.wrapper}
     >
       <KeyboardAwareScrollView
         scrollEnabled={false}
-        contentContainerStyle={{
-          backgroundColor: background,
-          flex: 1,
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          paddingBottom: Platform.OS === 'ios' ? hp('6%') : 2,
-          paddingHorizontal: wp('2%'),
-        }}
+        contentContainerStyle={[
+          styles.contentContainerStyle,
+          {
+            backgroundColor: background,
+            paddingBottom: Platform.OS === 'ios' ? hp('6%') : 2,
+          },
+        ]}
         resetScrollToCoords={{
           x: 0,
           y: 0,
@@ -85,26 +80,38 @@ const ModalContainer = ({
           onPressOut={() => {
             closeBottomSheet();
           }}
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-          }}
+          style={styles.touchableWrapperStyle}
         >
           <TouchableWithoutFeedback>
-            <View
-              style={{
-                width: '100%',
-                borderRadius: wp('4%'),
-                overflow: 'hidden',
-              }}
-            >
-              {children}
-            </View>
+            <View style={styles.childViewWrapper}>{children}</View>
           </TouchableWithoutFeedback>
         </TouchableOpacity>
       </KeyboardAwareScrollView>
     </Modal>
   );
 };
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contentContainerStyle: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    paddingHorizontal: wp('2%'),
+  },
+  touchableWrapperStyle: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  childViewWrapper: {
+    width: '100%',
+    borderRadius: wp('4%'),
+    overflow: 'hidden',
+  },
+});
 
 export default ModalContainer;

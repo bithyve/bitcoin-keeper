@@ -97,19 +97,16 @@ const SigningServerSettings = ({ route }) => {
           position: 'relative',
           marginLeft: -wp(20),
           marginBottom: hp(30),
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
-        <Box
-          flexDirection={'row'}
-          alignItems={'center'}
-          style={{
-          }}
-        >
-          <Box style={{
-            marginHorizontal: wp(20),
-            opacity: 0.9
-          }}>
+        <Box flexDirection={'row'} alignItems={'center'} style={{}}>
+          <Box
+            style={{
+              marginHorizontal: wp(20),
+              opacity: 0.9,
+            }}
+          >
             <GradientIcon Icon={Server} height={hp(48)} />
           </Box>
           <Box>
@@ -141,7 +138,7 @@ const SigningServerSettings = ({ route }) => {
         </Box>
       </LinearGradient>
     );
-  }
+  };
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -155,17 +152,12 @@ const SigningServerSettings = ({ route }) => {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box
-        borderBottomColor={'light.divider'}
-        marginTop={hp(40)}
-        paddingX={wp(25)}
-      >
+      <Box borderBottomColor={'light.divider'} marginTop={hp(40)} paddingX={wp(25)}>
         <VaultCard
           signingServerName={'Signing Server'}
           signingServerDescription={'Lorem ipsum dolor sit amet, '}
           addedOn={'Added on 12 January 2022'}
         />
-
       </Box>
       <Box alignItems={'center'} paddingX={wp(25)}>
         <Option
@@ -179,15 +171,13 @@ const SigningServerSettings = ({ route }) => {
         <Option
           title={'Consectetur'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur'}
-          onPress={() => {
-          }}
+          onPress={() => {}}
           Icon={false}
         />
         <Option
           title={'Consectetur'}
           subTitle={'Lorem ipsum dolor sit amet, consectetur'}
-          onPress={() => {
-          }}
+          onPress={() => {}}
           Icon={false}
         />
       </Box>
@@ -202,7 +192,6 @@ const SigningServerSettings = ({ route }) => {
           width={250}
         />
       </Box>
-
     </Box>
   );
 };

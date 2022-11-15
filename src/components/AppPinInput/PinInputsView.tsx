@@ -61,11 +61,7 @@ const PinInputsView = ({
             ) : passCode.length >= 2 ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 0 && passcodeFlag == true ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
+              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
                 {'|'}
               </Text>
             ) : (
@@ -93,11 +89,7 @@ const PinInputsView = ({
             ) : passCode.length >= 2 ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 1 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
+              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
                 {'|'}
               </Text>
             ) : (
@@ -125,11 +117,7 @@ const PinInputsView = ({
             ) : passCode.length >= 3 ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 2 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
+              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
                 {'|'}
               </Text>
             ) : (
@@ -157,11 +145,7 @@ const PinInputsView = ({
             ) : passCode.length >= 4 && hide ? (
               <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
             ) : passCode.length == 3 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
+              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
                 {'|'}
               </Text>
             ) : (
@@ -183,6 +167,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: hp(48),
     width: hp(48),
+  },
+  cursorText: {
+    fontWeight: '600',
+    fontSize: RFValue(13),
   },
 });
 export default PinInputsView;
