@@ -284,8 +284,8 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={getTorStatusColor}
             style={{
-              height: hp(16),
               paddingHorizontal: 10,
+              paddingVertical: 1,
               marginTop: hp(30),
               alignItems: 'center',
               justifyContent: 'center',
@@ -385,8 +385,8 @@ const VaultStatus = (props) => {
             alignItems={'center'}
             borderRadius={hp(10)}
             style={{
-              height: hp(22),
-              width: wp(90),
+              paddingVertical: 1,
+              paddingHorizontal: 5,
             }}
             onPress={() => props.onAmountPress()}
           >

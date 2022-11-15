@@ -50,21 +50,23 @@ const HeaderTitle = ({
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
                 borderColor={'light.brownborder'}
-                borderWidth={0.5}
-                borderRadius={5}
                 backgroundColor={'light.yellow2'}
-                justifyContent={'center'}
-                alignItems={'center'}
                 style={{
-                  height: hp(20),
-                  width: wp(70)
+                  borderWidth: 0.5,
+                  borderRadius: 5,
+                  paddingHorizontal: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center'
                 }}
               >
                 <Text
                   color={'light.brownborder'}
                   fontWeight={200}
-                  letterSpacing={0.6}
-                  fontSize={12}
+                  style={{
+                    fontSize: 12,
+                    letterSpacing: 0.6,
+                    alignSelf: 'center'
+                  }}
                 >
                   Learn More
                 </Text>
