@@ -55,11 +55,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 1.12,
     fontWeight: '400',
+    fontFamily: fonts.body
   },
   subTitle: {
     fontSize: 12,
     letterSpacing: 0.6,
     fontWeight: '400',
+    fontFamily: fonts.body
   }
 })
 
