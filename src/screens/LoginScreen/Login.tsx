@@ -168,23 +168,6 @@ const LoginScreen = ({ navigation, route }) => {
     }
   }, [authenticationFailed]);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     setLoginModal(false);
-  //     if (relogin) {
-  //       navigation.goBack();
-  //     } else {
-  //       if (appId !== '') {
-  //         updateFCM();
-  //         navigation.replace('App');
-  //       } else {
-  //         navigation.replace('NewKeeperApp');
-  //       }
-  //     }
-  //     dispatch(credsAuthenticated(false));
-  //   }
-  // }, [isAuthenticated]);
-
   const loginModalAction = () => {
     if (isAuthenticated) {
       setLoginModal(false);
@@ -266,7 +249,7 @@ const LoginScreen = ({ navigation, route }) => {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
+              <Text fontSize={RFValue(13)} ml={5} letterSpacing={0.65} color={'light.textColor'} fontFamily={'body'} fontWeight={200}>
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}

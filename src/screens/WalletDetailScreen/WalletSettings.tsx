@@ -22,6 +22,7 @@ import { getAmount } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { AppContext } from 'src/common/content/AppContext';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
@@ -81,6 +82,7 @@ const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { setAppLoading, setLoadingContent } = useContext(AppContext);
 
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -150,6 +152,24 @@ const WalletSettings = ({ route }) => {
   };
 
   useEffect(() => {
+    setLoadingContent({
+      title: 'Please Wait',
+      subtitle: 'Recieving test sats',
+      message: '',
+    });
+
+    return () => {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      });
+      setAppLoading(false);
+    }
+  }, [])
+
+  useEffect(() => {
+    setAppLoading(false);
     if (testCoinsReceived) {
       Alert.alert('5000 Sats Received');
       setTimeout(() => {
@@ -192,14 +212,6 @@ const WalletSettings = ({ route }) => {
             wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
           )}
         />
-        {/* <Option
-          title={'Wallet Backup'}
-          subTitle={'Setup backup for Wallet'}
-          onPress={() => {
-            navigtaion.navigate('BackupWallet');
-          }}
-          Icon={true}
-        /> */}
       </Box>
       <Box
         alignItems={'center'}
@@ -246,6 +258,7 @@ const WalletSettings = ({ route }) => {
             title={'Receive Test Sats'}
             subTitle={'Recieve Test Sats to this address'}
             onPress={() => {
+              setAppLoading(true);
               getTestSats();
             }}
             Icon={false}

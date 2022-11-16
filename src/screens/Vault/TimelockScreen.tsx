@@ -15,7 +15,7 @@ import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import Note from 'src/components/Note/Note';
 
-const TimelockScreen = ({}) => {
+const TimelockScreen = () => {
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
 

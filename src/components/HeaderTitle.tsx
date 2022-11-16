@@ -1,5 +1,4 @@
 import { Box, Text } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -37,34 +36,38 @@ const HeaderTitle = ({
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.back}>
-          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          <TouchableOpacity
+            onPress={onPressHandler ? onPressHandler : navigation.goBack}
             style={{
               height: 20,
               width: 20,
               justifyContent: 'center',
-              alignItems: 'center'
-            }}>
+              alignItems: 'center',
+            }}
+          >
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
                 borderColor={'light.brownborder'}
-                borderWidth={0.5}
-                borderRadius={5}
                 backgroundColor={'light.yellow2'}
-                justifyContent={'center'}
-                alignItems={'center'}
                 style={{
-                  height: hp(20),
-                  width: wp(70)
+                  borderWidth: 0.5,
+                  borderRadius: 5,
+                  paddingHorizontal: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
                 <Text
                   color={'light.brownborder'}
                   fontWeight={200}
-                  letterSpacing={0.6}
-                  fontSize={12}
+                  style={{
+                    fontSize: 12,
+                    letterSpacing: 0.6,
+                    alignSelf: 'center',
+                  }}
                 >
                   Learn More
                 </Text>
@@ -98,9 +101,6 @@ const HeaderTitle = ({
             </Text>
           )}
         </Box>
-        {/* {HeaderRight && <Box paddingTop={paddingTop}>
-          <HeaderRight />
-        </Box>} */}
       </Box>
     </Box>
   );

@@ -80,7 +80,7 @@ const KeeperLoader = (props) => {
                 fontWeight={'200'}
                 color={subTitleColor}
               >
-                {loadingContent.subTitle}
+                {loadingContent.subtitle}
               </Text>
             </Modal.Header>
             <Modal.Body>
