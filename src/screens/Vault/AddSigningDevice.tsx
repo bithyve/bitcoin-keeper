@@ -88,12 +88,16 @@ const AddSigningDevice = () => {
   }, []);
 
   useEffect(() => {
-    const fills =
-      planStatus === VaultMigrationType.DOWNGRADE
-        ? vaultSigners.length < currentSignerLimit
-          ? new Array(currentSignerLimit - vaultSigners.length).fill(null)
-          : []
-        : new Array(currentSignerLimit - vaultSigners.length).fill(null);
+    let fills;
+    if (planStatus === VaultMigrationType.DOWNGRADE) {
+      if (vaultSigners.length < currentSignerLimit) {
+        fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
+      } else {
+        fills = [];
+      }
+    } else {
+      fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
+    }
     setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
 
@@ -198,7 +202,6 @@ const AddSigningDevice = () => {
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
-      return;
     } else {
       initiateSweep();
     }
@@ -329,16 +332,18 @@ const AddSigningDevice = () => {
       AstrixSigners.push(signer.type);
   });
 
+  let preTitle: string;
+  if (planStatus === VaultMigrationType.DOWNGRADE) {
+    preTitle = 'Remove';
+  } else if (planStatus === VaultMigrationType.UPGRADE) {
+    preTitle = 'Add';
+  } else {
+    preTitle = 'Change';
+  }
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={`${
-          planStatus === VaultMigrationType.DOWNGRADE
-            ? 'Remove'
-            : planStatus === VaultMigrationType.UPGRADE
-            ? 'Add'
-            : 'Change'
-        } Signing Devices`}
+        title={`${preTitle} Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}

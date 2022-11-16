@@ -77,7 +77,7 @@ const HeaderTitle = ({
       )}
       <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
         <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
-          {title && (
+          {!!title && (
             <Text
               numberOfLines={1}
               style={styles.addWalletText}
@@ -89,7 +89,7 @@ const HeaderTitle = ({
               {title}
             </Text>
           )}
-          {subtitle && (
+          {!!subtitle && (
             <Text
               style={styles.addWalletDescription}
               color={'light.lightBlack'}

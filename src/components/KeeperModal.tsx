@@ -48,9 +48,9 @@ const KeeperModal = (props: {
     dismissible = true,
     showButtons = true,
     learnMore = false,
-    learnMoreCallback = () => { },
+    learnMoreCallback = () => {},
     closeOnOverlayClick = true,
-    showCloseIcon = true
+    showCloseIcon = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -75,8 +75,8 @@ const KeeperModal = (props: {
               linearGradient: {
                 colors: modalBackground,
                 start: [0, 0],
-                end: [1, 1]
-              }
+                end: [1, 1],
+              },
             }}
             style={styles.container}
           >
@@ -140,7 +140,7 @@ const KeeperModal = (props: {
                 ) : (
                   <Box></Box>
                 )}
-                {buttonText && (
+                {!!buttonText && (
                   <Box alignSelf={'flex-end'} bg={'transparent'}>
                     <TouchableOpacity onPress={buttonCallback}>
                       <Box
@@ -148,8 +148,8 @@ const KeeperModal = (props: {
                           linearGradient: {
                             colors: buttonBackground,
                             start: [0, 0],
-                            end: [1, 1]
-                          }
+                            end: [1, 1],
+                          },
                         }}
                         style={styles.cta}
                       >

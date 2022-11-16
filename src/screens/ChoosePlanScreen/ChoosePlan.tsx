@@ -1,6 +1,7 @@
 import { ActivityIndicator, Platform, ScrollView } from 'react-native';
 import { Box, Text } from 'native-base';
 import RNIap, {
+  Subscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -24,7 +25,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
-import { Subscription } from 'react-native-iap';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import TierUpgradeModal from './TierUpgradeModal';
 import dbManager from 'src/storage/realm/dbManager';
@@ -196,35 +196,6 @@ const ChoosePlan = (props) => {
       }
       setShowUpgradeModal(true);
       return;
-      if (__DEV__) {
-        const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-        const sub: SubScription = {
-          productId: subscription.productId,
-          receipt: 'free',
-          name: subscription.name.split(' ')[0],
-        };
-        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-          subscription: sub,
-        });
-      } else {
-        if (Platform.OS === 'android') {
-          await requestSubscription({
-            sku: subscription.productId,
-            ...(subscription.subscriptionOfferDetails[0].offerToken && {
-              subscriptionOffers: [
-                {
-                  sku: subscription.productId,
-                  offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-                },
-              ],
-            }),
-          });
-        } else {
-          await requestSubscription({
-            sku: subscription.productId,
-          });
-        }
-      }
     } catch (err) {
       console.log(err.code, err.message);
     }

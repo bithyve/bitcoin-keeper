@@ -7,7 +7,7 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
@@ -36,7 +36,6 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();

@@ -60,19 +60,16 @@ const getDeviceStatus = (
     case SignerType.COLDCARD:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.LEDGER:
       return {
         message: !isBLESupported ? 'BLE is not enabled in your device' : '',
-        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isBLESupported,
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.MOBILE_KEY:
-      return {
-        message: getDisabled(type, isOnPleb, vaultSigners).message,
-        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
-      };
     case SignerType.POLICY_SERVER:
+    case SignerType.SEED_WORDS:
       return {
         message: getDisabled(type, isOnPleb, vaultSigners).message,
         disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
@@ -80,13 +77,9 @@ const getDeviceStatus = (
     case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
-    case SignerType.SEED_WORDS:
-      return {
-        message: getDisabled(type, isOnPleb, vaultSigners).message,
-        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
-      };
+
     case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.KEYSTONE:
@@ -156,10 +149,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         setBLESupport(false);
       }
     }, true);
-  };
-
-  const openNFCError = () => {
-    setNfcAlert(true);
   };
 
   useEffect(() => {
