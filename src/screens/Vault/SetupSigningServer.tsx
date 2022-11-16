@@ -171,20 +171,6 @@ const SetupSigningServer = ({ route }: { route }) => {
               marginTop: hp(30),
             }}
           >
-            {/* <Text
-              color={'light.recieverAddress'}
-              fontFamily={'body'}
-              fontWeight={300}
-              fontSize={12}
-              letterSpacing={1.08}
-              noOfLines={1}
-              backgroundColor={'amber.400'}
-              style={{
-                marginVertical: hp(30),
-              }}
-            >
-              Scan the QR below to add Backup Key
-            </Text> */}
             <QRCode
               value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
               logoBackgroundColor="transparent"
@@ -201,7 +187,6 @@ const SetupSigningServer = ({ route }: { route }) => {
                 width={'100%'}
                 noOfLines={1}
               >
-                {/* {twoFAKey} */}
                 2FA Signing Server
               </Text>
             </Box>

@@ -1,5 +1,5 @@
 import { ActivityIndicator, Platform } from 'react-native';
-import { Box, Image, Pressable, ScrollView, Switch, Text } from 'native-base';
+import { Box, Image, Pressable, ScrollView, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -241,15 +241,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             >
               If you previously had a Keeper wallet you can recover it
             </Text>
-            {/* <Tile
-            title={'Recover for myself'}
-            subTitle={'Using Cloud'}
-            Icon={<Recover />}
-            onPress={() => {
-              dispatch(getCloudData());
-              setCloudModal(true);
-            }}
-          /> */}
+
             <Tile
               title={'Recover for myself'}
               subTitle={'Using Seed'}

@@ -212,14 +212,6 @@ const WalletSettings = ({ route }) => {
             wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
           )}
         />
-        {/* <Option
-          title={'Wallet Backup'}
-          subTitle={'Setup backup for Wallet'}
-          onPress={() => {
-            navigtaion.navigate('BackupWallet');
-          }}
-          Icon={true}
-        /> */}
       </Box>
       <Box
         alignItems={'center'}

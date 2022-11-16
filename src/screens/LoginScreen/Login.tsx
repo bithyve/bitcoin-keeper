@@ -168,23 +168,6 @@ const LoginScreen = ({ navigation, route }) => {
     }
   }, [authenticationFailed]);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     setLoginModal(false);
-  //     if (relogin) {
-  //       navigation.goBack();
-  //     } else {
-  //       if (appId !== '') {
-  //         updateFCM();
-  //         navigation.replace('App');
-  //       } else {
-  //         navigation.replace('NewKeeperApp');
-  //       }
-  //     }
-  //     dispatch(credsAuthenticated(false));
-  //   }
-  // }, [isAuthenticated]);
-
   const loginModalAction = () => {
     if (isAuthenticated) {
       setLoginModal(false);

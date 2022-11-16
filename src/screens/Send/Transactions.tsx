@@ -11,7 +11,7 @@ import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const Transactions = ({ transactions, addTransaction = () => {} }) => {
+const Transactions = ({ transactions, addTransaction = () => { } }) => {
   const navigation = useNavigation();
 
   const GradientIcon = ({ height, Icon }) => {
@@ -79,40 +79,9 @@ const Transactions = ({ transactions, addTransaction = () => {} }) => {
               marginRight: wp(5),
             }}
           >
-            {/* { Do not have right assert in xd} */}
             <Close />
           </TouchableOpacity>
         </Box>
-
-        {/* {index == transactions.length - 1 &&
-          <TouchableOpacity onPress={addTransaction} activeOpacity={0.5}>
-            <Box
-              alignItems={'center'}
-              style={{ marginRight: wp(10) }}
-              flexDirection={'row'}
-              backgroundColor={'light.yellow1'}
-              width={wp(215)}
-              height={hp(54)}
-              borderRadius={10}
-            >
-              <Box style={styles.buttonBackground}>
-                <GradientIcon Icon={AddIcon} height={hp(30)} />
-              </Box>
-              <Box marginLeft={wp(10)}>
-                <Text
-                  fontWeight={200}
-                  fontSize={14}
-                  mt={'1'}
-                  numberOfLines={1}
-                  letterSpacing={0.6}
-                  color={'light.addTransactionText'}
-                >
-                  Add Transaction
-                </Text>
-              </Box>
-            </Box>
-          </TouchableOpacity>
-        } */}
       </>
     );
   };
