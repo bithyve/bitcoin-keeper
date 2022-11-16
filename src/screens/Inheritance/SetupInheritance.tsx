@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Text } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
@@ -19,13 +19,13 @@ import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { showToast } = useToastMessage();
 
-  const [modalVisiblity, setModalVisiblity] = useState(true);
   const inheritanceData = [
     {
       title: 'Safeguarding Tips',

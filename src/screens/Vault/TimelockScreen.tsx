@@ -15,7 +15,7 @@ import Buttons from 'src/components/Buttons';
 import AppNumPad from 'src/components/AppNumPad';
 import Note from 'src/components/Note/Note';
 
-const TimelockScreen = ({}) => {
+const TimelockScreen = () => {
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
 
@@ -76,7 +76,7 @@ const TimelockScreen = ({}) => {
           ok={() => {
             console.log('ok');
           }}
-          clear={() => {}}
+          clear={() => { }}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}

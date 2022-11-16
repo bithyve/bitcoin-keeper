@@ -1,7 +1,6 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
-import Carousel from 'react-native-snap-carousel';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -15,7 +14,6 @@ const ChoosePlanCarousel = (props) => {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const [currentPosition, setCurrentPosition] = useState(subscription.level);
-  const carasualRef = useRef<Carousel<FlatList>>(null);
 
   console.log('subscription', subscription.level);
 

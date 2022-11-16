@@ -53,7 +53,7 @@ const VaultTransactions = ({ route }) => {
         <Box width={wp(200)}>
           <HeaderTitle onPressHandler={() => navigation.goBack()} />
         </Box>
-        {/* {card} */}
+
         <Box flexDirection={'row'} alignItems={'center'}>
           <VaultIcon />
           <Box>
@@ -65,7 +65,7 @@ const VaultTransactions = ({ route }) => {
             </Text>
           </Box>
         </Box>
-        {/* {flatlist} */}
+
         <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
             data={transactions}

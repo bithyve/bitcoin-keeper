@@ -53,7 +53,6 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    // open();
     navigation.navigate('SetupInheritance');
   };
 
@@ -228,7 +227,6 @@ const VaultStatus = (props) => {
   const close = () => setModalVisible(false);
 
   const navigateToHardwareSetup = () => {
-    // close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
@@ -626,33 +624,7 @@ const HomeScreen = ({ navigation }) => {
             </body>
           </html>
         `;
-  const askPermission = () => {
-    async function requestExternalWritePermission() {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Pdf creator needs External Storage Write Permission',
-            message: 'Pdf creator needs access to Storage data in your SD Card',
-            buttonPositive: '',
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          createPDF();
-        } else {
-          console.log('WRITE_EXTERNAL_STORAGE permission denied');
-        }
-      } catch (err) {
-        console.log('Write permission err', err);
-        console.warn(err);
-      }
-    }
-    if (Platform.OS === 'android') {
-      requestExternalWritePermission();
-    } else {
-      createPDF();
-    }
-  };
+
   const createPDF = async () => {
     let options = {
       //Content to print
@@ -666,16 +638,11 @@ const HomeScreen = ({ navigation }) => {
     };
 
     let file = await RNHTMLtoPDF.convert(options);
-    // console.log(file.filePath);
-    // Alert.alert('Successfully Exported', 'Path:' + file.filePath, [
-    //   { text: 'Cancel', style: 'cancel' },
-    //   { text: 'Open', onPress: () => openFile(file.filePath) }
-    // ], { cancelable: true });
     openFile(file.filePath);
   };
 
   const openFile = (filepath) => {
-    const path = filepath; // absolute-path-to-my-local-file.
+    const path = filepath;
     FileViewer.open(path)
       .then(() => {
         // success
@@ -713,7 +680,6 @@ const HomeScreen = ({ navigation }) => {
         </Pressable>
         <LinkedWallets
           onAmountPress={() => {
-            // setShowHideAmounts(!showHideAmounts);
           }}
           showHideAmounts={showHideAmounts}
         />

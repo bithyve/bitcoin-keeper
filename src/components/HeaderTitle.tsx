@@ -1,5 +1,4 @@
 import { Box, Text } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -29,7 +28,7 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
@@ -100,9 +99,6 @@ const HeaderTitle = ({
             </Text>
           )}
         </Box>
-        {/* {HeaderRight && <Box paddingTop={paddingTop}>
-          <HeaderRight />
-        </Box>} */}
       </Box>
     </Box>
   );
