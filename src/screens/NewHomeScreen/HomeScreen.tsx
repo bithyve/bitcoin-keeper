@@ -531,7 +531,7 @@ const HomeScreen = ({ navigation }) => {
       console.log(error);
     }
   }, []);
-
+  
   return (
     <Box
       flex={1}

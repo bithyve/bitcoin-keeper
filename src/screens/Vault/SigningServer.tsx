@@ -1,6 +1,7 @@
 import { Box, Text } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
+
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 // asserts
 import BackIcon from 'src/assets/icons/back.svg';
