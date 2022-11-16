@@ -58,6 +58,7 @@ const getDeviceStatus = (
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
+    case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
@@ -73,11 +74,6 @@ const getDeviceStatus = (
       return {
         message: getDisabled(type, isOnPleb, vaultSigners).message,
         disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
-      };
-    case SignerType.TAPSIGNER:
-      return {
-        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
 
     case SignerType.TREZOR:
