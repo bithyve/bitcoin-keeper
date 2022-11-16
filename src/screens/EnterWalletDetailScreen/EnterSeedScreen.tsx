@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
@@ -16,7 +15,6 @@ import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -307,22 +305,14 @@ const EnterSeedScreen = () => {
               justifyContent: 'space-between',
               width: wp(375),
               alignItems: 'center',
-              paddingHorizontal: wp(20)
+              paddingHorizontal: wp(20),
             }}
           >
-            <Box
-              bg={'transparent'}
-              flexDirection={'row'}
-              marginLeft={10}
-              marginTop={4}
-            >
+            <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
               <View style={styles.dot}></View>
               <View style={styles.dash}></View>
             </Box>
-            <Buttons
-              primaryCallback={onPressNext}
-              primaryText={'Next'}
-            />
+            <Buttons primaryCallback={onPressNext} primaryText={'Next'} />
           </View>
           <KeeperModal
             visible={invalidSeedsModal}
