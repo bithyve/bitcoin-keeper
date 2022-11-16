@@ -12,8 +12,8 @@ export type Props = {
 
 export default function useFormattedUnitText({
     bitcoinUnit = BitcoinUnit.SATS,
-    currencyKind = useAppSelector((state) => state.settings.currencyKind),
 }: Props): string {
+    const currencyKind = useAppSelector((state) => state.settings.currencyKind)
     const fiatCurrencyCode = useCurrencyCode()
     const prefersBitcoin: boolean = useMemo(() => {
         return currencyKind === CurrencyKind.BITCOIN
