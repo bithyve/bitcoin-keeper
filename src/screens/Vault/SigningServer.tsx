@@ -1,6 +1,7 @@
 import { Box, Text } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useContext } from 'react';
+import React from 'react';
+
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 // asserts
 import BackIcon from 'src/assets/icons/back.svg';
@@ -9,7 +10,6 @@ import DotView from 'src/components/DotView';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
 // libraries
 import { RFValue } from 'react-native-responsive-fontsize';
 import Server from 'src/assets/images/svgs/server.svg';
@@ -18,7 +18,6 @@ import Settings from 'src/assets/images/svgs/settings_brown.svg';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 
 const SigningServer = ({ navigation }) => {
-  const { translations } = useContext(LocalizationContext);
 
   const GradientIcon = ({ height, Icon }) => {
     return (

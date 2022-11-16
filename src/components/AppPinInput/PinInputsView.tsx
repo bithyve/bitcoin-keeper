@@ -31,6 +31,67 @@ const PinInputsView = ({
     }
   }, [passCode]);
 
+  const getBackgroundColor = () => {
+    return backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
+  }
+
+  const getTextColor = () => {
+    return textColor ? 'light.textBlack' : 'light.white';
+  }
+
+  const getDotColor = () => {
+    return textColor ? 'black' : 'white';
+  }
+
+  const getPin = (num) => {
+    if (num == 4) {
+      return (
+        <>
+          {passCode.length == num && !hide ? (
+            <Text
+              color={getTextColor()}
+              fontWeight={'300'}
+              fontSize={RFValue(20)}
+              fontFamily={'body'}
+            >
+              {passCode[num - 1]}
+            </Text>
+          ) : passCode.length >= num && hide ? (
+            <DotView height={3} width={3} color={getDotColor()} />
+          ) : passCode.length == num - 1 ? (
+            <Text color={getTextColor()} style={styles.cursorText}>
+              {'|'}
+            </Text>
+          ) : (
+            ''
+          )}
+        </>
+      )
+    }
+    return (
+      <>
+        {passCode.length == num ? (
+          <Text
+            color={getTextColor()}
+            fontWeight={'300'}
+            fontSize={RFValue(20)}
+            fontFamily={'body'}
+          >
+            {passCode[num - 1]}
+          </Text>
+        ) : passCode.length >= num ? (
+          <DotView height={3} width={3} color={getDotColor()} />
+        ) : passCode.length == num - 1 ? (
+          <Text color={getTextColor()} style={styles.cursorText}>
+            {'|'}
+          </Text>
+        ) : (
+          ''
+        )}
+      </>
+    )
+  }
+
   return (
     <Box alignSelf={'baseline'}>
       <Box
@@ -44,113 +105,45 @@ const PinInputsView = ({
         <View
           style={{
             ...styles.passcodeBox,
-            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            backgroundColor: getBackgroundColor(),
             borderColor: borderColor,
           }}
         >
           <Box>
-            {passCode.length == 1 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[0]}
-              </Text>
-            ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 0 && passcodeFlag == true ? (
-              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(1)}
           </Box>
         </View>
         <View
           style={{
             ...styles.passcodeBox,
-            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            backgroundColor: getBackgroundColor(),
             borderColor: borderColor,
           }}
         >
           <Box>
-            {passCode.length == 2 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[1]}
-              </Text>
-            ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 1 ? (
-              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(2)}
           </Box>
         </View>
         <View
           style={{
             ...styles.passcodeBox,
-            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            backgroundColor: getBackgroundColor(),
             borderColor: borderColor,
           }}
         >
           <Box>
-            {passCode.length == 3 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[2]}
-              </Text>
-            ) : passCode.length >= 3 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 2 ? (
-              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(3)}
           </Box>
         </View>
         <View
           style={{
             ...styles.passcodeBox,
-            backgroundColor: backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)',
+            backgroundColor: getBackgroundColor(),
             borderColor: borderColor,
           }}
         >
           <Box>
-            {passCode.length == 4 && !hide ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[3]}
-              </Text>
-            ) : passCode.length >= 4 && hide ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 3 ? (
-              <Text color={textColor ? 'light.textBlack' : 'light.white'} style={styles.cursorText}>
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(4)}
           </Box>
         </View>
       </Box>
