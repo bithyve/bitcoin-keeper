@@ -43,53 +43,31 @@ const PinInputsView = ({
     return textColor ? 'black' : 'white';
   }
 
-  const getPin = (num) => {
-    if (num == 4) {
+  const getPin = (num: number) => {
+    if (passCode.length == num && !hide) {
       return (
-        <>
-          {passCode.length == num && !hide ? (
-            <Text
-              color={getTextColor()}
-              fontWeight={'300'}
-              fontSize={RFValue(20)}
-              fontFamily={'body'}
-            >
-              {passCode[num - 1]}
-            </Text>
-          ) : passCode.length >= num && hide ? (
-            <DotView height={3} width={3} color={getDotColor()} />
-          ) : passCode.length == num - 1 ? (
-            <Text color={getTextColor()} style={styles.cursorText}>
-              {'|'}
-            </Text>
-          ) : (
-            ''
-          )}
-        </>
+        <Text
+          color={getTextColor()}
+          fontWeight={'300'}
+          fontSize={RFValue(20)}
+          fontFamily={'body'}
+        >
+          {passCode[num - 1]}
+        </Text>
       )
+    } else if (passCode.length >= num) {
+      return (
+        <DotView height={3} width={3} color={getDotColor()} />
+      )
+    } else if (passCode.length == num - 1) {
+      return (
+        <Text color={getTextColor()} style={styles.cursorText}>
+          {'|'}
+        </Text>
+      )
+    } else {
+      return '';
     }
-    return (
-      <>
-        {passCode.length == num ? (
-          <Text
-            color={getTextColor()}
-            fontWeight={'300'}
-            fontSize={RFValue(20)}
-            fontFamily={'body'}
-          >
-            {passCode[num - 1]}
-          </Text>
-        ) : passCode.length >= num ? (
-          <DotView height={3} width={3} color={getDotColor()} />
-        ) : passCode.length == num - 1 ? (
-          <Text color={getTextColor()} style={styles.cursorText}>
-            {'|'}
-          </Text>
-        ) : (
-          ''
-        )}
-      </>
-    )
   }
 
   return (
