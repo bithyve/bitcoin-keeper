@@ -168,7 +168,8 @@ export default function CreatePin(props) {
                 passcodeFlag={passcodeFlag}
                 borderColor={
                   passcode != confirmPasscode && confirmPasscode.length == 4
-                    ? 'light.error'
+                    ? // ? '#FF8F79'
+                      `light.error`
                     : 'transparent'
                 }
               />
@@ -187,8 +188,8 @@ export default function CreatePin(props) {
                       confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2 ? false : true
                     }
                     borderColor={
-                      passcode != confirmPasscode && confirmPasscode.length == 4
-                        ? 'light.error'
+                      passcode !== confirmPasscode && confirmPasscode.length == 4
+                        ? '#FF8F79'
                         : 'transparent'
                     }
                   />
@@ -198,7 +199,7 @@ export default function CreatePin(props) {
                       color={'light.error'}
                       fontSize={RFValue(10)}
                       fontWeight={200}
-                      width={wp('72%')}
+                      width={wp('68%')}
                       textAlign={'right'}
                       fontStyle={'italic'}
                       // mt={hp('1.5%')}

@@ -117,25 +117,6 @@ const ConfirmSeedWord = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.seedWordNote}</Text>
       </Box>
-      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}> */}
-      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
-          <Text fontSize={RFValue(14)} textAlign={'center'}>
-            {BackupWallet.startOver}
-          </Text>
-        </TouchableOpacity>
-        <Box>
-          <CustomGreenButton
-            onPress={() => {
-              if (seedWord === words[index]) {
-                props.confirmBtnPress();
-              } else {
-                setInvalid(true);
-              }
-            }}
-            value={common.confirm}
-          />
-        </Box> 
-        </Box>*/}
       <Buttons
         secondaryText={BackupWallet.startOver}
         secondaryCallback={() => {

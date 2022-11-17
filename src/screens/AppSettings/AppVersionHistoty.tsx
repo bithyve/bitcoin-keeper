@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
+import React from 'react';
+import { Box, Text, ScrollView, StatusBar } from 'native-base';
 import { SafeAreaView, TouchableOpacity } from 'react-native';
 
 import BackIcon from 'src/assets/icons/back.svg';

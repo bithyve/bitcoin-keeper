@@ -58,6 +58,12 @@ const KeeperModal = (props: {
   if (!visible) {
     return null;
   }
+
+  const getCloseIcon = () => {
+    return (
+      DarkCloseIcon ? <CloseGreen /> : <Close />
+    )
+  }
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -81,7 +87,7 @@ const KeeperModal = (props: {
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
-              {showCloseIcon ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
+              {showCloseIcon ? getCloseIcon() : null}
             </TouchableOpacity>
             <Modal.Header
               alignSelf={'flex-start'}

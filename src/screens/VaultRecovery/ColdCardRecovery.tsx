@@ -1,6 +1,6 @@
 import { Alert, SafeAreaView, StyleSheet } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { useNavigation } from '@react-navigation/native';
+import { EntityKind, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { Box } from 'native-base';

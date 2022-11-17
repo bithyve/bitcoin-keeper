@@ -17,8 +17,8 @@ import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
-import InfoBox from 'src/components/InfoBox';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
@@ -59,7 +59,7 @@ const SendScreen = ({ route }) => {
 
   const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
 
-  const navigateToNext = (address: string, amount?: string) => {
+  const navigateToNext = (address: string, amount?: string, from = 'Address') => {
     if (!avgFees) {
       Alert.alert("Average transaction fees couldn't be fetched!");
       return;
@@ -68,6 +68,9 @@ const SendScreen = ({ route }) => {
       wallet,
       address,
       amount,
+      availableAmt: wallet.specs.balances.confirmed,
+      walletName: wallet.presentationData.name,
+      from,
     });
   };
 
@@ -89,7 +92,7 @@ const SendScreen = ({ route }) => {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigateToNext(getNextFreeAddress(item));
+      navigateToNext(getNextFreeAddress(item), '0', 'Wallet');
     };
     return (
       <Box
@@ -180,12 +183,12 @@ const SendScreen = ({ route }) => {
 
           {/* {Bottom note} */}
           <Box marginTop={hp(40)} marginX={2}>
-            <InfoBox
+            <Note
               title={common.note}
-              desciption={
+              subtitle={
                 'Make sure the address or QR is the one where you want to send the funds to'
               }
-              width={300}
+              subtitleColor={'GreyText'}
             />
           </Box>
         </ScrollView>

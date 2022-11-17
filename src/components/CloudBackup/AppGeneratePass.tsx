@@ -3,7 +3,6 @@ import { Box, Text } from 'native-base';
 import { TouchableOpacity, Clipboard } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { hp } from 'src/common/data/responsiveness/responsive';
 
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';

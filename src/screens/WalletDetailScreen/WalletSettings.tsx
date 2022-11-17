@@ -10,7 +10,6 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -23,11 +22,13 @@ import { getAmount } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { AppContext } from 'src/common/content/AppContext';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Note from 'src/components/Note/Note';
 
 type Props = {
   title: string;
@@ -81,6 +82,7 @@ const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { setAppLoading, setLoadingContent } = useContext(AppContext);
 
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -150,6 +152,24 @@ const WalletSettings = ({ route }) => {
   };
 
   useEffect(() => {
+    setLoadingContent({
+      title: 'Please Wait',
+      subtitle: 'Recieving test sats',
+      message: '',
+    });
+
+    return () => {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      });
+      setAppLoading(false);
+    }
+  }, [])
+
+  useEffect(() => {
+    setAppLoading(false);
     if (testCoinsReceived) {
       Alert.alert('5000 Sats Received');
       setTimeout(() => {
@@ -192,14 +212,6 @@ const WalletSettings = ({ route }) => {
             wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
           )}
         />
-        {/* <Option
-          title={'Wallet Backup'}
-          subTitle={'Setup backup for Wallet'}
-          onPress={() => {
-            navigtaion.navigate('BackupWallet');
-          }}
-          Icon={true}
-        /> */}
       </Box>
       <Box
         alignItems={'center'}
@@ -246,6 +258,7 @@ const WalletSettings = ({ route }) => {
             title={'Receive Test Sats'}
             subTitle={'Recieve Test Sats to this address'}
             onPress={() => {
+              setAppLoading(true);
               getTestSats();
             }}
             Icon={false}
@@ -254,18 +267,17 @@ const WalletSettings = ({ route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
-        <InfoBox
+      <Box position={'absolute'} bottom={hp(45)} marginX={5} w={'90%'}>
+        <Note
           title={'Note'}
-          desciption={
+          subtitle={
             'These settings are for your Default Wallet only and does not affect other wallets'
           }
-          width={250}
+          subtitleColor={'GreyText'}
         />
       </Box>
       {/* Modals */}
       <Box>
-
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -287,9 +299,13 @@ const WalletSettings = ({ route }) => {
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={() => <ShowXPub copy={() => {
-            showToast('Address Copied Successfully', <TickIcon />);
-          }} />}
+          Content={() => (
+            <ShowXPub
+              copy={() => {
+                showToast('Address Copied Successfully', <TickIcon />);
+              }}
+            />
+          )}
         />
         <KeeperModal
           visible={transferPolicyVisible}

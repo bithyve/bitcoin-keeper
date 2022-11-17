@@ -1,6 +1,5 @@
 import { Box, Text } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 // asserts
@@ -10,18 +9,15 @@ import DotView from 'src/components/DotView';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
 // libraries
 import { RFValue } from 'react-native-responsive-fontsize';
+import React from 'react';
 import Server from 'src/assets/images/svgs/server.svg';
 import Settings from 'src/assets/images/svgs/settings_brown.svg';
 // Components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 
 const SigningServer = ({ navigation }) => {
-  const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
-
   const GradientIcon = ({ height, Icon }) => {
     return (
       <LinearGradient
@@ -112,7 +108,6 @@ const SigningServer = ({ navigation }) => {
                 'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
               }
             />
-            {/* <TransactionElement /> */}
           </Box>
         </Box>
       </Box>
@@ -127,7 +122,7 @@ const SigningServer = ({ navigation }) => {
       }}
     >
       <StatusBarComponent padding={hp(2)} />
-      {/* {header} */}
+
       <Box
         flexDirection={'row'}
         justifyContent={'space-between'}
@@ -155,7 +150,7 @@ const SigningServer = ({ navigation }) => {
           </Text>
         </Box>
       </Box>
-      {/* {Signing Server} */}
+
       <Box alignItems={'center'} justifyContent={'center'} flexDirection={'row'} marginTop={hp(35)}>
         <Box marginRight={wp(17)}>
           <GradientIcon Icon={Server} height={hp(50)} />
@@ -190,7 +185,7 @@ const SigningServer = ({ navigation }) => {
           <Edit />
         </Box>
       </Box>
-      {/* {list} */}
+
       <Box mx={wp(30)} marginTop={hp(50)} height={hp(380)}>
         <FlatList
           data={[1, 2, 3, 4, 5]}

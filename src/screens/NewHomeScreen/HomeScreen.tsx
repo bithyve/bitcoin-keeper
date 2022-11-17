@@ -1,6 +1,6 @@
 import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { ImageBackground, PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
+import { ImageBackground, Platform, TouchableOpacity } from 'react-native';
 import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
@@ -13,7 +13,6 @@ import Arrow from 'src/assets/images/svgs/arrow.svg';
 import BTC from 'src/assets/images/svgs/btc.svg';
 import Chain from 'src/assets/icons/illustration_homescreen.svg';
 import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
-import FileViewer from 'react-native-file-viewer';
 import Hidden from 'src/assets/images/svgs/hidden.svg';
 import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance.svg';
@@ -23,7 +22,6 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import NewWalletModal from 'src/components/NewWalletModal';
 import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -53,7 +51,6 @@ const InheritanceComponent = () => {
   const wallet = translations['wallet'];
   const seed = translations['seed'];
   const onPress = () => {
-    // open();
     navigation.navigate('SetupInheritance');
   };
 
@@ -225,7 +222,6 @@ const VaultStatus = (props) => {
   };
 
   const navigateToHardwareSetup = () => {
-    // close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
@@ -280,8 +276,8 @@ const VaultStatus = (props) => {
           <Box
             backgroundColor={getTorStatusColor}
             style={{
-              height: hp(16),
               paddingHorizontal: 10,
+              paddingVertical: 1,
               marginTop: hp(30),
               alignItems: 'center',
               justifyContent: 'center',
@@ -381,8 +377,8 @@ const VaultStatus = (props) => {
             alignItems={'center'}
             borderRadius={hp(10)}
             style={{
-              height: hp(22),
-              width: wp(90),
+              paddingVertical: 1,
+              paddingHorizontal: 5,
             }}
             onPress={() => props.onAmountPress()}
           >
@@ -531,156 +527,7 @@ const HomeScreen = ({ navigation }) => {
       console.log(error);
     }
   }, []);
-
-  const data = {
-    name: 'Tonny Hill',
-    address: '101 E. Chapman Ave<br>Orange, CA 92866',
-    phone: '98273-***11',
-    company: 'Xyz Company',
-    amount: '46899.50',
-    amt: '53100.50',
-  };
-  const htmlContent = `
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <title>Invoice</title>
-              <link rel="license" href="https://www.opensource.org/licenses/mit-license/">
-              <style>
-                ${htmlStyles}
-              </style>
-            </head>
-            <body>
-              <header>
-                <h1>Invoice</h1>
-                <address>
-                  <p>${data.name}</p>
-                  <p>${data.address}</p>
-                  <p>${data.phone}</p>
-                </address>
-              </header>
-              <article>
-                <h1>Recipient</h1>
-                <address>
-                  <p>${data.company}<br>c/o ${data.name}</p>
-                </address>
-                <table class="meta">
-                  <tr>
-                    <th><span>Invoice #</span></th>
-                    <td><span>101138</span></td>
-                  </tr>
-                  <tr>
-                    <th><span>Date</span></th>
-                    <td><span>${new Date()}</span></td>
-                  </tr>
-                  <tr>
-                    <th><span>Amount Due</span></th>
-                    <td><span id="prefix">$</span><span>${data.amount}</span></td>
-                  </tr>
-                </table>
-                <table class="inventory">
-                  <thead>
-                    <tr>
-                      <th><span>Item</span></th>
-                      <th><span>Description</span></th>
-                      <th><span>Rate</span></th>
-                      <th><span>Quantity</span></th>
-                      <th><span>Price</span></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><span>Front End Consultation</span></td>
-                      <td><span>Experience Review</span></td>
-                      <td><span data-prefix>$</span><span>${data.amt}</span></td>
-                      <td><span>4</span></td>
-                      <td><span data-prefix>$</span><span>${data.amt}</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-                <table class="balance">
-                  <tr>
-                    <th><span>Total</span></th>
-                    <td><span data-prefix>$</span><span>${data.amt}</span></td>
-                  </tr>
-                  <tr>
-                    <th><span>Amount Paid</span></th>
-                    <td><span data-prefix>$</span><span>0.00</span></td>
-                  </tr>
-                  <tr>
-                    <th><span>Balance Due</span></th>
-                    <td><span data-prefix>$</span><span>${data.amount}</span></td>
-                  </tr>
-                </table>
-              </article>
-              <aside>
-                <h1><span>Additional Notes</span></h1>
-                <div>
-                  <p>A finance charge of 1.5% will be made on unpaid balances after 30 days.</p>
-                </div>
-              </aside>
-            </body>
-          </html>
-        `;
-  const askPermission = () => {
-    async function requestExternalWritePermission() {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Pdf creator needs External Storage Write Permission',
-            message: 'Pdf creator needs access to Storage data in your SD Card',
-            buttonPositive: '',
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          createPDF();
-        } else {
-          console.log('WRITE_EXTERNAL_STORAGE permission denied');
-        }
-      } catch (err) {
-        console.log('Write permission err', err);
-        console.warn(err);
-      }
-    }
-    if (Platform.OS === 'android') {
-      requestExternalWritePermission();
-    } else {
-      createPDF();
-    }
-  };
-  const createPDF = async () => {
-    let options = {
-      //Content to print
-      html: htmlContent,
-      //File Name
-      fileName: 'my-test',
-      //File directory
-      directory: 'Download',
-
-      base64: true,
-    };
-
-    let file = await RNHTMLtoPDF.convert(options);
-    // console.log(file.filePath);
-    // Alert.alert('Successfully Exported', 'Path:' + file.filePath, [
-    //   { text: 'Cancel', style: 'cancel' },
-    //   { text: 'Open', onPress: () => openFile(file.filePath) }
-    // ], { cancelable: true });
-    openFile(file.filePath);
-  };
-
-  const openFile = (filepath) => {
-    const path = filepath; // absolute-path-to-my-local-file.
-    FileViewer.open(path)
-      .then(() => {
-        // success
-      })
-      .catch((error) => {
-        // error
-      });
-  };
-
+  
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'} position={'relative'}>
       <VaultInfo />
@@ -700,7 +547,6 @@ const HomeScreen = ({ navigation }) => {
         </Pressable>
         <LinkedWallets
           onAmountPress={() => {
-            // setShowHideAmounts(!showHideAmounts);
           }}
           showHideAmounts={showHideAmounts}
         />

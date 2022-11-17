@@ -328,8 +328,6 @@ const WalletDetails = () => {
             </Box>
           </Pressable>
 
-          {/* {Transactions} */}
-
           <Box
             flexDirection={'row'}
             justifyContent={'space-between'}
