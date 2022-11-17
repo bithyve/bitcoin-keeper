@@ -49,13 +49,11 @@ const InheritanceComponent = () => {
 
   const { translations } = useContext(LocalizationContext);
   const wallet = translations['wallet'];
-  const seed = translations['seed'];
   const onPress = () => {
     navigation.navigate('SetupInheritance');
   };
 
   const close = () => setVisible(false);
-  const open = () => setVisible(true);
 
   return (
     <Box alignItems={'center'} marginTop={hp(19.96)}>
@@ -395,39 +393,8 @@ const VaultStatus = (props) => {
 const VaultInfo = () => {
   const navigation = useNavigation();
   const { uaiStack } = useUaiStack();
-  const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-
-  const addtoDb = () => {
-    dispatch(
-      addToUaiStack(
-        'A new version of the app is available',
-        true,
-        uaiType.RELEASE_MESSAGE,
-        50,
-        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      )
-    );
-    dispatch(
-      addToUaiStack(
-        'Your Keeper request was rejected',
-        true,
-        uaiType.ALERT,
-        40,
-        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      )
-    );
-    dispatch(
-      addToUaiStack(
-        'Wallet restore was attempted on another device',
-        true,
-        uaiType.ALERT,
-        40,
-        'Lorem ipsum dolor sit amet, consectetur eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-      )
-    );
-  };
 
   function getPlanIcon() {
     if (subscription.name.toLowerCase().includes('diamond')) {

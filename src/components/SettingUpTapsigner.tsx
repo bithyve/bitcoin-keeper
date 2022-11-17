@@ -1,19 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-
-import { useAppDispatch } from 'src/store/hooks';
-
 import { RFValue } from 'react-native-responsive-fontsize';
-
 import { LocalizationContext } from 'src/common/content/LocContext';
 import KeyPadView from './AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import CVVInputsView from './HealthCheck/CVVInputsView';
 
 const SettingUpTapsigner = (props) => {
@@ -21,12 +14,8 @@ const SettingUpTapsigner = (props) => {
   const common = translations['common'];
   const tapsigner = translations['tapsigner'];
   const healthcheck = translations['healthcheck'];
-  const dispatch = useAppDispatch();
 
   const [passcodeFlag] = useState(true);
-
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
 
   const { onPress, inputText, setInputText } = props;
 

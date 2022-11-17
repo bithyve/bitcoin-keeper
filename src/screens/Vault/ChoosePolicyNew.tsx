@@ -1,5 +1,5 @@
 import { Box, Input, Text } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   SignerException,
   SignerPolicy,
@@ -160,7 +160,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
           ok={() => {
             console.log('ok');
           }}
-          clear={() => { }}
+          clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}

@@ -145,8 +145,6 @@ const PasswordModal = (props) => {
                 dispatch(setInvalidPassword(false));
               }
             }}
-            //  value={firstValue}
-            //  onChangeText={handleChangeFirst}
           />
           {invalidPassword && (
             <Text alignSelf="flex-start" mx={4} color={'red.400'}>
