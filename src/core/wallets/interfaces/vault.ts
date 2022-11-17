@@ -1,4 +1,3 @@
-import { SignerPolicy } from 'src/core/services/interfaces';
 import {
   ActiveAddresses,
   BIP85Config,
@@ -8,15 +7,9 @@ import {
   UTXO,
   WalletImportedAddresses,
 } from '.';
-import {
-  EntityKind,
-  NetworkType,
-  SignerStorage,
-  SignerType,
-  VaultType,
-  VisibilityType,
-} from '../enums';
+import { EntityKind, NetworkType, SignerStorage, SignerType, VaultType } from '../enums';
 
+import { SignerPolicy } from 'src/core/services/interfaces';
 import { WalletPresentationData } from './wallet';
 
 export interface VaultPresentationData extends WalletPresentationData {}

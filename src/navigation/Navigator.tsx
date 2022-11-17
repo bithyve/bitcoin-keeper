@@ -15,6 +15,7 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
+import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
@@ -28,7 +29,6 @@ import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
-import { RigisterToSD } from 'src/screens/Vault/RigisterToSD';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
@@ -61,7 +61,6 @@ import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -155,7 +154,6 @@ const AppStack = () => {
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
-        <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />

@@ -1,12 +1,7 @@
-import {
-  ActivityIndicator,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Box, StatusBar, Text } from 'native-base';
+import { ActivityIndicator, Platform, ScrollView } from 'react-native';
+import { Box, Text } from 'native-base';
 import RNIap, {
+  Subscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -30,12 +25,11 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
-import { Subscription } from 'react-native-iap';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import TierUpgradeModal from './TierUpgradeModal';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const plans = [
   {
@@ -202,35 +196,6 @@ const ChoosePlan = (props) => {
       }
       setShowUpgradeModal(true);
       return;
-      if (__DEV__) {
-        const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-        const sub: SubScription = {
-          productId: subscription.productId,
-          receipt: 'free',
-          name: subscription.name.split(' ')[0],
-        };
-        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-          subscription: sub,
-        });
-      } else {
-        if (Platform.OS === 'android') {
-          await requestSubscription({
-            sku: subscription.productId,
-            ...(subscription.subscriptionOfferDetails[0].offerToken && {
-              subscriptionOffers: [
-                {
-                  sku: subscription.productId,
-                  offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-                },
-              ],
-            }),
-          });
-        } else {
-          await requestSubscription({
-            sku: subscription.productId,
-          });
-        }
-      }
     } catch (err) {
       console.log(err.code, err.message);
     }
@@ -250,7 +215,7 @@ const ChoosePlan = (props) => {
   };
 
   return (
-    <ScreenWrapper barStyle="dark-content" >
+    <ScreenWrapper barStyle="dark-content">
       <Box position={'relative'} flex={1}>
         <HeaderTitle
           title={choosePlan.choosePlantitle}
@@ -274,7 +239,7 @@ const ChoosePlan = (props) => {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            style={{ height: '80%', marginVertical: 0, }}
+            style={{ height: '80%', marginVertical: 0 }}
           >
             <ChoosePlanCarousel
               data={items}
@@ -291,7 +256,7 @@ const ChoosePlan = (props) => {
             />
 
             <Box ml={8}>
-              <Box >
+              <Box>
                 <Text
                   fontSize={RFValue(14)}
                   color={'light.lightBlack'}
@@ -325,11 +290,7 @@ const ChoosePlan = (props) => {
           </ScrollView>
         )}
         <Box position={'absolute'} bottom={-10} justifyContent={'flex-end'} width={wp(285)}>
-          <Note
-            title={'Note'}
-            subtitle={choosePlan.noteSubTitle}
-            subtitleColor={'GreyText'}
-          />
+          <Note title={'Note'} subtitle={choosePlan.noteSubTitle} subtitleColor={'GreyText'} />
         </Box>
       </Box>
     </ScreenWrapper>

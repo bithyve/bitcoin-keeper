@@ -9,11 +9,11 @@ import {
 } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
+import { getLedgerDetails, getMockLedgerDetails } from 'src/hardware/ledger';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import AppClient from 'src/hardware/ledger';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { TapGestureHandler } from 'react-native-gesture-handler';
@@ -23,11 +23,11 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { generateSignerFromMetaData } from 'src/hardware';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
 
-const AddLedger = ({}) => {
+const AddLedger = () => {
   const {
     scanForPeripherals,
     requestPermissions,
@@ -63,7 +63,7 @@ const AddLedger = ({}) => {
 
   useEffect(() => {
     if (transport) {
-      fetchAddress();
+      addLedger();
     }
   }, [transport]);
 
@@ -123,60 +123,26 @@ const AddLedger = ({}) => {
     );
   };
 
-  const getMockLedgerDetails = (amfData = null) => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.LEDGER,
-      networkType
-    );
-    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-    const ledger: VaultSigner = {
-      signerId,
-      type: SignerType.LEDGER,
-      signerName: 'Nano X**',
-      isMock: true,
-      xpub,
-      xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-      storageType: SignerStorage.COLD,
-    };
-    if (amfData) {
-      ledger.amfData = amfData;
-      ledger.signerName = 'Nano X*';
-      ledger.isMock = false;
-    }
-    return ledger;
+  const addMockLedger = (amfData = null) => {
+    const ledger = getMockLedgerDetails(amfData);
+    dispatch(addSigningDevice(ledger));
+    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
-  const fetchAddress = async () => {
+  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
+
+  const addLedger = async () => {
     try {
-      const app = new AppClient(transport);
-      const networkType = config.NETWORK_TYPE;
-      const path = networkType === NetworkType.TESTNET ? "m/48'/1'/0'/1'" : "m/48'/0'/0'/1'"; // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
-      const xpub = await app.getExtendedPubkey(path);
-      const masterfp = await app.getMasterFingerprint();
-      const network = WalletUtilities.getNetworkByType(networkType);
-      const ledger: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.LEDGER,
-        signerName: 'Nano X',
+      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport);
+      const ledger: VaultSigner = generateSignerFromMetaData({
         xpub,
-        xpubInfo: {
-          derivationPath: path,
-          xfp: masterfp,
-        },
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
+        xfp,
+        derivationPath,
         storageType: SignerStorage.COLD,
-      };
-      if (networkType === NetworkType.TESTNET) {
+        signerType: SignerType.LEDGER,
+      });
+      if (isAMF) {
+        const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
         const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
         addMockLedger({ signerId, xpub });
         return;
@@ -189,12 +155,6 @@ const AddLedger = ({}) => {
       captureError(error);
       Alert.alert(error.toString());
     }
-  };
-
-  const addMockLedger = (amfData = null) => {
-    const ledger = getMockLedgerDetails(amfData);
-    dispatch(addSigningDevice(ledger));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
   return (

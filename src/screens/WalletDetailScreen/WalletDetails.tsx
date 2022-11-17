@@ -1,53 +1,49 @@
 import {
+  Alert,
   FlatList,
+  Platform,
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
-  Platform,
-  Alert,
 } from 'react-native';
 import { Box, Pressable, Text, View } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import Carousel from 'react-native-snap-carousel';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { Shadow } from 'react-native-shadow-2';
-import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+
 // icons and images
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import AddWalletIcon from 'src/assets/images/svgs/addWallet_illustration.svg';
-import WalletInsideGreen from 'src/assets/images/svgs/Wallet_inside_green.svg';
 import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
 import BTC from 'src/assets/images/svgs/btc_wallet.svg';
-import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
 import BackIcon from 'src/assets/images/svgs/back.svg';
-import Buy from 'src/assets/images/svgs/icon_buy.svg';
+import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
+import Carousel from 'react-native-snap-carousel';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
-import Send from 'src/assets/images/svgs/send.svg';
-import Recieve from 'src/assets/images/svgs/receive.svg';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import LinearGradient from 'react-native-linear-gradient';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import {
-  hp,
-  windowWidth,
-  wp,
-} from 'src/common/data/responsiveness/responsive';
+import Recieve from 'src/assets/images/svgs/receive.svg';
+import Send from 'src/assets/images/svgs/send.svg';
+import { Shadow } from 'react-native-shadow-2';
+import StatusBarComponent from 'src/components/StatusBarComponent';
 //components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletInsideGreen from 'src/assets/images/svgs/Wallet_inside_green.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { useAppSelector } from 'src/store/hooks';
-import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
-import KeeperModal from 'src/components/KeeperModal';
 import { setIntroModal } from 'src/store/reducers/wallets';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -179,7 +175,7 @@ const WalletDetails = () => {
   };
 
   const renderTransactionElement = ({ item }) => {
-    return <TransactionElement transaction={item} />
+    return <TransactionElement transaction={item} />;
   };
 
   const GradientIcon = ({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) => {
@@ -331,8 +327,6 @@ const WalletDetails = () => {
               <Arrow />
             </Box>
           </Pressable>
-
-          {/* {Transactions} */}
 
           <Box
             flexDirection={'row'}

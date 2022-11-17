@@ -1,22 +1,20 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Text } from 'native-base';
+import { Input, View } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
+import { Alert } from 'react-native';
 
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
-import { newWalletInfo } from 'src/store/sagas/wallets';
-import { WalletType } from 'src/core/wallets/enums';
-import { useDispatch } from 'react-redux';
-import { addNewWallets, updateWalletDetails } from 'src/store/sagaActions/wallets';
+import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Alert } from 'react-native';
 
 const EditWalletSettings = ({ route }) => {
   const navigtaion = useNavigation();

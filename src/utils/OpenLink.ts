@@ -1,11 +1,10 @@
-import { Linking } from "react-native";
+import { Linking } from 'react-native';
+import { captureError } from 'src/core/services/sentry';
 
 export default async function openLink(urlPath: string) {
-  const isSupported = await Linking.canOpenURL(urlPath);
-
-  if (isSupported) {
+  try {
     await Linking.openURL(urlPath);
-  } else {
-    throw Error(`Unable to open URL at path: ${urlPath}`);
+  } catch (error) {
+    captureError(error);
   }
 }

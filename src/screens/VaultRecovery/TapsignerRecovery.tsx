@@ -1,6 +1,6 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';

@@ -6,18 +6,18 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Fonts from 'src/common/Fonts';
 import Illustration from 'src/assets/images/illustration.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -29,9 +29,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/common/Fonts';
-import Buttons from 'src/components/Buttons';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -245,7 +242,7 @@ const EnterSeedScreen = () => {
                         fontSize: 16,
                         color: '#00836A',
                         marginTop: 8,
-                        letterSpacing: 1.23
+                        letterSpacing: 1.23,
                       }}
                       fontWeight={'300'}
                     >
@@ -256,8 +253,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid == true
                           ? {
-                            borderColor: '#F58E6F',
-                          }
+                              borderColor: '#F58E6F',
+                            }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -308,22 +305,14 @@ const EnterSeedScreen = () => {
               justifyContent: 'space-between',
               width: wp(375),
               alignItems: 'center',
-              paddingHorizontal: wp(20)
+              paddingHorizontal: wp(20),
             }}
           >
-            <Box
-              bg={'transparent'}
-              flexDirection={'row'}
-              marginLeft={10}
-              marginTop={4}
-            >
+            <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
               <View style={styles.dot}></View>
               <View style={styles.dash}></View>
             </Box>
-            <Buttons
-              primaryCallback={onPressNext}
-              primaryText={'Next'}
-            />
+            <Buttons primaryCallback={onPressNext} primaryText={'Next'} />
           </View>
           <KeeperModal
             visible={invalidSeedsModal}
@@ -414,7 +403,7 @@ const styles = ScaledSheet.create({
     borderWidth: 1,
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
-    letterSpacing: 1.32
+    letterSpacing: 1.32,
   },
 });
 

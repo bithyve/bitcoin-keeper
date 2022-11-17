@@ -1,8 +1,6 @@
 import { Box, Text } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
-import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -19,7 +17,7 @@ type Props = {
   paddingTop?: number;
   learnMore?: boolean;
   learnMorePressed?: () => void;
-  titleFontSize?: number
+  titleFontSize?: number;
 };
 const HeaderTitle = ({
   title = '',
@@ -30,43 +28,46 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
-  titleFontSize = 16
-
+  learnMorePressed = () => {},
+  titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.back}>
-          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          <TouchableOpacity
+            onPress={onPressHandler ? onPressHandler : navigation.goBack}
             style={{
               height: 20,
               width: 20,
               justifyContent: 'center',
-              alignItems: 'center'
-            }}>
+              alignItems: 'center',
+            }}
+          >
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
                 borderColor={'light.brownborder'}
-                borderWidth={0.5}
-                borderRadius={5}
                 backgroundColor={'light.yellow2'}
-                justifyContent={'center'}
-                alignItems={'center'}
                 style={{
-                  height: hp(20),
-                  width: wp(70)
+                  borderWidth: 0.5,
+                  borderRadius: 5,
+                  paddingHorizontal: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
                 <Text
                   color={'light.brownborder'}
                   fontWeight={200}
-                  letterSpacing={0.6}
-                  fontSize={12}
+                  style={{
+                    fontSize: 12,
+                    letterSpacing: 0.6,
+                    alignSelf: 'center',
+                  }}
                 >
                   Learn More
                 </Text>
@@ -77,7 +78,7 @@ const HeaderTitle = ({
       )}
       <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
         <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
-          {title && (
+          {!!title && (
             <Text
               numberOfLines={1}
               style={styles.addWalletText}
@@ -89,7 +90,7 @@ const HeaderTitle = ({
               {title}
             </Text>
           )}
-          {subtitle && (
+          {!!subtitle && (
             <Text
               style={styles.addWalletDescription}
               color={'light.lightBlack'}
@@ -100,9 +101,6 @@ const HeaderTitle = ({
             </Text>
           )}
         </Box>
-        {/* {HeaderRight && <Box paddingTop={paddingTop}>
-          <HeaderRight />
-        </Box>} */}
       </Box>
     </Box>
   );

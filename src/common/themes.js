@@ -3,7 +3,7 @@ import Fonts from './Fonts';
 import { extendTheme } from 'native-base';
 export const customTheme = extendTheme({
   fontConfig: {
-    Roboto: {
+    'RobotoCondensed-Regular': {
       100: {
         normal: Fonts.RobotoCondensedLight,
         italic: Fonts.RobotoCondensedLightItalic,
@@ -19,9 +19,9 @@ export const customTheme = extendTheme({
     },
   },
   fonts: {
-    heading: 'Roboto',
-    body: 'Roboto',
-    mono: 'Roboto',
+    heading: 'RobotoCondensed-Regular',
+    body: 'RobotoCondensed-Regular',
+    mono: 'RobotoCondensed-Regular',
   },
 
   colors: {
@@ -90,5 +90,18 @@ export const customTheme = extendTheme({
   },
   config: {
     initialColorMode: 'light',
+  },
+  components: {
+    Text: {
+      baseStyle: (props) => {
+        return {
+          _light: {
+            color: 'light.lightBlack',
+            // fontFamily: 'RobotoCondensed-Regular',
+          },
+          _dark: { color: 'dark.black' },
+        };
+      },
+    },
   },
 });

@@ -1,7 +1,6 @@
 import { Box, Text } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -71,7 +70,6 @@ const TransactionDetails = ({ route }) => {
           subtitle={''}
           paddingTop={hp(20)}
         />
-        {/* {card} */}
         <Box
           flexDirection={'row'}
           alignItems={'center'}
@@ -124,7 +122,6 @@ const TransactionDetails = ({ route }) => {
         </Box>
       </Box>
 
-      {/* {flatlist} */}
       <Box
         alignItems={'center'}
         marginTop={hp(44)}
