@@ -1,19 +1,16 @@
 import React, { useMemo } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box } from 'native-base';
-
-import LinearGradient from 'react-native-linear-gradient';
-import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
-import IconDollerWhite from 'src/assets/icons/Wallets/icon_dollar_white.svg';
-import IconBitcoinWhite from 'src/assets/icons/Wallets/icon_bitcoin_white.svg';
-
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { setCurrencyKind } from 'src/store/reducers/settings';
+
+import { Box } from 'native-base';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
+import IconBitcoinWhite from 'src/assets/icons/Wallets/icon_bitcoin_white.svg';
+import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
+import IconDollerWhite from 'src/assets/icons/Wallets/icon_dollar_white.svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 const styles = StyleSheet.create({
   container: {
