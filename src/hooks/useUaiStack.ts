@@ -16,7 +16,6 @@ export const useUaiStack = () => {
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI);
   const dispatch = useDispatch();
 
-  const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -50,8 +49,8 @@ export const useUaiStack = () => {
   }, [defaultVault]);
 
   useEffect(() => {
-    wallets.map((wallet) => {
-      if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+    wallets.forEach((wallet) => {
+      if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) {
         const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
         if (uai) {
           if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) return;

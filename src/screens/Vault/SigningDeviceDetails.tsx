@@ -26,7 +26,6 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { WalletMap } from './WalletMap';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import idx from 'idx';
@@ -55,7 +54,6 @@ const Header = () => {
 const SigningDeviceDetails = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];
@@ -132,7 +130,7 @@ const SigningDeviceDetails = ({ route }) => {
   const healthCheckColdCard = React.useCallback(async () => {
     try {
       const colcard = await getColdCardDetails();
-      let { xpub, derivationPath, xfp } = colcard;
+      let { xpub } = colcard;
       const networkType = config.NETWORK_TYPE;
       const network = WalletUtilities.getNetworkByType(networkType);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
@@ -153,10 +151,6 @@ const SigningDeviceDetails = ({ route }) => {
 
   const closeEditDescription = () => {
     setEditDescriptionModal(false);
-  };
-
-  const closeCVVModal = () => {
-    setconfirmHealthCheckModal(false);
   };
 
   const closeHealthCheckView = () => setHealthCheckViewTapsigner(false);
@@ -268,7 +262,7 @@ const SigningDeviceDetails = ({ route }) => {
           p={2}
         >
           {
-            'You can choose to manually confirm the health of the Signing Device if you are sure that they are secure and accessible.'
+            'You can choose to manually confirm the health of the signing device if you are sure that they are secure and accessible.'
           }
         </Text>
         <Text
@@ -424,27 +418,6 @@ const SigningDeviceDetails = ({ route }) => {
             }}
           />
         </HStack>
-        {/* <Buttons
-          primaryText={healthcheck.HealthCheck}
-          secondaryText={healthcheck.ChangeSigningDevice}
-          primaryCallback={() => {
-            openHealthCheckModal(signer.type);
-          }}
-          secondaryCallback={() => {
-            navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-          }}
-          primaryDisable={false}
-          secondaryDisable={false}
-        /> */}
-        {/* {signer.type === SignerType.POLICY_SERVER && (
-          <Buttons
-            primaryText={'Advance Settings'}
-            primaryCallback={() => {
-              navigateToPolicyChange(signer);
-            }}
-            primaryDisable={false}
-          />
-        )} */}
         <EditDescriptionModal
           visible={editDescriptionModal}
           closeHealthCheck={closeEditDescription}
@@ -494,7 +467,7 @@ const SigningDeviceDetails = ({ route }) => {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle={
-            'It is very important that you keep your Signing Devices secure and fairly accessible at all times.'
+            'It is very important that you keep your signing devices secure and fairly accessible at all times.'
           }
           buttonText={'Manual Confirm'}
           buttonTextColor={'light.white'}

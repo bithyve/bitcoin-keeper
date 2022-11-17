@@ -10,8 +10,11 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Fonts from 'src/common/Fonts';
 import Illustration from 'src/assets/images/illustration.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -26,9 +29,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/common/Fonts';
-import Buttons from 'src/components/Buttons';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -107,7 +107,6 @@ const EnterSeedScreen = () => {
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
@@ -120,8 +119,6 @@ const EnterSeedScreen = () => {
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
-
-  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -140,9 +137,9 @@ const EnterSeedScreen = () => {
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
+      if (seedData[i].invalid) {
         showToast('Enter correct seedwords', <TickIcon />);
-        return true;
+        return false;
       }
     }
     return true;
@@ -251,7 +248,7 @@ const EnterSeedScreen = () => {
                     <TextInput
                       style={[
                         styles.input,
-                        item.invalid == true
+                        item.invalid
                           ? {
                               borderColor: '#F58E6F',
                             }

@@ -7,7 +7,7 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
@@ -37,7 +37,6 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 
 const SendConfirmation = ({ route }) => {
@@ -144,13 +143,6 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  // const openLoaders = () => {
-  //   setTimeout(() => {
-  //     closeAllModal();
-  //     openSendModal();
-  //   }, 2000);
-  // };
-
   const onProceed = () => {
     // console.log('pressed');
     // setVisibleModal(true);
@@ -163,7 +155,6 @@ const SendConfirmation = ({ route }) => {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      // openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
@@ -178,7 +169,6 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      // openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -218,16 +208,8 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
-    // close();
     navigation.navigate('WalletDetails');
   };
-
-  // useEffect(() => {
-  //   if (sendHasFailed) {
-  //     closeSendModal();
-  //     openFailedModal();
-  //   }
-  // }, [sendHasFailed]);
 
   useEffect(() => {
     if (walletSendSuccessful) {
@@ -538,23 +520,6 @@ const SendConfirmation = ({ route }) => {
       </Box>
     );
   };
-
-  // const handleCustomPriority = () => {
-  //   const { translations } = useContext(LocalizationContext);
-  //   const vault = translations['vault'];
-  //   const common = translations['common'];
-
-  //   return (
-  //     <CustomPriorityModal
-  //       visible={visible}
-  //       title={vault.CustomPriority}
-  //       subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-  //       info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-  //       close={close}
-  //       buttonText={common.confirm}
-  //     />
-  //   );
-  // };
 
   const FeeInfo = () => {
     return (

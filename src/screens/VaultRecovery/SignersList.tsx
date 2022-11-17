@@ -118,7 +118,7 @@ const SignersList = () => {
           visible={visible && type === SignerType.TAPSIGNER}
           close={close}
           title={'Verify TAPSIGNER'}
-          subTitle={'Keep you TAPSIGNER ready'}
+          subTitle={'Keep your TAPSIGNER ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Verify'}
@@ -134,7 +134,7 @@ const SignersList = () => {
           visible={visible && type === SignerType.COLDCARD}
           close={close}
           title={'Verify Coldcard'}
-          subTitle={'Keep you Coldcard ready'}
+          subTitle={'Keep your Coldcard ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Proceed'}

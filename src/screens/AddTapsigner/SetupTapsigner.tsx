@@ -1,9 +1,9 @@
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Alert, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import config, { APP_STAGE } from 'src/core/config';
+import { getMockTapsignerDetails, getTapsignerDetails } from 'src/hardware/tapsigner';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -14,33 +14,21 @@ import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import config from 'src/core/config';
+import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
+import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
 const SetupTapsigner = () => {
   const [cvc, setCvc] = React.useState('');
-  const [nfcVisible, setNfcVisible] = React.useState(false);
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
-
-  const withModal = (callback) => {
-    return Platform.select({
-      android: async () => {
-        setNfcVisible(true);
-        const resp = await card.nfcWrapper(callback);
-        setNfcVisible(false);
-        await card.endNfcSession();
-        return resp;
-      },
-      ios: async () => card.nfcWrapper(callback),
-    });
-  };
+  const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -59,58 +47,35 @@ const SetupTapsigner = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
 
-  const getTapsignerDetails = async () => {
-    const { xpub, derivationPath, xfp } = await withModal(async () => {
-      const status = await card.first_look();
-      const isLegit = await card.certificate_check();
-      if (isLegit) {
-        if (status.path) {
-          const xpub = await card.get_xpub(cvc);
-          const xfp = await card.get_xfp(cvc);
-          return { xpub, xfp: xfp.toString('hex'), derivationPath: status.path };
-        } else {
-          await card.setup(cvc);
-          const newCard = await card.first_look();
-          const xpub = await card.get_xpub(cvc);
-          const xfp = await card.get_xfp(cvc);
-          return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
-        }
-      }
-    })();
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
-      // AMF flow
-      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
-      const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-      return getMockTapsignerDetails({ signerId, xpub });
-    }
-    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-    const signer: VaultSigner = {
-      signerId,
-      type: SignerType.TAPSIGNER,
-      signerName: 'TAPSIGNER',
-      xpub,
-      xpubInfo: {
-        derivationPath,
-        xfp,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-      storageType: SignerStorage.COLD,
-    };
-
-    return signer;
-  };
+  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
 
   const addTapsigner = React.useCallback(async () => {
     try {
-      const tapsigner = await getTapsignerDetails();
+      const { xpub, derivationPath, xfp } = await withModal(async () =>
+        getTapsignerDetails(card, cvc)
+      )();
+      // AMF flow
+      if (isAMF) {
+        const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
+        const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+        const tapsigner = getMockTapsignerDetails({ signerId, xpub });
+        dispatch(addSigningDevice(tapsigner));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        return;
+      }
+      const tapsigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.TAPSIGNER,
+        storageType: SignerStorage.COLD,
+      });
       const exsists = await checkSigningDevice(tapsigner.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      let message;
+      let message: string;
       if (err.toString().includes('401')) {
         message = 'Please check the cvc entered and try again!';
       } else if (err.toString().includes('429')) {
@@ -122,54 +87,20 @@ const SetupTapsigner = () => {
       }
       NFC.showiOSMessage(message);
       showToast(message, null, 2000, true);
-      setNfcVisible(false);
+      closeNfc();
       card.endNfcSession();
     }
   }, [cvc]);
 
-  const getMockTapsignerDetails = (amfData = null) => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.TAPSIGNER,
-      networkType
-    );
-    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-    const tapsigner: VaultSigner = {
-      signerId,
-      type: SignerType.TAPSIGNER,
-      signerName: 'TAPSIGNER**',
-      isMock: true,
-      xpub,
-      xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-      storageType: SignerStorage.COLD,
-    };
-    if (amfData) {
-      tapsigner.amfData = amfData;
-      tapsigner.signerName = 'TAPSIGNER*';
-      tapsigner.isMock = false;
-    }
-    return tapsigner;
-  };
-
   const addMockTapsigner = React.useCallback(async () => {
     try {
-      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const mockTapsigner = getMockTapsignerDetails();
-        dispatch(addSigningDevice(mockTapsigner));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      }
+      const mockTapsigner = getMockTapsignerDetails();
+      dispatch(addSigningDevice(mockTapsigner));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
       Alert.alert(err.toString());
     }
-  }, [cvc]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

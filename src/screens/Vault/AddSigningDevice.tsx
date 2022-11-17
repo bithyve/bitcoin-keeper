@@ -2,7 +2,6 @@ import { Alert, Pressable } from 'react-native';
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { ScaledSheet, s } from 'react-native-size-matters';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
@@ -24,6 +23,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Relay from 'src/core/services/operations/Relay';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
+import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { WalletMap } from './WalletMap';
 import WalletOperations from 'src/core/wallets/operations';
@@ -88,12 +88,16 @@ const AddSigningDevice = () => {
   }, []);
 
   useEffect(() => {
-    const fills =
-      planStatus === VaultMigrationType.DOWNGRADE
-        ? vaultSigners.length < currentSignerLimit
-          ? new Array(currentSignerLimit - vaultSigners.length).fill(null)
-          : []
-        : new Array(currentSignerLimit - vaultSigners.length).fill(null);
+    let fills;
+    if (planStatus === VaultMigrationType.DOWNGRADE) {
+      if (vaultSigners.length < currentSignerLimit) {
+        fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
+      } else {
+        fills = [];
+      }
+    } else {
+      fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
+    }
     setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
 
@@ -198,7 +202,6 @@ const AddSigningDevice = () => {
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
-      return;
     } else {
       initiateSweep();
     }
@@ -329,16 +332,18 @@ const AddSigningDevice = () => {
       AstrixSigners.push(signer.type);
   });
 
+  let preTitle: string;
+  if (planStatus === VaultMigrationType.DOWNGRADE) {
+    preTitle = 'Remove';
+  } else if (planStatus === VaultMigrationType.UPGRADE) {
+    preTitle = 'Add';
+  } else {
+    preTitle = 'Change';
+  }
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={`${
-          planStatus === VaultMigrationType.DOWNGRADE
-            ? 'Remove'
-            : planStatus === VaultMigrationType.UPGRADE
-            ? 'Add'
-            : 'Change'
-        } Signing Devices`}
+        title={`${preTitle} Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}

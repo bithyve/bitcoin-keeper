@@ -7,7 +7,6 @@ import JADEICON from 'src/assets/images/jade_icon.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
 import KEEPERAPP from 'src/assets/icons/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/icons/KeeperIconLight.svg';
-import KEEPERICON from 'src/assets/images/Keeper.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
@@ -30,11 +29,19 @@ import TREZORICONLIGHT from 'src/assets/icons/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
 import { Text } from 'native-base';
 
+const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
+  if (isLight) {
+    return LightComponent;
+  } else {
+    return DarkComponent;
+  }
+};
+
 export const WalletMap = (type: SignerType, light = false) => {
   switch (type) {
     case SignerType.COLDCARD:
       return {
-        Icon: light ? <COLDCARDICONLIGHT /> : <COLDCARDICON />,
+        Icon: getColouredIcon(<COLDCARDICONLIGHT />, <COLDCARDICON />, light),
         Logo: <COLDCARDLOGO />,
         type: SignerStorage.COLD,
       };
@@ -46,7 +53,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.KEEPER:
       return {
-        Icon: light ? <KEEPERAPPLIGHT /> : <KEEPERAPP />,
+        Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Another Keeper App
@@ -61,13 +68,13 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.LEDGER:
       return {
-        Icon: light ? <LEDGERICONLIGHT /> : <LEDGERICON />,
+        Icon: getColouredIcon(<LEDGERICONLIGHT />, <LEDGERICON />, light),
         Logo: <LEDGERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.MOBILE_KEY:
       return {
-        Icon: light ? <MOBILEKEYLIGHT /> : <MOBILEKEY />,
+        Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Mobile Key
@@ -83,7 +90,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.POLICY_SERVER:
       return {
-        Icon: light ? <SERVERLIGHT /> : <SERVER />,
+        Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Signing Server
@@ -93,19 +100,19 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.TAPSIGNER:
       return {
-        Icon: light ? <TAPSIGNERICONLIGHT /> : <TAPSIGNERICON />,
+        Icon: getColouredIcon(<TAPSIGNERICONLIGHT />, <TAPSIGNERICON />, light),
         Logo: <TAPSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.TREZOR:
       return {
-        Icon: light ? <TREZORICONLIGHT /> : <TREZORICON />,
+        Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light),
         Logo: <TREZORLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:
       return {
-        Icon: light ? <SEEDWORDSLIGHT /> : <SEEDWORDS />,
+        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
           <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
             Soft Key

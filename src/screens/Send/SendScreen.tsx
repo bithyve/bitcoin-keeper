@@ -2,20 +2,23 @@ import {
   Alert,
   FlatList,
   InteractionManager,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
 // libraries
 import { Box, Text, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
-import { KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
 import Colors from 'src/theme/Colors';
+import Fonts from 'src/common/Fonts';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
@@ -31,9 +34,7 @@ import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
-import Note from 'src/components/Note/Note';
+import { useNavigation } from '@react-navigation/native';
 
 const SendScreen = ({ route }) => {
   const navigation = useNavigation();

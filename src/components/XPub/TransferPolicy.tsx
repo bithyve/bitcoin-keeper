@@ -18,9 +18,6 @@ import Buttons from '../Buttons';
 const TransferPolicy = ({ wallet, close }) => {
   const { translations } = useContext(LocalizationContext);
   const common = translations['common'];
-  const walletTrans = translations['wallet'];
-  const dispatch = useAppDispatch();
-
   const [policyText, setPolicyText] = useState('');
 
   const onPressNumber = (digit) => {
