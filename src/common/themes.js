@@ -16,6 +16,30 @@ export const customTheme = extendTheme({
         normal: Fonts.RobotoCondensedBold,
         italic: Fonts.RobotoCondensedBoldItalic,
       },
+      400: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      500: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      600: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      700: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      800: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      900: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
     },
   },
   fonts: {

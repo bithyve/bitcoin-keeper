@@ -3,8 +3,6 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { customTheme } from 'src/common/themes';
 
-const { fonts } = customTheme;
-
 type Props = {
   title: string;
   subtitle: string;
@@ -34,7 +32,7 @@ const Note = ({
       </Box>
       <Box>
         <Text
-          width={width} // width from props
+          width={width}
           color={`${colorMode}.${subtitleColor}`}
           style={styles.subTitle}
         >
@@ -54,14 +52,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     letterSpacing: 1.12,
-    fontWeight: '400',
-    fontFamily: fonts.body
   },
   subTitle: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '400',
-    fontFamily: fonts.body
   }
 })
 
