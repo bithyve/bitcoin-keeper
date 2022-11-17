@@ -71,7 +71,6 @@ const Header = () => {
 const SigningDeviceDetails = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];
@@ -148,7 +147,7 @@ const SigningDeviceDetails = ({ route }) => {
   const healthCheckColdCard = React.useCallback(async () => {
     try {
       const colcard = await getColdCardDetails();
-      let { xpub, derivationPath, xfp } = colcard;
+      let { xpub } = colcard;
       const networkType = config.NETWORK_TYPE;
       const network = WalletUtilities.getNetworkByType(networkType);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
@@ -169,10 +168,6 @@ const SigningDeviceDetails = ({ route }) => {
 
   const closeEditDescription = () => {
     setEditDescriptionModal(false);
-  };
-
-  const closeCVVModal = () => {
-    setconfirmHealthCheckModal(false);
   };
 
   const closeHealthCheckView = () => setHealthCheckViewTapsigner(false);
@@ -442,27 +437,6 @@ const SigningDeviceDetails = ({ route }) => {
             }}
           />
         </HStack>
-        {/* <Buttons
-          primaryText={healthcheck.HealthCheck}
-          secondaryText={healthcheck.ChangeSigningDevice}
-          primaryCallback={() => {
-            openHealthCheckModal(signer.type);
-          }}
-          secondaryCallback={() => {
-            navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-          }}
-          primaryDisable={false}
-          secondaryDisable={false}
-        /> */}
-        {/* {signer.type === SignerType.POLICY_SERVER && (
-          <Buttons
-            primaryText={'Advance Settings'}
-            primaryCallback={() => {
-              navigateToPolicyChange(signer);
-            }}
-            primaryDisable={false}
-          />
-        )} */}
         <EditDescriptionModal
           visible={editDescriptionModal}
           closeHealthCheck={closeEditDescription}

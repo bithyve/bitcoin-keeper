@@ -11,7 +11,7 @@ import {
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Colors from 'src/theme/Colors';
 import GoogleDrive from 'src/assets/images/drive.svg';
@@ -58,7 +58,6 @@ const CloudRecoveryModal = (props) => {
   const [selected, setSelected] = useState(null);
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
   const { showToast } = useToastMessage();
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (isBackupError) {

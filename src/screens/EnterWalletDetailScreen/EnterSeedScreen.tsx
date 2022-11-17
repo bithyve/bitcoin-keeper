@@ -108,7 +108,6 @@ const EnterSeedScreen = () => {
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
@@ -121,8 +120,6 @@ const EnterSeedScreen = () => {
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
-
-  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -141,9 +138,9 @@ const EnterSeedScreen = () => {
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
+      if (seedData[i].invalid) {
         showToast('Enter correct seedwords', <TickIcon />);
-        return true;
+        return false;
       }
     }
     return true;
@@ -243,7 +240,7 @@ const EnterSeedScreen = () => {
                         fontSize: 16,
                         color: '#00836A',
                         marginTop: 8,
-                        letterSpacing: 1.23
+                        letterSpacing: 1.23,
                       }}
                       fontWeight={'300'}
                     >
@@ -252,10 +249,10 @@ const EnterSeedScreen = () => {
                     <TextInput
                       style={[
                         styles.input,
-                        item.invalid == true
+                        item.invalid
                           ? {
-                            borderColor: '#F58E6F',
-                          }
+                              borderColor: '#F58E6F',
+                            }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -433,7 +430,7 @@ const styles = ScaledSheet.create({
     borderWidth: 1,
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
-    letterSpacing: 1.32
+    letterSpacing: 1.32,
   },
 });
 
