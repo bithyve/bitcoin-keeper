@@ -1,6 +1,6 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
 import config, { APP_STAGE } from 'src/core/config';
@@ -127,7 +127,7 @@ const TapSignerRecovery = () => {
           <Box style={styles.header}>
             <HeaderTitle
               title="Recover using Tapsigner"
-              subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+              subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
               onPressHandler={() => navigation.goBack()}
             />
           </Box>
@@ -139,7 +139,7 @@ const TapSignerRecovery = () => {
               secureTextEntry={true}
               showSoftInputOnFocus={false}
             />
-            <Text padding={5}>Lorem ipsum dolor sit amet, consectetur eiusmod tempor</Text>
+            <Text padding={5}>You will be scanning the TAPSIGNER after this step</Text>
             <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={verifyTapsigner} />
             </Box>

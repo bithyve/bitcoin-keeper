@@ -1,18 +1,18 @@
-import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
-import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { seedBackedUp } from 'src/store/sagaActions/bhr';
+import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+
+import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
+import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import HeaderTitle from 'src/components/HeaderTitle';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import ModalWrapper from 'src/components/Modal/ModalWrapper';
+import StatusBarComponent from 'src/components/StatusBarComponent';
+import { seedBackedUp } from 'src/store/sagaActions/bhr';
+import { useNavigation } from '@react-navigation/native';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const ExportSeedScreen = ({ route, navigation }) => {
   const navigtaion = useNavigation();
@@ -25,9 +25,11 @@ const ExportSeedScreen = ({ route, navigation }) => {
   const next = route.params.next;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
-  const [showWordIndex, setShowWordIndex] = useState('');
+  const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations['seed'];
+
+  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
   useEffect(() => {
     if (backupMethod !== null) {
@@ -43,7 +45,7 @@ const ExportSeedScreen = ({ route, navigation }) => {
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex(index);
+          setShowWordIndex(showWordIndex || showWordIndex === 0 ? '' : index);
         }}
       >
         <Box
@@ -89,7 +91,6 @@ const ExportSeedScreen = ({ route, navigation }) => {
       <HeaderTitle
         title={seedText.ExportSeed}
         subtitle={seedText.SeedDesc}
-        color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
 
@@ -107,7 +108,6 @@ const ExportSeedScreen = ({ route, navigation }) => {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                //setBackupSuccessModal(true);
                 setConfirmSeedModal(true);
               }}
               value={login.Next}

@@ -65,22 +65,18 @@ const KeeperLoader = (props) => {
             colors={modalBackground}
             style={styles.container}
           >
-            <Modal.Header
-              alignSelf={'flex-start'}
-              borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={wp(240)}
-            >
-              <Text style={styles.title} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Modal.Header style={styles.headerContainer}>
+              <Text
+                style={styles.title}
+                color={textColor}
+              >
                 {loadingContent?.title}
               </Text>
               <Text
                 style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'200'}
                 color={subTitleColor}
               >
-                {loadingContent.subTitle}
+                {loadingContent.subtitle}
               </Text>
             </Modal.Header>
             <Modal.Body>
@@ -112,5 +108,11 @@ const styles = StyleSheet.create({
   },
   close: {
     alignSelf: 'flex-end',
+  },
+  headerContainer: {
+    alignSelf: 'flex-start',
+    borderBottomWidth: 0,
+    backgroundColor: 'transparent',
+    width: wp(240)
   },
 });

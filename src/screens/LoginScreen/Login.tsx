@@ -1,16 +1,14 @@
-import { Box, Text } from 'native-base';
+import { Box, HStack, Image, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
+import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import FogotPassword from './components/FogotPassword';
+import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -24,7 +22,6 @@ import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
-import { AppContext } from 'src/common/content/AppContext';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 
 const TIMEOUT = 60;
@@ -35,6 +32,7 @@ const LoginScreen = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
@@ -44,12 +42,11 @@ const LoginScreen = ({ navigation, route }) => {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  // const [timeout, setTimeout] = useState(0)
+
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
-  const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const login = translations['login'];
   const common = translations['common'];
 
@@ -58,14 +55,6 @@ const LoginScreen = ({ navigation, route }) => {
       attemptLogin(passcode);
     }
   }, [loggingIn]);
-
-  useEffect(() => {
-    setLoadingContent({
-      title: 'Logging in to your Keeper',
-      subTitle: 'Shake your device or take a screenshot to send feedback',
-      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
-    })
-  }, []);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -168,29 +157,20 @@ const LoginScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
-      setLoadingContent({
-        title: '',
-        subTitle: '',
-        message: ''
-      })
-      setAppLoading(false);
+      setLoginModal(false);
       setLoginError(true);
       setErrMessage('Incorrect password');
       setPasscode('');
       setAttempts(attempts + 1);
+      setLogging(false);
     } else {
       setLoginError(false);
     }
   }, [authenticationFailed]);
 
-  useEffect(() => {
+  const loginModalAction = () => {
     if (isAuthenticated) {
-      setLoadingContent({
-        title: '',
-        subTitle: '',
-        message: ''
-      })
-      setAppLoading(false)
+      setLoginModal(false);
       if (relogin) {
         navigation.goBack();
       } else {
@@ -203,8 +183,7 @@ const LoginScreen = ({ navigation, route }) => {
       }
       dispatch(credsAuthenticated(false));
     }
-  }, [isAuthenticated]);
-
+  };
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
@@ -215,7 +194,7 @@ const LoginScreen = ({ navigation, route }) => {
   };
 
   const attemptLogin = (passcode: string) => {
-    setAppLoading(true)
+    setLoginModal(true);
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -226,7 +205,30 @@ const LoginScreen = ({ navigation, route }) => {
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
-
+  const LoginModalContent = () => {
+    return (
+      <Box>
+        <Image
+          source={require('src/assets/video/test-net.gif')}
+          style={{
+            width: wp(270),
+            height: hp(200),
+            alignSelf: 'center',
+          }}
+        />
+        <Text
+          color={'light.modalText'}
+          fontWeight={200}
+          fontSize={13}
+          letterSpacing={0.65}
+          width={wp(260)}
+        >
+          This feature is *only* for the testnet version of the app. The developers will get your
+          message along with other information from the app.
+        </Text>
+      </Box>
+    );
+  };
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
@@ -237,15 +239,17 @@ const LoginScreen = ({ navigation, route }) => {
               ml={5}
               color={'light.textLight'}
               fontSize={RFValue(22)}
-              mt={hp('10%')}
-              fontWeight={'bold'}
+              fontWeight={'200'}
               fontFamily={'heading'}
+              style={{
+                marginTop: heightPercentageToDP('10%'),
+              }}
             >
               {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
+              <Text fontSize={RFValue(13)} ml={5} letterSpacing={0.65} color={'light.textColor'} fontFamily={'body'} fontWeight={200}>
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
@@ -254,7 +258,9 @@ const LoginScreen = ({ navigation, route }) => {
                 </Text> */}
               </Text>
               {/* pin input view */}
-              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              <Box marginTop={heightPercentageToDP(7)}>
+                <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              </Box>
               {/*  */}
             </Box>
 
@@ -264,12 +270,31 @@ const LoginScreen = ({ navigation, route }) => {
                 fontSize={RFValue(12)}
                 fontStyle={'italic'}
                 textAlign={'right'}
-                mr={20}
+                fontWeight={200}
+                letterSpacing={0.65}
+                mr={12}
               >
                 {errMessage}
               </Text>
             )}
-
+            <HStack justifyContent={'space-between'} mr={10} paddingTop={'2'}>
+              <Text
+                color={'light.white1'}
+                fontWeight={'200'}
+                px={'5'}
+                fontSize={13}
+                letterSpacing={1}
+              >
+                {'Use bitcoin testnet'}
+              </Text>
+              <Switch
+                defaultIsChecked
+                disabled={true}
+                trackColor={{ true: '#FFFA' }}
+                thumbColor={'#358475'}
+                onChange={() => {}}
+              />
+            </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
               {passcode.length == 4 && (
                 <Box>
@@ -307,12 +332,13 @@ const LoginScreen = ({ navigation, route }) => {
               </Text>
             </TouchableOpacity>
           )}
+
           {/* keyboardview start */}
           <KeyPadView
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
@@ -349,14 +375,28 @@ const LoginScreen = ({ navigation, route }) => {
           </ModalWrapper>
         </Box>
       </Box>
+      <KeeperModal
+        visible={loginModal}
+        close={() => {}}
+        title={'Share Feedback (Testnet only)'}
+        subTitle={'Shake your device to send us a bug report or a feature request'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        textColor={'#000'}
+        subTitleColor={'#5F6965'}
+        showCloseIcon={false}
+        buttonText={isAuthenticated ? 'Next' : null}
+        buttonCallback={loginModalAction}
+        Content={LoginModalContent}
+        subTitleWidth={wp(210)}
+      />
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   textBoxStyles: {
-    height: wp('13%'),
-    width: wp('13%'),
+    height: widthPercentageToDP('13%'),
+    width: widthPercentageToDP('13%'),
     borderRadius: 7,
     marginLeft: 20,
     alignItems: 'center',
@@ -364,8 +404,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
   },
   textBoxActive: {
-    height: wp('13%'),
-    width: wp('13%'),
+    height: widthPercentageToDP('13%'),
+    width: widthPercentageToDP('13%'),
     borderRadius: 7,
     marginLeft: 20,
     elevation: 10,

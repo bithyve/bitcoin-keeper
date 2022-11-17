@@ -1,9 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { Box, Input, Text } from 'native-base';
+import React, { useContext, useState } from 'react';
+
+import Buttons from '../Buttons';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const ConfirmSeedWord = (props) => {
   const { translations } = useContext(LocalizationContext);
@@ -79,7 +79,7 @@ const ConfirmSeedWord = (props) => {
           {BackupWallet.confirmSeedWord}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
-          Lorem ipsum dolor sit amet
+          Exactly as they were displayed
         </Text>
       </Box>
       <Box>
@@ -117,25 +117,20 @@ const ConfirmSeedWord = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.seedWordNote}</Text>
       </Box>
-      <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
-        <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
-          <Text fontSize={RFValue(14)} textAlign={'center'}>
-            {BackupWallet.startOver}
-          </Text>
-        </TouchableOpacity>
-        <Box>
-          <CustomGreenButton
-            onPress={() => {
-              if (seedWord === words[index]) {
-                props.confirmBtnPress();
-              } else {
-                setInvalid(true);
-              }
-            }}
-            value={common.confirm}
-          />
-        </Box>
-      </Box>
+      <Buttons
+        secondaryText={BackupWallet.startOver}
+        secondaryCallback={() => {
+          props.closeBottomSheet();
+        }}
+        primaryText={common.confirm}
+        primaryCallback={() => {
+          if (seedWord === words[index]) {
+            props.confirmBtnPress();
+          } else {
+            setInvalid(true);
+          }
+        }}
+      />
     </Box>
   );
 };

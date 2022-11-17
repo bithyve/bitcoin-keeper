@@ -1,8 +1,7 @@
 import { Box, Text, View, ScrollView } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Platform,
-  StyleSheet,
   TouchableOpacity,
   Keyboard,
   KeyboardAvoidingView,
@@ -11,23 +10,22 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
+import { ScaledSheet } from 'react-native-size-matters';
+import LinearGradient from 'react-native-linear-gradient';
+import * as bip39 from 'bip39';
+
+import StatusBarComponent from 'src/components/StatusBarComponent';
 import SeedWordsView from 'src/components/SeedWordsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import LinearGradient from 'react-native-linear-gradient';
 import KeeperModal from 'src/components/KeeperModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import { useDispatch } from 'react-redux';
-import { getAppImage } from 'src/store/sagaActions/bhr';
-import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import * as bip39 from 'bip39';
 
 const InputSeedWordSigner = ({ route }) => {
   const navigation = useNavigation();

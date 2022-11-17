@@ -7,7 +7,7 @@ import Switch from '../../components/Switch/Switch';
 const SettingsSwitchCard = (props) => {
   return (
     <Pressable onPress={(value) => props.onSwitchToggle(value)} flexDirection={'row'} justifyContent={'space-evenly'} p={3} borderRadius={10} {...props}>
-      <Box flex={0.8}>
+      <Box flex={1}>
         <Text
           color={'light.lightBlack'}
           fontFamily={'body'}
@@ -27,7 +27,7 @@ const SettingsSwitchCard = (props) => {
           {props.description}
         </Text>
       </Box>
-      <Box flex={0.3} justifyContent={'center'} alignItems={'flex-end'}>
+      <Box justifyContent={'center'} alignItems={'flex-end'}>
         {props.renderStatus ? (
           props.renderStatus()
         ) : (

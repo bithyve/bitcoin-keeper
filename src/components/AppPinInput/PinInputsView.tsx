@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
-
-import { RFValue } from 'react-native-responsive-fontsize';
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from 'react-native-responsive-screen';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import DotView from 'src/components/DotView';
+import { RFValue } from 'react-native-responsive-fontsize';
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
   textColor?: boolean;
+  borderColor?: string;
 }
-const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: Props) => {
+const PinInputsView = ({
+  passCode,
+  passcodeFlag,
+  backgroundColor,
+  textColor,
+  borderColor = 'transparent',
+}: Props) => {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -27,147 +31,115 @@ const PinInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor }: P
     }
   }, [passCode]);
 
+  const getBackgroundColor = () => {
+    return backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
+  }
+
+  const getTextColor = () => {
+    return textColor ? 'light.textBlack' : 'light.white';
+  }
+
+  const getDotColor = () => {
+    return textColor ? 'black' : 'white';
+  }
+
+  const getPin = (num: number) => {
+    if (passCode.length == num && !hide) {
+      return (
+        <Text
+          color={getTextColor()}
+          fontWeight={'300'}
+          fontSize={RFValue(20)}
+          fontFamily={'body'}
+        >
+          {passCode[num - 1]}
+        </Text>
+      )
+    } else if (passCode.length >= num) {
+      return (
+        <DotView height={3} width={3} color={getDotColor()} />
+      )
+    } else if (passCode.length == num - 1) {
+      return (
+        <Text color={getTextColor()} style={styles.cursorText}>
+          {'|'}
+        </Text>
+      )
+    } else {
+      return '';
+    }
+  }
+
   return (
-    <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-        >
-          <Box>
-            {passCode.length == 1 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[0]}
-              </Text>
-            ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 0 && passcodeFlag == true ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
-          </Box>
+    <Box style={styles.container}>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(1)}
         </Box>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-        >
-          <Box>
-            {passCode.length == 2 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[1]}
-              </Text>
-            ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 1 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
-          </Box>
+      </View>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(2)}
         </Box>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-        >
-          <Box>
-            {passCode.length == 3 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[2]}
-              </Text>
-            ) : passCode.length >= 3 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 2 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
-          </Box>
+      </View>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(3)}
         </Box>
-        <Box
-          height={wp('13%')}
-          width={wp('13%')}
-          borderRadius={7}
-          ml={5}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
-        >
-          <Box>
-            {passCode.length == 4 && !hide ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[3]}
-              </Text>
-            ) : passCode.length >= 4 && hide ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 3 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
-          </Box>
+      </View>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(4)}
         </Box>
-      </Box>
+      </View>
     </Box>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: hp(5),
+    marginBottom: hp(25),
+    flexDirection: 'row',
+    width: 'auto',
+    alignSelf: 'baseline'
+  },
+  passcodeBox: {
+    marginLeft: wp(15),
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    height: hp(48),
+    width: hp(48),
+  },
+  cursorText: {
+    fontWeight: '600',
+    fontSize: RFValue(13),
+  },
+});
 export default PinInputsView;

@@ -1,29 +1,35 @@
-import { Box, Text, View } from 'native-base';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { crossTransfer, sendPhaseTwo } from 'src/store/sagaActions/send_and_receive';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import {
+  calculateCustomFee,
+  crossTransfer,
+  sendPhaseTwo,
+} from 'src/store/sagaActions/send_and_receive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import CustomPriorityModal from './CustomPriorityModal';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import VaultIcon from 'src/assets/icons/vault_setup.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import moment from 'moment';
 import { sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
 import { useAppSelector } from 'src/store/hooks';
@@ -31,16 +37,36 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import KeeperModal from 'src/components/KeeperModal';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { isVaultTransfer, uaiSetActionFalse, wallet } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const {
+    isVaultTransfer,
+    uaiSetActionFalse,
+    wallet,
+    recipients,
+    walletId,
+    uiMetaData = {},
+  } = route.params; // isVaultTransfer: switches between automated transfer and typical send
+  const {
+    title = 'Sending to address',
+    subtitle = 'Choose priority and fee',
+    from = 'Funds',
+    to = 'Funds',
+    note = '',
+    vaultToVault = false,
+    walletToVault = false,
+    vaultToWallet = false,
+    walletToWallet = false,
+  } = uiMetaData;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const successSatus = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.isSuccessful);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
-  const defaultWallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)[0];
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const sourceWallet = wallets.find((item) => item.id === walletId);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -51,6 +77,8 @@ const SendConfirmation = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
   const common = translations['common'];
   const walletTransactions = translations['wallet'];
+
+  const [visibleModal, setVisibleModal] = useState(false);
 
   // // Sending process is still not executed
   // const [sendingModal, setSendingModal] = useState(false);
@@ -79,38 +107,60 @@ const SendConfirmation = ({ route }) => {
         <Box alignSelf={'center'}>
           <SuccessIcon />
         </Box>
-        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
-        </Text>
-        <Text color={'5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {
-            'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
+            'You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed'
+          }
+        </Text>
+      </View>
+    );
+  };
+  //
+  const TransVaultSuccessfulContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>
+          <VaultIcon />
+        </Box>
+        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {'The transaction should be visible in the vault in some time.'}
+        </Text>
+      </View>
+    );
+  };
+  const NewVaultActivateContent = () => {
+    return (
+      <View>
+        <Box alignSelf={'center'}>
+          <VaultIcon />
+        </Box>
+        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+          {
+            'Whenever you upgrade, downgrade or change signing devices, a new vault is created with the new set of keys'
           }
         </Text>
       </View>
     );
   };
 
-  // const openLoaders = () => {
-  //   setTimeout(() => {
-  //     closeAllModal();
-  //     openSendModal();
-  //   }, 2000);
-  // };
-
   const onProceed = () => {
+    // console.log('pressed');
+    // setVisibleModal(true);
     // closeAllModal();
     if (isVaultTransfer) {
+      if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
+        Alert.alert('Not enough Balance');
+        return;
+      }
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      // openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
-            sender: defaultWallet,
+            sender: sourceWallet,
             recipient: defaultVault,
-            amount: 10e3,
+            amount: sourceWallet.specs.transferPolicy,
           })
         );
         if (uaiSetActionFalse) {
@@ -119,7 +169,6 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      // openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -159,16 +208,8 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
-    // close();
     navigation.navigate('WalletDetails');
   };
-
-  // useEffect(() => {
-  //   if (sendHasFailed) {
-  //     closeSendModal();
-  //     openFailedModal();
-  //   }
-  // }, [sendHasFailed]);
 
   useEffect(() => {
     if (walletSendSuccessful) {
@@ -211,22 +252,62 @@ const SendConfirmation = ({ route }) => {
               letterSpacing={1.12}
               fontWeight={200}
             >
-              {isVaultTransfer && !isSend ? 'Vault' : 'Funds'}
+              {isVaultTransfer && !isSend ? 'Vault' : isSend ? from : to}
             </Text>
             <Box flexDirection={'row'}>
-              <Text color={'light.GreyText'} fontSize={12} letterSpacing={0.24} fontWeight={100}>
-                {isVaultTransfer && !isSend ? '' : `Available to spend ${' '}`}
-              </Text>
-              <Box justifyContent={'center'}>
-                <BTC />
-              </Box>
-              <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
-                {isVaultTransfer && defaultWallet && isSend
-                  ? getAmount((defaultWallet as Wallet).specs.balances.confirmed)
-                  : ''}
-                {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
-                {!isSend && isVaultTransfer ? '0.0001' : ''}
-              </Text>
+              {vaultToVault ? (
+                !isSend ? (
+                  <Text
+                    color={'light.GreyText'}
+                    fontSize={12}
+                    letterSpacing={0.24}
+                    fontWeight={100}
+                  >
+                    {`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
+                  </Text>
+                ) : (
+                  <>
+                    <Text
+                      color={'light.GreyText'}
+                      fontSize={12}
+                      letterSpacing={0.24}
+                      fontWeight={100}
+                    >
+                      {`Moving Funds  `}
+                      <BTC />
+                    </Text>
+                    <Text
+                      color={'light.GreyText'}
+                      fontSize={14}
+                      letterSpacing={1.4}
+                      fontWeight={300}
+                    >
+                      {` ${getAmount(recipients[0].amount)}`}
+                    </Text>
+                  </>
+                )
+              ) : (
+                <>
+                  <Text
+                    color={'light.GreyText'}
+                    fontSize={12}
+                    letterSpacing={0.24}
+                    fontWeight={100}
+                  >
+                    {isVaultTransfer && !isSend ? '' : `Policy ${' '}`}
+                  </Text>
+                  <Box justifyContent={'center'}>
+                    <BTC />
+                  </Box>
+                  <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
+                    {isVaultTransfer && sourceWallet && isSend
+                      ? ` ${getAmount((sourceWallet as Wallet).specs.transferPolicy)}sats `
+                      : ''}
+                    {wallet ? getAmount((wallet as Wallet).specs.balances.confirmed) : ''}
+                    {!isSend && isVaultTransfer ? defaultVault.specs.balances.confirmed : ''}
+                  </Text>
+                </>
+              )}
             </Box>
           </Box>
         </Box>
@@ -262,6 +343,7 @@ const SendConfirmation = ({ route }) => {
   const SendingPriority = () => {
     return (
       <Box flexDirection={'column'}>
+        <Transaction />
         <Box flexDirection={'row'} justifyContent={'space-between'}>
           <Box
             style={{
@@ -423,59 +505,72 @@ const SendConfirmation = ({ route }) => {
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
           info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
           buttonText="Confirm"
+          buttonCallback={(customFeePerByte, customEstimatedBlocks) => {
+            dispatch(
+              calculateCustomFee({
+                wallet,
+                recipients,
+                feePerByte: customFeePerByte,
+                customEstimatedBlocks,
+              })
+            );
+          }}
+          network={(wallet as Wallet).networkType}
         />
       </Box>
     );
   };
 
-  // const handleCustomPriority = () => {
-  //   const { translations } = useContext(LocalizationContext);
-  //   const vault = translations['vault'];
-  //   const common = translations['common'];
-
-  //   return (
-  //     <CustomPriorityModal
-  //       visible={visible}
-  //       title={vault.CustomPriority}
-  //       subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-  //       info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-  //       close={close}
-  //       buttonText={common.confirm}
-  //     />
-  //   );
-  // };
-
-  return (
-    <ScreenWrapper>
-      <Header title="Sending to address" subtitle="Lorem ipsum dolor sit amet," />
-      <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <Box marginTop={windowHeight * 0.01}>
-          <Transaction />
-        </Box>
-
-        <Box>
-          <SendingPriority />
-        </Box>
-
-        <Box flexDirection={'row'} justifyContent={'space-between'}>
+  const FeeInfo = () => {
+    return (
+      <HStack width={windowWidth * 0.75} justifyContent={'space-between'} alignItems={'center'}>
+        <VStack>
           <Text
             color={'light.lightBlack'}
             fontSize={14}
+            letterSpacing={1.12}
             fontWeight={200}
-            letterSpacing={0.24}
-            width={wp(48)}
-            noOfLines={2}
+            marginTop={windowHeight * 0.011}
           >
-            Total Amount
+            {'Fees'}
           </Text>
-          <Text color={'light.sendCardHeading'} fontSize={24} fontWeight={200} letterSpacing={0.24}>
-            0.024
+          <Text color={'light.lightBlack'} fontSize={12} letterSpacing={1.12} fontWeight={100}>
+            {'~ 10 - 30 mins'}
           </Text>
+        </VStack>
+        <Text
+          color={'light.lightBlack'}
+          fontSize={14}
+          letterSpacing={1.12}
+          fontWeight={200}
+          marginTop={windowHeight * 0.011}
+        >
+          {<BTC />}
+          {` ${getAmount(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}`}
+        </Text>
+      </HStack>
+    );
+  };
+
+  return (
+    <ScreenWrapper>
+      <HeaderTitle title={title} subtitle={subtitle} paddingTop={hp(5)} />
+      <Box marginTop={windowHeight * 0.01} marginX={7}>
+        <SendingCard isSend={true} />
+        <SendingCard isSend={false} />
+        <Box marginTop={windowHeight * 0.01}>
+          {vaultToVault ? <FeeInfo /> : <SendingPriority />}
         </Box>
       </Box>
-
-      <CustomPriorityBox />
-
+      <Box position={'absolute'} bottom={windowHeight * 0.14}>
+        {vaultToVault ? (
+          <Note
+            title="Note"
+            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
+            width={'70%'}
+          />
+        ) : null}
+      </Box>
       <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"
@@ -486,6 +581,43 @@ const SendConfirmation = ({ route }) => {
           primaryCallback={onProceed}
         />
       </Box>
+      {/*Modals */}
+      <KeeperModal
+        visible={visibleModal}
+        close={() => setVisibleModal(false)}
+        title={walletTransactions.SendSuccess}
+        subTitle={'The transaction has been successfully broadcasted'}
+        buttonText={walletTransactions.ViewDetails}
+        textColor={'#073B36'}
+        buttonTextColor={'#FAFAFA'}
+        // cancelButtonText={common.cancel}
+        // cancelButtonColor={'#073E39'}
+        Content={SendSuccessfulContent}
+        // buttonPressed={viewDetails}
+      />
+      {/* <KeeperModal
+        visible={visibleModal}
+        close={() => setVisibleModal(false)}
+        title={'Transfer to Vault Successfull'}
+        subTitle={'You have successfully transferred from your wallet to the vault'}
+        buttonText={'View Vault'}
+        textColor={'#073B36'}
+        buttonTextColor={'#FAFAFA'}
+        Content={TransVaultSuccessfulContent}
+      /> */}
+      {/* <KeeperModal
+        visible={visibleModal}
+        close={() => setVisibleModal(false)}
+        title={'New Vault activated!'}
+        subTitle={
+          'The new set of signing devices will be needed to sign transactions from this vault'
+        }
+        buttonText={'View Vault'}
+        textColor={'#073B36'}
+        buttonTextColor={'#FAFAFA'}
+        Content={NewVaultActivateContent}
+      /> */}
+      {/* end */}
 
       {/* {showOverlay && (
         <View
@@ -497,20 +629,7 @@ const SendConfirmation = ({ route }) => {
           position={'absolute'}
         ></View>
       )} */}
-      {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={walletTransactions.SendSuccess}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
-        buttonText={walletTransactions.ViewDetails}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        cancelButtonText={common.cancel}
-        cancelButtonColor={'#073E39'}
-        Content={SendSuccessfulContent}
-        buttonPressed={viewDetails}
-      />
-
+      {/* 
       <KeeperModal
         visible={sendingModal}
         close={closeSendModal}

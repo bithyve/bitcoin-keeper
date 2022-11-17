@@ -1,20 +1,21 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
-import Carousel from 'react-native-snap-carousel';
-import LinearGradient from 'react-native-linear-gradient';
-import { FlatList, Dimensions } from 'react-native';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const ChoosePlanCarousel = (props) => {
-  const [currentPosition, setCurrentPosition] = useState(0);
-  const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+
+  const [currentPosition, setCurrentPosition] = useState(subscription.level);
+
+  console.log('subscription', subscription.level);
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
@@ -36,61 +37,90 @@ const ChoosePlanCarousel = (props) => {
 
   const _renderItem = ({ item, index }) => {
     return (
-      <LinearGradient
-        colors={currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484']}
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: 20,
-          paddingVertical: 20,
-        }}
-      >
-        <Box py={3} alignItems={'center'} justifyContent={'center'}>
-          {subscription.productId === item.productId && (
-            <Box bg={'light.white'} borderRadius={10} px={2}>
-              <Text fontSize={RFValue(8)}>Current</Text>
-            </Box>
-          )}
-          <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
-          <Text
-            fontSize={RFValue(13)}
-            fontWeight={'300'}
-            color={'light.textLight'}
-            mt={2}
-            fontFamily={'body'}
-          >
-            {item.name}
-          </Text>
-          <Text fontSize={RFValue(10)} color={'light.textLight'} mb={2} fontFamily={'body'}>
-            {item.subTitle}
-          </Text>
-          {/* <Text fontSize={RFValue(24)} color={'light.textLight'} fontFamily={'body'}>
-            {item.productType === 'free' ? '0' : item.price}
-          </Text>
-          <Text fontSize={RFValue(10)} color={'light.textLight'} fontFamily={'body'}>
-            / month
-          </Text> */}
-          {subscription.productId !== item.productId ? (
-            <Box mt={10}>
-              <CustomYellowButton onPress={() => props.onPress(item, index)} value={getBtnTitle(item)} />
-            </Box>
-          ) : null}
+      <Pressable onPress={() => _onSnapToItem(index)}>
+        <Box
+          bg={{
+            linearGradient: {
+              colors: currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484'],
+              start: [0, 0],
+              end: [1, 1],
+            },
+          }}
+          style={[
+            styles.wrapperView,
+            {
+              width: wp(currentPosition == index ? 115 : 100),
+              height: hp(currentPosition == index ? 260 : 200),
+            },
+          ]}
+        >
+          <Box py={5} alignItems={'center'} justifyContent={'center'}>
+            {subscription.productId === item.productId && (
+              <Box bg={'light.white'} borderRadius={10} px={2}>
+                <Text fontSize={RFValue(8)} letterSpacing={0.64} fontWeight={300}>
+                  Current
+                </Text>
+              </Box>
+            )}
+            <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
+            <Text
+              fontSize={RFValue(13)}
+              fontWeight={'300'}
+              color={'light.textLight'}
+              mt={2}
+              fontFamily={'body'}
+              letterSpacing={0.48}
+            >
+              {item.name}
+            </Text>
+            <Text
+              fontSize={RFValue(10)}
+              color={'light.textLight'}
+              mb={2}
+              fontWeight={'200'}
+              letterSpacing={0.5}
+            >
+              {item.subTitle}
+            </Text>
+            {currentPosition == index && subscription.productId !== item.productId ? (
+              <Box
+                style={{
+                  marginTop: hp(30),
+                }}
+              >
+                <CustomYellowButton
+                  onPress={() => props.onPress(item, index)}
+                  value={getBtnTitle(item)}
+                />
+              </Box>
+            ) : null}
+          </Box>
         </Box>
-      </LinearGradient>
+      </Pressable>
     );
   };
   return (
-    <Box>
-      <Carousel
-        onSnapToItem={_onSnapToItem}
-        ref={carasualRef}
+    <Box
+      style={{
+        marginTop: hp(40),
+      }}
+    >
+      <FlatList
         data={props.data}
+        horizontal
+        showsHorizontalScrollIndicator={false}
         renderItem={_renderItem}
-        sliderWidth={Dimensions.get('screen').width}
-        itemWidth={150}
-        layout={'default'}
+        keyExtractor={(item) => item.productId}
+        scrollEnabled={false}
       />
     </Box>
   );
 };
+const styles = StyleSheet.create({
+  wrapperView: {
+    borderRadius: 20,
+    marginHorizontal: wp(3),
+    position: 'relative',
+  },
+});
 export default ChoosePlanCarousel;

@@ -46,14 +46,14 @@ const CustomYellowButton = (props: Props) => {
 const styles = StyleSheet.create({
   button: {
     width: 80,
-    height: 35,
+    height: 30,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   linearGradient: {
-    width: 80,
-    height: 35,
+    width: 75,
+    height: 30,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',

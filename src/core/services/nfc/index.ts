@@ -56,15 +56,16 @@ export default class NFC {
         const records = ndefMessage.map((record) => {
           const tnfName = tnfValueToName(record.tnf);
           const rtdName = rtdValueToName(record.type);
-          const data =
-            rtdName === 'URI'
-              ? Ndef.uri.decodePayload(record.payload as any)
-              : rtdName === 'TEXT'
-              ? Ndef.text.decodePayload(record.payload as any)
-              : // ColdCard signed psbt is of type EXTERNAL_TYPE
-              tnfName === 'EXTERNAL_TYPE'
-              ? Buffer.from(record.payload).toString('base64')
-              : JSON.parse(Buffer.from(record.payload).toString());
+          let data;
+          if (rtdName === 'URI') {
+            data = Ndef.uri.decodePayload(record.payload as any);
+          } else if (rtdName === 'TEXT') {
+            data = Ndef.text.decodePayload(record.payload as any);
+          } else if (tnfName === 'EXTERNAL_TYPE') {
+            Buffer.from(record.payload).toString('base64');
+          } else {
+            data = JSON.parse(Buffer.from(record.payload).toString());
+          }
           return { data, rtdName, tnfName };
         });
         return records;
@@ -107,5 +108,9 @@ export default class NFC {
 
   public static isNFCSupported = async () => {
     return NfcManager.isSupported();
+  };
+
+  public static showiOSMessage = async (message: string) => {
+    return NfcManager.setAlertMessageIOS(message);
   };
 }

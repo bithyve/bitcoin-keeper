@@ -1,12 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { BackupType } from 'src/common/data/enums/BHR';
+import Buttons from '../Buttons';
+import { StyleSheet } from 'react-native';
 
 const HealthCheckComponent = (props) => {
   const navigation = useNavigation();
@@ -96,13 +96,13 @@ const HealthCheckComponent = (props) => {
   };
 
   return (
-    <Box bg={'light.ReceiveBackground'} p={10} borderRadius={10}>
+    <Box bg={'light.ReceiveBackground'} style={styles.wrapper}>
       <Box>
         <Text fontSize={RFValue(19)} color={'light.lightBlack'}>
           {BackupWallet.healthCheck}
         </Text>
         <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
-          Lorem ipsum dolor sit amet
+          For the Recovery Phrase
         </Text>
       </Box>
       <Box>
@@ -119,11 +119,7 @@ const HealthCheckComponent = (props) => {
           onChangeText={(value) =>
             type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
           }
-          style={{
-            fontSize: RFValue(13),
-            letterSpacing: 0.96,
-            height: 50,
-          }}
+          style={styles.inputContainer}
           borderRadius={10}
           marginY={2}
           borderWidth={'0'}
@@ -137,17 +133,26 @@ const HealthCheckComponent = (props) => {
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.healthCheckNote}</Text>
       </Box>
-      <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
-        <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
-          <Text fontSize={RFValue(14)} textAlign={'center'}>
-            {common.skip}
-          </Text>
-        </TouchableOpacity>
-        <Box>
-          <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
-        </Box>
-      </Box>
+      <Buttons
+        secondaryText={common.skip}
+        secondaryCallback={() => {
+          props.closeBottomSheet();
+        }}
+        primaryText={common.confirm}
+        primaryCallback={onPressConfirm}
+      />
     </Box>
   );
 };
+const styles = StyleSheet.create({
+  wrapper: {
+    padding: 25,
+    borderRadius: 10,
+  },
+  inputContainer: {
+    fontSize: RFValue(13),
+    letterSpacing: 0.96,
+    height: 50,
+  },
+});
 export default HealthCheckComponent;

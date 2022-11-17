@@ -7,17 +7,19 @@ import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import DollarInput from 'src/assets/images/svgs/icon_dollar.svg';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useAppSelector } from 'src/store/hooks';
+import WalletDetails from './WalletDetails';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -26,8 +28,31 @@ const AddSendAmount = ({ route }) => {
     wallet,
     address,
     amount: prefillAmount,
-  }: { wallet: Wallet; address: string; amount: string } = route.params;
+    availableAmt,
+    walletName,
+    from,
+  }: {
+    wallet: Wallet;
+    address: string;
+    amount: string;
+    availableAmt: string;
+    walletName: string;
+    from: string;
+  } = route.params;
+
   const [amount, setAmount] = useState(prefillAmount ? prefillAmount : '');
+  const [recipientCount, setReicipientCount] = useState(1);
+  const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+
+  useEffect(() => {
+    const confirmBalance = wallet.specs.balances.confirmed;
+    if (sendMaxFee && confirmBalance) {
+      const sendMaxBalance = confirmBalance - sendMaxFee;
+      setAmount(`${sendMaxBalance}`);
+    }
+  }, [sendMaxFee]);
+
   const navigateToNext = (recipients) => {
     navigation.navigate('SendConfirmation', {
       wallet,
@@ -37,10 +62,6 @@ const AddSendAmount = ({ route }) => {
   const { showToast } = useToastMessage();
 
   const executeSendPhaseOne = () => {
-    if (wallet.specs.balances.confirmed < Number(amount)) {
-      showToast('You have insuffecient balnce at this time.', null, 1000);
-      return;
-    }
     const recipients = [];
     recipients.push({
       address,
@@ -52,8 +73,22 @@ const AddSendAmount = ({ route }) => {
         recipients,
       })
     );
-    navigateToNext(recipients);
   };
+
+  useEffect(() => {
+    if (sendPhaseOneState.isSuccessful) {
+      const recipients = [];
+      recipients.push({
+        address,
+        amount: parseInt(amount),
+      });
+      navigateToNext(recipients);
+    } else if (sendPhaseOneState.hasFailed) {
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
+        showToast('You have insufficient balance at this time.', null, 1000);
+      else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
+    }
+  }, [sendPhaseOneState]);
 
   useEffect(() => {
     return () => {
@@ -63,7 +98,10 @@ const AddSendAmount = ({ route }) => {
 
   return (
     <ScreenWrapper>
-      <Header title={`Enter the amount`} subtitle={`Sending to ${address}`} />
+      <HeaderTitle
+        title={from == 'Wallet' ? `Sending to Wallet` : `Enter the amount`}
+        // subtitle={`Sending to ${address}`}
+      />
       {/* <Box
         flexDirection={'row'}
         alignItems={'center'}
@@ -103,21 +141,33 @@ const AddSendAmount = ({ route }) => {
       </Box> */}
 
       {/* { Transaction list} */}
-      <Box marginTop={hp(32)} marginBottom={hp(32)}>
-        <Transactions
-          transactions={[
-            {
-              address,
-              amount,
-            },
-          ]}
-          addTransaction={() => {}}
-        />
+      <Box
+        style={{
+          marginVertical: hp(5),
+        }}
+      >
+        <WalletDetails availableAmt={availableAmt} walletName={walletName} />
+      </Box>
+      <Box
+      // style={{
+      //   marginTop: hp(32),
+      //   marginBottom: hp(32),
+      // }}
+      >
+        {/* <Transactions
+            transactions={[
+              {
+                address,
+                amount,
+              },
+            ]}
+            addTransaction={() => {}}
+          /> */}
       </Box>
       <Box
         alignItems={'center'}
         style={{
-          marginBottom: hp(30),
+          marginVertical: hp(20),
         }}
       >
         <Box
@@ -135,7 +185,9 @@ const AddSendAmount = ({ route }) => {
           alignItems={'center'}
           borderRadius={10}
           backgroundColor={'light.lightYellow'}
-          marginY={2}
+          style={{
+            marginVertical: hp(5),
+          }}
           padding={3}
         >
           <Box flexDirection={'row'} alignItems={'center'}>
@@ -165,10 +217,14 @@ const AddSendAmount = ({ route }) => {
             />
           </Box>
           <Pressable
-            onPress={() => setAmount(wallet.specs.balances.confirmed.toString())}
+            onPress={() => {
+              const confirmBalance = wallet.specs.balances.confirmed;
+              if (confirmBalance)
+                dispatch(calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet }));
+            }}
             style={{
-              paddingHorizontal: 10,
-              paddingVertical: 3,
+              paddingHorizontal: hp(10),
+              paddingVertical: hp(3),
               borderRadius: 5,
             }}
           >
@@ -185,19 +241,27 @@ const AddSendAmount = ({ route }) => {
 
         <Box
           flexDirection={'row'}
-          marginY={2}
+          style={{
+            marginVertical: hp(2),
+          }}
           width={'100%'}
           justifyContent={'center'}
           alignItems={'center'}
         >
           <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
-        <Box marginTop={3} marginBottom={5} flexDirection={'row'} justifyContent={'flex-end'}>
+        <Box
+          style={{
+            marginBottom: hp(5),
+          }}
+          flexDirection={'row'}
+          justifyContent={'flex-end'}
+        >
           <Box ml={windowWidth * -0.09}>
             <Buttons
               secondaryText={'Cancel'}
               secondaryCallback={() => {
-                console.log('Cancel');
+                navigation.goBack();
               }}
               primaryText={'Send'}
               primaryCallback={executeSendPhaseOne}
@@ -205,15 +269,17 @@ const AddSendAmount = ({ route }) => {
           </Box>
         </Box>
       </Box>
-      <AppNumPad
-        setValue={setAmount}
-        ok={() => {
-          console.log('ok');
-        }}
-        clear={() => setAmount('')}
-        color={'#073E39'}
-        height={windowHeight >= 850 ? 80 : 60}
-      />
+      <Box position={'absolute'} bottom={0} alignItems={'center'} width={wp(375)}>
+        <AppNumPad
+          setValue={setAmount}
+          ok={() => {
+            console.log('ok');
+          }}
+          clear={() => setAmount('')}
+          color={'#073E39'}
+          height={windowHeight >= 850 ? 80 : 60}
+        />
+      </Box>
     </ScreenWrapper>
   );
 };

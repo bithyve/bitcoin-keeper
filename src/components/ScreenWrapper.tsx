@@ -29,5 +29,6 @@ const styles = ScaledSheet.create({
     backgroundColor: '#F7F2EC',
     paddingVertical: '15@s',
     paddingHorizontal: '20@s',
+    position: 'relative'
   },
 });

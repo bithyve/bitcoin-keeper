@@ -73,6 +73,7 @@ function* setupKeeperAppWorker({ payload }) {
       walletDetails: {
         name: 'Wallet 1',
         description: 'Single-sig bitcoin wallet',
+        transferPolicy: 5000,
       },
     };
     yield put(addNewWallets([defaultWallet]));
@@ -136,6 +137,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       walletDetails: {
         name: 'Mobile Wallet',
         description: 'Single-sig bitcoin wallet',
+        transferPolicy: 5000,
       },
     };
     yield put(addNewWallets([defaultWallet]));

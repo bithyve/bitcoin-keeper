@@ -6,6 +6,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { hash512 } from 'src/core/services/operations/encryption';
+import Close from 'src/assets/icons/modal_close.svg';
 
 const FogotPassword = (props) => {
   const [passwordText, setPasswordText] = useState('');
@@ -69,17 +70,37 @@ const FogotPassword = (props) => {
           justifyContent={'center'}
           alignSelf={'flex-end'}
         >
-          <Text fontSize={18} color={'#FFF'}>
-            X
-          </Text>
+          <Close />
         </Box>
       </TouchableOpacity>
-      <Text fontSize={RFValue(19)}>{login.ForgotPasscode}</Text>
-      <Text fontSize={RFValue(12)}>{login.forgotPasscodeDesc}</Text>
+      <Text
+        fontWeight={200}
+        fontSize={RFValue(19)}
+        letterSpacing={1}
+      >
+        {login.ForgotPasscode}
+      </Text>
+      <Text
+        fontWeight={200}
+        fontSize={RFValue(12)}
+      >
+        {login.forgotPasscodeDesc}
+      </Text>
       {props.type === 'seed' ? (
         <Box>
-          <Text fontSize={RFValue(13)} mt={10}>
-            {`Enter the ${getSeedIndexText(resetCred.index + 1)} word`}
+          <Text
+            fontWeight={200}
+            fontSize={RFValue(13)}
+            mt={10}
+          >
+            Enter the
+            <Text
+              fontWeight={500}
+              fontSize={RFValue(13)}
+            >
+              {" " + getSeedIndexText(resetCred.index + 1) + " "}
+            </Text>
+            word
           </Text>
           <Input
             onChangeText={(text) => {
@@ -106,7 +127,11 @@ const FogotPassword = (props) => {
           />
 
           {invalid && (
-            <Text color="#FF0000" m={2}>
+            <Text
+              fontWeight={200}
+              color="#FF0000"
+              m={2}
+            >
               {login.Invalidword}
             </Text>
           )}
@@ -127,6 +152,7 @@ const FogotPassword = (props) => {
             py={4}
             my={6}
             value={passwordText}
+
           />
         </Box>
       )}

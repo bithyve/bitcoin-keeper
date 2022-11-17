@@ -2,21 +2,22 @@ import { Box, Text } from 'native-base';
 import { Clipboard, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
+import QRCode from 'react-native-qrcode-svg';
+import { useNavigation } from '@react-navigation/native';
+
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
-import Header from 'src/components/Header';
-import InfoBox from '../../components/InfoBox';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import QRCode from 'react-native-qrcode-svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
+import Note from 'src/components/Note/Note';
 
 const ReceiveScreen = ({ route }: { route }) => {
   const navigtaion = useNavigation();
@@ -48,11 +49,12 @@ const ReceiveScreen = ({ route }: { route }) => {
 
   return (
     <ScreenWrapper>
-      <Header
+      <HeaderTitle
         title={common.receive}
-        subtitle={common.smalldesc}
+        subtitle={'Native segwit address'}
         onPressHandler={() => navigtaion.goBack()}
         headerTitleColor={'light.textBlack'}
+        paddingTop={hp(6)}
       />
       <Box marginTop={hp(80)} alignItems={'center'} alignSelf={'center'} width={hp(200)}>
         <QRCode
@@ -71,7 +73,7 @@ const ReceiveScreen = ({ route }: { route }) => {
             width={'100%'}
             noOfLines={1}
           >
-            {paymentURI || receivingAddress}
+            {'Recieve Address'}
           </Text>
         </Box>
       </Box>
@@ -147,7 +149,7 @@ const ReceiveScreen = ({ route }: { route }) => {
                 fontSize={12}
                 letterSpacing={0.6}
               >
-                Lorem ipsum dolor sit amet, con
+                Add a specific invoice amount
               </Text>
             </Box>
           </Box>
@@ -155,8 +157,8 @@ const ReceiveScreen = ({ route }: { route }) => {
         </Box>
       </TouchableOpacity>
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
-        <InfoBox title={home.AddAmount} desciption={home.reflectSats} width={300} />
+      <Box position={'absolute'} bottom={hp(45)} marginX={5} width={'100%'}>
+        <Note title={home.AddAmount} subtitle={home.reflectSats} subtitleColor={'GreyText'} />
       </Box>
     </ScreenWrapper>
   );

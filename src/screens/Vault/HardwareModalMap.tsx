@@ -1,5 +1,6 @@
 import * as bip39 from 'bip39';
 
+import { Alert, StyleSheet } from 'react-native';
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
@@ -7,8 +8,6 @@ import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { Alert } from 'react-native';
-import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -19,10 +18,11 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
-import { StyleSheet } from 'react-native';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -33,6 +33,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+
+const RNBiometrics = new ReactNativeBiometrics();
 
 const SetupSuccessfully = () => {
   return (
@@ -56,17 +58,18 @@ const SetupSuccessfully = () => {
   );
 };
 
-const BulletPoint = ({ text }) => {
+export const BulletPoint = ({ text }) => {
   return (
-    <Box marginTop={'4'} flexDirection={'row'} alignItems={'center'}>
+    <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
         style={{
-          height: hp(5),
-          width: wp(5),
+          marginRight: wp(5),
         }}
+        size={hp(5)}
+        m={1}
+        top={2}
         backgroundColor={'light.modalText'}
         borderRadius={10}
-        marginRight={wp(5)}
       />
       <Text
         color={'light.modalText'}
@@ -74,7 +77,7 @@ const BulletPoint = ({ text }) => {
         fontFamily={'body'}
         fontWeight={'200'}
         p={1}
-        letterSpacing={1.65}
+        letterSpacing={1}
       >
         {text}
       </Text>
@@ -88,7 +91,7 @@ const TapsignerSetupContent = () => {
       <TapsignerSetupImage />
       <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
       <BulletPoint
-        text={`You should generally not use the same Signing Device on multiple wallets/apps`}
+        text={`You should generally not use the same signing device on multiple wallets/apps`}
       />
     </View>
   );
@@ -110,7 +113,7 @@ const ColdCardSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your Vault).\n`}
+          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
         </Text>
         <Text
           color={'#073B36'}
@@ -136,7 +139,7 @@ const LedgerSetupContent = () => {
       <Box marginTop={'4'} flex={1} alignItems={'center'} justifyContent={'center'}>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'}>
-            {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the ledger based on the your current BTC network`}
+            {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
@@ -182,12 +185,12 @@ const SetUpMobileKey = () => {
 const SetupSeedWords = () => {
   return (
     <Box>
-      <AlertIllustration />
+      <SeedWordsIllustration />
+      <BulletPoint text={'Once the transaction is signed the key is not stored on the app'} />
       <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
-      />
-      <BulletPoint
-        text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        text={
+          'Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer'
+        }
       />
     </Box>
   );
@@ -203,6 +206,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
+  // const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  // const appId = useAppSelector((state) => state.storage.appId);
+  // const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -227,7 +233,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const navigateToSigningServerSetup = () => {
     close();
-    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicy', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
   };
 
   const navigateToSeedWordSetup = () => {
@@ -295,6 +301,32 @@ const HardwareModalMap = ({ type, visible, close }) => {
     dispatch(addSigningDevice(softSigner));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
+
+  // const biometricAuth = async () => {
+  //   if (loginMethod === LoginMethod.BIOMETRIC) {
+  //     try {
+  //       setTimeout(async () => {
+  //         const { success, signature } = await RNBiometrics.createSignature({
+  //           promptMessage: 'Authenticate',
+  //           payload: appId,
+  //           cancelButtonText: 'Use PIN',
+  //         });
+  //         if (success) {
+  //           dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+  //         }
+  //       }, 200);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     // biometric authentication
+  //     setupMobileKey();
+  //   }
+  // }, [isAuthenticated]);
 
   const passwordEnter = () => {
     const onPressNumber = (text) => {
@@ -402,10 +434,10 @@ const HardwareModalMap = ({ type, visible, close }) => {
         visible={visible && type === SignerType.POLICY_SERVER}
         close={close}
         title={'Setting up a Signing Server'}
-        subTitle={'A Signing Server will hold one of the keys in the Vault'}
+        subTitle={'A Signing Server will hold one of the keys in the vault'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Proceed'}
+        buttonText={'Continue'}
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToSigningServerSetup}
         textColor={'#041513'}
@@ -443,8 +475,10 @@ const HardwareModalMap = ({ type, visible, close }) => {
       <KeeperModal
         visible={visible && type === SignerType.SEED_WORDS}
         close={close}
-        title={'Setup Seed Words Based Signer'}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed '}
+        title={'Keep your Soft Signer ready'}
+        subTitle={
+          'This is the twelve word Recovery Phrase you would have noted down when creating the vault'
+        }
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText={'Proceed'}

@@ -8,15 +8,14 @@ import {
   UPADTE_UAI_STACK,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
-import { all, call, put } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 const healthCheckRemider = (signer: VaultSigner) => {
-  var today = new Date();
-  var Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
-  var Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
-  console.log(Difference_In_Days);
+  let today = new Date();
+  let Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
+  let Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
   return Difference_In_Days;
 };
 
@@ -36,18 +35,17 @@ function* updateUaiStackWorker({ payload }) {
 }
 
 function* uaiChecksWorker({ payload }) {
-  const { isFirstLogin } = payload;
   const vaults = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
 
-  for (var vault of vaults) {
-    for (var signer of vault.signers) {
+  for (let vault of vaults) {
+    for (let signer of vault.signers) {
       const lastHealthCheckDays = healthCheckRemider(signer);
-      if (lastHealthCheckDays >= 1) {
+      if (lastHealthCheckDays >= 90) {
         const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
         if (!uais.length) {
           yield put(
             addToUaiStack(
-              `Health Check for ${signer.signerName} is due`,
+              `Health check for ${signer.signerName} is due`,
               false,
               uaiType.SIGNING_DEVICES_HEALTH_CHECK,
               100,
@@ -67,12 +65,12 @@ function* uaiChecksWorker({ payload }) {
 }
 
 function* uaiActionedEntityWorker({ payload }) {
-  const { entityId } = payload;
+  const { entityId, action } = payload;
   const uais = yield call(dbManager.getObjectByField, RealmSchema.UAI, entityId, 'entityId');
   if (uais.length > 0) {
     const uai = uais[0];
     let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
-    updatedUai = { ...updatedUai, isActioned: true };
+    updatedUai = { ...updatedUai, isActioned: action };
     yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, updatedUai);
   }
 }

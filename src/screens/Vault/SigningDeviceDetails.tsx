@@ -1,54 +1,36 @@
-import {
-  Alert,
-  FlatList,
-  InteractionManager,
-  Platform,
-  RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import { Box, HStack, Text, VStack, View, Button } from 'native-base';
+import { Alert, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import React, { useContext, useEffect, useState } from 'react';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
-import Change from 'src/assets/images/svgs/change.svg';
-import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
+import React, { useContext, useState } from 'react';
+
 import AdvnaceOptions from 'src/assets/images/svgs/Advancedoptions.svg';
-
-import Settings from 'src/assets/images/svgs/settings.svg';
-
 import BackIcon from 'src/assets/icons/back.svg';
-import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
+import Change from 'src/assets/images/svgs/change.svg';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import EditDescriptionModal from 'src/components/HealthCheck/EditDescriptionModal';
+import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
 import Illustration from 'src/assets/images/illustration.svg';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
+import { SignerType } from 'src/core/wallets/enums';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { WalletMap } from './WalletMap';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { useDispatch } from 'react-redux';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import idx from 'idx';
-import _ from 'lodash';
 import moment from 'moment';
-import { WalletMap } from './WalletMap';
+import { useDispatch } from 'react-redux';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -72,7 +54,6 @@ const Header = () => {
 const SigningDeviceDetails = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
   const { translations } = useContext(LocalizationContext);
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];
@@ -149,7 +130,7 @@ const SigningDeviceDetails = ({ route }) => {
   const healthCheckColdCard = React.useCallback(async () => {
     try {
       const colcard = await getColdCardDetails();
-      let { xpub, derivationPath, xfp } = colcard;
+      let { xpub } = colcard;
       const networkType = config.NETWORK_TYPE;
       const network = WalletUtilities.getNetworkByType(networkType);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
@@ -170,10 +151,6 @@ const SigningDeviceDetails = ({ route }) => {
 
   const closeEditDescription = () => {
     setEditDescriptionModal(false);
-  };
-
-  const closeCVVModal = () => {
-    setconfirmHealthCheckModal(false);
   };
 
   const closeHealthCheckView = () => setHealthCheckViewTapsigner(false);
@@ -232,7 +209,7 @@ const SigningDeviceDetails = ({ route }) => {
           fontWeight={'200'}
           p={2}
         >
-          {'Health Check is initiated if a Signning Device is not used for the last 180 days'}
+          {'Health Check is initiated if a signning device is not used for the last 180 days'}
         </Text>
         <Text
           color={'light.lightBlack2'}
@@ -258,7 +235,7 @@ const SigningDeviceDetails = ({ route }) => {
           fontWeight={'200'}
           p={2}
         >
-          {'Health Check is initiated if a Signning Device is not used for the last 180 days'}
+          {'Health Check is initiated if a signning device is not used for the last 180 days'}
         </Text>
         <Text
           color={'light.lightBlack2'}
@@ -285,7 +262,7 @@ const SigningDeviceDetails = ({ route }) => {
           p={2}
         >
           {
-            'You can choose to manually confirm the health of the Signing Device if you are sure that they are secure and accessible.'
+            'You can choose to manually confirm the health of the signing device if you are sure that they are secure and accessible.'
           }
         </Text>
         <Text
@@ -315,16 +292,13 @@ const SigningDeviceDetails = ({ route }) => {
           fontWeight={'200'}
           p={2}
         >
-          {
-            'You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,'
-          }
+          {'You will be reminded in 90 days for the health check'}
         </Text>
       </View>
     );
   };
 
   const openHealthCheckModal = (signerType) => {
-    console.log('asdfsd');
     switch (signerType) {
       case SignerType.TAPSIGNER:
         setHealthCheckViewTapsigner(true);
@@ -333,7 +307,7 @@ const SigningDeviceDetails = ({ route }) => {
         setHealthCheckViewColdCard(true);
         break;
       default:
-        Alert.alert('Healt Check Not Supported currently');
+        Alert.alert('Health check for this device is not supported currently');
     }
   };
 
@@ -342,7 +316,7 @@ const SigningDeviceDetails = ({ route }) => {
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'ChoosePolicy',
+        name: 'ChoosePolicyNew',
         params: {
           restrictions,
           exceptions,
@@ -376,8 +350,7 @@ const SigningDeviceDetails = ({ route }) => {
     );
   };
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
-      <StatusBarComponent padding={50} />
+    <ScreenWrapper>
       <Box>
         <Header />
         <Box>
@@ -398,9 +371,9 @@ const SigningDeviceDetails = ({ route }) => {
             <Box marginTop={2} width={'75%'} flexDirection={'row'} justifyContent={'space-between'}>
               <Box flexDirection={'column'}>
                 <Text fontSize={15}>{signer.signerName}</Text>
-                <Text fontSize={13}>{`Added on ${moment(signer.addedOn).format(
-                  'DD MMM YYYY, hh:mmA'
-                )}`}</Text>
+                <Text fontSize={13}>{`Added on ${moment(signer.addedOn)
+                  .format('DD MMM YYYY, hh:mmA')
+                  .toLowerCase()}`}</Text>
               </Box>
               <Box marginTop={3}>
                 <TouchableOpacity
@@ -420,11 +393,8 @@ const SigningDeviceDetails = ({ route }) => {
           <SigningDeviceChecklist date={signer.lastHealthCheck} />
         </Box>
       </ScrollView>
-      <Box px={'10%'} py={'10%'}>
-        <Text fontSize={13}>
-          You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-        </Text>
-
+      <Box py={'10%'}>
+        <Text fontSize={13}>You will be reminded in 90 days for the health check</Text>
         <HStack justifyContent={'space-between'}>
           <FooterItem
             Icon={Change}
@@ -441,30 +411,13 @@ const SigningDeviceDetails = ({ route }) => {
           <FooterItem
             Icon={AdvnaceOptions}
             title={'Advance Options'}
-            onPress={() => console.log('Advance Options')}
+            onPress={() => {
+              if (signer.type === SignerType.POLICY_SERVER) navigateToPolicyChange(signer);
+              else if (signer.type === SignerType.COLDCARD)
+                navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
+            }}
           />
         </HStack>
-        {/* <Buttons
-          primaryText={healthcheck.HealthCheck}
-          secondaryText={healthcheck.ChangeSigningDevice}
-          primaryCallback={() => {
-            openHealthCheckModal(signer.type);
-          }}
-          secondaryCallback={() => {
-            navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-          }}
-          primaryDisable={false}
-          secondaryDisable={false}
-        /> */}
-        {/* {signer.type === SignerType.POLICY_SERVER && (
-          <Buttons
-            primaryText={'Advance Settings'}
-            primaryCallback={() => {
-              navigateToPolicyChange(signer);
-            }}
-            primaryDisable={false}
-          />
-        )} */}
         <EditDescriptionModal
           visible={editDescriptionModal}
           closeHealthCheck={closeEditDescription}
@@ -514,7 +467,7 @@ const SigningDeviceDetails = ({ route }) => {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle={
-            'It is very important that you keep your Signing Devices secure and fairly accessible at all times.'
+            'It is very important that you keep your signing devices secure and fairly accessible at all times.'
           }
           buttonText={'Manual Confirm'}
           buttonTextColor={'light.white'}
@@ -555,7 +508,7 @@ const SigningDeviceDetails = ({ route }) => {
           Content={HealthCheckSuccessContent}
         />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 };
 

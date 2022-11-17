@@ -32,16 +32,31 @@ const OnBoardingSlides = ({ navigation }) => {
   const onboarding = translations['onboarding'];
   const common = translations['common'];
   const [currentPosition, setCurrentPosition] = useState(0);
-  const [items, setItems] = useState([
+  const [items] = useState([
     {
       id: '1',
-      title: onboarding.slide01Title,
+      title: (
+        <>
+          {onboarding.Comprehensive + ' '}
+          <Text fontStyle={'italic'} fontWeight={900}>
+            {onboarding.security}
+          </Text>
+          {' ' + onboarding.slide01Title}
+        </>
+      ),
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration_1 />,
     },
     {
       id: '2',
-      title: onboarding.slide02Title,
+      title: (
+        <>
+          {onboarding.slide02Title + ' '}
+          <Text fontStyle={'italic'} fontWeight={900}>
+            {onboarding.privacy}
+          </Text>
+        </>
+      ),
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
@@ -63,12 +78,12 @@ const OnBoardingSlides = ({ navigation }) => {
     //   paragraph: onboarding.slide05Paragraph,
     //   illustration: <Illustration_6 />,
     // },
-    {
-      id: '6',
-      title: onboarding.slide06Title,
-      paragraph: onboarding.slide06Paragraph,
-      illustration: <Illustration_3 />,
-    },
+    // {
+    //   id: '6',
+    //   title: onboarding.slide06Title,
+    //   paragraph: onboarding.slide06Paragraph,
+    //   illustration: <Illustration_3 />,
+    // },
   ]);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -78,11 +93,11 @@ const OnBoardingSlides = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
-      <ImageBackground resizeMode='contain' style={{ flex: 1 }} source={OnboardingBackImage}>
-        <SafeAreaView style={{ flex: 1 }}>
+      <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
+        <SafeAreaView style={{ flex: 1, position: 'relative' }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
           <Box justifyContent={'center'} mr={4} mt={10}>
-            {currentPosition != 2 && (
+            {currentPosition != 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
@@ -101,7 +116,7 @@ const OnBoardingSlides = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </Box>
-          <Box flex={0.8}>
+          <Box flex={0.9}>
             <FlatList
               data={items}
               horizontal
@@ -122,7 +137,19 @@ const OnBoardingSlides = ({ navigation }) => {
               )}
             />
           </Box>
-          <Box flex={0.2} flexDirection={'row'} m={5} alignItems={'center'}>
+          <Box
+            position={'absolute'}
+            flex={0.2}
+            flexDirection={'row'}
+            m={5}
+            alignItems={'center'}
+            style={{
+              bottom: hp(20),
+              justifyContent: 'space-between',
+              width: wp(350),
+              paddingHorizontal: wp(20),
+            }}
+          >
             <Box w={'70%'}>
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
@@ -130,9 +157,11 @@ const OnBoardingSlides = ({ navigation }) => {
                   borderWidth={0.7}
                   borderRadius={30}
                   w={120}
-                  h={30}
                   alignItems={'center'}
                   justifyContent={'center'}
+                  style={{
+                    height: hp(40),
+                  }}
                 >
                   <Text color={'light.borderColor2'} fontSize={RFValue(14)} fontWeight={300}>
                     {common.seeFAQs}
@@ -140,35 +169,40 @@ const OnBoardingSlides = ({ navigation }) => {
                 </Box>
               </TouchableOpacity>
             </Box>
-            {currentPosition < items.length - 1 ? items.map((item, index) => {
-              console.log(index)
-              return (
-                <Box
-                  key={index}
-                  style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
-                />
-              );
-            }) :
-              <Box alignSelf={'center'} bg={'transparent'}>
-                <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
-                  <LinearGradient
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    colors={['#FFFFFF', '#80A8A1']}
-                    style={styles.cta}
-                  >
-                    <Text
-                      fontSize={13}
-                      fontFamily={'body'}
-                      fontWeight={'300'}
-                      letterSpacing={1}
-                      color={'light.greenText'}
+            <Box flexDirection={'row'}>
+              {currentPosition < items.length - 1 ? (
+                items.map((item, index) => {
+                  console.log(index);
+                  return (
+                    <Box
+                      key={index}
+                      style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                    />
+                  );
+                })
+              ) : (
+                <Box alignSelf={'center'} bg={'transparent'}>
+                  <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
+                    <LinearGradient
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      colors={['#FFFFFF', '#80A8A1']}
+                      style={styles.cta}
                     >
-                      Start App
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Box>}
+                      <Text
+                        fontSize={13}
+                        fontFamily={'body'}
+                        fontWeight={'300'}
+                        letterSpacing={1}
+                        color={'light.greenText'}
+                      >
+                        Start App
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Box>
+              )}
+            </Box>
           </Box>
         </SafeAreaView>
       </ImageBackground>

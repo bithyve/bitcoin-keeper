@@ -14,6 +14,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { registerToColcard } from 'src/hardware/coldcard';
 import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 
@@ -70,7 +71,7 @@ const SignWithColdCard = ({ route }) => {
     .filter((vault) => !vault.archived)[0];
   const { signer, signTransaction }: { signer: VaultSigner; signTransaction } = route.params;
   const { hasSigned, isMock } = signer;
-  const resigter = !hasSigned && !isMock;
+  const register = !hasSigned && !isMock;
   const dispatch = useDispatch();
   const receiveAndBroadCast = async () => {
     setNfcVisible(true);
@@ -96,21 +97,9 @@ const SignWithColdCard = ({ route }) => {
       updatePSBTSignatures({ signedSerializedPSBT: payload.psbt, signerId: signer.signerId })
     );
   };
-
-  const register = async () => {
+  const registerCC = async () => {
     setNfcVisible(true);
-    let line = '';
-    line += `Name: Keeper ${new Date().getTime()}\n`;
-    line += `Policy: ${Vault.scheme.m} of ${Vault.scheme.n}\n`;
-    line += `Format: P2SH-P2WSH\n`;
-    line += `\n`;
-    Vault.signers.forEach((signer) => {
-      line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
-      line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
-    });
-    const enc = NFC.encodeForColdCard(line);
-    console.log(line);
-    await NFC.send(NfcTech.Ndef, enc);
+    await registerToColcard({ vault: Vault });
     setNfcVisible(false);
   };
   const { colorMode } = useColorMode();
@@ -118,29 +107,29 @@ const SignWithColdCard = ({ route }) => {
     <ScreenWrapper>
       <VStack justifyContent={'space-between'} flex={1}>
         <VStack>
-          {resigter ? (
+          {register ? (
             <>
               <HeaderTitle
                 title="Register Device"
-                subtitle="The Vault needs to be registered only once"
+                subtitle="The vault needs to be registered only once"
               />
               <Card
                 message={
-                  'You will register the new Vault with Coldcard so that it allows you to sign every time'
+                  'You will register the new vault with Coldcard so that it allows you to sign every time'
                 }
                 buttonText={'Scan'}
-                buttonCallBack={register}
+                buttonCallBack={registerCC}
               />
             </>
           ) : null}
           <HeaderTitle title="Sign Transaction" subtitle="Two step process" enableBack={false} />
           <Card
-            message={'Send PSBT from the app to ColdCard'}
+            message={'Send PSBT from the app to Coldcard'}
             buttonText={'Send'}
             buttonCallBack={signTransaction}
           />
           <Card
-            message={'Receive signed PSBT from ColdCard'}
+            message={'Receive signed PSBT from Coldcard'}
             buttonText={'Receive'}
             buttonCallBack={receiveAndBroadCast}
           />
@@ -154,7 +143,7 @@ const SignWithColdCard = ({ route }) => {
             </Box>
             <HStack alignItems={'center'}>
               <Text fontSize={13} fontFamily={'body'}>
-                {'ColdCard is showing an error?'}
+                {'Coldcard is showing an error?'}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -172,22 +161,22 @@ const SignWithColdCard = ({ route }) => {
       <KeeperModal
         visible={mk4Helper}
         close={() => showMk4Helper(false)}
-        title="Need help with ColdCard?"
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        title="Need help with Coldcard?"
+        subTitle="Try to map the error on your Coldcard to one of the options here"
         Content={() => {
           return (
             <Box>
               <TouchableOpacity
                 onPress={() => {
                   showMk4Helper(false);
-                  register();
+                  registerCC();
                 }}
                 activeOpacity={0.8}
                 style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
               >
                 <VStack width={'97%'}>
                   <Text fontSize={14} fontFamily={'body'}>
-                    {'Manually Register Cold Card'}
+                    {'Manually Register Mk4'}
                   </Text>
                   <Text fontSize={12} fontFamily={'body'}>
                     {'Please resigister the Vault if not already registered'}

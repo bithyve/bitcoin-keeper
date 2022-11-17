@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
+import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import Header from 'src/components/Header';
+import HeaderTitle from 'src/components/HeaderTitle';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -45,7 +45,6 @@ const BackupWallet = () => {
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
   useEffect(() => {
     if (loading) {
       setTimeout(() => {
@@ -73,7 +72,7 @@ const BackupWallet = () => {
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box>
+        <Box width={'100%'}>
           <Text
             color={'light.lightBlack'}
             fontFamily={'body'}
@@ -83,15 +82,17 @@ const BackupWallet = () => {
           >
             {title}
           </Text>
-          <Text
-            color={'light.GreyText'}
-            fontFamily={'body'}
-            fontWeight={200}
-            fontSize={RFValue(12)}
-            letterSpacing={0.6}
-          >
-            {subTitle}
-          </Text>
+          {subTitle ? (
+            <Text
+              color={'light.GreyText'}
+              fontFamily={'body'}
+              fontWeight={200}
+              fontSize={RFValue(12)}
+              letterSpacing={0.6}
+            >
+              {subTitle}
+            </Text>
+          ) : null}
         </Box>
         <Box>
           <Arrow />
@@ -104,20 +105,23 @@ const BackupWallet = () => {
   ) : (
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
-      <Box style={{
-        padding: hp(5)
-      }}>
-        <Header
+      <Box
+        style={{
+          padding: hp(5),
+        }}
+      >
+        <HeaderTitle
           title={BackupWallet.backupWallet}
           subtitle={BackupWallet.backupWalletSubTitle}
           onPressHandler={() => navigation.goBack()}
+          paddingTop={hp(5)}
         />
       </Box>
       <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
-          subTitle={'Lorem ipsum dolor sit amet'}
+          subTitle={''}
           onPress={() => {
             navigation.replace('ExportSeed', {
               seed: primaryMnemonic,
@@ -125,17 +129,6 @@ const BackupWallet = () => {
             });
           }}
         />
-        {/* <Option
-          title={BackupWallet.backupOnCloud}
-          subTitle={'Lorem ipsum dolor sit amet,'}
-          onPress={() => {
-            setCloudBackupModal(true);
-            // setCreateCloudBackupModal(true);
-            // setHealthCheckModal(true);
-            // setHealthCheckSuccessModal(true);
-            // setSkipHealthCheckModal(true);
-          }}
-        /> */}
       </Box>
       <Box>
         <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>

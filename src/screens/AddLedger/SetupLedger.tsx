@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Alert,
+  Image,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
@@ -8,10 +9,11 @@ import {
 } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
+import { getLedgerDetails, getMockLedgerDetails } from 'src/hardware/ledger';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import AppClient from 'src/hardware/ledger';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { TapGestureHandler } from 'react-native-gesture-handler';
@@ -21,12 +23,11 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { generateSignerFromMetaData } from 'src/hardware';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
-import { wp } from 'src/common/data/responsiveness/responsive';
 
-const AddLedger = ({}) => {
+const AddLedger = () => {
   const {
     scanForPeripherals,
     requestPermissions,
@@ -45,40 +46,76 @@ const AddLedger = ({}) => {
     });
   };
   const [visible, setVisible] = useState(true);
+  const [connecting, setConnecting] = useState(false);
+
   const { translations } = useContext(LocalizationContext);
   const ledger = translations['ledger'];
   const open = () => setVisible(true);
-  const close = () => setVisible(false);
   const navigation = useNavigation();
+  const close = () => {
+    navigation.goBack();
+  };
   const dispatch = useDispatch();
 
   useEffect(() => {
     open();
+  }, []);
+
+  useEffect(() => {
+    if (transport) {
+      addLedger();
+    }
+  }, [transport]);
+
+  useEffect(() => {
+    scanForDevices();
     return () => {
+      setVisible(false);
       disconnectFromDevice();
     };
   }, []);
 
+  const Item = ({ device }) => {
+    return (
+      <TouchableOpacity
+        style={styles.deviceItem}
+        onPress={() => {
+          setConnecting(true);
+          connectToDevice(device);
+        }}
+      >
+        <Text style={styles.deviceName}>{device.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const LedgerSetupContent = () => {
-    useEffect(() => {
-      scanForDevices();
-    }, []);
     return (
       <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
         <View>
-          <Box ml={wp(21)}>
-            {isScanning ? <ActivityIndicator /> : null}
-            {allDevices.map((device) => {
-              return (
-                <TouchableOpacity style={styles.deviceItem} onPress={() => connectToDevice(device)}>
-                  <Text style={styles.deviceName}>{device.name}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </Box>
+          {isScanning && !allDevices.length ? (
+            <Image
+              source={require('src/assets/video/Loader.gif')}
+              style={{
+                width: wp(250),
+                height: wp(100),
+                alignSelf: 'center',
+                marginTop: hp(30),
+              }}
+            />
+          ) : null}
+          {connecting ? (
+            <ActivityIndicator />
+          ) : (
+            <Box ml={wp(21)}>
+              {allDevices.map((device) => {
+                return <Item device={device} />;
+              })}
+            </Box>
+          )}
           <Box marginTop={'4'}>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-              {`Please stay on the BTC app before connecting to the deivce`}
+              {`Please open on the BTC app before connecting to the deivce`}
             </Text>
           </Box>
         </View>
@@ -86,83 +123,53 @@ const AddLedger = ({}) => {
     );
   };
 
-  const fetchAddress = async () => {
+  const addMockLedger = (amfData = null) => {
+    const ledger = getMockLedgerDetails(amfData);
+    dispatch(addSigningDevice(ledger));
+    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+  };
+
+  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
+
+  const addLedger = async () => {
     try {
-      const app = new AppClient(transport);
-      const networkType = config.NETWORK_TYPE;
-      const path = networkType === NetworkType.TESTNET ? "m/48'/1'/0'/1'" : "m/48'/0'/0'/1'"; // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
-      const xpub = await app.getExtendedPubkey(path);
-      const masterfp = await app.getMasterFingerprint();
-      const network = WalletUtilities.getNetworkByType(networkType);
-      const signer: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.LEDGER,
-        signerName: 'Nano X',
+      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport);
+      const ledger: VaultSigner = generateSignerFromMetaData({
         xpub,
-        xpubInfo: {
-          derivationPath: path,
-          xfp: masterfp,
-        },
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
+        xfp,
+        derivationPath,
         storageType: SignerStorage.COLD,
-      };
-      dispatch(addSigningDevice(signer));
+        signerType: SignerType.LEDGER,
+      });
+      if (isAMF) {
+        const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+        const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+        addMockLedger({ signerId, xpub });
+        return;
+      }
+      dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      const exsists = await checkSigningDevice(signer.signerId);
+      const exsists = await checkSigningDevice(ledger.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
       captureError(error);
       Alert.alert(error.toString());
     }
   };
-  useEffect(() => {
-    if (transport) {
-      fetchAddress();
-    }
-  }, [transport]);
-
-  const addMockLedger = () => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.LEDGER,
-      networkType
-    );
-    const ledger: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.LEDGER,
-      signerName: 'Nano X**',
-      isMock: true,
-      xpub,
-      xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-      storageType: SignerStorage.COLD,
-    };
-    dispatch(addSigningDevice(ledger));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {!transport ? (
-        <KeeperModal
-          visible={visible}
-          close={close}
-          title={ledger.ScanningBT}
-          subTitle={ledger.KeepLedgerReady}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          textColor={'#041513'}
-          Content={LedgerSetupContent}
-        />
-      ) : null}
+      <KeeperModal
+        closeOnOverlayClick={false}
+        visible={visible}
+        close={close}
+        title={ledger.ScanningBT}
+        subTitle={ledger.KeepLedgerReady}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        textColor={'#041513'}
+        Content={LedgerSetupContent}
+      />
     </SafeAreaView>
   );
 };

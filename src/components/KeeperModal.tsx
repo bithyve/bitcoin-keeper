@@ -5,7 +5,6 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Close from 'src/assets/icons/modal_close.svg';
 import CloseGreen from 'src/assets/icons/modal_close_green.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +13,7 @@ const KeeperModal = (props: {
   close: any;
   title?: string;
   subTitle?: string;
+  subTitleWidth?: number;
   modalBackground?: string[];
   buttonBackground?: string[];
   buttonText?: string;
@@ -27,12 +27,15 @@ const KeeperModal = (props: {
   showButtons?: boolean;
   learnMore?: boolean;
   learnMoreCallback?: any;
+  closeOnOverlayClick?: boolean;
+  showCloseIcon?: boolean;
 }) => {
   const {
     visible,
     close,
     title = 'Title',
     subTitle = null,
+    subTitleWidth = wp(270),
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     buttonBackground = ['#00836A', '#073E39'],
     buttonText = null,
@@ -46,12 +49,22 @@ const KeeperModal = (props: {
     showButtons = true,
     learnMore = false,
     learnMoreCallback = () => {},
+    closeOnOverlayClick = true,
+    showCloseIcon = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
-  const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
+  const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
+  if (!visible) {
+    return null;
+  }
+
+  const getCloseIcon = () => {
+    return DarkCloseIcon ? <CloseGreen /> : <Close />;
+  };
   return (
     <Modal
+      closeOnOverlayClick={closeOnOverlayClick}
       isOpen={visible}
       onClose={dismissible ? close : null}
       avoidKeyboard
@@ -59,32 +72,26 @@ const KeeperModal = (props: {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
     >
-      <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
+      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight={'full'}>
         <GestureHandlerRootView>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            colors={modalBackground}
+          <Box
+            bg={{
+              linearGradient: {
+                colors: modalBackground,
+                start: [0, 0],
+                end: [1, 1],
+              },
+            }}
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
-              {showButtons ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
+              {showCloseIcon ? getCloseIcon() : null}
             </TouchableOpacity>
-            <Modal.Header
-              alignSelf={'flex-start'}
-              borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={'90%'}
-            >
-              <Text style={styles.title} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Modal.Header style={styles.headerContainer}>
+              <Text style={styles.title} color={textColor}>
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'200'}
-                color={subTitleColor}
-              >
+              <Text style={styles.subTitle} color={subTitleColor} width={subTitleWidth}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -92,33 +99,11 @@ const KeeperModal = (props: {
               <Content />
             </Modal.Body>
             {((showButtons && learnMore) || buttonText) && (
-              <Box
-                flexDirection={'row'}
-                justifyContent={'space-between'}
-                alignItems={'center'}
-                width={'100%'}
-              >
+              <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box
-                    borderColor={'light.yellow2'}
-                    borderRadius={hp(40)}
-                    borderWidth={1}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'#00433A'}
-                    style={{
-                      height: hp(34),
-                      width: wp(110),
-                      marginLeft: wp(10),
-                    }}
-                  >
+                  <Box borderColor={'light.yellow2'} style={styles.learnMoreContainer}>
                     <Link onPress={learnMoreCallback}>
-                      <Text
-                        color={'light.yellow2'}
-                        fontSize={13}
-                        fontFamily={'body'}
-                        fontWeight={'300'}
-                      >
+                      <Text color={'light.yellow2'} style={styles.seeFAQs}>
                         {'See FAQs'}
                       </Text>
                     </Link>
@@ -127,30 +112,26 @@ const KeeperModal = (props: {
                   <Box></Box>
                 )}
                 {buttonText && (
-                  <Box alignSelf={'flex-end'} bg={'transparent'}>
-                    <TouchableOpacity onPress={buttonCallback}>
-                      <LinearGradient
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        colors={buttonBackground}
-                        style={styles.cta}
-                      >
-                        <Text
-                          fontSize={13}
-                          fontFamily={'body'}
-                          fontWeight={'300'}
-                          letterSpacing={1}
-                          color={buttonTextColor}
-                        >
-                          {showButtons ? buttonText : null}
-                        </Text>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  </Box>
+                  <TouchableOpacity onPress={buttonCallback}>
+                    <Box
+                      bg={{
+                        linearGradient: {
+                          colors: buttonBackground,
+                          start: [0, 0],
+                          end: [1, 1],
+                        },
+                      }}
+                      style={styles.cta}
+                    >
+                      <Text style={styles.ctaText} color={buttonTextColor}>
+                        {showButtons ? buttonText : null}
+                      </Text>
+                    </Box>
+                  </TouchableOpacity>
                 )}
               </Box>
             )}
-          </LinearGradient>
+          </Box>
         </GestureHandlerRootView>
       </Modal.Content>
     </Modal>
@@ -180,7 +161,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  ctaText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
   close: {
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 20,
+    top: 20,
+  },
+  seeFAQs: {
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  learnMoreContainer: {
+    borderRadius: hp(40),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00433A',
+    height: hp(34),
+    width: wp(110),
+    marginLeft: wp(10),
+  },
+  headerContainer: {
+    alignSelf: 'flex-start',
+    borderBottomWidth: 0,
+    backgroundColor: 'transparent',
+    width: '90%',
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
   },
 });

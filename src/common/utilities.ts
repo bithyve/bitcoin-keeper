@@ -1,13 +1,11 @@
-import { Platform } from 'react-native'
-
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
     decimalCount = Math.abs(decimalCount)
     decimalCount = isNaN(decimalCount) ? 2 : decimalCount
     const negativeSign = amount < 0 ? '-' : ''
-    const i = parseInt(amount = Math.abs(Number(amount) || 0).toFixed(decimalCount)).toString()
+    const i = parseInt(Math.abs(Number(amount) || 0).toFixed(decimalCount)).toString()
     const j = (i.length > 3) ? i.length % 3 : 0
-    return negativeSign + (j ? i.substr(0, j) + thousands : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + thousands) + (decimalCount ? decimal + Math.abs(amount - i).toFixed(decimalCount).slice(2) : '')
+    return negativeSign + (j ? i.substring(0, j) + thousands : '') + i.substring(j).replace(/(\d{3})(?=\d)/g, '$1' + thousands) + (decimalCount ? decimal + Math.abs(amount - i).toFixed(decimalCount).slice(2) : '')
   } catch (e) {
     // console.log(e)
   }
@@ -49,18 +47,16 @@ export const getVersions = (versionHistory, restoreVersions) => {
   const versionHistoryArray = []
   const restoreVersionsArray = []
   if (versionHistory) {
-    for (let i = 0; i < versionHistory.length; i++) {
-      versionHistoryArray.push(versionHistory[i])
+    for (let item of versionHistory) {
+      versionHistoryArray.push(item)
     }
   }
-  //console.log("versionHistoryArray",versionHistoryArray);
 
   if (restoreVersions) {
-    for (let i = 0; i < restoreVersions.length; i++) {
-      restoreVersionsArray.push(restoreVersions[i])
+    for (let item of restoreVersions) {
+      restoreVersionsArray.push(item)
     }
   }
-  //console.log("restoreVersionsArray",restoreVersionsArray);
 
   if (versionHistoryArray.length && restoreVersionsArray.length) {
     versions = [...versionHistoryArray, ...restoreVersionsArray]
@@ -69,7 +65,6 @@ export const getVersions = (versionHistory, restoreVersions) => {
   } else if (restoreVersionsArray.length) {
     versions = [...restoreVersionsArray]
   }
-  //console.log("versions",versions);
 
   return versions
 }
@@ -85,33 +80,6 @@ export const arrayChunks = (arr, size) => {
   )
 }
 
-export const getIndex = (levelData, type, selectedKeeper, keeperInfo) => {
-  let index = 1
-  let count = 0
-  if (type == 'primaryKeeper' || type == 'device' || type == 'contact' || type == 'existingContact') {
-    for (let i = 0; i < levelData.length; i++) {
-      const element = levelData[i]
-      if (type == 'contact' || type == 'existingContact') {
-        if ((element.keeper1.shareType == 'contact' || element.keeper1.shareType == 'existingContact') && selectedKeeper.shareId != element.keeper1.shareId) count++
-        if ((element.keeper2.shareType == 'contact' || element.keeper2.shareType == 'existingContact') && selectedKeeper.shareId != element.keeper2.shareId) count++
-      }
-      if (type == 'device' || type == 'primaryKeeper') {
-        if ((element.keeper1.shareType == 'device' || element.keeper1.shareType == 'primaryKeeper') && selectedKeeper.shareId != element.keeper1.shareId) count++
-        if (element.keeper2.shareType == 'device' && selectedKeeper.shareId != element.keeper2.shareId) count++
-      }
-    }
-    if (type == 'contact' || type == 'existingContact') {
-      if (count == 1) index = 2
-      else if (count == 0) index = 1
-      else index = selectedKeeper.data && selectedKeeper.data.index ? selectedKeeper.data.index : 1
-    }
-    if (type == 'device' || type == 'primaryKeeper') {
-      if (count == 0) index = 0
-      else if (count == 1) index = 3
-      else if (count == 2) index = 4
-      else index = selectedKeeper.data && selectedKeeper.data.index ? selectedKeeper.data.index : 0
-    }
-    if (type == 'primaryKeeper') index = 0
-  }
-  return index
+export function numberWithCommas(x: string) {
+  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

@@ -1,4 +1,3 @@
-import { SignerPolicy } from 'src/core/services/interfaces';
 import {
   ActiveAddresses,
   BIP85Config,
@@ -8,15 +7,9 @@ import {
   UTXO,
   WalletImportedAddresses,
 } from '.';
-import {
-  EntityKind,
-  NetworkType,
-  SignerStorage,
-  SignerType,
-  VaultType,
-  VisibilityType,
-} from '../enums';
+import { EntityKind, NetworkType, SignerStorage, SignerType, VaultType } from '../enums';
 
+import { SignerPolicy } from 'src/core/services/interfaces';
 import { WalletPresentationData } from './wallet';
 
 export interface VaultPresentationData extends WalletPresentationData {}
@@ -59,9 +52,9 @@ export interface VaultSigner {
   xpub: string;
   xpriv?: string;
   signerName?: string;
-  xpubInfo?: {
-    derivationPath?: string;
-    xfp?: string;
+  xpubInfo: {
+    derivationPath: string;
+    xfp: string;
   };
   bip85Config?: BIP85Config; // configuration for mobile keys
   lastHealthCheck: Date;

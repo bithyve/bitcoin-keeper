@@ -48,10 +48,10 @@ export const VaultSignerSchema: ObjectSchema = {
     xpriv: 'string?',
     signerName: 'string?',
     xpubInfo: {
-      type: '{}?',
+      type: '{}',
       properties: {
-        derivationPath: 'string?',
-        xfp: 'string?',
+        derivationPath: 'string',
+        xfp: 'string',
       },
     },
     lastHealthCheck: 'date',

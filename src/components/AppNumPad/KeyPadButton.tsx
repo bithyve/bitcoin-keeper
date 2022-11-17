@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Fonts from 'src/common/Fonts';
 
 export interface Props {
   title: string;
@@ -18,10 +19,7 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor }: Props
       style={styles.keyPadElementTouchable}
       testID={`key_${title}`}
     >
-      <Text
-        style={styles.keyPadElementText}
-        // onPress={() => onPressNumber( title )}
-      >
+      <Text style={styles.keyPadElementText}>
         {title}
       </Text>
     </TouchableOpacity>
@@ -39,7 +37,7 @@ const getStyles = (keyColor) =>
     keyPadElementText: {
       color: keyColor,
       fontSize: RFValue(25),
-      fontStyle: 'normal',
+      fontFamily: Fonts.RobotoCondensedRegular
     },
   });
 export default KeyPadButton;
