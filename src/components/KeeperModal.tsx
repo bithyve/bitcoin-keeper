@@ -48,7 +48,7 @@ const KeeperModal = (props: {
     dismissible = true,
     showButtons = true,
     learnMore = false,
-    learnMoreCallback = () => { },
+    learnMoreCallback = () => {},
     closeOnOverlayClick = true,
     showCloseIcon = true,
   } = props;
@@ -60,10 +60,8 @@ const KeeperModal = (props: {
   }
 
   const getCloseIcon = () => {
-    return (
-      DarkCloseIcon ? <CloseGreen /> : <Close />
-    )
-  }
+    return DarkCloseIcon ? <CloseGreen /> : <Close />;
+  };
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -74,11 +72,7 @@ const KeeperModal = (props: {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
     >
-      <Modal.Content
-        borderRadius={10}
-        marginBottom={Math.max(5, bottomMargin)}
-        maxHeight={'full'}
-      >
+      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight={'full'}>
         <GestureHandlerRootView>
           <Box
             bg={{
@@ -94,17 +88,10 @@ const KeeperModal = (props: {
               {showCloseIcon ? getCloseIcon() : null}
             </TouchableOpacity>
             <Modal.Header style={styles.headerContainer}>
-              <Text
-                style={styles.title}
-                color={textColor}
-              >
+              <Text style={styles.title} color={textColor}>
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                color={subTitleColor}
-                width={subTitleWidth}
-              >
+              <Text style={styles.subTitle} color={subTitleColor} width={subTitleWidth}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -114,15 +101,9 @@ const KeeperModal = (props: {
             {((showButtons && learnMore) || buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box
-                    borderColor={'light.yellow2'}
-                    style={styles.learnMoreContainer}
-                  >
+                  <Box borderColor={'light.yellow2'} style={styles.learnMoreContainer}>
                     <Link onPress={learnMoreCallback}>
-                      <Text
-                        color={'light.yellow2'}
-                        style={styles.seeFAQs}
-                      >
+                      <Text color={'light.yellow2'} style={styles.seeFAQs}>
                         {'See FAQs'}
                       </Text>
                     </Link>
@@ -137,15 +118,12 @@ const KeeperModal = (props: {
                         linearGradient: {
                           colors: buttonBackground,
                           start: [0, 0],
-                          end: [1, 1]
-                        }
+                          end: [1, 1],
+                        },
                       }}
                       style={styles.cta}
                     >
-                      <Text
-                        style={styles.ctaText}
-                        color={buttonTextColor}
-                      >
+                      <Text style={styles.ctaText} color={buttonTextColor}>
                         {showButtons ? buttonText : null}
                       </Text>
                     </Box>
@@ -186,7 +164,7 @@ const styles = StyleSheet.create({
   ctaText: {
     fontSize: 13,
     fontWeight: 'bold',
-    letterSpacing: 1
+    letterSpacing: 1,
   },
   close: {
     position: 'absolute',
@@ -195,7 +173,7 @@ const styles = StyleSheet.create({
   },
   seeFAQs: {
     fontSize: 13,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   learnMoreContainer: {
     borderRadius: hp(40),
@@ -211,12 +189,12 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderBottomWidth: 0,
     backgroundColor: 'transparent',
-    width: '90%'
+    width: '90%',
   },
   footerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%'
-  }
+    width: '100%',
+  },
 });

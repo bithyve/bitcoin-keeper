@@ -76,7 +76,7 @@ const TimelockScreen = () => {
           ok={() => {
             console.log('ok');
           }}
-          clear={() => { }}
+          clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
