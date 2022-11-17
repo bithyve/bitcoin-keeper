@@ -151,8 +151,8 @@ export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
-
   try {
+    //todo
   } catch (err) {
     console.log({
       err,

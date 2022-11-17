@@ -110,10 +110,6 @@ class RestClient {
     headers?: object
   ): Promise<AxiosResponse | RequestResponse> {
     if (RestClient.useTor && RestClient.torStatus === TorStatus.CONNECTED) {
-      // console.log(
-      //   `using tor to connect  ${path}`,
-      //   JSON.stringify(body, this.getCircularReplacer())
-      // );
       return tor.post(
         path,
         JSON.stringify(body, this.getCircularReplacer()),

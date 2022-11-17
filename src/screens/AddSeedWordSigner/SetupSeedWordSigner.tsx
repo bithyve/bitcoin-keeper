@@ -92,7 +92,6 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                //setBackupSuccessModal(true);
                 setConfirmSeedModal(true);
               }}
               value={login.Next}

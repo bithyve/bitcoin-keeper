@@ -108,6 +108,7 @@ export default function ResetPin(props) {
 
   useEffect(() => {
     if (isPinChangedFailed) {
+      // todo
     }
   }, [isPinChangedFailed]);
 
