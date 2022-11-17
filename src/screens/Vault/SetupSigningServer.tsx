@@ -1,8 +1,8 @@
 import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Buttons from 'src/components/Buttons';
@@ -10,10 +10,10 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
-import InfoBox from '../../components/InfoBox';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -45,7 +45,8 @@ const SetupSigningServer = ({ route }: { route }) => {
   const key = idx(keeper, (_) => _.twoFADetails.twoFAKey);
   const isTwoFAAlreadyVerified = idx(keeper, (_) => _.twoFADetails.twoFAValidated);
   const signingServerVerified = useAppSelector((state) => state.wallet.signingServer.verified);
-  const signingServerXpub = idx(keeper, (_) => _.twoFADetails.signingServerXpub);
+  const { signingServerXpub, derivationPath, masterFingerprint } =
+    idx(keeper, (_) => _.twoFADetails) || {};
 
   const [settingSigningServerKey, setSettingSigningServerKey] = useState(false);
 
@@ -70,6 +71,10 @@ const SetupSigningServer = ({ route }: { route }) => {
       type: SignerType.POLICY_SERVER,
       signerName: 'Signing Server',
       xpub: signingServerXpub,
+      xpubInfo: {
+        derivationPath,
+        xfp: masterFingerprint,
+      },
       lastHealthCheck: new Date(),
       addedOn: new Date(),
       storageType: SignerStorage.WARM,
@@ -166,20 +171,6 @@ const SetupSigningServer = ({ route }: { route }) => {
               marginTop: hp(30),
             }}
           >
-            {/* <Text
-              color={'light.recieverAddress'}
-              fontFamily={'body'}
-              fontWeight={300}
-              fontSize={12}
-              letterSpacing={1.08}
-              noOfLines={1}
-              backgroundColor={'amber.400'}
-              style={{
-                marginVertical: hp(30),
-              }}
-            >
-              Scan the QR below to add Backup Key
-            </Text> */}
             <QRCode
               value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
               logoBackgroundColor="transparent"
@@ -196,7 +187,6 @@ const SetupSigningServer = ({ route }: { route }) => {
                 width={'100%'}
                 noOfLines={1}
               >
-                {/* {twoFAKey} */}
                 2FA Signing Server
               </Text>
             </Box>
@@ -236,12 +226,12 @@ const SetupSigningServer = ({ route }: { route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
+      <Box position={'absolute'} bottom={hp(45)} marginX={5} width={'100%'}>
         <Box marginBottom={hp(30)}>
-          <InfoBox
+          <Note
             title={'Note'}
-            desciption={'It is a good idea to have the authenticator app on another device'}
-            width={300}
+            subtitle={'It is a good idea to have the authenticator app on another device'}
+            subtitleColor={'GreyText'}
           />
         </Box>
         <Buttons

@@ -1,8 +1,6 @@
 import { Box, Text } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
-import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -19,7 +17,7 @@ type Props = {
   paddingTop?: number;
   learnMore?: boolean;
   learnMorePressed?: () => void;
-  titleFontSize?: number
+  titleFontSize?: number;
 };
 const HeaderTitle = ({
   title = '',
@@ -31,34 +29,30 @@ const HeaderTitle = ({
   paddingTop = 0,
   learnMore = false,
   learnMorePressed = () => { },
-  titleFontSize = 16
-
+  titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <Box style={styles.back}>
-          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}>
+        <Box style={styles.backContainer}>
+          <TouchableOpacity
+            onPress={onPressHandler ? onPressHandler : navigation.goBack}
+            style={styles.backButton}
+          >
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
-                height={hp(20)}
-                width={wp(70)}
                 borderColor={'light.brownborder'}
-                borderWidth={0.5}
-                borderRadius={5}
                 backgroundColor={'light.yellow2'}
-                justifyContent={'center'}
-                alignItems={'center'}
+                style={styles.learnMoreContainer}
               >
                 <Text
                   color={'light.brownborder'}
                   fontWeight={200}
-                  letterSpacing={0.6}
-                  fontSize={12}
+                  style={styles.learnMoreText}
                 >
                   Learn More
                 </Text>
@@ -67,15 +61,15 @@ const HeaderTitle = ({
           )}
         </Box>
       )}
-      <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
+      <Box
+        style={styles.headerContainer}
+      >
         <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
           {title && (
             <Text
               numberOfLines={1}
               style={styles.addWalletText}
               color={headerTitleColor}
-              fontFamily={'body'}
-              fontWeight={'200'}
               fontSize={RFValue(titleFontSize)}
             >
               {title}
@@ -85,16 +79,11 @@ const HeaderTitle = ({
             <Text
               style={styles.addWalletDescription}
               color={'light.lightBlack'}
-              fontFamily={'body'}
-              fontWeight={'100'}
             >
               {subtitle}
             </Text>
           )}
         </Box>
-        {/* {HeaderRight && <Box paddingTop={paddingTop}>
-          <HeaderRight />
-        </Box>} */}
       </Box>
     </Box>
   );
@@ -114,12 +103,36 @@ const styles = ScaledSheet.create({
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
     paddingHorizontal: '20@s',
+    fontWeight: '200'
   },
-  back: {
+  backContainer: {
     justifyContent: 'space-between',
     flexDirection: 'row',
     paddingHorizontal: '5@s',
     paddingVertical: '15@s',
+  },
+  backButton: {
+    height: 20,
+    width: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  learnMoreContainer: {
+    borderWidth: 0.5,
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  learnMoreText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    alignSelf: 'center'
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
 });
 export default HeaderTitle;

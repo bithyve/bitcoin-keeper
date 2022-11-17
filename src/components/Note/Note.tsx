@@ -1,6 +1,7 @@
-import { Box, Text, useColorMode } from 'native-base';
-
+import { Box, useColorMode, Text } from 'native-base';
 import React from 'react';
+import { StyleSheet } from 'react-native';
+import { customTheme } from 'src/common/themes';
 
 type Props = {
   title: string;
@@ -9,29 +10,31 @@ type Props = {
   width?: string | number;
 };
 
-const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) => {
+const Note = ({
+  title,
+  subtitle,
+  subtitleColor = 'lightBlack',
+  width = '100%' }
+  : Props) => {
   const { colorMode } = useColorMode();
 
   return (
-    <Box bg={`${colorMode}.offWhite`} p={4}>
+    <Box
+      style={styles.container}
+    >
       <Box opacity={1}>
         <Text
-          fontSize={14}
-          fontFamily={'body'}
-          color={`light.lightBlack`}
-          fontWeight={200}
-          letterSpacing={1.12}
+          color={`${colorMode}.lightBlack`}
+          style={styles.title}
         >
           {title}
         </Text>
       </Box>
       <Box>
         <Text
-          fontSize={12}
           width={width}
-          fontWeight={200}
-          color={`light.${subtitleColor}`}
-          letterSpacing={0.6}
+          color={`${colorMode}.${subtitleColor}`}
+          style={styles.subTitle}
         >
           {subtitle}
         </Text>
@@ -39,5 +42,22 @@ const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }:
     </Box>
   );
 };
+
+
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 4
+  },
+  title: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+  },
+  subTitle: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+  }
+})
+
 
 export default Note;

@@ -1,9 +1,9 @@
-import { extendTheme } from 'native-base';
 import Colors from 'src/theme/Colors';
 import Fonts from './Fonts';
+import { extendTheme } from 'native-base';
 export const customTheme = extendTheme({
   fontConfig: {
-    Roboto: {
+    'RobotoCondensed-Regular': {
       100: {
         normal: Fonts.RobotoCondensedLight,
         italic: Fonts.RobotoCondensedLightItalic,
@@ -16,12 +16,36 @@ export const customTheme = extendTheme({
         normal: Fonts.RobotoCondensedBold,
         italic: Fonts.RobotoCondensedBoldItalic,
       },
+      400: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      500: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      600: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      700: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      800: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
+      900: {
+        normal: Fonts.RobotoCondensedRegular,
+        italic: Fonts.RobotoCondensedItalic,
+      },
     },
   },
   fonts: {
-    heading: 'Roboto',
-    body: 'Roboto',
-    mono: 'Roboto',
+    heading: 'RobotoCondensed-Regular',
+    body: 'RobotoCondensed-Regular',
+    mono: 'RobotoCondensed-Regular',
   },
 
   colors: {
@@ -82,6 +106,7 @@ export const customTheme = extendTheme({
       time: '#3D4252',
       lgStart: Colors.linearGradientStart, // linearGradient
       lgEnd: Colors.linearGradientEnd, // linearGradient
+      error: '#FF8F79',
     },
     dark: {
       black: '#000000',
@@ -89,5 +114,18 @@ export const customTheme = extendTheme({
   },
   config: {
     initialColorMode: 'light',
+  },
+  components: {
+    Text: {
+      baseStyle: (props) => {
+        return {
+          _light: {
+            color: 'light.lightBlack',
+            // fontFamily: 'RobotoCondensed-Regular',
+          },
+          _dark: { color: 'dark.black' },
+        };
+      },
+    },
   },
 });

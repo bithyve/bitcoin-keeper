@@ -1,14 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
 import * as bip39 from 'bip39';
+
+import { Alert, StyleSheet } from 'react-native';
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { credsAuth } from 'src/store/sagaActions/login';
-import ReactNativeBiometrics from 'react-native-biometrics';
-import { Alert } from 'react-native';
+
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -19,11 +18,11 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
-import { StyleSheet } from 'react-native';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -34,7 +33,6 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { credsAuthenticated } from 'src/store/reducers/login';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -65,14 +63,13 @@ export const BulletPoint = ({ text }) => {
     <Box marginTop={'4'} flexDirection={'row'} alignItems={'flex-start'}>
       <Box
         style={{
-          height: hp(5),
-          width: wp(5),
+          marginRight: wp(5),
         }}
+        size={hp(5)}
         m={1}
         top={2}
         backgroundColor={'light.modalText'}
         borderRadius={10}
-        marginRight={wp(5)}
       />
       <Text
         color={'light.modalText'}
@@ -94,7 +91,7 @@ const TapsignerSetupContent = () => {
       <TapsignerSetupImage />
       <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
       <BulletPoint
-        text={`You should generally not use the same Signing Device on multiple wallets/apps`}
+        text={`You should generally not use the same signing device on multiple wallets/apps`}
       />
     </View>
   );
@@ -116,7 +113,7 @@ const ColdCardSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your Vault).\n`}
+          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
         </Text>
         <Text
           color={'#073B36'}
@@ -209,9 +206,9 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
-  const loginMethod = useAppSelector((state) => state.settings.loginMethod)
-  const appId = useAppSelector((state) => state.storage.appId);
-  const { isAuthenticated, authenticationFailed, } = useAppSelector((state) => state.login)
+  // const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  // const appId = useAppSelector((state) => state.storage.appId);
+  // const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -305,46 +302,33 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
+  // const biometricAuth = async () => {
+  //   if (loginMethod === LoginMethod.BIOMETRIC) {
+  //     try {
+  //       setTimeout(async () => {
+  //         const { success, signature } = await RNBiometrics.createSignature({
+  //           promptMessage: 'Authenticate',
+  //           payload: appId,
+  //           cancelButtonText: 'Use PIN',
+  //         });
+  //         if (success) {
+  //           dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+  //         }
+  //       }, 200);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     // biometric authentication
+  //     setupMobileKey();
+  //   }
+  // }, [isAuthenticated]);
+
   const passwordEnter = () => {
-
-    useEffect(() => {
-      biometricAuth();
-      return () => {
-        dispatch(credsAuthenticated(false))
-      }
-    }, []);
-
-    const biometricAuth = async () => {
-      if (loginMethod === LoginMethod.BIOMETRIC) {
-        try {
-          setTimeout(async () => {
-            const { success, signature } = await RNBiometrics.createSignature({
-              promptMessage: 'Authenticate',
-              payload: appId,
-              cancelButtonText: 'Use PIN',
-            });
-            if (success) {
-              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
-            }
-          }, 200);
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    };
-
-    useEffect(() => {
-      if (authenticationFailed) {
-        console.log('authenticationFailed', authenticationFailed)
-      }
-    }, [authenticationFailed]);
-
-    useEffect(() => {
-      if (isAuthenticated) {
-        setupMobileKey()
-      }
-    }, [isAuthenticated]);
-
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {

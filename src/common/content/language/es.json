@@ -84,7 +84,7 @@
     "EnterNew": "Enter New",
     "Passcode": "Passcode",
     "ReEnter": "Re Enter",
-    "MismatchPasscode": "Mismatch Passcode",
+    "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
     "ForgotPasscode": "Forgot your passcode?",
     "forgotPasscodeDesc": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor",
@@ -174,7 +174,7 @@
     "HexaPay": "Hexa Pay",
     "AliceWallet": "Alice’s Wallet",
     "HexaPaywalletsecurity": "You are about the enhance your Hexa Pay wallet's security",
-    "amountdesc": "Lorem ipsum dolor sit amet",
+    "amountdesc": "",
     "ConvertedAmount": "Converted Amount",
     "reflectSats": "It would take some time for the sats to reflect in your account based on the network conditions",
     "the_wallet_backup": "The wallet backup is ",
@@ -270,6 +270,8 @@
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
     "TransferSuccessful": "Transfer Successful!",
+    "WalletDetails": "Wallet Details",
+    "EditWalletDeatils": "Edit wallet name and descrition",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
     "XPubTitle": "Wallet xPub",
     "XPubSubTitle": "Scan or copy paste the xPub in another app for generating new addresses and fetching balances",
@@ -326,15 +328,15 @@
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Setting up TapSigner",
+    "SetupTitle": "Setting up TAPSIGNER",
     "SetupDescription": "Keep your TAPSIGNER ready before proceeding"
   },
   "coldcard": {
     "Setupandassociate": "Setup and associate",
     "Associate": "Associate",
     "CardStatus": "Card Status",
-    "SetupTitle": "Keep your ColdCard ready",
-    "SetupDescription": "Keep your ColdCard ready before proceeding"
+    "SetupTitle": "Keep your Coldcard ready",
+    "SetupDescription": "Keep your Coldcard ready before proceeding"
   },
   "ledger": {
     "Setupandassociate": "Setup and associate",
@@ -343,7 +345,7 @@
     "SetupTitle": "Setting up Ledger",
     "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
     "ScanningBT": "Scanning for bluetooth",
-    "KeepLedgerReady": "Keep your Ledger ready before proceeding"
+    "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "settings": {
     "selectCurrency": "Select currency",

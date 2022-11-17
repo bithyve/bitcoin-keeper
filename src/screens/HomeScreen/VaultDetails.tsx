@@ -22,7 +22,6 @@ import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -95,6 +94,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
 
 const Header = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
     <Box flexDirection={'row'} justifyContent={'space-between'} px={'2%'}>
@@ -102,7 +102,7 @@ const Header = () => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <BackIcon />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.knowMore}>
+      <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
         <Text color={'light.white1'} fontSize={12} letterSpacing={0.84} fontWeight={100}>
           Know More
         </Text>
@@ -222,7 +222,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
               <TouchableOpacity
                 onPress={() => {
                   navigation.dispatch(
-                    CommonActions.navigate('ViewAllTransactions', {
+                    CommonActions.navigate('VaultTransactions', {
                       title: 'Vault Transactions',
                       subtitle: 'All incoming and outgoing transactions',
                     })
@@ -379,8 +379,6 @@ const VaultDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
-  const { translations } = useContext(LocalizationContext);
-  const wallet = translations['wallet'];
   const { top } = useSafeAreaInsets();
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -442,7 +440,7 @@ const VaultDetails = ({ route, navigation }) => {
           p={1}
         >
           {
-            'Keeper supports all the popular bitcoin Signing Devices (Hardware Wallets) that a user can select'
+            'Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select'
           }
         </Text>
         <Text
@@ -453,7 +451,7 @@ const VaultDetails = ({ route, navigation }) => {
           fontWeight={'200'}
           p={1}
         >
-          {'There are also some additional options if you do not have hardware Signing Devices'}
+          {'There are also some additional options if you do not have hardware signing devices'}
         </Text>
       </View>
     );
@@ -496,8 +494,9 @@ const VaultDetails = ({ route, navigation }) => {
       <KeeperModal
         visible={vaultCreated}
         title={'New Vault Created'}
-        subTitle={`Your Vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
+        subTitleColor={'light.lightBlack2'}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={() => {
@@ -512,7 +511,7 @@ const VaultDetails = ({ route, navigation }) => {
                 marginTop={3}
               >
                 {
-                  'For sending out of the Vault you will need the Signing Devices. This means no one can steal your bitcoin in the Vault unless they also have the Signing Devices'
+                  'For sending out of the vault you will need the signing devices. This means no one can steal your bitcoin in the vault unless they also have the signing devices'
                 }
               </Text>
             </View>

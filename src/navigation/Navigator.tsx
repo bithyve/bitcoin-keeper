@@ -15,7 +15,7 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
-import EditWalletScreen from 'src/screens/EnterWalletDetailScreen/EditWalletScreen';
+import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
@@ -25,12 +25,10 @@ import KeeperLoader from 'src/components/KeeperLoader';
 import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
-import QRscannerScreen from 'src/screens/QRscannerScreen/QRScannerScreen';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
-import { RigisterToSD } from 'src/screens/Vault/RigisterToSD';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
@@ -42,6 +40,7 @@ import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
+import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
@@ -127,7 +126,6 @@ const AppStack = () => {
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
         <Stack.Screen name="AddLedger" component={SetupLedger} />
-        <Stack.Screen name="QRscanner" component={QRscannerScreen} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
@@ -138,6 +136,7 @@ const AppStack = () => {
         <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
+        <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
@@ -145,7 +144,6 @@ const AppStack = () => {
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
-        <Stack.Screen name="EditWalletScreen" component={EditWalletScreen} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
@@ -156,7 +154,6 @@ const AppStack = () => {
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
-        <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
@@ -165,6 +162,7 @@ const AppStack = () => {
         <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
+        <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );

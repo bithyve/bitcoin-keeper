@@ -43,7 +43,7 @@ const TierUpgradeModal = ({ visible, close, onPress, isUpgrade, plan }) => {
       subTitleColor={'#5F6965'}
       modalBackground={['#F7F2EC', '#F7F2EC']}
       buttonBackground={['#00836A', '#073E39']}
-      buttonText={isUpgrade ? 'Add Signers' : 'Remove Signers'}
+      buttonText={isUpgrade ? 'Add now' : 'Remove now'}
       buttonTextColor={'#FAFAFA'}
       buttonCallback={onPress}
       textColor={'#041513'}

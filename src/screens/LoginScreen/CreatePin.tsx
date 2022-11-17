@@ -9,7 +9,6 @@ import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -18,9 +17,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
-import messaging from '@react-native-firebase/messaging';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -98,7 +95,11 @@ export default function CreatePin(props) {
   }
 
   const onDeletePressed = (text) => {
-    setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+    if (passcodeFlag) {
+      setPasscode(passcode.slice(0, -1));
+    } else {
+      setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+    }
   };
 
   useEffect(() => {
@@ -137,15 +138,6 @@ export default function CreatePin(props) {
     }
   }, [credsChanged]);
 
-  // if (isPinChangedFailed) {
-  //   setTimeout(() => {
-  //     setErrorMessageHeader('Passcode change error');
-  //     setErrorMessage('There was some error while changing the Passcode, please try again');
-  //   }, 2);
-  //   (ErrorBottomSheet as any).current.snapTo(1);
-  //   dispatch(pinChangedFailed(null));
-  // }
-
   useEffect(() => {
     if (passcode == confirmPasscode) {
       setIsDisabled(false);
@@ -171,7 +163,16 @@ export default function CreatePin(props) {
               </Text>
 
               {/* pin input view */}
-              <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
+              <PinInputsView
+                passCode={passcode}
+                passcodeFlag={passcodeFlag}
+                borderColor={
+                  passcode != confirmPasscode && confirmPasscode.length == 4
+                    ? // ? '#FF8F79'
+                      `light.error`
+                    : 'transparent'
+                }
+              />
               {/*  */}
             </Box>
             {passcode.length == 4 ? (
@@ -186,16 +187,22 @@ export default function CreatePin(props) {
                     passcodeFlag={
                       confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2 ? false : true
                     }
+                    borderColor={
+                      passcode !== confirmPasscode && confirmPasscode.length == 4
+                        ? '#FF8F79'
+                        : 'transparent'
+                    }
                   />
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                     <Text
-                      color={'light.errorRed'}
-                      fontSize={RFValue(13)}
+                      color={'light.error'}
+                      fontSize={RFValue(10)}
                       fontWeight={200}
-                      width={wp('72%')}
+                      width={wp('68%')}
                       textAlign={'right'}
-                    // mt={hp('1.5%')}
+                      fontStyle={'italic'}
+                      // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
@@ -236,8 +243,8 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // keyColor={'light.lightBlack'}
-          // ClearIcon={<DeleteIcon />}
+            // keyColor={'light.lightBlack'}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

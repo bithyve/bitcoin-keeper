@@ -11,7 +11,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import DotView from 'src/components/DotView';
+
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';

@@ -6,18 +6,18 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Fonts from 'src/common/Fonts';
 import Illustration from 'src/assets/images/illustration.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -29,7 +29,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/common/Fonts';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -291,7 +290,7 @@ const EnterSeedScreen = () => {
             fontWeight={200}
             color={'#4F5955'}
             marginX={10}
-            marginY={10}
+            marginY={hp(10)}
             fontSize={12}
             letterSpacing={0.6}
           >
@@ -301,78 +300,49 @@ const EnterSeedScreen = () => {
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
+              width: wp(375),
+              alignItems: 'center',
+              paddingHorizontal: wp(20),
             }}
           >
             <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
               <View style={styles.dot}></View>
               <View style={styles.dash}></View>
             </Box>
-            <Box bg={'transparent'} flexDirection={'row'} marginRight={10}>
-              <TouchableOpacity>
-                <Text
-                  fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
-                  letterSpacing={1}
-                  marginTop={2}
-                  //   color={buttonCancelColor}
-                  marginRight={5}
-                >
-                  {common.needHelp}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext} disabled={appRecoveryLoading}>
-                <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={['#00836A', '#073E39']}
-                  style={styles.cta}
-                >
-                  <Text
-                    fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
-                    letterSpacing={1}
-                    color={'white'}
-                  >
-                    {common.next}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Box>
-            <KeeperModal
-              visible={invalidSeedsModal}
-              close={closeInvalidSeedsModal}
-              title={seed.InvalidSeeds}
-              subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
-              buttonBackground={['#00836A', '#073E39']}
-              buttonText={'Retry'}
-              buttonTextColor={'#FAFAFA'}
-              buttonCallback={closeInvalidSeedsModal}
-              textColor={'#041513'}
-              Content={InValidSeedsScreen}
-            />
-            <KeeperModal
-              visible={walletRecoverySuccessModal}
-              close={closeRecovery}
-              title={seed.walletRecoverySuccessful}
-              subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
-              buttonBackground={['#00836A', '#073E39']}
-              buttonText={'View Wallet'}
-              buttonTextColor={'#FAFAFA'}
-              buttonCallback={closeWalletSuccessModal}
-              textColor={'#041513'}
-              Content={RecoverWalletScreen}
-            />
-            <ModalWrapper
-              visible={createCloudBackupModal}
-              onSwipeComplete={() => setCreateCloudBackupModal(false)}
-            >
-              <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-            </ModalWrapper>
+            <Buttons primaryCallback={onPressNext} primaryText={'Next'} />
           </View>
+          <KeeperModal
+            visible={invalidSeedsModal}
+            close={closeInvalidSeedsModal}
+            title={seed.InvalidSeeds}
+            subTitle={seed.seedDescription}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonText={'Retry'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCallback={closeInvalidSeedsModal}
+            textColor={'#041513'}
+            Content={InValidSeedsScreen}
+          />
+          <KeeperModal
+            visible={walletRecoverySuccessModal}
+            close={closeRecovery}
+            title={seed.walletRecoverySuccessful}
+            subTitle={seed.seedDescription}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonText={'View Wallet'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCallback={closeWalletSuccessModal}
+            textColor={'#041513'}
+            Content={RecoverWalletScreen}
+          />
+          <ModalWrapper
+            visible={createCloudBackupModal}
+            onSwipeComplete={() => setCreateCloudBackupModal(false)}
+          >
+            <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+          </ModalWrapper>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>

@@ -28,6 +28,7 @@ const KeeperModal = (props: {
   learnMore?: boolean;
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
+  showCloseIcon?: boolean;
 }) => {
   const {
     visible,
@@ -49,12 +50,19 @@ const KeeperModal = (props: {
     learnMore = false,
     learnMoreCallback = () => { },
     closeOnOverlayClick = true,
+    showCloseIcon = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   if (!visible) {
     return null;
+  }
+
+  const getCloseIcon = () => {
+    return (
+      DarkCloseIcon ? <CloseGreen /> : <Close />
+    )
   }
   return (
     <Modal
@@ -66,34 +74,34 @@ const KeeperModal = (props: {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent={'flex-end'}
     >
-      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight={'full'}>
+      <Modal.Content
+        borderRadius={10}
+        marginBottom={Math.max(5, bottomMargin)}
+        maxHeight={'full'}
+      >
         <GestureHandlerRootView>
           <Box
             bg={{
               linearGradient: {
                 colors: modalBackground,
                 start: [0, 0],
-                end: [1, 1]
-              }
+                end: [1, 1],
+              },
             }}
             style={styles.container}
           >
             <TouchableOpacity style={styles.close} onPress={close}>
-              {showButtons ? DarkCloseIcon ? <CloseGreen /> : <Close /> : null}
+              {showCloseIcon ? getCloseIcon() : null}
             </TouchableOpacity>
-            <Modal.Header
-              alignSelf={'flex-start'}
-              borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={'90%'}
-            >
-              <Text style={styles.title} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Modal.Header style={styles.headerContainer}>
+              <Text
+                style={styles.title}
+                color={textColor}
+              >
                 {title}
               </Text>
               <Text
                 style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'200'}
                 color={subTitleColor}
                 width={subTitleWidth}
               >
@@ -104,32 +112,16 @@ const KeeperModal = (props: {
               <Content />
             </Modal.Body>
             {((showButtons && learnMore) || buttonText) && (
-              <Box
-                flexDirection={'row'}
-                justifyContent={'space-between'}
-                alignItems={'center'}
-                width={'100%'}
-              >
+              <Box style={styles.footerContainer}>
                 {learnMore ? (
                   <Box
                     borderColor={'light.yellow2'}
-                    borderRadius={hp(40)}
-                    borderWidth={1}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    backgroundColor={'#00433A'}
-                    style={{
-                      height: hp(34),
-                      width: wp(110),
-                      marginLeft: wp(10),
-                    }}
+                    style={styles.learnMoreContainer}
                   >
                     <Link onPress={learnMoreCallback}>
                       <Text
                         color={'light.yellow2'}
-                        fontSize={13}
-                        fontFamily={'body'}
-                        fontWeight={'300'}
+                        style={styles.seeFAQs}
                       >
                         {'See FAQs'}
                       </Text>
@@ -139,30 +131,25 @@ const KeeperModal = (props: {
                   <Box></Box>
                 )}
                 {buttonText && (
-                  <Box alignSelf={'flex-end'} bg={'transparent'}>
-                    <TouchableOpacity onPress={buttonCallback}>
-                      <Box
-                        bg={{
-                          linearGradient: {
-                            colors: buttonBackground,
-                            start: [0, 0],
-                            end: [1, 1]
-                          }
-                        }}
-                        style={styles.cta}
+                  <TouchableOpacity onPress={buttonCallback}>
+                    <Box
+                      bg={{
+                        linearGradient: {
+                          colors: buttonBackground,
+                          start: [0, 0],
+                          end: [1, 1]
+                        }
+                      }}
+                      style={styles.cta}
+                    >
+                      <Text
+                        style={styles.ctaText}
+                        color={buttonTextColor}
                       >
-                        <Text
-                          fontSize={13}
-                          fontFamily={'body'}
-                          fontWeight={'300'}
-                          letterSpacing={1}
-                          color={buttonTextColor}
-                        >
-                          {showButtons ? buttonText : null}
-                        </Text>
-                      </Box>
-                    </TouchableOpacity>
-                  </Box>
+                        {showButtons ? buttonText : null}
+                      </Text>
+                    </Box>
+                  </TouchableOpacity>
                 )}
               </Box>
             )}
@@ -196,9 +183,40 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  ctaText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    letterSpacing: 1
+  },
   close: {
     position: 'absolute',
     right: 20,
     top: 20,
   },
+  seeFAQs: {
+    fontSize: 13,
+    fontWeight: 'bold'
+  },
+  learnMoreContainer: {
+    borderRadius: hp(40),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00433A',
+    height: hp(34),
+    width: wp(110),
+    marginLeft: wp(10),
+  },
+  headerContainer: {
+    alignSelf: 'flex-start',
+    borderBottomWidth: 0,
+    backgroundColor: 'transparent',
+    width: '90%'
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%'
+  }
 });

@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import Buttons from 'src/components/Buttons';
@@ -22,7 +22,7 @@ const SignWithTapsigner = () => {
   const card = React.useRef(new CKTapCard()).current;
 
   const { params = { signTransaction: () => {}, signer: null } as any } = useRoute();
-  const { signTransaction, signer, textRef } = params;
+  const { signTransaction, textRef } = params;
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -74,7 +74,7 @@ const SignWithTapsigner = () => {
         <Box style={styles.header}>
           <HeaderTitle
             title={'Sign with Tapsigner'}
-            subtitle="Enter the 6-digit code printed on back of your TAPSIGNER"
+            subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
             onPressHandler={() => navigation.goBack()}
           />
         </Box>

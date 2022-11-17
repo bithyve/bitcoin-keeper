@@ -1,29 +1,23 @@
-import React, { useState, useContext } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import { Box, Text } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-// libraries
-import { RFValue } from 'react-native-responsive-fontsize';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import LinearGradient from 'react-native-linear-gradient';
-// Components
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import { hp, wp, getTransactionPadding } from 'src/common/data/responsiveness/responsive';
-import { Transaction } from 'src/core/wallets/interfaces';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
+
 // asserts
 import BackIcon from 'src/assets/icons/back.svg';
-import Server from 'src/assets/images/svgs/server.svg';
-import Edit from 'src/assets/images/svgs/edit.svg';
-import DotView from 'src/components/DotView';
 import Change from 'src/assets/images/svgs/change.svg';
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
+import DotView from 'src/components/DotView';
+import Edit from 'src/assets/images/svgs/edit.svg';
 import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
+import LinearGradient from 'react-native-linear-gradient';
+// libraries
+import { RFValue } from 'react-native-responsive-fontsize';
+import React from 'react';
+import Server from 'src/assets/images/svgs/server.svg';
 import Settings from 'src/assets/images/svgs/settings_brown.svg';
+// Components
+import StatusBarComponent from 'src/components/StatusBarComponent';
 
 const SigningServer = ({ navigation }) => {
-  const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
-
   const GradientIcon = ({ height, Icon }) => {
     return (
       <LinearGradient
@@ -51,7 +45,7 @@ const SigningServer = ({ navigation }) => {
           borderRadius: height,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#FAC48B'
+          backgroundColor: '#FAC48B',
         }}
       >
         <Icon />
@@ -69,8 +63,8 @@ const SigningServer = ({ navigation }) => {
       >
         {text}
       </Text>
-    )
-  }
+    );
+  };
   const HistoryCard = () => {
     return (
       <Box>
@@ -93,12 +87,7 @@ const SigningServer = ({ navigation }) => {
         >
           {'15 March ’21'}
         </Text>
-        <Box
-          borderLeftColor={'#E3BE96'}
-          borderLeftWidth={1}
-          ml={wp(3.5)}
-          position="relative"
-        >
+        <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} ml={wp(3.5)} position="relative">
           <Box
             backgroundColor={'light.lightYellow'}
             my={2}
@@ -114,13 +103,16 @@ const SigningServer = ({ navigation }) => {
             >
               Health Check Skipped
             </Text>
-            <Description text={'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'} />
-            {/* <TransactionElement /> */}
+            <Description
+              text={
+                'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
+              }
+            />
           </Box>
         </Box>
       </Box>
-    )
-  }
+    );
+  };
 
   return (
     <SafeAreaView
@@ -130,14 +122,14 @@ const SigningServer = ({ navigation }) => {
       }}
     >
       <StatusBarComponent padding={hp(2)} />
-      {/* {header} */}
+
       <Box
         flexDirection={'row'}
         justifyContent={'space-between'}
         style={{
           paddingLeft: wp(30),
           paddingRight: wp(20),
-          marginTop: hp(20)
+          marginTop: hp(20),
         }}
       >
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -153,23 +145,13 @@ const SigningServer = ({ navigation }) => {
           justifyContent={'center'}
           alignItems={'center'}
         >
-          <Text
-            color={'light.brownborder'}
-            fontWeight={200}
-            letterSpacing={0.6}
-            fontSize={12}
-          >
+          <Text color={'light.brownborder'} fontWeight={200} letterSpacing={0.6} fontSize={12}>
             Learn More
           </Text>
         </Box>
       </Box>
-      {/* {Signing Server} */}
-      <Box
-        alignItems={'center'}
-        justifyContent={'center'}
-        flexDirection={'row'}
-        marginTop={hp(35)}
-      >
+
+      <Box alignItems={'center'} justifyContent={'center'} flexDirection={'row'} marginTop={hp(35)}>
         <Box marginRight={wp(17)}>
           <GradientIcon Icon={Server} height={hp(50)} />
         </Box>
@@ -195,7 +177,6 @@ const SigningServer = ({ navigation }) => {
             fontSize={RFValue(12)}
             fontFamily={'body'}
             letterSpacing={0.6}
-
           >
             Lorem ipsum dolor sit amet
           </Text>
@@ -204,14 +185,12 @@ const SigningServer = ({ navigation }) => {
           <Edit />
         </Box>
       </Box>
-      {/* {list} */}
+
       <Box mx={wp(30)} marginTop={hp(50)} height={hp(380)}>
         <FlatList
           data={[1, 2, 3, 4, 5]}
           contentContainerStyle={{ flexGrow: 1 }}
-          renderItem={({ item }) => (
-            <HistoryCard />
-          )}
+          renderItem={({ item }) => <HistoryCard />}
           keyExtractor={(item) => `${item}`}
           showsVerticalScrollIndicator={false}
         />
@@ -220,20 +199,16 @@ const SigningServer = ({ navigation }) => {
         style={{
           marginHorizontal: wp(40),
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Box
           style={{
-            marginVertical: hp(20)
-          }}>
-          <Text
-            color={'light.modalText'}
-            fontWeight={200}
-            fontSize={13}
-            letterSpacing={0.65}
-          >
-            You will be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit
+            marginVertical: hp(20),
+          }}
+        >
+          <Text color={'light.modalText'} fontWeight={200} fontSize={13} letterSpacing={0.65}>
+            You will be reminded in 90 days for the health check
           </Text>
         </Box>
         <Box

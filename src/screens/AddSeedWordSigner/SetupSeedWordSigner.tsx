@@ -1,6 +1,6 @@
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';

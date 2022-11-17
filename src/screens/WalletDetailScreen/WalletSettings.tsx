@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import { Box, Text, Pressable, ScrollView } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
@@ -8,24 +10,25 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
-// icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
-import { Alert } from 'react-native';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { AppContext } from 'src/common/content/AppContext';
+// icons
+import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import Note from 'src/components/Note/Note';
 
 type Props = {
   title: string;
@@ -78,6 +81,8 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 const WalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+  const { setAppLoading, setLoadingContent } = useContext(AppContext);
 
   const [xpubVisible, setXPubVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -95,8 +100,8 @@ const WalletSettings = ({ route }) => {
           linearGradient: {
             colors: ['light.lgStart', 'light.lgEnd'],
             start: [0, 0],
-            end: [1, 1]
-          }
+            end: [1, 1],
+          },
         }}
         style={{
           borderRadius: hp(20),
@@ -147,6 +152,24 @@ const WalletSettings = ({ route }) => {
   };
 
   useEffect(() => {
+    setLoadingContent({
+      title: 'Please Wait',
+      subtitle: 'Recieving test sats',
+      message: '',
+    });
+
+    return () => {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: ''
+      });
+      setAppLoading(false);
+    }
+  }, [])
+
+  useEffect(() => {
+    setAppLoading(false);
     if (testCoinsReceived) {
       Alert.alert('5000 Sats Received');
       setTimeout(() => {
@@ -189,14 +212,6 @@ const WalletSettings = ({ route }) => {
             wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
           )}
         />
-        {/* <Option
-          title={'Wallet Backup'}
-          subTitle={'Setup backup for Wallet'}
-          onPress={() => {
-            navigtaion.navigate('BackupWallet');
-          }}
-          Icon={true}
-        /> */}
       </Box>
       <Box
         alignItems={'center'}
@@ -210,7 +225,7 @@ const WalletSettings = ({ route }) => {
             title={'Wallet Details'}
             subTitle={'Change wallet name & description'}
             onPress={() => {
-              console.log('Wallet Details');
+              navigtaion.navigate('EditWalletDetails', { wallet: wallet });
             }}
             Icon={false}
           />
@@ -243,6 +258,7 @@ const WalletSettings = ({ route }) => {
             title={'Receive Test Sats'}
             subTitle={'Recieve Test Sats to this address'}
             onPress={() => {
+              setAppLoading(true);
               getTestSats();
             }}
             Icon={false}
@@ -251,24 +267,17 @@ const WalletSettings = ({ route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
-        <InfoBox
+      <Box position={'absolute'} bottom={hp(45)} marginX={5} w={'90%'}>
+        <Note
           title={'Note'}
-          desciption={
+          subtitle={
             'These settings are for your Default Wallet only and does not affect other wallets'
           }
-          width={250}
+          subtitleColor={'GreyText'}
         />
       </Box>
       {/* Modals */}
       <Box>
-        {/* <ModalWrapper visible={xpubVisible} onSwipeComplete={() => setXPubVisible(false)}>
-          <ShowXPub
-            closeBottomSheet={() => {
-              setXPubVisible(false);
-            }}
-          />
-        </ModalWrapper> */}
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -290,25 +299,24 @@ const WalletSettings = ({ route }) => {
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={ShowXPub}
+          Content={() => (
+            <ShowXPub
+              copy={() => {
+                showToast('Address Copied Successfully', <TickIcon />);
+              }}
+            />
+          )}
         />
         <KeeperModal
           visible={transferPolicyVisible}
           close={() => setTransferPolicyVisible(false)}
           title={'Edit Transfer Policy'}
-          subTitle={
-            'Threshold amount at which transfer is triggered'
-          }
+          subTitle={'Threshold amount at which transfer is triggered'}
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
           Content={() => {
-            return (
-              <TransferPolicy
-                wallet={wallet}
-                close={() => setTransferPolicyVisible(false)}
-              />
-            );
+            return <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />;
           }}
         />
       </Box>

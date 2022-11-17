@@ -10,7 +10,6 @@ import {
   SEND_PHASE_ONE,
   SEND_PHASE_THREE,
   SEND_PHASE_TWO,
-  SEND_TX_NOTIFICATION,
   SendPhaseOneAction,
   SendPhaseThreeAction,
   SendPhaseTwoAction,
@@ -19,7 +18,7 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { EntityKind, TxPriority, WalletType } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority } from 'src/core/wallets/enums';
 import {
   SendPhaseOneExecutedPayload,
   sendPhaseOneExecuted,
@@ -27,13 +26,12 @@ import {
   sendPhaseTwoExecuted,
   setAverageTxFee,
   setExchangeRates,
-  updatePSBTEnvelops,
   setSendMaxFee,
+  updatePSBTEnvelops,
 } from '../reducers/send_and_receive';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
-import RecipientKind from '../../common/data/enums/RecipientKind';
 import Relay from 'src/core/services/operations/Relay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
