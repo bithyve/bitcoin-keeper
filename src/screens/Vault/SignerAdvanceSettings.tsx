@@ -35,14 +35,10 @@ const SignerAdvanceSettings = ({ route }) => {
     .filter((vault) => !vault.archived)[0];
 
   const register = async () => {
-    switch (signer.type) {
-      case SignerType.COLDCARD:
-        openNfc();
-        await registerToColcard({ vault: Vault });
-        closeNfc();
-        break;
-      default:
-        break;
+    if (signer.type === SignerType.COLDCARD) {
+      openNfc();
+      await registerToColcard({ vault: Vault });
+      closeNfc();
     }
   };
 

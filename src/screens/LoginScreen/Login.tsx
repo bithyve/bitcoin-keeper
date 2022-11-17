@@ -1,4 +1,4 @@
-import { Box, HStack, Switch, Text, Image } from 'native-base';
+import { Box, HStack, Image, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import FogotPassword from './components/FogotPassword';
+import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -22,7 +23,6 @@ import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
-import KeeperModal from 'src/components/KeeperModal';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -292,7 +292,7 @@ const LoginScreen = ({ navigation, route }) => {
                 disabled={true}
                 trackColor={{ true: '#FFFA' }}
                 thumbColor={'#358475'}
-                onChange={() => { }}
+                onChange={() => {}}
               />
             </HStack>
             <Box mt={10} alignSelf={'flex-end'} mr={10}>
@@ -338,7 +338,7 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
@@ -377,7 +377,7 @@ const LoginScreen = ({ navigation, route }) => {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title={'Share Feedback (Testnet only)'}
         subTitle={'Shake your device to send us a bug report or a feature request'}
         modalBackground={['#F7F2EC', '#F7F2EC']}

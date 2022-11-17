@@ -28,7 +28,7 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
@@ -36,13 +36,15 @@ const HeaderTitle = ({
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.back}>
-          <TouchableOpacity onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          <TouchableOpacity
+            onPress={onPressHandler ? onPressHandler : navigation.goBack}
             style={{
               height: 20,
               width: 20,
               justifyContent: 'center',
-              alignItems: 'center'
-            }}>
+              alignItems: 'center',
+            }}
+          >
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
@@ -55,7 +57,7 @@ const HeaderTitle = ({
                   borderRadius: 5,
                   paddingHorizontal: 5,
                   justifyContent: 'center',
-                  alignItems: 'center'
+                  alignItems: 'center',
                 }}
               >
                 <Text
@@ -64,7 +66,7 @@ const HeaderTitle = ({
                   style={{
                     fontSize: 12,
                     letterSpacing: 0.6,
-                    alignSelf: 'center'
+                    alignSelf: 'center',
                   }}
                 >
                   Learn More
@@ -76,7 +78,7 @@ const HeaderTitle = ({
       )}
       <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'}>
         <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
-          {title && (
+          {!!title && (
             <Text
               numberOfLines={1}
               style={styles.addWalletText}
@@ -88,7 +90,7 @@ const HeaderTitle = ({
               {title}
             </Text>
           )}
-          {subtitle && (
+          {!!subtitle && (
             <Text
               style={styles.addWalletDescription}
               color={'light.lightBlack'}

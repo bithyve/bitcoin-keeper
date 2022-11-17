@@ -47,7 +47,6 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
-import { setupKeeperApp } from '../sagaActions/storage';
 import { uaiChecks } from '../sagaActions/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {

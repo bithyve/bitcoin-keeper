@@ -22,7 +22,6 @@ import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -385,8 +384,6 @@ const VaultDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
-  const { translations } = useContext(LocalizationContext);
-  const wallet = translations['wallet'];
   const { top } = useSafeAreaInsets();
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)

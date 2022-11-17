@@ -194,7 +194,6 @@ const LinkedWallets = (props) => {
 };
 
 const VaultStatus = (props) => {
-  const [visible, setModalVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vaultTranslations = translations['vault'];
@@ -218,18 +217,15 @@ const VaultStatus = (props) => {
     if (signers.length) {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
     } else {
-      setModalVisible(true);
       navigateToHardwareSetup();
     }
   };
-  const close = () => setModalVisible(false);
 
   const navigateToHardwareSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
 
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
-  const dispatch = useAppDispatch();
 
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
@@ -285,7 +281,7 @@ const VaultStatus = (props) => {
               marginTop: hp(30),
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: hp(14)
+              borderRadius: hp(14),
             }}
           >
             <Text
@@ -319,7 +315,7 @@ const VaultStatus = (props) => {
             >
               {!signers.length
                 ? 'Add a signing device to upgrade '
-                : `Secured by ${signers.length} signer${signers.length === 1 ? '' : 's'}`}
+                : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
             </Text>
 
             {!signers.length ? (
@@ -533,11 +529,7 @@ const HomeScreen = ({ navigation }) => {
   }, []);
   
   return (
-    <Box
-      flex={1}
-      backgroundColor={'light.lightYellow'}
-      position={'relative'}
-    >
+    <Box flex={1} backgroundColor={'light.lightYellow'} position={'relative'}>
       <VaultInfo />
       <VaultStatus
         onAmountPress={() => {
@@ -545,12 +537,7 @@ const HomeScreen = ({ navigation }) => {
         }}
         showHideAmounts={showHideAmounts}
       />
-      <Box
-        position={'absolute'}
-        bottom={5}
-        justifyContent={'center'}
-        width={'100%'}
-      >
+      <Box position={'absolute'} bottom={5} justifyContent={'center'} width={'100%'}>
         <Pressable
           onPress={() => {
             navigation.navigate('SetupInheritance');
