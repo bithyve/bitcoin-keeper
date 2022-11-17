@@ -1,5 +1,5 @@
 import { Input, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';

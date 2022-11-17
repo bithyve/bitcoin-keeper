@@ -722,8 +722,7 @@ export default class WalletOperations {
       );
 
       const bip32Derivation = [];
-      for (let i = 0; i < (wallet as Vault).signers.length; i++) {
-        const signer = (wallet as Vault).signers[i];
+      for (const signer of (wallet as Vault).signers) {
         const derivationPath = signer.xpubInfo?.derivationPath;
         const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
         const path = derivationPath + `/${subPath.join('/')}`;
@@ -766,8 +765,7 @@ export default class WalletOperations {
   } => {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
-    for (let i = 0; i < (wallet as Vault).signers.length; i++) {
-      const signer = (wallet as Vault).signers[i];
+    for (const signer of wallet.signers) {
       const derivationPath = signer.xpubInfo.derivationPath;
       const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
       const path = derivationPath + `/${subPath.join('/')}`;
@@ -885,7 +883,7 @@ export default class WalletOperations {
       for (const input of inputs) {
         let keyPair, internal, index;
         if (input.subPath) {
-          const [i, j, k] = input.subPath.split('/');
+          const [, j, k] = input.subPath.split('/');
           internal = parseInt(j);
           index = parseInt(k);
         } else {
@@ -936,45 +934,43 @@ export default class WalletOperations {
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
-    } else {
-      if (signer.type === SignerType.TAPSIGNER) {
-        const inputsToSign = [];
-        for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-          const { subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
-            inputs[inputIndex].address,
-            wallet as Vault
-          );
-          const publicKey = signerPubkeyMap.get(signer.xpub);
-          const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
-          inputsToSign.push({
-            digest: hash.toString('hex'),
-            subPath: `/${subPath.join('/')}`,
-            inputIndex,
-            sighashType,
-            publicKey: publicKey.toString('hex'),
-          });
-        }
-        signingPayload.push({ payloadTarget: SignerType.TAPSIGNER, inputsToSign });
-      } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
-        signingPayload.push({ payloadTarget: signer.type, inputs });
-      } else if (signer.type === SignerType.POLICY_SERVER) {
-        const childIndexArray = [];
-        for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-          const { subPath } = WalletUtilities.addressToMultiSig(
-            inputs[inputIndex].address,
-            wallet as Vault
-          );
-          childIndexArray.push({
-            subPath,
-            inputIdentifier: {
-              txId: inputs[inputIndex].txId,
-              vout: inputs[inputIndex].vout,
-              value: inputs[inputIndex].value,
-            },
-          });
-        }
-        signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
+    } else if (signer.type === SignerType.TAPSIGNER) {
+      const inputsToSign = [];
+      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+        const { subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
+          inputs[inputIndex].address,
+          wallet as Vault
+        );
+        const publicKey = signerPubkeyMap.get(signer.xpub);
+        const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
+        inputsToSign.push({
+          digest: hash.toString('hex'),
+          subPath: `/${subPath.join('/')}`,
+          inputIndex,
+          sighashType,
+          publicKey: publicKey.toString('hex'),
+        });
       }
+      signingPayload.push({ payloadTarget: SignerType.TAPSIGNER, inputsToSign });
+    } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
+      signingPayload.push({ payloadTarget: signer.type, inputs });
+    } else if (signer.type === SignerType.POLICY_SERVER) {
+      const childIndexArray = [];
+      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+        const { subPath } = WalletUtilities.addressToMultiSig(
+          inputs[inputIndex].address,
+          wallet as Vault
+        );
+        childIndexArray.push({
+          subPath,
+          inputIdentifier: {
+            txId: inputs[inputIndex].txId,
+            vout: inputs[inputIndex].vout,
+            value: inputs[inputIndex].value,
+          },
+        });
+      }
+      signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
     }
     if (signer.amfData && signer.amfData.xpub) {
       signingPayload.push({ payloadTarget: signer.type, inputs });

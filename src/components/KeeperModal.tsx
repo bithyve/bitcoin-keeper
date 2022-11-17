@@ -50,7 +50,7 @@ const KeeperModal = (props: {
     learnMore = false,
     learnMoreCallback = () => { },
     closeOnOverlayClick = true,
-    showCloseIcon = true
+    showCloseIcon = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
 
@@ -85,8 +85,8 @@ const KeeperModal = (props: {
               linearGradient: {
                 colors: modalBackground,
                 start: [0, 0],
-                end: [1, 1]
-              }
+                end: [1, 1],
+              },
             }}
             style={styles.container}
           >

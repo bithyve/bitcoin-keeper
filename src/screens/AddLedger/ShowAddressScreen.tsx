@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useEffect, useRef, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { StyleSheet, Text, View } from 'react-native';
 
 import AppClient from 'src/hardware/ledger';

@@ -26,7 +26,7 @@ export const identifyUser = (id: string) => {
 
 export const captureError = (error: Error, context?: CaptureContext) => {
   if (__DEV__) {
-    console.log(error);
+    console.log('@captureError: ', error);
   }
   return Sentry.captureException(error, context);
 };
