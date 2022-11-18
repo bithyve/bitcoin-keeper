@@ -1,5 +1,5 @@
 // types and action creators: dispatched by components and sagas
-import { notificationTag, notificationType } from '../../core/interfaces/Interface';
+import { notificationTag, notificationType } from 'src/core/services/enums';
 
 export const UPDATE_FCM_TOKENS = 'UPDATE_FCM_TOKENS';
 export const SEND_NOTIFICATION = 'SEND_NOTIFICATION';

@@ -1,10 +1,11 @@
-import { MMKV } from 'react-native-mmkv';
-import React, { createContext, useState } from 'react';
 import * as RNLocalize from 'react-native-localize';
+
+import React, { createContext, useState } from 'react';
+
+import LocalizedContent from 'react-localization';
+import { MMKV } from 'react-native-mmkv';
 import en from './language/en.json';
 import es from './language/es.json';
-src / components / CloudBackup / CreateCloudBackup.tsx;
-import LocalizedContent from 'react-localization';
 
 export const Storage = new MMKV();
 
