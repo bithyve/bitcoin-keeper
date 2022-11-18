@@ -1,6 +1,5 @@
 import { ObjectSchema } from 'realm';
 import { RealmSchema } from '../enum';
-import { Platform } from 'react-native';
 
 export const additionalInfoSchema: ObjectSchema = {
   name: RealmSchema.AdditionalNotes,

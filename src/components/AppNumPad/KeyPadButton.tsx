@@ -19,10 +19,7 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor }: Props
       style={styles.keyPadElementTouchable}
       testID={`key_${title}`}
     >
-      <Text
-        style={styles.keyPadElementText}
-      // onPress={() => onPressNumber( title )}
-      >
+      <Text style={styles.keyPadElementText}>
         {title}
       </Text>
     </TouchableOpacity>
@@ -40,7 +37,6 @@ const getStyles = (keyColor) =>
     keyPadElementText: {
       color: keyColor,
       fontSize: RFValue(25),
-      fontStyle: 'normal',
       fontFamily: Fonts.RobotoCondensedRegular
     },
   });

@@ -45,7 +45,7 @@ const ExportSeedScreen = ({ route, navigation }) => {
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex((showWordIndex || showWordIndex === 0) ? '' : index);
+          setShowWordIndex(showWordIndex || showWordIndex === 0 ? '' : index);
         }}
       >
         <Box
@@ -108,7 +108,6 @@ const ExportSeedScreen = ({ route, navigation }) => {
           <Box>
             <CustomGreenButton
               onPress={() => {
-                //setBackupSuccessModal(true);
                 setConfirmSeedModal(true);
               }}
               value={login.Next}

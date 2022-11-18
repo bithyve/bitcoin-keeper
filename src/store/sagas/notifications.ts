@@ -1,4 +1,4 @@
-import { all, call, put, select } from 'redux-saga/effects';
+import { call, put, select } from 'redux-saga/effects';
 import { createWatcher } from '../utilities';
 import {
   UPDATE_FCM_TOKENS,
@@ -16,13 +16,10 @@ import {
 } from '../reducers/notifications';
 import Relay from 'src/core/services/operations/Relay';
 import { RootState } from '../store';
-import { useDispatch } from 'react-redux';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { useUaiStack } from 'src/hooks/useUaiStack';
 
 function* updateFCMTokensWorker({ payload }) {
   try {

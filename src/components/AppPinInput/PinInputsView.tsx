@@ -43,115 +43,91 @@ const PinInputsView = ({
     return textColor ? 'black' : 'white';
   }
 
-  const getPin = (num) => {
-    if (num == 4) {
+  const getPin = (num: number) => {
+    if (passCode.length == num && !hide) {
       return (
-        <>
-          {passCode.length == num && !hide ? (
-            <Text
-              color={getTextColor()}
-              fontWeight={'300'}
-              fontSize={RFValue(20)}
-              fontFamily={'body'}
-            >
-              {passCode[num - 1]}
-            </Text>
-          ) : passCode.length >= num && hide ? (
-            <DotView height={3} width={3} color={getDotColor()} />
-          ) : passCode.length == num - 1 ? (
-            <Text color={getTextColor()} style={styles.cursorText}>
-              {'|'}
-            </Text>
-          ) : (
-            ''
-          )}
-        </>
+        <Text
+          color={getTextColor()}
+          fontWeight={'300'}
+          fontSize={RFValue(20)}
+          fontFamily={'body'}
+        >
+          {passCode[num - 1]}
+        </Text>
       )
+    } else if (passCode.length >= num) {
+      return (
+        <DotView height={3} width={3} color={getDotColor()} />
+      )
+    } else if (passCode.length == num - 1) {
+      return (
+        <Text color={getTextColor()} style={styles.cursorText}>
+          {'|'}
+        </Text>
+      )
+    } else {
+      return '';
     }
-    return (
-      <>
-        {passCode.length == num ? (
-          <Text
-            color={getTextColor()}
-            fontWeight={'300'}
-            fontSize={RFValue(20)}
-            fontFamily={'body'}
-          >
-            {passCode[num - 1]}
-          </Text>
-        ) : passCode.length >= num ? (
-          <DotView height={3} width={3} color={getDotColor()} />
-        ) : passCode.length == num - 1 ? (
-          <Text color={getTextColor()} style={styles.cursorText}>
-            {'|'}
-          </Text>
-        ) : (
-          ''
-        )}
-      </>
-    )
   }
 
   return (
-    <Box alignSelf={'baseline'}>
-      <Box
-        flexDirection={'row'}
-        width={'auto'}
+    <Box style={styles.container}>
+      <View
         style={{
-          marginTop: hp(5),
-          marginBottom: hp(25),
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
         }}
       >
-        <View
-          style={{
-            ...styles.passcodeBox,
-            backgroundColor: getBackgroundColor(),
-            borderColor: borderColor,
-          }}
-        >
-          <Box>
-            {getPin(1)}
-          </Box>
-        </View>
-        <View
-          style={{
-            ...styles.passcodeBox,
-            backgroundColor: getBackgroundColor(),
-            borderColor: borderColor,
-          }}
-        >
-          <Box>
-            {getPin(2)}
-          </Box>
-        </View>
-        <View
-          style={{
-            ...styles.passcodeBox,
-            backgroundColor: getBackgroundColor(),
-            borderColor: borderColor,
-          }}
-        >
-          <Box>
-            {getPin(3)}
-          </Box>
-        </View>
-        <View
-          style={{
-            ...styles.passcodeBox,
-            backgroundColor: getBackgroundColor(),
-            borderColor: borderColor,
-          }}
-        >
-          <Box>
-            {getPin(4)}
-          </Box>
-        </View>
-      </Box>
+        <Box>
+          {getPin(1)}
+        </Box>
+      </View>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(2)}
+        </Box>
+      </View>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(3)}
+        </Box>
+      </View>
+      <View
+        style={{
+          ...styles.passcodeBox,
+          backgroundColor: getBackgroundColor(),
+          borderColor: borderColor,
+        }}
+      >
+        <Box>
+          {getPin(4)}
+        </Box>
+      </View>
     </Box>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    marginTop: hp(5),
+    marginBottom: hp(25),
+    flexDirection: 'row',
+    width: 'auto',
+    alignSelf: 'baseline'
+  },
   passcodeBox: {
     marginLeft: wp(15),
     borderRadius: 7,

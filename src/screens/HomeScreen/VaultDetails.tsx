@@ -81,12 +81,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
             Buy
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            // navigation.navigate('VaultSettings');
-          }}
-        >
+        <TouchableOpacity style={styles.IconText}>
           <IconSettings />
           <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Settings

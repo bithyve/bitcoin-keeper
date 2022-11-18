@@ -107,7 +107,6 @@ const EnterSeedScreen = () => {
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
@@ -120,8 +119,6 @@ const EnterSeedScreen = () => {
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
-
-  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -140,9 +137,9 @@ const EnterSeedScreen = () => {
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
+      if (seedData[i].invalid) {
         showToast('Enter correct seedwords', <TickIcon />);
-        return true;
+        return false;
       }
     }
     return true;
@@ -251,7 +248,7 @@ const EnterSeedScreen = () => {
                     <TextInput
                       style={[
                         styles.input,
-                        item.invalid == true
+                        item.invalid
                           ? {
                               borderColor: '#F58E6F',
                             }

@@ -32,34 +32,31 @@ const OnBoardingSlides = ({ navigation }) => {
   const onboarding = translations['onboarding'];
   const common = translations['common'];
   const [currentPosition, setCurrentPosition] = useState(0);
-  const [items, setItems] = useState([
+  const [items] = useState([
     {
       id: '1',
-      title:
+      title: (
         <>
-          {onboarding.Comprehensive + " "}
-          <Text
-            fontStyle={'italic'}
-            fontWeight={900}
-          >
+          {onboarding.Comprehensive + ' '}
+          <Text fontStyle={'italic'} fontWeight={900}>
             {onboarding.security}
           </Text>
           {' ' + onboarding.slide01Title}
-        </>,
+        </>
+      ),
       paragraph: onboarding.slide01Paragraph,
       illustration: <Illustration_1 />,
     },
     {
       id: '2',
-      title: <>
-        {onboarding.slide02Title + " "}
-        <Text
-          fontStyle={'italic'}
-          fontWeight={900}
-        >
-          {onboarding.privacy}
-        </Text>
-      </>,
+      title: (
+        <>
+          {onboarding.slide02Title + ' '}
+          <Text fontStyle={'italic'} fontWeight={900}>
+            {onboarding.privacy}
+          </Text>
+        </>
+      ),
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
@@ -96,7 +93,7 @@ const OnBoardingSlides = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
-      <ImageBackground resizeMode='contain' style={{ flex: 1 }} source={OnboardingBackImage}>
+      <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
           <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
           <Box justifyContent={'center'} mr={4} mt={10}>
@@ -150,8 +147,7 @@ const OnBoardingSlides = ({ navigation }) => {
               bottom: hp(20),
               justifyContent: 'space-between',
               width: wp(350),
-              paddingHorizontal: wp(20)
-
+              paddingHorizontal: wp(20),
             }}
           >
             <Box w={'70%'}>
@@ -164,7 +160,7 @@ const OnBoardingSlides = ({ navigation }) => {
                   alignItems={'center'}
                   justifyContent={'center'}
                   style={{
-                    height: hp(40)
+                    height: hp(40),
                   }}
                 >
                   <Text color={'light.borderColor2'} fontSize={RFValue(14)} fontWeight={300}>
@@ -174,15 +170,17 @@ const OnBoardingSlides = ({ navigation }) => {
               </TouchableOpacity>
             </Box>
             <Box flexDirection={'row'}>
-              {currentPosition < items.length - 1 ? items.map((item, index) => {
-                console.log(index)
-                return (
-                  <Box
-                    key={index}
-                    style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
-                  />
-                );
-              }) :
+              {currentPosition < items.length - 1 ? (
+                items.map((item, index) => {
+                  console.log(index);
+                  return (
+                    <Box
+                      key={index}
+                      style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                    />
+                  );
+                })
+              ) : (
                 <Box alignSelf={'center'} bg={'transparent'}>
                   <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
                     <LinearGradient
@@ -202,7 +200,8 @@ const OnBoardingSlides = ({ navigation }) => {
                       </Text>
                     </LinearGradient>
                   </TouchableOpacity>
-                </Box>}
+                </Box>
+              )}
             </Box>
           </Box>
         </SafeAreaView>

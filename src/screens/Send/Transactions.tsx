@@ -11,7 +11,7 @@ import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const Transactions = ({ transactions, addTransaction = () => { } }) => {
+const Transactions = ({ transactions, addTransaction = () => {} }) => {
   const navigation = useNavigation();
 
   const GradientIcon = ({ height, Icon }) => {

@@ -54,7 +54,6 @@ const uplaodFile = async ({ payload }) => {
         newArray[index] = { appID, ...data };
         newArray[index].dateTime = moment(new Date());
       }
-      // console.log('ARR', newArray);
       if (Platform.OS == 'ios') {
         if (newArray.length) {
           const result = await Cloud.startBackup(JSON.stringify(newArray));
