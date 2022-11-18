@@ -62,7 +62,6 @@ const SendConfirmation = ({ route }) => {
     walletToWallet = false,
   } = uiMetaData;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
-  const successSatus = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.isSuccessful);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -144,8 +143,6 @@ const SendConfirmation = ({ route }) => {
   };
 
   const onProceed = () => {
-    // console.log('pressed');
-    // setVisibleModal(true);
     // closeAllModal();
     if (isVaultTransfer) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
@@ -213,7 +210,8 @@ const SendConfirmation = ({ route }) => {
 
   useEffect(() => {
     if (walletSendSuccessful) {
-      viewDetails();
+      setVisibleModal(true);
+      // viewDetails();
     }
   }, [walletSendSuccessful]);
 
@@ -584,7 +582,9 @@ const SendConfirmation = ({ route }) => {
       {/*Modals */}
       <KeeperModal
         visible={visibleModal}
-        close={() => setVisibleModal(false)}
+        close={() => {
+          setVisibleModal(false), viewDetails();
+        }}
         title={walletTransactions.SendSuccess}
         subTitle={'The transaction has been successfully broadcasted'}
         buttonText={walletTransactions.ViewDetails}
