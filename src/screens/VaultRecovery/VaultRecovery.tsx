@@ -1,6 +1,6 @@
 import { Box, HStack, Pressable, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, View } from 'react-native';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import AddIcon from 'src/assets/images/green_add.svg';
@@ -14,7 +14,6 @@ import Relay from 'src/core/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/svgs/successSvg.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { WalletMap } from '../Vault/WalletMap';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { reoverVault } from 'src/store/sagaActions/bhr';

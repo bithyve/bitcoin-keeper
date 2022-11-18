@@ -8,7 +8,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
+import { TouchableOpacity } from 'react-native';
 import { WalletMap } from '../Vault/WalletMap';
 import { useNavigation } from '@react-navigation/native';
 
