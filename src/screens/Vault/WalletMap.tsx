@@ -15,6 +15,7 @@ import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
 import MOBILEKEY from 'src/assets/images/mobile_key.svg';
 import MOBILEKEYLIGHT from 'src/assets/images/svgs/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
+import PASSPORTICONLIGHT from 'src/assets/images/passport_light.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
 import SEEDWORDS from 'src/assets/icons/seedwords.svg';
@@ -84,7 +85,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.PASSPORT:
       return {
-        Icon: <PASSPORTICON />,
+        Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light),
         Logo: <PASSPORTLOGO />,
         type: SignerStorage.COLD,
       };

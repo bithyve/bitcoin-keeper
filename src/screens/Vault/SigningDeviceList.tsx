@@ -80,11 +80,11 @@ const getDeviceStatus = (
     case SignerType.JADE:
     case SignerType.KEYSTONE:
     case SignerType.KEEPER:
-    case SignerType.PASSPORT:
       return {
         message: 'Coming soon',
         disabled: false,
       };
+    case SignerType.PASSPORT:
     default:
       return {
         message: '',
