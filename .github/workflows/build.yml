@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - dev # or the name of your main branch
+    pull_request:
+     types: [opened, synchronize, reopened]
 jobs:
   build:
     name: Build
