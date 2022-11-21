@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
   btn: {
     flexDirection: 'row',
     height: wp('13%'),
+    position: 'relative',
     //   borderRadius: 10,
     //   borderWidth: 1,
     //   borderColor: Colors.borderColor,
@@ -54,6 +55,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderColor,
     borderRadius: 10,
     margin: 15,
+    position: 'absolute',
+    width: '90%',
+    zIndex: 10,
+    backgroundColor: '#FAF4ED',
+    height: '70%',
+    top: 50,
   },
 });
 
@@ -197,21 +204,7 @@ const ChangeLanguage = () => {
           label={currency.symbol}
           value={currency.code}
         />
-        {/* <View
-          style={{
-            position: 'relative',
-          }}
-        > */}
         {Visible && (
-          // <View
-          //   style={{
-          //     marginTop: wp('3%'),
-          //     borderRadius: 10,
-          //     borderWidth: 1,
-          //     borderColor: Colors.borderColor,
-          //     overflow: 'hidden',
-          //   }}
-          // >
           <ScrollView style={styles.scrollViewWrapper}>
             {currencyList.map((item) => {
               return (
@@ -275,9 +268,7 @@ const ChangeLanguage = () => {
               );
             })}
           </ScrollView>
-          // </View>
         )}
-        {/* </View> */}
         <CountrySwitchCard
           title={settings.LanguageSettings}
           description={settings.Chooseyourlanguage}
@@ -289,24 +280,15 @@ const ChangeLanguage = () => {
         <Menu
           onPress={() => {
             // Do not remove this
-            // setShowLanguages(!showLanguages);
-            // setIsDisabled(false);
-            // setVisible(false);
+            setShowLanguages(!showLanguages);
+            setIsDisabled(false);
+            setVisible(false);
           }}
           arrow={showLanguages}
           label={selectedLanguage.flag}
           value={`${selectedLanguage.country_code.toUpperCase()}- ${selectedLanguage.displayTitle}`}
         />
         {showLanguages && (
-          // <View
-          //   style={{
-          //     marginTop: wp('3%'),
-          //     borderRadius: 10,
-          //     borderWidth: 1,
-          //     borderColor: Colors.borderColor,
-          //     overflow: 'hidden',
-          //   }}
-          // >
           <ScrollView style={styles.scrollViewWrapper}>
             {availableLanguages.map((item) => {
               return (
@@ -378,7 +360,6 @@ const ChangeLanguage = () => {
               );
             })}
           </ScrollView>
-          // </View>
         )}
         {/* </ScrollView> */}
         {/* <View style={{ marginBottom: 10 }}>
