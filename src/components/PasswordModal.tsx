@@ -146,11 +146,11 @@ const PasswordModal = (props) => {
               }
             }}
           />
-          {invalidPassword && (
+          {/* {invalidPassword && (
             <Text alignSelf="flex-start" mx={4} color={'red.400'}>
               Invalid password
             </Text>
-          )}
+          )} */}
           <Text
             style={styles.subTitle}
             width={'90%'}
