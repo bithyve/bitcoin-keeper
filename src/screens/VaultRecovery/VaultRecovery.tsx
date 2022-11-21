@@ -108,6 +108,7 @@ const VaultRecovery = () => {
       dispatch(setVaultMetaData(data.vaultMetaData));
     }
   };
+
   const startRecovery = () => {
     setDisable(true);
     dispatch(reoverVault());
