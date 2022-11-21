@@ -101,7 +101,7 @@ const VaultRecovery = () => {
   const [signersList, setsignersList] = useState([]);
   const [disable, setDisable] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
-
+  // const test = () => {}
   const getVaultMetaDataRelay = async (signerId) => {
     const data = await Relay.getVaultMetaData(signerId);
     if (data.vaultMetaData) {
