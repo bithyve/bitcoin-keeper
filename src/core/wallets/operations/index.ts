@@ -798,6 +798,7 @@ export default class WalletOperations {
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
     customTxPrerequisites?: TransactionPrerequisiteElements,
+    derivationPurpose?: DerivationPurpose,
     scriptType?: BIP48ScriptTypes
   ): Promise<{
     PSBT: bitcoinJS.Psbt;
@@ -817,7 +818,8 @@ export default class WalletOperations {
         network,
       });
 
-      for (const input of inputs) this.addInputToPSBT(PSBT, wallet, input, network, scriptType);
+      for (const input of inputs)
+        this.addInputToPSBT(PSBT, wallet, input, network, derivationPurpose, scriptType);
 
       const {
         outputs: outputsWithChange,
