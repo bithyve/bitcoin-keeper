@@ -87,8 +87,8 @@ const SigningDeviceDetails = ({ route }) => {
     setNfcVisible(true);
     try {
       const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
-      const path = data?.p2sh_p2wsh_deriv ?? '';
+      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2wsh;
+      const path = data?.p2wsh_deriv ?? '';
       const xfp = data?.xfp ?? '';
       setNfcVisible(false);
       return { xpub, path, xfp };

@@ -24,8 +24,8 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
 
 export const getColdcardDetails = async () => {
   const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-  const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
-  const derivationPath = data?.p2sh_p2wsh_deriv ?? '';
+  const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
+  const derivationPath = data?.p2wsh_deriv ?? '';
   const xfp = data?.xfp ?? '';
   return { xpub, derivationPath, xfp };
 };
