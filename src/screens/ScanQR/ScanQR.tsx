@@ -16,10 +16,8 @@ const ScanQR = () => {
   const [qrData, setData] = useState(0);
   const route = useRoute();
   const { title = '', subtitle = '', onQrScan = () => {} } = route.params as any;
-
   useEffect(() => {
     if (qrData) {
-      console.log({ qrData });
       onQrScan(qrData);
     }
     return () => {
@@ -29,11 +27,16 @@ const ScanQR = () => {
 
   const onBarCodeRead = (data) => {
     if (!qrData) {
-      const { data: qrInfo, percentage } = decodeQRBytes(decoder, data.data);
-      if (qrInfo) {
-        setData(qrInfo);
+      if (!data.data.startsWith('UR')) {
+        setData(data.data);
+        setQrPercent(100);
+      } else {
+        const { data: qrInfo, percentage } = decodeQRBytes(decoder, data.data);
+        if (qrInfo) {
+          setData(qrInfo);
+        }
+        setQrPercent(percentage);
       }
-      setQrPercent(percentage);
     }
   };
   return (

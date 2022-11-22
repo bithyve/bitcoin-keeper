@@ -85,6 +85,7 @@ const getDeviceStatus = (
         disabled: false,
       };
     case SignerType.PASSPORT:
+    case SignerType.SEEDSIGNER:
     default:
       return {
         message: '',
@@ -164,6 +165,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
     SignerType.KEYSTONE,
+    SignerType.SEEDSIGNER,
   ];
   const HardWareWallet = ({ type, disabled, message, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);

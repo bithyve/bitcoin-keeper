@@ -18,6 +18,9 @@ import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTICONLIGHT from 'src/assets/images/passport_light.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
+import SEEDSIGNERICON from 'src/assets/icons/seedsigner_icon.svg';
+import SEEDSIGNERICONLIGHT from 'src/assets/icons/seedsigner_light.svg';
+import SEEDSIGNERLOGO from 'src/assets/images/trezor_logo.svg';
 import SEEDWORDS from 'src/assets/icons/seedwords.svg';
 import SEEDWORDSLIGHT from 'src/assets/icons/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';
@@ -109,6 +112,12 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<TREZORICONLIGHT />, <TREZORICON />, light),
         Logo: <TREZORLOGO />,
+        type: SignerStorage.COLD,
+      };
+    case SignerType.SEEDSIGNER:
+      return {
+        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
+        Logo: <SEEDSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:
