@@ -85,11 +85,11 @@ export default class WalletUtilities {
     type: NetworkType,
     accountNumber: number = 0,
     purpose: DerivationPurpose = DerivationPurpose.BIP84,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): string => {
     const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
     if (entity === EntityKind.VAULT) {
-      const scriptNum = scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT ? 1 : 2;
+      const scriptNum = scriptType === BIP48ScriptTypes.NATIVE_SEGWIT ? 2 : 1;
       return `m/${DerivationPurpose.BIP48}'/${isTestnet}'/${accountNumber}'/${scriptNum}'`;
     } else return `m/${purpose}'/${isTestnet}'/${accountNumber}'`;
   };
@@ -127,7 +127,7 @@ export default class WalletUtilities {
     required: number,
     pubkeys: Buffer[],
     network: bitcoinJS.Network,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
     p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
