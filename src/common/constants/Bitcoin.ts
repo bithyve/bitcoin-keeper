@@ -1,6 +1,3 @@
-import React from 'react'
-import { Text } from 'native-base'
-
 import config from 'src/core/config'
 import { NetworkType } from 'src/core/wallets/enums'
 export const SATOSHIS_IN_BTC = 1e8

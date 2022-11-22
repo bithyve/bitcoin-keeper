@@ -1,5 +1,5 @@
 import { Box, Input, Text } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   SignerException,
   SignerPolicy,
@@ -15,9 +15,10 @@ import { CommonActions } from '@react-navigation/native';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
+import { numberWithCommas } from 'src/common/utilities';
 
 const ChoosePolicyNew = ({ navigation, route }) => {
   const [selectedPolicy, setSelectedPolicy] = useState('max');
@@ -102,6 +103,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
               style={styles.textInput}
               value={value}
               showSoftInputOnFocus={false}
+              onFocus={() => Keyboard.dismiss()}
             />
           </Box>
         </Box>
@@ -134,7 +136,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
                 'The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code'
               }
               onPress={() => setSelectedPolicy('min')}
-              value={minTransaction}
+              value={numberWithCommas(minTransaction)}
             />
             <Field
               title={'Max allowed amount'}
@@ -142,7 +144,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
                 'If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it'
               }
               onPress={() => setSelectedPolicy('max')}
-              value={maxTransaction}
+              value={numberWithCommas(maxTransaction)}
             />
           </Box>
 
@@ -158,7 +160,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
           ok={() => {
             console.log('ok');
           }}
-          clear={() => { }}
+          clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
@@ -169,7 +171,6 @@ const ChoosePolicyNew = ({ navigation, route }) => {
 };
 const styles = StyleSheet.create({
   textInput: {
-    width: wp(98),
     backgroundColor: '#FDF7F0',
     borderRadius: 10,
     padding: 15,

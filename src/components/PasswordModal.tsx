@@ -7,7 +7,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import KeeperModal from './KeeperModal';
 import BTC from 'src/assets/images/btc_white.svg';
-import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { setInvalidPassword } from 'src/store/reducers/bhr';
@@ -146,8 +145,6 @@ const PasswordModal = (props) => {
                 dispatch(setInvalidPassword(false));
               }
             }}
-            //  value={firstValue}
-            //  onChangeText={handleChangeFirst}
           />
           {invalidPassword && (
             <Text alignSelf="flex-start" mx={4} color={'red.400'}>

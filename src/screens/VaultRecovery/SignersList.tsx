@@ -2,9 +2,7 @@ import { Box, ScrollView, Text, View } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
-import AddSignerIcon from 'src/assets/icons/addSigner.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import HardwareModalMap from '../Vault/HardwareModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -39,17 +37,15 @@ const ColdCardSetupContent = () => {
       <Box marginTop={'4'} alignItems={'flex-start'}>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Box mb={hp(19)} mx={wp(10)} flexDirection={'row'}>
-            <Text>{'\u2022 Step 2'}</Text>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} ml={3}>
-              Send Assigned PSBT
+              {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
             </Text>
           </Box>
         </Box>
         <Box flex={1} flexDirection={'row'} alignItems={'space-between'} justifyContent={'center'}>
           <Box mb={hp(19)} mx={wp(10)} flexDirection={'row'}>
-            <Text>{'\u2022 Step 2'}</Text>
             <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} ml={3}>
-              Recieve Assigned PSBT
+              {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
             </Text>
           </Box>
         </Box>
@@ -122,7 +118,7 @@ const SignersList = () => {
           visible={visible && type === SignerType.TAPSIGNER}
           close={close}
           title={'Verify TAPSIGNER'}
-          subTitle={'Keep you TAPSIGNER ready'}
+          subTitle={'Keep your TAPSIGNER ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Verify'}
@@ -138,7 +134,7 @@ const SignersList = () => {
           visible={visible && type === SignerType.COLDCARD}
           close={close}
           title={'Verify Coldcard'}
-          subTitle={'Keep you Coldcard ready'}
+          subTitle={'Keep your Coldcard ready'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Proceed'}
@@ -158,7 +154,7 @@ const SignersList = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Select Signing Device'}
-        subtitle={'to recover your vault'}
+        subtitle={'To recover your vault'}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
       />

@@ -1,42 +1,55 @@
 import React, { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Input, View } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
+import { Alert } from 'react-native';
 
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
+import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
-// import { newWalletsInfo } from 'src/store/sagas/wallets';
-// import { WalletType } from 'src/core/wallets/interfaces/enum';
-// import { useDispatch } from 'react-redux';
-// import { addNewWallets } from 'src/store/sagaActions/wallets';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
-const EditWalletScreen = () => {
+const EditWalletSettings = ({ route }) => {
   const navigtaion = useNavigation();
-  const [walletName, setWalletName] = useState('');
-  const [walletDescription, setWalletDescription] = useState('');
+  const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const walletText = translations['wallet'];
+  const common = translations['common'];
 
-  const { translations } = useContext(LocalizationContext)
-  const wallet = translations['wallet']
-  const common = translations['common']
+  const wallet: Wallet = route.params.wallet;
+
+  const [walletName, setWalletName] = useState(wallet.presentationData.name);
+  const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
+
+  const editWallet = () => {
+    const details = {
+      name: walletName,
+      description: walletDescription,
+    };
+    dispatch(updateWalletDetails(wallet, details));
+    Alert.alert('Wallet details updated');
+    navigtaion.goBack();
+  };
 
   return (
     <View style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title={common.EditDetails}
-        subtitle={'Lorem ipsum dolor sit amet'}
+        title={walletText.WalletDetails}
+        subtitle={walletText.EditWalletDeatils}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
       />
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
-          placeholder={'Maldives Funds'}
+          //   placeholder={walletText.WalletName}
           placeholderTextColor={'light.greenText'}
           backgroundColor={'light.lightYellow'}
           value={walletName}
@@ -47,7 +60,7 @@ const EditWalletScreen = () => {
           borderWidth={'0'}
         />
         <Input
-          placeholder={wallet.SinglesigWallet}
+          //   placeholder={walletText.SinglesigWallet}
           placeholderTextColor={'light.greenText'}
           backgroundColor={'light.lightYellow'}
           value={walletDescription}
@@ -61,10 +74,10 @@ const EditWalletScreen = () => {
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
-              console.log('Cancel');
+              navigtaion.goBack();
             }}
-            primaryText={common.create}
-            primaryCallback={() => { }}
+            primaryText={'Save'}
+            primaryCallback={editWallet}
             primaryDisable={!walletName || !walletDescription}
           />
         </View>
@@ -98,4 +111,4 @@ const styles = ScaledSheet.create({
     letterSpacing: 0.96,
   },
 });
-export default EditWalletScreen;
+export default EditWalletSettings;

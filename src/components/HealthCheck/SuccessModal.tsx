@@ -1,8 +1,8 @@
-import { Image, Link, Modal, Text, View, Box } from 'native-base';
+import { Modal, Text, View, Box } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
-import React, { useState } from 'react';
+import React from 'react';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Close from 'src/assets/icons/modal_close.svg';

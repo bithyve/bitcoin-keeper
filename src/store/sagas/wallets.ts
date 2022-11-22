@@ -1,4 +1,9 @@
-import { ADD_NEW_VAULT, FINALISE_VAULT_MIGRATION, MIGRATE_VAULT } from '../sagaActions/vaults';
+import {
+  ADD_NEW_VAULT,
+  ADD_SIGINING_DEVICE,
+  FINALISE_VAULT_MIGRATION,
+  MIGRATE_VAULT,
+} from '../sagaActions/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -6,25 +11,30 @@ import {
   REFRESH_WALLETS,
   REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
+  TEST_SATS_RECIEVE,
+  UPDATE_SIGNER_POLICY,
+  UPDATE_WALLET_DETAILS,
   UPDATE_WALLET_SETTINGS,
   VALIDATE_SIGNING_SERVER_REGISTRATION,
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
-  TEST_SATS_RECIEVE,
-  UPDATE_SIGNER_POLICY,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
-  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import { Storage, getString, setItem } from 'src/storage';
+import {
+  SignerException,
+  SignerRestriction,
+  SingerVerification,
+  VerificationType,
+} from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { Wallet, WalletPresentationData, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -40,15 +50,15 @@ import {
 } from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
-import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { Alert } from 'react-native';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
 import { RootState } from '../store';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import { TwoFADetails } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
 import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
@@ -56,15 +66,6 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import Relay from 'src/core/services/operations/Relay';
-import {
-  SignerException,
-  SignerRestriction,
-  SingerVerification,
-  VerificationType,
-} from 'src/core/services/interfaces';
-import { vs } from 'react-native-size-matters';
-import { Alert } from 'react-native';
 
 export interface newWalletDetails {
   name?: string;
@@ -592,16 +593,21 @@ export function* registerWithSigningServerWorker({ payload }: { payload: { polic
     setupData: {
       verification: SingerVerification;
       bhXpub: string;
+      derivationPath: string;
+      masterFingerprint: string;
     };
   } = yield call(SigningServer.register, app.id, policy);
 
-  if (setupData.verification.method === VerificationType.TWO_FA) {
-    const twoFADetails: TwoFADetails = {
-      signingServerXpub: setupData.bhXpub,
-      twoFAKey: setupData.verification.verifier,
-    };
-    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
-  }
+  const twoFADetails: TwoFADetails = {
+    signingServerXpub: setupData.bhXpub,
+    derivationPath: setupData.derivationPath,
+    masterFingerprint: setupData.masterFingerprint,
+  };
+
+  if (setupData.verification.method === VerificationType.TWO_FA)
+    twoFADetails.twoFAKey = setupData.verification.verifier;
+
+  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
 }
 
 export const registerWithSigningServerWatcher = createWatcher(
@@ -691,3 +697,29 @@ function* testcoinsWorker({ payload }) {
 }
 
 export const testcoinsWatcher = createWatcher(testcoinsWorker, TEST_SATS_RECIEVE);
+
+function* updateWalletDetailsWorker({ payload }) {
+  const {
+    wallet,
+    details,
+  }: {
+    wallet: Wallet;
+    details: {
+      name: string;
+      description: string;
+    };
+  } = payload;
+  const presentationData: WalletPresentationData = {
+    name: details.name,
+    description: details.description,
+    visibility: wallet.presentationData.visibility,
+  };
+  yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+    presentationData,
+  });
+}
+
+export const updateWalletDetailWatcher = createWatcher(
+  updateWalletDetailsWorker,
+  UPDATE_WALLET_DETAILS
+);

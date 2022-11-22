@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
+import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -72,7 +72,7 @@ const BackupWallet = () => {
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box>
+        <Box width={'100%'}>
           <Text
             color={'light.lightBlack'}
             fontFamily={'body'}
@@ -82,15 +82,17 @@ const BackupWallet = () => {
           >
             {title}
           </Text>
-          <Text
-            color={'light.GreyText'}
-            fontFamily={'body'}
-            fontWeight={200}
-            fontSize={RFValue(12)}
-            letterSpacing={0.6}
-          >
-            {subTitle}
-          </Text>
+          {subTitle ? (
+            <Text
+              color={'light.GreyText'}
+              fontFamily={'body'}
+              fontWeight={200}
+              fontSize={RFValue(12)}
+              letterSpacing={0.6}
+            >
+              {subTitle}
+            </Text>
+          ) : null}
         </Box>
         <Box>
           <Arrow />
@@ -127,17 +129,6 @@ const BackupWallet = () => {
             });
           }}
         />
-        {/* <Option
-          title={BackupWallet.backupOnCloud}
-          subTitle={'Lorem ipsum dolor sit amet,'}
-          onPress={() => {
-            setCloudBackupModal(true);
-            // setCreateCloudBackupModal(true);
-            // setHealthCheckModal(true);
-            // setHealthCheckSuccessModal(true);
-            // setSkipHealthCheckModal(true);
-          }}
-        /> */}
       </Box>
       <Box>
         <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>

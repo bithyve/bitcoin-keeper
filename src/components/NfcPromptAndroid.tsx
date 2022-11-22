@@ -5,11 +5,11 @@ import NFC from 'src/assets/images/nfc.svg';
 import React from 'react';
 
 function NfcPrompt({ visible }) {
+  const animation = React.useRef(new Animated.Value(0)).current;
+
   if (Platform.OS === 'ios') {
     return null;
   }
-
-  const animation = React.useRef(new Animated.Value(0)).current;
 
   visible
     ? Animated.timing(animation, {

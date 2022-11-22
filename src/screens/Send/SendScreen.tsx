@@ -2,22 +2,23 @@ import {
   Alert,
   FlatList,
   InteractionManager,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
 // libraries
 import { Box, Text, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { KeyboardAvoidingView, Platform } from 'react-native';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Colors from 'src/theme/Colors';
-import Header from 'src/components/Header';
+import Fonts from 'src/common/Fonts';
+import HeaderTitle from 'src/components/HeaderTitle';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
-import InfoBox from 'src/components/InfoBox';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
@@ -26,7 +27,6 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -34,8 +34,7 @@ import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+import { useNavigation } from '@react-navigation/native';
 
 const SendScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -60,7 +59,7 @@ const SendScreen = ({ route }) => {
 
   const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
 
-  const navigateToNext = (address: string, amount?: string) => {
+  const navigateToNext = (address: string, amount?: string, from = 'Address') => {
     if (!avgFees) {
       Alert.alert("Average transaction fees couldn't be fetched!");
       return;
@@ -69,6 +68,9 @@ const SendScreen = ({ route }) => {
       wallet,
       address,
       amount,
+      availableAmt: wallet.specs.balances.confirmed,
+      walletName: wallet.presentationData.name,
+      from,
     });
   };
 
@@ -90,7 +92,7 @@ const SendScreen = ({ route }) => {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigateToNext(getNextFreeAddress(item));
+      navigateToNext(getNextFreeAddress(item), '0', 'Wallet');
     };
     return (
       <Box
@@ -181,7 +183,13 @@ const SendScreen = ({ route }) => {
 
           {/* {Bottom note} */}
           <Box marginTop={hp(40)} marginX={2}>
-            <InfoBox title={common.note} desciption={'Make sure the address or QR is the one where you want to send the funds to'} width={300} />
+            <Note
+              title={common.note}
+              subtitle={
+                'Make sure the address or QR is the one where you want to send the funds to'
+              }
+              subtitleColor={'GreyText'}
+            />
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -221,8 +229,7 @@ const styles = ScaledSheet.create({
     borderBottomLeftRadius: 10,
     padding: 15,
     fontFamily: Fonts.RobotoCondensedRegular,
-    opacity: 0.5
-
+    opacity: 0.5,
   },
   cameraView: {
     height: hp(250),

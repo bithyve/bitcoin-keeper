@@ -1,17 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, Input, View } from 'native-base';
-import { Alert, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Box, Text, View } from 'native-base';
+import { Alert } from 'react-native';
 
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { useAppDispatch } from 'src/store/hooks';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useNavigation } from '@react-navigation/native';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
-import LinearGradient from 'react-native-linear-gradient';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-// import BTC from 'src/assets/images/svgs/btc_grey_big.svg';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import dbManager from 'src/storage/realm/dbManager';
@@ -22,9 +18,6 @@ import Buttons from '../Buttons';
 const TransferPolicy = ({ wallet, close }) => {
   const { translations } = useContext(LocalizationContext);
   const common = translations['common'];
-  const walletTrans = translations['wallet'];
-  const dispatch = useAppDispatch();
-
   const [policyText, setPolicyText] = useState('');
 
   const onPressNumber = (digit) => {

@@ -1,12 +1,7 @@
-import {
-  ActivityIndicator,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Box, StatusBar, Text } from 'native-base';
+import { ActivityIndicator, Platform, ScrollView } from 'react-native';
+import { Box, Text } from 'native-base';
 import RNIap, {
+  Subscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -30,12 +25,11 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
-import { Subscription } from 'react-native-iap';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import TierUpgradeModal from './TierUpgradeModal';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const plans = [
   {
@@ -202,35 +196,6 @@ const ChoosePlan = (props) => {
       }
       setShowUpgradeModal(true);
       return;
-      if (__DEV__) {
-        const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-        const sub: SubScription = {
-          productId: subscription.productId,
-          receipt: 'free',
-          name: subscription.name.split(' ')[0],
-        };
-        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-          subscription: sub,
-        });
-      } else {
-        if (Platform.OS === 'android') {
-          await requestSubscription({
-            sku: subscription.productId,
-            ...(subscription.subscriptionOfferDetails[0].offerToken && {
-              subscriptionOffers: [
-                {
-                  sku: subscription.productId,
-                  offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-                },
-              ],
-            }),
-          });
-        } else {
-          await requestSubscription({
-            sku: subscription.productId,
-          });
-        }
-      }
     } catch (err) {
       console.log(err.code, err.message);
     }
@@ -251,84 +216,82 @@ const ChoosePlan = (props) => {
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <HeaderTitle
-        title={choosePlan.choosePlantitle}
-        subtitle={
-          subscription.name === 'Diamond Hands'
-            ? `You are currently a ${subscription.name.slice(0, -1)}`
-            : `You are currently a ${subscription.name}`
-        }
-        headerTitleColor={'light.lightBlack'}
-      />
+      <Box position={'relative'} flex={1}>
+        <HeaderTitle
+          title={choosePlan.choosePlantitle}
+          subtitle={
+            subscription.name === 'Diamond Hands'
+              ? `You are currently a ${subscription.name.slice(0, -1)}`
+              : `You are currently a ${subscription.name}`
+          }
+          headerTitleColor={'light.lightBlack'}
+        />
 
-      <TierUpgradeModal
-        visible={showUpgradeModal}
-        close={() => setShowUpgradeModal(false)}
-        onPress={onPressModalBtn}
-        isUpgrade={isUpgrade}
-        plan={subscription.name}
-      />
-      {loading ? (
-        <ActivityIndicator style={{ height: '70%' }} size="large" />
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{ height: '70%', marginVertical: 20, }}
-        >
-          <ChoosePlanCarousel
-            data={items}
-            onPress={(item, level) => processSubscription(item, level)}
-            onChange={(item) => setCurrentPosition(item)}
-          />
+        <TierUpgradeModal
+          visible={showUpgradeModal}
+          close={() => setShowUpgradeModal(false)}
+          onPress={onPressModalBtn}
+          isUpgrade={isUpgrade}
+          plan={subscription.name}
+        />
+        {loading ? (
+          <ActivityIndicator style={{ height: '70%' }} size="large" />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{ height: '80%', marginVertical: 0 }}
+          >
+            <ChoosePlanCarousel
+              data={items}
+              onPress={(item, level) => processSubscription(item, level)}
+              onChange={(item) => setCurrentPosition(item)}
+            />
 
-          <Box
-            opacity={0.1}
-            backgroundColor={'light.Border'}
-            width={'100%'}
-            height={0.5}
-            my={5}
-          />
+            <Box
+              opacity={0.1}
+              backgroundColor={'light.Border'}
+              width={'100%'}
+              height={0.5}
+              my={5}
+            />
 
-          <Box ml={8}>
-            <Box >
-              <Text
-                fontSize={RFValue(14)}
-                color={'light.lightBlack'}
-                fontWeight={200}
-                letterSpacing={1.12}
-              >
-                {getBenifitsTitle(items[currentPosition].name)}:
-              </Text>
-              {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
+            <Box ml={8}>
+              <Box>
+                <Text
+                  fontSize={RFValue(14)}
+                  color={'light.lightBlack'}
+                  fontWeight={200}
+                  letterSpacing={1.12}
+                >
+                  {getBenifitsTitle(items[currentPosition].name)}:
+                </Text>
+                {/* <Text fontSize={RFValue(12)} color={'light.GreyText'} fontFamily={'body'}>
             {items[currentPosition].subTitle}
           </Text> */}
+              </Box>
+              <Box mt={3}>
+                {items[currentPosition].benifits.map((i) => (
+                  <Box flexDirection={'row'} alignItems={'center'}>
+                    <Text
+                      fontSize={RFValue(13)}
+                      color={'light.GreyText'}
+                      mb={2}
+                      ml={3}
+                      fontFamily={'body'}
+                      fontWeight={200}
+                      letterSpacing={0.65}
+                    >
+                      {`• ${i}`}
+                    </Text>
+                  </Box>
+                ))}
+              </Box>
             </Box>
-            <Box mt={3}>
-              {items[currentPosition].benifits.map((i) => (
-                <Box flexDirection={'row'} alignItems={'center'}>
-                  <Text
-                    fontSize={RFValue(13)}
-                    color={'light.GreyText'}
-                    mb={2}
-                    ml={3}
-                    fontFamily={'body'}
-                    fontWeight={200}
-                    letterSpacing={0.65}
-                  >
-                    {`• ${i}`}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
-          </Box>
-        </ScrollView>
-      )}
-      <Box height={'10%'} justifyContent={'flex-end'} pt={1} width={wp(285)}>
-        <Note
-          title={'Note'}
-          subtitle={choosePlan.noteSubTitle}
-          subtitleColor={'GreyText'}
-        />
+          </ScrollView>
+        )}
+        <Box position={'absolute'} bottom={-10} justifyContent={'flex-end'} width={wp(285)}>
+          <Note title={'Note'} subtitle={choosePlan.noteSubTitle} subtitleColor={'GreyText'} />
+        </Box>
       </Box>
     </ScreenWrapper>
   );

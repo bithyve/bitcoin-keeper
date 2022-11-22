@@ -1,6 +1,6 @@
 import { Alert, SafeAreaView, StyleSheet } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
+import { useNavigation } from '@react-navigation/native';
+import { EntityKind, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
 
 import { Box } from 'native-base';
@@ -96,8 +96,8 @@ const ColdCardReocvery = () => {
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
-              title="Setting up ColdCard"
-              subtitle="Go to Settings > Multisig wallets > Export xPub on your ColdCard"
+              title="Setting up Coldcard"
+              subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={{ padding: 30 }}>

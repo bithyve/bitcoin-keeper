@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import CreatePin from './CreatePin';
-import { rootReducer, store } from '../../store/store';
+import { store } from '../../store/store';
 import { initialState as loginState } from '../../store/reducers/login';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from 'src/common/themes';
@@ -41,7 +41,6 @@ describe('testing app', () => {
   test('check click', () => {
     const key1 = screen.queryByTestId('key_1');
 
-    // expect(button.props).toHaveProperty('disbaled', true);
     fireEvent.press(key1);
     fireEvent.press(key1);
 

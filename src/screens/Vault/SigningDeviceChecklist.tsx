@@ -1,4 +1,4 @@
-import { Box, FlatList, Text } from 'native-base';
+import { Box, Text } from 'native-base';
 import React, { useState } from 'react';
 
 import DotView from 'src/components/DotView';

@@ -23,29 +23,23 @@ const KeyPadView: React.FC<Props> = ({
 }: Props) => {
   return (
     <Box pointerEvents={disabled ? 'none' : 'auto'} mt={'auto'}>
-      <Box flexDirection={'row'} height={hp('8%')}>
+      <Box style={styles.keyWrapperView}>
         <KeyPadButton title="1" onPressNumber={() => onPressNumber('1')} keyColor={keyColor} />
         <KeyPadButton title="2" onPressNumber={() => onPressNumber('2')} keyColor={keyColor} />
         <KeyPadButton title="3" onPressNumber={() => onPressNumber('3')} keyColor={keyColor} />
       </Box>
-      <Box flexDirection={'row'} height={hp('8%')}>
+      <Box style={styles.keyWrapperView}>
         <KeyPadButton title="4" onPressNumber={() => onPressNumber('4')} keyColor={keyColor} />
         <KeyPadButton title="5" onPressNumber={() => onPressNumber('5')} keyColor={keyColor} />
         <KeyPadButton title="6" onPressNumber={() => onPressNumber('6')} keyColor={keyColor} />
       </Box>
-      <Box flexDirection={'row'} height={hp('8%')}>
+      <Box style={styles.keyWrapperView}>
         <KeyPadButton title="7" onPressNumber={() => onPressNumber('7')} keyColor={keyColor} />
         <KeyPadButton title="8" onPressNumber={() => onPressNumber('8')} keyColor={keyColor} />
         <KeyPadButton title="9" onPressNumber={() => onPressNumber('9')} keyColor={keyColor} />
       </Box>
       <Box flexDirection={'row'} height={hp('8%')}>
-        <Box
-          flex={1}
-          height={hp('8%')}
-          fontSize={RFValue(18)}
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
+        <Box style={styles.emptyBtnView}>
           <Text flex={1} p={15}></Text>
         </Box>
         <TouchableOpacity
@@ -53,7 +47,7 @@ const KeyPadView: React.FC<Props> = ({
           activeOpacity={1}
           style={styles.keyPadElementTouchable}
         >
-          <Text fontWeight={'200'} color={keyColor} fontSize={RFValue(25)} fontStyle={'normal'}>
+          <Text color={keyColor} fontSize={RFValue(25)}>
             0
           </Text>
         </TouchableOpacity>
@@ -70,6 +64,17 @@ const KeyPadView: React.FC<Props> = ({
 };
 const styles = StyleSheet.create({
   keyPadElementTouchable: {
+    flex: 1,
+    height: hp('8%'),
+    fontSize: RFValue(18),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  keyWrapperView: {
+    flexDirection: 'row',
+    height: hp('8%'),
+  },
+  emptyBtnView: {
     flex: 1,
     height: hp('8%'),
     fontSize: RFValue(18),

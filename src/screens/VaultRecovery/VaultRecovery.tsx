@@ -1,4 +1,4 @@
-import { Alert, Box, HStack, Pressable, Text, VStack } from 'native-base';
+import { Box, HStack, Pressable, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
@@ -42,11 +42,7 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text
-                  color={'light.GreyText'}
-                  fontSize={13}
-                  fontWeight={200}
-                  letterSpacing={0.6}>
+                <Text color={'light.GreyText'} fontSize={13} fontWeight={200} letterSpacing={0.6}>
                   {`Lorem ipsum dolor sit amet, consectetur`}
                 </Text>
               </VStack>
@@ -88,11 +84,7 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text
-            color={'light.GreyText'}
-            fontWeight={200}
-            fontSize={12} letterSpacing={0.6}
-          >
+          <Text color={'light.GreyText'} fontWeight={200} fontSize={12} letterSpacing={0.6}>
             {`Remove`}
           </Text>
         </Pressable>
@@ -157,7 +149,7 @@ const VaultRecovery = () => {
     <ScreenWrapper>
       <HeaderTitle
         title={'Add signing devices'}
-        subtitle={'to recover your inherited Vault'}
+        subtitle={'To recover your inherited vault'}
         headerTitleColor={'light.textBlack'}
         paddingTop={hp(5)}
       />
@@ -179,7 +171,7 @@ const VaultRecovery = () => {
               </Box>
             </TouchableOpacity>
             <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
-              You can use any one of the Signing Devices to start with
+              You can use any one of the signing devices to start with
             </Text>
           </Box>
         )}
@@ -194,7 +186,7 @@ const VaultRecovery = () => {
         )}
         <Note
           title={'Note'}
-          subtitle={'Signing Server cannot be used as the first Signing Device while recovering'}
+          subtitle={'Signing Server cannot be used as the first signing device while recovering'}
         />
       </View>
       <KeeperModal
