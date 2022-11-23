@@ -7,7 +7,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { generateSignerFromMetaData } from '..';
 
-export const registerToColcard = async ({ vault }: { vault: Vault }) => {
+export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
   line += `Name: Keeper Vault\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
@@ -17,8 +17,13 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
     line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
     line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
   });
-  const enc = NFC.encodeForColdCard(line);
-  console.log(line);
+  return line;
+};
+
+export const registerToColcard = async ({ vault }: { vault: Vault }) => {
+  const config = getWalletConfig({ vault });
+  const enc = NFC.encodeForColdCard(config);
+  console.log(config);
   await NFC.send(NfcTech.Ndef, enc);
 };
 
@@ -44,7 +49,7 @@ export const getMockColdcardDetails = () => {
       xpriv,
       derivationPath,
       xfp: masterFingerprint,
-      signerType: SignerType.TAPSIGNER,
+      signerType: SignerType.COLDCARD,
       storageType: SignerStorage.COLD,
       isMock: true,
     });
