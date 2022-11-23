@@ -249,7 +249,14 @@ const LoginScreen = ({ navigation, route }) => {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(13)} ml={5} letterSpacing={0.65} color={'light.textColor'} fontFamily={'body'} fontWeight={200}>
+              <Text
+                fontSize={RFValue(13)}
+                ml={5}
+                letterSpacing={0.65}
+                color={'light.textColor'}
+                fontFamily={'body'}
+                fontWeight={200}
+              >
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
@@ -342,25 +349,27 @@ const LoginScreen = ({ navigation, route }) => {
           />
         </Box>
         {/* forgot modal */}
-        <ModalContainer
-          visible={forgotVisible}
-          closeBottomSheet={() => {
-            setForgotVisible(false);
-          }}
-        >
-          <FogotPassword
-            type="seed"
+        {forgotVisible && (
+          <ModalContainer
+            visible={forgotVisible}
             closeBottomSheet={() => {
               setForgotVisible(false);
             }}
-            onVerify={() => {
-              setForgotVisible(false);
-              navigation.navigate('ResetPin', {
-                onPinChange,
-              });
-            }}
-          />
-        </ModalContainer>
+          >
+            <FogotPassword
+              type="seed"
+              closeBottomSheet={() => {
+                setForgotVisible(false);
+              }}
+              onVerify={() => {
+                setForgotVisible(false);
+                navigation.navigate('ResetPin', {
+                  onPinChange,
+                });
+              }}
+            />
+          </ModalContainer>
+        )}
         {/* reset password success modal */}
         <Box>
           <ModalWrapper
