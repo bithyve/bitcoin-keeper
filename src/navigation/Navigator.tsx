@@ -59,6 +59,7 @@ import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
 import SignPSBTQr from 'src/screens/PSTB/SignPSBTQr';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
@@ -164,6 +165,7 @@ const AppStack = () => {
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="SignPSBTQr" component={SignPSBTQr} />
+        <Stack.Screen name="SignPSBTScan" component={SignPSBTScan} />
       </Stack.Navigator>
     </RealmProvider>
   );
