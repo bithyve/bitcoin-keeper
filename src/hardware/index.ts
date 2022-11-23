@@ -86,7 +86,7 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
   line += `Name: Keeper Vault\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-  line += `Format: P2SH-P2WSH\n`;
+  line += `Format: P2WSH\n`;
   line += `\n`;
   vault.signers.forEach((signer) => {
     line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;

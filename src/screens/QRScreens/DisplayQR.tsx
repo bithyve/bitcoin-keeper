@@ -17,7 +17,7 @@ const DisplayQR = () => {
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const { qrData } = useDynamicQrContent({ data: qrContents });
 
-  return <QRCode value={qrData} size={300} />;
+  return <QRCode value={qrData} size={350} ecl={'L'} />;
 };
 
 export default DisplayQR;
