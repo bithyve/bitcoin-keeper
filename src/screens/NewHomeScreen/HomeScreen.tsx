@@ -494,7 +494,7 @@ const HomeScreen = ({ navigation }) => {
       console.log(error);
     }
   }, []);
-  
+
   return (
     <Box flex={1} backgroundColor={'light.lightYellow'} position={'relative'}>
       <VaultInfo />
@@ -512,11 +512,7 @@ const HomeScreen = ({ navigation }) => {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets
-          onAmountPress={() => {
-          }}
-          showHideAmounts={showHideAmounts}
-        />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
     </Box>
   );
