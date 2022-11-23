@@ -1,24 +1,11 @@
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config, { APP_STAGE } from 'src/core/config';
+import { generateSignerFromMetaData, getWalletConfig } from '..';
 
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
-import { generateSignerFromMetaData } from '..';
-
-export const getWalletConfig = ({ vault }: { vault: Vault }) => {
-  let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
-  line += `Name: Keeper Vault\n`;
-  line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-  line += `Format: P2SH-P2WSH\n`;
-  line += `\n`;
-  vault.signers.forEach((signer) => {
-    line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
-    line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
-  });
-  return line;
-};
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const config = getWalletConfig({ vault });

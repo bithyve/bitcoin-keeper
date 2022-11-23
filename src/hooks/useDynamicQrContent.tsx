@@ -1,17 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Bytes } from '@keystonehq/bc-ur-registry/dist';
-
-const encodeUR = (data, rotation) => {
-  const bytes = new Bytes(Buffer.from(data, 'hex'));
-  const encoder = bytes.toUREncoder(rotation);
-  const fragments = [];
-  for (let c = 1; c <= encoder.fragmentsLength; c++) {
-    const ur = encoder.nextPart();
-    fragments.push(ur);
-  }
-  return fragments;
-};
+import { encodeUR } from 'src/core/services/qr';
 
 const useDynamicQrContent = ({ data, rotation = 200, shouldRotate = true }) => {
   const [fragments, setFragments] = useState(0);

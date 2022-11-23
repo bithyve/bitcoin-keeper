@@ -5,12 +5,12 @@ import React, { useEffect, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { URDecoder } from '@ngraveio/bc-ur';
-import { decodeQRBytes } from 'src/core/services/qr';
+import { URRegistryDecoder } from '@keystonehq/bc-ur-registry/dist';
+import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
 
 const { width } = Dimensions.get('screen');
-let decoder = new URDecoder();
+let decoder = new URRegistryDecoder();
 const ScanQR = () => {
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
@@ -21,7 +21,7 @@ const ScanQR = () => {
       onQrScan(qrData);
     }
     return () => {
-      decoder = new URDecoder();
+      decoder = new URRegistryDecoder();
     };
   }, [qrData]);
 
@@ -31,7 +31,7 @@ const ScanQR = () => {
         setData(data.data);
         setQrPercent(100);
       } else {
-        const { data: qrInfo, percentage } = decodeQRBytes(decoder, data.data);
+        const { data: qrInfo, percentage } = decodeURBytes(decoder, data.data);
         if (qrInfo) {
           setData(qrInfo);
         }

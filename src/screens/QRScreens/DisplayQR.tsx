@@ -5,7 +5,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getWalletConfig } from 'src/hardware/coldcard';
+import { getWalletConfig } from 'src/hardware';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
 
 const DisplayQR = () => {

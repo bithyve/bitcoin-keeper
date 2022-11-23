@@ -1,6 +1,8 @@
-import { URDecoder } from '@ngraveio/bc-ur';
+import { Bytes, URRegistryDecoder } from '@keystonehq/bc-ur-registry/dist';
 
-export const decodeQRBytes = (decoder: URDecoder, bytes) => {
+import { captureError } from '../sentry';
+
+export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
   try {
     // Create the decoder object
     decoder.receivePart(bytes);
@@ -16,6 +18,17 @@ export const decodeQRBytes = (decoder: URDecoder, bytes) => {
       return { data: null, percentage: scanPercentage };
     }
   } catch (error) {
-    console.warn(error);
+    captureError(error);
   }
+};
+
+export const encodeUR = (data, rotation) => {
+  const bytes = new Bytes(Buffer.from(data, 'hex'));
+  const encoder = bytes.toUREncoder(rotation);
+  const fragments = [];
+  for (let c = 1; c <= encoder.fragmentsLength; c++) {
+    const ur = encoder.nextPart();
+    fragments.push(ur);
+  }
+  return fragments;
 };
