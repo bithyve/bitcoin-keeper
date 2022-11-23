@@ -261,7 +261,7 @@ const WalletSettings = ({ route }) => {
             title={'Sign PSBT'}
             subTitle={'Lorem ipsum dolor sit amet, consectetur'}
             onPress={() => {
-              navigtaion.navigate('SignPSBT');
+              navigtaion.navigate('SignPSBTQr');
             }}
             Icon={false}
           />
