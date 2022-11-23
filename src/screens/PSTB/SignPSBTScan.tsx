@@ -26,6 +26,9 @@ const SignPSBTScan = () => {
         <RNCamera
           style={styles.cameraView}
           captureAudio={false}
+          onBarCodeRead={(data) => {
+            console.log(data); // camera read this string
+          }}
         />
       </Box>
 
