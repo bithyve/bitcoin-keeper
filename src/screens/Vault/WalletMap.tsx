@@ -20,7 +20,7 @@ import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
 import SEEDSIGNERICON from 'src/assets/icons/seedsigner_icon.svg';
 import SEEDSIGNERICONLIGHT from 'src/assets/icons/seedsigner_light.svg';
-import SEEDSIGNERLOGO from 'src/assets/images/trezor_logo.svg';
+import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
 import SEEDWORDS from 'src/assets/icons/seedwords.svg';
 import SEEDWORDSLIGHT from 'src/assets/icons/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';
