@@ -61,9 +61,10 @@ import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
+import SignPSBTQr from 'src/screens/PSTB/SignPSBTQr';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -165,6 +166,8 @@ const AppStack = () => {
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
+        <Stack.Screen name="SignPSBTQr" component={SignPSBTQr} />
+        <Stack.Screen name="SignPSBTScan" component={SignPSBTScan} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
       </Stack.Navigator>
@@ -189,7 +192,7 @@ const Navigator = () => {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title={'please wait'}
         subTitle={'loading'}
         modalBackground={['#F7F2EC', '#F7F2EC']}

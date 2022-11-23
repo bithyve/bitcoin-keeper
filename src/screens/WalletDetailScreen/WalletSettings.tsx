@@ -43,7 +43,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
       flexDirection={'row'}
       alignItems={'center'}
       width={'100%'}
-      style={{ marginVertical: hp(15) }}
+      style={{ marginTop: hp(20) }}
       onPress={onPress}
     >
       {Icon && (
@@ -54,8 +54,6 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
       <Box w={Icon ? '80%' : '96%'}>
         <Text
           color={'light.lightBlack'}
-          fontFamily={'body'}
-          fontWeight={200}
           fontSize={RFValue(14)}
           letterSpacing={1.12}
         >
@@ -63,8 +61,6 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
         </Text>
         <Text
           color={'light.GreyText'}
-          fontFamily={'body'}
-          fontWeight={200}
           fontSize={RFValue(12)}
           letterSpacing={0.6}
         >
@@ -109,7 +105,7 @@ const WalletSettings = ({ route }) => {
           height: hp(75),
           position: 'relative',
           marginLeft: -wp(20),
-          marginBottom: hp(30),
+          marginBottom: hp(0),
         }}
       >
         <Box
@@ -126,7 +122,6 @@ const WalletSettings = ({ route }) => {
               color={'light.white'}
               letterSpacing={0.28}
               fontSize={RFValue(14)}
-              fontWeight={200}
             >
               {walletName}
             </Text>
@@ -139,7 +134,7 @@ const WalletSettings = ({ route }) => {
               {walletDescription}
             </Text>
           </Box>
-          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)}>
             {walletBalance}
           </Text>
         </Box>
@@ -198,9 +193,7 @@ const WalletSettings = ({ route }) => {
         />
       </Box>
       <Box
-        borderBottomColor={'light.divider'}
-        borderBottomWidth={0.2}
-        marginTop={hp(60)}
+        marginTop={hp(40)}
         style={{
           marginLeft: wp(25),
         }}
@@ -218,7 +211,7 @@ const WalletSettings = ({ route }) => {
         style={{
           marginLeft: wp(25),
         }}
-        height={hp(350)}
+        height={hp(400)}
       >
         <ScrollView>
           <Option
@@ -263,11 +256,26 @@ const WalletSettings = ({ route }) => {
             }}
             Icon={false}
           />
+
+          <Option
+            title={'Sign PSBT'}
+            subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+            onPress={() => {
+              navigtaion.navigate('SignPSBTQr');
+            }}
+            Icon={false}
+          />
         </ScrollView>
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5} w={'90%'}>
+      <Box
+        style={{
+          position: 'absolute',
+          bottom: hp(30),
+          marginLeft: 26,
+          width: '90%'
+        }}>
         <Note
           title={'Note'}
           subtitle={
