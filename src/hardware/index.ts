@@ -32,7 +32,7 @@ export const generateSignerFromMetaData = ({
   return signer;
 };
 
-const getSignerNameFromType = (type: SignerType, isMock = false) => {
+export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
   let name: string;
   switch (type) {
     case SignerType.COLDCARD:
@@ -72,5 +72,11 @@ const getSignerNameFromType = (type: SignerType, isMock = false) => {
       name = type;
       break;
   }
-  return isMock ? name + '**' : name;
+  if (isMock) {
+    return name + '**';
+  } else if (isAmf) {
+    return name + '*';
+  } else {
+    return name;
+  }
 };

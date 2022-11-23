@@ -413,7 +413,15 @@ const SigningDeviceDetails = ({ route }) => {
             title={'Advance Options'}
             onPress={() => {
               if (signer.type === SignerType.POLICY_SERVER) navigateToPolicyChange(signer);
-              else if (signer.type === SignerType.COLDCARD)
+              else if (
+                [
+                  SignerType.COLDCARD,
+                  SignerType.KEYSTONE,
+                  SignerType.PASSPORT,
+                  SignerType.SEEDSIGNER,
+                  SignerType.JADE,
+                ].includes(signer.type)
+              )
                 navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
             }}
           />
