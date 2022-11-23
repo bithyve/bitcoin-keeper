@@ -114,33 +114,6 @@ const SendConfirmation = ({ route }) => {
       </View>
     );
   };
-  //
-  const TransVaultSuccessfulContent = () => {
-    return (
-      <View>
-        <Box alignSelf={'center'}>
-          <VaultIcon />
-        </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'The transaction should be visible in the vault in some time.'}
-        </Text>
-      </View>
-    );
-  };
-  const NewVaultActivateContent = () => {
-    return (
-      <View>
-        <Box alignSelf={'center'}>
-          <VaultIcon />
-        </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'Whenever you upgrade, downgrade or change signing devices, a new vault is created with the new set of keys'
-          }
-        </Text>
-      </View>
-    );
-  };
 
   const onProceed = () => {
     // closeAllModal();
@@ -595,29 +568,6 @@ const SendConfirmation = ({ route }) => {
         Content={SendSuccessfulContent}
         // buttonPressed={viewDetails}
       />
-      {/* <KeeperModal
-        visible={visibleModal}
-        close={() => setVisibleModal(false)}
-        title={'Transfer to Vault Successfull'}
-        subTitle={'You have successfully transferred from your wallet to the vault'}
-        buttonText={'View Vault'}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        Content={TransVaultSuccessfulContent}
-      /> */}
-      {/* <KeeperModal
-        visible={visibleModal}
-        close={() => setVisibleModal(false)}
-        title={'New Vault activated!'}
-        subTitle={
-          'The new set of signing devices will be needed to sign transactions from this vault'
-        }
-        buttonText={'View Vault'}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        Content={NewVaultActivateContent}
-      /> */}
-      {/* end */}
 
       {/* {showOverlay && (
         <View
