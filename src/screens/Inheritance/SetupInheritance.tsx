@@ -19,6 +19,7 @@ import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import openLink from 'src/utils/OpenLink';
 
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
@@ -211,6 +212,7 @@ const SetupInheritance = () => {
         Content={InheritanceContent}
         DarkCloseIcon={true}
         learnMore={true}
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
     </ScreenWrapper>
   );

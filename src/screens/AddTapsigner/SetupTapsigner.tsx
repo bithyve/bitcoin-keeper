@@ -107,7 +107,7 @@ const SetupTapsigner = () => {
       <Box flex={1}>
         <Box style={styles.header}>
           <HeaderTitle
-            title="Setting up Tapsigner"
+            title="Setting up TAPSIGNER"
             subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
             onPressHandler={() => navigation.goBack()}
           />

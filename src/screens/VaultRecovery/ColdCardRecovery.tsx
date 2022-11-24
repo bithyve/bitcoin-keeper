@@ -1,5 +1,4 @@
 import { Alert, SafeAreaView, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
 
@@ -16,6 +15,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const ColdCardReocvery = () => {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -26,8 +26,8 @@ const ColdCardReocvery = () => {
     setNfcVisible(true);
     try {
       const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
-      const path = data?.p2sh_p2wsh_deriv ?? '';
+      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2wsh;
+      const path = data?.p2wsh_deriv ?? '';
       const xfp = data?.xfp ?? '';
       setNfcVisible(false);
       return { xpub, path, xfp };

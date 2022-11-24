@@ -26,16 +26,16 @@ const SetupColdCard = () => {
 
   const addColdCard = async () => {
     try {
-      const { xpub, derivationPath, xfp } = await withNfcModal(getColdcardDetails);
+      let { xpub, derivationPath, xfp } = await withNfcModal(getColdcardDetails);
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
       const coldcard = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
-        signerType: SignerType.TAPSIGNER,
+        signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
       });
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      coldcard.xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
       const exsists = await checkSigningDevice(coldcard.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
       dispatch(addSigningDevice(coldcard));

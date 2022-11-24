@@ -21,6 +21,7 @@ import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg'
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
@@ -28,8 +29,12 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
+import { generateSignerFromMetaData } from 'src/hardware';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getPassportDetails } from 'src/hardware/passport';
+import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -152,6 +157,74 @@ const LedgerSetupContent = () => {
   );
 };
 
+const PassportSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <ColdCardSetupImage />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
+const SeedSignerSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <SeedSignerSetupImage />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > Multisig > Nested Segwit > Keeper.\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
 const SettingSigningServer = () => {
   return (
     <Box>
@@ -234,6 +307,73 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const navigateToSigningServerSetup = () => {
     close();
     navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
+  };
+
+  const onQRScan = (qrData) => {
+    switch (type as SignerType) {
+      case SignerType.PASSPORT:
+        return setupPassport(qrData);
+      case SignerType.SEEDSIGNER:
+        return setupSeedSigner(qrData);
+      case SignerType.KEYSTONE:
+      case SignerType.JADE:
+      default:
+        return;
+    }
+  };
+
+  const navigateToAddQrBasedSigner = () => {
+    close();
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: `Setting up ${type}`,
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan: onQRScan,
+        },
+      })
+    );
+  };
+
+  const setupPassport = async (qrData) => {
+    try {
+      let { xpub, derivationPath, xfp } = getPassportDetails(qrData);
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const passport: VaultSigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.PASSPORT,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(passport));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      console.log(err);
+      captureError(err);
+    }
+  };
+
+  const setupSeedSigner = async (qrData) => {
+    try {
+      let { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const seedSigner: VaultSigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.SEEDSIGNER,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(seedSigner));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      console.log(err);
+      captureError(err);
+    }
   };
 
   const navigateToSeedWordSetup = () => {
@@ -502,6 +642,34 @@ const HardwareModalMap = ({ type, visible, close }) => {
         }}
         textColor={'#041513'}
         Content={SetupSuccessfully}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.PASSPORT}
+        close={close}
+        title={'Setting up Passport (Batch 2)'}
+        subTitle={'Keep your Foundation Passport (Batch 2) ready before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={PassportSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.SEEDSIGNER}
+        close={close}
+        title={'Setting up SeedSigner'}
+        subTitle={'Keep your SeedSigner ready and powered before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={SeedSignerSetupContent}
       />
     </>
   );

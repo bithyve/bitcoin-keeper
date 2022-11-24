@@ -1,31 +1,23 @@
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config, { APP_STAGE } from 'src/core/config';
+import { generateSignerFromMetaData, getWalletConfig } from '..';
 
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
-import { generateSignerFromMetaData } from '..';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
-  let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
-  line += `Name: Keeper Vault\n`;
-  line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-  line += `Format: P2SH-P2WSH\n`;
-  line += `\n`;
-  vault.signers.forEach((signer) => {
-    line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
-    line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
-  });
-  const enc = NFC.encodeForColdCard(line);
-  console.log(line);
+  const config = getWalletConfig({ vault });
+  const enc = NFC.encodeForColdCard(config);
+  console.log(config);
   await NFC.send(NfcTech.Ndef, enc);
 };
 
 export const getColdcardDetails = async () => {
   const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-  const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
-  const derivationPath = data?.p2sh_p2wsh_deriv ?? '';
+  const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
+  const derivationPath = data?.p2wsh_deriv ?? '';
   const xfp = data?.xfp ?? '';
   return { xpub, derivationPath, xfp };
 };
@@ -44,7 +36,7 @@ export const getMockColdcardDetails = () => {
       xpriv,
       derivationPath,
       xfp: masterFingerprint,
-      signerType: SignerType.TAPSIGNER,
+      signerType: SignerType.COLDCARD,
       storageType: SignerStorage.COLD,
       isMock: true,
     });
