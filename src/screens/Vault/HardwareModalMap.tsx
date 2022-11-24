@@ -18,6 +18,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -161,7 +162,7 @@ const PassportSetupContent = () => {
   return (
     <View>
       <Box ml={wp(21)}>
-        <ColdCardSetupImage />
+        <PassportSVG />
       </Box>
       <Box marginTop={'4'}>
         <Text

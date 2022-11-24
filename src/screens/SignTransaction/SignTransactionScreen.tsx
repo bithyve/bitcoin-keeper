@@ -50,6 +50,8 @@ const SignTransactionScreen = () => {
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
+  const [passportModal, setPassportModal] = useState(false);
+  const [seedSignerModal, setSeedSignerModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -247,6 +249,12 @@ const SignTransactionScreen = () => {
           })
         );
         break;
+      case SignerType.PASSPORT:
+        setPassportModal(true);
+        break;
+      case SignerType.SEEDSIGNER:
+        setSeedSignerModal(true);
+        break;
       default:
         Alert.alert(`action not set for ${type}`);
         break;
@@ -307,6 +315,10 @@ const SignTransactionScreen = () => {
         ledgerModal={ledgerModal}
         otpModal={otpModal}
         passwordModal={passwordModal}
+        passportModal={passportModal}
+        seedSignerModal={seedSignerModal}
+        setSeedSignerModal={setSeedSignerModal}
+        setPassportModal={setPassportModal}
         setColdCardModal={setColdCardModal}
         setLedgerModal={setLedgerModal}
         setPasswordModal={setPasswordModal}

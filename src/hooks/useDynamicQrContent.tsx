@@ -1,10 +1,21 @@
+import { encodeBytesUR, encodePsbtUR } from 'src/core/services/qr';
 import { useCallback, useEffect, useState } from 'react';
 
-import { encodeUR } from 'src/core/services/qr';
-
-const useDynamicQrContent = ({ data, rotation = 200, shouldRotate = true }) => {
+const useDynamicQrContent = ({
+  data,
+  toBytes = true,
+  type = 'hex',
+  rotation = 200,
+  shouldRotate = true,
+}: {
+  data: any;
+  toBytes?: boolean;
+  type?: BufferEncoding;
+  rotation?: number;
+  shouldRotate?: boolean;
+}) => {
   const [fragments, setFragments] = useState(0);
-  const qrSet = encodeUR(data, rotation);
+  const qrSet = toBytes ? encodeBytesUR(data, rotation, type) : encodePsbtUR(data, rotation);
   const mod = qrSet.length;
 
   const startRotation = useCallback(() => {

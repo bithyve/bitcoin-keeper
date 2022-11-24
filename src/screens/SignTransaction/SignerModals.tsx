@@ -12,8 +12,10 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuth } from 'src/store/sagaActions/login';
@@ -96,6 +98,38 @@ const ColdCardContent = ({ register }) => {
           {register
             ? ``
             : `\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const PassportContent = () => {
+  return (
+    <Box>
+      <PassportSVG />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Make sure the multisig wallet is registered with the Passport and the right network is set before signing the transaction`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const SeedSignerContent = () => {
+  return (
+    <Box>
+      <SeedSignerSetup />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -283,6 +317,10 @@ const SignerModals = ({
   ledgerModal,
   otpModal,
   passwordModal,
+  passportModal,
+  seedSignerModal,
+  setSeedSignerModal,
+  setPassportModal,
   setColdCardModal,
   setTapsignerModal,
   setLedgerModal,
@@ -294,7 +332,11 @@ const SignerModals = ({
   signers,
 }) => {
   const navigation = useNavigation();
-
+  const navigateToQrSigning = (signer) => {
+    setPassportModal(false);
+    setSeedSignerModal(false);
+    navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
+  };
   return (
     <>
       {signers.map((signer) => {
@@ -382,6 +424,38 @@ const SignerModals = ({
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
                 Content={() => <OtpContent signTransaction={signTransaction} />}
+              />
+            );
+          case SignerType.PASSPORT:
+            return (
+              <KeeperModal
+                visible={currentSigner && passportModal}
+                close={() => {
+                  setPassportModal(false);
+                }}
+                title={'Keep Passport Ready'}
+                subTitle={'Keep your Foundation Passport ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <PassportContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.SEEDSIGNER:
+            return (
+              <KeeperModal
+                visible={currentSigner && seedSignerModal}
+                close={() => {
+                  setSeedSignerModal(false);
+                }}
+                title={'Keep SeedSigner Ready'}
+                subTitle={'Keep your SeedSigner ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <SeedSignerContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
         }
