@@ -121,3 +121,12 @@ export const generateWallet = async ({
   };
   return wallet;
 };
+
+export const getCosignerDetails = (wallet: Wallet, appId: string) => {
+  const deviceId = appId;
+  const masterFingerprint = wallet.id;
+  const derivationPath = wallet.derivationDetails.xDerivationPath;
+  const xpub = wallet.specs.xpub;
+
+  return { deviceId, mfp: masterFingerprint, xpub, derivationPath };
+};
