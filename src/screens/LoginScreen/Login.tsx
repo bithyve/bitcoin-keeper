@@ -119,6 +119,7 @@ const LoginScreen = ({ navigation, route }) => {
               cancelButtonText: 'Use PIN',
             });
             if (success) {
+              setLoginModal(true);
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
           }
@@ -249,7 +250,14 @@ const LoginScreen = ({ navigation, route }) => {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(13)} ml={5} letterSpacing={0.65} color={'light.textColor'} fontFamily={'body'} fontWeight={200}>
+              <Text
+                fontSize={RFValue(13)}
+                ml={5}
+                letterSpacing={0.65}
+                color={'light.textColor'}
+                fontFamily={'body'}
+                fontWeight={200}
+              >
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
