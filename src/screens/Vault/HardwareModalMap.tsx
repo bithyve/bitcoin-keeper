@@ -375,9 +375,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const setupPassport = async (qrData) => {
     try {
-      let { xpub, derivationPath, xfp } = getPassportDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
       const passport: VaultSigner = generateSignerFromMetaData({
         xpub,
         derivationPath,
@@ -395,9 +393,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const setupSeedSigner = async (qrData) => {
     try {
-      let { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
       const seedSigner: VaultSigner = generateSignerFromMetaData({
         xpub,
         derivationPath,
