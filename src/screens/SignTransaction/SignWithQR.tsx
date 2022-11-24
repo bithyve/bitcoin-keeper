@@ -41,6 +41,8 @@ const SignWithQR = () => {
     );
 
   const encodeToBytes = signer.type === SignerType.PASSPORT ? true : false;
+  const navigateToVaultRegistration = () =>
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
   return (
     <ScreenWrapper>
       <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
@@ -48,7 +50,12 @@ const SignWithQR = () => {
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type={'base64'} />
       </Box>
       <Box style={styles.bottom}>
-        <Buttons primaryText="Scan PSBT" primaryCallback={navigateToQrScan} />
+        <Buttons
+          primaryText="Scan PSBT"
+          primaryCallback={navigateToQrScan}
+          secondaryText={'Vault Details'}
+          secondaryCallback={navigateToVaultRegistration}
+        />
       </Box>
     </ScreenWrapper>
   );
@@ -63,6 +70,6 @@ const styles = StyleSheet.create({
     marginTop: '20%',
   },
   bottom: {
-    padding: '5%',
+    padding: '3%',
   },
 });
