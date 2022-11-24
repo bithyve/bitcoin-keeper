@@ -555,9 +555,7 @@ const SendConfirmation = ({ route }) => {
       {/*Modals */}
       <KeeperModal
         visible={visibleModal}
-        close={() => {
-          viewDetails();
-        }}
+        close={() => viewDetails()}
         title={walletTransactions.SendSuccess}
         subTitle={'The transaction has been successfully broadcasted'}
         buttonText={walletTransactions.ViewDetails}
