@@ -184,7 +184,6 @@ const SendConfirmation = ({ route }) => {
   useEffect(() => {
     if (walletSendSuccessful) {
       setVisibleModal(true);
-      // viewDetails();
     }
   }, [walletSendSuccessful]);
 
