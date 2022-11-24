@@ -16,36 +16,22 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import useNfcModal from 'src/hooks/useNfcModal';
+import { getColdcardDetails } from 'src/hardware/coldcard';
 
 const ColdCardReocvery = () => {
-  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const { nfcVisible, withNfcModal } = useNfcModal();
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const scanMK4 = async () => {
-    setNfcVisible(true);
-    try {
-      const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2wsh;
-      const path = data?.p2wsh_deriv ?? '';
-      const xfp = data?.xfp ?? '';
-      setNfcVisible(false);
-      return { xpub, path, xfp };
-    } catch (err) {
-      console.log(err);
-      setNfcVisible(false);
-    }
-  };
-
   const getColdCardDetails = async () => {
-    const { xpub, path: derivationPath, xfp } = await scanMK4();
+    const { xpub, path: derivationPath, xfp } = await withNfcModal(getColdcardDetails);
     return { xpub, derivationPath, xfp };
   };
 
   const verifyColdCard = async () => {
     try {
       const coldcard = await getColdCardDetails();
-
       const networkType = config.NETWORK_TYPE;
       const network = WalletUtilities.getNetworkByType(networkType);
       const xpub = WalletUtilities.generateXpubFromYpub(coldcard.xpub, network);
