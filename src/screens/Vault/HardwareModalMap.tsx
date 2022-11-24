@@ -226,6 +226,40 @@ const SeedSignerSetupContent = () => {
   );
 };
 
+const KeeperSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <SeedSignerSetupImage />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
 const SettingSigningServer = () => {
   return (
     <Box>
@@ -316,6 +350,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
         return setupPassport(qrData);
       case SignerType.SEEDSIGNER:
         return setupSeedSigner(qrData);
+      case SignerType.KEEPER:
+        return setupKeeperSigner(qrData);
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       default:
@@ -370,6 +406,33 @@ const HardwareModalMap = ({ type, visible, close }) => {
         storageType: SignerStorage.COLD,
       });
       dispatch(addSigningDevice(seedSigner));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      console.log(err);
+      captureError(err);
+    }
+  };
+
+  const setupKeeperSigner = async (qrData) => {
+    try {
+      let { deviceId, mfp, xpub, derivationPath } = JSON.parse(qrData);
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+
+      const ksd: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.KEEPER,
+        signerName: 'Keeper Signing Device',
+        storageType: SignerStorage.WARM,
+        xpub,
+        xpubInfo: {
+          derivationPath,
+          xfp: mfp,
+        },
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+      };
+
+      dispatch(addSigningDevice(ksd));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
       console.log(err);
@@ -671,6 +734,20 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonCallback={navigateToAddQrBasedSigner}
         textColor={'#041513'}
         Content={SeedSignerSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.KEEPER}
+        close={close}
+        title={'Keep your Device Ready'}
+        subTitle={'Keep your Keeper Signing Device ready before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={KeeperSetupContent}
       />
     </>
   );
