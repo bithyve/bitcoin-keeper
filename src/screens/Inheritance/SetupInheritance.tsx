@@ -212,7 +212,7 @@ const SetupInheritance = () => {
         Content={InheritanceContent}
         DarkCloseIcon={true}
         learnMore={true}
-        learnMoreCallback={() => openLink('http://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
     </ScreenWrapper>
   );

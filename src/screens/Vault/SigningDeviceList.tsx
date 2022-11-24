@@ -346,7 +346,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={VaultSetupContent}
           DarkCloseIcon={true}
           learnMore={true}
-          learnMoreCallback={() => openLink('http://www.bitcoinkeeper.app/')}
+          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
       </Box>
     </ScreenWrapper>

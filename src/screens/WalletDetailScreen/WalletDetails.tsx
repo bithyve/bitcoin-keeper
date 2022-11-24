@@ -454,7 +454,7 @@ const WalletDetails = () => {
         Content={LinkedWalletContent}
         DarkCloseIcon={true}
         learnMore={true}
-        learnMoreCallback={() => openLink('http://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
     </Box>
   );
