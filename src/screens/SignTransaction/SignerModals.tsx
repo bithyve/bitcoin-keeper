@@ -301,6 +301,8 @@ const SignerModals = ({
   otpModal,
   passwordModal,
   passportModal,
+  seedSignerModal,
+  setSeedSignerModal,
   setPassportModal,
   setColdCardModal,
   setTapsignerModal,
@@ -313,7 +315,11 @@ const SignerModals = ({
   signers,
 }) => {
   const navigation = useNavigation();
-
+  const navigateToQrSigning = (signer) => {
+    setPassportModal(false);
+    setSeedSignerModal(false);
+    navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
+  };
   return (
     <>
       {signers.map((signer) => {
@@ -404,12 +410,6 @@ const SignerModals = ({
               />
             );
           case SignerType.PASSPORT:
-            const navigateToQrSigning = () => {
-              setPassportModal(false);
-              navigation.dispatch(
-                CommonActions.navigate('SignWithQR', { signTransaction, signer })
-              );
-            };
             return (
               <KeeperModal
                 visible={currentSigner && passportModal}
@@ -422,7 +422,23 @@ const SignerModals = ({
                 textColor={'#041513'}
                 Content={() => <PassportContent />}
                 buttonText={'Proceed'}
-                buttonCallback={navigateToQrSigning}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.SEEDSIGNER:
+            return (
+              <KeeperModal
+                visible={currentSigner && seedSignerModal}
+                close={() => {
+                  setSeedSignerModal(false);
+                }}
+                title={'Keep SeedSigner Ready'}
+                subTitle={'Keep your SeedSigner ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <PassportContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
         }
