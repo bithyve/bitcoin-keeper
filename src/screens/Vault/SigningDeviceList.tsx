@@ -24,6 +24,7 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
+import openLink from 'src/utils/OpenLink';
 
 type HWProps = {
   type: SignerType;
@@ -347,6 +348,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={VaultSetupContent}
           DarkCloseIcon={true}
           learnMore={true}
+          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
       </Box>
     </ScreenWrapper>
