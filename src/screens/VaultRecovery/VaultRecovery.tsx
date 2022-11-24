@@ -197,7 +197,7 @@ const VaultRecovery = () => {
         Content={SuccessModalContent}
         close={() => setSuccessModal(false)}
         buttonCallback={() =>
-          navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }))
+          navigation.dispatch(CommonActions.navigate('App', { name: 'VaultDetails', params: {} }))
         }
       />
     </ScreenWrapper>
