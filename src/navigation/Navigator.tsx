@@ -65,6 +65,7 @@ import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
 import SignPSBTQr from 'src/screens/PSTB/SignPSBTQr';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
+import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -92,7 +93,7 @@ const LoginStack = () => {
         name="ColdCardReocvery"
         component={ColdCardReocvery}
       />
-
+      <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="SignersList"
@@ -192,7 +193,7 @@ const Navigator = () => {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title={'please wait'}
         subTitle={'loading'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
