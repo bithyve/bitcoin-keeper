@@ -29,6 +29,9 @@ import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Note from 'src/components/Note/Note';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
 type Props = {
   title: string;
@@ -52,18 +55,10 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
-        <Text
-          color={'light.lightBlack'}
-          fontSize={RFValue(14)}
-          letterSpacing={1.12}
-        >
+        <Text color={'light.lightBlack'} fontSize={RFValue(14)} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text
-          color={'light.GreyText'}
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-        >
+        <Text color={'light.GreyText'} fontSize={RFValue(12)} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -81,6 +76,8 @@ const WalletSettings = ({ route }) => {
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
 
   const [xpubVisible, setXPubVisible] = useState(false);
+  const [cosignerVisible, setCosignerVisible] = useState(false);
+
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
   const walletRoute: Wallet = route?.params?.wallet;
@@ -88,6 +85,10 @@ const WalletSettings = ({ route }) => {
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const wallet = wallets.find((item) => item.id == walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  const { translations } = useContext(LocalizationContext);
+  const walletTranslation = translations['wallet'];
 
   const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
     return (
@@ -118,11 +119,7 @@ const WalletSettings = ({ route }) => {
           }}
         >
           <Box>
-            <Text
-              color={'light.white'}
-              letterSpacing={0.28}
-              fontSize={RFValue(14)}
-            >
+            <Text color={'light.white'} letterSpacing={0.28} fontSize={RFValue(14)}>
               {walletName}
             </Text>
             <Text
@@ -157,11 +154,11 @@ const WalletSettings = ({ route }) => {
       setLoadingContent({
         title: '',
         subTitle: '',
-        message: ''
+        message: '',
       });
       setAppLoading(false);
-    }
-  }, [])
+    };
+  }, []);
 
   useEffect(() => {
     setAppLoading(false);
@@ -231,6 +228,14 @@ const WalletSettings = ({ route }) => {
             Icon={false}
           />
           <Option
+            title={'Show Cosigner Details'}
+            subTitle={'Use to create a signing device'}
+            onPress={() => {
+              setCosignerVisible(true);
+            }}
+            Icon={false}
+          />
+          <Option
             title={'Wallet seed words'}
             subTitle={'Use to link external wallets to Keeper'}
             onPress={() => {
@@ -274,8 +279,9 @@ const WalletSettings = ({ route }) => {
           position: 'absolute',
           bottom: hp(30),
           marginLeft: 26,
-          width: '90%'
-        }}>
+          width: '90%',
+        }}
+      >
         <Note
           title={'Note'}
           subtitle={
@@ -309,9 +315,35 @@ const WalletSettings = ({ route }) => {
           textColor={'#041513'}
           Content={() => (
             <ShowXPub
+              data={wallet.specs.xpub}
               copy={() => {
-                showToast('Address Copied Successfully', <TickIcon />);
+                showToast('Xpub Copied Successfully', <TickIcon />);
               }}
+              subText={walletTranslation.AccountXpub}
+              noteSubText={walletTranslation.AccountXpubNote}
+            />
+          )}
+        />
+        <KeeperModal
+          visible={cosignerVisible}
+          close={() => setCosignerVisible(false)}
+          title={'Cosigner Details'}
+          subTitleWidth={wp(240)}
+          subTitle={'Scan the cosigner details from another app in order to add this as a signer'}
+          subTitleColor={'#5F6965'}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor={'#041513'}
+          Content={() => (
+            <ShowXPub
+              data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
+              copy={() => {
+                showToast('Cosigner Details Copied Successfully', <TickIcon />);
+              }}
+              subText={'Cosigner Details'}
+              noteSubText={
+                'The cosigner details are only for the selected wallet and not other wallets in the app'
+              }
+              copyable={false}
             />
           )}
         />
