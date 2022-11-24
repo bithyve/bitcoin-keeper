@@ -22,7 +22,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
-import VaultIcon from 'src/assets/icons/vault_setup.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -178,6 +177,7 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
+    setVisibleModal(false);
     navigation.navigate('WalletDetails');
   };
 
@@ -556,7 +556,7 @@ const SendConfirmation = ({ route }) => {
       <KeeperModal
         visible={visibleModal}
         close={() => {
-          setVisibleModal(false), viewDetails();
+          viewDetails();
         }}
         title={walletTransactions.SendSuccess}
         subTitle={'The transaction has been successfully broadcasted'}
