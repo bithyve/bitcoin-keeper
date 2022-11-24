@@ -41,6 +41,7 @@ import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
+import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
@@ -167,6 +168,7 @@ const AppStack = () => {
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
+        <Stack.Screen name="SignWithQR" component={SignWithQR} />
       </Stack.Navigator>
     </RealmProvider>
   );

@@ -12,6 +12,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { SignerType } from 'src/core/wallets/enums';
@@ -96,6 +97,22 @@ const ColdCardContent = ({ register }) => {
           {register
             ? ``
             : `\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const PassportContent = () => {
+  return (
+    <Box>
+      <PassportSVG />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Make sure the multisig wallet is registered with the Passport and the right network is set before signing the transaction`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
         </Text>
       </Box>
     </Box>
@@ -283,6 +300,8 @@ const SignerModals = ({
   ledgerModal,
   otpModal,
   passwordModal,
+  passportModal,
+  setPassportModal,
   setColdCardModal,
   setTapsignerModal,
   setLedgerModal,
@@ -382,6 +401,28 @@ const SignerModals = ({
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
                 Content={() => <OtpContent signTransaction={signTransaction} />}
+              />
+            );
+          case SignerType.PASSPORT:
+            const navigateToQrSigning = () => {
+              setPassportModal(false);
+              navigation.dispatch(
+                CommonActions.navigate('SignWithQR', { signTransaction, signer })
+              );
+            };
+            return (
+              <KeeperModal
+                visible={currentSigner && passportModal}
+                close={() => {
+                  setPassportModal(false);
+                }}
+                title={'Keep Passport Ready'}
+                subTitle={'Keep your Foundation Passport ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <PassportContent />}
+                buttonText={'Proceed'}
+                buttonCallback={navigateToQrSigning}
               />
             );
         }
