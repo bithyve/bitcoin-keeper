@@ -22,7 +22,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
-import VaultIcon from 'src/assets/icons/vault_setup.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -62,7 +61,6 @@ const SendConfirmation = ({ route }) => {
     walletToWallet = false,
   } = uiMetaData;
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
-  const successSatus = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.isSuccessful);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -115,37 +113,8 @@ const SendConfirmation = ({ route }) => {
       </View>
     );
   };
-  //
-  const TransVaultSuccessfulContent = () => {
-    return (
-      <View>
-        <Box alignSelf={'center'}>
-          <VaultIcon />
-        </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'The transaction should be visible in the vault in some time.'}
-        </Text>
-      </View>
-    );
-  };
-  const NewVaultActivateContent = () => {
-    return (
-      <View>
-        <Box alignSelf={'center'}>
-          <VaultIcon />
-        </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'Whenever you upgrade, downgrade or change signing devices, a new vault is created with the new set of keys'
-          }
-        </Text>
-      </View>
-    );
-  };
 
   const onProceed = () => {
-    // console.log('pressed');
-    // setVisibleModal(true);
     // closeAllModal();
     if (isVaultTransfer) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
@@ -208,12 +177,13 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
+    setVisibleModal(false);
     navigation.navigate('WalletDetails');
   };
 
   useEffect(() => {
     if (walletSendSuccessful) {
-      viewDetails();
+      setVisibleModal(true);
     }
   }, [walletSendSuccessful]);
 
@@ -584,7 +554,7 @@ const SendConfirmation = ({ route }) => {
       {/*Modals */}
       <KeeperModal
         visible={visibleModal}
-        close={() => setVisibleModal(false)}
+        close={() => viewDetails()}
         title={walletTransactions.SendSuccess}
         subTitle={'The transaction has been successfully broadcasted'}
         buttonText={walletTransactions.ViewDetails}
@@ -595,29 +565,6 @@ const SendConfirmation = ({ route }) => {
         Content={SendSuccessfulContent}
         // buttonPressed={viewDetails}
       />
-      {/* <KeeperModal
-        visible={visibleModal}
-        close={() => setVisibleModal(false)}
-        title={'Transfer to Vault Successfull'}
-        subTitle={'You have successfully transferred from your wallet to the vault'}
-        buttonText={'View Vault'}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        Content={TransVaultSuccessfulContent}
-      /> */}
-      {/* <KeeperModal
-        visible={visibleModal}
-        close={() => setVisibleModal(false)}
-        title={'New Vault activated!'}
-        subTitle={
-          'The new set of signing devices will be needed to sign transactions from this vault'
-        }
-        buttonText={'View Vault'}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        Content={NewVaultActivateContent}
-      /> */}
-      {/* end */}
 
       {/* {showOverlay && (
         <View

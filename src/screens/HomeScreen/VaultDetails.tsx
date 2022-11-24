@@ -203,7 +203,6 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
       />
     );
   };
-
   return (
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
