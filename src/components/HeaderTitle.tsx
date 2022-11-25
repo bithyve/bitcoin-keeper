@@ -28,7 +28,7 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   titleFontSize = 16,
 }: Props) => {
   const navigation = useNavigation();
@@ -58,7 +58,11 @@ const HeaderTitle = ({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
+        <Box style={{
+          paddingLeft: paddingLeft,
+          paddingTop: paddingTop
+        }}
+        >
           {title && (
             <Text
               numberOfLines={1}

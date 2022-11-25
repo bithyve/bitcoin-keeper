@@ -72,6 +72,7 @@ const getDeviceStatus = (
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
     case SignerType.SEED_WORDS:
+    case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnPleb, vaultSigners).message,
         disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
@@ -80,12 +81,12 @@ const getDeviceStatus = (
     case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.KEYSTONE:
-    case SignerType.KEEPER:
-    case SignerType.PASSPORT:
       return {
         message: 'Coming soon',
         disabled: false,
       };
+    case SignerType.PASSPORT:
+    case SignerType.SEEDSIGNER:
     default:
       return {
         message: '',
@@ -165,6 +166,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
     SignerType.KEYSTONE,
+    SignerType.SEEDSIGNER,
   ];
   const HardWareWallet = ({ type, disabled, message, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);

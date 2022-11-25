@@ -1,5 +1,6 @@
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+
 import { SignerType } from 'src/core/wallets/enums';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 
@@ -32,7 +33,7 @@ export const generateSignerFromMetaData = ({
   return signer;
 };
 
-const getSignerNameFromType = (type: SignerType, isMock = false) => {
+export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
   let name: string;
   switch (type) {
     case SignerType.COLDCARD:
@@ -72,5 +73,24 @@ const getSignerNameFromType = (type: SignerType, isMock = false) => {
       name = type;
       break;
   }
-  return isMock ? name + '**' : name;
+  if (isMock) {
+    return name + '**';
+  } else if (isAmf) {
+    return name + '*';
+  } else {
+    return name;
+  }
+};
+
+export const getWalletConfig = ({ vault }: { vault: Vault }) => {
+  let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
+  line += `Name: Keeper Vault\n`;
+  line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
+  line += `Format: P2WSH\n`;
+  line += `\n`;
+  vault.signers.forEach((signer) => {
+    line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;
+    line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
+  });
+  return line;
 };

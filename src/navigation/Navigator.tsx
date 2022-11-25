@@ -28,7 +28,9 @@ import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
+import RegisterWithQR from 'src/screens/QRScreens/RegisterWithQR';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
+import ScanQR from 'src/screens/QRScreens/ScanQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
@@ -39,6 +41,7 @@ import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
+import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
@@ -59,9 +62,11 @@ import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
+import SignPSBTQr from 'src/screens/PSTB/SignPSBTQr';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-
+import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -89,7 +94,7 @@ const LoginStack = () => {
         name="ColdCardReocvery"
         component={ColdCardReocvery}
       />
-
+      <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="SignersList"
@@ -163,6 +168,11 @@ const AppStack = () => {
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
+        <Stack.Screen name="SignPSBTQr" component={SignPSBTQr} />
+        <Stack.Screen name="SignPSBTScan" component={SignPSBTScan} />
+        <Stack.Screen name="ScanQR" component={ScanQR} />
+        <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
+        <Stack.Screen name="SignWithQR" component={SignWithQR} />
       </Stack.Navigator>
     </RealmProvider>
   );

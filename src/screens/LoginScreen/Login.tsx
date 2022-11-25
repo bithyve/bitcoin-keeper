@@ -119,6 +119,7 @@ const LoginScreen = ({ navigation, route }) => {
               cancelButtonText: 'Use PIN',
             });
             if (success) {
+              setLoginModal(true);
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
           }
