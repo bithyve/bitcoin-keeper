@@ -1,11 +1,12 @@
 import { StyleSheet, View } from 'react-native';
-import React from 'react';
+
 import CharButton from './CharButton';
-import DeleteIcon from 'src/assets/icons/delete.svg';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/icons/delete.svg';
+import React from 'react';
 
 const AppNumPad = ({
-  ok,
+  ok = null,
   clear,
   setValue,
   disable = false,
