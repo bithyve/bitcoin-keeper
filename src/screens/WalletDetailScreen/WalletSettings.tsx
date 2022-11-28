@@ -4,7 +4,7 @@ import { Box, Text, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 //components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
@@ -30,7 +30,7 @@ import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
 type Props = {
@@ -70,7 +70,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 };
 
 const WalletSettings = ({ route }) => {
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
@@ -166,7 +166,7 @@ const WalletSettings = ({ route }) => {
       Alert.alert('5000 Sats Received');
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
-        navigtaion.goBack();
+        navigation.goBack();
       }, 3000);
     } else {
       if (testCoinsFailed) {
@@ -176,6 +176,21 @@ const WalletSettings = ({ route }) => {
     }
   }, [testCoinsReceived, testCoinsFailed]);
 
+  const signPSBT = (serializedPSBT) => {
+    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowQR',
+        params: {
+          data: signedSerialisedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+        },
+      })
+    );
+  };
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -183,7 +198,7 @@ const WalletSettings = ({ route }) => {
         <HeaderTitle
           title={'Wallet Settings'}
           subtitle={'Setting for the wallet only'}
-          onPressHandler={() => navigtaion.goBack()}
+          onPressHandler={() => navigation.goBack()}
           headerTitleColor={'light.textBlack'}
           titleFontSize={20}
           paddingTop={hp(5)}
@@ -215,7 +230,7 @@ const WalletSettings = ({ route }) => {
             title={'Wallet Details'}
             subTitle={'Change wallet name & description'}
             onPress={() => {
-              navigtaion.navigate('EditWalletDetails', { wallet: wallet });
+              navigation.navigate('EditWalletDetails', { wallet: wallet });
             }}
             Icon={false}
           />
@@ -266,7 +281,16 @@ const WalletSettings = ({ route }) => {
             title={'Sign PSBT'}
             subTitle={'Lorem ipsum dolor sit amet, consectetur'}
             onPress={() => {
-              navigtaion.navigate('SignPSBTQr');
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ScanQR',
+                  params: {
+                    title: `Scan PSBT to Sign`,
+                    subtitle: 'Please scan until all the QR data has been retrieved',
+                    onQrScan: signPSBT,
+                  },
+                })
+              );
             }}
             Icon={false}
           />
