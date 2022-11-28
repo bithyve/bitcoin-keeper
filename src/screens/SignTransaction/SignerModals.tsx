@@ -166,6 +166,20 @@ const JadeContent = () => {
     </Box>
   );
 };
+const KeeperContent = () => {
+  return (
+    <Box>
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
 
 const TapsignerContent = () => {
   return (
@@ -354,8 +368,10 @@ const SignerModals = ({
   jadeModal,
   setJadeModal,
   setKeystoneModal,
+  keeperModal,
   setSeedSignerModal,
   setPassportModal,
+  setKeeperModal,
   setColdCardModal,
   setTapsignerModal,
   setLedgerModal,
@@ -370,6 +386,7 @@ const SignerModals = ({
   const navigateToQrSigning = (signer) => {
     setPassportModal(false);
     setSeedSignerModal(false);
+    setKeeperModal(false);
     navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
   };
   return (
@@ -521,6 +538,22 @@ const SignerModals = ({
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
                 Content={() => <JadeContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.KEEPER:
+            return (
+              <KeeperModal
+                visible={currentSigner && keeperModal}
+                close={() => {
+                  setKeeperModal(false);
+                }}
+                title={'Keep your Device Ready'}
+                subTitle={'Keep your Keeper Signing Device ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <KeeperContent />}
                 buttonText={'Proceed'}
                 buttonCallback={() => navigateToQrSigning(signer)}
               />

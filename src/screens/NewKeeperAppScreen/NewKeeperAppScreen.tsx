@@ -233,7 +233,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
               fontWeight={200}
               letterSpacing={0.9}
             >
-              Exsisting Keeper App
+              Existing Keeper App
             </Text>
             <Text
               color={'light.blackHeaderText'}

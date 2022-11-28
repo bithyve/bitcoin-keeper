@@ -32,7 +32,7 @@ const AppNumPad = ({
     <View style={styles.numPadContainer}>
       {numPadArr.map((char) => {
         if (char === 'ok' && ok) {
-          return <CharButton key={char} char={'Need Help'} color={color} height={height} />;
+          return <CharButton key={char} char={''} color={color} height={height} />;
         } else if (char === 'clear' && clear) {
           return (
             <CharButton

@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-
+import * as bitcoinJS from 'bitcoinjs-lib';
 import { EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
 import {
   Wallet,
@@ -129,4 +129,33 @@ export const getCosignerDetails = (wallet: Wallet, appId: string) => {
   const xpub = wallet.specs.xpub;
 
   return { deviceId, mfp: masterFingerprint, xpub, derivationPath };
+};
+
+export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
+  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+
+  let vin = 0;
+  PSBT.data.inputs.forEach((input) => {
+    if (!input.bip32Derivation) return 'signing failed: bip32Derivation missing';
+
+    const path = input.bip32Derivation[0].path;
+    const path_levels = path.split('/');
+
+    // const subPath = path_levels.splice(path_levels.length - 2)
+    const internal = parseInt(path_levels[path_levels.length - 2]) === 1 ? true : false;
+    const childIndex = parseInt(path_levels[path_levels.length - 1]);
+
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
+      wallet.specs.xpriv,
+      internal,
+      childIndex,
+      network
+    );
+    const keyPair = WalletUtilities.getKeyPair(privateKey, network);
+    PSBT.signInput(vin, keyPair);
+    vin += 1;
+  });
+
+  return PSBT.toBase64();
 };

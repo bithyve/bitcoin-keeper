@@ -31,6 +31,7 @@ import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
 import RegisterWithQR from 'src/screens/QRScreens/RegisterWithQR';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
 import ScanQR from 'src/screens/QRScreens/ScanQR';
+import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
@@ -63,7 +64,6 @@ import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryS
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
-import SignPSBTQr from 'src/screens/PSTB/SignPSBTQr';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
@@ -168,9 +168,9 @@ const AppStack = () => {
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
-        <Stack.Screen name="SignPSBTQr" component={SignPSBTQr} />
         <Stack.Screen name="SignPSBTScan" component={SignPSBTScan} />
         <Stack.Screen name="ScanQR" component={ScanQR} />
+        <Stack.Screen name="ShowQR" component={ShowQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
       </Stack.Navigator>

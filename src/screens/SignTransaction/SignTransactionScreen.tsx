@@ -54,6 +54,7 @@ const SignTransactionScreen = () => {
   const [seedSignerModal, setSeedSignerModal] = useState(false);
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
+  const [keeperModal, setKeeperModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -262,6 +263,8 @@ const SignTransactionScreen = () => {
         break;
       case SignerType.JADE:
         setJadeModal(true);
+      case SignerType.KEEPER:
+        setKeeperModal(true);
         break;
       default:
         Alert.alert(`action not set for ${type}`);
@@ -329,8 +332,10 @@ const SignTransactionScreen = () => {
         jadeModal={jadeModal}
         setJadeModal={setJadeModal}
         setKeystoneModal={setKeystoneModal}
+        keeperModal={keeperModal}
         setSeedSignerModal={setSeedSignerModal}
         setPassportModal={setPassportModal}
+        setKeeperModal={setKeeperModal}
         setColdCardModal={setColdCardModal}
         setLedgerModal={setLedgerModal}
         setPasswordModal={setPasswordModal}
