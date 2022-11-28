@@ -30,8 +30,6 @@ import config from '../../config';
 
 const ECPair = ECPairFactory(ecc);
 
-const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
-
 export default class WalletUtilities {
   static networkType = (scannedStr: string): NetworkType => {
     scannedStr = scannedStr.replace('BITCOIN', 'bitcoin');
@@ -1188,7 +1186,7 @@ export default class WalletUtilities {
   };
 
   static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
-    const version = Buffer.from('02aa7ed3');
+    const version = Buffer.from('02aa7ed3', 'hex');
     const hdKey = cryptoAccount.getOutputDescriptors()[0].getCryptoKey() as CryptoHDKey;
     const depth = hdKey.getOrigin().getDepth();
     const depthBuf = Buffer.alloc(1);
@@ -1206,6 +1204,7 @@ export default class WalletUtilities {
     const derivationPath = 'm/' + hdKey.getOrigin().getPath();
     const xPubBuf = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
     const xPub = bs58check.encode(xPubBuf);
-    return { xPub, derivationPath };
+    const mfp = cryptoAccount.getMasterFingerprint().toString('hex');
+    return { xPub, derivationPath, mfp };
   };
 }
