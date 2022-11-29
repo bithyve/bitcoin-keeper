@@ -292,25 +292,39 @@ const WalletDetails = () => {
       {walletIndex !== wallets.length ? (
         <>
           {/* {Transfer pollicy} */}
-          <Pressable
-            onPress={() => {
-              if (vaultExsist) {
-                navigation.navigate('SendConfirmation', {
-                  isVaultTransfer: true,
-                  walletId: wallets[walletIndex].id,
-                });
-              } else Alert.alert('Vault is not created');
+          <Box
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between'
             }}
           >
             <Box
-              height={hp(50)}
-              width={'100%'}
-              borderRadius={hp(10)}
               backgroundColor={'light.transactionPolicyCard'}
-              flexDirection={'row'}
-              justifyContent={'space-between'}
-              alignItems={'center'}
-              style={{ paddingHorizontal: wp(10) }}
+              style={styles.transferPolicyCard}
+            >
+              <Box style={{ paddingLeft: wp(10) }}>
+                <Text
+                  color={'light.brownborder'}
+                  letterSpacing={0.6}
+                  fontSize={RFValue(12)}
+                  fontWeight={200}
+                >
+                  Available to spend
+                  <Text fontWeight={'bold'}> {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats</Text>
+                </Text>
+              </Box>
+            </Box>
+            <Pressable
+              backgroundColor={'light.transactionPolicyCard'}
+              style={styles.transferPolicyCard}
+              onPress={() => {
+                if (vaultExsist) {
+                  navigation.navigate('SendConfirmation', {
+                    isVaultTransfer: true,
+                    walletId: wallets[walletIndex].id,
+                  });
+                } else Alert.alert('Vault is not created');
+              }}
             >
               <Box style={{ paddingLeft: wp(10) }}>
                 <Text
@@ -323,10 +337,8 @@ const WalletDetails = () => {
                   <Text fontWeight={'bold'}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
                 </Text>
               </Box>
-
-              <Arrow />
-            </Box>
-          </Pressable>
+            </Pressable>
+          </Box>
 
           <Box
             flexDirection={'row'}
@@ -468,5 +480,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%',
   },
+  transferPolicyCard: {
+    paddingHorizontal: wp(10),
+    height: hp(50),
+    width: '48%',
+    borderRadius: hp(10),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  }
 });
 export default WalletDetails;
