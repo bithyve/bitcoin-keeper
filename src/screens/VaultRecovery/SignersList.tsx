@@ -1,24 +1,25 @@
 import { Box, ScrollView, Text, View } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
+
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
-import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { WalletMap } from '../Vault/WalletMap';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
-import { useDispatch } from 'react-redux';
-import { setSigningDevices } from 'src/store/reducers/bhr';
+import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import { TouchableOpacity } from 'react-native';
+import { WalletMap } from '../Vault/WalletMap';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
+import config from 'src/core/config';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
-import config from 'src/core/config';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { useDispatch } from 'react-redux';
 
 const TapsignerSetupContent = () => {
   return (
