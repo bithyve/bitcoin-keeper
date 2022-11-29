@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { URRegistryDecoder } from '@keystonehq/bc-ur-registry/dist';
+import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
 

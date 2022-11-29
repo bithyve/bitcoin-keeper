@@ -1,6 +1,12 @@
-import { Bytes, CryptoPSBT, URRegistryDecoder } from '@keystonehq/bc-ur-registry/dist';
+import {
+  Bytes,
+  CryptoAccount,
+  CryptoPSBT,
+  URRegistryDecoder,
+} from 'src/core/services/qr/bc-ur-registry';
 
 import { Psbt } from 'bitcoinjs-lib';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from '../sentry';
 
 export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
@@ -10,6 +16,19 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
     const scanPercentage = Math.floor(decoder.estimatedPercentComplete() * 100);
     if (decoder.isComplete()) {
       const ur = decoder.resultUR();
+      if (ur.type === 'crypto-account') {
+        const cryptoAccount = CryptoAccount.fromCBOR(ur.cbor);
+        const { xPub, derivationPath, mfp } =
+          WalletUtilities.generateXpubFromMetaData(cryptoAccount);
+        return {
+          data: {
+            mfp,
+            derivationPath,
+            xPub,
+          },
+          percentage: scanPercentage,
+        };
+      }
       // Decode the CBOR message to a Buffer
       if (ur.type === 'crypto-psbt') {
         const cryptoPsbt = CryptoPSBT.fromCBOR(ur.cbor);

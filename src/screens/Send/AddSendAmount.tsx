@@ -1,6 +1,7 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
@@ -13,13 +14,12 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import WalletDetails from './WalletDetails';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useAppSelector } from 'src/store/hooks';
-import WalletDetails from './WalletDetails';
 
 const AddSendAmount = ({ route }) => {
   const navigation = useNavigation();
@@ -272,9 +272,6 @@ const AddSendAmount = ({ route }) => {
       <Box position={'absolute'} bottom={0} alignItems={'center'} width={wp(375)}>
         <AppNumPad
           setValue={setAmount}
-          ok={() => {
-            console.log('ok');
-          }}
           clear={() => setAmount('')}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
