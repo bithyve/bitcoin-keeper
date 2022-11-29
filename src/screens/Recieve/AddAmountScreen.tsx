@@ -73,14 +73,7 @@ const AddAmountScreen = ({ route }: { route }) => {
         </View>
       </View>
       <View position={'absolute'} bottom={0}>
-        <AppNumPad
-          setValue={setAmount}
-          ok={() => {
-            console.log('ok');
-          }}
-          clear={() => setAmount('')}
-          color={'#073E39'}
-        />
+        <AppNumPad setValue={setAmount} clear={() => setAmount('')} color={'#073E39'} />
       </View>
     </View>
   );

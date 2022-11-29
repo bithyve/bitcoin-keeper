@@ -23,8 +23,8 @@ import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.s
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { setSdIntroModal } from 'src/store/reducers/vaults';
 import openLink from 'src/utils/OpenLink';
+import { setSdIntroModal } from 'src/store/reducers/vaults';
 
 type HWProps = {
   type: SignerType;
@@ -79,12 +79,12 @@ const getDeviceStatus = (
       };
 
     case SignerType.TREZOR:
-    case SignerType.JADE:
-    case SignerType.KEYSTONE:
       return {
         message: 'Coming soon',
         disabled: false,
       };
+    case SignerType.KEYSTONE:
+    case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
     default:
@@ -159,14 +159,14 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     SignerType.LEDGER,
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
-    SignerType.MOBILE_KEY,
-    SignerType.POLICY_SERVER,
-    SignerType.PASSPORT,
-    SignerType.JADE,
-    SignerType.KEEPER,
-    SignerType.SEED_WORDS,
     SignerType.KEYSTONE,
     SignerType.SEEDSIGNER,
+    SignerType.PASSPORT,
+    SignerType.JADE,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
+    SignerType.KEEPER,
+    SignerType.SEED_WORDS,
   ];
   const HardWareWallet = ({ type, disabled, message, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
