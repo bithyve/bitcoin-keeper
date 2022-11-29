@@ -18,7 +18,6 @@
     "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease"
   },
   "dependencies": {
-    "@gorhom/bottom-sheet": "^4",
     "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
     "@ngraveio/bc-ur": "^1.1.6",
     "@react-native-firebase/app": "^14.11.1",
@@ -77,9 +76,7 @@
     "react-native-file-viewer": "^2.1.5",
     "react-native-gesture-handler": "^2.3.2",
     "react-native-get-random-values": "^1.7.2",
-    "react-native-html-to-pdf": "^0.12.0",
     "react-native-iap": "9.0.1",
-    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-keychain": "^8.0.0",
     "react-native-level-fs": "^3.0.0",
     "react-native-linear-gradient": "^2.5.6",
@@ -107,7 +104,6 @@
     "react-native-tor": "^0.1.8",
     "react-native-udp": "^4.1.5",
     "react-native-uuid": "^2.0.1",
-    "react-native-vector-icons": "^9.1.0",
     "react-native-video": "^5.2.0",
     "react-redux": "^7.2.6",
     "readable-stream": "1.0.33",
