@@ -45,7 +45,13 @@ const ExportSeedScreen = ({ route, navigation }) => {
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex(showWordIndex || showWordIndex === 0 ? '' : index);
+          setShowWordIndex(prev => {
+            if (prev === index) {
+              return '';
+            } else {
+              return index;
+            }
+          });
         }}
       >
         <Box
@@ -89,7 +95,7 @@ const ExportSeedScreen = ({ route, navigation }) => {
     <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title={seedText.ExportSeed}
+        title={seedText.recoveryPhrase}
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
       />
