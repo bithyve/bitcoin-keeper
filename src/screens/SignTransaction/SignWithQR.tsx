@@ -7,11 +7,13 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import { Psbt } from 'bitcoinjs-lib';
+import { captureError } from 'src/core/services/sentry';
 
 const SignWithQR = () => {
   const serializedPSBTEnvelops = useAppSelector(
@@ -24,8 +26,15 @@ const SignWithQR = () => {
   const dispatch = useDispatch();
 
   const signTransaction = (signedSerializedPSBT) => {
-    dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId: signer.signerId }));
-    navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+    try {
+      Psbt.fromBase64(signedSerializedPSBT); //will throw if not a psbt
+      dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId: signer.signerId }));
+      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+    } catch (err) {
+      captureError(err);
+      Alert.alert('Invalid QR, please scan the signed PSBT!');
+      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+    }
   };
 
   const navigateToQrScan = () =>

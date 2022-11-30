@@ -460,7 +460,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
       dispatch(addSigningDevice(passport));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      console.log(err);
+      Alert.alert('Invalid QR, please scan the QR from Passport!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       captureError(err);
     }
   };
@@ -478,7 +479,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
       dispatch(addSigningDevice(seedSigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      console.log(err);
+      Alert.alert('Invalid QR, please scan the QR from SeedSigner!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       captureError(err);
     }
   };
@@ -496,7 +498,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
       dispatch(addSigningDevice(keystone));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      console.log(err);
+      Alert.alert('Invalid QR, please scan the QR from Keystone!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       captureError(err);
     }
   };
@@ -514,7 +517,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
       dispatch(addSigningDevice(jade));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      console.log(err);
+      Alert.alert('Invalid QR, please scan the QR from Jade!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       captureError(err);
     }
   };
@@ -539,7 +543,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
 
   const setupKeeperSigner = async (qrData) => {
     try {
-      let { deviceId, mfp, xpub, derivationPath } = JSON.parse(qrData);
+      const { mfp, xpub, derivationPath } = JSON.parse(qrData);
       const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
 
       const ksd: VaultSigner = {
@@ -559,7 +563,8 @@ const HardwareModalMap = ({ type, visible, close }) => {
       dispatch(addSigningDevice(ksd));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     } catch (err) {
-      console.log(err);
+      Alert.alert('Invalid QR, please scan the QR from another Keeper app!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       captureError(err);
     }
   };
