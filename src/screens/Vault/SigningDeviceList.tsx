@@ -1,4 +1,4 @@
-import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import config, { APP_STAGE } from 'src/core/config';
@@ -125,12 +125,8 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           <SigningDevicesIllustration />
         </Box>
         <Text
-          color={'white'}
-          letterSpacing={0.65}
-          fontSize={13}
-          fontWeight={'200'}
-          marginTop={5}
-          p={1}
+          color={'light.white'}
+          style={styles.modalText}
         >
           {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
@@ -353,4 +349,12 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
   );
 };
 
+const styles = StyleSheet.create({
+  modalText: {
+    letterSpacing: 0.65,
+    fontSize: 13,
+    marginTop: 5,
+    padding: 1
+  }
+})
 export default SigningDeviceList;
