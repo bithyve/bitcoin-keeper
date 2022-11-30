@@ -121,6 +121,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@babel/preset-env": "^7.20.2",
     "@babel/runtime": "^7.12.5",
     "@testing-library/jest-native": "^4.0.5",
     "@types/jest": "^28.1.6",
