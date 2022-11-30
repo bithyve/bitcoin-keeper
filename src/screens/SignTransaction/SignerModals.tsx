@@ -431,7 +431,7 @@ const SignerModals = ({
               <KeeperModal
                 visible={currentSigner && coldCardModal}
                 close={() => setColdCardModal(false)}
-                title={register ? 'Register Coldcard' : 'Upload Multi-sig data'}
+                title={register ? 'Register Coldcard' : 'Keep your Mk4 ready'}
                 subTitle={'Keep your Mk4 ready before proceeding'}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 Content={() => <ColdCardContent register={register} isMultisig={isMultisig} />}

@@ -10,7 +10,6 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const config = getWalletConfig({ vault });
   const enc = NFC.encodeForColdCard(config);
-  console.log(config);
   await NFC.send(NfcTech.Ndef, enc);
 };
 
