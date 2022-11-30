@@ -1,4 +1,9 @@
-import { ADD_NEW_VAULT, FINALISE_VAULT_MIGRATION, MIGRATE_VAULT } from '../sagaActions/vaults';
+import {
+  ADD_NEW_VAULT,
+  ADD_SIGINING_DEVICE,
+  FINALISE_VAULT_MIGRATION,
+  MIGRATE_VAULT,
+} from '../sagaActions/vaults';
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
@@ -6,26 +11,30 @@ import {
   REFRESH_WALLETS,
   REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
+  TEST_SATS_RECIEVE,
+  UPDATE_SIGNER_POLICY,
+  UPDATE_WALLET_DETAILS,
   UPDATE_WALLET_SETTINGS,
   VALIDATE_SIGNING_SERVER_REGISTRATION,
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
-  TEST_SATS_RECIEVE,
-  UPDATE_SIGNER_POLICY,
-  UPDATE_WALLET_DETAILS,
 } from '../sagaActions/wallets';
 import {
   EntityKind,
-  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import { Storage, getString, setItem } from 'src/storage';
+import {
+  SignerException,
+  SignerRestriction,
+  SingerVerification,
+  VerificationType,
+} from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { Wallet, WalletShell, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
+import { Wallet, WalletPresentationData, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -41,15 +50,15 @@ import {
 } from 'src/store/reducers/wallets';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
-import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { Alert } from 'react-native';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
 import { RootState } from '../store';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import { TwoFADetails } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
 import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
@@ -57,15 +66,6 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import Relay from 'src/core/services/operations/Relay';
-import {
-  SignerException,
-  SignerRestriction,
-  SingerVerification,
-  VerificationType,
-} from 'src/core/services/interfaces';
-import { vs } from 'react-native-size-matters';
-import { Alert } from 'react-native';
 
 export interface newWalletDetails {
   name?: string;

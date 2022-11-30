@@ -1,4 +1,5 @@
 import { Box, HStack, Text, VStack } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -12,6 +13,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
 
@@ -24,7 +26,11 @@ const gradientStyles = {
 };
 const SignerAdvanceSettings = ({ route }) => {
   const { signer }: { signer: VaultSigner } = route.params;
-  const signerName = signer.type.charAt(0) + signer.type.slice(1).toLowerCase();
+  const signerName = getSignerNameFromType(
+    signer.type,
+    signer.isMock,
+    signer.amfData && signer.amfData.xpub
+  );
   const [nfcModal, setNfcModal] = useState(false);
   const openNfc = () => setNfcModal(true);
   const closeNfc = () => setNfcModal(false);
@@ -35,14 +41,25 @@ const SignerAdvanceSettings = ({ route }) => {
     .filter((vault) => !vault.archived)[0];
 
   const register = async () => {
+    if (signer.type === SignerType.COLDCARD) {
+      openNfc();
+      await registerToColcard({ vault: Vault });
+      closeNfc();
+    }
+  };
+
+  const navigation = useNavigation();
+
+  const registerSigner = () => {
     switch (signer.type) {
       case SignerType.COLDCARD:
-        openNfc();
-        await registerToColcard({ vault: Vault });
-        closeNfc();
-        break;
-      default:
-        break;
+        register();
+        return;
+      case SignerType.KEYSTONE:
+      case SignerType.JADE:
+      case SignerType.PASSPORT:
+      case SignerType.SEEDSIGNER:
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
     }
   };
 
@@ -62,7 +79,7 @@ const SignerAdvanceSettings = ({ route }) => {
           </VStack>
         </HStack>
       </Box>
-      <TouchableOpacity onPress={register}>
+      <TouchableOpacity onPress={registerSigner}>
         <HStack alignItems={'center'}>
           <VStack px={4} width={'90%'}>
             <Text color={'light.lightBlack'} fontSize={14} fontFamily={'body'} fontWeight={'200'}>

@@ -276,8 +276,8 @@ export default class Relay {
     data?: {
       updated: boolean;
     };
-    err?: undefined;
-    message?: undefined;
+    err?: string;
+    message?: string;
   }> => {
     try {
       let res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
@@ -298,8 +298,8 @@ export default class Relay {
     data?: {
       updated: boolean;
     };
-    err?: undefined;
-    message?: undefined;
+    err?: string;
+    message?: string;
   }> => {
     try {
       let res;

@@ -3,7 +3,6 @@ import { Box, Text } from 'native-base';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Check from 'src/assets/images/check.svg';
 
 const CreateCloudBackup = (props) => {
   const { translations } = useContext(LocalizationContext);

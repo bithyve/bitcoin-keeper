@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Text } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 //components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
@@ -20,56 +19,49 @@ import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import openLink from 'src/utils/OpenLink';
+
 const SetupInheritance = () => {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { showToast } = useToastMessage();
 
-  const [modalVisiblity, setModalVisiblity] = useState(true);
   const inheritanceData = [
     {
       title: 'Safeguarding Tips',
       subTitle: 'For yourself',
-      description: 'Consists of tips on things to consider while storing your signing devices for the purpose of inheritance (when it will be needed by someone else)',
-      Icon: Vault
+      description:
+        'Consists of tips on things to consider while storing your signing devices for the purpose of inheritance (when it will be needed by someone else)',
+      Icon: Vault,
     },
     {
       title: 'Letter to the Attorney',
       subTitle: 'For the estate management company',
-      description: 'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
-      Icon: SettingUp
+      description:
+        'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
+      Icon: SettingUp,
     },
     {
       title: 'Recovery Instructions',
       subTitle: 'For the heir or beneficiary',
-      description: 'A document that will help the beneficiary recover the vault with or without the Keeper app',
-      Icon: Recovery
-
-    }
-  ]
+      description:
+        'A document that will help the beneficiary recover the vault with or without the Keeper app',
+      Icon: Recovery,
+    },
+  ];
 
   const InheritancePoint = ({ title, subTitle, description, Icon }) => {
     return (
       <Box
         style={{
           marginBottom: hp(25),
-        }}>
-        <Box
-          width={wp(300)}
-          flexDir={'row'}
-          alignItems={'center'}
-        >
+        }}
+      >
+        <Box width={wp(300)} flexDir={'row'} alignItems={'center'}>
           <Icon />
-          <Box
-            marginLeft={wp(15)}
-          >
-            <Text
-              color={'light.white1'}
-              fontSize={15}
-              numberOfLines={2}
-              fontWeight={200}
-            >
+          <Box marginLeft={wp(15)}>
+            <Text color={'light.white1'} fontSize={15} numberOfLines={2} fontWeight={200}>
               {title}
             </Text>
             <Text
@@ -86,7 +78,7 @@ const SetupInheritance = () => {
         <Text
           color={'light.white1'}
           fontSize={14}
-          marginTop={hp(16)}
+          style={{ marginTop: hp(16) }}
           alignItems={'center'}
           width={wp(280)}
           fontWeight={200}
@@ -95,12 +87,12 @@ const SetupInheritance = () => {
           {description}
         </Text>
       </Box>
-    )
-  }
+    );
+  };
 
   const InheritanceContent = () => {
     return (
-      <Box >
+      <Box>
         {inheritanceData.map((item) => {
           return (
             <InheritancePoint
@@ -112,8 +104,8 @@ const SetupInheritance = () => {
           );
         })}
       </Box>
-    )
-  }
+    );
+  };
 
   const GradientIcon = ({ height, Icon }) => {
     return (
@@ -140,13 +132,12 @@ const SetupInheritance = () => {
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
           learnMore={true}
-          learnMorePressed={() => { dispatch(setInheritance(true)) }}
+          learnMorePressed={() => {
+            dispatch(setInheritance(true));
+          }}
         />
       </Box>
-      <Box
-        alignItems={'center'}
-        paddingX={1}
-      >
+      <Box alignItems={'center'} paddingX={1}>
         <Box alignItems={'center'}>
           <GradientIcon Icon={Inheritance} height={50} />
           <Text
@@ -167,16 +158,13 @@ const SetupInheritance = () => {
             textAlign={'center'}
             fontWeight={200}
           >
-            Keeper provides you with the tips and tools you need to include the vault in your estate planning
+            Keeper provides you with the tips and tools you need to include the vault in your estate
+            planning
           </Text>
         </Box>
       </Box>
 
-      <Box
-        marginTop={hp(50)}
-        alignItems={'center'}
-        flex={1}
-      >
+      <Box marginTop={hp(50)} alignItems={'center'} flex={1}>
         <Assert />
         <Text
           fontSize={12}
@@ -192,22 +180,28 @@ const SetupInheritance = () => {
         </Text>
         <Box marginTop={hp(windowHeight > 700 ? 50 : 0)}>
           <Buttons
-            primaryText='Select Country'
-            primaryCallback={() => { showToast('Inheritance flow coming soon') }}
+            primaryText="Select Country"
+            primaryCallback={() => {
+              showToast('Inheritance flow coming soon');
+            }}
             paddingHorizontal={wp(20)}
           />
         </Box>
         <Box position={'absolute'} bottom={hp(10)} width={wp(320)} justifyContent={'center'}>
           <Note
             title={'Note'}
-            subtitle={'Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction'}
+            subtitle={
+              'Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction'
+            }
             subtitleColor={'GreyText'}
           />
         </Box>
       </Box>
       <KeeperModal
         visible={introModal}
-        close={() => { dispatch(setInheritance(false)) }}
+        close={() => {
+          dispatch(setInheritance(false));
+        }}
         title={'Inheritance'}
         subTitle={'Securely bequeath your bitcoin'}
         modalBackground={['#00836A', '#073E39']}
@@ -218,11 +212,11 @@ const SetupInheritance = () => {
         Content={InheritanceContent}
         DarkCloseIcon={true}
         learnMore={true}
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 };
 
-const styles = ScaledSheet.create({
-});
+const styles = ScaledSheet.create({});
 export default SetupInheritance;

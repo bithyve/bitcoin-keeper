@@ -1,15 +1,13 @@
 import * as Sentry from '@sentry/react-native';
 
-import { Platform, StatusBar, UIManager } from 'react-native';
+import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
 import React, { useEffect } from 'react';
 import { persistor, store } from './src/store/store';
 
 import { AppContextProvider } from 'src/common/content/AppContext';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationProvider } from './src/common/content/LocContext';
-import { LogBox } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
 import { Ndef } from 'react-native-nfc-manager';
@@ -21,7 +19,7 @@ import { withIAPContext } from 'react-native-iap';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
-  /[Require cycle]*/,
+  /\b{$Require cycle}\b/gi,
   'Warning: ...',
   /.+/s,
 ]);
@@ -46,16 +44,14 @@ const App = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <NativeBaseProvider theme={customTheme} config={config}>
-          <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
-          <LocalizationProvider>
-            <AppContextProvider>
-              <Navigator />
-            </AppContextProvider>
-          </LocalizationProvider>
-        </NativeBaseProvider>
-      </BottomSheetModalProvider>
+      <NativeBaseProvider theme={customTheme} config={config}>
+        <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
+        <LocalizationProvider>
+          <AppContextProvider>
+            <Navigator />
+          </AppContextProvider>
+        </LocalizationProvider>
+      </NativeBaseProvider>
     </GestureHandlerRootView>
   );
 };

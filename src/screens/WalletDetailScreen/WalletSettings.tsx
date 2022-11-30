@@ -4,13 +4,12 @@ import { Box, Text, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 //components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -23,11 +22,16 @@ import { getAmount } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { AppContext } from 'src/common/content/AppContext';
 // icons
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Note from 'src/components/Note/Note';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 
 type Props = {
   title: string;
@@ -42,7 +46,7 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
       flexDirection={'row'}
       alignItems={'center'}
       width={'100%'}
-      style={{ marginVertical: hp(15) }}
+      style={{ marginTop: hp(20) }}
       onPress={onPress}
     >
       {Icon && (
@@ -51,22 +55,10 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
-        <Text
-          color={'light.lightBlack'}
-          fontFamily={'body'}
-          fontWeight={200}
-          fontSize={RFValue(14)}
-          letterSpacing={1.12}
-        >
+        <Text color={'light.lightBlack'} fontSize={RFValue(14)} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text
-          color={'light.GreyText'}
-          fontFamily={'body'}
-          fontWeight={200}
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-        >
+        <Text color={'light.GreyText'} fontSize={RFValue(12)} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -78,11 +70,14 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
 };
 
 const WalletSettings = ({ route }) => {
-  const navigtaion = useNavigation();
+  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { setAppLoading, setLoadingContent } = useContext(AppContext);
 
   const [xpubVisible, setXPubVisible] = useState(false);
+  const [cosignerVisible, setCosignerVisible] = useState(false);
+
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
   const walletRoute: Wallet = route?.params?.wallet;
@@ -90,6 +85,10 @@ const WalletSettings = ({ route }) => {
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const wallet = wallets.find((item) => item.id == walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  const { translations } = useContext(LocalizationContext);
+  const walletTranslation = translations['wallet'];
 
   const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
     return (
@@ -107,7 +106,7 @@ const WalletSettings = ({ route }) => {
           height: hp(75),
           position: 'relative',
           marginLeft: -wp(20),
-          marginBottom: hp(30),
+          marginBottom: hp(0),
         }}
       >
         <Box
@@ -120,12 +119,7 @@ const WalletSettings = ({ route }) => {
           }}
         >
           <Box>
-            <Text
-              color={'light.white'}
-              letterSpacing={0.28}
-              fontSize={RFValue(14)}
-              fontWeight={200}
-            >
+            <Text color={'light.white'} letterSpacing={0.28} fontSize={RFValue(14)}>
               {walletName}
             </Text>
             <Text
@@ -137,7 +131,7 @@ const WalletSettings = ({ route }) => {
               {walletDescription}
             </Text>
           </Box>
-          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)}>
             {walletBalance}
           </Text>
         </Box>
@@ -150,11 +144,29 @@ const WalletSettings = ({ route }) => {
   };
 
   useEffect(() => {
+    setLoadingContent({
+      title: 'Please Wait',
+      subtitle: 'Recieving test sats',
+      message: '',
+    });
+
+    return () => {
+      setLoadingContent({
+        title: '',
+        subTitle: '',
+        message: '',
+      });
+      setAppLoading(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    setAppLoading(false);
     if (testCoinsReceived) {
       Alert.alert('5000 Sats Received');
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
-        navigtaion.goBack();
+        navigation.goBack();
       }, 3000);
     } else {
       if (testCoinsFailed) {
@@ -164,6 +176,21 @@ const WalletSettings = ({ route }) => {
     }
   }, [testCoinsReceived, testCoinsFailed]);
 
+  const signPSBT = (serializedPSBT) => {
+    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowQR',
+        params: {
+          data: signedSerialisedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+        },
+      })
+    );
+  };
+
   return (
     <Box style={styles.Container} background={'light.ReceiveBackground'}>
       <StatusBarComponent padding={50} />
@@ -171,16 +198,14 @@ const WalletSettings = ({ route }) => {
         <HeaderTitle
           title={'Wallet Settings'}
           subtitle={'Setting for the wallet only'}
-          onPressHandler={() => navigtaion.goBack()}
+          onPressHandler={() => navigation.goBack()}
           headerTitleColor={'light.textBlack'}
           titleFontSize={20}
           paddingTop={hp(5)}
         />
       </Box>
       <Box
-        borderBottomColor={'light.divider'}
-        borderBottomWidth={0.2}
-        marginTop={hp(60)}
+        marginTop={hp(40)}
         style={{
           marginLeft: wp(25),
         }}
@@ -192,28 +217,20 @@ const WalletSettings = ({ route }) => {
             wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
           )}
         />
-        {/* <Option
-          title={'Wallet Backup'}
-          subTitle={'Setup backup for Wallet'}
-          onPress={() => {
-            navigtaion.navigate('BackupWallet');
-          }}
-          Icon={true}
-        /> */}
       </Box>
       <Box
         alignItems={'center'}
         style={{
           marginLeft: wp(25),
         }}
-        height={hp(350)}
+        height={hp(400)}
       >
         <ScrollView>
           <Option
             title={'Wallet Details'}
             subTitle={'Change wallet name & description'}
             onPress={() => {
-              navigtaion.navigate('EditWalletDetails', { wallet: wallet });
+              navigation.navigate('EditWalletDetails', { wallet: wallet });
             }}
             Icon={false}
           />
@@ -222,6 +239,14 @@ const WalletSettings = ({ route }) => {
             subTitle={'Use to create a external watch-only wallet'}
             onPress={() => {
               setXPubVisible(true);
+            }}
+            Icon={false}
+          />
+          <Option
+            title={'Show Cosigner Details'}
+            subTitle={'Use to create a signing device'}
+            onPress={() => {
+              setCosignerVisible(true);
             }}
             Icon={false}
           />
@@ -246,7 +271,26 @@ const WalletSettings = ({ route }) => {
             title={'Receive Test Sats'}
             subTitle={'Recieve Test Sats to this address'}
             onPress={() => {
+              setAppLoading(true);
               getTestSats();
+            }}
+            Icon={false}
+          />
+
+          <Option
+            title={'Sign PSBT'}
+            subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+            onPress={() => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ScanQR',
+                  params: {
+                    title: `Scan PSBT to Sign`,
+                    subtitle: 'Please scan until all the QR data has been retrieved',
+                    onQrScan: signPSBT,
+                  },
+                })
+              );
             }}
             Icon={false}
           />
@@ -254,18 +298,24 @@ const WalletSettings = ({ route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
-        <InfoBox
+      <Box
+        style={{
+          position: 'absolute',
+          bottom: hp(30),
+          marginLeft: 26,
+          width: '90%',
+        }}
+      >
+        <Note
           title={'Note'}
-          desciption={
+          subtitle={
             'These settings are for your Default Wallet only and does not affect other wallets'
           }
-          width={250}
+          subtitleColor={'GreyText'}
         />
       </Box>
       {/* Modals */}
       <Box>
-
         <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
@@ -287,9 +337,39 @@ const WalletSettings = ({ route }) => {
           subTitleColor={'#5F6965'}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor={'#041513'}
-          Content={() => <ShowXPub copy={() => {
-            showToast('Address Copied Successfully', <TickIcon />);
-          }} />}
+          Content={() => (
+            <ShowXPub
+              data={wallet.specs.xpub}
+              copy={() => {
+                showToast('Xpub Copied Successfully', <TickIcon />);
+              }}
+              subText={walletTranslation.AccountXpub}
+              noteSubText={walletTranslation.AccountXpubNote}
+            />
+          )}
+        />
+        <KeeperModal
+          visible={cosignerVisible}
+          close={() => setCosignerVisible(false)}
+          title={'Cosigner Details'}
+          subTitleWidth={wp(240)}
+          subTitle={'Scan the cosigner details from another app in order to add this as a signer'}
+          subTitleColor={'#5F6965'}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor={'#041513'}
+          Content={() => (
+            <ShowXPub
+              data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
+              copy={() => {
+                showToast('Cosigner Details Copied Successfully', <TickIcon />);
+              }}
+              subText={'Cosigner Details'}
+              noteSubText={
+                'The cosigner details are only for the selected wallet and not other wallets in the app'
+              }
+              copyable={false}
+            />
+          )}
         />
         <KeeperModal
           visible={transferPolicyVisible}

@@ -23,6 +23,7 @@ import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.s
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 
 type HWProps = {
@@ -58,44 +59,34 @@ const getDeviceStatus = (
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
+    case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.LEDGER:
       return {
         message: !isBLESupported ? 'BLE is not enabled in your device' : '',
-        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isBLESupported,
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.MOBILE_KEY:
-      return {
-        message: getDisabled(type, isOnPleb, vaultSigners).message,
-        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
-      };
     case SignerType.POLICY_SERVER:
-      return {
-        message: getDisabled(type, isOnPleb, vaultSigners).message,
-        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
-      };
-    case SignerType.TAPSIGNER:
-      return {
-        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: !(config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) && !isNfcSupported,
-      };
     case SignerType.SEED_WORDS:
+    case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnPleb, vaultSigners).message,
         disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
       };
+
     case SignerType.TREZOR:
-    case SignerType.JADE:
-    case SignerType.KEYSTONE:
-    case SignerType.KEEPER:
-    case SignerType.PASSPORT:
       return {
         message: 'Coming soon',
         disabled: false,
       };
+    case SignerType.KEYSTONE:
+    case SignerType.JADE:
+    case SignerType.PASSPORT:
+    case SignerType.SEEDSIGNER:
     default:
       return {
         message: '',
@@ -158,10 +149,6 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     }, true);
   };
 
-  const openNFCError = () => {
-    setNfcAlert(true);
-  };
-
   useEffect(() => {
     getBluetoothSupport();
     getNfcSupport();
@@ -172,13 +159,14 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     SignerType.LEDGER,
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
-    SignerType.MOBILE_KEY,
-    SignerType.POLICY_SERVER,
+    SignerType.KEYSTONE,
+    SignerType.SEEDSIGNER,
     SignerType.PASSPORT,
     SignerType.JADE,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
-    SignerType.KEYSTONE,
   ];
   const HardWareWallet = ({ type, disabled, message, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
@@ -360,6 +348,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={VaultSetupContent}
           DarkCloseIcon={true}
           learnMore={true}
+          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
       </Box>
     </ScreenWrapper>

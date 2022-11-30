@@ -1,0 +1,23 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="132" height="144.914" viewBox="0 0 132 144.914">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="illustration_passport" transform="translate(-69 -457)">
+    <path id="Union_23" data-name="Union 23" d="M21.684,66.622a2.567,2.567,0,1,1,2.567,2.567A2.567,2.567,0,0,1,21.684,66.622Zm8.977.123A1.753,1.753,0,1,1,32.414,68.5,1.753,1.753,0,0,1,30.661,66.745ZM0,32.5A29.965,29.965,0,1,1,29.965,62.46,29.965,29.965,0,0,1,0,32.5ZM7.132,3.256a3.256,3.256,0,1,1,3.255,3.255A3.255,3.255,0,0,1,7.132,3.256Z" transform="translate(69 532.725)" opacity="0.4" fill="url(#linear-gradient)"/>
+    <path id="Union_22" data-name="Union 22" d="M18.278,24.819a.647.647,0,1,1,.158.02A.648.648,0,0,1,18.278,24.819Zm2-2.365a.95.95,0,1,1,.95.95A.95.95,0,0,1,20.276,22.454ZM0,12.316A11.088,11.088,0,1,1,11.088,23.4,11.088,11.088,0,0,1,0,12.316ZM17.507,1.2a1.2,1.2,0,1,1,1.2,1.2A1.2,1.2,0,0,1,17.507,1.2Z" transform="translate(178.824 464.391)" opacity="0.4" fill="url(#linear-gradient)"/>
+    <g id="Group_43856" data-name="Group 43856" transform="translate(0 5.89)">
+      <g id="Rectangle_7601" data-name="Rectangle 7601" transform="translate(121.337 588.609) rotate(-90)" fill="#f7f2ec" stroke="#002c27" stroke-width="1.5">
+        <rect width="137.499" height="61.487" rx="5" stroke="none"/>
+        <rect x="0.75" y="0.75" width="135.999" height="59.987" rx="4.25" fill="none"/>
+      </g>
+      <g id="Rectangle_7600" data-name="Rectangle 7600" transform="translate(128.258 461.688)" fill="none" stroke="#002c27" stroke-width="1.5">
+        <path id="jade" d="M3712.745-8341.628H3675a4,4,0,0,1-4-4V-8452a4,4,0,0,1,4-4h37.745a4,4,0,0,1,4,4v106.374A4,4,0,0,1,3712.745-8341.628Zm-35.294-23.5a.3.3,0,0,0-.3.3v15.562a.3.3,0,0,0,.3.3h32.843a.3.3,0,0,0,.3-.3v-15.562a.3.3,0,0,0-.3-.3Zm7.126-22.1a3,3,0,0,0-3,3v9.092a3,3,0,0,0,3,3h18.588a3,3,0,0,0,3-3v-9.092a3,3,0,0,0-3-3Zm-2.793-59.1a3,3,0,0,0-3,3v46.92a3,3,0,0,0,3,3h24.178a3,3,0,0,0,3-3v-46.92a3,3,0,0,0-3-3Z" transform="translate(-3671 8456)" fill="#3c3c3c"/>
+      </g>
+    </g>
+  </g>
+</svg>
+

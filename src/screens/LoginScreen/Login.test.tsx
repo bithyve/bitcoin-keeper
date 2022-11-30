@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import Login from './Login';
-import { rootReducer, store } from '../../store/store';
+import { store } from '../../store/store';
 import { initialState as loginState } from '../../store/reducers/login';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from 'src/common/themes';

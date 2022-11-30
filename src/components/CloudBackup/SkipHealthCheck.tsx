@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Text, Input } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import Buttons from '../Buttons';
 
 const SkipHealthCheck = (props) => {
@@ -45,24 +44,6 @@ const SkipHealthCheck = (props) => {
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>
-      {/* <Box alignItems={'center'} flexDirection={'row'} w={'95%'} py={5}>
-        <TouchableOpacity
-          onPress={() => props.closeBottomSheet()}
-          style={{ width: '60%', paddingLeft: '15%' }}
-        >
-          <Text fontSize={RFValue(14)} textAlign={'center'} fontWeight={300}>
-            {common.skip}
-          </Text>
-        </TouchableOpacity>
-        <Box w={'40%'}>
-          <CustomGreenButton
-            onPress={() => {
-              props.confirmBtnPress();
-            }}
-            value={'Confirm Seeds'}
-          />
-        </Box>
-      </Box> */}
       <Buttons
         secondaryText={common.skip}
         secondaryCallback={() => {

@@ -7,7 +7,7 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
@@ -36,7 +36,7 @@ import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/Use
 import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import KeeperModal from 'src/components/KeeperModal';
 
 const SendConfirmation = ({ route }) => {
   const navigtaion = useNavigation();
@@ -76,6 +76,8 @@ const SendConfirmation = ({ route }) => {
   const common = translations['common'];
   const walletTransactions = translations['wallet'];
 
+  const [visibleModal, setVisibleModal] = useState(false);
+
   // // Sending process is still not executed
   // const [sendingModal, setSendingModal] = useState(false);
   // const openSendModal = () => setSendingModal(true);
@@ -103,24 +105,14 @@ const SendConfirmation = ({ route }) => {
         <Box alignSelf={'center'}>
           <SuccessIcon />
         </Box>
-        <Text color={'#5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
-        </Text>
-        <Text color={'5F6965'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
           {
-            'To get started, you need to add a Signer (hardware wallet or a signer device) to Keeper'
+            'You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed'
           }
         </Text>
       </View>
     );
   };
-
-  // const openLoaders = () => {
-  //   setTimeout(() => {
-  //     closeAllModal();
-  //     openSendModal();
-  //   }, 2000);
-  // };
 
   const onProceed = () => {
     // closeAllModal();
@@ -132,7 +124,6 @@ const SendConfirmation = ({ route }) => {
       if (uaiSetActionFalse) {
         uaiSetActionFalse();
       }
-      // openSendModal();
       if (defaultVault) {
         dispatch(
           crossTransfer({
@@ -147,7 +138,6 @@ const SendConfirmation = ({ route }) => {
         navigtaion.goBack();
       }
     } else {
-      // openLoaders();
       dispatch(
         sendPhaseTwo({
           wallet,
@@ -187,20 +177,13 @@ const SendConfirmation = ({ route }) => {
   }, [serializedPSBTEnvelops]);
 
   const viewDetails = () => {
-    // close();
+    setVisibleModal(false);
     navigation.navigate('WalletDetails');
   };
 
-  // useEffect(() => {
-  //   if (sendHasFailed) {
-  //     closeSendModal();
-  //     openFailedModal();
-  //   }
-  // }, [sendHasFailed]);
-
   useEffect(() => {
     if (walletSendSuccessful) {
-      viewDetails();
+      setVisibleModal(true);
     }
   }, [walletSendSuccessful]);
 
@@ -508,23 +491,6 @@ const SendConfirmation = ({ route }) => {
     );
   };
 
-  // const handleCustomPriority = () => {
-  //   const { translations } = useContext(LocalizationContext);
-  //   const vault = translations['vault'];
-  //   const common = translations['common'];
-
-  //   return (
-  //     <CustomPriorityModal
-  //       visible={visible}
-  //       title={vault.CustomPriority}
-  //       subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-  //       info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-  //       close={close}
-  //       buttonText={common.confirm}
-  //     />
-  //   );
-  // };
-
   const FeeInfo = () => {
     return (
       <HStack width={windowWidth * 0.75} justifyContent={'space-between'} alignItems={'center'}>
@@ -585,6 +551,20 @@ const SendConfirmation = ({ route }) => {
           primaryCallback={onProceed}
         />
       </Box>
+      {/*Modals */}
+      <KeeperModal
+        visible={visibleModal}
+        close={() => viewDetails()}
+        title={walletTransactions.SendSuccess}
+        subTitle={'The transaction has been successfully broadcasted'}
+        buttonText={walletTransactions.ViewDetails}
+        textColor={'#073B36'}
+        buttonTextColor={'#FAFAFA'}
+        // cancelButtonText={common.cancel}
+        // cancelButtonColor={'#073E39'}
+        Content={SendSuccessfulContent}
+        // buttonPressed={viewDetails}
+      />
 
       {/* {showOverlay && (
         <View
@@ -596,20 +576,7 @@ const SendConfirmation = ({ route }) => {
           position={'absolute'}
         ></View>
       )} */}
-      {/* <KeeperModal
-        visible={visible}
-        close={close}
-        title={walletTransactions.SendSuccess}
-        subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit'}
-        buttonText={walletTransactions.ViewDetails}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
-        cancelButtonText={common.cancel}
-        cancelButtonColor={'#073E39'}
-        Content={SendSuccessfulContent}
-        buttonPressed={viewDetails}
-      />
-
+      {/* 
       <KeeperModal
         visible={sendingModal}
         close={closeSendModal}

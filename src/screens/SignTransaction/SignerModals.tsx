@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
@@ -16,14 +9,17 @@ import { BulletPoint } from '../Vault/HardwareModalMap';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import JadeSetup from 'src/assets/images/illustration_jade.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
@@ -107,6 +103,81 @@ const ColdCardContent = ({ register, isMultisig }) => {
           {register
             ? ``
             : `\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const PassportContent = () => {
+  return (
+    <Box>
+      <PassportSVG />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Make sure the multisig wallet is registered with the Passport and the right bitcoin network is set before signing the transaction`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const SeedSignerContent = () => {
+  return (
+    <Box>
+      <SeedSignerSetup />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const KeystoneContent = () => {
+  return (
+    <Box>
+      <KeystoneSetup />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Make sure the multisig wallet is registered with the Keystone and the right bitcoin network is set before signing the transaction`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Keystone multisig menu, press the scan icon on the top bar and wait for the QR to be scanned.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+
+const JadeContent = () => {
+  return (
+    <Box>
+      <JadeSetup />
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+};
+const KeeperContent = () => {
+  return (
+    <Box>
+      <Box marginTop={2} width={wp(220)}>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n`}
+        </Text>
+        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do`}
         </Text>
       </Box>
     </Box>
@@ -294,6 +365,16 @@ const SignerModals = ({
   ledgerModal,
   otpModal,
   passwordModal,
+  passportModal,
+  seedSignerModal,
+  keystoneModal,
+  jadeModal,
+  setJadeModal,
+  setKeystoneModal,
+  keeperModal,
+  setSeedSignerModal,
+  setPassportModal,
+  setKeeperModal,
   setColdCardModal,
   setTapsignerModal,
   setLedgerModal,
@@ -304,23 +385,16 @@ const SignerModals = ({
   textRef,
   signers,
 }) => {
-  // const onSelectDevice = useCallback(async (device) => {
-  //   try {
-  //     const transport = await TransportBLE.open(device);
-  //     transport.on('disconnect', () => {
-  //       LedgerCom.current = null;
-  //     });
-  //     LedgerCom.current = transport;
-  //     signTransaction();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }, []);
-
   const navigation = useNavigation();
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
 
+  const navigateToQrSigning = (signer) => {
+    setPassportModal(false);
+    setSeedSignerModal(false);
+    setKeeperModal(false);
+    navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
+  };
   return (
     <>
       {signers.map((signer) => {
@@ -408,6 +482,86 @@ const SignerModals = ({
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
                 Content={() => <OtpContent signTransaction={signTransaction} />}
+              />
+            );
+          case SignerType.PASSPORT:
+            return (
+              <KeeperModal
+                visible={currentSigner && passportModal}
+                close={() => {
+                  setPassportModal(false);
+                }}
+                title={'Keep Passport Ready'}
+                subTitle={'Keep your Foundation Passport ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <PassportContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.SEEDSIGNER:
+            return (
+              <KeeperModal
+                visible={currentSigner && seedSignerModal}
+                close={() => {
+                  setSeedSignerModal(false);
+                }}
+                title={'Keep SeedSigner Ready'}
+                subTitle={'Keep your SeedSigner ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <SeedSignerContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.KEYSTONE:
+            return (
+              <KeeperModal
+                visible={currentSigner && keystoneModal}
+                close={() => {
+                  setKeystoneModal(false);
+                }}
+                title={'Keep Keystone Ready'}
+                subTitle={'Keep your Keystone ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <KeystoneContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.JADE:
+            return (
+              <KeeperModal
+                visible={currentSigner && jadeModal}
+                close={() => {
+                  setJadeModal(false);
+                }}
+                title={'Keep Jade Ready'}
+                subTitle={'Keep your Jade ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <JadeContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
+          case SignerType.KEEPER:
+            return (
+              <KeeperModal
+                visible={currentSigner && keeperModal}
+                close={() => {
+                  setKeeperModal(false);
+                }}
+                title={'Keep your Device Ready'}
+                subTitle={'Keep your Keeper Signing Device ready before proceeding'}
+                modalBackground={['#F7F2EC', '#F7F2EC']}
+                textColor={'#041513'}
+                Content={() => <KeeperContent />}
+                buttonText={'Proceed'}
+                buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
         }

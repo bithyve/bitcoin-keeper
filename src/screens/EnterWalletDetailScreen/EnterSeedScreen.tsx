@@ -6,18 +6,18 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
+import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Fonts from 'src/common/Fonts';
 import Illustration from 'src/assets/images/illustration.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -29,7 +29,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/common/Fonts';
 
 const EnterSeedScreen = () => {
   const navigation = useNavigation();
@@ -108,7 +107,6 @@ const EnterSeedScreen = () => {
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
@@ -121,8 +119,6 @@ const EnterSeedScreen = () => {
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
-
-  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -141,9 +137,9 @@ const EnterSeedScreen = () => {
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
+      if (seedData[i].invalid) {
         showToast('Enter correct seedwords', <TickIcon />);
-        return true;
+        return false;
       }
     }
     return true;
@@ -243,7 +239,7 @@ const EnterSeedScreen = () => {
                         fontSize: 16,
                         color: '#00836A',
                         marginTop: 8,
-                        letterSpacing: 1.23
+                        letterSpacing: 1.23,
                       }}
                       fontWeight={'300'}
                     >
@@ -252,10 +248,10 @@ const EnterSeedScreen = () => {
                     <TextInput
                       style={[
                         styles.input,
-                        item.invalid == true
+                        item.invalid
                           ? {
-                            borderColor: '#F58E6F',
-                          }
+                              borderColor: '#F58E6F',
+                            }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
@@ -294,7 +290,7 @@ const EnterSeedScreen = () => {
             fontWeight={200}
             color={'#4F5955'}
             marginX={10}
-            marginY={10}
+            marginY={hp(10)}
             fontSize={12}
             letterSpacing={0.6}
           >
@@ -304,78 +300,49 @@ const EnterSeedScreen = () => {
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
+              width: wp(375),
+              alignItems: 'center',
+              paddingHorizontal: wp(20),
             }}
           >
             <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
               <View style={styles.dot}></View>
               <View style={styles.dash}></View>
             </Box>
-            <Box bg={'transparent'} flexDirection={'row'} marginRight={10}>
-              <TouchableOpacity>
-                <Text
-                  fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
-                  letterSpacing={1}
-                  marginTop={2}
-                  //   color={buttonCancelColor}
-                  marginRight={5}
-                >
-                  {common.needHelp}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={onPressNext} disabled={appRecoveryLoading}>
-                <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={['#00836A', '#073E39']}
-                  style={styles.cta}
-                >
-                  <Text
-                    fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
-                    letterSpacing={1}
-                    color={'white'}
-                  >
-                    {common.next}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Box>
-            <KeeperModal
-              visible={invalidSeedsModal}
-              close={closeInvalidSeedsModal}
-              title={seed.InvalidSeeds}
-              subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
-              buttonBackground={['#00836A', '#073E39']}
-              buttonText={'Retry'}
-              buttonTextColor={'#FAFAFA'}
-              buttonCallback={closeInvalidSeedsModal}
-              textColor={'#041513'}
-              Content={InValidSeedsScreen}
-            />
-            <KeeperModal
-              visible={walletRecoverySuccessModal}
-              close={closeRecovery}
-              title={seed.walletRecoverySuccessful}
-              subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
-              buttonBackground={['#00836A', '#073E39']}
-              buttonText={'View Wallet'}
-              buttonTextColor={'#FAFAFA'}
-              buttonCallback={closeWalletSuccessModal}
-              textColor={'#041513'}
-              Content={RecoverWalletScreen}
-            />
-            <ModalWrapper
-              visible={createCloudBackupModal}
-              onSwipeComplete={() => setCreateCloudBackupModal(false)}
-            >
-              <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-            </ModalWrapper>
+            <Buttons primaryCallback={onPressNext} primaryText={'Next'} />
           </View>
+          <KeeperModal
+            visible={invalidSeedsModal}
+            close={closeInvalidSeedsModal}
+            title={seed.InvalidSeeds}
+            subTitle={seed.seedDescription}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonText={'Retry'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCallback={closeInvalidSeedsModal}
+            textColor={'#041513'}
+            Content={InValidSeedsScreen}
+          />
+          <KeeperModal
+            visible={walletRecoverySuccessModal}
+            close={closeRecovery}
+            title={seed.walletRecoverySuccessful}
+            subTitle={seed.seedDescription}
+            modalBackground={['#F7F2EC', '#F7F2EC']}
+            buttonBackground={['#00836A', '#073E39']}
+            buttonText={'View Wallet'}
+            buttonTextColor={'#FAFAFA'}
+            buttonCallback={closeWalletSuccessModal}
+            textColor={'#041513'}
+            Content={RecoverWalletScreen}
+          />
+          <ModalWrapper
+            visible={createCloudBackupModal}
+            onSwipeComplete={() => setCreateCloudBackupModal(false)}
+          >
+            <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+          </ModalWrapper>
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -433,7 +400,7 @@ const styles = ScaledSheet.create({
     borderWidth: 1,
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
-    letterSpacing: 1.32
+    letterSpacing: 1.32,
   },
 });
 

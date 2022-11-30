@@ -1,37 +1,45 @@
 import * as bip39 from 'bip39';
 
+import { Alert, StyleSheet } from 'react-native';
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-import { Alert } from 'react-native';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
+import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
-import { StyleSheet } from 'react-native';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
+import { generateSignerFromMetaData } from 'src/hardware';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getJadeDetails } from 'src/hardware/jade';
+import { getKeystoneDetails } from 'src/hardware/keystone';
+import { getPassportDetails } from 'src/hardware/passport';
+import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -94,7 +102,7 @@ const TapsignerSetupContent = () => {
       <TapsignerSetupImage />
       <BulletPoint text={'You will need the Pin/CVC at the back of TAPSIGNER'} />
       <BulletPoint
-        text={`You should generally not use the same Signing Device on multiple wallets/apps`}
+        text={`You should generally not use the same signing device on multiple wallets/apps`}
       />
     </View>
   );
@@ -155,6 +163,176 @@ const LedgerSetupContent = () => {
             {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
           </Text>
         </Box>
+      </Box>
+    </View>
+  );
+};
+
+const PassportSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <PassportSVG />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
+const SeedSignerSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <SeedSignerSetupImage />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > Multisig > Nested Segwit > Keeper.\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
+const KeystoneSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <KeystoneSetupImage />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
+const JadeSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <JadeSVG />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to Multisig and Native Segwit in the options section.\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Make sure you enable Testnet mode on the Jade by creating a multisig wallet with the companion app if you are running the app in the Testnet mode.`}
+        </Text>
+      </Box>
+    </View>
+  );
+};
+
+const KeeperSetupContent = () => {
+  return (
+    <View>
+      <Box ml={wp(21)}>
+        <SeedSignerSetupImage />
+      </Box>
+      <Box marginTop={'4'}>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n`}
+        </Text>
+        <Text
+          color={'#073B36'}
+          fontSize={13}
+          fontWeight={200}
+          letterSpacing={0.65}
+          style={{
+            marginLeft: wp(10),
+          }}
+        >
+          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do`}
+        </Text>
       </Box>
     </View>
   );
@@ -242,6 +420,159 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const navigateToSigningServerSetup = () => {
     close();
     navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
+  };
+
+  const onQRScan = (qrData) => {
+    switch (type as SignerType) {
+      case SignerType.PASSPORT:
+        return setupPassport(qrData);
+      case SignerType.SEEDSIGNER:
+        return setupSeedSigner(qrData);
+      case SignerType.KEEPER:
+        return setupKeeperSigner(qrData);
+      case SignerType.KEYSTONE:
+        return setupKeystone(qrData);
+      case SignerType.JADE:
+        return setupJade(qrData);
+      default:
+        return;
+    }
+  };
+
+  const navigateToAddQrBasedSigner = () => {
+    close();
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ScanQR',
+        params: {
+          title: `Setting up ${type}`,
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          onQrScan: onQRScan,
+        },
+      })
+    );
+  };
+
+  const setupPassport = async (qrData) => {
+    try {
+      const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
+      const passport: VaultSigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.PASSPORT,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(passport));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      Alert.alert('Invalid QR, please scan the QR from Passport!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      captureError(err);
+    }
+  };
+
+  const setupSeedSigner = async (qrData) => {
+    try {
+      const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+      const seedSigner: VaultSigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.SEEDSIGNER,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(seedSigner));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      Alert.alert('Invalid QR, please scan the QR from SeedSigner!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      captureError(err);
+    }
+  };
+
+  const setupKeystone = async (qrData) => {
+    try {
+      const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
+      const keystone: VaultSigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.KEYSTONE,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(keystone));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      Alert.alert('Invalid QR, please scan the QR from Keystone!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      captureError(err);
+    }
+  };
+
+  const setupJade = async (qrData) => {
+    try {
+      const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
+      const jade: VaultSigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.JADE,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(jade));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      Alert.alert('Invalid QR, please scan the QR from Jade!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      captureError(err);
+    }
+  };
+
+  // const setupKeystone = async (qrData) => {
+  //   try {
+  //     const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+  //     const seedSigner: VaultSigner = generateSignerFromMetaData({
+  //       xpub,
+  //       derivationPath,
+  //       xfp,
+  //       signerType: SignerType.SEEDSIGNER,
+  //       storageType: SignerStorage.COLD,
+  //     });
+  //     dispatch(addSigningDevice(seedSigner));
+  //     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+  //   } catch (err) {
+  //     console.log(err);
+  //     captureError(err);
+  //   }
+  // };
+
+  const setupKeeperSigner = async (qrData) => {
+    try {
+      const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+
+      const ksd: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.KEEPER,
+        signerName: 'Keeper Signing Device',
+        storageType: SignerStorage.WARM,
+        xpub,
+        xpubInfo: {
+          derivationPath,
+          xfp: mfp,
+        },
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+      };
+
+      dispatch(addSigningDevice(ksd));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (err) {
+      Alert.alert('Invalid QR, please scan the QR from another Keeper app!');
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      captureError(err);
+    }
   };
 
   const navigateToSeedWordSetup = () => {
@@ -510,6 +841,76 @@ const HardwareModalMap = ({ type, visible, close }) => {
         }}
         textColor={'#041513'}
         Content={SetupSuccessfully}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.PASSPORT}
+        close={close}
+        title={'Setting up Passport (Batch 2)'}
+        subTitle={'Keep your Foundation Passport (Batch 2) ready before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={PassportSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.SEEDSIGNER}
+        close={close}
+        title={'Setting up SeedSigner'}
+        subTitle={'Keep your SeedSigner ready and powered before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={SeedSignerSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.KEYSTONE}
+        close={close}
+        title={'Setting up Keystone'}
+        subTitle={'Keep your Keystone ready before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={KeystoneSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.JADE}
+        close={close}
+        title={'Setting up Blockstream Jade'}
+        subTitle={'Keep your Jade ready and unlocked before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={JadeSetupContent}
+      />
+      <KeeperModal
+        visible={visible && type === SignerType.KEEPER}
+        close={close}
+        title={'Keep your Device Ready'}
+        subTitle={'Keep your Keeper Signing Device ready before proceeding'}
+        subTitleColor={'#5F6965'}
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonText={'Continue'}
+        buttonTextColor={'#FAFAFA'}
+        buttonCallback={navigateToAddQrBasedSigner}
+        textColor={'#041513'}
+        Content={KeeperSetupContent}
       />
     </>
   );

@@ -16,24 +16,19 @@ import {
   NetworkType,
   PaymentInfoKind,
   TransactionType,
-  WalletType,
 } from '../enums';
+import { CryptoAccount, CryptoHDKey } from 'src/core/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 import RestClient from 'src/core/services/rest/RestClient';
 import { Vault } from '../interfaces/vault';
 import { Wallet } from '../interfaces/wallet';
-import WalletOperations from '.';
 import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import config from '../../config';
-import idx from 'idx';
 
 const ECPair = ECPairFactory(ecc);
-
-const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
 
 export default class WalletUtilities {
   static networkType = (scannedStr: string): NetworkType => {
@@ -89,11 +84,11 @@ export default class WalletUtilities {
     type: NetworkType,
     accountNumber: number = 0,
     purpose: DerivationPurpose = DerivationPurpose.BIP84,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): string => {
     const isTestnet = type === NetworkType.TESTNET ? 1 : 0;
     if (entity === EntityKind.VAULT) {
-      const scriptNum = scriptType === BIP48ScriptTypes.WRAPPED_SEGWIT ? 1 : 2;
+      const scriptNum = scriptType === BIP48ScriptTypes.NATIVE_SEGWIT ? 2 : 1;
       return `m/${DerivationPurpose.BIP48}'/${isTestnet}'/${accountNumber}'/${scriptNum}'`;
     } else return `m/${purpose}'/${isTestnet}'/${accountNumber}'`;
   };
@@ -131,7 +126,7 @@ export default class WalletUtilities {
     required: number,
     pubkeys: Buffer[],
     network: bitcoinJS.Network,
-    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.WRAPPED_SEGWIT
+    scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ): {
     p2ms: bitcoinJS.payments.Payment;
     p2wsh: bitcoinJS.payments.Payment;
@@ -377,7 +372,7 @@ export default class WalletUtilities {
     xpubs.forEach((xpub, i) => {
       signerPubkeyMap.set(xpub, pubkeys[i]);
     });
-    // pubkeys = pubkeys.sort(Buffer.compare); // bip-67 compatible
+
     pubkeys = pubkeys.sort((a, b) => (a.toString('hex') > b.toString('hex') ? 1 : -1)); // bip-67 compatible
 
     const { p2ms, p2wsh, p2sh } = WalletUtilities.deriveMultiSig(
@@ -1116,7 +1111,7 @@ export default class WalletUtilities {
     let res;
     try {
       if (network === bitcoinJS.networks.testnet) {
-        res = await RestClient.post(config.ESPLORA_API_ENDPOINTS.TESTNET.BROADCAST_TX, txHex, {
+        res = await RestClient.post('https://blockstream.info/testnet/api/tx', txHex, {
           headers: {
             'Content-Type': 'text/plain',
           },
@@ -1205,5 +1200,28 @@ export default class WalletUtilities {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
+  };
+
+  static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
+    const version = Buffer.from('02aa7ed3', 'hex');
+    const hdKey = cryptoAccount.getOutputDescriptors()[0].getCryptoKey() as CryptoHDKey;
+    const depth = hdKey.getOrigin().getDepth();
+    const depthBuf = Buffer.alloc(1);
+    depthBuf.writeUInt8(depth);
+    const parentFingerprint = hdKey.getParentFingerprint();
+    const components = hdKey.getOrigin().getComponents();
+    const lastComponents = components[components.length - 1];
+    const index = lastComponents.isHardened()
+      ? lastComponents.getIndex() + 0x80000000
+      : lastComponents.getIndex();
+    const indexBuf = Buffer.alloc(4);
+    indexBuf.writeUInt32BE(index);
+    const chainCode = hdKey.getChainCode();
+    const key = hdKey.getKey();
+    const derivationPath = 'm/' + hdKey.getOrigin().getPath();
+    const xPubBuf = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
+    const xPub = bs58check.encode(xPubBuf);
+    const mfp = cryptoAccount.getMasterFingerprint().toString('hex');
+    return { xPub, derivationPath, mfp };
   };
 }

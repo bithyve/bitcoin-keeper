@@ -22,7 +22,6 @@ import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -82,12 +81,7 @@ const Footer = ({ vault }: { vault: Vault }) => {
             Buy
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            // navigation.navigate('VaultSettings');
-          }}
-        >
+        <TouchableOpacity style={styles.IconText}>
           <IconSettings />
           <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Settings
@@ -209,7 +203,6 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
       />
     );
   };
-
   return (
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
@@ -228,7 +221,7 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
               <TouchableOpacity
                 onPress={() => {
                   navigation.dispatch(
-                    CommonActions.navigate('ViewAllTransactions', {
+                    CommonActions.navigate('VaultTransactions', {
                       title: 'Vault Transactions',
                       subtitle: 'All incoming and outgoing transactions',
                     })
@@ -385,8 +378,6 @@ const VaultDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
-  const { translations } = useContext(LocalizationContext);
-  const wallet = translations['wallet'];
   const { top } = useSafeAreaInsets();
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -504,6 +495,7 @@ const VaultDetails = ({ route, navigation }) => {
         title={'New Vault Created'}
         subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText={'View Vault'}
+        subTitleColor={'light.lightBlack2'}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={() => {

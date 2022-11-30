@@ -1,5 +1,6 @@
 import { Box, Input, Text } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
 import {
   SignerException,
   SignerPolicy,
@@ -15,10 +16,9 @@ import { CommonActions } from '@react-navigation/native';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Keyboard, StyleSheet } from 'react-native';
 import idx from 'idx';
-import { useDispatch } from 'react-redux';
 import { numberWithCommas } from 'src/common/utilities';
+import { useDispatch } from 'react-redux';
 
 const ChoosePolicyNew = ({ navigation, route }) => {
   const [selectedPolicy, setSelectedPolicy] = useState('max');
@@ -157,10 +157,7 @@ const ChoosePolicyNew = ({ navigation, route }) => {
       <Box position={'absolute'} bottom={0}>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          ok={() => {
-            console.log('ok');
-          }}
-          clear={() => { }}
+          clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon={true}
