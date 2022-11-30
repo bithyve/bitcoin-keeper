@@ -4,7 +4,6 @@ const { generateWallet } = require('../factories/WalletFactory');
 import Relay from 'src/core/services/operations/Relay';
 import WalletOperations from '../operations';
 import WalletUtilities from '../operations/utils';
-import config from '../../config';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 
 describe('Testing wallet primitives', () => {
@@ -29,7 +28,7 @@ describe('Testing wallet primitives', () => {
       walletName: walletName,
       walletDescription: walletDescription,
       primaryMnemonic,
-      networkType: config.NETWORK_TYPE,
+      networkType: NetworkType.TESTNET,
     });
     expect(wallet.derivationDetails.mnemonic).toEqual(
       'trumpet access minor basic rule rifle wife summer brown deny used very'
