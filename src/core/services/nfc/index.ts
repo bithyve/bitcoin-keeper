@@ -39,7 +39,7 @@ function rtdValueToName(value) {
       return name;
     }
   }
-  return null;
+  return value;
 }
 
 export default class NFC {

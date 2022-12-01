@@ -54,3 +54,23 @@ export const signWithColdCard = async (message) => {
   const psbtBytes = NFC.encodeForColdCard(message);
   return NFC.send([NfcTech.Ndef], psbtBytes);
 };
+
+export const receivePSBTFromColdCard = async () => {
+  const signedData = await NFC.read(NfcTech.NfcV);
+  const payload = {
+    name: '',
+    signature: '',
+    psbt: '',
+  };
+  signedData.forEach((record) => {
+    if (record.data === 'Partly signed PSBT') {
+      payload.name = record.data;
+    } else if (record.data.length === 44) {
+      // signature is of length 64 but 44 when base64 encoded
+      payload.signature = record.data;
+    } else {
+      payload.psbt = record.data;
+    }
+  });
+  return payload;
+};

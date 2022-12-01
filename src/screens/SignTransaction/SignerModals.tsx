@@ -109,13 +109,15 @@ const ColdCardContent = ({ register, isMultisig }) => {
   );
 };
 
-const PassportContent = () => {
+const PassportContent = ({ isMultisig }: { isMultisig: boolean }) => {
   return (
     <Box>
       <PassportSVG />
       <Box marginTop={2} width={wp(220)}>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure the multisig wallet is registered with the Passport and the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
@@ -125,14 +127,16 @@ const PassportContent = () => {
   );
 };
 
-const SeedSignerContent = () => {
+const SeedSignerContent = ({ isMultisig }: { isMultisig: boolean }) => {
   return (
     <Box>
       <SeedSignerSetup />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
-          {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
-        </Text>
+        {isMultisig ? (
+          <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+            {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
+          </Text>
+        ) : null}
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
         </Text>
@@ -141,16 +145,20 @@ const SeedSignerContent = () => {
   );
 };
 
-const KeystoneContent = () => {
+const KeystoneContent = ({ isMultisig }: { isMultisig: boolean }) => {
   return (
     <Box>
       <KeystoneSetup />
       <Box marginTop={2} width={wp(220)}>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure the multisig wallet is registered with the Keystone and the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone multisig menu, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${
+            isMultisig ? 'multisig menu' : 'Generic Wallet section'
+          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -446,7 +454,7 @@ const SignerModals = ({
                 visible={currentSigner && ledgerModal}
                 close={() => setLedgerModal(false)}
                 title={'Looking for Nano X'}
-                subTitle={'Power up your Ledger Nano X and open the BTC app...'}
+                subTitle={'Power up your Ledger Nano X and open the BTC app'}
                 modalBackground={['#00836A', '#073E39']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
                 buttonText={LedgerCom.current ? 'SIGN' : null}
@@ -495,7 +503,7 @@ const SignerModals = ({
                 subTitle={'Keep your Foundation Passport ready before proceeding'}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
-                Content={() => <PassportContent />}
+                Content={() => <PassportContent isMultisig={isMultisig} />}
                 buttonText={'Proceed'}
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
@@ -511,7 +519,7 @@ const SignerModals = ({
                 subTitle={'Keep your SeedSigner ready before proceeding'}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
-                Content={() => <SeedSignerContent />}
+                Content={() => <SeedSignerContent isMultisig={isMultisig} />}
                 buttonText={'Proceed'}
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
@@ -527,7 +535,7 @@ const SignerModals = ({
                 subTitle={'Keep your Keystone ready before proceeding'}
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 textColor={'#041513'}
-                Content={() => <KeystoneContent />}
+                Content={() => <KeystoneContent isMultisig={isMultisig} />}
                 buttonText={'Proceed'}
                 buttonCallback={() => navigateToQrSigning(signer)}
               />

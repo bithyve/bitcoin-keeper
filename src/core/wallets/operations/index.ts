@@ -1075,6 +1075,13 @@ export default class WalletOperations {
     return { serializedPSBTEnvelop };
   };
 
+  static validateSignatures = (signedPSBT: bitcoinJS.Psbt) => {
+    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+    return txHex;
+  };
+
   static broadcastTransaction = async (
     wallet: Wallet | Vault,
     signedPSBT: bitcoinJS.Psbt,
@@ -1083,12 +1090,10 @@ export default class WalletOperations {
       address: string;
       amount: number;
     }[],
-    network
+    network,
+    transactionHex?: string
   ) => {
-    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+    const txHex = transactionHex ? transactionHex : this.validateSignatures(signedPSBT);
     const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
     if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
@@ -1233,7 +1238,6 @@ export default class WalletOperations {
   }> => {
     const inputs = txPrerequisites[txnPriority].inputs;
     let combinedPSBT: bitcoinJS.Psbt = null;
-
     for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
       const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
       const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
@@ -1249,7 +1253,6 @@ export default class WalletOperations {
           }
         }
       }
-
       if (!combinedPSBT) combinedPSBT = PSBT;
       else combinedPSBT.combine(PSBT);
     }

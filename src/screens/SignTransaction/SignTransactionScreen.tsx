@@ -31,9 +31,7 @@ import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import idx from 'idx';
-import { readTapsigner } from 'src/hardware/tapsigner';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
-import { signWithColdCard } from 'src/hardware/coldcard';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -148,7 +146,6 @@ const SignTransactionScreen = () => {
               signingPayload,
               currentSigner,
               withModal,
-              readTapsigner,
               defaultVault,
               serializedPSBT,
               card,
@@ -161,7 +158,6 @@ const SignTransactionScreen = () => {
           await signTransactionWithColdCard({
             setColdCardModal,
             withNfcModal,
-            signWithColdCard,
             serializedPSBTEnvelop,
             signers,
             activeSignerId,
