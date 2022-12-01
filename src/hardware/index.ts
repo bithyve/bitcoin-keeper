@@ -70,7 +70,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = type;
       break;
     case SignerType.SEEDSIGNER:
-      name = 'Seed Signer';
+      name = 'SeedSigner';
       break;
     default:
       name = type;
