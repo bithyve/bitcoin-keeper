@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import { Clipboard, TouchableOpacity } from 'react-native';
+import { Clipboard, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
 import QRCode from 'react-native-qrcode-svg';
@@ -15,7 +15,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 
@@ -157,11 +157,20 @@ const ReceiveScreen = ({ route }: { route }) => {
         </Box>
       </TouchableOpacity>
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5} width={'100%'}>
+      <Box style={styles.Note}>
         <Note title={home.AddAmount} subtitle={home.reflectSats} subtitleColor={'GreyText'} />
       </Box>
     </ScreenWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  Note: {
+    position: 'absolute',
+    bottom: hp(20),
+    width: '90%',
+    marginLeft: 30
+  }
+})
 
 export default ReceiveScreen;

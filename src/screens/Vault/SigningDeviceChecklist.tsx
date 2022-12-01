@@ -40,7 +40,7 @@ const SigningDeviceChecklist = ({ date }) => {
             {item.date}
           </Text>
           <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-            <Text fontWeight={200}>{item.title}</Text>
+            <Text letterSpacing={0.96}>{item.title}</Text>
           </Box>
         </Box>
       ))}

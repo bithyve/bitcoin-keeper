@@ -92,7 +92,7 @@ export const customTheme = extendTheme({
       divider: '#BABABA',
       errorRed: '#ff0033',
       textWallet: '#113834',
-      transactionPolicyCard: '#FAD8B4',
+      transactionPolicyCard: '#F2C693',
       inheritanceBullet: '#E3E3E3',
       inheritanceTitle: '#055146',
       modalText: '#073B36',
@@ -107,6 +107,7 @@ export const customTheme = extendTheme({
       lgStart: Colors.linearGradientStart, // linearGradient
       lgEnd: Colors.linearGradientEnd, // linearGradient
       error: '#FF8F79',
+
     },
     dark: {
       black: '#000000',
