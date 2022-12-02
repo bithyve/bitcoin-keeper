@@ -392,7 +392,7 @@ const SigningDeviceDetails = ({ route }) => {
         bottom={0}
         alignItems={'center'}
         justifyContent={'center'}
-        width={hp(375)}
+        width={'100%'}
         height={hp(188)}
       >
         <Text
