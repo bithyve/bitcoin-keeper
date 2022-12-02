@@ -25,6 +25,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
+import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
@@ -302,7 +303,7 @@ const KeeperSetupContent = () => {
   return (
     <View>
       <Box ml={wp(21)}>
-        <SeedSignerSetupImage />
+        <KeeperSetupImage />
       </Box>
       <Box marginTop={'4'}>
         <Text
