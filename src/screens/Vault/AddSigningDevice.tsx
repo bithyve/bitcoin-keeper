@@ -255,7 +255,7 @@ const AddSigningDevice = () => {
     if (!signer) {
       return (
         <Pressable onPress={navigateToSignerList}>
-          <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'12'}>
+          <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'10'}>
             <HStack style={styles.signerItem}>
               <HStack alignItems={'center'}>
                 <AddIcon />
@@ -352,6 +352,7 @@ const AddSigningDevice = () => {
         extraData={vaultSigners}
         data={signersState}
         keyExtractor={(item, index) => item?.signerId ?? index}
+        scrollEnabled={false}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
