@@ -14,6 +14,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
 import { captureError } from 'src/core/services/sentry';
+import usePlan from 'src/hooks/usePlan';
+import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 
 const SignWithQR = () => {
   const serializedPSBTEnvelops = useAppSelector(
@@ -24,11 +26,20 @@ const SignWithQR = () => {
   const { signer }: { signer: VaultSigner } = route.params as any;
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   const signTransaction = (signedSerializedPSBT) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); //will throw if not a psbt
-      dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId: signer.signerId }));
+      if (!isMultisig && signer.type === SignerType.SEEDSIGNER) {
+        const { signedPsbt } = updateInputsForSeedSigner({ serializedPSBT, signedSerializedPSBT });
+        dispatch(
+          updatePSBTSignatures({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
+        );
+      } else {
+        dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId: signer.signerId }));
+      }
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     } catch (err) {
       captureError(err);

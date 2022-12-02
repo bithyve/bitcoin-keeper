@@ -87,6 +87,9 @@ export const generateVault = ({
     transactionNote: {},
   };
 
+  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
+
+  const isMultiSig = scheme.n === 1 ? false : true; // single xpub vaults are treated as single-sig wallet
   const vault: Vault = {
     id,
     vaultShellId,
@@ -94,7 +97,7 @@ export const generateVault = ({
     type,
     networkType,
     isUsable: true,
-    isMultiSig: true,
+    isMultiSig,
     scheme,
     signers,
     presentationData,

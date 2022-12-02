@@ -10,8 +10,13 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const config = getWalletConfig({ vault });
   const enc = NFC.encodeForColdCard(config);
-  console.log(config);
   await NFC.send(NfcTech.Ndef, enc);
+};
+
+export const getCCGenericJSON = async () => {
+  const packet = await NFC.read(NfcTech.NfcV);
+  const { xpub, deriv } = packet[0].data.bip84;
+  return { xpub, derivationPath: deriv, xfp: packet[0].data.xfp };
 };
 
 export const getColdcardDetails = async () => {
@@ -48,4 +53,42 @@ export const getMockColdcardDetails = () => {
 export const signWithColdCard = async (message) => {
   const psbtBytes = NFC.encodeForColdCard(message);
   return NFC.send([NfcTech.Ndef], psbtBytes);
+};
+
+export const receivePSBTFromColdCard = async () => {
+  const signedData = await NFC.read(NfcTech.NfcV);
+  const payload = {
+    name: '',
+    signature: '',
+    psbt: '',
+  };
+  signedData.forEach((record) => {
+    if (record.data === 'Partly signed PSBT') {
+      payload.name = record.data;
+    } else if (record.data.length === 44) {
+      // signature is of length 64 but 44 when base64 encoded
+      payload.signature = record.data;
+    } else {
+      payload.psbt = record.data;
+    }
+  });
+  return payload;
+};
+
+export const receiveTxHexFromColdCard = async () => {
+  const signedData = await NFC.read(NfcTech.NfcV);
+  const payload = {
+    txid: '',
+    txn: '',
+  };
+  signedData.forEach((packet) => {
+    if (packet.rtdName === 'bitcoin.org:txid') {
+      payload.txid = packet.data;
+    } else if (packet.rtdName === 'bitcoin.org:txn') {
+      payload.txn = Buffer.from(packet.data, 'base64').toString('hex');
+    } else {
+      //ignore
+    }
+  });
+  return payload;
 };

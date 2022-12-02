@@ -10,6 +10,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationProvider } from './src/common/content/LocContext';
 import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
+import { Ndef } from 'react-native-nfc-manager';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';

@@ -7,3 +7,8 @@ export const getPassportDetails = (qrData) => {
   const xpub = WalletUtilities.generateXpubFromYpub(p2wsh, network);
   return { xpub, derivationPath: p2wsh_deriv, xfp };
 };
+
+export const getPassportDetailsForWatchOnly = (qrData) => {
+  const { xpub, deriv } = qrData.bip84;
+  return { xpub, derivationPath: deriv, xfp: qrData.xfp };
+};

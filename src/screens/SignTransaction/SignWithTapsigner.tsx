@@ -106,7 +106,7 @@ const SignWithTapsigner = () => {
           ClearIcon={<DeleteIcon />}
           onDeletePressed={onDeletePressed}
         />
-        <NfcPrompt visible={nfcVisible} on />
+        <NfcPrompt visible={nfcVisible} />
       </Box>
     </SafeAreaView>
   );

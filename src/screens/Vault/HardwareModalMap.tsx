@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-import { Alert, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
@@ -34,15 +34,16 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
-import { getPassportDetails } from 'src/hardware/passport';
+import { getPassportDetails, getPassportDetailsForWatchOnly } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import usePlan from 'src/hooks/usePlan';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -107,7 +108,10 @@ const TapsignerSetupContent = () => {
   );
 };
 
-const ColdCardSetupContent = () => {
+const ColdCardSetupContent = ({ isMultisig }: { isMultisig: boolean }) => {
+  const userInstruction = isMultisig
+    ? `Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`
+    : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -123,7 +127,7 @@ const ColdCardSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
+          {`\u2022 ${userInstruction}`}
         </Text>
         <Text
           color={'#073B36'}
@@ -140,7 +144,7 @@ const ColdCardSetupContent = () => {
     </View>
   );
 };
-const LedgerSetupContent = () => {
+const LedgerSetupContent = ({ isMultisig }: { isMultisig: boolean }) => {
   return (
     <View>
       <Box ml={wp(21)}>
@@ -162,7 +166,10 @@ const LedgerSetupContent = () => {
   );
 };
 
-const PassportSetupContent = () => {
+const PassportSetupContent = ({ isMultisig }: { isMultisig: boolean }) => {
+  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > QR Code.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -178,7 +185,7 @@ const PassportSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
+          {instructions}
         </Text>
         <Text
           color={'#073B36'}
@@ -196,7 +203,10 @@ const PassportSetupContent = () => {
   );
 };
 
-const SeedSignerSetupContent = () => {
+const SeedSignerSetupContent = ({ isMultisig }: { isMultisig: boolean }) => {
+  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > Native Segwit > Keeper.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -212,7 +222,7 @@ const SeedSignerSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > Multisig > Nested Segwit > Keeper.\n`}
+          {instructions}
         </Text>
         <Text
           color={'#073B36'}
@@ -230,7 +240,10 @@ const SeedSignerSetupContent = () => {
   );
 };
 
-const KeystoneSetupContent = () => {
+const KeystoneSetupContent = ({ isMultisig }: { isMultisig: boolean }) => {
+  const instructions = isMultisig
+    ? `\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`
+    : `\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -246,7 +259,7 @@ const KeystoneSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`}
+          {instructions}
         </Text>
         <Text
           color={'#073B36'}
@@ -264,7 +277,10 @@ const KeystoneSetupContent = () => {
   );
 };
 
-const JadeSetupContent = () => {
+const JadeSetupContent = ({ isMultisig }: { isMultisig: boolean }) => {
+  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+    isMultisig ? 'MultiSig' : 'SingleSig'
+  } and Native Segwit in the options section.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -280,7 +296,7 @@ const JadeSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to Multisig and Native Segwit in the options section.\n`}
+          {instructions}
         </Text>
         <Text
           color={'#073B36'}
@@ -291,7 +307,7 @@ const JadeSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure you enable Testnet mode on the Jade by creating a multisig wallet with the companion app if you are running the app in the Testnet mode.`}
+          {`\u2022 Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`}
         </Text>
       </Box>
     </View>
@@ -376,6 +392,125 @@ const SetupSeedWords = () => {
   );
 };
 
+const setupPassport = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp } = isMultisig
+    ? getPassportDetails(qrData)
+    : getPassportDetailsForWatchOnly(qrData);
+  const passport: VaultSigner = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    xfp,
+    signerType: SignerType.PASSPORT,
+    storageType: SignerStorage.COLD,
+  });
+  return passport;
+};
+
+const setupSeedSigner = (qrData) => {
+  const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+  const seedSigner: VaultSigner = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    xfp,
+    signerType: SignerType.SEEDSIGNER,
+    storageType: SignerStorage.COLD,
+  });
+  return seedSigner;
+};
+
+const setupKeystone = (qrData) => {
+  const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
+  const keystone: VaultSigner = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    xfp,
+    signerType: SignerType.KEYSTONE,
+    storageType: SignerStorage.COLD,
+  });
+  return keystone;
+};
+
+const setupJade = (qrData) => {
+  const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
+  const jade: VaultSigner = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    xfp,
+    signerType: SignerType.JADE,
+    storageType: SignerStorage.COLD,
+  });
+  return jade;
+};
+
+const setupKeeperSigner = (qrData) => {
+  const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+
+  const ksd: VaultSigner = {
+    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    type: SignerType.KEEPER,
+    signerName: 'Keeper Signing Device',
+    storageType: SignerStorage.WARM,
+    xpub,
+    xpubInfo: {
+      derivationPath,
+      xfp: mfp,
+    },
+    lastHealthCheck: new Date(),
+    addedOn: new Date(),
+  };
+
+  return ksd;
+};
+
+const setupMobileKey = async ({ primaryMnemonic }) => {
+  const networkType = config.NETWORK_TYPE;
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
+    primaryMnemonic,
+    networkType
+  );
+
+  const mobileKey: VaultSigner = {
+    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    type: SignerType.MOBILE_KEY,
+    signerName: 'Mobile Key',
+    storageType: SignerStorage.WARM,
+    xpub,
+    xpriv,
+    xpubInfo: {
+      derivationPath,
+      xfp: masterFingerprint,
+    },
+    bip85Config,
+    lastHealthCheck: new Date(),
+    addedOn: new Date(),
+  };
+  return mobileKey;
+};
+
+const setupSeedWordsBasedKey = (mnemonic) => {
+  const networkType = config.NETWORK_TYPE;
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
+
+  const softSigner: VaultSigner = {
+    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    type: SignerType.SEED_WORDS,
+    storageType: SignerStorage.WARM,
+    signerName: 'Seed Words',
+    xpub,
+    xpubInfo: {
+      derivationPath,
+      xfp: masterFingerprint,
+    },
+    lastHealthCheck: new Date(),
+    addedOn: new Date(),
+  };
+
+  return softSigner;
+};
+
 const HardwareModalMap = ({ type, visible, close }) => {
   const dispatch = useDispatch();
 
@@ -386,14 +521,12 @@ const HardwareModalMap = ({ type, visible, close }) => {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
-  // const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  // const appId = useAppSelector((state) => state.storage.appId);
-  // const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
-
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   const navigation = useNavigation();
   const navigateToTapsignerSetup = () => {
@@ -416,23 +549,6 @@ const HardwareModalMap = ({ type, visible, close }) => {
     navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
   };
 
-  const onQRScan = (qrData) => {
-    switch (type as SignerType) {
-      case SignerType.PASSPORT:
-        return setupPassport(qrData);
-      case SignerType.SEEDSIGNER:
-        return setupSeedSigner(qrData);
-      case SignerType.KEEPER:
-        return setupKeeperSigner(qrData);
-      case SignerType.KEYSTONE:
-        return setupKeystone(qrData);
-      case SignerType.JADE:
-        return setupJade(qrData);
-      default:
-        return;
-    }
-  };
-
   const navigateToAddQrBasedSigner = () => {
     close();
     navigation.dispatch(
@@ -447,128 +563,6 @@ const HardwareModalMap = ({ type, visible, close }) => {
     );
   };
 
-  const setupPassport = async (qrData) => {
-    try {
-      const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
-      const passport: VaultSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.PASSPORT,
-        storageType: SignerStorage.COLD,
-      });
-      dispatch(addSigningDevice(passport));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Passport!');
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      captureError(err);
-    }
-  };
-
-  const setupSeedSigner = async (qrData) => {
-    try {
-      const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-      const seedSigner: VaultSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.SEEDSIGNER,
-        storageType: SignerStorage.COLD,
-      });
-      dispatch(addSigningDevice(seedSigner));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from SeedSigner!');
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      captureError(err);
-    }
-  };
-
-  const setupKeystone = async (qrData) => {
-    try {
-      const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-      const keystone: VaultSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.KEYSTONE,
-        storageType: SignerStorage.COLD,
-      });
-      dispatch(addSigningDevice(keystone));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Keystone!');
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      captureError(err);
-    }
-  };
-
-  const setupJade = async (qrData) => {
-    try {
-      const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
-      const jade: VaultSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.JADE,
-        storageType: SignerStorage.COLD,
-      });
-      dispatch(addSigningDevice(jade));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Jade!');
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      captureError(err);
-    }
-  };
-
-  // const setupKeystone = async (qrData) => {
-  //   try {
-  //     const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-  //     const seedSigner: VaultSigner = generateSignerFromMetaData({
-  //       xpub,
-  //       derivationPath,
-  //       xfp,
-  //       signerType: SignerType.SEEDSIGNER,
-  //       storageType: SignerStorage.COLD,
-  //     });
-  //     dispatch(addSigningDevice(seedSigner));
-  //     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-  //   } catch (err) {
-  //     console.log(err);
-  //     captureError(err);
-  //   }
-  // };
-
-  const setupKeeperSigner = async (qrData) => {
-    try {
-      const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-
-      const ksd: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.KEEPER,
-        signerName: 'Keeper Signing Device',
-        storageType: SignerStorage.WARM,
-        xpub,
-        xpubInfo: {
-          derivationPath,
-          xfp: mfp,
-        },
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
-      };
-
-      dispatch(addSigningDevice(ksd));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from another Keeper app!');
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      captureError(err);
-    }
-  };
-
   const navigateToSeedWordSetup = () => {
     close();
     const mnemonic = bip39.generateMnemonic();
@@ -578,90 +572,48 @@ const HardwareModalMap = ({ type, visible, close }) => {
         params: {
           seed: mnemonic,
           next: true,
-          onSuccess: setupSeedWordsBasedKey,
+          onSuccess: (mnemonic) => {
+            const softSigner = setupSeedWordsBasedKey(mnemonic);
+            dispatch(addSigningDevice(softSigner));
+            navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          },
         },
       })
     );
   };
 
-  const setupMobileKey = async () => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
-      primaryMnemonic,
-      networkType
-    );
-
-    const mobileKey: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.MOBILE_KEY,
-      signerName: 'Mobile Key',
-      storageType: SignerStorage.WARM,
-      xpub,
-      xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      bip85Config,
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
-
-    dispatch(addSigningDevice(mobileKey));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+  const onQRScan = (qrData) => {
+    let hw: VaultSigner;
+    try {
+      switch (type as SignerType) {
+        case SignerType.PASSPORT:
+          hw = setupPassport(qrData, isMultisig);
+          break;
+        case SignerType.SEEDSIGNER:
+          hw = setupSeedSigner(qrData);
+          break;
+        case SignerType.KEEPER:
+          hw = setupKeeperSigner(qrData);
+          break;
+        case SignerType.KEYSTONE:
+          hw = setupKeystone(qrData);
+          break;
+        case SignerType.JADE:
+          hw = setupJade(qrData);
+          break;
+        default:
+          break;
+      }
+      dispatch(addSigningDevice(hw));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (error) {
+      captureError(error);
+      Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    }
   };
 
-  const setupSeedWordsBasedKey = (mnemonic) => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
-
-    const softSigner: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.SEED_WORDS,
-      storageType: SignerStorage.WARM,
-      signerName: 'Seed Words',
-      xpub,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
-
-    dispatch(addSigningDevice(softSigner));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-  };
-
-  // const biometricAuth = async () => {
-  //   if (loginMethod === LoginMethod.BIOMETRIC) {
-  //     try {
-  //       setTimeout(async () => {
-  //         const { success, signature } = await RNBiometrics.createSignature({
-  //           promptMessage: 'Authenticate',
-  //           payload: appId,
-  //           cancelButtonText: 'Use PIN',
-  //         });
-  //         if (success) {
-  //           dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
-  //         }
-  //       }, 200);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     // biometric authentication
-  //     setupMobileKey();
-  //   }
-  // }, [isAuthenticated]);
-
-  const passwordEnter = () => {
+  const PasswordEnter = () => {
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {
@@ -702,10 +654,13 @@ const HardwareModalMap = ({ type, visible, close }) => {
           <Box mt={10} alignSelf={'flex-end'} mr={2}>
             <Box>
               <CustomGreenButton
-                onPress={() => {
+                onPress={async () => {
                   const currentPinHash = hash512(password);
-                  if (currentPinHash === pinHash) setupMobileKey();
-                  else Alert.alert('Incorrect password. Try again!');
+                  if (currentPinHash === pinHash) {
+                    const mobileKey = await setupMobileKey({ primaryMnemonic });
+                    dispatch(addSigningDevice(mobileKey));
+                    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+                  } else Alert.alert('Incorrect password. Try again!');
                 }}
                 value={'Confirm'}
               />
@@ -735,7 +690,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToTapsignerSetup}
         textColor={'#041513'}
-        Content={TapsignerSetupContent}
+        Content={() => <TapsignerSetupContent />}
       />
       <KeeperModal
         visible={visible && type === SignerType.COLDCARD}
@@ -748,7 +703,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToColdCardSetup}
         textColor={'#041513'}
-        Content={ColdCardSetupContent}
+        Content={() => <ColdCardSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
         visible={visible && type === SignerType.LEDGER}
@@ -761,7 +716,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToLedgerSetup}
         textColor={'#041513'}
-        Content={LedgerSetupContent}
+        Content={() => <LedgerSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
         visible={visible && type === SignerType.POLICY_SERVER}
@@ -803,7 +758,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         subTitle={'The one you use to login to the app'}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor={'#041513'}
-        Content={passwordEnter}
+        Content={PasswordEnter}
       />
       <KeeperModal
         visible={visible && type === SignerType.SEED_WORDS}
@@ -848,7 +803,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToAddQrBasedSigner}
         textColor={'#041513'}
-        Content={PassportSetupContent}
+        Content={() => <PassportSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
         visible={visible && type === SignerType.SEEDSIGNER}
@@ -862,7 +817,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToAddQrBasedSigner}
         textColor={'#041513'}
-        Content={SeedSignerSetupContent}
+        Content={() => <SeedSignerSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
         visible={visible && type === SignerType.KEYSTONE}
@@ -876,7 +831,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToAddQrBasedSigner}
         textColor={'#041513'}
-        Content={KeystoneSetupContent}
+        Content={() => <KeystoneSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
         visible={visible && type === SignerType.JADE}
@@ -890,7 +845,7 @@ const HardwareModalMap = ({ type, visible, close }) => {
         buttonTextColor={'#FAFAFA'}
         buttonCallback={navigateToAddQrBasedSigner}
         textColor={'#041513'}
-        Content={JadeSetupContent}
+        Content={() => <JadeSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
         visible={visible && type === SignerType.KEEPER}
@@ -911,5 +866,3 @@ const HardwareModalMap = ({ type, visible, close }) => {
 };
 
 export default HardwareModalMap;
-
-const styles = StyleSheet.create({});
