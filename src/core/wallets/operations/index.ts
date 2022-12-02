@@ -1006,7 +1006,7 @@ export default class WalletOperations {
 
   static broadcastTransaction = async (
     wallet: Wallet | Vault,
-    signedPSBT: bitcoinJS.Psbt,
+    txHex: string,
     inputs: InputUTXOs[],
     recipients: {
       address: string;
@@ -1014,23 +1014,16 @@ export default class WalletOperations {
     }[],
     network
   ) => {
-    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
     if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
       let err;
       try {
         err = txid.split(':')[3].split('"')[1];
-      } catch (err) {
-        console.log({
-          err,
-        });
-      }
-      throw new Error(err);
+      } catch (err) {}
+      throw new Error(err ? err : txid);
     }
+
     WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
     return txid;
   };
@@ -1141,7 +1134,12 @@ export default class WalletOperations {
       return { serializedPSBTEnvelops };
     } else {
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
-      const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
+
+      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+      const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+
+      const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
       return {
         txid,
       };
@@ -1183,7 +1181,12 @@ export default class WalletOperations {
       else combinedPSBT.combine(PSBT);
     }
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const txid = await this.broadcastTransaction(wallet, combinedPSBT, inputs, recipients, network);
+
+    const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs();
+    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+    const txHex = combinedPSBT.finalizeAllInputs().extractTransaction().toHex();
+
+    const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
     return {
       txid,
     };
