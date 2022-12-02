@@ -72,6 +72,7 @@ const getDeviceStatus = (
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
     case SignerType.SEED_WORDS:
+    case SignerType.KEYSTONE:
     case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnPleb, vaultSigners).message,
@@ -83,7 +84,6 @@ const getDeviceStatus = (
         message: 'Coming soon',
         disabled: false,
       };
-    case SignerType.KEYSTONE:
     case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
@@ -125,10 +125,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         <Box alignSelf={'center'}>
           <SigningDevicesIllustration />
         </Box>
-        <Text
-          color={'light.white'}
-          style={styles.modalText}
-        >
+        <Text color={'light.white'} style={styles.modalText}>
           {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -155,10 +152,10 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     SignerType.LEDGER,
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
-    SignerType.KEYSTONE,
     SignerType.SEEDSIGNER,
     SignerType.PASSPORT,
     SignerType.JADE,
+    SignerType.KEYSTONE,
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
@@ -356,7 +353,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     fontSize: 13,
     marginTop: 5,
-    padding: 1
-  }
-})
+    padding: 1,
+  },
+});
 export default SigningDeviceList;
