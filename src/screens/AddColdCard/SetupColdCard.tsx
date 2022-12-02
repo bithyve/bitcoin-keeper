@@ -64,6 +64,9 @@ const SetupColdCard = () => {
     }
   };
 
+  const instructions = isMultisig
+    ? 'Go to Settings > Multisig wallets > Export xPub on your Coldcard'
+    : 'Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
     <SafeAreaView style={styles.container}>
       <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>
