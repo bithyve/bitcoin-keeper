@@ -380,7 +380,13 @@ const WalletDetails = () => {
               showsVerticalScrollIndicator={false}
             />
           </Box>
-          <Box position={'absolute'} bottom={0} width={wp(375)} paddingX={5}>
+          <Box
+            position={'absolute'}
+            bottom={0}
+            width={wp(375)}
+            paddingX={5}
+            backgroundColor={'light.lightYellow'}
+          >
             <Box borderWidth={0.5} borderColor={'light.GreyText'} borderRadius={20} opacity={0.2} />
             <Box
               flexDirection={'row'}
