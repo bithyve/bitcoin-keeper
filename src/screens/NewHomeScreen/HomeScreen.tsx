@@ -40,6 +40,7 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import KeeperModal from 'src/components/KeeperModal';
 import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
+import config from 'src/core/config';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -133,7 +134,7 @@ const LinkedWallets = (props) => {
     <Pressable
       style={{
         alignItems: 'center',
-        marginTop: hp(8)
+        marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
@@ -351,7 +352,7 @@ const VaultStatus = (props) => {
           <HStack
             style={{
               alignItems: 'center',
-              marginTop: hp(windowHeight > 700 ? 20 : 10)
+              marginTop: hp(windowHeight > 700 ? 20 : 10),
             }}
           >
             <BTC style={{ height: '20%' }} />
@@ -504,10 +505,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     try {
-      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [
-        Instabug.invocationEvent.shake,
-        Instabug.invocationEvent.screenshot,
-      ]);
+      Instabug.start(config.INSTABUG_TOKEN, [Instabug.invocationEvent.shake]);
       BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
       BugReporting.setInvocationEvents([
         Instabug.invocationEvent.shake,
