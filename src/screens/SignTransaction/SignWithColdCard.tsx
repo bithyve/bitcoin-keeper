@@ -14,7 +14,11 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { registerToColcard } from 'src/hardware/coldcard';
+import {
+  receivePSBTFromColdCard,
+  receiveTxHexFromColdCard,
+  registerToColcard,
+} from 'src/hardware/coldcard';
 import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 
@@ -69,33 +73,26 @@ const SignWithColdCard = ({ route }) => {
   const Vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signer, signTransaction }: { signer: VaultSigner; signTransaction } = route.params;
+  const {
+    signer,
+    signTransaction,
+    isMultisig,
+  }: { signer: VaultSigner; signTransaction; isMultisig: boolean } = route.params;
   const { hasSigned, isMock } = signer;
-  const register = !hasSigned && !isMock;
+  const register = !hasSigned && !isMock && isMultisig;
   const dispatch = useDispatch();
-  const receiveAndBroadCast = async () => {
+
+  const receiveFromColdCard = async () => {
     setNfcVisible(true);
-    const signedPSBT = await NFC.read(NfcTech.NfcV);
-    setNfcVisible(false);
-    const payload = {
-      name: '',
-      signature: '',
-      psbt: '',
-    };
-    signedPSBT.forEach((record) => {
-      if (record.data === 'Partly signed PSBT') {
-        payload.name = record.data;
-      }
-      // signature is of length 64 but 44 when base64 encoded
-      else if (record.data.length === 44) {
-        payload.signature = record.data;
-      } else {
-        payload.psbt = record.data;
-      }
-    });
-    dispatch(
-      updatePSBTSignatures({ signedSerializedPSBT: payload.psbt, signerId: signer.signerId })
-    );
+    if (!isMultisig) {
+      const { txn } = await receiveTxHexFromColdCard();
+      setNfcVisible(false);
+      dispatch(updatePSBTSignatures({ signerId: signer.signerId, txHex: txn }));
+    } else {
+      const { psbt } = await receivePSBTFromColdCard();
+      setNfcVisible(false);
+      dispatch(updatePSBTSignatures({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+    }
   };
   const registerCC = async () => {
     setNfcVisible(true);
@@ -131,7 +128,7 @@ const SignWithColdCard = ({ route }) => {
           <Card
             message={'Receive signed PSBT from Coldcard'}
             buttonText={'Receive'}
-            buttonCallBack={receiveAndBroadCast}
+            buttonCallBack={receiveFromColdCard}
           />
         </VStack>
         <VStack>

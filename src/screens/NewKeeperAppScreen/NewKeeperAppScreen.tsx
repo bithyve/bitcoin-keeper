@@ -146,6 +146,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
 
   useEffect(() => {
     if (keeperInitiating) {
+      setModalVisible(true);
       dispatch(setupKeeperApp());
     }
   }, [keeperInitiating]);
@@ -159,7 +160,8 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             width: wp(270),
             height: hp(200),
             alignSelf: 'center',
-          }} />
+          }}
+        />
         <Text
           color={'light.modalText'}
           fontWeight={200}
@@ -167,7 +169,8 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
           letterSpacing={0.65}
           width={wp(240)}
         >
-          This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.
+          This feature is *only* for the testnet version of the app. The developers will get your
+          message along with other information from the app.
         </Text>
       </Box>
     );
@@ -212,7 +215,6 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
             subTitle={'New vault and wallets'}
             Icon={<App />}
             onPress={() => {
-              setModalVisible(true);
               setInitiating(true);
             }}
             loading={keeperInitiating}
@@ -305,7 +307,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={'Shake to send feedback'}
         subTitle={'Shake your device to send us a bug report or a feature request'}

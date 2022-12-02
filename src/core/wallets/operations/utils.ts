@@ -17,6 +17,7 @@ import {
   PaymentInfoKind,
   TransactionType,
 } from '../enums';
+import { CryptoAccount, CryptoHDKey } from 'src/core/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 
 import RestClient from 'src/core/services/rest/RestClient';
@@ -28,8 +29,6 @@ import bs58check from 'bs58check';
 import config from '../../config';
 
 const ECPair = ECPairFactory(ecc);
-
-const { REQUEST_TIMEOUT, SIGNING_AXIOS } = config;
 
 export default class WalletUtilities {
   static networkType = (scannedStr: string): NetworkType => {
@@ -286,7 +285,7 @@ export default class WalletUtilities {
 
   static addressToKey = (
     address: string,
-    wallet: Wallet,
+    wallet: Wallet | Vault,
     publicKey: boolean = false
   ):
     | {
@@ -298,7 +297,20 @@ export default class WalletUtilities {
         subPath: number[];
       } => {
     const { networkType } = wallet;
-    const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpub, xpriv } = wallet.specs;
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    let xpub = null;
+    let xpriv = null;
+
+    if (wallet.entityKind === EntityKind.VAULT) {
+      if (!publicKey) throw new Error('internal xpriv not supported in case of Vault');
+      if ((wallet as Vault).isMultiSig) throw new Error('MultiSig should use: addressToMultiSig');
+
+      xpub = (wallet as Vault).specs.xpubs[0];
+    } else {
+      xpub = (wallet as Wallet).specs.xpub;
+      xpriv = (wallet as Wallet).specs.xpriv;
+    }
+
     const network = WalletUtilities.getNetworkByType(networkType);
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
@@ -608,13 +620,17 @@ export default class WalletUtilities {
           output.address = changeMultisig.address;
           return { outputs, changeMultisig };
         } else {
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
           output.address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
+            xpub,
             true,
             nextFreeChangeAddressIndex,
             network
           );
-          return { outputs, changeAddress };
+          return { outputs, changeAddress: output.address };
         }
       }
     }
@@ -1184,5 +1200,28 @@ export default class WalletUtilities {
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
+  };
+
+  static generateXpubFromMetaData = (cryptoAccount: CryptoAccount) => {
+    const version = Buffer.from('02aa7ed3', 'hex');
+    const hdKey = cryptoAccount.getOutputDescriptors()[0].getCryptoKey() as CryptoHDKey;
+    const depth = hdKey.getOrigin().getDepth();
+    const depthBuf = Buffer.alloc(1);
+    depthBuf.writeUInt8(depth);
+    const parentFingerprint = hdKey.getParentFingerprint();
+    const components = hdKey.getOrigin().getComponents();
+    const lastComponents = components[components.length - 1];
+    const index = lastComponents.isHardened()
+      ? lastComponents.getIndex() + 0x80000000
+      : lastComponents.getIndex();
+    const indexBuf = Buffer.alloc(4);
+    indexBuf.writeUInt32BE(index);
+    const chainCode = hdKey.getChainCode();
+    const key = hdKey.getKey();
+    const derivationPath = 'm/' + hdKey.getOrigin().getPath();
+    const xPubBuf = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
+    const xPub = bs58check.encode(xPubBuf);
+    const mfp = cryptoAccount.getMasterFingerprint().toString('hex');
+    return { xPub, derivationPath, mfp };
   };
 }

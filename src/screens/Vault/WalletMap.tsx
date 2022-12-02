@@ -4,10 +4,12 @@ import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
 import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
 import JADEICON from 'src/assets/images/jade_icon.svg';
+import JADEICONLIGHT from 'src/assets/images/jade_icon_light.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
 import KEEPERAPP from 'src/assets/icons/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/icons/KeeperIconLight.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
+import KEYSTONEICONLIGHT from 'src/assets/images/keystone_icon_light.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
 import LEDGERICONLIGHT from 'src/assets/icons/ledger_light.svg';
@@ -51,7 +53,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.JADE:
       return {
-        Icon: <JADEICON />,
+        Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light),
         Logo: <JADELOGO />,
         type: SignerStorage.COLD,
       };
@@ -66,7 +68,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.KEYSTONE:
       return {
-        Icon: <KEYSTONEICON />,
+        Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light),
         Logo: <KEYSTONELOGO />,
         type: SignerStorage.COLD,
       };

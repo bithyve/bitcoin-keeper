@@ -23,6 +23,7 @@ import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.s
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 
 type HWProps = {
@@ -71,19 +72,19 @@ const getDeviceStatus = (
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
     case SignerType.SEED_WORDS:
+    case SignerType.KEYSTONE:
+    case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnPleb, vaultSigners).message,
         disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
       };
 
     case SignerType.TREZOR:
-    case SignerType.JADE:
-    case SignerType.KEYSTONE:
-    case SignerType.KEEPER:
       return {
         message: 'Coming soon',
         disabled: false,
       };
+    case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
     default:
@@ -154,14 +155,14 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
     SignerType.LEDGER,
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
-    SignerType.MOBILE_KEY,
-    SignerType.POLICY_SERVER,
+    SignerType.SEEDSIGNER,
     SignerType.PASSPORT,
     SignerType.JADE,
+    SignerType.KEYSTONE,
+    SignerType.MOBILE_KEY,
+    SignerType.POLICY_SERVER,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
-    SignerType.KEYSTONE,
-    SignerType.SEEDSIGNER,
   ];
   const HardWareWallet = ({ type, disabled, message, first = false, last = false }: HWProps) => {
     const [visible, setVisible] = useState(false);
@@ -343,6 +344,7 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
           Content={VaultSetupContent}
           DarkCloseIcon={true}
           learnMore={true}
+          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
       </Box>
     </ScreenWrapper>

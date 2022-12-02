@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { Keyboard } from 'react-native';
 import { Box, Input, Text } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
-
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-// components, interfaces
-import HeaderTitle from 'src/components/HeaderTitle';
-import ScreenWrapper from 'src/components/ScreenWrapper';
+import React, { useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+
+import AppNumPad from 'src/components/AppNumPad';
+import Buttons from 'src/components/Buttons';
 // asserts
 import Fonts from 'src/common/Fonts';
-import Buttons from 'src/components/Buttons';
-import AppNumPad from 'src/components/AppNumPad';
+// components, interfaces
+import HeaderTitle from 'src/components/HeaderTitle';
+import { Keyboard } from 'react-native';
 import Note from 'src/components/Note/Note';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { useNavigation } from '@react-navigation/native';
 
 const TimelockScreen = () => {
   const navigation = useNavigation();
@@ -73,9 +73,6 @@ const TimelockScreen = () => {
       <Box position={'absolute'} bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          ok={() => {
-            console.log('ok');
-          }}
           clear={() => {}}
           color={'#073E39'}
           height={windowHeight >= 850 ? 80 : 60}

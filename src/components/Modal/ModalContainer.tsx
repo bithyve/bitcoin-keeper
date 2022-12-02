@@ -8,8 +8,8 @@ import {
   Platform,
   AppState,
   StyleSheet,
+  KeyboardAvoidingView,
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -61,7 +61,7 @@ const ModalContainer = ({
       transparent={true}
       style={styles.wrapper}
     >
-      <KeyboardAwareScrollView
+      {/* <KeyboardAwareScrollView
         scrollEnabled={false}
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -74,6 +74,13 @@ const ModalContainer = ({
           x: 0,
           y: 0,
         }}
+      > */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? null : 'height'}
+        style={[
+          styles.contentContainerStyle,
+          { paddingBottom: Platform.OS === 'ios' ? hp('6%') : 0, backgroundColor: background },
+        ]}
       >
         <TouchableOpacity
           activeOpacity={1}
@@ -86,7 +93,8 @@ const ModalContainer = ({
             <View style={styles.childViewWrapper}>{children}</View>
           </TouchableWithoutFeedback>
         </TouchableOpacity>
-      </KeyboardAwareScrollView>
+      </KeyboardAvoidingView>
+      {/* </KeyboardAwareScrollView> */}
     </Modal>
   );
 };
@@ -99,8 +107,8 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
+    // flexDirection: 'column',
+    // justifyContent: 'flex-end',
     paddingHorizontal: wp('2%'),
   },
   touchableWrapperStyle: {

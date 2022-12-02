@@ -38,6 +38,9 @@ import { identifyUser } from 'src/core/services/sentry';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
+import KeeperModal from 'src/components/KeeperModal';
+import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
+import config from 'src/core/config';
 
 const InheritanceComponent = () => {
   const navigation = useNavigation();
@@ -484,16 +487,25 @@ export const NextIcon = ({ pressHandler }) => {
     </Pressable>
   );
 };
-
+const TransVaultSuccessfulContent = () => {
+  return (
+    <Box>
+      <Box alignSelf={'center'}>
+        <VaultIcon />
+      </Box>
+      <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+        {'The transaction should be visible in the vault in some time.'}
+      </Text>
+    </Box>
+  );
+};
 const HomeScreen = ({ navigation }) => {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
+  const [visibleModal, setVisibleModal] = useState(false);
 
   useEffect(() => {
     try {
-      Instabug.start('d68ca4d54b1cccbf5916086af360edec', [
-        Instabug.invocationEvent.shake,
-        Instabug.invocationEvent.screenshot,
-      ]);
+      Instabug.start(config.INSTABUG_TOKEN, [Instabug.invocationEvent.shake]);
       BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
       BugReporting.setInvocationEvents([
         Instabug.invocationEvent.shake,
@@ -524,12 +536,19 @@ const HomeScreen = ({ navigation }) => {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets
-          onAmountPress={() => {
-          }}
-          showHideAmounts={showHideAmounts}
-        />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
+      {/* Modal */}
+      <KeeperModal
+        visible={visibleModal}
+        close={() => setVisibleModal(false)}
+        title={'Transfer to Vault Successfull'}
+        subTitle={'You have successfully transferred from your wallet to the vault'}
+        buttonText={'View Vault'}
+        textColor={'#073B36'}
+        buttonTextColor={'#FAFAFA'}
+        Content={TransVaultSuccessfulContent}
+      />
     </Box>
   );
 };

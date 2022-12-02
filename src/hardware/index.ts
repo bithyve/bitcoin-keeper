@@ -40,13 +40,13 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Mk4';
       break;
     case SignerType.JADE:
-      name = type;
+      name = 'Jade';
       break;
     case SignerType.KEEPER:
       name = 'Keeper';
       break;
     case SignerType.KEYSTONE:
-      name = type;
+      name = 'Keystone';
       break;
     case SignerType.LEDGER:
       name = 'Nano X';
@@ -55,7 +55,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Mobile Key';
       break;
     case SignerType.PASSPORT:
-      name = type;
+      name = 'Passport';
       break;
     case SignerType.POLICY_SERVER:
       name = 'Signing Server';
@@ -64,10 +64,13 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Seed Words';
       break;
     case SignerType.TAPSIGNER:
-      name = type;
+      name = 'TAPSIGNER';
       break;
     case SignerType.TREZOR:
       name = type;
+      break;
+    case SignerType.SEEDSIGNER:
+      name = 'SeedSigner';
       break;
     default:
       name = type;
@@ -86,7 +89,7 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   let line = '# Coldcard Multisig setup file (exported from Keeper)\n';
   line += `Name: Keeper Vault\n`;
   line += `Policy: ${vault.scheme.m} of ${vault.scheme.n}\n`;
-  line += `Format: P2SH-P2WSH\n`;
+  line += `Format: P2WSH\n`;
   line += `\n`;
   vault.signers.forEach((signer) => {
     line += `Derivation: ${signer.xpubInfo.derivationPath}\n`;

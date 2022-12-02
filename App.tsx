@@ -5,12 +5,12 @@ import React, { useEffect } from 'react';
 import { persistor, store } from './src/store/store';
 
 import { AppContextProvider } from 'src/common/content/AppContext';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationProvider } from './src/common/content/LocContext';
 import { NativeBaseProvider } from 'native-base';
 import Navigator from './src/navigation/Navigator';
+import { Ndef } from 'react-native-nfc-manager';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { customTheme } from './src/common/themes';
@@ -44,16 +44,14 @@ const App = () => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <NativeBaseProvider theme={customTheme} config={config}>
-          <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
-          <LocalizationProvider>
-            <AppContextProvider>
-              <Navigator />
-            </AppContextProvider>
-          </LocalizationProvider>
-        </NativeBaseProvider>
-      </BottomSheetModalProvider>
+      <NativeBaseProvider theme={customTheme} config={config}>
+        <StatusBar translucent backgroundColor="transparent" barStyle={'light-content'} />
+        <LocalizationProvider>
+          <AppContextProvider>
+            <Navigator />
+          </AppContextProvider>
+        </LocalizationProvider>
+      </NativeBaseProvider>
     </GestureHandlerRootView>
   );
 };

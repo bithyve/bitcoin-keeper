@@ -349,6 +349,7 @@ const AddSigningDevice = () => {
         paddingTop={hp(5)}
       />
       <FlatList
+        showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}
         keyExtractor={(item, index) => item?.signerId ?? index}
@@ -358,7 +359,7 @@ const AddSigningDevice = () => {
           marginTop: hp(52),
         }}
       />
-      <Box position={'absolute'} bottom={10} width={'100%'}>
+      <Box width={'100%'}>
         {!!AstrixSigners.length ? (
           <Box padding={'4'}>
             <Note
@@ -369,21 +370,19 @@ const AddSigningDevice = () => {
             />
           </Box>
         ) : null}
-        {
-          <Buttons
-            primaryDisable={
-              signersState.every((signer) => {
-                return !!!signer;
-              }) ||
-              (vaultSigners && vaultSigners.length !== currentSignerLimit)
-            }
-            primaryLoading={vaultCreating}
-            primaryText="Create Vault"
-            primaryCallback={triggerVaultCreation}
-            secondaryText={'Cancel'}
-            secondaryCallback={navigation.goBack}
-          />
-        }
+        <Buttons
+          primaryDisable={
+            signersState.every((signer) => {
+              return !!!signer;
+            }) ||
+            (vaultSigners && vaultSigners.length !== currentSignerLimit)
+          }
+          primaryLoading={vaultCreating}
+          primaryText="Create Vault"
+          primaryCallback={triggerVaultCreation}
+          secondaryText={'Cancel'}
+          secondaryCallback={navigation.goBack}
+        />
       </Box>
     </ScreenWrapper>
   );

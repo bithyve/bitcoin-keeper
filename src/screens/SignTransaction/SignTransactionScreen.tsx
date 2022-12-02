@@ -31,9 +31,7 @@ import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import idx from 'idx';
-import { readTapsigner } from 'src/hardware/tapsigner';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
-import { signWithColdCard } from 'src/hardware/coldcard';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -50,6 +48,11 @@ const SignTransactionScreen = () => {
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
+  const [passportModal, setPassportModal] = useState(false);
+  const [seedSignerModal, setSeedSignerModal] = useState(false);
+  const [keystoneModal, setKeystoneModal] = useState(false);
+  const [jadeModal, setJadeModal] = useState(false);
+  const [keeperModal, setKeeperModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -143,7 +146,6 @@ const SignTransactionScreen = () => {
               signingPayload,
               currentSigner,
               withModal,
-              readTapsigner,
               defaultVault,
               serializedPSBT,
               card,
@@ -156,7 +158,6 @@ const SignTransactionScreen = () => {
           await signTransactionWithColdCard({
             setColdCardModal,
             withNfcModal,
-            signWithColdCard,
             serializedPSBTEnvelop,
             signers,
             activeSignerId,
@@ -247,6 +248,21 @@ const SignTransactionScreen = () => {
           })
         );
         break;
+      case SignerType.PASSPORT:
+        setPassportModal(true);
+        break;
+      case SignerType.SEEDSIGNER:
+        setSeedSignerModal(true);
+        break;
+      case SignerType.KEYSTONE:
+        setKeystoneModal(true);
+        break;
+      case SignerType.JADE:
+        setJadeModal(true);
+        break;
+      case SignerType.KEEPER:
+        setKeeperModal(true);
+        break;
       default:
         Alert.alert(`action not set for ${type}`);
         break;
@@ -307,6 +323,16 @@ const SignTransactionScreen = () => {
         ledgerModal={ledgerModal}
         otpModal={otpModal}
         passwordModal={passwordModal}
+        passportModal={passportModal}
+        seedSignerModal={seedSignerModal}
+        keystoneModal={keystoneModal}
+        jadeModal={jadeModal}
+        setJadeModal={setJadeModal}
+        setKeystoneModal={setKeystoneModal}
+        keeperModal={keeperModal}
+        setSeedSignerModal={setSeedSignerModal}
+        setPassportModal={setPassportModal}
+        setKeeperModal={setKeeperModal}
         setColdCardModal={setColdCardModal}
         setLedgerModal={setLedgerModal}
         setPasswordModal={setPasswordModal}

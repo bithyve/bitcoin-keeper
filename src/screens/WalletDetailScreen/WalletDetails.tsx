@@ -44,6 +44,7 @@ import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import openLink from 'src/utils/OpenLink';
 
 const WalletDetails = () => {
   const navigation = useNavigation();
@@ -471,6 +472,7 @@ const WalletDetails = () => {
         Content={LinkedWalletContent}
         DarkCloseIcon={true}
         learnMore={true}
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
     </Box>
   );

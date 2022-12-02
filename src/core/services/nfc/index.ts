@@ -1,6 +1,7 @@
 import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 
 import { Platform } from 'react-native';
+import { captureError } from '../sentry';
 
 const TNF_MAP = {
   EMPTY: 0x0,
@@ -38,7 +39,7 @@ function rtdValueToName(value) {
       return name;
     }
   }
-  return null;
+  return value;
 }
 
 export default class NFC {
@@ -62,7 +63,7 @@ export default class NFC {
           } else if (rtdName === 'TEXT') {
             data = Ndef.text.decodePayload(record.payload as any);
           } else if (tnfName === 'EXTERNAL_TYPE') {
-            Buffer.from(record.payload).toString('base64');
+            data = Buffer.from(record.payload).toString('base64');
           } else {
             data = JSON.parse(Buffer.from(record.payload).toString());
           }
@@ -71,7 +72,7 @@ export default class NFC {
         return records;
       }
     } catch (error) {
-      console.log(error);
+      captureError(error);
       if (Platform.OS === 'ios') {
         await NfcManager.setAlertMessageIOS('Something went wrong!');
       }

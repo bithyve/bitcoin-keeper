@@ -45,6 +45,7 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getSignerNameFromType } from 'src/hardware';
 
 const Footer = ({ vault }: { vault: Vault }) => {
   const navigation = useNavigation();
@@ -203,7 +204,6 @@ const TransactionList = ({ transactions, pullDownRefresh, pullRefresh, vault }) 
       />
     );
   };
-
   return (
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
@@ -353,7 +353,7 @@ const SignerList = ({
                   textAlign={'center'}
                   noOfLines={1}
                 >
-                  {signer.signerName}
+                  {getSignerNameFromType(signer.type)}
                 </Text>
                 <Text
                   color={'light.textBlack'}

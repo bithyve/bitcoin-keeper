@@ -1,23 +1,30 @@
-import React, { useContext } from 'react';
-
 import QRCode from 'react-native-qrcode-svg';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getWalletConfig } from 'src/hardware';
+import React from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
+import { Dimensions } from 'react-native';
+const { width } = Dimensions.get('window');
 
-const DisplayQR = () => {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-  const walletConfig = getWalletConfig({ vault });
-  const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
-  const { qrData } = useDynamicQrContent({ data: qrContents });
-
-  return <QRCode value={qrData} size={300} />;
+const DisplayQR = ({
+  qrContents,
+  toBytes,
+  type,
+  rotation,
+  shouldRotate,
+}: {
+  qrContents: any;
+  toBytes?: boolean;
+  type?: BufferEncoding;
+  rotation?: number;
+  shouldRotate?: boolean;
+}) => {
+  const { qrData } = useDynamicQrContent({
+    data: qrContents,
+    toBytes,
+    type,
+    rotation,
+    shouldRotate,
+  });
+  return <QRCode value={qrData} size={width * 0.85} ecl={'L'} />;
 };
 
 export default DisplayQR;

@@ -1,4 +1,3 @@
-import * as bip32 from 'bip32';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
@@ -8,7 +7,6 @@ import {
   AverageTxFees,
   Balances,
   InputUTXOs,
-  OutputUTXOs,
   SerializedPSBTEnvelop,
   SigningPayload,
   Transaction,
@@ -56,8 +54,12 @@ export default class WalletOperations {
         false
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       receivingAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         false,
         (wallet as Wallet).specs.nextFreeAddressIndex,
         network,
@@ -88,8 +90,12 @@ export default class WalletOperations {
         false
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       externalAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         false,
         wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
         network
@@ -106,8 +112,12 @@ export default class WalletOperations {
         true
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       internalAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
         network
@@ -206,12 +216,11 @@ export default class WalletOperations {
             false
           ).address;
         } else {
-          address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
-            false,
-            itr,
-            network
-          );
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
         }
 
         externalAddresses[address] = itr;
@@ -238,12 +247,11 @@ export default class WalletOperations {
             true
           ).address;
         } else {
-          address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
-            true,
-            itr,
-            network
-          );
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
         }
 
         internalAddresses[address] = itr;
@@ -400,12 +408,11 @@ export default class WalletOperations {
             false
           ).address;
         } else {
-          address = WalletUtilities.getAddressByIndex(
-            (wallet as Wallet).specs.xpub,
-            false,
-            itr,
-            network
-          );
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
         }
 
         if (consumedUTXO.address === address) {
@@ -430,12 +437,11 @@ export default class WalletOperations {
               true
             ).address;
           } else {
-            address = WalletUtilities.getAddressByIndex(
-              (wallet as Wallet).specs.xpub,
-              true,
-              itr,
-              network
-            );
+            let xpub = null;
+            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+            else xpub = (wallet as Wallet).specs.xpub;
+
+            address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
           }
 
           if (consumedUTXO.address === address) {
@@ -460,8 +466,12 @@ export default class WalletOperations {
         true
       ).address;
     } else {
+      let xpub = null;
+      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+      else xpub = (wallet as Wallet).specs.xpub;
+
       changeAddress = WalletUtilities.getAddressByIndex(
-        (wallet as Wallet).specs.xpub,
+        xpub,
         true,
         wallet.specs.nextFreeChangeAddressIndex,
         network
@@ -665,12 +675,12 @@ export default class WalletOperations {
     derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ) => {
-    if (wallet.entityKind === EntityKind.WALLET) {
-      const { publicKey, subPath } = WalletUtilities.addressToKey(
-        input.address,
-        wallet as Wallet,
-        true
-      ) as { publicKey: Buffer; subPath: number[] };
+    const isMultiSig = (wallet as Vault).isMultiSig;
+    if (!isMultiSig) {
+      const { publicKey, subPath } = WalletUtilities.addressToKey(input.address, wallet, true) as {
+        publicKey: Buffer;
+        subPath: number[];
+      };
       const p2wpkh = bitcoinJS.payments.p2wpkh({
         pubkey: publicKey,
         network,
@@ -682,10 +692,19 @@ export default class WalletOperations {
           redeem: p2wpkh,
         });
 
-      const path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
-      const masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
-        (wallet as Wallet).derivationDetails.mnemonic
-      );
+      let path;
+      let masterFingerprint;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        const signer = (wallet as Vault).signers[0];
+        const derivationPath = signer.xpubInfo.derivationPath;
+        path = derivationPath + `/${subPath.join('/')}`;
+        masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
+      } else {
+        path = (wallet as Wallet).derivationDetails.xDerivationPath + `/${subPath.join('/')}`;
+        masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
+          (wallet as Wallet).derivationDetails.mnemonic
+        );
+      }
 
       const bip32Derivation = [
         {
@@ -717,7 +736,7 @@ export default class WalletOperations {
           redeemScript: p2wpkh.output,
         });
       }
-    } else if (wallet.entityKind === EntityKind.VAULT) {
+    } else {
       const { p2ms, p2wsh, p2sh, subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
         input.address,
         wallet as Vault
@@ -839,15 +858,44 @@ export default class WalletOperations {
       });
 
       for (let output of outputsWithChange) {
-        if (wallet.entityKind === EntityKind.VAULT && output.address === changeMultisig.address) {
+        if (
+          wallet.entityKind === EntityKind.VAULT &&
+          (wallet as Vault).isMultiSig &&
+          output.address === changeMultisig?.address
+        ) {
+          // case: change output for multisig Vault
           const { bip32Derivation, witnessScript, redeemScript } =
             WalletOperations.getPSBTDataForChangeOutput(wallet as Vault, changeMultisig);
           PSBT.addOutput({ ...output, bip32Derivation, witnessScript, redeemScript });
-        } else {
-          PSBT.addOutput(output);
-        }
-      }
+        } else if (
+          wallet.entityKind === EntityKind.VAULT &&
+          !(wallet as Vault).isMultiSig &&
+          output.address === changeAddress
+        ) {
+          // case: change output for single-sig Vault(p2wpkh)
+          const { publicKey, subPath } = WalletUtilities.addressToKey(
+            changeAddress,
+            wallet,
+            true
+          ) as {
+            publicKey: Buffer;
+            subPath: number[];
+          };
+          const signer = (wallet as Vault).signers[0];
+          const derivationPath = signer.xpubInfo.derivationPath;
+          const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
+          const path = derivationPath + `/${subPath.join('/')}`;
+          const bip32Derivation = [
+            {
+              masterFingerprint,
+              path,
+              pubkey: publicKey,
+            },
+          ];
 
+          PSBT.addOutput({ ...output, bip32Derivation });
+        } else PSBT.addOutput(output);
+      }
       return {
         PSBT,
       };
@@ -887,7 +935,7 @@ export default class WalletOperations {
     }
   };
 
-  static signVaultPSBT = (
+  static internallySignVaultPSBT = (
     wallet: Vault,
     inputs: any,
     serializedPSBT: string,
@@ -905,8 +953,13 @@ export default class WalletOperations {
           internal = parseInt(j);
           index = parseInt(k);
         } else {
-          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-          [internal, index] = subPath;
+          if (wallet.isMultiSig) {
+            const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+            [internal, index] = subPath;
+          } else {
+            const { subPath } = WalletUtilities.addressToKey(input.address, wallet, true);
+            [internal, index] = subPath;
+          }
         }
         const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
           xpriv,
@@ -944,7 +997,7 @@ export default class WalletOperations {
     let isSigned = false;
     if (signer.isMock && signer.xpriv) {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
-      const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+      const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         wallet,
         inputs,
         PSBT.toBase64(),
@@ -952,12 +1005,12 @@ export default class WalletOperations {
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
-    } else if (signer.type === SignerType.TAPSIGNER) {
+    } else if (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
         const { subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
           inputs[inputIndex].address,
-          wallet as Vault
+          wallet
         );
         const publicKey = signerPubkeyMap.get(signer.xpub);
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
@@ -974,17 +1027,35 @@ export default class WalletOperations {
       signingPayload.push({ payloadTarget: signer.type, inputs });
     } else if (signer.type === SignerType.POLICY_SERVER) {
       const childIndexArray = [];
-      for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-        const { subPath } = WalletUtilities.addressToMultiSig(
-          inputs[inputIndex].address,
-          wallet as Vault
-        );
+      for (const input of inputs) {
+        let subPath;
+        if (wallet.isMultiSig) {
+          subPath = WalletUtilities.addressToMultiSig(input.address, wallet as Vault).subPath;
+        } else {
+          subPath = WalletUtilities.addressToKey(input.address, wallet, true).subPath;
+        }
         childIndexArray.push({
           subPath,
           inputIdentifier: {
-            txId: inputs[inputIndex].txId,
-            vout: inputs[inputIndex].vout,
-            value: inputs[inputIndex].value,
+            txId: input.txId,
+            vout: input.vout,
+            value: input.value,
+          },
+        });
+      }
+      signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
+    } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
+      signingPayload.push({ payloadTarget: signer.type, inputs });
+    } else if (signer.type === SignerType.POLICY_SERVER) {
+      const childIndexArray = [];
+      for (const input of inputs) {
+        const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+        childIndexArray.push({
+          subPath,
+          inputIdentifier: {
+            txId: input.txId,
+            vout: input.vout,
+            value: input.value,
           },
         });
       }
@@ -1006,7 +1077,7 @@ export default class WalletOperations {
 
   static broadcastTransaction = async (
     wallet: Wallet | Vault,
-    signedPSBT: bitcoinJS.Psbt,
+    txHex: string,
     inputs: InputUTXOs[],
     recipients: {
       address: string;
@@ -1014,23 +1085,16 @@ export default class WalletOperations {
     }[],
     network
   ) => {
-    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
     if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
       let err;
       try {
         err = txid.split(':')[3].split('"')[1];
-      } catch (err) {
-        console.log({
-          err,
-        });
-      }
-      throw new Error(err);
+      } catch (err) {}
+      throw new Error(err ? err : txid);
     }
+
     WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
     return txid;
   };
@@ -1127,7 +1191,6 @@ export default class WalletOperations {
       recipients.forEach((recipient) => {
         outgoing += recipient.amount;
       });
-
       for (const signer of signers) {
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
@@ -1141,7 +1204,10 @@ export default class WalletOperations {
       return { serializedPSBTEnvelops };
     } else {
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
-      const txid = await this.broadcastTransaction(wallet, signedPSBT, inputs, recipients, network);
+      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+      const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+      const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
       return {
         txid,
       };
@@ -1156,34 +1222,46 @@ export default class WalletOperations {
     recipients: {
       address: string;
       amount: number;
-    }[]
+    }[],
+    txHex?: string
   ): Promise<{
     txid: string;
   }> => {
     const inputs = txPrerequisites[txnPriority].inputs;
     let combinedPSBT: bitcoinJS.Psbt = null;
 
-    for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
-      const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
-      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
-      if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
-        for (const { inputsToSign } of signingPayload) {
-          for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
-            PSBT.addSignedDisgest(
-              inputIndex,
-              Buffer.from(publicKey, 'hex'),
-              Buffer.from(signature, 'hex'),
-              sighashType
-            );
+    if (!txHex) {
+      // construct the txHex by combining the signed PSBTs
+      for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
+        const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
+        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+        if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
+          for (const { inputsToSign } of signingPayload) {
+            for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
+              PSBT.addSignedDisgest(
+                inputIndex,
+                Buffer.from(publicKey, 'hex'),
+                Buffer.from(signature, 'hex'),
+                sighashType
+              );
+            }
           }
         }
+
+        if (!combinedPSBT) combinedPSBT = PSBT;
+        else combinedPSBT.combine(PSBT);
       }
 
-      if (!combinedPSBT) combinedPSBT = PSBT;
-      else combinedPSBT.combine(PSBT);
+      // validating signatures
+      const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs();
+      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+
+      // finalise and construct the txHex
+      txHex = combinedPSBT.finalizeAllInputs().extractTransaction().toHex();
     }
+
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const txid = await this.broadcastTransaction(wallet, combinedPSBT, inputs, recipients, network);
+    const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
     return {
       txid,
     };
