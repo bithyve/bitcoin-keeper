@@ -182,10 +182,7 @@ const KeeperContent = () => {
     <Box>
       <Box marginTop={2} width={wp(220)}>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n`}
-        </Text>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do`}
+          {`\u2022 Within settings of KSD, choose 'Scan PSBT' option and wait for the QR to be scanned\n`}
         </Text>
       </Box>
     </Box>

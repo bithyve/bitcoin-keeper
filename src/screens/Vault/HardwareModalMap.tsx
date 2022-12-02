@@ -330,7 +330,7 @@ const KeeperSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\n`}
+          {`\u2022 Choose a wallet or create a new one from your Linked Wallets\n`}
         </Text>
         <Text
           color={'#073B36'}
@@ -341,7 +341,7 @@ const KeeperSetupContent = () => {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do`}
+          {`\u2022 Within settings choose Show Cosigner Details to scan the QR`}
         </Text>
       </Box>
     </View>
