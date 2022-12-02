@@ -201,6 +201,7 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
+    txHex?: string;
   };
 }
 
@@ -227,6 +228,7 @@ export const updatePSBTSignatures = (payload: {
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
+  txHex?: string;
 }): SendPhaseThreeAction => {
   return {
     type: SEND_PHASE_THREE,

@@ -199,7 +199,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   );
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
-  const { wallet, txnPriority } = payload;
+  const { wallet, txnPriority, txHex } = payload;
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
@@ -216,7 +216,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
-      recipients
+      recipients,
+      txHex
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
     yield put(
