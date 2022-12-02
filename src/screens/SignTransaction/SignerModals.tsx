@@ -10,6 +10,7 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import JadeSetup from 'src/assets/images/illustration_jade.svg';
+import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
@@ -180,6 +181,7 @@ const JadeContent = () => {
 const KeeperContent = () => {
   return (
     <Box>
+      <KeeperSetup />
       <Box marginTop={2} width={wp(220)}>
         <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
           {`\u2022 Within settings of KSD, choose 'Scan PSBT' option and wait for the QR to be scanned\n`}
