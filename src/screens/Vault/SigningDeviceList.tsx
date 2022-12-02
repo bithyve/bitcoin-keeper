@@ -125,7 +125,10 @@ const SigningDeviceList = ({ navigation }: { navigation }) => {
         <Box alignSelf={'center'}>
           <SigningDevicesIllustration />
         </Box>
-        <Text color={'light.white'} style={styles.modalText}>
+        <Text
+          color={'light.white'}
+          style={styles.modalText}
+        >
           {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -353,7 +356,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     fontSize: 13,
     marginTop: 5,
-    padding: 1,
-  },
-});
+    padding: 1
+  }
+})
 export default SigningDeviceList;

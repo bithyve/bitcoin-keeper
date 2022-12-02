@@ -134,7 +134,7 @@ const LinkedWallets = (props) => {
     <Pressable
       style={{
         alignItems: 'center',
-        marginTop: hp(8),
+        marginTop: hp(8)
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
@@ -352,7 +352,7 @@ const VaultStatus = (props) => {
           <HStack
             style={{
               alignItems: 'center',
-              marginTop: hp(windowHeight > 700 ? 20 : 10),
+              marginTop: hp(windowHeight > 700 ? 20 : 10)
             }}
           >
             <BTC style={{ height: '20%' }} />
@@ -536,7 +536,7 @@ const HomeScreen = ({ navigation }) => {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
