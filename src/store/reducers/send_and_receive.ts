@@ -36,6 +36,7 @@ export interface UpdatePSBTPayload {
   signedSerializedPSBT?: string;
   signingPayload?: SigningPayload[];
   signerId: string;
+  txHex?: string;
 }
 
 export interface SendPhaseThreeExecutedPayload {
@@ -195,7 +196,7 @@ const sendAndReceiveSlice = createSlice({
     },
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
-      const { signerId, signingPayload, signedSerializedPSBT } = action.payload;
+      const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
         serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
@@ -203,8 +204,9 @@ const sendAndReceiveSlice = createSlice({
             envelop.serializedPSBT = signedSerializedPSBT
               ? signedSerializedPSBT
               : envelop.serializedPSBT;
-            envelop.isSigned = signedSerializedPSBT ? true : envelop.isSigned;
+            envelop.isSigned = signedSerializedPSBT || txHex ? true : envelop.isSigned;
             envelop.signingPayload = signingPayload ? signingPayload : envelop.signingPayload;
+            envelop.txHex = txHex ? txHex : envelop.txHex;
           }
           return envelop;
         }),

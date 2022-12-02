@@ -74,3 +74,21 @@ export const receivePSBTFromColdCard = async () => {
   });
   return payload;
 };
+
+export const receiveTxHexFromColdCard = async () => {
+  const signedData = await NFC.read(NfcTech.NfcV);
+  const payload = {
+    txid: '',
+    txn: '',
+  };
+  signedData.forEach((packet) => {
+    if (packet.rtdName === 'bitcoin.org:txid') {
+      payload.txid = packet.data;
+    } else if (packet.rtdName === 'bitcoin.org:txn') {
+      payload.txn = Buffer.from(packet.data, 'base64').toString('hex');
+    } else {
+      //ignore
+    }
+  });
+  return payload;
+};

@@ -210,6 +210,7 @@ export interface UpdatePSBTAction extends Action {
     signedSerializedPSBT?: string;
     signingPayload?: SigningPayload[];
     signerId: string;
+    txHex?: string;
   };
 }
 
@@ -217,6 +218,7 @@ export const updatePSBTSignatures = (payload: {
   signedSerializedPSBT?: string;
   signingPayload?: SigningPayload[];
   signerId: string;
+  txHex?: string;
 }): UpdatePSBTAction => {
   return {
     type: UPDATE_PSBT_SIGNATURES,

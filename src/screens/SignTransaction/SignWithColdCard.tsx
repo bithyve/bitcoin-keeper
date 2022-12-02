@@ -14,7 +14,11 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { receivePSBTFromColdCard, registerToColcard } from 'src/hardware/coldcard';
+import {
+  receivePSBTFromColdCard,
+  receiveTxHexFromColdCard,
+  registerToColcard,
+} from 'src/hardware/coldcard';
 import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 
@@ -80,9 +84,15 @@ const SignWithColdCard = ({ route }) => {
 
   const receiveFromColdCard = async () => {
     setNfcVisible(true);
-    const { psbt } = await receivePSBTFromColdCard();
-    setNfcVisible(false);
-    dispatch(updatePSBTSignatures({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+    if (!isMultisig) {
+      const { txn } = await receiveTxHexFromColdCard();
+      setNfcVisible(false);
+      dispatch(updatePSBTSignatures({ signerId: signer.signerId, txHex: txn }));
+    } else {
+      const { psbt } = await receivePSBTFromColdCard();
+      setNfcVisible(false);
+      dispatch(updatePSBTSignatures({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+    }
   };
   const registerCC = async () => {
     setNfcVisible(true);
