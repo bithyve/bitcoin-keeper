@@ -1,7 +1,11 @@
 import { Alert, SafeAreaView, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { getColdcardDetails, getMockColdcardDetails } from 'src/hardware/coldcard';
+import {
+  getCCGenericJSON,
+  getColdcardDetails,
+  getMockColdcardDetails,
+} from 'src/hardware/coldcard';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -16,17 +20,22 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
+import usePlan from 'src/hooks/usePlan';
 import useNfcModal from 'src/hooks/useNfcModal';
 
 const SetupColdCard = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   const { nfcVisible, withNfcModal } = useNfcModal();
 
   const addColdCard = async () => {
     try {
-      let { xpub, derivationPath, xfp } = await withNfcModal(getColdcardDetails);
+      let { xpub, derivationPath, xfp } = await withNfcModal(
+        isMultisig ? getColdcardDetails : getCCGenericJSON
+      );
       const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
       const coldcard = generateSignerFromMetaData({
@@ -55,6 +64,9 @@ const SetupColdCard = () => {
     }
   };
 
+  const instructions = isMultisig
+    ? 'Go to Settings > Multisig wallets > Export xPub on your Coldcard'
+    : 'Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
     <SafeAreaView style={styles.container}>
       <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>

@@ -280,9 +280,9 @@ const ChangeLanguage = () => {
         <Menu
           onPress={() => {
             // Do not remove this
-            // setShowLanguages(!showLanguages);
-            // setIsDisabled(false);
-            // setVisible(false);
+            setShowLanguages(!showLanguages);
+            setIsDisabled(false);
+            setVisible(false);
           }}
           arrow={showLanguages}
           label={selectedLanguage.flag}

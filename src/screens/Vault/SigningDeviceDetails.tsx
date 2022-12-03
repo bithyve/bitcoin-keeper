@@ -1,5 +1,5 @@
-import { Alert, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, Text, VStack, View, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 
@@ -31,30 +31,14 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import idx from 'idx';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-
-const Header = () => {
-  const navigation = useNavigation();
-  const { translations } = useContext(LocalizationContext);
-  const common = translations['common'];
-  return (
-    <Box flexDirection={'row'} justifyContent={'space-between'} px={'5%'}>
-      <StatusBar barStyle={'light-content'} />
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <BackIcon />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.knowMore}>
-        <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} fontWeight={100}>
-          {common.learnMore}
-        </Text>
-      </TouchableOpacity>
-    </Box>
-  );
-};
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 const SigningDeviceDetails = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
+  const common = translations['common'];
   const vault = translations['vault'];
   const healthcheck = translations['healthcheck'];
   const tapsigner = translations['tapsigner'];
@@ -340,61 +324,95 @@ const SigningDeviceDetails = ({ route }) => {
             bg={'#FAC48B'}
             justifyContent={'center'}
             alignItems={'center'}
-            alignSelf={'center'}
           >
             {<Icon />}
           </Box>
-          <Text textAlign={'center'}>{title}</Text>
+          <Text
+            numberOfLines={2}
+            fontSize={12}
+            letterSpacing={0.84}
+            width={wp(86)}
+            textAlign={'center'}
+          >
+            {title}
+          </Text>
         </VStack>
       </TouchableOpacity>
     );
   };
   return (
     <ScreenWrapper>
-      <Box>
-        <Header />
-        <Box>
-          <Box flexDirection={'row'} px={'10%'} py={'5%'}>
-            <Box
-              margin={'1'}
-              marginBottom={'3'}
-              width={'12'}
-              height={'12'}
-              borderRadius={30}
-              bg={'#725436'}
-              justifyContent={'center'}
-              alignItems={'center'}
-              alignSelf={'center'}
+      <HeaderTitle learnMore={true} />
+      <Box
+        style={{
+          flexDirection: 'row',
+          paddingHorizontal: '3%',
+        }}
+      >
+        <Box
+          style={{
+            margin: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: hp(48),
+            height: hp(48),
+            borderRadius: 30,
+            backgroundColor: '#725436'
+          }}
+        >
+          {WalletMap(signer.type, true).Icon}
+        </Box>
+        <Box marginTop={2} width={'75%'} flexDirection={'row'} justifyContent={'space-between'}>
+          <Box flexDirection={'column'}>
+            <Text fontSize={14} letterSpacing={1.15}>{signer.signerName}</Text>
+            <Text fontSize={13} color={'light.modalText'}>{`Added on ${moment(signer.addedOn)
+              .format('DD MMM YYYY, hh:mmA')
+              .toLowerCase()}`}</Text>
+          </Box>
+          <Box marginTop={3}>
+            <TouchableOpacity
+              onPress={() => {
+                setEditDescriptionModal(true);
+              }}
             >
-              {WalletMap(signer.type, true).Icon}
-            </Box>
-            <Box marginTop={2} width={'75%'} flexDirection={'row'} justifyContent={'space-between'}>
-              <Box flexDirection={'column'}>
-                <Text fontSize={15}>{signer.signerName}</Text>
-                <Text fontSize={13}>{`Added on ${moment(signer.addedOn)
-                  .format('DD MMM YYYY, hh:mmA')
-                  .toLowerCase()}`}</Text>
-              </Box>
-              <Box marginTop={3}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setEditDescriptionModal(true);
-                  }}
-                >
-                  <Edit />
-                </TouchableOpacity>
-              </Box>
-            </Box>
+              <Edit />
+            </TouchableOpacity>
           </Box>
         </Box>
       </Box>
+
       <ScrollView>
-        <Box m={10}>
+        <Box mx={5} mt={4}>
           <SigningDeviceChecklist date={signer.lastHealthCheck} />
         </Box>
       </ScrollView>
-      <Box py={'10%'}>
-        <Text fontSize={13}>You will be reminded in 90 days for the health check</Text>
+
+      <Box
+        position={'absolute'}
+        bottom={0}
+        alignItems={'center'}
+        justifyContent={'center'}
+        width={'100%'}
+        height={hp(188)}
+      >
+        <Text
+          fontSize={13}
+          color={'light.modalText'}
+          letterSpacing={0.65}
+        >
+          You will be reminded in 90 days for the health check
+        </Text>
+        <Box
+          borderColor={'light.GreyText'}
+          style={{
+            borderWidth: 0.5,
+            width: '90%',
+            borderRadius: 20,
+            opacity: 0.2,
+            marginVertical: hp(15)
+          }}
+        />
+
         <HStack justifyContent={'space-between'}>
           <FooterItem
             Icon={Change}
@@ -526,11 +544,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   knowMore: {
-    backgroundColor: 'light.brownborder',
     paddingHorizontal: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'light.lightBlack',
   },
   buttonContainer: {
     height: 50,

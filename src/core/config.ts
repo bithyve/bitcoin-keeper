@@ -100,7 +100,7 @@ class Configuration {
   public NETWORK: bitcoinJS.Network;
   public NETWORK_TYPE: NetworkType;
   public ENVIRONMENT: string;
-
+  public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN ? config.INSTABUG_TOKEN : '';
   constructor() {
     this.NETWORK = bitcoinJS.networks.testnet;
     this.NETWORK_TYPE = NetworkType.TESTNET;

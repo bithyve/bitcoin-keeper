@@ -18,7 +18,7 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { EntityKind, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
 import {
   SendPhaseOneExecutedPayload,
   sendPhaseOneExecuted,
@@ -175,12 +175,13 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
 function* updatePSBTSignaturesWorker({ payload }: UpdatePSBTAction) {
-  const { signerId, signedSerializedPSBT, signingPayload } = payload;
+  const { signerId, signedSerializedPSBT, signingPayload, txHex } = payload;
   yield put(
     updatePSBTEnvelops({
       signerId,
       signedSerializedPSBT,
       signingPayload,
+      txHex,
     })
   );
 }
@@ -203,20 +204,28 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
+    let txHex;
     for (let serializedPSBTEnvelop of serializedPSBTEnvelops) {
-      if (serializedPSBTEnvelop.isSigned) availableSignatures++;
+      if (serializedPSBTEnvelop.isSigned) {
+        availableSignatures++;
+      }
+      if (serializedPSBTEnvelop.signerType === SignerType.COLDCARD && serializedPSBTEnvelop.txHex) {
+        txHex = serializedPSBTEnvelop.txHex;
+      }
     }
     if (availableSignatures < threshold)
       throw new Error(
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
+
     const { txid } = yield call(
       WalletOperations.transferST3,
       wallet,
       serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
-      recipients
+      recipients,
+      txHex
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
     yield put(

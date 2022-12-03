@@ -271,7 +271,7 @@ const WalletSettings = ({ route }) => {
             title={'Receive Test Sats'}
             subTitle={'Recieve Test Sats to this address'}
             onPress={() => {
-              setAppLoading(true);
+              // setAppLoading(true);
               getTestSats();
             }}
             Icon={false}

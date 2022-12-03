@@ -246,7 +246,7 @@ const NewKeeperApp = ({ navigation }: { navigation }) => {
 
             <Tile
               title={'Recover for myself'}
-              subTitle={'Using Seed'}
+              subTitle={'Using Phrase'}
               Icon={<Recover />}
               onPress={() => {
                 navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });

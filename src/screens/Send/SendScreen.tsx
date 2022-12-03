@@ -92,7 +92,7 @@ const SendScreen = ({ route }) => {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigateToNext(getNextFreeAddress(item), '0', 'Wallet');
+      navigateToNext(getNextFreeAddress(item), null, 'Wallet');
     };
     return (
       <Box

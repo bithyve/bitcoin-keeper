@@ -209,7 +209,7 @@ const EnterSeedScreen = () => {
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.EnterSeed}
+              title={seed.recoveryPhrase}
               subtitle={seed.recoverWallet}
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
@@ -250,8 +250,8 @@ const EnterSeedScreen = () => {
                         styles.input,
                         item.invalid
                           ? {
-                              borderColor: '#F58E6F',
-                            }
+                            borderColor: '#F58E6F',
+                          }
                           : { borderColor: '#FDF7F0' },
                       ]}
                       placeholder={`enter ${getPlaceholder(index)} word`}
