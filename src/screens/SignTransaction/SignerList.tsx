@@ -7,10 +7,10 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { WalletMap } from '../Vault/WalletMap';
 import moment from 'moment';
+import { WalletMap } from '../Vault/WalletMap';
 
-const SignerList = ({
+function SignerList({
   signer,
   callback,
   envelops,
@@ -18,23 +18,23 @@ const SignerList = ({
   signer: VaultSigner;
   callback: any;
   envelops: SerializedPSBTEnvelop[];
-}) => {
+}) {
   const hasSignerSigned = !!envelops.filter(
     (psbt) => psbt.signerId === signer.signerId && psbt.isSigned
   ).length;
   return (
     <TouchableOpacity onPress={callback}>
       <Box m={5}>
-        <Box flexDirection={'row'} borderRadius={10} justifyContent={'space-between'}>
-          <Box flexDirection={'row'}>
+        <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
+          <Box flexDirection="row">
             <View style={styles.inheritenceView}>
               <Box
                 width={30}
                 height={30}
                 borderRadius={30}
-                bg={'#FAC48B'}
-                justifyContent={'center'}
-                alignItems={'center'}
+                bg="#FAC48B"
+                justifyContent="center"
+                alignItems="center"
                 marginX={1}
               >
                 {WalletMap(signer.type).Icon}
@@ -42,33 +42,33 @@ const SignerList = ({
             </View>
             <View style={{ flexDirection: 'column' }}>
               <Text
-                color={'light.textBlack'}
+                color="light.textBlack"
                 fontSize={RFValue(14)}
                 fontWeight={200}
-                fontFamily={'heading'}
+                fontFamily="heading"
                 letterSpacing={1.12}
               >
                 {signer.signerName}
               </Text>
               <Text
-                color={'light.GreyText'}
+                color="light.GreyText"
                 fontSize={RFValue(12)}
                 marginRight={10}
-                fontFamily={'body'}
+                fontFamily="body"
                 letterSpacing={0.6}
               >
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
               </Text>
             </View>
           </Box>
-          <Box alignItems={'center'} justifyContent={'center'}>
+          <Box alignItems="center" justifyContent="center">
             {hasSignerSigned ? <CheckIcon /> : <Next />}
           </Box>
         </Box>
       </Box>
     </TouchableOpacity>
   );
-};
+}
 
 export default SignerList;
 

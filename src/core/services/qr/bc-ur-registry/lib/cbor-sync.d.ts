@@ -33,4 +33,4 @@ export function addSemanticDecode(tag: any, fn: any): {
     addSemanticEncode: (tag: any, fn: any) => any;
     addSemanticDecode: (tag: any, fn: any) => any;
 };
-//# sourceMappingURL=cbor-sync.d.ts.map
+// # sourceMappingURL=cbor-sync.d.ts.map

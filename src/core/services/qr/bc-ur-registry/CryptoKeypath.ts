@@ -11,9 +11,7 @@ enum Keys {
 }
 
 export class CryptoKeypath extends RegistryItem {
-  getRegistryType = () => {
-    return RegistryTypes.CRYPTO_KEYPATH;
-  };
+  getRegistryType = () => RegistryTypes.CRYPTO_KEYPATH;
 
   constructor(
     private components: PathComponent[] = [],
@@ -28,16 +26,16 @@ export class CryptoKeypath extends RegistryItem {
       return undefined;
     }
 
-    const components = this.components.map((component) => {
-      return `${component.isWildcard() ? '*' : component.getIndex()}${
+    const components = this.components.map((component) => `${component.isWildcard() ? '*' : component.getIndex()}${
         component.isHardened() ? "'" : ''
-      }`;
-    });
+      }`);
     return components.join('/');
   };
 
   public getComponents = () => this.components;
+
   public getSourceFingerprint = () => this.sourceFingerprint;
+
   public getDepth = () => this.depth;
 
   toDataItem = () => {

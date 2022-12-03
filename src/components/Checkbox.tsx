@@ -3,7 +3,7 @@ import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
 
-const CheckBox = (props) => {
+function CheckBox(props) {
   const IconName = props.isChecked ? <Selected /> : <UnSelected />;
 
   return (
@@ -15,7 +15,7 @@ const CheckBox = (props) => {
       </View>
     </View>
   );
-};
+}
 
 export default CheckBox;
 

@@ -40,14 +40,12 @@ export default class BIP85 {
     return wif.encode(128, privateKey, true);
   };
 
-  public static entropyFromWif = (key: string) => {
-    return wif.decode(key).privateKey;
-  };
+  public static entropyFromWif = (key: string) => wif.decode(key).privateKey;
 
   public static calculateChecksum = (extendedKey: Buffer) => {
     let hash = crypto.createHash('sha256');
     hash.update(extendedKey);
-    let data = hash.digest();
+    const data = hash.digest();
     hash = crypto.createHash('sha256');
     hash.update(data);
     return hash.digest().slice(0, 4);

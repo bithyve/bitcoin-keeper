@@ -25,7 +25,7 @@ export const LocalizationContext = createContext({
   initializeAppLanguage: () => {},
 });
 
-export const LocalizationProvider = ({ children }) => {
+export function LocalizationProvider({ children }) {
   const [appLanguage, setAppLanguage] = useState(DEFAULT_LANGUAGE);
 
   const setLanguage = (language) => {
@@ -34,15 +34,13 @@ export const LocalizationProvider = ({ children }) => {
     Storage.set(APP_LANGUAGE, language);
   };
 
-  const formatString = (...param) => {
-    return translations.formatString(...param);
-  };
+  const formatString = (...param) => translations.formatString(...param);
 
   const initializeAppLanguage = async () => {
     const currentLanguage = await Storage.getString(APP_LANGUAGE);
     if (currentLanguage) {
       setLanguage(currentLanguage);
-      //moment.locale( currentLanguage )
+      // moment.locale( currentLanguage )
     } else {
       let localeCode = DEFAULT_LANGUAGE;
       const supportedLocaleCodes = translations.getAvailableLanguages();
@@ -53,7 +51,7 @@ export const LocalizationProvider = ({ children }) => {
           return true;
         }
       });
-      //moment.locale( localeCode )
+      // moment.locale( localeCode )
       setLanguage(localeCode);
     }
   };
@@ -71,4 +69,4 @@ export const LocalizationProvider = ({ children }) => {
       {children}
     </LocalizationContext.Provider>
   );
-};
+}

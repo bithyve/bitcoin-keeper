@@ -2,7 +2,9 @@ export class PathComponent {
   public static readonly HARDENED_BIT = 0x80000000;
 
   private index?: number;
+
   private wildcard: boolean;
+
   private hardened: boolean;
 
   constructor(args: { index?: number; hardened: boolean }) {
@@ -23,6 +25,8 @@ export class PathComponent {
   }
 
   public getIndex = () => this.index;
+
   public isWildcard = () => this.wildcard;
+
   public isHardened = () => this.hardened;
 }

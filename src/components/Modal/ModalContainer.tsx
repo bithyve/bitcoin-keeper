@@ -15,7 +15,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 
-const ModalContainer = ({
+function ModalContainer({
   visible,
   closeBottomSheet,
   background = 'rgba(0,0,0,0.5)',
@@ -27,7 +27,7 @@ const ModalContainer = ({
   background?: string;
   children?: any;
   onBackground?: any;
-}) => {
+}) {
   const [height, setHeight] = useState(6);
   const onAppStateChange = (state) => {
     // if ( state === 'background' || state === 'inactive' ){
@@ -58,7 +58,7 @@ const ModalContainer = ({
       onRequestClose={() => {
         closeBottomSheet ? closeBottomSheet() : null;
       }}
-      transparent={true}
+      transparent
       style={styles.wrapper}
     >
       {/* <KeyboardAwareScrollView
@@ -97,7 +97,7 @@ const ModalContainer = ({
       {/* </KeyboardAwareScrollView> */}
     </Modal>
   );
-};
+}
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,

@@ -3,11 +3,10 @@ import { NativeBaseProvider } from 'native-base';
 
 import { customTheme } from '../common/themes';
 
-const Provider = () => {
+function Provider() {
   return (
-    <NativeBaseProvider theme={customTheme}>
-    </NativeBaseProvider>
+    <NativeBaseProvider theme={customTheme} />
   );
-};
+}
 
 export default Provider;

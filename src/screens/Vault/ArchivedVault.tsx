@@ -13,21 +13,21 @@ import BTC from 'src/assets/images/svgs/btc_black.svg';
 import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
 
-const ArchivedVault = () => {
+function ArchivedVault() {
   const { useQuery } = useContext(RealmWrapperContext);
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => vault.archived);
 
-  const VaultItem = ({ vaultItem, index }: { vaultItem: Vault; index: number }) => {
+  function VaultItem({ vaultItem, index }: { vaultItem: Vault; index: number }) {
     return (
       <Pressable
-        backgroundColor={'light.lightYellow'}
+        backgroundColor="light.lightYellow"
         height={hp(135)}
         width={wp(300)}
-        flexDirection={'row'}
-        justifyContent={'space-between'}
-        alignItems={'center'}
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
         style={{
           paddingHorizontal: 20,
           borderRadius: hp(10),
@@ -36,17 +36,17 @@ const ArchivedVault = () => {
       >
         <Box>
           <Box
-            flexDirection={'row'}
-            alignItems={'center'}
+            flexDirection="row"
+            alignItems="center"
             style={{
               marginBottom: hp(10),
             }}
           >
-            <Text color={'light.headerText'} fontSize={16} fontWeight={300} fontFamily={'body'}>
+            <Text color="light.headerText" fontSize={16} fontWeight={300} fontFamily="body">
               {vaultItem?.specs?.transactions?.length}
             </Text>
             <Text
-              color={'light.textBlack'}
+              color="light.textBlack"
               fontSize={12}
               fontWeight={200}
               marginLeft={1}
@@ -56,16 +56,16 @@ const ArchivedVault = () => {
             </Text>
           </Box>
           <Box
-            flexDirection={'row'}
+            flexDirection="row"
             style={{
               marginBottom: hp(10),
             }}
           >
-            <Box justifyContent={'center'} marginTop={2}>
+            <Box justifyContent="center" marginTop={2}>
               <BTC />
             </Box>
             <Text
-              color={'light.textBlack'}
+              color="light.textBlack"
               fontSize={24}
               fontWeight={200}
               letterSpacing={1.12}
@@ -78,16 +78,16 @@ const ArchivedVault = () => {
               )}
             </Text>
           </Box>
-          <Box flexDirection={'row'}>
-            <Text color={'light.textBlack'} fontSize={12} fontWeight={100} letterSpacing={0.02}>
+          <Box flexDirection="row">
+            <Text color="light.textBlack" fontSize={12} fontWeight={100} letterSpacing={0.02}>
               Archived On
             </Text>
             <Text
-              color={'light.textBlack'}
+              color="light.textBlack"
               fontSize={12}
               fontWeight={300}
               letterSpacing={0.02}
-              fontStyle={'italic'}
+              fontStyle="italic"
             >
               {` ${'12 December, 2021'}`}
             </Text>
@@ -98,21 +98,21 @@ const ArchivedVault = () => {
         </Box>
       </Pressable>
     );
-  };
+  }
 
   const renderArchiveVaults = ({ item, index }) => <VaultItem vaultItem={item} index={index} />;
 
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={'Archived Vaults'}
-        subtitle={'Previously used vaults'}
-        headerTitleColor={'light.headerText'}
+        title="Archived Vaults"
+        subtitle="Previously used vaults"
+        headerTitleColor="light.headerText"
         paddingLeft={4}
         paddingTop={5}
       />
 
-      <Box alignItems={'center'}>
+      <Box alignItems="center">
         <FlatList
           data={vault}
           keyExtractor={(item, index) => item.id}
@@ -126,6 +126,6 @@ const ArchivedVault = () => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 export default ArchivedVault;

@@ -1,23 +1,21 @@
 import React, { createContext, useContext, useMemo } from 'react';
 
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmDatabase } from './realm';
-import { RealmSchema } from './enum';
 import config from 'src/core/config';
 import { createRealmContext } from '@realm/react';
-import { getJSONFromRealmObject } from './utils';
-import schema from './schema';
 import { stringToArrayBuffer } from 'src/store/sagas/login';
 import { useAppSelector } from 'src/store/hooks';
+import { RealmDatabase } from './realm';
+import { RealmSchema } from './enum';
+import { getJSONFromRealmObject } from './utils';
+import schema from './schema';
 
-export const realmConfig = (key) => {
-  return {
+export const realmConfig = (key) => ({
     path: RealmDatabase.file,
     schema,
     schemaVersion: RealmDatabase.schemaVersion,
     encryptionKey: key,
-  };
-};
+  });
 
 export const RealmWrapperContext = createContext({} as any);
 
@@ -28,7 +26,7 @@ const AppWithNetwork = ({ children }) => {
   return children;
 };
 
-export const RealmProvider = ({ children }) => {
+export function RealmProvider({ children }) {
   const key = useAppSelector((state) => state?.login?.key);
   if (key) {
     const bufferKey = stringToArrayBuffer(key);
@@ -41,7 +39,7 @@ export const RealmProvider = ({ children }) => {
         </RealmContext.RealmProvider>
       </RealmWrapperContext.Provider>
     );
-  } else {
+  } 
     return <>{children}</>;
-  }
-};
+  
+}

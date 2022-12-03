@@ -2,6 +2,7 @@ import BlockChainHomeIcon from 'src/assets/images/blockchainHome.svg';
 import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
 import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+
 export interface WALLET {
   Icon: React.SFC<React.SVGProps<SVGSVGElement>>;
   type: string;
@@ -40,7 +41,7 @@ export const walletData = (item) => {
       description: 'Daily Spends',
       balance: 0,
     };
-  } else if (walletTitle == 'Checking Wallet') {
+  } if (walletTitle == 'Checking Wallet') {
     return {
       Icon: SingleSigIcon,
       type: 'Single-sig',
@@ -48,7 +49,7 @@ export const walletData = (item) => {
       description: item?.presentationData?.description,
       balance: 0,
     };
-  } else {
+  } 
     return {
       Icon: item.Icon,
       type: item.type,
@@ -56,5 +57,5 @@ export const walletData = (item) => {
       description: item.description,
       balance: item.balance,
     };
-  }
+  
 };

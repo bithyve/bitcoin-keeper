@@ -27,12 +27,12 @@ import Illustration from 'src/assets/images/illustration.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
-const InputSeedWordSigner = ({ route }) => {
+function InputSeedWordSigner({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const seed = translations['seed'];
-  const common = translations['common'];
-  const onSuccess = route.params.onSuccess;
+  const {seed} = translations;
+  const {common} = translations;
+  const {onSuccess} = route.params;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -127,7 +127,7 @@ const InputSeedWordSigner = ({ route }) => {
   const getSeedWord = () => {
     let seedWord = '';
     for (let i = 0; i < 12; i++) {
-      seedWord += seedData[i].name + ' ';
+      seedWord += `${seedData[i].name  } `;
     }
     return seedWord.trim();
   };
@@ -140,43 +140,41 @@ const InputSeedWordSigner = ({ route }) => {
     } else Alert.alert('Invalid Mnemonic');
   };
 
-  const RecoverWalletScreen = () => {
+  function RecoverWalletScreen() {
     return (
       <View>
         <Illustration />
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
     );
-  };
+  }
 
-  const InValidSeedsScreen = () => {
+  function InValidSeedsScreen() {
     return (
       <View>
-        <Box alignSelf={'center'}>
+        <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit'
-          }
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
         </Text>
       </View>
     );
-  };
+  }
 
   const getFormattedNumber = (number) => {
-    if (number < 9) return '0' + (number + 1);
-    else return number + 1;
+    if (number < 9) return `0${  number + 1}`;
+    return number + 1;
   };
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return mainIndex + 'st';
-    else if (mainIndex == 2) return mainIndex + 'nd';
-    else if (mainIndex == 3) return mainIndex + 'rd';
-    else return mainIndex + 'th';
+    if (mainIndex == 1) return `${mainIndex  }st`;
+    if (mainIndex == 2) return `${mainIndex  }nd`;
+    if (mainIndex == 3) return `${mainIndex  }rd`;
+    return `${mainIndex  }th`;
   };
 
   return (
@@ -208,8 +206,7 @@ const InputSeedWordSigner = ({ route }) => {
               contentContainerStyle={{
                 marginStart: 15,
               }}
-              renderItem={({ item, index }) => {
-                return (
+              renderItem={({ item, index }) => (
                   <View
                     style={{
                       flexDirection: 'row',
@@ -260,11 +257,10 @@ const InputSeedWordSigner = ({ route }) => {
                       }}
                     />
                   </View>
-                );
-              }}
+                )}
             />
           </View>
-          <Text color={'#4F5955'} marginX={10} marginY={10} fontSize={12}>
+          <Text color="#4F5955" marginX={10} marginY={10} fontSize={12}>
             {seed.seedDescription}
           </Text>
           <View
@@ -273,16 +269,16 @@ const InputSeedWordSigner = ({ route }) => {
               justifyContent: 'space-between',
             }}
           >
-            <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
-              <View style={styles.dot}></View>
-              <View style={styles.dash}></View>
+            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+              <View style={styles.dot} />
+              <View style={styles.dash} />
             </Box>
-            <Box bg={'transparent'} flexDirection={'row'} marginRight={10}>
+            <Box bg="transparent" flexDirection="row" marginRight={10}>
               <TouchableOpacity>
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   marginTop={2}
                   //   color={buttonCancelColor}
@@ -300,10 +296,10 @@ const InputSeedWordSigner = ({ route }) => {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
+                    fontFamily="body"
+                    fontWeight="300"
                     letterSpacing={1}
-                    color={'white'}
+                    color="white"
                   >
                     {common.next}
                   </Text>
@@ -317,10 +313,10 @@ const InputSeedWordSigner = ({ route }) => {
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
-              buttonText={'Retry'}
-              buttonTextColor={'#FAFAFA'}
+              buttonText="Retry"
+              buttonTextColor="#FAFAFA"
               buttonCallback={closeInvalidSeedsModal}
-              textColor={'#041513'}
+              textColor="#041513"
               Content={InValidSeedsScreen}
             />
             <KeeperModal
@@ -330,10 +326,10 @@ const InputSeedWordSigner = ({ route }) => {
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
-              buttonText={'View Wallet'}
-              buttonTextColor={'#FAFAFA'}
+              buttonText="View Wallet"
+              buttonTextColor="#FAFAFA"
               buttonCallback={closeWalletSuccessModal}
-              textColor={'#041513'}
+              textColor="#041513"
               Content={RecoverWalletScreen}
             />
             <ModalWrapper
@@ -347,7 +343,7 @@ const InputSeedWordSigner = ({ route }) => {
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {

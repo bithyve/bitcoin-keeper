@@ -1,11 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 
-import CharButton from './CharButton';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/icons/delete.svg';
 import React from 'react';
+import CharButton from './CharButton';
 
-const AppNumPad = ({
+function AppNumPad({
   ok = null,
   clear,
   setValue,
@@ -13,14 +13,12 @@ const AppNumPad = ({
   color = '#FDF7F0',
   height = 70,
   darkDeleteIcon = false,
-}) => {
+}) {
   const numPadArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'ok', 0, 'clear'];
 
   const onCharInput = (char) => {
     if (!disable) {
-      setValue((currState) => {
-        return currState + char;
-      });
+      setValue((currState) => currState + char);
     }
   };
 
@@ -32,8 +30,8 @@ const AppNumPad = ({
     <View style={styles.numPadContainer}>
       {numPadArr.map((char) => {
         if (char === 'ok' && ok) {
-          return <CharButton key={char} char={''} color={color} height={height} />;
-        } else if (char === 'clear' && clear) {
+          return <CharButton key={char} char="" color={color} height={height} />;
+        } if (char === 'clear' && clear) {
           return (
             <CharButton
               Icon={darkDeleteIcon ? <DeleteDarkIcon /> : <DeleteIcon />}
@@ -43,7 +41,7 @@ const AppNumPad = ({
               height={height}
             />
           );
-        } else if (typeof char === 'number') {
+        } if (typeof char === 'number') {
           return (
             <CharButton
               char={char}
@@ -53,11 +51,11 @@ const AppNumPad = ({
               height={height}
             />
           );
-        } else return <CharButton char={' '} key={char} height={height} />;
+        } return <CharButton char={' '} key={char} height={height} />;
       })}
     </View>
   );
-};
+}
 
 export default AppNumPad;
 

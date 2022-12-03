@@ -38,16 +38,16 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
       // get the original message, assuming it was a JSON object
       const data = JSON.parse(decoded.toString());
       return { data, percentage: scanPercentage };
-    } else {
+    } 
       return { data: null, percentage: scanPercentage };
-    }
+    
   } catch (error) {
     captureError(error);
   }
 };
 
 export const encodePsbtUR = (data, rotation) => {
-  //check for psbt
+  // check for psbt
   try {
     Psbt.fromBase64(data); // will throw if not psbt
     const buff = Buffer.from(data, 'base64');
@@ -57,7 +57,7 @@ export const encodePsbtUR = (data, rotation) => {
   } catch (_) {}
 };
 export const encodeBytesUR = (data, rotation, type: BufferEncoding = 'hex') => {
-  //check for simple bytes
+  // check for simple bytes
   try {
     const buff = Buffer.from(data, type);
     const bytes = new Bytes(buff);

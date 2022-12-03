@@ -30,7 +30,7 @@ const storageSlice = createSlice({
       state.appId = action.payload
     },
     increasePinFailAttempts: (state) => {
-      state.failedAttempts = state.failedAttempts + 1
+      state.failedAttempts += 1
       state.lastLoginFailedAt = Date.now()
     },
     setPinResetCreds: (state, action: PayloadAction<{ hash: string, index: number }>) => {

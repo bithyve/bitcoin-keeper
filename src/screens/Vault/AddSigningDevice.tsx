@@ -25,7 +25,6 @@ import Relay from 'src/core/services/operations/Relay';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { WalletMap } from './WalletMap';
 import WalletOperations from 'src/core/wallets/operations';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -33,6 +32,7 @@ import moment from 'moment';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import { WalletMap } from './WalletMap';
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
@@ -40,14 +40,14 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
-    } else if (currentScheme.m < subscriptionScheme.m) {
+    } if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
-    } else {
+    } 
       return VaultMigrationType.CHANGE;
-    }
-  } else {
+    
+  } 
     return VaultMigrationType.CHANGE;
-  }
+  
 };
 
 export const checkSigningDevice = async (id) => {
@@ -55,7 +55,7 @@ export const checkSigningDevice = async (id) => {
   return exisits;
 };
 
-const AddSigningDevice = () => {
+function AddSigningDevice() {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
@@ -245,37 +245,37 @@ const AddSigningDevice = () => {
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return mainIndex + 'st';
-    else if (mainIndex == 2) return mainIndex + 'nd';
-    else if (mainIndex == 3) return mainIndex + 'rd';
-    else return mainIndex + 'th';
+    if (mainIndex == 1) return `${mainIndex  }st`;
+    if (mainIndex == 2) return `${mainIndex  }nd`;
+    if (mainIndex == 3) return `${mainIndex  }rd`;
+    return `${mainIndex  }th`;
   };
 
-  const SignerItem = ({ signer, index }: { signer: VaultSigner | undefined; index: number }) => {
+  function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
     if (!signer) {
       return (
         <Pressable onPress={navigateToSignerList}>
-          <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'10'}>
+          <Box flexDir="row" alignItems="center" marginX="3" marginBottom="10">
             <HStack style={styles.signerItem}>
-              <HStack alignItems={'center'}>
+              <HStack alignItems="center">
                 <AddIcon />
-                <VStack marginX={'4'} maxW={'64'}>
+                <VStack marginX="4" maxW="64">
                   <Text
-                    color={'light.lightBlack'}
+                    color="light.lightBlack"
                     fontSize={15}
                     numberOfLines={2}
-                    alignItems={'center'}
+                    alignItems="center"
                     letterSpacing={1.12}
                     fontWeight={200}
                   >
                     {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
-                  <Text fontWeight={200} color={'light.GreyText'} fontSize={13} letterSpacing={0.6}>
-                    {`Select signing device`}
+                  <Text fontWeight={200} color="light.GreyText" fontSize={13} letterSpacing={0.6}>
+                    Select signing device
                   </Text>
                 </VStack>
               </HStack>
-              <Box w={'15%'} alignItems={'center'}>
+              <Box w="15%" alignItems="center">
                 <IconArrowBlack />
               </Box>
             </HStack>
@@ -284,48 +284,48 @@ const AddSigningDevice = () => {
       );
     }
     return (
-      <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'12'}>
+      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
         <HStack style={styles.signerItem}>
           <HStack>
             <Box
-              width={'8'}
-              height={'8'}
+              width="8"
+              height="8"
               borderRadius={30}
-              bg={'#725436'}
-              justifyContent={'center'}
-              alignItems={'center'}
-              alignSelf={'center'}
+              bg="#725436"
+              justifyContent="center"
+              alignItems="center"
+              alignSelf="center"
             >
               {WalletMap(signer.type, true).Icon}
             </Box>
-            <VStack marginX={'4'} maxW={'80%'}>
+            <VStack marginX="4" maxW="80%">
               <Text
-                color={'light.lightBlack'}
+                color="light.lightBlack"
                 fontSize={15}
                 numberOfLines={2}
-                alignItems={'center'}
+                alignItems="center"
                 fontWeight={200}
                 letterSpacing={1.12}
               >
                 {signer.signerName}
               </Text>
-              <Text color={'light.GreyText'} fontSize={12} fontWeight={200} letterSpacing={0.6}>
+              <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
                 {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
               </Text>
             </VStack>
           </HStack>
           <Pressable style={styles.remove} onPress={() => removeSigner(signer)}>
-            <Text fontWeight={200} color={'light.GreyText'} fontSize={12} letterSpacing={0.6}>
-              {`Remove`}
+            <Text fontWeight={200} color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+              Remove
             </Text>
           </Pressable>
         </HStack>
       </Box>
     );
-  };
+  }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
-  const common = translations['common'];
+  const {common} = translations;
   const AstrixSigners = [];
   signersState.forEach((signer: VaultSigner) => {
     if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))
@@ -345,7 +345,7 @@ const AddSigningDevice = () => {
       <HeaderTitle
         title={`${preTitle} Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
-        headerTitleColor={'light.textBlack'}
+        headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />
       <FlatList
@@ -359,9 +359,9 @@ const AddSigningDevice = () => {
           marginTop: hp(52),
         }}
       />
-      <Box width={'100%'}>
-        {!!AstrixSigners.length ? (
-          <Box padding={'4'}>
+      <Box width="100%">
+        {AstrixSigners.length ? (
+          <Box padding="4">
             <Note
               title={common.note}
               subtitle={`* ${AstrixSigners.join(
@@ -372,21 +372,19 @@ const AddSigningDevice = () => {
         ) : null}
         <Buttons
           primaryDisable={
-            signersState.every((signer) => {
-              return !!!signer;
-            }) ||
+            signersState.every((signer) => !signer) ||
             (vaultSigners && vaultSigners.length !== currentSignerLimit)
           }
           primaryLoading={vaultCreating}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
-          secondaryText={'Cancel'}
+          secondaryText="Cancel"
           secondaryCallback={navigation.goBack}
         />
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   signerItem: {

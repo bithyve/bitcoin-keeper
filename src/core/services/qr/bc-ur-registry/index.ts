@@ -31,10 +31,10 @@ import {
   encodeDataItem,
 } from './lib';
 
-export { DataItem } from './lib';
-
 import { patchTags } from './utils';
 import {CryptoMultiAccounts} from "./extended/CryptoMultiAccounts";
+
+export { DataItem } from './lib';
 
 const URlib = {
   URRegistryDecoder,

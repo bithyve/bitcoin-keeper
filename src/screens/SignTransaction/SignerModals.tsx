@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { BulletPoint } from '../Vault/HardwareModalMap';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -26,12 +25,13 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useBLE from 'src/hooks/useLedger';
 import usePlan from 'src/hooks/usePlan';
+import { BulletPoint } from '../Vault/HardwareModalMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 const { width } = Dimensions.get('screen');
 
-const DeviceItem = ({ device, onSelectDevice }) => {
+function DeviceItem({ device, onSelectDevice }) {
   const [pending, setPending] = useState(false);
   const onPress = async () => {
     setPending(true);
@@ -46,10 +46,10 @@ const DeviceItem = ({ device, onSelectDevice }) => {
   return (
     <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
       <Text
-        color={'light.textLight'}
+        color="light.textLight"
         fontSize={RFValue(14)}
         fontWeight={200}
-        fontFamily={'heading'}
+        fontFamily="heading"
         letterSpacing={1.12}
       >
         {device.name}
@@ -57,9 +57,9 @@ const DeviceItem = ({ device, onSelectDevice }) => {
       {pending ? <ActivityIndicator /> : null}
     </TouchableOpacity>
   );
-};
+}
 
-const LedgerContent = ({ signTransaction }) => {
+function LedgerContent({ signTransaction }) {
   const { scanForPeripherals, requestPermissions, allDevices, disconnectFromDevice, isScanning } =
     useBLE();
 
@@ -79,28 +79,28 @@ const LedgerContent = ({ signTransaction }) => {
   }, []);
 
   return (
-    <React.Fragment>
+    <>
       {isScanning ? <ActivityIndicator /> : null}
       {allDevices.map((device) => (
         <DeviceItem device={device} onSelectDevice={signTransaction} key={device.id} />
       ))}
-    </React.Fragment>
+    </>
   );
-};
+}
 
-const ColdCardContent = ({ register, isMultisig }) => {
+function ColdCardContent({ register, isMultisig }) {
   return (
     <Box>
       <ColdCardSVG />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {register
             ? `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`
             : isMultisig
             ? `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`
             : ''}
         </Text>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {register
             ? ``
             : `\u2022 On the Mk4 main menu, choose the 'Ready to sign' option and choose the nfc option.`}
@@ -108,55 +108,55 @@ const ColdCardContent = ({ register, isMultisig }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const PassportContent = ({ isMultisig }: { isMultisig: boolean }) => {
+function PassportContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box>
       <PassportSVG />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 Make sure ${
             isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
           }the right bitcoin network is set before signing the transaction`}
         </Text>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
         </Text>
       </Box>
     </Box>
   );
-};
+}
 
-const SeedSignerContent = ({ isMultisig }: { isMultisig: boolean }) => {
+function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box>
       <SeedSignerSetup />
       <Box marginTop={2} width={wp(220)}>
         {isMultisig ? (
-          <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+          <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
             {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
           </Text>
         ) : null}
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
   );
-};
+}
 
-const KeystoneContent = ({ isMultisig }: { isMultisig: boolean }) => {
+function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
   return (
     <Box>
       <KeystoneSetup />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 Make sure ${
             isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
           }the right bitcoin network is set before signing the transaction`}
         </Text>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Keystone ${
             isMultisig ? 'multisig menu' : 'Generic Wallet section'
           }, press the scan icon on the top bar and wait for the QR to be scanned.`}
@@ -164,44 +164,44 @@ const KeystoneContent = ({ isMultisig }: { isMultisig: boolean }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const JadeContent = () => {
+function JadeContent() {
   return (
     <Box>
       <JadeSetup />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
   );
-};
-const KeeperContent = () => {
+}
+function KeeperContent() {
   return (
     <Box>
       <KeeperSetup />
       <Box marginTop={2} width={wp(220)}>
-        <Text color={'light.modalText'} fontSize={13} letterSpacing={0.65}>
+        <Text color="light.modalText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 Within settings of KSD, choose 'Scan PSBT' option and wait for the QR to be scanned\n`}
         </Text>
       </Box>
     </Box>
   );
-};
+}
 
-const TapsignerContent = () => {
+function TapsignerContent() {
   return (
     <>
       <TapsignerSetupSVG />
-      <BulletPoint text={'TAPSIGNER communicates with the app over NFC'} />
-      <BulletPoint text={'You will need the CVC/ Pin on the back of the card'} />
+      <BulletPoint text="TAPSIGNER communicates with the app over NFC" />
+      <BulletPoint text="You will need the CVC/ Pin on the back of the card" />
     </>
   );
-};
+}
 
-const PasswordEnter = ({ signTransaction }) => {
+function PasswordEnter({ signTransaction }) {
   const { pinHash } = useAppSelector((state) => state.storage);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
@@ -271,8 +271,8 @@ const PasswordEnter = ({ signTransaction }) => {
         <CVVInputsView
           passCode={password}
           passcodeFlag={false}
-          backgroundColor={true}
-          textColor={true}
+          backgroundColor
+          textColor
           length={4}
         />
         <Text
@@ -280,10 +280,10 @@ const PasswordEnter = ({ signTransaction }) => {
           fontWeight={200}
           letterSpacing={0.65}
           width={wp(290)}
-          color={'light.modalText'}
+          color="light.modalText"
           marginTop={2}
-        ></Text>
-        <Box mt={10} alignSelf={'flex-end'} mr={2}>
+         />
+        <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
             <CustomGreenButton
               onPress={() => {
@@ -292,7 +292,7 @@ const PasswordEnter = ({ signTransaction }) => {
                   signTransaction();
                 } else Alert.alert('Incorrect password. Try again!');
               }}
-              value={'Confirm'}
+              value="Confirm"
             />
           </Box>
         </Box>
@@ -300,14 +300,14 @@ const PasswordEnter = ({ signTransaction }) => {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor={'light.lightBlack'}
+        keyColor="light.lightBlack"
         ClearIcon={<DeleteIcon />}
       />
     </Box>
   );
-};
+}
 
-const OtpContent = ({ signTransaction }) => {
+function OtpContent({ signTransaction }) {
   const [otp, setOtp] = useState('');
   const onPressNumber = (text) => {
     let tmpPasscode = otp;
@@ -330,27 +330,27 @@ const OtpContent = ({ signTransaction }) => {
         <CVVInputsView
           passCode={otp}
           passcodeFlag={false}
-          backgroundColor={true}
-          textColor={true}
+          backgroundColor
+          textColor
         />
         <Text
           fontSize={13}
           fontWeight={200}
           letterSpacing={0.65}
           width={wp(290)}
-          color={'light.modalText'}
+          color="light.modalText"
           marginTop={2}
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et
         </Text>
-        <Box mt={10} alignSelf={'flex-end'} mr={2}>
+        <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
             <CustomGreenButton
               onPress={() => {
                 signTransaction({ signingServerOTP: otp });
               }}
-              value={'proceed'}
+              value="proceed"
             />
           </Box>
         </Box>
@@ -358,14 +358,14 @@ const OtpContent = ({ signTransaction }) => {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor={'light.lightBlack'}
+        keyColor="light.lightBlack"
         ClearIcon={<DeleteIcon />}
       />
     </Box>
   );
-};
+}
 
-const SignerModals = ({
+function SignerModals({
   activeSignerId,
   coldCardModal,
   tapsignerModal,
@@ -391,7 +391,7 @@ const SignerModals = ({
   signTransaction,
   textRef,
   signers,
-}) => {
+}) {
   const navigation = useNavigation();
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
@@ -418,9 +418,9 @@ const SignerModals = ({
               <KeeperModal
                 visible={currentSigner && tapsignerModal}
                 close={() => setTapsignerModal(false)}
-                title={'Keep your TAPSIGNER ready'}
-                subTitle={'Keep your TAPSIGNER ready before proceeding'}
-                buttonText={'Proceed'}
+                title="Keep your TAPSIGNER ready"
+                subTitle="Keep your TAPSIGNER ready before proceeding"
+                buttonText="Proceed"
                 buttonCallback={navigateToSignWithTapsigner}
                 Content={() => <TapsignerContent />}
               />
@@ -439,7 +439,7 @@ const SignerModals = ({
                 visible={currentSigner && coldCardModal}
                 close={() => setColdCardModal(false)}
                 title={register ? 'Register Coldcard' : 'Keep your Mk4 ready'}
-                subTitle={'Keep your Mk4 ready before proceeding'}
+                subTitle="Keep your Mk4 ready before proceeding"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 Content={() => <ColdCardContent register={register} isMultisig={isMultisig} />}
                 buttonText={register ? 'Register' : 'Proceed'}
@@ -452,14 +452,14 @@ const SignerModals = ({
               <KeeperModal
                 visible={currentSigner && ledgerModal}
                 close={() => setLedgerModal(false)}
-                title={'Looking for Nano X'}
-                subTitle={'Power up your Ledger Nano X and open the BTC app'}
+                title="Looking for Nano X"
+                subTitle="Power up your Ledger Nano X and open the BTC app"
                 modalBackground={['#00836A', '#073E39']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
                 buttonText={LedgerCom.current ? 'SIGN' : null}
-                buttonTextColor={'#073E39'}
-                textColor={'#FFF'}
-                DarkCloseIcon={true}
+                buttonTextColor="#073E39"
+                textColor="#FFF"
+                DarkCloseIcon
                 Content={() => <LedgerContent signTransaction={signTransaction} />}
               />
             );
@@ -470,10 +470,10 @@ const SignerModals = ({
                 close={() => {
                   setPasswordModal(false);
                 }}
-                title={'Enter your password'}
-                subTitle={''}
+                title="Enter your password"
+                subTitle=""
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <PasswordEnter signTransaction={signTransaction} />}
               />
             );
@@ -484,10 +484,10 @@ const SignerModals = ({
                 close={() => {
                   showOTPModal(false);
                 }}
-                title={'Confirm OTP to setup 2FA'}
-                subTitle={'Lorem ipsum dolor sit amet, '}
+                title="Confirm OTP to setup 2FA"
+                subTitle="Lorem ipsum dolor sit amet, "
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <OtpContent signTransaction={signTransaction} />}
               />
             );
@@ -498,12 +498,12 @@ const SignerModals = ({
                 close={() => {
                   setPassportModal(false);
                 }}
-                title={'Keep Passport Ready'}
-                subTitle={'Keep your Foundation Passport ready before proceeding'}
+                title="Keep Passport Ready"
+                subTitle="Keep your Foundation Passport ready before proceeding"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <PassportContent isMultisig={isMultisig} />}
-                buttonText={'Proceed'}
+                buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
@@ -514,12 +514,12 @@ const SignerModals = ({
                 close={() => {
                   setSeedSignerModal(false);
                 }}
-                title={'Keep SeedSigner Ready'}
-                subTitle={'Keep your SeedSigner ready before proceeding'}
+                title="Keep SeedSigner Ready"
+                subTitle="Keep your SeedSigner ready before proceeding"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <SeedSignerContent isMultisig={isMultisig} />}
-                buttonText={'Proceed'}
+                buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
@@ -530,12 +530,12 @@ const SignerModals = ({
                 close={() => {
                   setKeystoneModal(false);
                 }}
-                title={'Keep Keystone Ready'}
-                subTitle={'Keep your Keystone ready before proceeding'}
+                title="Keep Keystone Ready"
+                subTitle="Keep your Keystone ready before proceeding"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <KeystoneContent isMultisig={isMultisig} />}
-                buttonText={'Proceed'}
+                buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
@@ -546,12 +546,12 @@ const SignerModals = ({
                 close={() => {
                   setJadeModal(false);
                 }}
-                title={'Keep Jade Ready'}
-                subTitle={'Keep your Jade ready before proceeding'}
+                title="Keep Jade Ready"
+                subTitle="Keep your Jade ready before proceeding"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <JadeContent />}
-                buttonText={'Proceed'}
+                buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
@@ -562,12 +562,12 @@ const SignerModals = ({
                 close={() => {
                   setKeeperModal(false);
                 }}
-                title={'Keep your Device Ready'}
-                subTitle={'Keep your Keeper Signing Device ready before proceeding'}
+                title="Keep your Device Ready"
+                subTitle="Keep your Keeper Signing Device ready before proceeding"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
-                textColor={'#041513'}
+                textColor="#041513"
                 Content={() => <KeeperContent />}
-                buttonText={'Proceed'}
+                buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
@@ -575,7 +575,7 @@ const SignerModals = ({
       })}
     </>
   );
-};
+}
 
 export default SignerModals;
 

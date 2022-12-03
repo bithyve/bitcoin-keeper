@@ -20,15 +20,14 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
-const TapSignerRecovery = () => {
+function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
-  const withModal = (callback) => {
-    return Platform.select({
+  const withModal = (callback) => Platform.select({
       android: async () => {
         setNfcVisible(true);
         const resp = await card.nfcWrapper(callback);
@@ -38,7 +37,6 @@ const TapSignerRecovery = () => {
       },
       ios: async () => card.nfcWrapper(callback),
     });
-  };
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -79,13 +77,13 @@ const TapSignerRecovery = () => {
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
           return { xpub, status, xfp: xfp.toString('hex') };
-        } else {
+        } 
           await card.setup(cvc);
           const newCard = await card.first_look();
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
           return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
-        }
+        
       }
     })();
     return signerDetails;
@@ -136,17 +134,17 @@ const TapSignerRecovery = () => {
               style={styles.input}
               value={cvc}
               onChangeText={setCvc}
-              secureTextEntry={true}
+              secureTextEntry
               showSoftInputOnFocus={false}
             />
             <Text padding={5}>You will be scanning the TAPSIGNER after this step</Text>
-            <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
+            <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={verifyTapsigner} />
             </Box>
           </ScrollView>
           <KeyPadView
             onPressNumber={onPressHandler}
-            keyColor={'#041513'}
+            keyColor="#041513"
             ClearIcon={<DeleteIcon />}
             onDeletePressed={onDeletePressed}
           />
@@ -155,7 +153,7 @@ const TapSignerRecovery = () => {
       </TapGestureHandler>
     </SafeAreaView>
   );
-};
+}
 
 export default TapSignerRecovery;
 

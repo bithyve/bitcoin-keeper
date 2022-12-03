@@ -12,7 +12,7 @@ export interface Props {
   testID?: string;
   loading?: boolean;
 }
-const CustomButton = ({ value, onPress, disabled, testID, loading = false }: Props) => {
+function CustomButton({ value, onPress, disabled, testID, loading = false }: Props) {
   if (loading) {
     return <ActivityIndicator />;
   }
@@ -20,8 +20,8 @@ const CustomButton = ({ value, onPress, disabled, testID, loading = false }: Pro
     <TouchableHighlight
       style={styles.button}
       disabled={disabled}
-      underlayColor={'none'}
-      testID={testID ? testID : 'customButton'}
+      underlayColor="none"
+      testID={testID || 'customButton'}
       onPress={() => {
         onPress();
       }}
@@ -35,7 +35,7 @@ const CustomButton = ({ value, onPress, disabled, testID, loading = false }: Pro
           x: 0,
           y: 0,
         }}
-        useAngle={true}
+        useAngle
         angle={286}
         angleCenter={{
           x: 1,
@@ -44,13 +44,13 @@ const CustomButton = ({ value, onPress, disabled, testID, loading = false }: Pro
         colors={['#00836A', '#FFFFFF']}
         style={styles.linearGradient}
       >
-        <Text color={'#073E39'} fontSize={RFValue(12)} fontWeight={'300'} fontFamily={'body'}>
+        <Text color="#073E39" fontSize={RFValue(12)} fontWeight="300" fontFamily="body">
           {value}
         </Text>
       </LinearGradient>
     </TouchableHighlight>
   );
-};
+}
 
 const styles = StyleSheet.create({
   button: {

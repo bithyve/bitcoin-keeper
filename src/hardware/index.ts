@@ -77,12 +77,12 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       break;
   }
   if (isMock) {
-    return name + '**';
-  } else if (isAmf) {
-    return name + '*';
-  } else {
+    return `${name  }**`;
+  } if (isAmf) {
+    return `${name  }*`;
+  } 
     return name;
-  }
+  
 };
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {

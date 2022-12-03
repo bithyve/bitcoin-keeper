@@ -4,13 +4,13 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Just testing things out here (dev only)
-const TestingScreen = () => {
+function TestingScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <Text>{'Test anything here'}</Text>
+      <Text>Test anything here</Text>
     </SafeAreaView>
   );
-};
+}
 
 export default TestingScreen;
 

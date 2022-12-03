@@ -1,9 +1,9 @@
+import { crypto } from 'bitcoinjs-lib';
 import { Merkle, hashLeaf } from './merkle';
 import { createVarint, sanitizeBigintToNumber } from './varint';
 
 import { BufferReader } from './buffertools';
 import { MerkleMap } from './merkleMap';
-import { crypto } from 'bitcoinjs-lib';
 
 enum ClientCommandCode {
   YIELD = 0x10,
@@ -15,6 +15,7 @@ enum ClientCommandCode {
 
 abstract class ClientCommand {
   abstract code: ClientCommandCode;
+
   abstract execute(request: Buffer): Buffer;
 }
 
@@ -39,6 +40,7 @@ export class YieldCommand extends ClientCommand {
 
 export class GetPreimageCommand extends ClientCommand {
   private readonly known_preimages: ReadonlyMap<string, Buffer>;
+
   private queue: Buffer[];
 
   readonly code = ClientCommandCode.GET_PREIMAGE;
@@ -97,6 +99,7 @@ export class GetPreimageCommand extends ClientCommand {
 
 export class GetMerkleLeafProofCommand extends ClientCommand {
   private readonly known_trees: ReadonlyMap<string, Merkle>;
+
   private queue: Buffer[];
 
   readonly code = ClientCommandCode.GET_MERKLE_LEAF_PROOF;
@@ -265,6 +268,7 @@ export class GetMoreElementsCommand extends ClientCommand {
  */
 export class ClientCommandInterpreter {
   private readonly roots: Map<string, Merkle> = new Map();
+
   private readonly preimages: Map<string, Buffer> = new Map();
 
   private yielded: Buffer[] = [];

@@ -11,7 +11,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
 import { useDispatch } from 'react-redux';
 
-const ShowAddressScreen = ({ transport }) => {
+function ShowAddressScreen({ transport }) {
   const [error, setError] = useState(null);
   const [address, setAddress] = useState(null);
 
@@ -92,7 +92,7 @@ const ShowAddressScreen = ({ transport }) => {
       )}
     </View>
   );
-};
+}
 
 export default ShowAddressScreen;
 

@@ -11,9 +11,7 @@ export const patchTags = (tags: number[]): void => {
         }
       }
     });
-    addSemanticDecode(tag, (data: any) => {
-      return new DataItem(data, tag);
-    });
+    addSemanticDecode(tag, (data: any) => new DataItem(data, tag));
     alreadyPatchedTag.push(tag);
   });
 };

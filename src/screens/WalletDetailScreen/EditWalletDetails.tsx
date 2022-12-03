@@ -16,14 +16,14 @@ import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
-const EditWalletSettings = ({ route }) => {
+function EditWalletSettings({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const walletText = translations['wallet'];
-  const common = translations['common'];
+  const walletText = translations.wallet;
+  const {common} = translations;
 
-  const wallet: Wallet = route.params.wallet;
+  const {wallet} = route.params;
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
@@ -39,7 +39,7 @@ const EditWalletSettings = ({ route }) => {
   };
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
+    <View style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletText.WalletDetails}
@@ -50,24 +50,24 @@ const EditWalletSettings = ({ route }) => {
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
           //   placeholder={walletText.WalletName}
-          placeholderTextColor={'light.greenText'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.greenText"
+          backgroundColor="light.lightYellow"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
           borderRadius={10}
           marginY={2}
-          borderWidth={'0'}
+          borderWidth="0"
         />
         <Input
           //   placeholder={walletText.SinglesigWallet}
-          placeholderTextColor={'light.greenText'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.greenText"
+          backgroundColor="light.lightYellow"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
           borderRadius={10}
-          borderWidth={'0'}
+          borderWidth="0"
           marginY={2}
         />
         <View marginY={20}>
@@ -76,7 +76,7 @@ const EditWalletSettings = ({ route }) => {
             secondaryCallback={() => {
               navigtaion.goBack();
             }}
-            primaryText={'Save'}
+            primaryText="Save"
             primaryCallback={editWallet}
             primaryDisable={!walletName || !walletDescription}
           />
@@ -84,7 +84,7 @@ const EditWalletSettings = ({ route }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

@@ -10,7 +10,7 @@ import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import Note from '../Note/Note';
 
-const ShowXPub = ({
+function ShowXPub({
   data,
   copy = () => {},
   subText,
@@ -22,17 +22,17 @@ const ShowXPub = ({
   subText: string;
   noteSubText: string;
   copyable?: boolean;
-}) => {
+}) {
   const { translations } = useContext(LocalizationContext);
-  const common = translations['common'];
+  const {common} = translations;
 
   return (
     <>
-      <Box justifyContent={'center'} alignItems={'center'} width={wp(275)}>
+      <Box justifyContent="center" alignItems="center" width={wp(275)}>
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
-          <Box bg={'light.QrCode'} alignItems={'center'} justifyContent={'center'} p={1} w={200}>
-            <Text fontSize={RFValue(12)} color={'light.recieverAddress'} fontFamily={'body'}>
+          <Box bg="light.QrCode" alignItems="center" justifyContent="center" p={1} w={200}>
+            <Text fontSize={RFValue(12)} color="light.recieverAddress" fontFamily="body">
               {subText}
             </Text>
           </Box>
@@ -40,16 +40,16 @@ const ShowXPub = ({
         <Box p={2}>
           {copyable ? (
             <Box
-              flexDirection={'row'}
-              bg={'light.textInputBackground'}
+              flexDirection="row"
+              bg="light.textInputBackground"
               borderTopLeftRadius={10}
               borderBottomLeftRadius={10}
               width={wp(220)}
               marginTop={hp(30)}
               marginBottom={hp(30)}
             >
-              <Box py={2} alignItems={'center'}>
-                <Text fontSize={RFValue(12)} fontFamily={'body'} noOfLines={1} px={3}>
+              <Box py={2} alignItems="center">
+                <Text fontSize={RFValue(12)} fontFamily="body" noOfLines={1} px={3}>
                   {data}
                 </Text>
               </Box>
@@ -77,10 +77,10 @@ const ShowXPub = ({
           ) : null}
         </Box>
       </Box>
-      <Box width={'85%'}>
-        <Note title={common.note} subtitle={noteSubText} subtitleColor={'GreyText'} />
+      <Box width="85%">
+        <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
       </Box>
     </>
   );
-};
+}
 export default ShowXPub;

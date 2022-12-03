@@ -23,27 +23,23 @@ const RadioButton: React.FC<Props> = ({
   ignoresTouch = false,
   onpress = () => {},
 }: Props) => {
-  const containerStyle = useMemo(() => {
-    return {
+  const containerStyle = useMemo(() => ({
       ...styles.rootContainer,
       borderColor,
       borderRadius: size / 2,
       height: size,
       width: size,
-    };
-  }, [
+    }), [
     // borderColor,
     size,
   ]);
 
-  const innerCircleStyle = useMemo(() => {
-    return {
+  const innerCircleStyle = useMemo(() => ({
       // backgroundColor: color,
       borderRadius: size / 2,
       height: size - 5,
       width: size - 5,
-    };
-  }, [
+    }), [
     // color,
     size,
   ]);

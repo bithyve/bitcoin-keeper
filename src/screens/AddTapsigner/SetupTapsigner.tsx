@@ -16,15 +16,15 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
-const SetupTapsigner = () => {
+function SetupTapsigner() {
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
@@ -118,7 +118,7 @@ const SetupTapsigner = () => {
               style={styles.input}
               value={cvc}
               onChangeText={setCvc}
-              secureTextEntry={true}
+              secureTextEntry
               showSoftInputOnFocus={false}
             />
             <Text
@@ -127,18 +127,18 @@ const SetupTapsigner = () => {
               width={wp(250)}
               fontSize={13}
               letterSpacing={0.65}
-              color={'light.modalText'}
+              color="light.modalText"
             >
               You will be scanning the TAPSIGNER after this step
             </Text>
-            <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
+            <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
         </TapGestureHandler>
         <KeyPadView
           onPressNumber={onPressHandler}
-          keyColor={'#041513'}
+          keyColor="#041513"
           ClearIcon={<DeleteIcon />}
           onDeletePressed={onDeletePressed}
         />
@@ -146,7 +146,7 @@ const SetupTapsigner = () => {
       </Box>
     </SafeAreaView>
   );
-};
+}
 
 export default SetupTapsigner;
 

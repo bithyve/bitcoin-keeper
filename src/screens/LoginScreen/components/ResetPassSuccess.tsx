@@ -8,48 +8,48 @@ import Illustration from 'src/assets/images/illustration.svg';
 // import login from 'src/store/reducers/login';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const ResetPassSuccess = (props) => {
+function ResetPassSuccess(props) {
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
+  const {login} = translations;
   function onPressProceed() {}
 
   return (
-    <Box bg={'#F7F2EC'} p={10} borderRadius={10}>
+    <Box bg="#F7F2EC" p={10} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          bg={'#E3BE96'}
+          bg="#E3BE96"
           borderRadius={32}
           h={8}
           w={8}
-          alignItems={'center'}
-          justifyContent={'center'}
-          alignSelf={'flex-end'}
+          alignItems="center"
+          justifyContent="center"
+          alignSelf="flex-end"
         >
-          <Text fontSize={18} color={'#FFF'}>
+          <Text fontSize={18} color="#FFF">
             X
           </Text>
         </Box>
       </TouchableOpacity>
-      <Text fontSize={RFValue(19)} color={'light.lightBlack'}>
+      <Text fontSize={RFValue(19)} color="light.lightBlack">
         {login.resetSuccess}
       </Text>
-      <Text fontSize={RFValue(13)} color={'light.textColor2'}>
+      <Text fontSize={RFValue(13)} color="light.textColor2">
         {login.ResetPassSubPara1}
       </Text>
-      <Box alignItems={'center'} my={10}>
+      <Box alignItems="center" my={10}>
         <Illustration />
       </Box>
-      <Text fontSize={RFValue(13)} color={'light.textColor2'} my={5}>
+      <Text fontSize={RFValue(13)} color="light.textColor2" my={5}>
         {login.ResetPassSubPara2}
       </Text>
-      <Box alignSelf={'flex-end'}>
+      <Box alignSelf="flex-end">
         <CustomGreenButton
           onPress={() => props.closeBottomSheet()}
-          value={'Login'}
+          value="Login"
           disabled={false}
         />
       </Box>
     </Box>
   );
-};
+}
 export default ResetPassSuccess;

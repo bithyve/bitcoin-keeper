@@ -9,30 +9,22 @@ export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
 export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 
-export const addNewVault = (payload: { newVaultInfo: newVaultInfo; payload?: Vault }) => {
-  return {
+export const addNewVault = (payload: { newVaultInfo: newVaultInfo; payload?: Vault }) => ({
     type: ADD_NEW_VAULT,
     payload,
-  };
-};
+  });
 
-export const addSigningDevice = (payload: VaultSigner) => {
-  return {
+export const addSigningDevice = (payload: VaultSigner) => ({
     type: ADD_SIGINING_DEVICE,
     payload,
-  };
-};
+  });
 
-export const migrateVault = (newVaultInfo: newVaultInfo, migrationType: VaultMigrationType) => {
-  return {
+export const migrateVault = (newVaultInfo: newVaultInfo, migrationType: VaultMigrationType) => ({
     type: MIGRATE_VAULT,
     payload: { newVaultData: newVaultInfo, migrationType },
-  };
-};
+  });
 
-export const finaliseVaultMigration = (payload: string) => {
-  return {
+export const finaliseVaultMigration = (payload: string) => ({
     type: FINALISE_VAULT_MIGRATION,
     payload: { vaultId: payload },
-  };
-};
+  });

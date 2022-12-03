@@ -31,8 +31,6 @@ export const captureError = (error: Error, context?: CaptureContext) => {
   return Sentry.captureException(error, context);
 };
 
-export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => {
-  return Sentry.captureMessage(message, captureContext);
-};
+export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => Sentry.captureMessage(message, captureContext);
 
 export { routingInstrumentation };

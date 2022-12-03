@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Box, Text } from 'native-base';
-import { NextIcon } from './HomeScreen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { updateUaiStack } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
+import { NextIcon } from './HomeScreen';
 
-const UaiDisplay = ({ uaiStack }) => {
+function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState({});
   const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -88,7 +88,7 @@ const UaiDisplay = ({ uaiStack }) => {
   }, [uaiStack]);
 
   const uaiSetActionFalse = () => {
-    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
+    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
     updatedUai = { ...updatedUai, isActioned: true };
     dispatch(updateUaiStack(updatedUai));
   };
@@ -105,20 +105,20 @@ const UaiDisplay = ({ uaiStack }) => {
     return (
       <>
         <Box
-          backgroundColor={'light.AddSignerCard'}
+          backgroundColor="light.AddSignerCard"
           height={hp(60)}
           width={wp(259)}
           borderRadius={hp(20)}
           marginTop={hp(44)}
-          flexDirection={'row'}
-          justifyContent={'space-between'}
-          alignItems={'center'}
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
           paddingX={4}
         >
           <Text
             noOfLines={2}
             width={wp(170)}
-            color={'light.white1'}
+            color="light.white1"
             letterSpacing={0.6}
             fontSize={RFValue(12)}
             fontWeight={200}
@@ -136,18 +136,18 @@ const UaiDisplay = ({ uaiStack }) => {
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
-          buttonTextColor={'#FAFAFA'}
+          buttonTextColor="#FAFAFA"
           buttonCallback={uaiConfig?.cta}
-          textColor={'#000'}
+          textColor="#000"
           Content={() => (
-            <Text fontWeight={200} color={'#073B36'}>
+            <Text fontWeight={200} color="#073B36">
               {uai?.displayText}
             </Text>
           )}
         />
       </>
     );
-  } else return null;
-};
+  } return null;
+}
 
 export default UaiDisplay;

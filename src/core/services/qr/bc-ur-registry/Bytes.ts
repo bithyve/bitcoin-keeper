@@ -3,9 +3,7 @@ import { RegistryItem } from './RegistryItem';
 import { RegistryTypes } from './RegistryType';
 
 export class Bytes extends RegistryItem {
-  getRegistryType = () => {
-    return RegistryTypes.BYTES;
-  };
+  getRegistryType = () => RegistryTypes.BYTES;
 
   constructor(private bytes: Buffer) {
     super();
@@ -13,9 +11,7 @@ export class Bytes extends RegistryItem {
 
   getData = () => this.bytes;
 
-  toDataItem = () => {
-    return new DataItem(this.bytes);
-  };
+  toDataItem = () => new DataItem(this.bytes);
 
   public static fromDataItem = (dataItem: DataItem) => {
     const bytes = dataItem.getData();
