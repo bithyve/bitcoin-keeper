@@ -34,7 +34,7 @@ const createObject = (schema: RealmSchema, object: any) => {
 const getObjectByIndex = (schema: RealmSchema, index: number = 0, all: boolean = false) => {
   const objects = realm.get(schema);
   if (all) return objects;
-  else return objects[index];
+  return objects[index];
 };
 
 /**

@@ -11,11 +11,11 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { WalletMap } from './WalletMap';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
+import { WalletMap } from './WalletMap';
 
 const gradientStyles = {
   linearGradient: {
@@ -24,7 +24,7 @@ const gradientStyles = {
     end: [1, 0],
   },
 };
-const SignerAdvanceSettings = ({ route }) => {
+function SignerAdvanceSettings({ route }) {
   const { signer }: { signer: VaultSigner } = route.params;
   const signerName = getSignerNameFromType(
     signer.type,
@@ -67,25 +67,25 @@ const SignerAdvanceSettings = ({ route }) => {
     <ScreenWrapper>
       <HeaderTitle title="Advanced Settings" headerTitleColor="#092C27" />
       <Box bg={gradientStyles} style={styles.card}>
-        <HStack alignItems={'center'}>
+        <HStack alignItems="center">
           <Box style={styles.circle}>{WalletMap(signer.type, true).Icon}</Box>
-          <VStack justifyContent={'center'} px={4}>
-            <Text color={'white'} fontSize={14} fontFamily={'body'} fontWeight={'200'}>
+          <VStack justifyContent="center" px={4}>
+            <Text color="white" fontSize={14} fontFamily="body" fontWeight="200">
               {signerName}
             </Text>
-            <Text color={'white'} fontSize={10} fontFamily={'body'} fontWeight={'100'}>
+            <Text color="white" fontSize={10} fontFamily="body" fontWeight="100">
               {moment(signer.addedOn).calendar().toLowerCase()}
             </Text>
           </VStack>
         </HStack>
       </Box>
       <TouchableOpacity onPress={registerSigner}>
-        <HStack alignItems={'center'}>
-          <VStack px={4} width={'90%'}>
-            <Text color={'light.lightBlack'} fontSize={14} fontFamily={'body'} fontWeight={'200'}>
-              {'Manual Registration'}
+        <HStack alignItems="center">
+          <VStack px={4} width="90%">
+            <Text color="light.lightBlack" fontSize={14} fontFamily="body" fontWeight="200">
+              Manual Registration
             </Text>
-            <Text color={'light.lightBlack'} fontSize={12} fontFamily={'body'} fontWeight={'100'}>
+            <Text color="light.lightBlack" fontSize={12} fontFamily="body" fontWeight="100">
               {`Register your active vault with the ${signerName}.`}
             </Text>
           </VStack>
@@ -95,7 +95,7 @@ const SignerAdvanceSettings = ({ route }) => {
       <NfcPrompt visible={nfcModal} />
     </ScreenWrapper>
   );
-};
+}
 
 export default SignerAdvanceSettings;
 

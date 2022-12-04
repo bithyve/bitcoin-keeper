@@ -2,10 +2,10 @@ import { Box, Text } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import DeleteIcon from 'src/assets/icons/delete.svg';
-import KeyPadButton from './KeyPadButton';
 import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import KeyPadButton from './KeyPadButton';
 
 export interface Props {
   onPressNumber;
@@ -20,9 +20,8 @@ const KeyPadView: React.FC<Props> = ({
   disabled = false,
   keyColor = '#F4F4F4',
   ClearIcon = <DeleteIcon />,
-}: Props) => {
-  return (
-    <Box pointerEvents={disabled ? 'none' : 'auto'} mt={'auto'}>
+}: Props) => (
+    <Box pointerEvents={disabled ? 'none' : 'auto'} mt="auto">
       <Box style={styles.keyWrapperView}>
         <KeyPadButton title="1" onPressNumber={() => onPressNumber('1')} keyColor={keyColor} />
         <KeyPadButton title="2" onPressNumber={() => onPressNumber('2')} keyColor={keyColor} />
@@ -38,9 +37,9 @@ const KeyPadView: React.FC<Props> = ({
         <KeyPadButton title="8" onPressNumber={() => onPressNumber('8')} keyColor={keyColor} />
         <KeyPadButton title="9" onPressNumber={() => onPressNumber('9')} keyColor={keyColor} />
       </Box>
-      <Box flexDirection={'row'} height={hp('8%')}>
+      <Box flexDirection="row" height={hp('8%')}>
         <Box style={styles.emptyBtnView}>
-          <Text flex={1} p={15}></Text>
+          <Text flex={1} p={15} />
         </Box>
         <TouchableOpacity
           onPress={() => onPressNumber('0')}
@@ -61,7 +60,6 @@ const KeyPadView: React.FC<Props> = ({
       </Box>
     </Box>
   );
-};
 const styles = StyleSheet.create({
   keyPadElementTouchable: {
     flex: 1,

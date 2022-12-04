@@ -1,4 +1,27 @@
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
+import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
+import { call, put, select } from 'redux-saga/effects';
+
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
+import idx from 'idx';
+import { createWatcher } from '../utilities';
+import dbManager from '../../storage/realm/dbManager';
+import {
+  SendPhaseOneExecutedPayload,
+  sendPhaseOneExecuted,
+  sendPhaseThreeExecuted,
+  sendPhaseTwoExecuted,
+  setAverageTxFee,
+  setExchangeRates,
+  setSendMaxFee,
+  updatePSBTEnvelops,
+} from '../reducers/send_and_receive';
 import {
   CALCULATE_CUSTOM_FEE,
   CALCULATE_SEND_MAX_FEE,
@@ -18,29 +41,6 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
-import {
-  SendPhaseOneExecutedPayload,
-  sendPhaseOneExecuted,
-  sendPhaseThreeExecuted,
-  sendPhaseTwoExecuted,
-  setAverageTxFee,
-  setExchangeRates,
-  setSendMaxFee,
-  updatePSBTEnvelops,
-} from '../reducers/send_and_receive';
-import { call, put, select } from 'redux-saga/effects';
-
-import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
-import { createWatcher } from '../utilities';
-import dbManager from '../../storage/realm/dbManager';
-import idx from 'idx';
 import { updatVaultImage } from '../sagaActions/bhr';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
@@ -110,7 +110,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
         err: err.message,
       })
     );
-    return;
+    
   }
 }
 
@@ -205,7 +205,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
     let txHex;
-    for (let serializedPSBTEnvelop of serializedPSBTEnvelops) {
+    for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
       if (serializedPSBTEnvelop.isSigned) {
         availableSignatures++;
       }
@@ -299,7 +299,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     } else throw new Error('Failed to generate txPrerequisites for cross transfer');
   } catch (err) {
     console.log({ err });
-    return;
+    
   }
 }
 
@@ -311,7 +311,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     (state) => state.sendAndReceive.averageTxFees
   );
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-  const feePerByte = averageTxFeeByNetwork[TxPriority.LOW].feePerByte;
+  const {feePerByte} = averageTxFeeByNetwork[TxPriority.LOW];
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { fee } = WalletOperations.calculateSendMaxFee(

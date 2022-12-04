@@ -16,14 +16,14 @@ import { TapGestureHandler } from 'react-native-gesture-handler';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useNfcModal from 'src/hooks/useNfcModal';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
-const SetupColdCard = () => {
+function SetupColdCard() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { subscriptionScheme } = usePlan();
@@ -86,7 +86,7 @@ const SetupColdCard = () => {
       </TapGestureHandler>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

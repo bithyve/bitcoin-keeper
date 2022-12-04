@@ -2,6 +2,7 @@ export class ScriptExpression {
   constructor(private tag: number, private expression: string) {}
 
   public getTag = () => this.tag;
+
   public getExpression = () => this.expression;
 
   public static fromTag = (tag: number) => {

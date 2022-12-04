@@ -3,7 +3,9 @@
 
 export class RegistryType {
   constructor(private type: string, private tag?: number) {}
+
   getTag = () => this.tag;
+
   getType = () => this.type;
 }
 

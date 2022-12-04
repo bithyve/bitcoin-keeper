@@ -17,8 +17,8 @@ import Settings from 'src/assets/images/svgs/settings_brown.svg';
 // Components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 
-const SigningServer = ({ navigation }) => {
-  const GradientIcon = ({ height, Icon }) => {
+function SigningServer({ navigation }) {
+  function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
         colors={['#694B2E', '#694B2E']}
@@ -35,8 +35,8 @@ const SigningServer = ({ navigation }) => {
         <Icon />
       </LinearGradient>
     );
-  };
-  const SimpleIcon = ({ height, Icon }) => {
+  }
+  function SimpleIcon({ height, Icon }) {
     return (
       <Box
         style={{
@@ -51,52 +51,52 @@ const SigningServer = ({ navigation }) => {
         <Icon />
       </Box>
     );
-  };
+  }
 
-  const Description = ({ text }) => {
+  function Description({ text }) {
     return (
       <Text
-        color={'light.inActiveMsg'}
+        color="light.inActiveMsg"
         fontSize={RFValue(12)}
-        fontWeight={'200'}
+        fontWeight="200"
         letterSpacing={0.6}
       >
         {text}
       </Text>
     );
-  };
-  const HistoryCard = () => {
+  }
+  function HistoryCard() {
     return (
       <Box>
         <Box
           zIndex={99}
-          position={'absolute'}
+          position="absolute"
           left={-8}
-          bg={'light.ReceiveBackground'}
+          bg="light.ReceiveBackground"
           p={2}
           borderRadius={15}
         >
-          <DotView height={2} width={2} color={'#E3BE96'} />
+          <DotView height={2} width={2} color="#E3BE96" />
         </Box>
         <Text
-          color={'light.GreyText'}
+          color="light.GreyText"
           fontSize={RFValue(10)}
-          fontWeight={'300'}
+          fontWeight="300"
           ml={5}
           opacity={0.7}
         >
-          {'15 March ’21'}
+          15 March ’21
         </Text>
-        <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} ml={wp(3.5)} position="relative">
+        <Box borderLeftColor="#E3BE96" borderLeftWidth={1} ml={wp(3.5)} position="relative">
           <Box
-            backgroundColor={'light.lightYellow'}
+            backgroundColor="light.lightYellow"
             my={2}
             p={5}
             marginLeft={wp(15)}
             borderRadius={10}
           >
             <Text
-              color={'light.recieverAddress'}
+              color="light.recieverAddress"
               fontSize={RFValue(14)}
               fontWeight={200}
               letterSpacing={0.96}
@@ -104,15 +104,13 @@ const SigningServer = ({ navigation }) => {
               Health Check Skipped
             </Text>
             <Description
-              text={
-                'Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et'
-              }
+              text="Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
             />
           </Box>
         </Box>
       </Box>
     );
-  };
+  }
 
   return (
     <SafeAreaView
@@ -124,8 +122,8 @@ const SigningServer = ({ navigation }) => {
       <StatusBarComponent padding={hp(2)} />
 
       <Box
-        flexDirection={'row'}
-        justifyContent={'space-between'}
+        flexDirection="row"
+        justifyContent="space-between"
         style={{
           paddingLeft: wp(30),
           paddingRight: wp(20),
@@ -138,44 +136,44 @@ const SigningServer = ({ navigation }) => {
         <Box
           height={hp(20)}
           width={wp(70)}
-          borderColor={'light.brownborder'}
+          borderColor="light.brownborder"
           borderWidth={0.5}
           borderRadius={5}
-          backgroundColor={'light.yellow2'}
-          justifyContent={'center'}
-          alignItems={'center'}
+          backgroundColor="light.yellow2"
+          justifyContent="center"
+          alignItems="center"
         >
-          <Text color={'light.brownborder'} fontWeight={200} letterSpacing={0.6} fontSize={12}>
+          <Text color="light.brownborder" fontWeight={200} letterSpacing={0.6} fontSize={12}>
             Learn More
           </Text>
         </Box>
       </Box>
 
-      <Box alignItems={'center'} justifyContent={'center'} flexDirection={'row'} marginTop={hp(35)}>
+      <Box alignItems="center" justifyContent="center" flexDirection="row" marginTop={hp(35)}>
         <Box marginRight={wp(17)}>
           <GradientIcon Icon={Server} height={hp(50)} />
         </Box>
         <Box>
           <Text
             fontSize={RFValue(14)}
-            fontWeight={'200'}
+            fontWeight="200"
             letterSpacing={1.12}
-            color={'light.lightBlack'}
+            color="light.lightBlack"
           >
             Signing Server
           </Text>
           <Text
             fontSize={RFValue(10)}
-            fontWeight={'200'}
+            fontWeight="200"
             letterSpacing={1}
-            color={'light.modalText'}
+            color="light.modalText"
           >
             Added on 12 January 2022
           </Text>
           <Text
-            color={'light.GreyText'}
+            color="light.GreyText"
             fontSize={RFValue(12)}
-            fontFamily={'body'}
+            fontFamily="body"
             letterSpacing={0.6}
           >
             Lorem ipsum dolor sit amet
@@ -207,33 +205,33 @@ const SigningServer = ({ navigation }) => {
             marginVertical: hp(20),
           }}
         >
-          <Text color={'light.modalText'} fontWeight={200} fontSize={13} letterSpacing={0.65}>
+          <Text color="light.modalText" fontWeight={200} fontSize={13} letterSpacing={0.65}>
             You will be reminded in 90 days for the health check
           </Text>
         </Box>
         <Box
           marginLeft={2}
           width={wp(318)}
-          backgroundColor={'light.Border'}
+          backgroundColor="light.Border"
           opacity={0.1}
           height={0.5}
         />
         <Box
           width={wp(256)}
-          flexDirection={'row'}
-          justifyContent={'space-between'}
-          alignItems={'center'}
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
           marginTop={hp(18)}
         >
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Change} height={hp(38)} />
             <Text
-              color={'light.lightBlack'}
+              color="light.lightBlack"
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
               width={wp(52)}
-              textAlign={'center'}
+              textAlign="center"
               numberOfLines={2}
             >
               Change Signer
@@ -242,13 +240,13 @@ const SigningServer = ({ navigation }) => {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Heathcheck} height={hp(38)} />
             <Text
-              color={'light.lightBlack'}
+              color="light.lightBlack"
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
               width={wp(52)}
               numberOfLines={2}
-              textAlign={'center'}
+              textAlign="center"
             >
               Health Check
             </Text>
@@ -256,13 +254,13 @@ const SigningServer = ({ navigation }) => {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Settings} height={hp(38)} />
             <Text
-              color={'light.lightBlack'}
+              color="light.lightBlack"
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
               width={wp(60)}
               numberOfLines={2}
-              textAlign={'center'}
+              textAlign="center"
             >
               Advanced Options
             </Text>
@@ -271,7 +269,7 @@ const SigningServer = ({ navigation }) => {
       </Box>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   IconText: {

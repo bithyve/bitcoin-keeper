@@ -15,13 +15,11 @@ export default function useFormattedUnitText({
 }: Props): string {
     const currencyKind = useAppSelector((state) => state.settings.currencyKind)
     const fiatCurrencyCode = useCurrencyCode()
-    const prefersBitcoin: boolean = useMemo(() => {
-        return currencyKind === CurrencyKind.BITCOIN
-    }, [currencyKind])
+    const prefersBitcoin: boolean = useMemo(() => currencyKind === CurrencyKind.BITCOIN, [currencyKind])
 
     if (prefersBitcoin) {
         return displayNameForBitcoinUnit(bitcoinUnit)
-    } else {
+    } 
         return fiatCurrencyCode
-    }
+    
 }

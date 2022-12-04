@@ -11,9 +11,7 @@ export class CryptoPSBT extends RegistryItem {
 
   public getPSBT = () => this.psbt;
 
-  public toDataItem = () => {
-    return new DataItem(this.psbt);
-  };
+  public toDataItem = () => new DataItem(this.psbt);
 
   public static fromDataItem = (dataItem: DataItem) => {
     const psbt = dataItem.getData();

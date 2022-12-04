@@ -13,13 +13,13 @@ type Props = {
   onPressHandler?: () => void;
   enableBack?: boolean;
 };
-const SeedWordsView = ({ title = '', subtitle = '', onPressHandler, enableBack = true }: Props) => {
+function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack = true }: Props) {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
         <TouchableOpacity
-          onPress={onPressHandler ? onPressHandler : navigation.goBack}
+          onPress={onPressHandler || navigation.goBack}
           style={styles.back}
         >
           <BackButton />
@@ -30,9 +30,9 @@ const SeedWordsView = ({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletText}
-            color={'#00715B'}
-            fontFamily={'body'}
-            fontWeight={'200'}
+            color="#00715B"
+            fontFamily="body"
+            fontWeight="200"
             fontSize={19}
           >
             {title}
@@ -42,9 +42,9 @@ const SeedWordsView = ({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletDescription}
-            color={'light.lightBlack'}
-            fontFamily={'body'}
-            fontWeight={'100'}
+            color="light.lightBlack"
+            fontFamily="body"
+            fontWeight="100"
             fontSize={12}
           >
             {subtitle}
@@ -53,7 +53,7 @@ const SeedWordsView = ({ title = '', subtitle = '', onPressHandler, enableBack =
       </Box>
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {

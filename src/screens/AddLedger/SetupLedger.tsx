@@ -21,13 +21,13 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import config from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
-const AddLedger = () => {
+function AddLedger() {
   const {
     scanForPeripherals,
     requestPermissions,
@@ -49,7 +49,7 @@ const AddLedger = () => {
   const [connecting, setConnecting] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const ledger = translations['ledger'];
+  const {ledger} = translations;
   const open = () => setVisible(true);
   const navigation = useNavigation();
   const close = () => {
@@ -75,7 +75,7 @@ const AddLedger = () => {
     };
   }, []);
 
-  const Item = ({ device }) => {
+  function Item({ device }) {
     return (
       <TouchableOpacity
         style={styles.deviceItem}
@@ -87,9 +87,9 @@ const AddLedger = () => {
         <Text style={styles.deviceName}>{device.name}</Text>
       </TouchableOpacity>
     );
-  };
+  }
 
-  const LedgerSetupContent = () => {
+  function LedgerSetupContent() {
     return (
       <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
         <View>
@@ -108,20 +108,18 @@ const AddLedger = () => {
             <ActivityIndicator />
           ) : (
             <Box ml={wp(21)}>
-              {allDevices.map((device) => {
-                return <Item device={device} />;
-              })}
+              {allDevices.map((device) => <Item device={device} />)}
             </Box>
           )}
-          <Box marginTop={'4'}>
-            <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={1}>
-              {`Please open on the BTC app before connecting to the deivce`}
+          <Box marginTop="4">
+            <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100" p={1}>
+              Please open on the BTC app before connecting to the deivce
             </Text>
           </Box>
         </View>
       </TapGestureHandler>
     );
-  };
+  }
 
   const addMockLedger = (amfData = null) => {
     const ledger = getMockLedgerDetails(amfData);
@@ -167,12 +165,12 @@ const AddLedger = () => {
         subTitle={ledger.KeepLedgerReady}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        textColor={'#041513'}
+        textColor="#041513"
         Content={LedgerSetupContent}
       />
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   deviceItem: {

@@ -4,7 +4,7 @@ if (typeof process === 'undefined') {
   global.process = require('process');
 } else {
   const bProcess = require('process');
-  for (var p in bProcess) {
+  for (const p in bProcess) {
     if (!(p in process)) {
       process[p] = bProcess[p];
     }
@@ -17,7 +17,7 @@ if (typeof BigInt === 'undefined') global.BigInt = require('big-integer');
 
 // global.location = global.location || { port: 80 }
 const isDev = typeof __DEV__ === 'boolean' && __DEV__;
-process.env['NODE_ENV'] = isDev ? 'development' : 'production';
+process.env.NODE_ENV = isDev ? 'development' : 'production';
 if (typeof localStorage !== 'undefined') {
   localStorage.debug = isDev ? '*' : '';
 }

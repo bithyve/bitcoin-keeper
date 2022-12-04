@@ -8,6 +8,7 @@ import {
 } from 'react-native-responsive-screen';
 
 import DotView from 'src/components/DotView';
+
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
@@ -15,7 +16,7 @@ export interface Props {
   textColor?: boolean;
   length?: number
 }
-const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, length = 6 }: Props) => {
+function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, length = 6 }: Props) {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -28,55 +29,49 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
     }
   }, [passCode]);
 
-  const getBackgroundColor = () => {
-    return backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
-  }
+  const getBackgroundColor = () => backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
 
-  const getTextColor = () => {
-    return textColor ? 'light.textBlack' : 'light.white';
-  }
+  const getTextColor = () => textColor ? 'light.textBlack' : 'light.white'
 
-  const getDotColor = () => {
-    return textColor ? 'black' : 'white';
-  }
+  const getDotColor = () => textColor ? 'black' : 'white'
 
   const getPin = (num: number) => {
     if (passCode.length == num && !hide) {
       return (
         <Text
           color={getTextColor()}
-          fontWeight={'300'}
+          fontWeight="300"
           fontSize={RFValue(20)}
-          fontFamily={'body'}
+          fontFamily="body"
         >
           {passCode[num - 1]}
         </Text>
       )
-    } else if (passCode.length >= num) {
+    } if (passCode.length >= num) {
       return (
         <DotView height={3} width={3} color={getDotColor()} />
       )
-    } else if (passCode.length == num - 1) {
+    } if (passCode.length == num - 1) {
       return (
         <Text color={getTextColor()}>
-          {'|'}
+          |
         </Text>
       )
-    } else {
+    } 
       return '';
-    }
+    
   }
 
   return (
-    <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
+    <Box alignSelf="baseline">
+      <Box flexDirection="row" mt={hp('2%')} marginBottom={hp('2.5%')} width="auto">
         <Box
           height={wp('9%')}
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
+          alignItems="center"
+          justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
           <Box>
@@ -88,8 +83,8 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
+          alignItems="center"
+          justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
           <Box>
@@ -101,8 +96,8 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
+          alignItems="center"
+          justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
           <Box>
@@ -114,8 +109,8 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
+          alignItems="center"
+          justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
           <Box>
@@ -129,8 +124,8 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
               width={wp('9%')}
               borderRadius={7}
               ml={4}
-              alignItems={'center'}
-              justifyContent={'center'}
+              alignItems="center"
+              justifyContent="center"
               backgroundColor={getBackgroundColor()}
             >
               <Box>
@@ -142,8 +137,8 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
               width={wp('9%')}
               borderRadius={7}
               ml={4}
-              alignItems={'center'}
-              justifyContent={'center'}
+              alignItems="center"
+              justifyContent="center"
               backgroundColor={getBackgroundColor()}
             >
               <Box>
@@ -155,5 +150,5 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
       </Box>
     </Box>
   );
-};
+}
 export default CVVInputsView;

@@ -8,7 +8,7 @@ export function enableAndroidFontFix() {
     return;
   }
 
-  let manufacturer = getManufacturerSync();
+  const manufacturer = getManufacturerSync();
 
   let styles;
 
@@ -24,9 +24,9 @@ export function enableAndroidFontFix() {
       return;
   }
 
-  let __render = Text.render;
+  const __render = Text.render;
   Text.render = function (...args) {
-    let origin = __render.call(this, ...args);
+    const origin = __render.call(this, ...args);
     return React.cloneElement(origin, {
       style: [styles.androidFontFixFontFamily, origin.props.style],
     });

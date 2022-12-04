@@ -11,19 +11,19 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { useNavigation } from '@react-navigation/native';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
-const SetupSeedWordSigner = ({ route, navigation }) => {
+function SetupSeedWordSigner({ route, navigation }) {
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
-  const seed = route.params.seed;
+  const {login} = translations;
+  const {seed} = route.params;
   const [words] = useState(seed.split(' '));
-  const next = route.params.next;
-  const onSuccess = route.params.onSuccess;
+  const {next} = route.params;
+  const {onSuccess} = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState('');
-  const seedText = translations['seed'];
+  const seedText = translations.seed;
 
-  const SeedCard = ({ item, index }: { item; index }) => {
+  function SeedCard({ item, index }: { item; index }) {
     return (
       <TouchableOpacity
         style={{ width: '50%' }}
@@ -32,8 +32,8 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
         }}
       >
         <Box
-          backgroundColor={'light.lightYellow'}
-          flexDirection={'row'}
+          backgroundColor="light.lightYellow"
+          flexDirection="row"
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -45,7 +45,7 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
             fontWeight={300}
             letterSpacing={1.64}
             marginRight={5}
-            color={'light.greenText2'}
+            color="light.greenText2"
           >
             {index < 9 ? '0' : null}
             {index + 1}
@@ -53,26 +53,24 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
           <Text
             fontSize={20}
             fontWeight={200}
-            backgroundColor={'green.700'}
+            backgroundColor="green.700"
             letterSpacing={1}
-            color={'light.seedText'}
+            color="light.seedText"
           >
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
       </TouchableOpacity>
     );
-  };
+  }
 
-  const renderSeedCard = ({ item, index }: { item; index }) => {
-    return <SeedCard item={item} index={index} />;
-  };
+  const renderSeedCard = ({ item, index }: { item; index }) => <SeedCard item={item} index={index} />;
 
   return (
-    <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
+    <Box flex={1} padding={5} background="light.ReceiveBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title={'Soft Key'}
+        title="Soft Key"
         subtitle={seedText.SeedDesc}
         color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
@@ -87,7 +85,7 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
           keyExtractor={(item) => item}
         />
       </Box>
-      <Box alignItems={'flex-end'} mb={5}>
+      <Box alignItems="flex-end" mb={5}>
         {next && (
           <Box>
             <CustomGreenButton
@@ -107,7 +105,7 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
           fontWeight={200}
           letterSpacing={0.6}
           marginRight={10}
-          color={'light.GreyText'}
+          color="light.GreyText"
         >
           {seedText.desc}
         </Text>
@@ -117,7 +115,7 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
         <ModalWrapper
           visible={confirmSeedModal}
           onSwipeComplete={() => setConfirmSeedModal(false)}
-          position={'center'}
+          position="center"
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
@@ -133,6 +131,6 @@ const SetupSeedWordSigner = ({ route, navigation }) => {
       </Box>
     </Box>
   );
-};
+}
 
 export default SetupSeedWordSigner;

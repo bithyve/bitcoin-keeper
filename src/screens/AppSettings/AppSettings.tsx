@@ -3,12 +3,10 @@ import { Alert, NativeModules } from 'react-native';
 import { Box, Pressable, ScrollView, Text, useColorMode } from 'native-base';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
 import Twitter from 'src/assets/images/svgs/Twitter.svg';
 import Telegram from 'src/assets/images/svgs/Telegram.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import TorModalMap from './TorModalMap';
 import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -18,15 +16,17 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
-import { changeLoginMethod } from '../../store/sagaActions/login';
 import openLink from 'src/utils/OpenLink';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
+import { changeLoginMethod } from '../../store/sagaActions/login';
+import TorModalMap from './TorModalMap';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const RNBiometrics = new ReactNativeBiometrics();
-const GoogleDrive = NativeModules.GoogleDrive;
+const {GoogleDrive} = NativeModules;
 
-const AppSettings = ({ navigation }) => {
+function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
   const { appId } = useAppSelector((state) => state.storage);
@@ -36,7 +36,7 @@ const AppSettings = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
-  const common = translations['common'];
+  const {common} = translations;
   const { settings } = translations;
   const [showTorModal, setShowTorModal] = useState(false);
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
@@ -56,13 +56,11 @@ const AppSettings = ({ navigation }) => {
     init();
   }, []);
 
-  const RenderTorStatus = useCallback(() => {
-    return (
+  const RenderTorStatus = useCallback(() => (
       <Box backgroundColor="#E3BE96" py={0.5} px={1.5} borderRadius={10}>
         <Text fontSize={11}>{torStatus}</Text>
       </Box>
-    );
-  }, [torStatus]);
+    ), [torStatus]);
 
   const init = async () => {
     try {
@@ -132,13 +130,13 @@ const AppSettings = ({ navigation }) => {
     }
   };
 
-  const Option = ({ title, subTitle, onPress, Icon }) => {
+  function Option({ title, subTitle, onPress, Icon }) {
     return (
       <Pressable
-        flexDirection={'row'}
-        alignItems={'center'}
+        flexDirection="row"
+        alignItems="center"
         onPress={onPress}
-        backgroundColor={'light.lightYellow'}
+        backgroundColor="light.lightYellow"
         style={{
           borderRadius: 10,
           height: hp(116),
@@ -147,17 +145,17 @@ const AppSettings = ({ navigation }) => {
         }}
       >
         {Icon && (
-          <Box position={'relative'} style={{ width: wp(40) }}>
+          <Box position="relative" style={{ width: wp(40) }}>
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
                 height={3}
                 width={3}
-                bg={'light.indicator'}
+                bg="light.indicator"
                 borderRadius={10}
-                borderColor={'light.white1'}
+                borderColor="light.white1"
                 borderWidth={0.3}
-                position={'absolute'}
+                position="absolute"
                 right={wp(-2)}
                 zIndex={999}
               />
@@ -167,8 +165,8 @@ const AppSettings = ({ navigation }) => {
         )}
         <Box style={{ marginLeft: wp(20) }}>
           <Text
-            color={'light.lightBlack'}
-            fontFamily={'body'}
+            color="light.lightBlack"
+            fontFamily="body"
             fontWeight={200}
             fontSize={RFValue(14)}
             letterSpacing={1.12}
@@ -176,8 +174,8 @@ const AppSettings = ({ navigation }) => {
             {title}
           </Text>
           <Text
-            color={'light.GreyText'}
-            fontFamily={'body'}
+            color="light.GreyText"
+            fontFamily="body"
             fontWeight={200}
             fontSize={RFValue(12)}
             letterSpacing={0.6}
@@ -187,7 +185,7 @@ const AppSettings = ({ navigation }) => {
         </Box>
       </Pressable>
     );
-  };
+  }
 
   const onPressTor = () => {
     if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
@@ -204,20 +202,20 @@ const AppSettings = ({ navigation }) => {
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
-      <Box mx={'4'} mb={5} flexDirection={'row'} w={'100%'} alignItems={'center'}>
-        <Box w={'60%'}>
+      <Box mx="4" mb={5} flexDirection="row" w="100%" alignItems="center">
+        <Box w="60%">
           <Text fontSize={RFValue(20)} fontWeight={200} letterSpacing={1}>
-            {"App " + common.settings}
+            {`App ${  common.settings}`}
           </Text>
           <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6}>
-            {'For the vault and wallets'}
+            For the vault and wallets
           </Text>
         </Box>
-        <Box alignItems={'center'} justifyContent={'center'} w={'30%'}>
+        <Box alignItems="center" justifyContent="center" w="30%">
           <CurrencyTypeSwitch />
         </Box>
       </Box>
-      <Box flex={1} position={'relative'}>
+      <Box flex={1} position="relative">
         <ScrollView
           overScrollMode="never"
           bounces={false}
@@ -228,12 +226,12 @@ const AppSettings = ({ navigation }) => {
           marginBottom={hp(20)}
         >
           <Option
-            title={'App Backup'}
-            subTitle={'Seed words health check is due'}
+            title="App Backup"
+            subTitle="Seed words health check is due"
             onPress={() => {
               navigation.navigate('BackupWallet');
             }}
-            Icon={true}
+            Icon
           />
 
           <SettingsSwitchCard
@@ -262,8 +260,8 @@ const AppSettings = ({ navigation }) => {
             onPress={() => navigation.navigate('AppVersionHistory')}
           />
           <SettingsSwitchCard
-            title={'Tor'}
-            description={'Tor daemon settings'}
+            title="Tor"
+            description="Tor daemon settings"
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
@@ -283,36 +281,36 @@ const AppSettings = ({ navigation }) => {
 
         <Box
           width={wp(340)}
-          position={'absolute'}
+          position="absolute"
           bottom={-hp(20)}
-          backgroundColor={'light.ReceiveBackground'}
+          backgroundColor="light.ReceiveBackground"
         >
-          <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
+          <Box flexDirection="row" justifyContent="space-between" alignItems="center">
             <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
               <Box
-                flexDirection={'row'}
-                justifyContent={'space-evenly'}
+                flexDirection="row"
+                justifyContent="space-evenly"
                 height={hp(45)}
                 width={wp(169)}
                 borderRadius={8}
                 marginBottom={hp(8)}
-                backgroundColor={'light.lightYellow'}
-                alignItems={'center'}
+                backgroundColor="light.lightYellow"
+                alignItems="center"
               >
                 <Box
-                  flexDirection={'row'}
-                  alignItems={'center'}
+                  flexDirection="row"
+                  alignItems="center"
                   style={{ marginRight: wp(3) }}
 
                 >
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
-                      color={'light.textColor2'}
+                      color="light.textColor2"
                       fontWeight={200}
                       fontSize={RFValue(13)}
                       letterSpacing={0.79}
-                      fontFamily={'body'}
+                      fontFamily="body"
                     >
                       Keeper Telegram
                     </Text>
@@ -320,8 +318,8 @@ const AppSettings = ({ navigation }) => {
                 </Box>
                 <Box
                   flex={0.1}
-                  justifyContent={'center'}
-                  alignItems={'center'}
+                  justifyContent="center"
+                  alignItems="center"
                 >
                   <LinkIcon />
                 </Box>
@@ -329,28 +327,28 @@ const AppSettings = ({ navigation }) => {
             </Pressable>
             <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
               <Box
-                flexDirection={'row'}
-                justifyContent={'space-evenly'}
+                flexDirection="row"
+                justifyContent="space-evenly"
                 height={hp(45)}
                 width={wp(165)}
                 borderRadius={8}
                 marginBottom={hp(8)}
-                backgroundColor={'light.lightYellow'}
-                alignItems={'center'}
+                backgroundColor="light.lightYellow"
+                alignItems="center"
               >
                 <Box
-                  flexDirection={'row'}
-                  alignItems={'center'}
+                  flexDirection="row"
+                  alignItems="center"
                   style={{ marginRight: wp(3) }}
                 >
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
-                      color={'light.textColor2'}
+                      color="light.textColor2"
                       fontWeight={200}
                       fontSize={RFValue(13)}
                       letterSpacing={0.79}
-                      fontFamily={'body'}
+                      fontFamily="body"
                     >
                       Keeper Twitter
                     </Text>
@@ -358,8 +356,8 @@ const AppSettings = ({ navigation }) => {
                 </Box>
                 <Box
                   flex={0.1}
-                  justifyContent={'center'}
-                  alignItems={'center'}
+                  justifyContent="center"
+                  alignItems="center"
                 >
                   <LinkIcon />
                 </Box>
@@ -369,26 +367,26 @@ const AppSettings = ({ navigation }) => {
 
           <Box style={{ flex: hp(0.15) }}>
             <Box
-              flexDirection={'row'}
-              justifyContent={'space-evenly'}
-              alignItems={'center'}
+              flexDirection="row"
+              justifyContent="space-evenly"
+              alignItems="center"
               borderRadius={8}
               p={2}
               height={hp(45)}
-              bg={'light.lightYellow'}
+              bg="light.lightYellow"
             >
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
                   fontSize={13}
                   fontWeight={200}
                   letterSpacing={0.79}
-                  fontFamily={'body'}
+                  fontFamily="body"
                   color={`${colorMode}.textColor2`}
                 >
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text fontFamily={'body'} color={'light.textColor2'}>
+              <Text fontFamily="body" color="light.textColor2">
                 |
               </Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
@@ -396,13 +394,13 @@ const AppSettings = ({ navigation }) => {
                   fontSize={13}
                   fontWeight={200}
                   letterSpacing={0.79}
-                  fontFamily={'body'}
+                  fontFamily="body"
                   color={`${colorMode}.textColor2`}
                 >
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text fontFamily={'body'} color={'light.textColor2'}>
+              <Text fontFamily="body" color="light.textColor2">
                 |
               </Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
@@ -410,7 +408,7 @@ const AppSettings = ({ navigation }) => {
                   fontSize={13}
                   fontWeight={200}
                   letterSpacing={0.79}
-                  fontFamily={'body'}
+                  fontFamily="body"
                   color={`${colorMode}.textColor2`}
                 >
                   {common.PrivacyPolicy}
@@ -427,5 +425,5 @@ const AppSettings = ({ navigation }) => {
       />
     </ScreenWrapper>
   );
-};
+}
 export default AppSettings;

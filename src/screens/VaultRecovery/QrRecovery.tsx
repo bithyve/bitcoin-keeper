@@ -11,7 +11,7 @@ import { useRoute } from '@react-navigation/native';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
-const QrRecovery = () => {
+function QrRecovery() {
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const route = useRoute();
@@ -51,7 +51,7 @@ const QrRecovery = () => {
       </HStack>
     </ScreenWrapper>
   );
-};
+}
 
 export default QrRecovery;
 

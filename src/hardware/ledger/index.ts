@@ -1,12 +1,12 @@
-import { DefaultWalletPolicy, WalletPolicy } from './client/policy';
 import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import config, { APP_STAGE } from 'src/core/config';
 
-import AppClient from './client/appClient';
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
-import { PsbtV2 } from './client/psbtv2';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { PsbtV2 } from './client/psbtv2';
+import AppClient from './client/appClient';
+import { DefaultWalletPolicy, WalletPolicy } from './client/policy';
 import { generateSignerFromMetaData } from '..';
 
 export const getLedgerDetails = async (transport: BluetoothTransport) => {

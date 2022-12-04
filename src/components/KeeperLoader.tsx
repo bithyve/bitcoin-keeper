@@ -7,7 +7,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const KeeperLoader = (props) => {
+function KeeperLoader(props) {
   const {
     visible,
     close,
@@ -15,8 +15,7 @@ const KeeperLoader = (props) => {
     textColor = '#000',
     subTitleColor = 'light.lightBlack2',
     loadingContent,
-    Content = () => {
-      return (
+    Content = () => (
         <Box>
           <Image
             source={require('src/assets/video/Loader.gif')}
@@ -28,7 +27,7 @@ const KeeperLoader = (props) => {
             }}
           />
           <Text
-            color={'light.modalText'}
+            color="light.modalText"
             fontWeight={200}
             fontSize={13}
             letterSpacing={0.65}
@@ -38,8 +37,7 @@ const KeeperLoader = (props) => {
             {loadingContent?.message}
           </Text>
         </Box>
-      );
-    },
+      ),
     dismissible = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
@@ -52,7 +50,7 @@ const KeeperLoader = (props) => {
       avoidKeyboard
       size="lg"
       _backdrop={{ bg: '#000', opacity: 0.3 }}
-      justifyContent={'flex-end'}
+      justifyContent="flex-end"
       closeOnOverlayClick={false}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
@@ -79,7 +77,7 @@ const KeeperLoader = (props) => {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default KeeperLoader;
 

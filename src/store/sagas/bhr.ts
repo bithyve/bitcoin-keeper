@@ -1,23 +1,29 @@
 import * as bip39 from 'bip39';
 
-import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
-import {
-  CLOUD_BACKUP_SKIPPED,
-  CONFIRM_CLOUD_BACKUP,
-  GET_APP_IMAGE,
-  GET_CLOUD_DATA,
-  INIT_CLOUD_BACKUP,
-  RECOVER_BACKUP,
-  RECOVER_VAULT,
-  SEED_BACKEDUP,
-  SEED_BACKEDUP_CONFIRMED,
-  SET_BACKUP_WARNING,
-  UPADTE_HEALTH_CHECK_SIGNER,
-  UPDATE_APP_IMAGE,
-  UPDATE_VAULT_IMAGE,
-  getAppImage,
-} from '../sagaActions/bhr';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { call, put, select } from 'redux-saga/effects';
+import config, { APP_STAGE } from 'src/core/config';
+import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
+import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
+
+import BIP85 from 'src/core/wallets/operations/BIP85';
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { Platform } from 'react-native';
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { captureError } from 'src/core/services/sentry';
+import crypto from 'crypto';
+import dbManager from 'src/storage/realm/dbManager';
+import moment from 'moment';
+import { translations } from 'src/common/content/LocContext';
+import { refreshWallets } from '../sagaActions/wallets';
+import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
+import { createWatcher } from '../utilities';
+import { RootState } from '../store';
 import {
   appImagerecoveryRetry,
   setAppImageError,
@@ -35,29 +41,23 @@ import {
   setInvalidPassword,
   setSeedConfirmed,
 } from '../reducers/bhr';
-import { call, put, select } from 'redux-saga/effects';
-import config, { APP_STAGE } from 'src/core/config';
-import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
-import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
-
-import BIP85 from 'src/core/wallets/operations/BIP85';
-import DeviceInfo from 'react-native-device-info';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { Platform } from 'react-native';
-import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import { RootState } from '../store';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { captureError } from 'src/core/services/sentry';
-import { createWatcher } from '../utilities';
-import crypto from 'crypto';
-import dbManager from 'src/storage/realm/dbManager';
-import moment from 'moment';
-import { refreshWallets } from '../sagaActions/wallets';
-import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
-import { translations } from 'src/common/content/LocContext';
+import {
+  CLOUD_BACKUP_SKIPPED,
+  CONFIRM_CLOUD_BACKUP,
+  GET_APP_IMAGE,
+  GET_CLOUD_DATA,
+  INIT_CLOUD_BACKUP,
+  RECOVER_BACKUP,
+  RECOVER_VAULT,
+  SEED_BACKEDUP,
+  SEED_BACKEDUP_CONFIRMED,
+  SET_BACKUP_WARNING,
+  UPADTE_HEALTH_CHECK_SIGNER,
+  UPDATE_APP_IMAGE,
+  UPDATE_VAULT_IMAGE,
+  getAppImage,
+} from '../sagaActions/bhr';
+import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 
 function* updateAppImageWorker({ payload }) {
@@ -76,7 +76,7 @@ function* updateAppImageWorker({ payload }) {
     0,
     true
   );
-  let walletObject = {};
+  const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (walletId) {
     const wallet: Wallet = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
@@ -84,7 +84,7 @@ function* updateAppImageWorker({ payload }) {
     walletObject[wallet.id] = encrytedWallet;
   } else {
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
-    for (let index in wallets) {
+    for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
@@ -104,22 +104,20 @@ function* updateAppImageWorker({ payload }) {
   }
 }
 
-const getPermutations = (a, n, s = [], t = []) => {
-  return a.reduce((p, c, i, a) => {
+const getPermutations = (a, n, s = [], t = []) => a.reduce((p, c, i, a) => {
     n > 1
       ? getPermutations(a.slice(0, i).concat(a.slice(i + 1)), n - 1, p, (t.push(c), t))
       : p.push((t.push(c), t).slice(0));
     t.pop();
     return p;
   }, s);
-};
 
 const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
-  let vacMap: any = {};
+  const vacMap: any = {};
   const allPermutations = getPermutations(signerIds, m);
-  for (let index in allPermutations) {
+  for (const index in allPermutations) {
     const signerIdsPermutaions = allPermutations[index];
-    let xpubs = [];
+    const xpubs = [];
     signerIdsPermutaions.forEach((signerId) => {
       xpubs.push(signerIdXpubMap[signerId]);
     });
@@ -138,17 +136,17 @@ function* updateVaultImageWorker({ payload }) {
   );
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
   const vault: Vault = vaults[vaults.length - 1];
-  const m = vault.scheme.m;
+  const {m} = vault.scheme;
   let signersIds = [];
-  let signerIdXpubMap = {};
-  for (let signer of vault.signers) {
+  const signerIdXpubMap = {};
+  for (const signer of vault.signers) {
     signerIdXpubMap[signer.signerId] = signer.xpub;
     signersIds.push(signer.signerId);
   }
 
   // updating signerIdXpubMap if the signer was created through automated mock flow
-  let signerIdsToFilter = [];
-  for (let signer of vault.signers) {
+  const signerIdsToFilter = [];
+  for (const signer of vault.signers) {
     if (signer.amfData && signer.amfData.xpub) {
       signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
       signersIds.push(signer.amfData.signerId);
@@ -184,8 +182,8 @@ function* updateVaultImageWorker({ payload }) {
 function getCloudErrorMessage(code) {
   try {
     const errorMessages = Platform.select({
-      android: translations['driveErrors'],
-      ios: translations['iCloudErrors'],
+      android: translations.driveErrors,
+      ios: translations.iCloudErrors,
     });
     return errorMessages[code] || '';
   } catch (error) {
@@ -286,7 +284,7 @@ function* seedBackeupConfirmedWorked({
         ? BackupAction.SEED_BACKUP_CONFIRMED
         : BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED,
       date: moment().unix(),
-      confirmed: confirmed,
+      confirmed,
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
@@ -318,7 +316,7 @@ function* initCloudBackupWorked({
     };
     const response = yield call(uploadData, id, {
       encData: encrypt(password, JSON.stringify(data)),
-      hint: hint,
+      hint,
     });
     console.log(response);
     if (response.status) {
@@ -388,7 +386,7 @@ function* getAppImageWorker({ payload }) {
         appID: appImage.appId,
         primarySeed: primarySeed.toString('hex'),
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
-        primaryMnemonic: primaryMnemonic,
+        primaryMnemonic,
         imageEncryptionKey,
         subscription: JSON.parse(appImage.subscription),
         version: DeviceInfo.getVersion(),
@@ -404,7 +402,7 @@ function* getAppImageWorker({ payload }) {
         JSON.parse(appImage.walletShells)
       );
 
-      //Wallet recreation
+      // Wallet recreation
       if (appImage) {
         if (appImage.wallets) {
           for (const [key, value] of Object.entries(appImage.wallets)) {
@@ -416,7 +414,7 @@ function* getAppImageWorker({ payload }) {
         yield put(setAppRecreated(true));
       }
     }
-    //Vault recreation
+    // Vault recreation
     if (vaultImage) {
       const vac = decrypt(encryptionKey, vaultImage.vac);
       const vault = JSON.parse(decrypt(vac, vaultImage.vault));
@@ -493,16 +491,16 @@ function* healthCheckSignerWorker({
     const { vaultId, signerId } = payload;
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
 
-    let signers = [];
-    for (let signer of vault.signers) {
+    const signers = [];
+    for (const signer of vault.signers) {
       if (signer.signerId === signerId) {
-        let updatedSigner = JSON.parse(JSON.stringify(signer));
+        const updatedSigner = JSON.parse(JSON.stringify(signer));
         updatedSigner.lastHealthCheck = new Date();
         yield put(uaiActionedEntity(signer.signerId));
         signers.push(updatedSigner);
       }
     }
-    let updatedVault: Vault = JSON.parse(JSON.stringify(vault));
+    const updatedVault: Vault = JSON.parse(JSON.stringify(vault));
     updatedVault.signers = signers;
     yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);
   } catch (err) {
@@ -523,9 +521,9 @@ function* isBackedUP({
   if (lastRecord) {
     const currentDate = new Date();
     const lastBackup = new Date(history[history.length - 1].date);
-    const devWarning = currentDate.getTime() - lastBackup.getTime() > 30 ? true : false;
+    const devWarning = currentDate.getTime() - lastBackup.getTime() > 30;
     const ProductionWarning =
-      (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30 ? true : false;
+      (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30;
     const selectedWarning =
       config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
@@ -547,9 +545,9 @@ function* isBackedUP({
 function* recoverVaultWorker() {
   const signingDevices = yield select((state: RootState) => state.bhr.signingDevices); // UI m
   const vaultMetaData = yield select((state: RootState) => state.bhr.vaultMetaData); // Api Call for 1st Vault
-  let signerIds = [];
-  let xpubs = [];
-  for (let signer of signingDevices) {
+  const signerIds = [];
+  const xpubs = [];
+  for (const signer of signingDevices) {
     signerIds.push(signer.signerId);
     xpubs.push(signer.xpub);
   }

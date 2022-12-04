@@ -4,14 +4,6 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
-import {
-  signTransactionWithColdCard,
-  signTransactionWithLedger,
-  signTransactionWithMobileKey,
-  signTransactionWithSeedWords,
-  signTransactionWithSigningServer,
-  signTransactionWithTapsigner,
-} from './signWithSD';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -23,8 +15,6 @@ import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SignerList from './SignerList';
-import SignerModals from './SignerModals';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
@@ -36,8 +26,18 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
+import SignerModals from './SignerModals';
+import SignerList from './SignerList';
+import {
+  signTransactionWithColdCard,
+  signTransactionWithLedger,
+  signTransactionWithMobileKey,
+  signTransactionWithSeedWords,
+  signTransactionWithSigningServer,
+  signTransactionWithTapsigner,
+} from './signWithSD';
 
-const SignTransactionScreen = () => {
+function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -84,10 +84,9 @@ const SignTransactionScreen = () => {
         dispatch(finaliseVaultMigration(vaultId));
         navigation.dispatch(CommonActions.reset(navigationState));
       } else {
-        return;
+        
       }
-    } else {
-      if (sendSuccessful) {
+    } else if (sendSuccessful) {
         navigation.dispatch(
           CommonActions.reset({
             index: 1,
@@ -95,14 +94,11 @@ const SignTransactionScreen = () => {
           })
         );
       }
-    }
   }, [sendSuccessful, isMigratingNewVault]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       dispatch(sendPhaseThreeReset());
-    };
-  }, []);
+    }, []);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -202,7 +198,7 @@ const SignTransactionScreen = () => {
           });
           dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
         } else {
-          return;
+          
         }
       }
     },
@@ -289,17 +285,15 @@ const SignTransactionScreen = () => {
         )}
       />
       <Note
-        title={'Note'}
-        subtitle={
-          'Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted.'
-        }
-        subtitleColor={'GreyText'}
+        title="Note"
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitleColor="GreyText"
       />
-      <Box alignItems={'flex-end'} marginY={5}>
+      <Box alignItems="flex-end" marginY={5}>
         <Buttons
           primaryDisable={!areSignaturesSufficient()}
           primaryLoading={broadcasting}
-          primaryText={'Broadcast'}
+          primaryText="Broadcast"
           primaryCallback={() => {
             if (areSignaturesSufficient()) {
               setBroadcasting(true);
@@ -345,6 +339,6 @@ const SignTransactionScreen = () => {
       <NfcPrompt visible={nfcVisible || TSNfcVisible} />
     </ScreenWrapper>
   );
-};
+}
 
 export default SignTransactionScreen;

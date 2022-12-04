@@ -5,7 +5,7 @@ export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousand
     const negativeSign = amount < 0 ? '-' : ''
     const i = parseInt(Math.abs(Number(amount) || 0).toFixed(decimalCount)).toString()
     const j = (i.length > 3) ? i.length % 3 : 0
-    return negativeSign + (j ? i.substring(0, j) + thousands : '') + i.substring(j).replace(/(\d{3})(?=\d)/g, '$1' + thousands) + (decimalCount ? decimal + Math.abs(amount - i).toFixed(decimalCount).slice(2) : '')
+    return negativeSign + (j ? i.substring(0, j) + thousands : '') + i.substring(j).replace(/(\d{3})(?=\d)/g, `$1${  thousands}`) + (decimalCount ? decimal + Math.abs(amount - i).toFixed(decimalCount).slice(2) : '')
   } catch (e) {
     // console.log(e)
   }
@@ -16,11 +16,11 @@ export const timeConvert = (valueInMinutes) => {
   const hours = Math.round(num / 60)
   const days = Math.round(hours / 24)
   if (valueInMinutes < 60) {
-    return valueInMinutes + ' minutes'
-  } else if (hours < 24) {
-    return hours + ' hours'
-  } else if (days > 0) {
-    return days == 1 ? days + ' day' : days + ' days'
+    return `${valueInMinutes  } minutes`
+  } if (hours < 24) {
+    return `${hours  } hours`
+  } if (days > 0) {
+    return days == 1 ? `${days  } day` : `${days  } days`
   }
 }
 
@@ -34,12 +34,12 @@ export const timeConvertNear30 = (valueInMinutes) => {
   const minutes = (hours - rhours) * 60
   const rminutes = Math.round(minutes)
   if (rhours > 0 && rminutes <= 0) {
-    return rhours + ' hours'
-  } else if (rhours > 0 && rminutes > 0) {
-    return rhours + '.5 hours'
-  } else {
-    return rminutes + ' minutes'
-  }
+    return `${rhours  } hours`
+  } if (rhours > 0 && rminutes > 0) {
+    return `${rhours  }.5 hours`
+  } 
+    return `${rminutes  } minutes`
+  
 }
 
 export const getVersions = (versionHistory, restoreVersions) => {
@@ -47,13 +47,13 @@ export const getVersions = (versionHistory, restoreVersions) => {
   const versionHistoryArray = []
   const restoreVersionsArray = []
   if (versionHistory) {
-    for (let item of versionHistory) {
+    for (const item of versionHistory) {
       versionHistoryArray.push(item)
     }
   }
 
   if (restoreVersions) {
-    for (let item of restoreVersions) {
+    for (const item of restoreVersions) {
       restoreVersionsArray.push(item)
     }
   }
@@ -72,13 +72,11 @@ export const getVersions = (versionHistory, restoreVersions) => {
 // Health Modification and calculation methods
 
 
-export const arrayChunks = (arr, size) => {
-  return Array.from({
+export const arrayChunks = (arr, size) => Array.from({
     length: Math.ceil(arr.length / size)
   }, (v, i) =>
     arr.slice(i * size, i * size + size)
   )
-}
 
 export function numberWithCommas(x: string) {
   return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");

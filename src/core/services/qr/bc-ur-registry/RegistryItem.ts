@@ -4,7 +4,9 @@ import { RegistryType } from './RegistryType';
 
 export abstract class RegistryItem {
   abstract getRegistryType: () => RegistryType;
+
   abstract toDataItem: () => DataItem;
+
   public toCBOR = () => {
     if (this.toDataItem() === undefined) {
       throw new Error(
@@ -14,9 +16,7 @@ export abstract class RegistryItem {
     return encodeDataItem(this.toDataItem());
   };
 
-  public toUR = () => {
-    return new UR(this.toCBOR(), this.getRegistryType().getType());
-  };
+  public toUR = () => new UR(this.toCBOR(), this.getRegistryType().getType());
 
   public toUREncoder = (
     maxFragmentLength?: number,

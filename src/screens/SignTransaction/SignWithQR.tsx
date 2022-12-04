@@ -2,7 +2,6 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import DisplayQR from '../QRScreens/DisplayQR';
 import HeaderTitle from 'src/components/HeaderTitle';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -16,8 +15,9 @@ import { Psbt } from 'bitcoinjs-lib';
 import { captureError } from 'src/core/services/sentry';
 import usePlan from 'src/hooks/usePlan';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
+import DisplayQR from '../QRScreens/DisplayQR';
 
-const SignWithQR = () => {
+function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
@@ -31,7 +31,7 @@ const SignWithQR = () => {
 
   const signTransaction = (signedSerializedPSBT) => {
     try {
-      Psbt.fromBase64(signedSerializedPSBT); //will throw if not a psbt
+      Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
       if (!isMultisig && signer.type === SignerType.SEEDSIGNER) {
         const { signedPsbt } = updateInputsForSeedSigner({ serializedPSBT, signedSerializedPSBT });
         dispatch(
@@ -60,26 +60,26 @@ const SignWithQR = () => {
       })
     );
 
-  const encodeToBytes = signer.type === SignerType.PASSPORT ? true : false;
+  const encodeToBytes = signer.type === SignerType.PASSPORT;
   const navigateToVaultRegistration = () =>
     navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
   return (
     <ScreenWrapper>
       <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
       <Box style={styles.center}>
-        <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type={'base64'} />
+        <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
       </Box>
       <Box style={styles.bottom}>
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}
-          secondaryText={'Vault Details'}
+          secondaryText="Vault Details"
           secondaryCallback={navigateToVaultRegistration}
         />
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 export default SignWithQR;
 

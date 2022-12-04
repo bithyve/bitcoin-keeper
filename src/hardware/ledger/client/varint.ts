@@ -4,7 +4,7 @@ function bigintToSmallEndian(value: bigint, length: number, buffer: Buffer, offs
       throw Error('Buffer too small');
     }
     buffer[i + offset] = Number(value % BigInt(256));
-    value = value >> BigInt(8);
+    value >>= BigInt(8);
   }
 }
 
@@ -35,7 +35,7 @@ export function sanitizeBigintToNumber(n: number | bigint): number {
 }
 
 function getVarintSize(value: number | bigint): 1 | 3 | 5 | 9 {
-  if (typeof value == 'number') {
+  if (typeof value === 'number') {
     value = sanitizeBigintToNumber(value);
   }
 
@@ -48,9 +48,9 @@ function getVarintSize(value: number | bigint): 1 | 3 | 5 | 9 {
   }
 
   if (value < BigInt(0xfd)) return 1;
-  else if (value <= BigInt(0xffff)) return 3;
-  else if (value <= BigInt(0xffffffff)) return 5;
-  else return 9;
+  if (value <= BigInt(0xffff)) return 3;
+  if (value <= BigInt(0xffffffff)) return 5;
+  return 9;
 }
 
 /**
@@ -75,18 +75,18 @@ export function parseVarint(data: Buffer, offset: number): readonly [bigint, num
 
   if (data[offset] < 0xfd) {
     return [BigInt(data[offset]), 1];
-  } else {
+  } 
     let size: number;
     if (data[offset] === 0xfd) size = 2;
     else if (data[offset] === 0xfe) size = 4;
     else size = 8;
 
     return [smallEndianToBigint(data, offset + 1, size), size + 1];
-  }
+  
 }
 
 export function createVarint(value: number | bigint): Buffer {
-  if (typeof value == 'number') {
+  if (typeof value === 'number') {
     value = sanitizeBigintToNumber(value);
   }
 

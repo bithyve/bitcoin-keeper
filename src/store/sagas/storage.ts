@@ -1,6 +1,5 @@
 import * as bip39 from 'bip39';
 
-import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { call, put } from 'redux-saga/effects';
 import { generateEncryptionKey, getRandomBytes } from 'src/core/services/operations/encryption';
 
@@ -12,11 +11,12 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { WalletType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import crypto from 'crypto';
+import dbManager from 'src/storage/realm/dbManager';
 import { addNewWallets } from '../sagaActions/wallets';
 import config from '../../core/config';
 import { createWatcher } from '../utilities';
-import crypto from 'crypto';
-import dbManager from 'src/storage/realm/dbManager';
+import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { newWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
 
@@ -119,7 +119,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
         shells: [defaultWalletShell.id],
         activeShell: defaultWalletShell.id,
       },
-      vaultShellInstances: vaultShellInstances,
+      vaultShellInstances,
       subscription: {
         productId: subscription.productId,
         name: subscription.name,

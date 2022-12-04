@@ -13,7 +13,6 @@ import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 import BTC from 'src/assets/images/svgs/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
-import CustomPriorityModal from './CustomPriorityModal';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
@@ -37,8 +36,9 @@ import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
+import CustomPriorityModal from './CustomPriorityModal';
 
-const SendConfirmation = ({ route }) => {
+function SendConfirmation({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const {
@@ -73,8 +73,8 @@ const SendConfirmation = ({ route }) => {
     availableTransactionPriorities
   );
   const { translations } = useContext(LocalizationContext);
-  const common = translations['common'];
-  const walletTransactions = translations['wallet'];
+  const {common} = translations;
+  const walletTransactions = translations.wallet;
 
   const [visibleModal, setVisibleModal] = useState(false);
 
@@ -99,20 +99,18 @@ const SendConfirmation = ({ route }) => {
   //   closeSendModal()
   // }
 
-  const SendSuccessfulContent = () => {
+  function SendSuccessfulContent() {
     return (
       <View>
-        <Box alignSelf={'center'}>
+        <Box alignSelf="center">
           <SuccessIcon />
         </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed'
-          }
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed
         </Text>
       </View>
     );
-  };
+  }
 
   const onProceed = () => {
     // closeAllModal();
@@ -147,11 +145,9 @@ const SendConfirmation = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       dispatch(sendPhaseTwoReset());
-    };
-  }, []);
+    }, []);
 
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
@@ -187,11 +183,11 @@ const SendConfirmation = ({ route }) => {
     }
   }, [walletSendSuccessful]);
 
-  const SendingCard = ({ isSend }) => {
+  function SendingCard({ isSend }) {
     return (
       <Box marginY={windowHeight * 0.01}>
         <Text
-          color={'light.lightBlack'}
+          color="light.lightBlack"
           fontSize={14}
           letterSpacing={1.12}
           fontWeight={200}
@@ -201,34 +197,34 @@ const SendConfirmation = ({ route }) => {
         </Text>
         <Box
           borderRadius={10}
-          backgroundColor={'light.lightYellow'}
-          flexDirection={'row'}
+          backgroundColor="light.lightYellow"
+          flexDirection="row"
           padding={windowHeight * 0.019}
         >
           <Box
-            backgroundColor={'light.yellow1'}
+            backgroundColor="light.yellow1"
             height={10}
             width={10}
             borderRadius={20}
-            justifyContent={'center'}
-            alignItems={'center'}
+            justifyContent="center"
+            alignItems="center"
           >
             <WalletIcon />
           </Box>
           <Box marginLeft={3}>
             <Text
-              color={'light.sendCardHeading'}
+              color="light.sendCardHeading"
               fontSize={14}
               letterSpacing={1.12}
               fontWeight={200}
             >
               {isVaultTransfer && !isSend ? 'Vault' : isSend ? from : to}
             </Text>
-            <Box flexDirection={'row'}>
+            <Box flexDirection="row">
               {vaultToVault ? (
                 !isSend ? (
                   <Text
-                    color={'light.GreyText'}
+                    color="light.GreyText"
                     fontSize={12}
                     letterSpacing={0.24}
                     fontWeight={100}
@@ -238,7 +234,7 @@ const SendConfirmation = ({ route }) => {
                 ) : (
                   <>
                     <Text
-                      color={'light.GreyText'}
+                      color="light.GreyText"
                       fontSize={12}
                       letterSpacing={0.24}
                       fontWeight={100}
@@ -247,7 +243,7 @@ const SendConfirmation = ({ route }) => {
                       <BTC />
                     </Text>
                     <Text
-                      color={'light.GreyText'}
+                      color="light.GreyText"
                       fontSize={14}
                       letterSpacing={1.4}
                       fontWeight={300}
@@ -259,17 +255,17 @@ const SendConfirmation = ({ route }) => {
               ) : (
                 <>
                   <Text
-                    color={'light.GreyText'}
+                    color="light.GreyText"
                     fontSize={12}
                     letterSpacing={0.24}
                     fontWeight={100}
                   >
                     {isVaultTransfer && !isSend ? '' : `Policy ${' '}`}
                   </Text>
-                  <Box justifyContent={'center'}>
+                  <Box justifyContent="center">
                     <BTC />
                   </Box>
-                  <Text color={'light.GreyText'} fontSize={14} letterSpacing={1.4} fontWeight={300}>
+                  <Text color="light.GreyText" fontSize={14} letterSpacing={1.4} fontWeight={300}>
                     {isVaultTransfer && sourceWallet && isSend
                       ? ` ${getAmount((sourceWallet as Wallet).specs.transferPolicy)}sats `
                       : ''}
@@ -283,24 +279,24 @@ const SendConfirmation = ({ route }) => {
         </Box>
       </Box>
     );
-  };
+  }
 
-  const Transaction = () => {
+  function Transaction() {
     return (
-      <Box flexDirection={'row'} justifyContent={'space-between'} marginY={3}>
-        <Text color={'light.lightBlack'} fontSize={14} fontWeight={200} letterSpacing={1.12}>
+      <Box flexDirection="row" justifyContent="space-between" marginY={3}>
+        <Text color="light.lightBlack" fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        <Text color={'light.seedText'} fontSize={14} fontWeight={200} letterSpacing={0.28}>
+        <Text color="light.seedText" fontSize={14} fontWeight={200} letterSpacing={0.28}>
           {txFeeInfo && !isVaultTransfer
             ? txFeeInfo[transactionPriority?.toLowerCase()]?.amount
             : '274 sats'}
         </Text>
       </Box>
     );
-  };
+  }
 
-  const TextValue = ({ amt, unit }) => {
+  function TextValue({ amt, unit }) {
     return (
       <Text
         style={{
@@ -309,12 +305,12 @@ const SendConfirmation = ({ route }) => {
         }}
       >{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
     );
-  };
-  const SendingPriority = () => {
+  }
+  function SendingPriority() {
     return (
-      <Box flexDirection={'column'}>
+      <Box flexDirection="column">
         <Transaction />
-        <Box flexDirection={'row'} justifyContent={'space-between'}>
+        <Box flexDirection="row" justifyContent="space-between">
           <Box
             style={{
               flexDirection: 'row',
@@ -333,8 +329,7 @@ const SendConfirmation = ({ route }) => {
 
         {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
         <Box mt={hp(1)}>
-          {availableTransactionPriorities?.map((priority) => {
-            return (
+          {availableTransactionPriorities?.map((priority) => (
               <TouchableOpacity
                 style={styles.priorityRowContainer}
                 key={priority}
@@ -347,7 +342,7 @@ const SendConfirmation = ({ route }) => {
                   <RadioButton
                     size={20}
                     isChecked={transactionPriority == priority}
-                    borderColor={'#E3E3E3'}
+                    borderColor="#E3E3E3"
                     onpress={() => {
                       setTransactionPriority(priority);
                       // onTransactionPriorityChanged(priority)
@@ -382,8 +377,7 @@ const SendConfirmation = ({ route }) => {
                   }}
                 />
               </TouchableOpacity>
-            );
-          })}
+            ))}
           {/* {Disable custom priority for now } */}
 
           {/* <TouchableOpacity
@@ -430,9 +424,9 @@ const SendConfirmation = ({ route }) => {
         </Box>
       </Box>
     );
-  };
+  }
 
-  const CustomPriorityBox = () => {
+  function CustomPriorityBox() {
     const [visible, setModalVisible] = useState(false);
 
     const open = () => {
@@ -444,23 +438,23 @@ const SendConfirmation = ({ route }) => {
       <Box>
         <TouchableOpacity onPress={open}>
           <Box
-            flexDirection={'row'}
+            flexDirection="row"
             rounded="lg"
-            background={'#FDF7F0'}
-            justifyContent={'space-between'}
-            alignItems={'center'}
+            background="#FDF7F0"
+            justifyContent="space-between"
+            alignItems="center"
             marginTop={hp(10)}
             mx={wp(29)}
-            textAlign={'center'}
+            textAlign="center"
             px="2"
             py="2"
           >
             <Text
-              fontStyle={'italic'}
-              color={'#00715B'}
+              fontStyle="italic"
+              color="#00715B"
               fontSize={12}
-              fontFamily={'body'}
-              fontWeight={'300'}
+              fontFamily="body"
+              fontWeight="300"
               p={2}
             >
               Custom Priority
@@ -489,59 +483,59 @@ const SendConfirmation = ({ route }) => {
         />
       </Box>
     );
-  };
+  }
 
-  const FeeInfo = () => {
+  function FeeInfo() {
     return (
-      <HStack width={windowWidth * 0.75} justifyContent={'space-between'} alignItems={'center'}>
+      <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
         <VStack>
           <Text
-            color={'light.lightBlack'}
+            color="light.lightBlack"
             fontSize={14}
             letterSpacing={1.12}
             fontWeight={200}
             marginTop={windowHeight * 0.011}
           >
-            {'Fees'}
+            Fees
           </Text>
-          <Text color={'light.lightBlack'} fontSize={12} letterSpacing={1.12} fontWeight={100}>
-            {'~ 10 - 30 mins'}
+          <Text color="light.lightBlack" fontSize={12} letterSpacing={1.12} fontWeight={100}>
+            ~ 10 - 30 mins
           </Text>
         </VStack>
         <Text
-          color={'light.lightBlack'}
+          color="light.lightBlack"
           fontSize={14}
           letterSpacing={1.12}
           fontWeight={200}
           marginTop={windowHeight * 0.011}
         >
-          {<BTC />}
+          <BTC />
           {` ${getAmount(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}`}
         </Text>
       </HStack>
     );
-  };
+  }
 
   return (
     <ScreenWrapper>
       <HeaderTitle title={title} subtitle={subtitle} paddingTop={hp(5)} />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <SendingCard isSend={true} />
+        <SendingCard isSend />
         <SendingCard isSend={false} />
         <Box marginTop={windowHeight * 0.01}>
           {vaultToVault ? <FeeInfo /> : <SendingPriority />}
         </Box>
       </Box>
-      <Box position={'absolute'} bottom={windowHeight * 0.14}>
+      <Box position="absolute" bottom={windowHeight * 0.14}>
         {vaultToVault ? (
           <Note
             title="Note"
             subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
-            width={'70%'}
+            width="70%"
           />
         ) : null}
       </Box>
-      <Box position={'absolute'} bottom={windowHeight * 0.025} right={10}>
+      <Box position="absolute" bottom={windowHeight * 0.025} right={10}>
         <Buttons
           primaryText="Proceed"
           secondaryText="Cancel"
@@ -551,15 +545,15 @@ const SendConfirmation = ({ route }) => {
           primaryCallback={onProceed}
         />
       </Box>
-      {/*Modals */}
+      {/* Modals */}
       <KeeperModal
         visible={visibleModal}
         close={() => viewDetails()}
         title={walletTransactions.SendSuccess}
-        subTitle={'The transaction has been successfully broadcasted'}
+        subTitle="The transaction has been successfully broadcasted"
         buttonText={walletTransactions.ViewDetails}
-        textColor={'#073B36'}
-        buttonTextColor={'#FAFAFA'}
+        textColor="#073B36"
+        buttonTextColor="#FAFAFA"
         // cancelButtonText={common.cancel}
         // cancelButtonColor={'#073E39'}
         Content={SendSuccessfulContent}
@@ -598,7 +592,7 @@ const SendConfirmation = ({ route }) => {
       /> */}
     </ScreenWrapper>
   );
-};
+}
 export default SendConfirmation;
 
 const styles = StyleSheet.create({

@@ -7,9 +7,7 @@ import { RegistryTypes } from './RegistryType';
 import { ScriptExpression, ScriptExpressions } from './ScriptExpression';
 
 export class CryptoOutput extends RegistryItem {
-  public getRegistryType = () => {
-    return RegistryTypes.CRYPTO_OUTPUT;
-  };
+  public getRegistryType = () => RegistryTypes.CRYPTO_OUTPUT;
 
   constructor(
     private scriptExpressions: ScriptExpression[],
@@ -19,27 +17,29 @@ export class CryptoOutput extends RegistryItem {
   }
 
   public getCryptoKey = () => this.cryptoKey;
+
   public getHDKey = () => {
     if (this.cryptoKey instanceof CryptoHDKey) {
       return this.cryptoKey as CryptoHDKey;
-    } else {
+    } 
       return undefined;
-    }
+    
   };
+
   public getECKey = () => {
     if (this.cryptoKey instanceof CryptoECKey) {
       return this.cryptoKey as CryptoECKey;
-    } else {
+    } 
       return undefined;
-    }
+    
   };
 
   public getMultiKey = () => {
     if (this.cryptoKey instanceof MultiKey) {
       return this.cryptoKey as MultiKey;
-    } else {
+    } 
       return undefined;
-    }
+    
   };
 
   public getScriptExpressions = () => this.scriptExpressions;
@@ -47,14 +47,12 @@ export class CryptoOutput extends RegistryItem {
   private _toOutputDescriptor = (seIndex: number): string => {
     if (seIndex >= this.scriptExpressions.length) {
       return this.cryptoKey.getOutputDescriptorContent();
-    } else {
+    } 
       return `${this.scriptExpressions[seIndex].getExpression()}(${this._toOutputDescriptor(seIndex + 1)})`;
-    }
+    
   };
 
-  public override toString = () => {
-    return this._toOutputDescriptor(0);
-  };
+  public override toString = () => this._toOutputDescriptor(0);
 
   toDataItem = () => {
     let dataItem = this.cryptoKey.toDataItem();
@@ -105,7 +103,7 @@ export class CryptoOutput extends RegistryItem {
         ScriptExpressions.MULTISIG.getExpression() ||
         scriptExpressions[seLength - 1].getExpression() ===
         ScriptExpressions.SORTED_MULTISIG.getExpression());
-    //TODO: judge is multi key by scriptExpressions
+    // TODO: judge is multi key by scriptExpressions
     if (isMultiKey) {
       const multiKey = MultiKey.fromDataItem(_dataItem);
       return new CryptoOutput(scriptExpressions, multiKey);
@@ -114,10 +112,10 @@ export class CryptoOutput extends RegistryItem {
     if (_dataItem.getTag() === RegistryTypes.CRYPTO_HDKEY.getTag()) {
       const cryptoHDKey = CryptoHDKey.fromDataItem(_dataItem);
       return new CryptoOutput(scriptExpressions, cryptoHDKey);
-    } else {
+    } 
       const cryptoECKey = CryptoECKey.fromDataItem(_dataItem);
       return new CryptoOutput(scriptExpressions, cryptoECKey);
-    }
+    
   };
 
   public static fromCBOR = (_cborPayload: Buffer) => {

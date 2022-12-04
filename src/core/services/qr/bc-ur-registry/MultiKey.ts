@@ -23,6 +23,7 @@ export class MultiKey extends RegistryItem {
   }
 
   getThreshold = () => this.threshold;
+
   getKeys = () => this.keys;
 
   toDataItem = () => {
@@ -37,11 +38,9 @@ export class MultiKey extends RegistryItem {
     return new DataItem(map);
   };
 
-  getOutputDescriptorContent = () => {
-    return [this.getThreshold(),
+  getOutputDescriptorContent = () => [this.getThreshold(),
       this.keys.map(k => k.getOutputDescriptorContent()).join(','),
     ].join(',');
-  };
 
   static fromDataItem = (dataItem: DataItem) => {
     const map = dataItem.getData();

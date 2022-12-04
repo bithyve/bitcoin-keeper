@@ -3,13 +3,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import FogotPassword from './components/FogotPassword';
 import KeeperModal from 'src/components/KeeperModal';
-import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
@@ -18,16 +15,19 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import messaging from '@react-native-firebase/messaging';
+import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
-import messaging from '@react-native-firebase/messaging';
-import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import FogotPassword from './components/FogotPassword';
+import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
-const LoginScreen = ({ navigation, route }) => {
+function LoginScreen({ navigation, route }) {
   const { relogin } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
@@ -47,8 +47,8 @@ const LoginScreen = ({ navigation, route }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
-  const common = translations['common'];
+  const {login} = translations;
+  const {common} = translations;
 
   useEffect(() => {
     if (loggingIn) {
@@ -63,7 +63,7 @@ const LoginScreen = ({ navigation, route }) => {
       if (retryTime > waitingTime) {
         setCanLogin(true);
         return;
-      } else {
+      } 
         setTimeout(() => {
           setLoginError(true);
           setErrMessage(`Please try after sometime`);
@@ -78,7 +78,7 @@ const LoginScreen = ({ navigation, route }) => {
         //   setCanLogin(false)
         //   return
         // }
-      }
+      
     }
     setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
@@ -174,14 +174,12 @@ const LoginScreen = ({ navigation, route }) => {
       setLoginModal(false);
       if (relogin) {
         navigation.goBack();
-      } else {
-        if (appId !== '') {
+      } else if (appId !== '') {
           updateFCM();
           navigation.replace('App');
         } else {
           navigation.replace('NewKeeperApp');
         }
-      }
       dispatch(credsAuthenticated(false));
     }
   };
@@ -206,7 +204,7 @@ const LoginScreen = ({ navigation, route }) => {
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
-  const LoginModalContent = () => {
+  function LoginModalContent() {
     return (
       <Box>
         <Image
@@ -218,7 +216,7 @@ const LoginScreen = ({ navigation, route }) => {
           }}
         />
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontWeight={200}
           fontSize={13}
           letterSpacing={0.65}
@@ -229,7 +227,7 @@ const LoginScreen = ({ navigation, route }) => {
         </Text>
       </Box>
     );
-  };
+  }
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
@@ -238,10 +236,10 @@ const LoginScreen = ({ navigation, route }) => {
           <Box>
             <Text
               ml={5}
-              color={'light.textLight'}
+              color="light.textLight"
               fontSize={RFValue(22)}
-              fontWeight={'200'}
-              fontFamily={'heading'}
+              fontWeight="200"
+              fontFamily="heading"
               style={{
                 marginTop: heightPercentageToDP('10%'),
               }}
@@ -254,8 +252,8 @@ const LoginScreen = ({ navigation, route }) => {
                 fontSize={RFValue(13)}
                 ml={5}
                 letterSpacing={0.65}
-                color={'light.textColor'}
-                fontFamily={'body'}
+                color="light.textColor"
+                fontFamily="body"
                 fontWeight={200}
               >
                 {/* {strings.EnterYourName}{' '} */}
@@ -274,10 +272,10 @@ const LoginScreen = ({ navigation, route }) => {
 
             {loginError && (
               <Text
-                color={'light.white'}
+                color="light.white"
                 fontSize={RFValue(12)}
-                fontStyle={'italic'}
-                textAlign={'right'}
+                fontStyle="italic"
+                textAlign="right"
                 fontWeight={200}
                 letterSpacing={0.65}
                 mr={12}
@@ -285,25 +283,25 @@ const LoginScreen = ({ navigation, route }) => {
                 {errMessage}
               </Text>
             )}
-            <HStack justifyContent={'space-between'} mr={10} paddingTop={'2'}>
+            <HStack justifyContent="space-between" mr={10} paddingTop="2">
               <Text
-                color={'light.white1'}
-                fontWeight={'200'}
-                px={'5'}
+                color="light.white1"
+                fontWeight="200"
+                px="5"
                 fontSize={13}
                 letterSpacing={1}
               >
-                {'Use bitcoin testnet'}
+                Use bitcoin testnet
               </Text>
               <Switch
                 defaultIsChecked
-                disabled={true}
+                disabled
                 trackColor={{ true: '#FFFA' }}
-                thumbColor={'#358475'}
+                thumbColor="#358475"
                 onChange={() => {}}
               />
             </HStack>
-            <Box mt={10} alignSelf={'flex-end'} mr={10}>
+            <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length == 4 && (
                 <Box>
                   <CustomButton
@@ -331,10 +329,10 @@ const LoginScreen = ({ navigation, route }) => {
               }}
             >
               <Text
-                color={'light.white'}
-                fontWeight={'300'}
+                color="light.white"
+                fontWeight="300"
                 fontSize={RFValue(14)}
-                fontFamily={'body'}
+                fontFamily="body"
               >
                 {login.ForgotPasscode}
               </Text>
@@ -388,11 +386,11 @@ const LoginScreen = ({ navigation, route }) => {
       <KeeperModal
         visible={loginModal}
         close={() => {}}
-        title={'Share Feedback (Testnet only)'}
-        subTitle={'Shake your device to send us a bug report or a feature request'}
+        title="Share Feedback (Testnet only)"
+        subTitle="Shake your device to send us a bug report or a feature request"
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#000'}
-        subTitleColor={'#5F6965'}
+        textColor="#000"
+        subTitleColor="#5F6965"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
         buttonCallback={loginModalAction}
@@ -401,7 +399,7 @@ const LoginScreen = ({ navigation, route }) => {
       />
     </LinearGradient>
   );
-};
+}
 
 const styles = StyleSheet.create({
   textBoxStyles: {

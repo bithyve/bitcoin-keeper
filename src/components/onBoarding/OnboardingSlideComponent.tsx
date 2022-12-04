@@ -8,15 +8,15 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('window');
 
-const OnboardingSlideComponent = (props) => {
+function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
         <Text
           fontSize={RFValue(18)}
-          color={'light.white'}
-          fontFamily={'heading'}
-          textAlign={'center'}
+          color="light.white"
+          fontFamily="heading"
+          textAlign="center"
           fontWeight={200}
           letterSpacing={1.8}
         >
@@ -27,9 +27,9 @@ const OnboardingSlideComponent = (props) => {
       <Box style={styles.paragraphWrapper}>
         <Text
           fontSize={RFValue(14)}
-          color={'light.white'}
-          fontFamily={'body'}
-          textAlign={'center'}
+          color="light.white"
+          fontFamily="body"
+          textAlign="center"
           fontWeight={200}
           letterSpacing={1.4}
           maxWidth={hp(315)}
@@ -38,16 +38,16 @@ const OnboardingSlideComponent = (props) => {
         </Text>
       </Box>
       {props.currentPosition == 5 && (
-        <Box justifyContent={'center'} mt={15}>
+        <Box justifyContent="center" mt={15}>
           <TouchableOpacity
             onPress={() => props.navigation.replace('NewKeeperApp')}
             style={styles.buttonWrapper}
           >
             <Text
               fontSize={RFValue(14)}
-              color={'light.white'}
-              fontFamily={'heading'}
-              textAlign={'center'}
+              color="light.white"
+              fontFamily="heading"
+              textAlign="center"
               fontWeight={300}
             >
               Start App&nbsp;&nbsp;
@@ -58,10 +58,10 @@ const OnboardingSlideComponent = (props) => {
       )}
     </Box>
   );
-};
+}
 const styles = StyleSheet.create({
   wrapper: {
-    width: width,
+    width,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 5,
