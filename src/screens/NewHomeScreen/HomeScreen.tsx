@@ -509,7 +509,6 @@ function HomeScreen({ navigation }) {
       BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
       BugReporting.setInvocationEvents([
         Instabug.invocationEvent.shake,
-        Instabug.invocationEvent.screenshot,
       ]);
       BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
       BugReporting.setShakingThresholdForiPhone(1.0);
