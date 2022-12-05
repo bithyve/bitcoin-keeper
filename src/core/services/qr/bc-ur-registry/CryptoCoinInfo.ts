@@ -18,21 +18,15 @@ export enum Network {
 }
 
 export class CryptoCoinInfo extends RegistryItem {
-  getRegistryType = () => {
-    return RegistryTypes.CRYPTO_COIN_INFO;
-  };
+  getRegistryType = () => RegistryTypes.CRYPTO_COIN_INFO;
 
   constructor(private type?: Type, private network?: Network) {
     super();
   }
 
-  public getType = () => {
-    return this.type || Type.bitcoin;
-  };
+  public getType = () => this.type || Type.bitcoin;
 
-  public getNetwork = () => {
-    return this.network || Network.mainnet;
-  };
+  public getNetwork = () => this.network || Network.mainnet;
 
   public toDataItem = () => {
     const map: DataItemMap = {};

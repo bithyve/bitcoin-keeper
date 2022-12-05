@@ -41,30 +41,47 @@ type DeriveKeyProps = {
 
 export class CryptoHDKey extends RegistryItem implements ICryptoKey {
   private master?: boolean;
+
   private privateKey?: boolean;
+
   private key?: Buffer;
+
   private chainCode?: Buffer;
+
   private useInfo?: CryptoCoinInfo;
+
   private origin?: CryptoKeypath;
+
   private children?: CryptoKeypath;
+
   private parentFingerprint?: Buffer;
+
   private name?: string;
+
   private note?: string;
 
-  isECKey = () => {
-    return false;
-  };
+  isECKey = () => false;
 
   public getKey = () => this.key;
+
   public getChainCode = () => this.chainCode;
+
   public isMaster = () => this.master;
+
   public isPrivateKey = () => !!this.privateKey;
+
   public getUseInfo = () => this.useInfo;
+
   public getOrigin = () => this.origin;
+
   public getChildren = () => this.children;
+
   public getParentFingerprint = () => this.parentFingerprint;
+
   public getName = () => this.name;
+
   public getNote = () => this.note;
+
   public getBip32Key = () => {
     let version: Buffer;
     let depth: number;
@@ -100,9 +117,7 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
     return encode(Buffer.concat([version, depthBuffer, parentFingerprint, indexBuffer, chainCode as Buffer, key as Buffer]));
   };
 
-  public getRegistryType = () => {
-    return RegistryTypes.CRYPTO_HDKEY;
-  };
+  public getRegistryType = () => RegistryTypes.CRYPTO_HDKEY;
 
   public getOutputDescriptorContent = () => {
     let result = '';
@@ -206,7 +221,7 @@ export class CryptoHDKey extends RegistryItem implements ICryptoKey {
       ? CryptoKeypath.fromDataItem(map[Keys.children])
       : undefined;
     const _parentFingerprint = map[Keys.parent_fingerprint];
-    let parentFingerprint: Buffer | undefined = undefined;
+    let parentFingerprint: Buffer | undefined;
     if (_parentFingerprint) {
       parentFingerprint = Buffer.alloc(4);
       parentFingerprint.writeUInt32BE(_parentFingerprint, 0);

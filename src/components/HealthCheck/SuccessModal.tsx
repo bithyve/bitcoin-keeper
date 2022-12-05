@@ -7,7 +7,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Close from 'src/assets/icons/modal_close.svg';
 
-const SuccessModal = (props) => {
+function SuccessModal(props) {
   const {
     visible,
     close,
@@ -36,7 +36,7 @@ const SuccessModal = (props) => {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      justifyContent={'flex-end'}
+      justifyContent="flex-end"
 
       // zIndex={'-1'}
       // style={styles.viewContainer}
@@ -54,15 +54,15 @@ const SuccessModal = (props) => {
               <Close />
             </TouchableOpacity>
             <Modal.Header
-              alignSelf={'flex-start'}
+              alignSelf="flex-start"
               borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={'90%'}
+              backgroundColor="transparent"
+              width="90%"
             >
               <Text
                 style={styles.title}
-                fontFamily={'body'}
-                fontWeight={'200'}
+                fontFamily="body"
+                fontWeight="200"
                 color={textColor}
                 paddingBottom={1}
               >
@@ -70,8 +70,8 @@ const SuccessModal = (props) => {
               </Text>
               <Text
                 style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'100'}
+                fontFamily="body"
+                fontWeight="100"
                 color={textColor}
               >
                 {subTitle}
@@ -81,16 +81,16 @@ const SuccessModal = (props) => {
               <Content />
             </Modal.Body>
             <Box
-              alignItems={'center'}
-              alignSelf={'flex-end'}
-              bg={'transparent'}
-              flexDirection={'row'}
+              alignItems="center"
+              alignSelf="flex-end"
+              bg="transparent"
+              flexDirection="row"
             >
               <TouchableOpacity onPress={cancelButtonPressed}>
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   color={cancelButtonColor}
                   mr={wp(18)}
@@ -107,8 +107,8 @@ const SuccessModal = (props) => {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
+                    fontFamily="body"
+                    fontWeight="300"
                     letterSpacing={1}
                     color={buttonTextColor}
                   >
@@ -122,7 +122,7 @@ const SuccessModal = (props) => {
       </View>
     </Modal>
   );
-};
+}
 
 export default SuccessModal;
 

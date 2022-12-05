@@ -1,12 +1,12 @@
 import { persistReducer, persistStore } from 'redux-persist';
 
-import bhrReducer from './reducers/bhr';
 import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
+import { reduxStorage } from 'src/storage';
 import loginReducer from './reducers/login';
 import notificationsReducer from './reducers/notifications';
-import { reduxStorage } from 'src/storage';
+import bhrReducer from './reducers/bhr';
 import { rootSaga } from './sagas';
 import sendAndReceiveReducer from './reducers/send_and_receive';
 import settingsReducer from './reducers/settings';

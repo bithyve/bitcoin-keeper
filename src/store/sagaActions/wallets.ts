@@ -1,9 +1,9 @@
-import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { SignerException, SignerPolicy, SignerRestriction } from 'src/core/services/interfaces';
+import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -39,95 +39,75 @@ export const syncWallets = (
     hardRefresh?: boolean;
     blindRefresh?: boolean;
   } = {}
-) => {
-  return {
+) => ({
     type: SYNC_WALLETS,
     payload: {
       wallets,
       options,
     },
-  };
-};
+  });
 
-export const getTestcoins = (testWallet: Wallet) => {
-  return {
+export const getTestcoins = (testWallet: Wallet) => ({
     type: GET_TESTCOINS,
     payload: testWallet,
-  };
-};
+  });
 
-export const addTransferDetails = (serviceType, recipientData) => {
-  return {
+export const addTransferDetails = (serviceType, recipientData) => ({
     type: ADD_TRANSFER_DETAILS,
     payload: {
       serviceType,
       recipientData,
     },
-  };
-};
+  });
 
-export const removeTransferDetails = (serviceType, recipientData) => {
-  return {
+export const removeTransferDetails = (serviceType, recipientData) => ({
     type: REMOVE_TRANSFER_DETAILS,
     payload: {
       serviceType,
       recipientData,
     },
-  };
-};
+  });
 
-export const clearTransfer = (serviceType, stage?) => {
-  return {
+export const clearTransfer = (serviceType, stage?) => ({
     type: CLEAR_TRANSFER,
     payload: {
       serviceType,
       stage,
     },
-  };
-};
+  });
 
-export const accumulativeBalAndTx = () => {
-  return {
+export const accumulativeBalAndTx = () => ({
     type: ACCUMULATIVE_BAL_AND_TX,
-  };
-};
+  });
 
 // To reset shell wallet sync status of all shells
-export const clearWalletSyncCache = () => {
-  return {
+export const clearWalletSyncCache = () => ({
     type: CLEAR_WALLET_SYNC_CACHE,
-  };
-};
+  });
 
 // This is called once per login to automatically sync balances and
 // transactions of all shells
-export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => {
-  return {
+export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
     type: AUTO_SYNC_WALLETS,
     payload: {
       syncAll,
       hardRefresh,
     },
-  };
-};
+  });
 
-export const registerWithSigningServer = (policy: SignerPolicy) => {
-  return {
+export const registerWithSigningServer = (policy: SignerPolicy) => ({
     type: REGISTER_WITH_SIGNING_SERVER,
     payload: {
       policy,
     },
-  };
-};
+  });
 
-export const validateSigningServerRegistration = (verificationToken) => {
-  return {
+export const validateSigningServerRegistration = (verificationToken) => ({
     type: VALIDATE_SIGNING_SERVER_REGISTRATION,
     payload: {
       verificationToken,
     },
-  };
-};
+  });
 
 export const updateSignerPolicy = (
   signer: VaultSigner,
@@ -135,15 +115,13 @@ export const updateSignerPolicy = (
     restrictions?: SignerRestriction;
     exceptions?: SignerException;
   }
-) => {
-  return {
+) => ({
     type: UPDATE_SIGNER_POLICY,
     payload: {
       signer,
       updates,
     },
-  };
-};
+  });
 
 // export const generateSecondaryXpriv = (wallet, secondaryMnemonic: string) => {
 //   return {
@@ -155,20 +133,16 @@ export const updateSignerPolicy = (
 //   };
 // };
 
-export const resetTwoFA = (secondaryMnemonic) => {
-  return {
+export const resetTwoFA = (secondaryMnemonic) => ({
     type: RESET_TWO_FA,
     payload: {
       secondaryMnemonic,
     },
-  };
-};
+  });
 
-export const runTest = () => {
-  return {
+export const runTest = () => ({
     type: RUN_TEST,
-  };
-};
+  });
 
 export const setupDonationWallet = (
   serviceType: string,
@@ -179,8 +153,7 @@ export const setupDonationWallet = (
     displayBalance: boolean;
   },
   disableWallet?: boolean
-) => {
-  return {
+) => ({
     type: SETUP_DONATION_WALLET,
     payload: {
       serviceType,
@@ -190,35 +163,28 @@ export const setupDonationWallet = (
       configuration,
       disableWallet,
     },
-  };
-};
+  });
 
-export const refreshWallets = (wallets: (Wallet | Vault)[], options: { hardRefresh?: boolean }) => {
-  return {
+export const refreshWallets = (wallets: (Wallet | Vault)[], options: { hardRefresh?: boolean }) => ({
     type: REFRESH_WALLETS,
     payload: {
       wallets,
       options,
     },
-  };
-};
+  });
 
-export const addNewWallets = (payload: newWalletInfo[]) => {
-  return {
+export const addNewWallets = (payload: newWalletInfo[]) => ({
     type: ADD_NEW_WALLETS,
     payload,
-  };
-};
+  });
 
-export const importNewWallet = (mnemonic: string, walletDetails?: newWalletDetails) => {
-  return {
+export const importNewWallet = (mnemonic: string, walletDetails?: newWalletDetails) => ({
     type: IMPORT_NEW_WALLET,
     payload: {
       mnemonic,
       walletDetails,
     },
-  };
-};
+  });
 
 export const updateWalletSettings = (payload: {
   wallet: Wallet;
@@ -227,12 +193,10 @@ export const updateWalletSettings = (payload: {
     walletDescription?: string;
     visibility?: VisibilityType;
   };
-}) => {
-  return {
+}) => ({
     type: UPDATE_WALLET_SETTINGS,
     payload,
-  };
-};
+  });
 
 // types and action creators (saga): dispatched by saga workers
 export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
@@ -245,103 +209,79 @@ export const NEW_WALLET_ADD_FAILED = 'NEW_WALLET_ADD_FAILED';
 export const WALLET_SETTINGS_UPDATED = 'WALLET_SETTINGS_UPDATED';
 export const WALLET_SETTINGS_UPDATE_FAILED = 'WALLET_SETTINGS_UPDATE_FAILED';
 
-export const testcoinsReceived = () => {
-  return {
+export const testcoinsReceived = () => ({
     type: TESTCOINS_RECEIVED,
-  };
-};
+  });
 
-export const transactionsFetched = (serviceType, transactions) => {
-  return {
+export const transactionsFetched = (serviceType, transactions) => ({
     type: TRANSACTIONS_FETCHED,
     payload: {
       serviceType,
       transactions,
     },
-  };
-};
+  });
 
-export const walletsSynched = (synched) => {
-  return {
+export const walletsSynched = (synched) => ({
     type: WALLETS_SYNCHED,
     payload: {
       synched,
     },
-  };
-};
+  });
 
-export const secondaryXprivGenerated = (generated) => {
-  return {
+export const secondaryXprivGenerated = (generated) => ({
     type: SECONDARY_XPRIV_GENERATED,
     payload: {
       generated,
     },
-  };
-};
+  });
 
-export const twoFAResetted = (resetted) => {
-  return {
+export const twoFAResetted = (resetted) => ({
     type: TWO_FA_RESETTED,
     payload: {
       resetted,
     },
-  };
-};
+  });
 
-export const walletSettingsUpdateFailed = ({ error }: { error: Error }) => {
-  return {
+export const walletSettingsUpdateFailed = ({ error }: { error: Error }) => ({
     type: WALLET_SETTINGS_UPDATE_FAILED,
     payload: {
       error,
     },
-  };
-};
+  });
 
-export const walletSettingsUpdated = () => {
-  return {
+export const walletSettingsUpdated = () => ({
     type: WALLET_SETTINGS_UPDATED,
-  };
-};
+  });
 
-export const clearReceiveAddress = () => {
-  return {
+export const clearReceiveAddress = () => ({
     type: CLEAR_RECEIVE_ADDRESS,
-  };
-};
+  });
 
-export const resetWalletUpdateFlag = () => {
-  return {
+export const resetWalletUpdateFlag = () => ({
     type: RESET_WALLET_UPDATE_FLAG,
-  };
-};
+  });
 
-export const setResetTwoFALoader = (flag) => {
-  return {
+export const setResetTwoFALoader = (flag) => ({
     type: RESET_TWO_FA_LOADER,
     payload: {
       flag,
     },
-  };
-};
+  });
 
-export const loginWithHexa = (authToken, walletName) => {
-  return {
+export const loginWithHexa = (authToken, walletName) => ({
     type: LOGIN_WITH_HEXA,
     payload: {
       authToken,
       walletName,
     },
-  };
-};
+  });
 
-export const testSatsRecieve = (wallet: Wallet) => {
-  return {
+export const testSatsRecieve = (wallet: Wallet) => ({
     type: TEST_SATS_RECIEVE,
     payload: {
       wallet,
     },
-  };
-};
+  });
 
 export const updateWalletDetails = (
   wallet: Wallet,
@@ -349,12 +289,10 @@ export const updateWalletDetails = (
     name: string;
     description: string;
   }
-) => {
-  return {
+) => ({
     type: UPDATE_WALLET_DETAILS,
     payload: {
       wallet,
       details,
     },
-  };
-};
+  });

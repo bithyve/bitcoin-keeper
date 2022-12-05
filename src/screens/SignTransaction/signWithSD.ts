@@ -8,8 +8,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
-import { signWithTapsigner } from 'src/hardware/tapsigner';
-import { readTapsigner } from 'src/hardware/tapsigner';
+import { signWithTapsigner , readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 
 export const signTransactionWithTapsigner = async ({
@@ -24,7 +23,7 @@ export const signTransactionWithTapsigner = async ({
 }) => {
   setTapsignerModal(false);
   const { inputsToSign } = signingPayload[0];
-  //AMF flow for signing
+  // AMF flow for signing
   if (currentSigner.amfData && currentSigner.amfData.xpub) {
     await withModal(() => readTapsigner(card, cvc))();
     const { xpriv } = currentSigner;
@@ -37,7 +36,7 @@ export const signTransactionWithTapsigner = async ({
       xpriv
     );
     return { signedSerializedPSBT, signingPayload: null };
-  } else {
+  } 
     return withModal(async () => {
       try {
         const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
@@ -49,7 +48,7 @@ export const signTransactionWithTapsigner = async ({
         console.log(e);
       }
     })().catch(console.log);
-  }
+  
 };
 
 export const signTransactionWithColdCard = async ({
@@ -63,16 +62,14 @@ export const signTransactionWithColdCard = async ({
 }) => {
   try {
     setColdCardModal(false);
-    await withNfcModal(async () => {
-      return signWithColdCard(serializedPSBTEnvelop.serializedPSBT);
-    });
+    await withNfcModal(async () => signWithColdCard(serializedPSBTEnvelop.serializedPSBT));
     const updatedSigners = getJSONFromRealmObject(signers).map((signer: VaultSigner) => {
       if (signer.signerId === activeSignerId) {
         signer.hasSigned = true;
         return signer;
-      } else {
+      } 
         return signer;
-      }
+      
     });
     dbManager.updateObjectById(RealmSchema.Vault, defaultVault.id, {
       signers: updatedSigners,

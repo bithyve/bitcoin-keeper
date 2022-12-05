@@ -3,10 +3,10 @@ import React, { useContext } from 'react';
 import LockIcon from 'src/assets/icons/lock.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const LogoContainer = () => {
+function LogoContainer() {
 
   const { translations } = useContext( LocalizationContext )
-  const login = translations[ 'login' ]
+  const {login} = translations
 
   return (
     <View style={styles.logoContainer}>
@@ -14,7 +14,7 @@ const LogoContainer = () => {
       <Text style={styles.loginText}>{login.login}</Text>
     </View>
   );
-};
+}
 
 export default LogoContainer;
 

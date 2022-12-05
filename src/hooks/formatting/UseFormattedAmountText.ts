@@ -13,7 +13,7 @@ export default function useFormattedAmountText(
 
   if (currencyKind === CurrencyKind.BITCOIN) {
     return UsNumberFormat(balance)
-  } else if (
+  } if (
     exchangeRates !== undefined &&
     exchangeRates[fiatCurrencyCode] !== undefined &&
     exchangeRates[fiatCurrencyCode].last !== undefined
@@ -21,7 +21,7 @@ export default function useFormattedAmountText(
     return (
       (balance / SATOSHIS_IN_BTC) * exchangeRates[fiatCurrencyCode].last
     ).toFixed(2)
-  } else {
+  } 
     return `${balance}`
-  }
+  
 }

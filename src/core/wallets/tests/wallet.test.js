@@ -1,13 +1,14 @@
+import Relay from 'src/core/services/operations/Relay';
+
+import { getRandomBytes } from 'src/core/services/operations/encryption';
+import WalletOperations from '../operations';
+import WalletUtilities from '../operations/utils';
+
 const { WalletType, NetworkType, TxPriority } = require('../enums');
 const { generateWallet } = require('../factories/WalletFactory');
 
-import Relay from 'src/core/services/operations/Relay';
-import WalletOperations from '../operations';
-import WalletUtilities from '../operations/utils';
-import { getRandomBytes } from 'src/core/services/operations/encryption';
-
 describe('Testing wallet primitives', () => {
-  let primaryMnemonic, walletShell, wallet, averageTxFees, txPrerequisites, txnPriority, PSBT;
+  let primaryMnemonic; let walletShell; let wallet; let averageTxFees; let txPrerequisites; let txnPriority; let PSBT;
 
   beforeAll(() => {
     primaryMnemonic =
@@ -25,8 +26,8 @@ describe('Testing wallet primitives', () => {
       type: WalletType.CHECKING,
       instanceNum: walletShell.walletInstances[WalletType.CHECKING] || 0,
       walletShellId: walletShell.id,
-      walletName: walletName,
-      walletDescription: walletDescription,
+      walletName,
+      walletDescription,
       primaryMnemonic,
       networkType: NetworkType.TESTNET,
     });
@@ -91,7 +92,7 @@ describe('Testing wallet primitives', () => {
   });
 
   test('wallet operations: transaction signing(PSBT)', async () => {
-    const inputs = txPrerequisites[txnPriority].inputs;
+    const {inputs} = txPrerequisites[txnPriority];
     const { signedPSBT } = await WalletOperations.signTransaction(wallet, inputs, PSBT);
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     expect(areSignaturesValid).toEqual(true);

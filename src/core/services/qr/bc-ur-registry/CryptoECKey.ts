@@ -11,8 +11,11 @@ enum Keys {
 
 export class CryptoECKey extends RegistryItem implements ICryptoKey {
   private data: Buffer;
+
   private curve: number | undefined;
+
   private privateKey: boolean | undefined;
+
   constructor(args: { data: Buffer; curve?: number; privateKey?: boolean }) {
     super();
     this.data = args.data;
@@ -20,17 +23,15 @@ export class CryptoECKey extends RegistryItem implements ICryptoKey {
     this.privateKey = args.privateKey || undefined;
   }
 
-  isECKey = () => {
-    return true;
-  };
+  isECKey = () => true;
 
   public getCurve = () => this.curve || 0;
+
   public isPrivateKey = () => this.privateKey || false;
+
   public getData = () => this.data;
 
-  getRegistryType = () => {
-    return RegistryTypes.CRYPTO_ECKEY;
-  };
+  getRegistryType = () => RegistryTypes.CRYPTO_ECKEY;
 
   toDataItem = () => {
     const map: DataItemMap = {};
@@ -44,9 +45,7 @@ export class CryptoECKey extends RegistryItem implements ICryptoKey {
     return new DataItem(map);
   };
 
-  getOutputDescriptorContent = () => {
-    return this.data.toString('hex');
-  }
+  getOutputDescriptorContent = () => this.data.toString('hex')
 
   static fromDataItem = (dataItem: DataItem) => {
     const map = dataItem.getData();

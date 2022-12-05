@@ -1,12 +1,12 @@
 import { useRoute } from '@react-navigation/native';
 import { Box } from 'native-base';
-import DisplayQR from '../QRScreens/DisplayQR';
 import HeaderTitle from 'src/components/HeaderTitle';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
+import DisplayQR from '../QRScreens/DisplayQR';
 
-const ShowQR = () => {
+function ShowQR() {
   const route = useRoute();
   const {
     data,
@@ -19,11 +19,11 @@ const ShowQR = () => {
     <ScreenWrapper>
       <HeaderTitle title={title} subtitle={subTitle} />
       <Box style={styles.center}>
-        <DisplayQR qrContents={data} toBytes={encodeToBytes} type={'base64'} />
+        <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 export default ShowQR;
 

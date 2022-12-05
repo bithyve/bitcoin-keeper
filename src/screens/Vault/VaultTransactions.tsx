@@ -19,7 +19,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
-const VaultTransactions = ({ route }) => {
+function VaultTransactions({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -32,9 +32,7 @@ const VaultTransactions = ({ route }) => {
   const title = route?.params?.title;
   const subtitle = route?.params?.subtitle;
 
-  const renderTransactionElement = ({ item }) => {
-    return <TransactionElement transaction={item} />;
-  };
+  const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
 
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -54,13 +52,13 @@ const VaultTransactions = ({ route }) => {
           <HeaderTitle onPressHandler={() => navigation.goBack()} />
         </Box>
 
-        <Box flexDirection={'row'} alignItems={'center'}>
+        <Box flexDirection="row" alignItems="center">
           <VaultIcon />
           <Box>
-            <Text fontWeight={200} fontSize={16} letterSpacing={0.8} color={'light.headerText'}>
+            <Text fontWeight={200} fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
             </Text>
-            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color={'light.modalText'}>
+            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color="light.modalText">
               {subtitle}
             </Text>
           </Box>
@@ -78,7 +76,7 @@ const VaultTransactions = ({ route }) => {
       </Box>
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

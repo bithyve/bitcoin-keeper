@@ -30,11 +30,11 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 
-const EnterSeedScreen = () => {
+function EnterSeedScreen() {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const seed = translations['seed'];
-  const common = translations['common'];
+  const {seed} = translations;
+  const {common} = translations;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -148,53 +148,53 @@ const EnterSeedScreen = () => {
   const getSeedWord = () => {
     let seedWord = '';
     for (let i = 0; i < 12; i++) {
-      seedWord += seedData[i].name + ' ';
+      seedWord += `${seedData[i].name  } `;
     }
     return seedWord.trim();
   };
 
   const onPressNext = async () => {
     if (isSeedFilled()) {
-      let seedWord = getSeedWord();
+      const seedWord = getSeedWord();
       dispatch(getAppImage(seedWord));
     }
   };
 
-  const RecoverWalletScreen = () => {
+  function RecoverWalletScreen() {
     return (
       <View>
         <Illustration />
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
     );
-  };
+  }
 
-  const InValidSeedsScreen = () => {
+  function InValidSeedsScreen() {
     return (
       <View>
-        <Box alignSelf={'center'}>
+        <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Make sure the words are entered in the correct sequence'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          Make sure the words are entered in the correct sequence
         </Text>
       </View>
     );
-  };
+  }
 
   const getFormattedNumber = (number) => {
-    if (number < 9) return '0' + (number + 1);
-    else return number + 1;
+    if (number < 9) return `0${  number + 1}`;
+    return number + 1;
   };
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return mainIndex + 'st';
-    else if (mainIndex == 2) return mainIndex + 'nd';
-    else if (mainIndex == 3) return mainIndex + 'rd';
-    else return mainIndex + 'th';
+    if (mainIndex == 1) return `${mainIndex  }st`;
+    if (mainIndex == 2) return `${mainIndex  }nd`;
+    if (mainIndex == 3) return `${mainIndex  }rd`;
+    return `${mainIndex  }th`;
   };
 
   return (
@@ -224,8 +224,7 @@ const EnterSeedScreen = () => {
               contentContainerStyle={{
                 marginStart: 15,
               }}
-              renderItem={({ item, index }) => {
-                return (
+              renderItem={({ item, index }) => (
                   <View
                     style={{
                       flexDirection: 'row',
@@ -241,7 +240,7 @@ const EnterSeedScreen = () => {
                         marginTop: 8,
                         letterSpacing: 1.23,
                       }}
-                      fontWeight={'300'}
+                      fontWeight="300"
                     >
                       {getFormattedNumber(index)}
                     </Text>
@@ -282,13 +281,12 @@ const EnterSeedScreen = () => {
                       }}
                     />
                   </View>
-                );
-              }}
+                )}
             />
           </View>
           <Text
             fontWeight={200}
-            color={'#4F5955'}
+            color="#4F5955"
             marginX={10}
             marginY={hp(10)}
             fontSize={12}
@@ -305,11 +303,11 @@ const EnterSeedScreen = () => {
               paddingHorizontal: wp(20),
             }}
           >
-            <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
-              <View style={styles.dot}></View>
-              <View style={styles.dash}></View>
+            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+              <View style={styles.dot} />
+              <View style={styles.dash} />
             </Box>
-            <Buttons primaryCallback={onPressNext} primaryText={'Next'} />
+            <Buttons primaryCallback={onPressNext} primaryText="Next" />
           </View>
           <KeeperModal
             visible={invalidSeedsModal}
@@ -318,10 +316,10 @@ const EnterSeedScreen = () => {
             subTitle={seed.seedDescription}
             modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
-            buttonText={'Retry'}
-            buttonTextColor={'#FAFAFA'}
+            buttonText="Retry"
+            buttonTextColor="#FAFAFA"
             buttonCallback={closeInvalidSeedsModal}
-            textColor={'#041513'}
+            textColor="#041513"
             Content={InValidSeedsScreen}
           />
           <KeeperModal
@@ -331,10 +329,10 @@ const EnterSeedScreen = () => {
             subTitle={seed.seedDescription}
             modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
-            buttonText={'View Wallet'}
-            buttonTextColor={'#FAFAFA'}
+            buttonText="View Wallet"
+            buttonTextColor="#FAFAFA"
             buttonCallback={closeWalletSuccessModal}
-            textColor={'#041513'}
+            textColor="#041513"
             Content={RecoverWalletScreen}
           />
           <ModalWrapper
@@ -347,7 +345,7 @@ const EnterSeedScreen = () => {
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {

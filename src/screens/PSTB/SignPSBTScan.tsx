@@ -9,16 +9,16 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const SignPSBTScan = () => {
+function SignPSBTScan() {
 
   const { translations } = useContext(LocalizationContext);
-  const common = translations['common'];
+  const {common} = translations;
 
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={'Sign PSBT'}
-        subtitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+        title="Sign PSBT"
+        subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
         paddingTop={hp(15)}
         paddingLeft={10}
       />
@@ -35,15 +35,13 @@ const SignPSBTScan = () => {
       <Box style={styles.Note}>
         <Note
           title={common.note}
-          subtitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis'
-          }
-          subtitleColor={'GreyText'}
+          subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis"
+          subtitleColor="GreyText"
         />
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   cameraView: {

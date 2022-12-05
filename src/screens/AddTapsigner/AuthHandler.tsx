@@ -4,7 +4,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const AuthHandler = ({ status, fixAuthDelay }) => {
+function AuthHandler({ status, fixAuthDelay }) {
   const isCardBlocked = status ? !!status.auth_delay : false;
   if (!isCardBlocked) return null;
   const text = isCardBlocked ? `Looks like you've crossed the CVC rate limit!` : '';
@@ -12,38 +12,38 @@ const AuthHandler = ({ status, fixAuthDelay }) => {
   return (
     <Box p={2}>
       <Text
-        color={'error.500'}
+        color="error.500"
         fontSize={16}
-        fontFamily={'body'}
-        fontWeight={'300'}
+        fontFamily="body"
+        fontWeight="300"
         letterSpacing={1}
-        textAlign={'center'}
+        textAlign="center"
       >
         {text}
       </Text>
       <Text
         fontSize={12}
-        fontFamily={'body'}
-        fontWeight={'200'}
+        fontFamily="body"
+        fontWeight="200"
         letterSpacing={1}
-        textAlign={'center'}
+        textAlign="center"
       >
-        {'Hold the card for about 15 seconds to unlock it.'}
+        Hold the card for about 15 seconds to unlock it.
       </Text>
       <TouchableOpacity onPress={fixAuthDelay}>
         <Text
           fontSize={16}
-          fontFamily={'body'}
-          fontWeight={'300'}
+          fontFamily="body"
+          fontWeight="300"
           letterSpacing={1}
-          textAlign={'center'}
+          textAlign="center"
         >
-          {'Unlock'}
+          Unlock
         </Text>
       </TouchableOpacity>
     </Box>
   );
-};
+}
 
 export default AuthHandler;
 

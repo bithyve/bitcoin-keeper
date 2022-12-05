@@ -3,6 +3,7 @@ import {CryptoHDKey} from "../CryptoHDKey";
 import {RegistryItem} from "../RegistryItem";
 import {decodeToDataItem,DataItem} from '../lib';
 import {DataItemMap} from '../types';
+
 enum Keys {
   masterFingerprint = 1,
   keys,
@@ -21,7 +22,9 @@ export class CryptoMultiAccounts extends RegistryItem {
   }
 
   public getMasterFingerprint = () => this.masterFingerprint;
+
   public getKeys = () => this.keys;
+
   public getDevice = () => this.device;
 
   public toDataItem = (): DataItem => {

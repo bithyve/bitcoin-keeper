@@ -2,10 +2,10 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { NativeBaseProvider } from 'native-base';
-import { store } from '../store/store';
 import { customTheme } from 'src/common/themes';
 import { configureStore } from '@reduxjs/toolkit';
 import type { PreloadedState } from '@reduxjs/toolkit';
+import { store } from '../store/store';
 
 const initialStore = store;
 const inset = {
@@ -13,7 +13,7 @@ const inset = {
   insets: { top: 0, left: 0, right: 0, bottom: 0 },
 };
 
-const AllTheProviders = ({ children }) => {
+function AllTheProviders({ children }) {
   return (
     <Provider store={initialStore}>
       <NativeBaseProvider initialWindowMetrics={inset} theme={customTheme}>
@@ -21,7 +21,7 @@ const AllTheProviders = ({ children }) => {
       </NativeBaseProvider>
     </Provider>
   );
-};
+}
 
 const customRender = (ui, options = {}) => render(ui, { wrapper: AllTheProviders, ...options });
 

@@ -4,7 +4,9 @@ import schema from './schema';
 
 export class RealmDatabase {
   private realm: Realm;
+
   public static file = 'keeper.realm';
+
   public static schemaVersion = 33;
 
   /**
@@ -37,7 +39,7 @@ export class RealmDatabase {
    */
   public getDatabase = (): Realm => {
     if (this.realm) return this.realm;
-    else throw new Error('database not initialized');
+    throw new Error('database not initialized');
   };
 
   /**
@@ -46,9 +48,7 @@ export class RealmDatabase {
    * It handles operations in a single, idempotent update. A write transaction is all or nothing
    * @param  {} callback
    */
-  public writeTransaction = (realm: Realm, callback) => {
-    return realm.write(callback);
-  };
+  public writeTransaction = (realm: Realm, callback) => realm.write(callback);
 
   /**
    * close the database when done with a realm instance to avoid memory leaks.

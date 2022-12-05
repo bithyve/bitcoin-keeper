@@ -2,16 +2,17 @@ import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
+
 export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
 }
-const CustomGreenButton = (props: Props) => {
+function CustomGreenButton(props: Props) {
   return (
     <TouchableHighlight
       style={styles.button}
-      underlayColor={'none'}
+      underlayColor="none"
       disabled={props.disabled}
       onPress={() => {
         props.onPress();
@@ -26,7 +27,7 @@ const CustomGreenButton = (props: Props) => {
           x: 0,
           y: 0,
         }}
-        useAngle={true}
+        useAngle
         angle={286}
         angleCenter={{
           x: 0.5,
@@ -35,13 +36,13 @@ const CustomGreenButton = (props: Props) => {
         colors={['#073E39', '#00836A']}
         style={styles.linearGradient}
       >
-        <Text color={'#FAFAFA'} fontSize={13} fontWeight={'300'} letterSpacing={0.78} fontFamily={'body'}>
+        <Text color="#FAFAFA" fontSize={13} fontWeight="300" letterSpacing={0.78} fontFamily="body">
           {props.value}
         </Text>
       </LinearGradient>
     </TouchableHighlight>
   );
-};
+}
 
 const styles = StyleSheet.create({
   button: {

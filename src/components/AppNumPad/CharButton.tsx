@@ -2,13 +2,13 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Fonts from 'src/common/Fonts';
 
-const CharButton = ({ char, Icon, pressHandler, color, height }) => {
+function CharButton({ char, Icon, pressHandler, color, height }) {
   return (
-    <TouchableOpacity onPress={() => pressHandler(char)} style={{ ...styles.charContainer, height: height }}>
-      {Icon ? <View style={styles.icon}>{Icon}</View> : <Text style={{ ...styles.char, color: color }}>{char}</Text>}
+    <TouchableOpacity onPress={() => pressHandler(char)} style={{ ...styles.charContainer, height }}>
+      {Icon ? <View style={styles.icon}>{Icon}</View> : <Text style={{ ...styles.char, color }}>{char}</Text>}
     </TouchableOpacity>
   );
-};
+}
 
 export default CharButton;
 

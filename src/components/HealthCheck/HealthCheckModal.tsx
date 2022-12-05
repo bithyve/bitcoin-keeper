@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch } from 'src/store/hooks';
 
-const HealthCheckModal = (props) => {
+function HealthCheckModal(props) {
   const {
     visible,
     closeHealthCheck,
@@ -40,7 +40,7 @@ const HealthCheckModal = (props) => {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      marginTop={'20%'}
+      marginTop="20%"
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
@@ -53,47 +53,47 @@ const HealthCheckModal = (props) => {
             <Close />
           </TouchableOpacity>
           <Modal.Header
-            alignSelf={'flex-start'}
+            alignSelf="flex-start"
             borderBottomWidth={0}
-            backgroundColor={'transparent'}
-            width={'90%'}
+            backgroundColor="transparent"
+            width="90%"
           >
             <Text
               style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
+              fontFamily="body"
+              fontWeight="200"
               color={textColor}
               paddingBottom={1}
             >
               {title}
             </Text>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
           <Box style={{ flexDirection: 'row', marginLeft: 10, alignSelf: 'flex-start' }}>
             <Box>{SignerIcon}</Box>
             <Box style={{ marginTop: 8, flexDirection: 'column' }}>
-              <Text color={'light.lightBlack'} fontSize={14}>
+              <Text color="light.lightBlack" fontSize={14}>
                 {SignerName}
               </Text>
             </Box>
           </Box>
           <Input
-            placeholderTextColor={'grey'}
-            backgroundColor={'light.lightYellow'}
+            placeholderTextColor="grey"
+            backgroundColor="light.lightYellow"
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}
             w="90%"
             marginY={2}
-            height={'10'}
+            height="10"
             value={inputText}
             onChangeText={(text) => {
               setInputText(text);
             }}
           />
-          <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>
+          <Box alignSelf="flex-end" flexDirection="row" bg="transparent">
             <TouchableOpacity onPress={onPress}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
@@ -103,8 +103,8 @@ const HealthCheckModal = (props) => {
               >
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   color={buttonTextColor}
                 >
@@ -117,7 +117,7 @@ const HealthCheckModal = (props) => {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default HealthCheckModal;
 

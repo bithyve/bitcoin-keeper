@@ -22,15 +22,15 @@ import {
 import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
 
-const Card = ({ message, buttonText, buttonCallBack }) => {
+function Card({ message, buttonText, buttonCallBack }) {
   return (
     <Box
-      backgroundColor={'light.lightYellow'}
-      width={'100%'}
+      backgroundColor="light.lightYellow"
+      width="100%"
       borderRadius={10}
-      justifyContent={'center'}
+      justifyContent="center"
       marginY={6}
-      py={'5'}
+      py="5"
     >
       <Box
         style={{
@@ -40,21 +40,21 @@ const Card = ({ message, buttonText, buttonCallBack }) => {
         }}
       >
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontSize={13}
           letterSpacing={0.65}
           fontWeight={200}
-          width={'70%'}
+          width="70%"
         >
           {message}
         </Text>
         <Pressable
-          bg={'light.yellow1'}
-          justifyContent={'center'}
+          bg="light.yellow1"
+          justifyContent="center"
           borderRadius={5}
           width={wp(60)}
           height={hp(25)}
-          alignItems={'center'}
+          alignItems="center"
           onPress={buttonCallBack}
         >
           <Text fontSize={12} letterSpacing={0.65} fontWeight={200}>
@@ -64,9 +64,9 @@ const Card = ({ message, buttonText, buttonCallBack }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const SignWithColdCard = ({ route }) => {
+function SignWithColdCard({ route }) {
   const [nfcVisible, setNfcVisible] = useState(false);
   const [mk4Helper, showMk4Helper] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -102,7 +102,7 @@ const SignWithColdCard = ({ route }) => {
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper>
-      <VStack justifyContent={'space-between'} flex={1}>
+      <VStack justifyContent="space-between" flex={1}>
         <VStack>
           {register ? (
             <>
@@ -111,43 +111,41 @@ const SignWithColdCard = ({ route }) => {
                 subtitle="The vault needs to be registered only once"
               />
               <Card
-                message={
-                  'You will register the new vault with Coldcard so that it allows you to sign every time'
-                }
-                buttonText={'Scan'}
+                message="You will register the new vault with Coldcard so that it allows you to sign every time"
+                buttonText="Scan"
                 buttonCallBack={registerCC}
               />
             </>
           ) : null}
           <HeaderTitle title="Sign Transaction" subtitle="Two step process" enableBack={false} />
           <Card
-            message={'Send PSBT from the app to Coldcard'}
-            buttonText={'Send'}
+            message="Send PSBT from the app to Coldcard"
+            buttonText="Send"
             buttonCallBack={signTransaction}
           />
           <Card
-            message={'Receive signed PSBT from Coldcard'}
-            buttonText={'Receive'}
+            message="Receive signed PSBT from Coldcard"
+            buttonText="Receive"
             buttonCallBack={receiveFromColdCard}
           />
         </VStack>
         <VStack>
           <Box bg={`${colorMode}.offWhite`} p={2}>
             <Box opacity={1}>
-              <Text fontSize={14} fontFamily={'body'} color={`light.lightBlack`} fontWeight={200}>
-                {'Note'}
+              <Text fontSize={14} fontFamily="body" color="light.lightBlack" fontWeight={200}>
+                Note
               </Text>
             </Box>
-            <HStack alignItems={'center'}>
-              <Text fontSize={13} fontFamily={'body'}>
-                {'Coldcard is showing an error?'}
+            <HStack alignItems="center">
+              <Text fontSize={13} fontFamily="body">
+                Coldcard is showing an error?
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   showMk4Helper(true);
                 }}
               >
-                <Text fontSize={14} fontFamily={'body'} fontWeight={'300'}>
+                <Text fontSize={14} fontFamily="body" fontWeight="300">
                   {' Need Help?'}
                 </Text>
               </TouchableOpacity>
@@ -160,8 +158,7 @@ const SignWithColdCard = ({ route }) => {
         close={() => showMk4Helper(false)}
         title="Need help with Coldcard?"
         subTitle="Try to map the error on your Coldcard to one of the options here"
-        Content={() => {
-          return (
+        Content={() => (
             <Box>
               <TouchableOpacity
                 onPress={() => {
@@ -171,12 +168,12 @@ const SignWithColdCard = ({ route }) => {
                 activeOpacity={0.8}
                 style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
               >
-                <VStack width={'97%'}>
-                  <Text fontSize={14} fontFamily={'body'}>
-                    {'Manually Register Mk4'}
+                <VStack width="97%">
+                  <Text fontSize={14} fontFamily="body">
+                    Manually Register Mk4
                   </Text>
-                  <Text fontSize={12} fontFamily={'body'}>
-                    {'Please resigister the Vault if not already registered'}
+                  <Text fontSize={12} fontFamily="body">
+                    Please resigister the Vault if not already registered
                   </Text>
                 </VStack>
                 <Arrow />
@@ -189,23 +186,22 @@ const SignWithColdCard = ({ route }) => {
                 activeOpacity={0.8}
                 style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
               >
-                <VStack width={'97%'}>
-                  <Text fontSize={14} fontFamily={'body'}>
-                    {'Learn more about Mk4'}
+                <VStack width="97%">
+                  <Text fontSize={14} fontFamily="body">
+                    Learn more about Mk4
                   </Text>
-                  <Text fontSize={12} fontFamily={'body'}>
-                    {'Here you will find all of our User Documentation for the COLDCARD.'}
+                  <Text fontSize={12} fontFamily="body">
+                    Here you will find all of our User Documentation for the COLDCARD.
                   </Text>
                 </VStack>
                 <Arrow />
               </TouchableOpacity>
             </Box>
-          );
-        }}
+          )}
       />
       <NfcPrompt visible={nfcVisible} />
     </ScreenWrapper>
   );
-};
+}
 
 export default SignWithColdCard;

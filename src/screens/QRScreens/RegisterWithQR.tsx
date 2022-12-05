@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 
 import { Box } from 'native-base';
-import DisplayQR from './DisplayQR';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -10,8 +9,9 @@ import { StyleSheet } from 'react-native';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getWalletConfig } from 'src/hardware';
+import DisplayQR from './DisplayQR';
 
-const RegisterWithQR = () => {
+function RegisterWithQR() {
   const { useQuery } = useContext(RealmWrapperContext);
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -29,7 +29,7 @@ const RegisterWithQR = () => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 export default RegisterWithQR;
 

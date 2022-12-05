@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-//components and functions
+// components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -40,36 +40,36 @@ type Props = {
   Icon: boolean;
 };
 
-const Option = ({ title, subTitle, onPress, Icon }: Props) => {
+function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
     <Pressable
-      flexDirection={'row'}
-      alignItems={'center'}
-      width={'100%'}
+      flexDirection="row"
+      alignItems="center"
+      width="100%"
       style={{ marginTop: hp(20) }}
       onPress={onPress}
     >
       {Icon && (
-        <Box w={'16%'}>
+        <Box w="16%">
           <BackupIcon />
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
-        <Text color={'light.lightBlack'} fontSize={RFValue(14)} letterSpacing={1.12}>
+        <Text color="light.lightBlack" fontSize={RFValue(14)} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color={'light.GreyText'} fontSize={RFValue(12)} letterSpacing={0.6}>
+        <Text color="light.GreyText" fontSize={RFValue(12)} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
-      <Box w={'4%'}>
+      <Box w="4%">
         <Arrow />
       </Box>
     </Pressable>
   );
-};
+}
 
-const WalletSettings = ({ route }) => {
+function WalletSettings({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -88,9 +88,9 @@ const WalletSettings = ({ route }) => {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const { translations } = useContext(LocalizationContext);
-  const walletTranslation = translations['wallet'];
+  const walletTranslation = translations.wallet;
 
-  const WalletCard = ({ walletName, walletBalance, walletDescription }) => {
+  function WalletCard({ walletName, walletBalance, walletDescription }) {
     return (
       <Box
         bg={{
@@ -111,19 +111,19 @@ const WalletSettings = ({ route }) => {
       >
         <Box
           marginTop={hp(17)}
-          flexDirection={'row'}
-          alignItems={'center'}
-          justifyContent={'space-between'}
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
           style={{
             marginHorizontal: wp(20),
           }}
         >
           <Box>
-            <Text color={'light.white'} letterSpacing={0.28} fontSize={RFValue(14)}>
+            <Text color="light.white" letterSpacing={0.28} fontSize={RFValue(14)}>
               {walletName}
             </Text>
             <Text
-              color={'light.white'}
+              color="light.white"
               letterSpacing={0.24}
               fontSize={RFValue(12)}
               fontWeight={100}
@@ -131,13 +131,13 @@ const WalletSettings = ({ route }) => {
               {walletDescription}
             </Text>
           </Box>
-          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)}>
+          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
             {walletBalance}
           </Text>
         </Box>
       </Box>
     );
-  };
+  }
 
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
@@ -168,12 +168,10 @@ const WalletSettings = ({ route }) => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();
       }, 3000);
-    } else {
-      if (testCoinsFailed) {
+    } else if (testCoinsFailed) {
         Alert.alert('Process Failed');
         dispatch(setTestCoinsFailed(false));
       }
-    }
   }, [testCoinsReceived, testCoinsFailed]);
 
   const signPSBT = (serializedPSBT) => {
@@ -192,14 +190,14 @@ const WalletSettings = ({ route }) => {
   };
 
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
-          title={'Wallet Settings'}
-          subtitle={'Setting for the wallet only'}
+          title="Wallet Settings"
+          subtitle="Setting for the wallet only"
           onPressHandler={() => navigation.goBack()}
-          headerTitleColor={'light.textBlack'}
+          headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
         />
@@ -219,7 +217,7 @@ const WalletSettings = ({ route }) => {
         />
       </Box>
       <Box
-        alignItems={'center'}
+        alignItems="center"
         style={{
           marginLeft: wp(25),
         }}
@@ -227,39 +225,39 @@ const WalletSettings = ({ route }) => {
       >
         <ScrollView>
           <Option
-            title={'Wallet Details'}
-            subTitle={'Change wallet name & description'}
+            title="Wallet Details"
+            subTitle="Change wallet name & description"
             onPress={() => {
-              navigation.navigate('EditWalletDetails', { wallet: wallet });
+              navigation.navigate('EditWalletDetails', { wallet });
             }}
             Icon={false}
           />
           <Option
-            title={'Show xPub'}
-            subTitle={'Use to create a external watch-only wallet'}
+            title="Show xPub"
+            subTitle="Use to create a external watch-only wallet"
             onPress={() => {
               setXPubVisible(true);
             }}
             Icon={false}
           />
           <Option
-            title={'Show Cosigner Details'}
-            subTitle={'Use to create a signing device'}
+            title="Show Cosigner Details"
+            subTitle="Use to create a signing device"
             onPress={() => {
               setCosignerVisible(true);
             }}
             Icon={false}
           />
           <Option
-            title={'Wallet seed words'}
-            subTitle={'Use to link external wallets to Keeper'}
+            title="Wallet seed words"
+            subTitle="Use to link external wallets to Keeper"
             onPress={() => {
               setConfirmPassVisible(true);
             }}
             Icon={false}
           />
           <Option
-            title={'Transfer Policy'}
+            title="Transfer Policy"
             subTitle={`Secure to vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
@@ -268,8 +266,8 @@ const WalletSettings = ({ route }) => {
           />
 
           <Option
-            title={'Receive Test Sats'}
-            subTitle={'Recieve Test Sats to this address'}
+            title="Receive Test Sats"
+            subTitle="Recieve Test Sats to this address"
             onPress={() => {
               // setAppLoading(true);
               getTestSats();
@@ -278,8 +276,8 @@ const WalletSettings = ({ route }) => {
           />
 
           <Option
-            title={'Sign PSBT'}
-            subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+            title="Sign PSBT"
+            subTitle="Lorem ipsum dolor sit amet, consectetur"
             onPress={() => {
               navigation.dispatch(
                 CommonActions.navigate({
@@ -307,11 +305,9 @@ const WalletSettings = ({ route }) => {
         }}
       >
         <Note
-          title={'Note'}
-          subtitle={
-            'These settings are for your Default Wallet only and does not affect other wallets'
-          }
-          subtitleColor={'GreyText'}
+          title="Note"
+          subtitle="These settings are for your Default Wallet only and does not affect other wallets"
+          subtitleColor="GreyText"
         />
       </Box>
       {/* Modals */}
@@ -329,14 +325,12 @@ const WalletSettings = ({ route }) => {
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
-          title={'Wallet xPub'}
+          title="Wallet xPub"
           subTitleWidth={wp(240)}
-          subTitle={
-            'Scan or copy paste the xPub in another app for generating new addresses and fetching balances'
-          }
-          subTitleColor={'#5F6965'}
+          subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
+          subTitleColor="#5F6965"
           modalBackground={['#F7F2EC', '#F7F2EC']}
-          textColor={'#041513'}
+          textColor="#041513"
           Content={() => (
             <ShowXPub
               data={wallet.specs.xpub}
@@ -351,22 +345,20 @@ const WalletSettings = ({ route }) => {
         <KeeperModal
           visible={cosignerVisible}
           close={() => setCosignerVisible(false)}
-          title={'Cosigner Details'}
+          title="Cosigner Details"
           subTitleWidth={wp(240)}
-          subTitle={'Scan the cosigner details from another app in order to add this as a signer'}
-          subTitleColor={'#5F6965'}
+          subTitle="Scan the cosigner details from another app in order to add this as a signer"
+          subTitleColor="#5F6965"
           modalBackground={['#F7F2EC', '#F7F2EC']}
-          textColor={'#041513'}
+          textColor="#041513"
           Content={() => (
             <ShowXPub
               data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
               copy={() => {
                 showToast('Cosigner Details Copied Successfully', <TickIcon />);
               }}
-              subText={'Cosigner Details'}
-              noteSubText={
-                'The cosigner details are only for the selected wallet and not other wallets in the app'
-              }
+              subText="Cosigner Details"
+              noteSubText="The cosigner details are only for the selected wallet and not other wallets in the app"
               copyable={false}
             />
           )}
@@ -374,20 +366,18 @@ const WalletSettings = ({ route }) => {
         <KeeperModal
           visible={transferPolicyVisible}
           close={() => setTransferPolicyVisible(false)}
-          title={'Edit Transfer Policy'}
-          subTitle={'Threshold amount at which transfer is triggered'}
-          subTitleColor={'#5F6965'}
+          title="Edit Transfer Policy"
+          subTitle="Threshold amount at which transfer is triggered"
+          subTitleColor="#5F6965"
           modalBackground={['#F7F2EC', '#F7F2EC']}
-          textColor={'#041513'}
-          Content={() => {
-            return <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />;
-          }}
+          textColor="#041513"
+          Content={() => <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />}
         />
       </Box>
       {/* end */}
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

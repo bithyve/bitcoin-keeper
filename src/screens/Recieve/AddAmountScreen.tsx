@@ -15,17 +15,17 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 
-const AddAmountScreen = ({ route }: { route }) => {
+function AddAmountScreen({ route }: { route }) {
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
   const { translations } = useContext(LocalizationContext);
-  const home = translations['home'];
-  const common = translations['common'];
+  const {home} = translations;
+  const {common} = translations;
 
   return (
     <View flex={1}>
-      <View style={styles.Container} background={'light.ReceiveBackground'}>
+      <View style={styles.Container} background="light.ReceiveBackground">
         <StatusBarComponent padding={50} />
         <HeaderTitle
           title={home.AddAmount}
@@ -34,24 +34,24 @@ const AddAmountScreen = ({ route }: { route }) => {
         />
         <View marginX={8} marginTop={hp(80)}>
           <View
-            flexDirection={'row'}
-            width={'100%'}
-            justifyContent={'center'}
-            alignItems={'center'}
+            flexDirection="row"
+            width="100%"
+            justifyContent="center"
+            alignItems="center"
             borderRadius={10}
-            backgroundColor={'light.lightYellow'}
+            backgroundColor="light.lightYellow"
             marginY={2}
             padding={2}
           >
             <View marginLeft={6}>
               <BtcInput />
             </View>
-            <View marginLeft={2} width={0.5} backgroundColor={'#BDB7B1'} opacity={0.3} height={5} />
+            <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
             <Input
               placeholder={home.ConvertedAmount}
-              placeholderTextColor={'light.greenText'}
+              placeholderTextColor="light.greenText"
               style={styles.inputField}
-              borderWidth={'0'}
+              borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}
               onFocus={() => Keyboard.dismiss()}
@@ -64,7 +64,7 @@ const AddAmountScreen = ({ route }: { route }) => {
               secondaryCallback={() => {
                 navigtaion.goBack();
               }}
-              primaryText={'Add'}
+              primaryText="Add"
               primaryCallback={() => {
                 navigtaion.navigate('Receive', { amount, wallet });
               }}
@@ -72,12 +72,12 @@ const AddAmountScreen = ({ route }: { route }) => {
           </View>
         </View>
       </View>
-      <View position={'absolute'} bottom={0}>
-        <AppNumPad setValue={setAmount} clear={() => setAmount('')} color={'#073E39'} />
+      <View position="absolute" bottom={0}>
+        <AppNumPad setValue={setAmount} clear={() => setAmount('')} color="#073E39" />
       </View>
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

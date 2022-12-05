@@ -4,17 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-//asserts
+// asserts
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const Transactions = ({ transactions, addTransaction = () => {} }) => {
+function Transactions({ transactions, addTransaction = () => {} }) {
   const navigation = useNavigation();
 
-  const GradientIcon = ({ height, Icon }) => {
+  function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
@@ -31,42 +31,41 @@ const Transactions = ({ transactions, addTransaction = () => {} }) => {
         <Icon />
       </LinearGradient>
     );
-  };
+  }
   const renderTranscation = ({ item, index }: { item; index }) => {
     const { address, amount } = item;
     return (
-      <>
-        <Box
-          justifyContent={'space-between'}
-          alignItems={'center'}
+      <Box
+          justifyContent="space-between"
+          alignItems="center"
           style={{ marginRight: wp(10) }}
-          flexDirection={'row'}
-          backgroundColor={'light.lightYellow'}
+          flexDirection="row"
+          backgroundColor="light.lightYellow"
           width={wp(215)}
           height={hp(54)}
           borderRadius={10}
         >
-          <Box flexDirection={'row'}>
+          <Box flexDirection="row">
             <TouchableOpacity style={styles.buttonBackground}>
               <IconWallet />
             </TouchableOpacity>
             <Box marginLeft={wp(10)}>
               <Text
-                fontFamily={'body'}
-                fontWeight={'200'}
+                fontFamily="body"
+                fontWeight="200"
                 fontSize={14}
-                mt={'1'}
+                mt="1"
                 numberOfLines={1}
                 letterSpacing={1.12}
-                color={'light.sendCardHeading'}
+                color="light.sendCardHeading"
                 width={wp(100)}
               >
                 {address}
               </Text>
               <Text
-                fontFamily={'body'}
-                fontWeight={'200'}
-                fontStyle={'italic'}
+                fontFamily="body"
+                fontWeight="200"
+                fontStyle="italic"
                 fontSize={10}
                 numberOfLines={1}
               >
@@ -82,11 +81,10 @@ const Transactions = ({ transactions, addTransaction = () => {} }) => {
             <Close />
           </TouchableOpacity>
         </Box>
-      </>
     );
   };
   return (
-    <View flexDirection={'row'}>
+    <View flexDirection="row">
       {transactions && (
         <FlatList
           data={transactions}
@@ -98,7 +96,7 @@ const Transactions = ({ transactions, addTransaction = () => {} }) => {
       )}
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

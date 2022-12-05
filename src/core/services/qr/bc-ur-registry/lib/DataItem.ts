@@ -1,5 +1,6 @@
 export class DataItem {
   private tag?: number;
+
   private data: any;
 
   constructor(data: any, tag?: number) {
@@ -15,11 +16,7 @@ export class DataItem {
     this.tag = undefined;
   };
 
-  public getTag = () => {
-    return this.tag;
-  };
+  public getTag = () => this.tag;
 
-  public getData = () => {
-    return this.data;
-  };
+  public getData = () => this.data;
 }

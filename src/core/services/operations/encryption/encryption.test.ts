@@ -25,7 +25,7 @@ describe('Testing cryptographic primitives', () => {
   });
 
   let encrypted;
-  let message = 'sample-message';
+  const message = 'sample-message';
   test('Encryption::AES', () => {
     encrypted = encrypt(key, message);
     expect(encrypted).not.toBeUndefined();

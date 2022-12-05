@@ -1,11 +1,11 @@
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config, { APP_STAGE } from 'src/core/config';
-import { generateSignerFromMetaData, getWalletConfig } from '..';
 
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { generateSignerFromMetaData, getWalletConfig } from '..';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const config = getWalletConfig({ vault });
@@ -87,7 +87,7 @@ export const receiveTxHexFromColdCard = async () => {
     } else if (packet.rtdName === 'bitcoin.org:txn') {
       payload.txn = Buffer.from(packet.data, 'base64').toString('hex');
     } else {
-      //ignore
+      // ignore
     }
   });
   return payload;

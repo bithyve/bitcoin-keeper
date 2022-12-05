@@ -10,9 +10,9 @@ import {
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 
-const WalletBackHistoryScreen = ({ navigation }) => {
+function WalletBackHistoryScreen({ navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
+  const {BackupWallet} = translations;
 
   return (
     <ScreenWrapper>
@@ -22,5 +22,5 @@ const WalletBackHistoryScreen = ({ navigation }) => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 export default WalletBackHistoryScreen;

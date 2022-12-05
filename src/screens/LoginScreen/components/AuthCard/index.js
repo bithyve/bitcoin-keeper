@@ -4,7 +4,7 @@ import CheckBoxIconUnchecked from 'src/assets/icons/checkbox.svg';
 import CheckBoxIconChecked from 'src/assets/icons/checkbox_filled.svg';
 import { authStatus } from '../../constants';
 
-const AuthCard = ({ type, status = authStatus.QUEUED }) => {
+function AuthCard({ type, status = authStatus.QUEUED }) {
   return (
     <View style={styles.authTypeContatiner}>
       <View style={styles.authStatusConatiner}>
@@ -16,14 +16,14 @@ const AuthCard = ({ type, status = authStatus.QUEUED }) => {
       </View>
     </View>
   );
-};
+}
 
 export default AuthCard;
 
 const getStyles = (status) => {
   if (status === authStatus.QUEUED) return queuedStyles;
-  else if (status === authStatus.APPROVED) return approvedStyles;
-  else if (status === authStatus.IN_PROGRESS) return inProgressStyles;
+  if (status === authStatus.APPROVED) return approvedStyles;
+  if (status === authStatus.IN_PROGRESS) return inProgressStyles;
 };
 
 const styles = StyleSheet.create({

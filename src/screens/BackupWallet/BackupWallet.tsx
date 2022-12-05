@@ -28,10 +28,10 @@ type Props = {
   onPress: () => void;
 };
 
-const BackupWallet = () => {
+function BackupWallet() {
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
+  const {BackupWallet} = translations;
   const { backupMethod, loading, isBackupError, backupError, cloudBackupCompleted } =
     useAppSelector((state) => state.bhr);
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
@@ -62,20 +62,20 @@ const BackupWallet = () => {
     };
   }, [loading, isBackupError, cloudBackupCompleted]);
 
-  const Option = ({ title, subTitle, onPress }: Props) => {
+  function Option({ title, subTitle, onPress }: Props) {
     return (
       <Pressable
-        flexDirection={'row'}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        width={'100%'}
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+        width="100%"
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box width={'100%'}>
+        <Box width="100%">
           <Text
-            color={'light.lightBlack'}
-            fontFamily={'body'}
+            color="light.lightBlack"
+            fontFamily="body"
             fontWeight={200}
             fontSize={RFValue(14)}
             letterSpacing={1.12}
@@ -84,8 +84,8 @@ const BackupWallet = () => {
           </Text>
           {subTitle ? (
             <Text
-              color={'light.GreyText'}
-              fontFamily={'body'}
+              color="light.GreyText"
+              fontFamily="body"
               fontWeight={200}
               fontSize={RFValue(12)}
               letterSpacing={0.6}
@@ -99,11 +99,11 @@ const BackupWallet = () => {
         </Box>
       </Pressable>
     );
-  };
+  }
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
+    <Box flex={1} padding={5} background="light.ReceiveBackground">
       <StatusBarComponent padding={30} />
       <Box
         style={{
@@ -117,11 +117,11 @@ const BackupWallet = () => {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
+      <Box alignItems="center" paddingX={wp(25)} marginTop={hp(60)}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
-          subTitle={''}
+          subTitle=""
           onPress={() => {
             navigation.replace('ExportSeed', {
               seed: primaryMnemonic,
@@ -149,7 +149,7 @@ const BackupWallet = () => {
         <ModalWrapper
           visible={healthCheckModal}
           onSwipeComplete={() => setHealthCheckModal(false)}
-          position={'center'}
+          position="center"
         >
           <HealthCheckComponent
             closeBottomSheet={() => {
@@ -192,5 +192,5 @@ const BackupWallet = () => {
       </Box>
     </Box>
   );
-};
+}
 export default BackupWallet;

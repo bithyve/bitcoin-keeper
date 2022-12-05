@@ -19,7 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { getColdcardDetails } from 'src/hardware/coldcard';
 
-const ColdCardReocvery = () => {
+function ColdCardReocvery() {
   const { nfcVisible, withNfcModal } = useNfcModal();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const ColdCardReocvery = () => {
       const xpub = WalletUtilities.generateXpubFromYpub(coldcard.xpub, network);
       const sigingDeivceDetails: SigningDeviceRecovery = {
         signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        xpub: xpub,
+        xpub,
         type: SignerType.COLDCARD,
       };
       dispatch(setSigningDevices(sigingDeivceDetails));
@@ -95,7 +95,7 @@ const ColdCardReocvery = () => {
       </TapGestureHandler>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

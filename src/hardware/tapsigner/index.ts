@@ -15,13 +15,13 @@ export const getTapsignerDetails = async (card: CKTapCard, cvc: string) => {
       const xpub = await card.get_xpub(cvc);
       const xfp = await card.get_xfp(cvc);
       return { xpub, xfp: xfp.toString('hex'), derivationPath: status.path };
-    } else {
+    } 
       await card.setup(cvc);
       const newCard = await card.first_look();
       const xpub = await card.get_xpub(cvc);
       const xfp = await card.get_xfp(cvc);
       return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
-    }
+    
   }
 };
 
@@ -74,9 +74,9 @@ export const signWithTapsigner = async (
         input.signature = signature.slice(1).toString('hex');
       }
       return inputsToSign;
-    } else {
+    } 
       Alert.alert('Please setup card before signing!');
-    }
+    
   } catch (e) {
     console.log(e);
   }

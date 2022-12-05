@@ -22,7 +22,6 @@ import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
-import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
@@ -67,6 +66,8 @@ import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
+import Login from '../screens/LoginScreen/Login';
+
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
@@ -75,7 +76,7 @@ const defaultTheme = {
   },
 };
 
-const LoginStack = () => {
+function LoginStack() {
   const Stack = createNativeStackNavigator();
 
   return (
@@ -118,9 +119,9 @@ const LoginStack = () => {
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );
-};
+}
 
-const AppStack = () => {
+function AppStack() {
   const Stack = createNativeStackNavigator();
   return (
     <RealmProvider>
@@ -176,8 +177,8 @@ const AppStack = () => {
       </Stack.Navigator>
     </RealmProvider>
   );
-};
-const Navigator = () => {
+}
+function Navigator() {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
   const { appLoading, loadingContent } = useContext(AppContext);
@@ -196,13 +197,13 @@ const Navigator = () => {
         visible={appLoading}
         loadingContent={loadingContent}
         close={() => {}}
-        title={'please wait'}
-        subTitle={'loading'}
+        title="please wait"
+        subTitle="loading"
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#000'}
+        textColor="#000"
       />
     </NavigationContainer>
   );
-};
+}
 
 export default Navigator;
