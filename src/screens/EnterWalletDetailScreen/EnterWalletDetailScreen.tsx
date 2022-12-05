@@ -16,12 +16,12 @@ import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-const EnterWalletDetailScreen = ({ route }) => {
+function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const wallet = translations['wallet'];
-  const common = translations['common'];
+  const {wallet} = translations;
+  const {common} = translations;
 
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
@@ -40,7 +40,7 @@ const EnterWalletDetailScreen = ({ route }) => {
   }, [walletName, walletDescription, transferPolicy]);
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
+    <View style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={wallet.AddNewWallet}
@@ -51,37 +51,37 @@ const EnterWalletDetailScreen = ({ route }) => {
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
           placeholder={wallet.WalletName}
-          placeholderTextColor={'light.greenText'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.greenText"
+          backgroundColor="light.lightYellow"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
           borderRadius={10}
           marginY={2}
-          borderWidth={'0'}
+          borderWidth="0"
         />
         <Input
           placeholder={wallet.SinglesigWallet}
-          placeholderTextColor={'light.greenText'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.greenText"
+          backgroundColor="light.lightYellow"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
           borderRadius={10}
-          borderWidth={'0'}
+          borderWidth="0"
           marginY={2}
         />
         <Box marginTop={10}>
-          <Text fontWeight={'200'}>Transfer Policy</Text>
+          <Text fontWeight="200">Transfer Policy</Text>
           <Input
             placeholder={wallet.TransferPolicy}
-            placeholderTextColor={'light.greenText'}
-            backgroundColor={'light.lightYellow'}
+            placeholderTextColor="light.greenText"
+            backgroundColor="light.lightYellow"
             value={transferPolicy}
             onChangeText={(value) => setTransferPolicy(value)}
             style={styles.inputField}
             borderRadius={10}
-            borderWidth={'0'}
+            borderWidth="0"
             marginY={2}
           />
         </Box>
@@ -99,7 +99,7 @@ const EnterWalletDetailScreen = ({ route }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

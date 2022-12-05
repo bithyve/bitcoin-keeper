@@ -8,14 +8,14 @@ import {
   Platform,
   AppState,
   StyleSheet,
+  KeyboardAvoidingView,
 } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 
-const ModalContainer = ({
+function ModalContainer({
   visible,
   closeBottomSheet,
   background = 'rgba(0,0,0,0.5)',
@@ -27,7 +27,7 @@ const ModalContainer = ({
   background?: string;
   children?: any;
   onBackground?: any;
-}) => {
+}) {
   const [height, setHeight] = useState(6);
   const onAppStateChange = (state) => {
     // if ( state === 'background' || state === 'inactive' ){
@@ -58,10 +58,10 @@ const ModalContainer = ({
       onRequestClose={() => {
         closeBottomSheet ? closeBottomSheet() : null;
       }}
-      transparent={true}
+      transparent
       style={styles.wrapper}
     >
-      <KeyboardAwareScrollView
+      {/* <KeyboardAwareScrollView
         scrollEnabled={false}
         contentContainerStyle={[
           styles.contentContainerStyle,
@@ -74,6 +74,13 @@ const ModalContainer = ({
           x: 0,
           y: 0,
         }}
+      > */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? null : 'height'}
+        style={[
+          styles.contentContainerStyle,
+          { paddingBottom: Platform.OS === 'ios' ? hp('6%') : 0, backgroundColor: background },
+        ]}
       >
         <TouchableOpacity
           activeOpacity={1}
@@ -86,10 +93,11 @@ const ModalContainer = ({
             <View style={styles.childViewWrapper}>{children}</View>
           </TouchableWithoutFeedback>
         </TouchableOpacity>
-      </KeyboardAwareScrollView>
+      </KeyboardAvoidingView>
+      {/* </KeyboardAwareScrollView> */}
     </Modal>
   );
-};
+}
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
@@ -99,8 +107,8 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
+    // flexDirection: 'column',
+    // justifyContent: 'flex-end',
     paddingHorizontal: wp('2%'),
   },
   touchableWrapperStyle: {

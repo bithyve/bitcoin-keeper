@@ -5,18 +5,18 @@ import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import React from 'react';
 
-const Content = ({ isUpgrade }) => {
+function Content({ isUpgrade }) {
   return (
     <Box width={wp(270)}>
-      <Box alignItems={'center'}>
+      <Box alignItems="center">
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontSize={11}
-          fontFamily={'body'}
-          fontWeight={'200'}
+          fontFamily="body"
+          fontWeight="200"
           p={1}
           letterSpacing={0.65}
         >
@@ -27,9 +27,9 @@ const Content = ({ isUpgrade }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const TierUpgradeModal = ({ visible, close, onPress, isUpgrade, plan }) => {
+function TierUpgradeModal({ visible, close, onPress, isUpgrade, plan }) {
   return (
     <KeeperModal
       visible={visible}
@@ -40,16 +40,16 @@ const TierUpgradeModal = ({ visible, close, onPress, isUpgrade, plan }) => {
           ? `You have successfully upgraded to ${plan}`
           : `You have successfully downgraded to ${plan}`
       }
-      subTitleColor={'#5F6965'}
+      subTitleColor="#5F6965"
       modalBackground={['#F7F2EC', '#F7F2EC']}
       buttonBackground={['#00836A', '#073E39']}
       buttonText={isUpgrade ? 'Add now' : 'Remove now'}
-      buttonTextColor={'#FAFAFA'}
+      buttonTextColor="#FAFAFA"
       buttonCallback={onPress}
-      textColor={'#041513'}
+      textColor="#041513"
       Content={() => <Content isUpgrade={isUpgrade} />}
     />
   );
-};
+}
 
 export default TierUpgradeModal;

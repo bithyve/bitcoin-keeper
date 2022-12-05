@@ -4,10 +4,12 @@ import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
 import COLDCARDICONLIGHT from 'src/assets/icons/coldcard_light.svg';
 import COLDCARDLOGO from 'src/assets/images/coldcard_logo.svg';
 import JADEICON from 'src/assets/images/jade_icon.svg';
+import JADEICONLIGHT from 'src/assets/images/jade_icon_light.svg';
 import JADELOGO from 'src/assets/images/jade_logo.svg';
 import KEEPERAPP from 'src/assets/icons/KeeperIcon.svg';
 import KEEPERAPPLIGHT from 'src/assets/icons/KeeperIconLight.svg';
 import KEYSTONEICON from 'src/assets/images/keystone_icon.svg';
+import KEYSTONEICONLIGHT from 'src/assets/images/keystone_icon_light.svg';
 import KEYSTONELOGO from 'src/assets/images/keystone_logo.svg';
 import LEDGERICON from 'src/assets/images/ledger_icon.svg';
 import LEDGERICONLIGHT from 'src/assets/icons/ledger_light.svg';
@@ -15,8 +17,12 @@ import LEDGERLOGO from 'src/assets/images/ledger_logo.svg';
 import MOBILEKEY from 'src/assets/images/mobile_key.svg';
 import MOBILEKEYLIGHT from 'src/assets/images/svgs/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
+import PASSPORTICONLIGHT from 'src/assets/images/passport_light.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import React from 'react';
+import SEEDSIGNERICON from 'src/assets/icons/seedsigner_icon.svg';
+import SEEDSIGNERICONLIGHT from 'src/assets/icons/seedsigner_light.svg';
+import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
 import SEEDWORDS from 'src/assets/icons/seedwords.svg';
 import SEEDWORDSLIGHT from 'src/assets/icons/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';
@@ -32,9 +38,9 @@ import { Text } from 'native-base';
 const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
   if (isLight) {
     return LightComponent;
-  } else {
+  } 
     return DarkComponent;
-  }
+  
 };
 
 export const WalletMap = (type: SignerType, light = false) => {
@@ -47,7 +53,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.JADE:
       return {
-        Icon: <JADEICON />,
+        Icon: getColouredIcon(<JADEICONLIGHT />, <JADEICON />, light),
         Logo: <JADELOGO />,
         type: SignerStorage.COLD,
       };
@@ -55,14 +61,14 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
             Another Keeper App
           </Text>
         ),
       };
     case SignerType.KEYSTONE:
       return {
-        Icon: <KEYSTONEICON />,
+        Icon: getColouredIcon(<KEYSTONEICONLIGHT />, <KEYSTONEICON />, light),
         Logo: <KEYSTONELOGO />,
         type: SignerStorage.COLD,
       };
@@ -76,7 +82,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
             Mobile Key
           </Text>
         ),
@@ -84,7 +90,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       };
     case SignerType.PASSPORT:
       return {
-        Icon: <PASSPORTICON />,
+        Icon: getColouredIcon(<PASSPORTICONLIGHT />, <PASSPORTICON />, light),
         Logo: <PASSPORTLOGO />,
         type: SignerStorage.COLD,
       };
@@ -92,7 +98,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
             Signing Server
           </Text>
         ),
@@ -110,11 +116,17 @@ export const WalletMap = (type: SignerType, light = false) => {
         Logo: <TREZORLOGO />,
         type: SignerStorage.COLD,
       };
+    case SignerType.SEEDSIGNER:
+      return {
+        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
+        Logo: <SEEDSIGNERLOGO />,
+        type: SignerStorage.COLD,
+      };
     case SignerType.SEED_WORDS:
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color={'light.lightBlack2'}>
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
             Soft Key
           </Text>
         ),

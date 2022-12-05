@@ -1,8 +1,8 @@
-import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import _ from 'lodash';
+import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 
 export interface VaultCreationPayload {
   hasNewVaultGenerationSucceeded: boolean;

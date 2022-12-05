@@ -26,10 +26,10 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import TierUpgradeModal from './TierUpgradeModal';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import TierUpgradeModal from './TierUpgradeModal';
 
 const plans = [
   {
@@ -80,9 +80,9 @@ const plans = [
   },
 ];
 
-const ChoosePlan = (props) => {
+function ChoosePlan(props) {
   const { translations } = useContext(LocalizationContext);
-  const choosePlan = translations['choosePlan'];
+  const {choosePlan} = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
@@ -104,7 +104,7 @@ const ChoosePlan = (props) => {
           const sub = await getSubscriptions([purchase.productId]);
           const subscription: SubScription = {
             productId: purchase.productId,
-            receipt: receipt,
+            receipt,
             name: sub[0].title.split(' ')[0],
             level: 1, // todo get level
           };
@@ -139,10 +139,10 @@ const ChoosePlan = (props) => {
     try {
       if (Platform.OS === 'ios') {
         return subscription.localizedPrice;
-      } else {
+      } 
         return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
           .formattedPrice;
-      }
+      
     } catch (error) {
       console.log('error', error);
     }
@@ -163,7 +163,7 @@ const ChoosePlan = (props) => {
            price: getAmt(subscription),
            name: subscription.title.split(' (')[0],
          });
-       });*/
+       }); */
       setItems(plans);
       setLoading(false);
       // console.log('subscriptions', JSON.stringify(data));
@@ -209,14 +209,14 @@ const ChoosePlan = (props) => {
   const getBenifitsTitle = (name) => {
     if (name === 'Diamond Hands') {
       return `${name} means`;
-    } else {
+    } 
       return `A ${name} gets`;
-    }
+    
   };
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <Box position={'relative'} flex={1}>
+      <Box position="relative" flex={1}>
         <HeaderTitle
           title={choosePlan.choosePlantitle}
           subtitle={
@@ -224,7 +224,7 @@ const ChoosePlan = (props) => {
               ? `You are currently a ${subscription.name.slice(0, -1)}`
               : `You are currently a ${subscription.name}`
           }
-          headerTitleColor={'light.lightBlack'}
+          headerTitleColor="light.lightBlack"
         />
 
         <TierUpgradeModal
@@ -249,8 +249,8 @@ const ChoosePlan = (props) => {
 
             <Box
               opacity={0.1}
-              backgroundColor={'light.Border'}
-              width={'100%'}
+              backgroundColor="light.Border"
+              width="100%"
               height={0.5}
               my={5}
             />
@@ -259,7 +259,7 @@ const ChoosePlan = (props) => {
               <Box>
                 <Text
                   fontSize={RFValue(14)}
-                  color={'light.lightBlack'}
+                  color="light.lightBlack"
                   fontWeight={200}
                   letterSpacing={1.12}
                 >
@@ -271,13 +271,13 @@ const ChoosePlan = (props) => {
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
-                  <Box flexDirection={'row'} alignItems={'center'}>
+                  <Box flexDirection="row" alignItems="center">
                     <Text
                       fontSize={RFValue(13)}
-                      color={'light.GreyText'}
+                      color="light.GreyText"
                       mb={2}
                       ml={3}
-                      fontFamily={'body'}
+                      fontFamily="body"
                       fontWeight={200}
                       letterSpacing={0.65}
                     >
@@ -289,11 +289,11 @@ const ChoosePlan = (props) => {
             </Box>
           </ScrollView>
         )}
-        <Box position={'absolute'} bottom={-10} justifyContent={'flex-end'} width={wp(285)}>
-          <Note title={'Note'} subtitle={choosePlan.noteSubTitle} subtitleColor={'GreyText'} />
+        <Box position="absolute" bottom={-10} justifyContent="flex-end" width={wp(285)}>
+          <Note title="Note" subtitle={choosePlan.noteSubTitle} subtitleColor="GreyText" />
         </Box>
       </Box>
     </ScreenWrapper>
   );
-};
+}
 export default ChoosePlan;

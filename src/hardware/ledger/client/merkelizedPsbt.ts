@@ -14,10 +14,15 @@ import { PsbtV2 } from './psbtv2';
  */
 export class MerkelizedPsbt extends PsbtV2 {
   public readonly globalMerkleMap: MerkleMap;
+
   public inputMerkleMaps: MerkleMap[] = [];
+
   public outputMerkleMaps: MerkleMap[] = [];
+
   public inputMapCommitments: Buffer[];
+
   public outputMapCommitments: Buffer[];
+
   constructor(psbt: PsbtV2) {
     super();
     psbt.copy(this);
@@ -33,10 +38,12 @@ export class MerkelizedPsbt extends PsbtV2 {
     }
     this.outputMapCommitments = [...this.outputMerkleMaps.values()].map((v) => v.commitment());
   }
+
   // These public functions are for MerkelizedPsbt.
   getGlobalSize(): number {
     return this.globalMap.size;
   }
+
   getGlobalKeysValuesRoot(): Buffer {
     return this.globalMerkleMap.commitment();
   }
@@ -46,7 +53,7 @@ export class MerkelizedPsbt extends PsbtV2 {
     const values = sortedKeysStrings.map((k) => {
       const v = map.get(k);
       if (!v) {
-        throw new Error('No value for key ' + k);
+        throw new Error(`No value for key ${  k}`);
       }
       return v;
     });

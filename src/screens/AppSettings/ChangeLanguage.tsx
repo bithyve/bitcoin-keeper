@@ -15,14 +15,15 @@ import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import availableLanguages from '../../common/content/availableLanguages';
 import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import availableLanguages from '../../common/content/availableLanguages';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 
 const styles = StyleSheet.create({
   btn: {
     flexDirection: 'row',
     height: wp('13%'),
+    position: 'relative',
     //   borderRadius: 10,
     //   borderWidth: 1,
     //   borderColor: Colors.borderColor,
@@ -54,10 +55,16 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderColor,
     borderRadius: 10,
     margin: 15,
+    position: 'absolute',
+    width: '90%',
+    zIndex: 10,
+    backgroundColor: '#FAF4ED',
+    height: '70%',
+    top: 50,
   },
 });
 
-const ChangeLanguage = () => {
+function ChangeLanguage() {
   const [currencyList] = useState(FiatCurrencies);
   const [countryList] = useState(CountryCode);
   const navigation = useNavigation();
@@ -80,9 +87,9 @@ const ChangeLanguage = () => {
   };
 
   const { translations } = useContext(LocalizationContext);
-  const settings = translations['settings'];
+  const {settings} = translations;
 
-  const Menu = ({ label, value, onPress, arrow }) => {
+  function Menu({ label, value, onPress, arrow }) {
     return (
       <TouchableOpacity onPress={onPress} style={styles.btn}>
         <View
@@ -106,7 +113,7 @@ const ChangeLanguage = () => {
             width: 2,
             backgroundColor: '#D8A572',
           }}
-        ></View>
+         />
         <View
           style={{
             flex: 1,
@@ -114,7 +121,7 @@ const ChangeLanguage = () => {
             height: wp('13%'),
           }}
         >
-          <Text style={styles.textValue} fontWeight={200} color={'light.GreyText'}>
+          <Text style={styles.textValue} fontWeight={200} color="light.GreyText">
             {value}
           </Text>
         </View>
@@ -138,7 +145,7 @@ const ChangeLanguage = () => {
         </View>
       </TouchableOpacity>
     );
-  };
+  }
 
   return (
     <SafeAreaView
@@ -147,7 +154,7 @@ const ChangeLanguage = () => {
         backgroundColor: '#F7F2EC',
       }}
     >
-      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
+      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
       <Box mx={5} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
@@ -163,7 +170,7 @@ const ChangeLanguage = () => {
           showsVerticalScrollIndicator={false}
           py={3}
         > */}
-        <Box w={'60%'} marginLeft={'10%'}>
+        <Box w="60%" marginLeft="10%">
           <Text fontSize={RFValue(16)} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
@@ -197,24 +204,9 @@ const ChangeLanguage = () => {
           label={currency.symbol}
           value={currency.code}
         />
-        {/* <View
-          style={{
-            position: 'relative',
-          }}
-        > */}
         {Visible && (
-          // <View
-          //   style={{
-          //     marginTop: wp('3%'),
-          //     borderRadius: 10,
-          //     borderWidth: 1,
-          //     borderColor: Colors.borderColor,
-          //     overflow: 'hidden',
-          //   }}
-          // >
           <ScrollView style={styles.scrollViewWrapper}>
-            {currencyList.map((item) => {
-              return (
+            {currencyList.map((item) => (
                 <TouchableOpacity
                   onPress={() => {
                     setCurrency(item);
@@ -272,12 +264,9 @@ const ChangeLanguage = () => {
                     </Text>
                   </View>
                 </TouchableOpacity>
-              );
-            })}
+              ))}
           </ScrollView>
-          // </View>
         )}
-        {/* </View> */}
         <CountrySwitchCard
           title={settings.LanguageSettings}
           description={settings.Chooseyourlanguage}
@@ -289,27 +278,17 @@ const ChangeLanguage = () => {
         <Menu
           onPress={() => {
             // Do not remove this
-            // setShowLanguages(!showLanguages);
-            // setIsDisabled(false);
-            // setVisible(false);
+            setShowLanguages(!showLanguages);
+            setIsDisabled(false);
+            setVisible(false);
           }}
           arrow={showLanguages}
           label={selectedLanguage.flag}
           value={`${selectedLanguage.country_code.toUpperCase()}- ${selectedLanguage.displayTitle}`}
         />
         {showLanguages && (
-          // <View
-          //   style={{
-          //     marginTop: wp('3%'),
-          //     borderRadius: 10,
-          //     borderWidth: 1,
-          //     borderColor: Colors.borderColor,
-          //     overflow: 'hidden',
-          //   }}
-          // >
           <ScrollView style={styles.scrollViewWrapper}>
-            {availableLanguages.map((item) => {
-              return (
+            {availableLanguages.map((item) => (
                 <TouchableOpacity
                   onPress={() => {
                     setAppLanguage(item.iso);
@@ -375,10 +354,8 @@ const ChangeLanguage = () => {
                     </Text>
                   </View>
                 </TouchableOpacity>
-              );
-            })}
+              ))}
           </ScrollView>
-          // </View>
         )}
         {/* </ScrollView> */}
         {/* <View style={{ marginBottom: 10 }}>
@@ -392,6 +369,6 @@ const ChangeLanguage = () => {
       </Box>
     </SafeAreaView>
   );
-};
+}
 
 export default ChangeLanguage;

@@ -3,7 +3,7 @@ import { Box, Text } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
-//components and functions
+// components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
@@ -19,8 +19,9 @@ import SettingUp from 'src/assets/images/svgs/settingup.svg';
 import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import openLink from 'src/utils/OpenLink';
 
-const SetupInheritance = () => {
+function SetupInheritance() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
@@ -50,21 +51,21 @@ const SetupInheritance = () => {
     },
   ];
 
-  const InheritancePoint = ({ title, subTitle, description, Icon }) => {
+  function InheritancePoint({ title, subTitle, description, Icon }) {
     return (
       <Box
         style={{
           marginBottom: hp(25),
         }}
       >
-        <Box width={wp(300)} flexDir={'row'} alignItems={'center'}>
+        <Box width={wp(300)} flexDir="row" alignItems="center">
           <Icon />
           <Box marginLeft={wp(15)}>
-            <Text color={'light.white1'} fontSize={15} numberOfLines={2} fontWeight={200}>
+            <Text color="light.white1" fontSize={15} numberOfLines={2} fontWeight={200}>
               {title}
             </Text>
             <Text
-              color={'light.white1'}
+              color="light.white1"
               fontSize={12}
               numberOfLines={2}
               fontWeight={200}
@@ -75,10 +76,10 @@ const SetupInheritance = () => {
           </Box>
         </Box>
         <Text
-          color={'light.white1'}
+          color="light.white1"
           fontSize={14}
           style={{ marginTop: hp(16) }}
-          alignItems={'center'}
+          alignItems="center"
           width={wp(280)}
           fontWeight={200}
           letterSpacing={0.65}
@@ -87,26 +88,24 @@ const SetupInheritance = () => {
         </Text>
       </Box>
     );
-  };
+  }
 
-  const InheritanceContent = () => {
+  function InheritanceContent() {
     return (
       <Box>
-        {inheritanceData.map((item) => {
-          return (
+        {inheritanceData.map((item) => (
             <InheritancePoint
               title={item.title}
               description={item.description}
               subTitle={item.subTitle}
               Icon={item.Icon}
             />
-          );
-        })}
+          ))}
       </Box>
     );
-  };
+  }
 
-  const GradientIcon = ({ height, Icon }) => {
+  function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
         colors={['#00836A', '#073E39']}
@@ -123,24 +122,24 @@ const SetupInheritance = () => {
         <Icon />
       </LinearGradient>
     );
-  };
+  }
 
   return (
     <ScreenWrapper>
       <Box marginBottom={-7}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
-          learnMore={true}
+          learnMore
           learnMorePressed={() => {
             dispatch(setInheritance(true));
           }}
         />
       </Box>
-      <Box alignItems={'center'} paddingX={1}>
-        <Box alignItems={'center'}>
+      <Box alignItems="center" paddingX={1}>
+        <Box alignItems="center">
           <GradientIcon Icon={Inheritance} height={50} />
           <Text
-            color={'light.textWallet'}
+            color="light.textWallet"
             fontSize={16}
             letterSpacing={0.96}
             marginTop={hp(10)}
@@ -149,12 +148,12 @@ const SetupInheritance = () => {
             Inheritance Support
           </Text>
           <Text
-            color={'light.lightBlack2'}
+            color="light.lightBlack2"
             fontSize={13}
             letterSpacing={1.3}
             marginTop={hp(4)}
             width={wp(250)}
-            textAlign={'center'}
+            textAlign="center"
             fontWeight={200}
           >
             Keeper provides you with the tips and tools you need to include the vault in your estate
@@ -163,14 +162,14 @@ const SetupInheritance = () => {
         </Box>
       </Box>
 
-      <Box marginTop={hp(50)} alignItems={'center'} flex={1}>
+      <Box marginTop={hp(50)} alignItems="center" flex={1}>
         <Assert />
         <Text
           fontSize={12}
           letterSpacing={0.6}
           marginTop={hp(36)}
           width={wp(220)}
-          textAlign={'center'}
+          textAlign="center"
           numberOfLines={2}
           opacity={0.85}
           fontWeight={100}
@@ -186,13 +185,11 @@ const SetupInheritance = () => {
             paddingHorizontal={wp(20)}
           />
         </Box>
-        <Box position={'absolute'} bottom={hp(10)} width={wp(320)} justifyContent={'center'}>
+        <Box position="absolute" bottom={hp(10)} width={wp(320)} justifyContent="center">
           <Note
-            title={'Note'}
-            subtitle={
-              'Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction'
-            }
-            subtitleColor={'GreyText'}
+            title="Note"
+            subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+            subtitleColor="GreyText"
           />
         </Box>
       </Box>
@@ -201,20 +198,21 @@ const SetupInheritance = () => {
         close={() => {
           dispatch(setInheritance(false));
         }}
-        title={'Inheritance'}
-        subTitle={'Securely bequeath your bitcoin'}
+        title="Inheritance"
+        subTitle="Securely bequeath your bitcoin"
         modalBackground={['#00836A', '#073E39']}
-        textColor={'#FFFFFF'}
-        buttonText={'Proceed'}
-        buttonTextColor={'#073E39'}
+        textColor="#FFFFFF"
+        buttonText="Proceed"
+        buttonTextColor="#073E39"
         buttonBackground={['#FFFFFF', '#80A8A1']}
         Content={InheritanceContent}
-        DarkCloseIcon={true}
-        learnMore={true}
+        DarkCloseIcon
+        learnMore
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
     </ScreenWrapper>
   );
-};
+}
 
 const styles = ScaledSheet.create({});
 export default SetupInheritance;

@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import { Text } from 'native-base';
 import useScanLedger from './useScanLedger';
 
-const DeviceItem = ({ device, onSelect }) => {
+function DeviceItem({ device, onSelect }) {
   const [pending, setPending] = useState(false);
   const onPress = async () => {
     setPending(true);
@@ -31,12 +31,12 @@ const DeviceItem = ({ device, onSelect }) => {
       {pending ? <ActivityIndicator /> : null}
     </TouchableOpacity>
   );
-};
+}
 
-const DeviceSelectionScreen = ({ onSelectDevice }) => {
+function DeviceSelectionScreen({ onSelectDevice }) {
   const { error, devices, reload, scanning } = useScanLedger();
 
-  const ListHeader = () => {
+  function ListHeader() {
     return error ? (
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Sorry, an error occured</Text>
@@ -48,7 +48,7 @@ const DeviceSelectionScreen = ({ onSelectDevice }) => {
         <Text style={styles.headerSubtitle}>Power up your Ledger Nano X and enter your pin.</Text>
       </View>
     );
-  };
+  }
 
   return (
     <ScrollView
@@ -56,12 +56,10 @@ const DeviceSelectionScreen = ({ onSelectDevice }) => {
       refreshControl={<RefreshControl refreshing={scanning} onRefresh={reload} />}
     >
       <ListHeader />
-      {devices.map((device) => {
-        return <DeviceItem device={device} onSelect={onSelectDevice} key={device.id} />;
-      })}
+      {devices.map((device) => <DeviceItem device={device} onSelect={onSelectDevice} key={device.id} />)}
     </ScrollView>
   );
-};
+}
 
 export default DeviceSelectionScreen;
 

@@ -11,26 +11,26 @@ import GoogleDrive from 'src/assets/images/drive.svg';
 import ICloud from 'src/assets/images/icloud.svg';
 import moment from 'moment';
 
-const ListItem = ({ item, onPress }) => {
+function ListItem({ item, onPress }) {
   const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box flexDirection="row">
         {IconName}
         <Box marginY={2}>
-          <Text color={'#4F5955'} marginLeft={2} marginTop={1}>
+          <Text color="#4F5955" marginLeft={2} marginTop={1}>
             {`App ID: ${item.appID}`}
           </Text>
-          <Text fontSize={12} color={'#4F5955'}>
+          <Text fontSize={12} color="#4F5955">
             {moment(item.dateTime).format('DD MMM YYYY, hh:mmA')}
           </Text>
         </Box>
       </Box>
     </TouchableOpacity>
   );
-};
+}
 
-const CloudRecoveryModal = (props) => {
+function CloudRecoveryModal(props) {
   const {
     visible,
     close,
@@ -72,12 +72,12 @@ const CloudRecoveryModal = (props) => {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      justifyContent={'flex-end'}
+      justifyContent="flex-end"
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         {downloadingBackup ? (
           <ActivityIndicator
-            size={'large'}
+            size="large"
             color={Colors.primary}
             style={{ height: '70%', alignSelf: 'center' }}
           />
@@ -92,15 +92,15 @@ const CloudRecoveryModal = (props) => {
               <Close />
             </TouchableOpacity>
             <Modal.Header
-              alignSelf={'flex-start'}
+              alignSelf="flex-start"
               borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={'90%'}
+              backgroundColor="transparent"
+              width="90%"
             >
               <Text
                 style={styles.title}
-                fontFamily={'body'}
-                fontWeight={'200'}
+                fontFamily="body"
+                fontWeight="200"
                 color={textColor}
                 paddingBottom={1}
               >
@@ -108,8 +108,8 @@ const CloudRecoveryModal = (props) => {
               </Text>
               <Text
                 style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'100'}
+                fontFamily="body"
+                fontWeight="100"
                 color={textColor}
               >
                 {subTitle}
@@ -128,7 +128,7 @@ const CloudRecoveryModal = (props) => {
                 />
               )}
             </Modal.Body>
-            <Box alignSelf={'flex-end'} bg={'transparent'}>
+            <Box alignSelf="flex-end" bg="transparent">
               <TouchableOpacity onPress={next}>
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
@@ -138,8 +138,8 @@ const CloudRecoveryModal = (props) => {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
+                    fontFamily="body"
+                    fontWeight="300"
                     letterSpacing={1}
                     color={buttonTextColor}
                   >
@@ -153,7 +153,7 @@ const CloudRecoveryModal = (props) => {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default CloudRecoveryModal;
 

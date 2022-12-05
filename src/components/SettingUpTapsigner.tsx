@@ -3,17 +3,17 @@ import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import KeyPadView from './AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import CustomGreenButton from './CustomButton/CustomGreenButton';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import KeyPadView from './AppNumPad/KeyPadView';
+import CustomGreenButton from './CustomButton/CustomGreenButton';
 import CVVInputsView from './HealthCheck/CVVInputsView';
 
-const SettingUpTapsigner = (props) => {
+function SettingUpTapsigner(props) {
   const { translations } = useContext(LocalizationContext);
-  const common = translations['common'];
-  const tapsigner = translations['tapsigner'];
-  const healthcheck = translations['healthcheck'];
+  const {common} = translations;
+  const {tapsigner} = translations;
+  const {healthcheck} = translations;
 
   const [passcodeFlag] = useState(true);
 
@@ -34,28 +34,28 @@ const SettingUpTapsigner = (props) => {
   };
 
   return (
-    <Box bg={'#F7F2EC'} borderRadius={10}>
+    <Box bg="#F7F2EC" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
-          bg={'light.yellow2'}
+          bg="light.yellow2"
           borderRadius={32}
           h={8}
           w={8}
-          alignItems={'center'}
-          justifyContent={'center'}
-          alignSelf={'flex-end'}
+          alignItems="center"
+          justifyContent="center"
+          alignSelf="flex-end"
         >
-          <Text fontSize={18} color={'light.white1'}>
+          <Text fontSize={18} color="light.white1">
             X
           </Text>
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
+        <Text fontSize={RFValue(19)} color="light.lightBlack" fontFamily="heading">
           {tapsigner.SetupTitle}
         </Text>
-        <Text fontSize={RFValue(13)} color={'light.lightBlack2'} fontFamily={'body'}>
+        <Text fontSize={RFValue(13)} color="light.lightBlack2" fontFamily="body">
           {healthcheck.EnterCVV}
         </Text>
       </Box>
@@ -64,11 +64,11 @@ const SettingUpTapsigner = (props) => {
         <CVVInputsView
           passCode={inputText}
           passcodeFlag={passcodeFlag}
-          backgroundColor={true}
-          textColor={true}
+          backgroundColor
+          textColor
         />
         {/*  */}
-        <Box mt={10} alignSelf={'flex-end'} mr={10}>
+        <Box mt={10} alignSelf="flex-end" mr={10}>
           {inputText.length == 6 && (
             <Box>
               <CustomGreenButton onPress={onPress} value={common.proceed} />
@@ -80,10 +80,10 @@ const SettingUpTapsigner = (props) => {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor={'light.lightBlack'}
+        keyColor="light.lightBlack"
         ClearIcon={<DeleteIcon />}
       />
     </Box>
   );
-};
+}
 export default SettingUpTapsigner;

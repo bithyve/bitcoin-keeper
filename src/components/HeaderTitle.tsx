@@ -19,7 +19,7 @@ type Props = {
   learnMorePressed?: () => void;
   titleFontSize?: number;
 };
-const HeaderTitle = ({
+function HeaderTitle({
   title = '',
   subtitle = '',
   onPressHandler,
@@ -28,16 +28,16 @@ const HeaderTitle = ({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   titleFontSize = 16,
-}: Props) => {
+}: Props) {
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.backContainer}>
           <TouchableOpacity
-            onPress={onPressHandler ? onPressHandler : navigation.goBack}
+            onPress={onPressHandler || navigation.goBack}
             style={styles.backButton}
           >
             <BackButton />
@@ -45,11 +45,11 @@ const HeaderTitle = ({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
-                borderColor={'light.brownborder'}
-                backgroundColor={'light.yellow2'}
+                borderColor="light.brownborder"
+                backgroundColor="light.yellow2"
                 style={styles.learnMoreContainer}
               >
-                <Text color={'light.brownborder'} fontWeight={200} style={styles.learnMoreText}>
+                <Text color="light.brownborder" fontWeight={200} style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>
@@ -58,7 +58,11 @@ const HeaderTitle = ({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box paddingLeft={paddingLeft} paddingTop={paddingTop}>
+        <Box style={{
+          paddingLeft,
+          paddingTop
+        }}
+        >
           {title && (
             <Text
               numberOfLines={1}
@@ -70,7 +74,7 @@ const HeaderTitle = ({
             </Text>
           )}
           {subtitle && (
-            <Text style={styles.addWalletDescription} color={'light.lightBlack'}>
+            <Text style={styles.addWalletDescription} color="light.lightBlack">
               {subtitle}
             </Text>
           )}
@@ -78,7 +82,7 @@ const HeaderTitle = ({
       </Box>
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {

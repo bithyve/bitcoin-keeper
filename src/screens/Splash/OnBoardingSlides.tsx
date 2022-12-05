@@ -24,24 +24,25 @@ import Skip from 'src/assets/images/svgs/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-const { width, height } = Dimensions.get('window');
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const OnBoardingSlides = ({ navigation }) => {
+const { width, height } = Dimensions.get('window');
+
+function OnBoardingSlides({ navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const onboarding = translations['onboarding'];
-  const common = translations['common'];
+  const {onboarding} = translations;
+  const {common} = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [items] = useState([
     {
       id: '1',
       title: (
         <>
-          {onboarding.Comprehensive + ' '}
-          <Text fontStyle={'italic'} fontWeight={900}>
+          {`${onboarding.Comprehensive  } `}
+          <Text fontStyle="italic" fontWeight={900}>
             {onboarding.security}
           </Text>
-          {' ' + onboarding.slide01Title}
+          {` ${  onboarding.slide01Title}`}
         </>
       ),
       paragraph: onboarding.slide01Paragraph,
@@ -51,8 +52,8 @@ const OnBoardingSlides = ({ navigation }) => {
       id: '2',
       title: (
         <>
-          {onboarding.slide02Title + ' '}
-          <Text fontStyle={'italic'} fontWeight={900}>
+          {`${onboarding.slide02Title  } `}
+          <Text fontStyle="italic" fontWeight={900}>
             {onboarding.privacy}
           </Text>
         </>
@@ -95,8 +96,8 @@ const OnBoardingSlides = ({ navigation }) => {
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
-          <StatusBar backgroundColor={'#00836A'} barStyle="light-content" />
-          <Box justifyContent={'center'} mr={4} mt={10}>
+          <StatusBar backgroundColor="#00836A" barStyle="light-content" />
+          <Box justifyContent="center" mr={4} mt={10}>
             {currentPosition != 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
@@ -104,10 +105,10 @@ const OnBoardingSlides = ({ navigation }) => {
               >
                 <Text
                   fontSize={RFValue(14)}
-                  color={'light.white'}
-                  fontFamily={'heading'}
+                  color="light.white"
+                  fontFamily="heading"
                   fontWeight={300}
-                  textAlign={'right'}
+                  textAlign="right"
                   opacity={0.7}
                 >
                   Skip&nbsp;&nbsp;
@@ -123,7 +124,7 @@ const OnBoardingSlides = ({ navigation }) => {
               snapToInterval={width}
               showsHorizontalScrollIndicator={false}
               decelerationRate={0}
-              snapToAlignment={'center'}
+              snapToAlignment="center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
               renderItem={({ item }) => (
@@ -138,11 +139,11 @@ const OnBoardingSlides = ({ navigation }) => {
             />
           </Box>
           <Box
-            position={'absolute'}
+            position="absolute"
             flex={0.2}
-            flexDirection={'row'}
+            flexDirection="row"
             m={5}
-            alignItems={'center'}
+            alignItems="center"
             style={{
               bottom: hp(20),
               justifyContent: 'space-between',
@@ -150,26 +151,26 @@ const OnBoardingSlides = ({ navigation }) => {
               paddingHorizontal: wp(20),
             }}
           >
-            <Box w={'70%'}>
+            <Box w="70%">
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
-                  borderColor={'light.borderColor2'}
+                  borderColor="light.borderColor2"
                   borderWidth={0.7}
                   borderRadius={30}
                   w={120}
-                  alignItems={'center'}
-                  justifyContent={'center'}
+                  alignItems="center"
+                  justifyContent="center"
                   style={{
                     height: hp(40),
                   }}
                 >
-                  <Text color={'light.borderColor2'} fontSize={RFValue(14)} fontWeight={300}>
+                  <Text color="light.borderColor2" fontSize={RFValue(14)} fontWeight={300}>
                     {common.seeFAQs}
                   </Text>
                 </Box>
               </TouchableOpacity>
             </Box>
-            <Box flexDirection={'row'}>
+            <Box flexDirection="row">
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => {
                   console.log(index);
@@ -181,7 +182,7 @@ const OnBoardingSlides = ({ navigation }) => {
                   );
                 })
               ) : (
-                <Box alignSelf={'center'} bg={'transparent'}>
+                <Box alignSelf="center" bg="transparent">
                   <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
                     <LinearGradient
                       start={{ x: 0, y: 0 }}
@@ -191,10 +192,10 @@ const OnBoardingSlides = ({ navigation }) => {
                     >
                       <Text
                         fontSize={13}
-                        fontFamily={'body'}
-                        fontWeight={'300'}
+                        fontFamily="body"
+                        fontWeight="300"
                         letterSpacing={1}
-                        color={'light.greenText'}
+                        color="light.greenText"
                       >
                         Start App
                       </Text>
@@ -208,7 +209,7 @@ const OnBoardingSlides = ({ navigation }) => {
       </ImageBackground>
     </LinearGradient>
   );
-};
+}
 
 export default OnBoardingSlides;
 

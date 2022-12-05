@@ -1,3 +1,5 @@
+import LoginMethod from 'src/common/data/enums/LoginMethod'
+
 export const STORE_CREDS = 'STORE_CREDS'
 export const CREDS_AUTH = 'CREDS_AUTH'
 export const SETUP_WALLET = 'SETUP_WALLET'
@@ -13,122 +15,93 @@ export const CHANGE_LOGIN_METHOD = 'CHANGE_LOGIN_METHOD'
 export const UPDATE_WALLET_NAME = 'UPDATE_WALLET_NAME'
 export const SWITCH_CREDS_CHANGED = 'SWITCH_CREDS_CHANGED'
 export const INIT_RECOVERY_COMPLETED = 'INIT_RECOVERY_COMPLETED'
-import LoginMethod from 'src/common/data/enums/LoginMethod'
 
 
-export const storeCreds = passcode => {
-  return {
+export const storeCreds = passcode => ({
     type: STORE_CREDS, payload: {
       passcode
     }
-  }
-}
+  })
 
-export const changeLoginMethod = (method: LoginMethod, pubKey: string = '') => {
-  return {
+export const changeLoginMethod = (method: LoginMethod, pubKey: string = '') => ({
     type: CHANGE_LOGIN_METHOD, payload: {
       method, pubKey
     }
-  }
-}
+  })
 
-export const setLoginMethod = (method: LoginMethod) => {
-  return {
+export const setLoginMethod = (method: LoginMethod) => ({
     type: SET_LOGIN_METHOD, payload: {
       method
     }
-  }
-}
+  })
 
-export const credsAuth = (passcode: string, method: LoginMethod, reLogin?: boolean) => {
-  return {
+export const credsAuth = (passcode: string, method: LoginMethod, reLogin?: boolean) => ({
     type: CREDS_AUTH, payload: {
       passcode, reLogin, method
     }
-  }
-}
+  })
 
 
-export const setupWallet = (walletName: string, security: { questionId: string, question: string, answer: string }, displayPicture?: string) => {
-  return {
+export const setupWallet = (walletName: string, security: { questionId: string, question: string, answer: string }, displayPicture?: string) => ({
     type: SETUP_WALLET, payload: {
       walletName, security, displayPicture
     }
-  }
-}
+  })
 
-export const setupDisplayPicture = (uri: string) => {
-  return {
+export const setupDisplayPicture = (uri: string) => ({
     type: SET_DISPLAY_PICTURE,
     payload: {
       uri
     }
-  }
-}
+  })
 
-export const updateWalletNameAndPicture = (newName: string, newUri = '') => {
-  return {
+export const updateWalletNameAndPicture = (newName: string, newUri = '') => ({
     type: UPDATE_WALLET_NAME,
     payload: {
       newName, newUri
     }
-  }
-}
+  })
 
-export const walletSetupCompletion = (security) => {
-  return {
+export const walletSetupCompletion = (security) => ({
     type: WALLET_SETUP_COMPLETION,
     payload: {
       security
     }
-  }
-}
+  })
 
-export const initializeRecovery = (walletName, security) => {
-  return {
+export const initializeRecovery = (walletName, security) => ({
     type: INIT_RECOVERY, payload: {
       walletName, security
     }
-  }
-}
+  })
 
-export const initializeRecoveryCompleted = (initializeRecoveryCompleted) => {
-  return {
+export const initializeRecoveryCompleted = (initializeRecoveryCompleted) => ({
     type: INIT_RECOVERY_COMPLETED, payload: {
       initializeRecoveryCompleted
     }
-  }
-}
+  })
 
-export const switchReLogin = (loggedIn, reset?) => {
-  return {
+export const switchReLogin = (loggedIn, reset?) => ({
     type: RE_LOGIN, payload: {
       loggedIn, reset
     }
-  }
-}
+  })
 
-export const changeAuthCred = (oldPasscode, newPasscode) => {
-  return {
+export const changeAuthCred = (oldPasscode, newPasscode) => ({
     type: CHANGE_AUTH_CRED, payload: {
       oldPasscode, newPasscode
     }
-  }
-}
+  })
 
-export const resetPin = (newPasscode) => {
-  return {
+export const resetPin = (newPasscode) => ({
     type: RESET_PIN, payload: {
       newPasscode
     }
-  }
-}
+  })
 
-export const switchCredsChanged = () => {
-  return {
+export const switchCredsChanged = () => ({
     type: SWITCH_CREDS_CHANGED
-  }
-}
+  })
 
 // types and action creators (saga): dispatched by saga workers
 
@@ -141,58 +114,43 @@ export const AUTH_CRED_CHANGED = 'AUTH_CRED_CHANGED'
 export const PIN_CHANGED_FAILED = 'PIN_CHANGED_FAILED'
 export const UPDATE_APPLICATION = 'UPDATE_APPLICATION'
 
-export const credsStored = () => {
-  return {
+export const credsStored = () => ({
     type: CREDS_STORED
-  }
-}
+  })
 
-export const credsAuthenticated = isAuthenticated => {
-  return {
+export const credsAuthenticated = isAuthenticated => ({
     type: CREDS_AUTHENTICATED, payload: {
       isAuthenticated
     }
-  }
-}
+  })
 
-export const completedWalletSetup = () => {
-  return {
+export const completedWalletSetup = () => ({
     type: COMPLETED_WALLET_SETUP,
-  }
-}
+  })
 
-export const walletSetupFailed = () => {
-  return {
+export const walletSetupFailed = () => ({
     type: WALLET_SETUP_FAILED,
-  }
-}
+  })
 
-export const switchSetupLoader = beingLoaded => {
-  return {
+export const switchSetupLoader = beingLoaded => ({
     type: SETUP_LOADING, payload: {
       beingLoaded
     }
-  }
-}
+  })
 
-export const credsChanged = changed => {
-  return {
+export const credsChanged = changed => ({
     type: AUTH_CRED_CHANGED, payload: {
       changed
     }
-  }
-}
+  })
 
-export const pinChangedFailed = isFailed => {
-  return {
+export const pinChangedFailed = isFailed => ({
     type: PIN_CHANGED_FAILED, payload: {
       isFailed
     }
-  }
-}
+  })
 
-export const validatePin = (passcode) => {
-  return async (dispatch) => {
+export const validatePin = (passcode) => async (dispatch) => {
     let key
     let error
     try {
@@ -206,13 +164,10 @@ export const validatePin = (passcode) => {
       error, key
     }
   }
-}
 
-export const updateApplication = (newVersion: string, previousVersion: string) => {
-  return {
+export const updateApplication = (newVersion: string, previousVersion: string) => ({
     type: UPDATE_APPLICATION,
     payload: {
       newVersion, previousVersion
     }
-  }
-}
+  })

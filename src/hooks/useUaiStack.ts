@@ -21,7 +21,7 @@ export const useUaiStack = () => {
     .filter((vault) => !vault.archived)[0];
 
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet);
-  //creation of default stack
+  // creation of default stack
   useEffect(() => {
     const uai_SECURE_VAULT = UAIcollection.filter(
       (uai) => uai.uaiType === uaiType.SECURE_VAULT && uai.isActioned === false
@@ -42,7 +42,7 @@ export const useUaiStack = () => {
     }
 
     if (defaultVault && uai_SECURE_VAULT) {
-      let updatedUai: UAI = JSON.parse(JSON.stringify(uai_SECURE_VAULT)); //Need to get a better way
+      let updatedUai: UAI = JSON.parse(JSON.stringify(uai_SECURE_VAULT)); // Need to get a better way
       updatedUai = { ...updatedUai, isActioned: true };
       dispatch(updateUaiStack(updatedUai));
     }
@@ -54,7 +54,7 @@ export const useUaiStack = () => {
         const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
         if (uai) {
           if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) return;
-          else dispatch(uaiActionedEntity(uai.entityId, false));
+          dispatch(uaiActionedEntity(uai.entityId, false));
         } else {
           dispatch(
             addToUaiStack(
@@ -71,7 +71,7 @@ export const useUaiStack = () => {
     });
   }, []);
 
-  //TO-DO: fetch notifications and converto UAI
+  // TO-DO: fetch notifications and converto UAI
 
   const uaiStackCreation = (UAIcollection) => {
     const filteredStack = UAIcollection.filter((uai) => uai.isActioned === false);

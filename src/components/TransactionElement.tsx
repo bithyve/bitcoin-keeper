@@ -10,17 +10,24 @@ import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import moment from 'moment';
 
-const TransactionElement = (
-  { transaction,
+function TransactionElement({ transaction,
     onPress = () => { }
   }:
     {
       transaction: Transaction,
       onPress?: () => void
-    }) => {
+    }) {
 
   const { colorMode } = useColorMode();
+  const date = new Date(transaction?.date).toLocaleString(undefined, {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   return (
     <TouchableOpacity
@@ -41,7 +48,7 @@ const TransactionElement = (
               color={`${colorMode}.dateText`}
               style={styles.transactionDate}
             >
-              {transaction.date}
+              {date}
             </Text>
           </Box>
         </Box>
@@ -67,7 +74,7 @@ const TransactionElement = (
       </Box>
     </TouchableOpacity>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

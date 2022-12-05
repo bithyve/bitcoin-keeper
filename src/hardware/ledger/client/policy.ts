@@ -1,7 +1,7 @@
+import { crypto } from 'bitcoinjs-lib';
 import { Merkle, hashLeaf } from './merkle';
 
 import { BufferWriter } from './buffertools';
-import { crypto } from 'bitcoinjs-lib';
 
 /**
  * The Bitcon hardware app uses a descriptors-like thing to describe
@@ -13,8 +13,11 @@ import { crypto } from 'bitcoinjs-lib';
  */
 export class WalletPolicy {
   readonly name: string;
+
   readonly descriptorTemplate: string;
+
   readonly keys: readonly string[];
+
   /**
    * Creates and instance of a wallet policy.
    * @param name an ascii string, up to 16 bytes long; it must be an empty string for default wallet policies
@@ -39,9 +42,7 @@ export class WalletPolicy {
    * @returns the serialized wallet policy
    */
   serialize(): Buffer {
-    const keyBuffers = this.keys.map((k) => {
-      return Buffer.from(k, 'ascii');
-    });
+    const keyBuffers = this.keys.map((k) => Buffer.from(k, 'ascii'));
     const m = new Merkle(keyBuffers.map((k) => hashLeaf(k)));
 
     const buf = new BufferWriter();

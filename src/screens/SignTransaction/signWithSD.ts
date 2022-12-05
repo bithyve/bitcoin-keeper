@@ -8,14 +8,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
-import { signWithTapsigner } from 'src/hardware/tapsigner';
+import { signWithTapsigner , readTapsigner } from 'src/hardware/tapsigner';
+import { signWithColdCard } from 'src/hardware/coldcard';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
   signingPayload,
   currentSigner,
   withModal,
-  readTapsigner,
   defaultVault,
   serializedPSBT,
   card,
@@ -23,20 +23,20 @@ export const signTransactionWithTapsigner = async ({
 }) => {
   setTapsignerModal(false);
   const { inputsToSign } = signingPayload[0];
-  //AMF flow for signing
+  // AMF flow for signing
   if (currentSigner.amfData && currentSigner.amfData.xpub) {
-    await withModal(readTapsigner)();
+    await withModal(() => readTapsigner(card, cvc))();
     const { xpriv } = currentSigner;
-    const inputs = idx(signingPayload, (_) => _[0].inputsToSign);
+    const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-    const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+    const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
       inputs,
       serializedPSBT,
       xpriv
     );
     return { signedSerializedPSBT, signingPayload: null };
-  } else {
+  } 
     return withModal(async () => {
       try {
         const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
@@ -48,13 +48,12 @@ export const signTransactionWithTapsigner = async ({
         console.log(e);
       }
     })().catch(console.log);
-  }
+  
 };
 
 export const signTransactionWithColdCard = async ({
   setColdCardModal,
   withNfcModal,
-  signWithColdCard,
   serializedPSBTEnvelop,
   signers,
   activeSignerId,
@@ -63,16 +62,14 @@ export const signTransactionWithColdCard = async ({
 }) => {
   try {
     setColdCardModal(false);
-    await withNfcModal(async () => {
-      return signWithColdCard(serializedPSBTEnvelop.serializedPSBT);
-    });
+    await withNfcModal(async () => signWithColdCard(serializedPSBTEnvelop.serializedPSBT));
     const updatedSigners = getJSONFromRealmObject(signers).map((signer: VaultSigner) => {
       if (signer.signerId === activeSignerId) {
         signer.hasSigned = true;
         return signer;
-      } else {
+      } 
         return signer;
-      }
+      
     });
     dbManager.updateObjectById(RealmSchema.Vault, defaultVault.id, {
       signers: updatedSigners,
@@ -96,7 +93,7 @@ export const signTransactionWithLedger = async ({
       const { xpriv } = currentSigner;
       const inputs = idx(signingPayload, (_) => _[0].inputs);
       if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-      const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+      const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         defaultVault,
         inputs,
         serializedPSBT,
@@ -134,7 +131,7 @@ export const signTransactionWithMobileKey = async ({
   const inputs = idx(signingPayload, (_) => _[0].inputs);
   if (!inputs) throw new Error('Invalid signing payload, inputs missing');
   const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
-  const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+  const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
     defaultVault,
     inputs,
     serializedPSBT,
@@ -185,7 +182,7 @@ export const signTransactionWithSeedWords = async ({
     const networkType = config.NETWORK_TYPE;
     const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType);
     if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
-    const { signedSerializedPSBT } = WalletOperations.signVaultPSBT(
+    const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,
       inputs,
       serializedPSBT,

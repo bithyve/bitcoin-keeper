@@ -6,7 +6,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const Buttons = ({
+function Buttons({
   primaryText = '',
   secondaryText = '',
   primaryCallback = () => { },
@@ -15,14 +15,14 @@ const Buttons = ({
   secondaryDisable = false,
   primaryLoading = false,
   paddingHorizontal = wp(40),
-}) => {
+}) {
 
   const getPrimaryButton = () => {
     if (primaryLoading) {
       return (
         <ActivityIndicator style={styles.createBtn} />
       );
-    } else {
+    } 
       return (
         <TouchableOpacity
           onPress={primaryCallback}
@@ -30,11 +30,11 @@ const Buttons = ({
         >
           <Shadow
             distance={10}
-            startColor={'#073E3926'}
+            startColor="#073E3926"
             offset={[3, 4]}
           >
             <Box
-              style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal: paddingHorizontal }]}
+              style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
               bg={{
                 linearGradient: {
                   colors: ['light.lgStart', 'light.lgEnd'],
@@ -46,7 +46,7 @@ const Buttons = ({
               <Text
                 numberOfLines={1}
                 style={styles.btnText}
-                color={'light.white'}
+                color="light.white"
               >
                 {primaryText}
               </Text>
@@ -54,7 +54,7 @@ const Buttons = ({
           </Shadow>
         </TouchableOpacity>
       );
-    }
+    
   }
 
   return (
@@ -71,7 +71,7 @@ const Buttons = ({
           <Text
             numberOfLines={1}
             style={styles.btnText}
-            color={'light.greenText'}
+            color="light.greenText"
           >
             {secondaryText}
           </Text>
@@ -82,7 +82,7 @@ const Buttons = ({
       ) : null}
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {

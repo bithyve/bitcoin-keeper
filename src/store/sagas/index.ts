@@ -1,3 +1,4 @@
+import { all, call, spawn } from 'redux-saga/effects';
 import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
@@ -21,7 +22,6 @@ import {
   uaiChecksWatcher,
   updateUaiStackWatcher,
 } from './uai';
-import { all, call, spawn } from 'redux-saga/effects';
 import {
   applicationUpdateWatcher,
   changeAuthCredWatcher,
@@ -109,7 +109,7 @@ export const rootSaga = function* () {
     updateUaiStackWatcher,
     uaiActionedEntityWatcher,
 
-    //BHR
+    // BHR
     updateAppImageWatcher,
     updateVaultImageWatcher,
     getAppImageWatcher,

@@ -17,7 +17,7 @@ type Props = {
   onValueChange: Function;
 };
 
-const Switch = ({ value, onValueChange }: Props) => {
+function Switch({ value, onValueChange }: Props) {
   return (
     <TouchableOpacity onPress={() => onValueChange(!value)}>
       <LinearGradient
@@ -30,15 +30,15 @@ const Switch = ({ value, onValueChange }: Props) => {
           height={8}
           width={12}
           borderRadius={10}
-          justifyContent={'center'}
-          alignItems={'center'}
+          justifyContent="center"
+          alignItems="center"
         >
           {value ? (
             <Box
               height={6}
               width={6}
               borderRadius={15}
-              backgroundColor={'#fcfcfc'}
+              backgroundColor="#fcfcfc"
               alignSelf="flex-end"
               mx={1}
             />
@@ -47,7 +47,7 @@ const Switch = ({ value, onValueChange }: Props) => {
               height={6}
               width={6}
               borderRadius={15}
-              backgroundColor={'#fbfbfb'}
+              backgroundColor="#fbfbfb"
               alignSelf="flex-start"
               mx={1}
             />
@@ -56,6 +56,6 @@ const Switch = ({ value, onValueChange }: Props) => {
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+}
 
 export default Switch;

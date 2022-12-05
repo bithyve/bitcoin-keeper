@@ -1,6 +1,7 @@
 import Colors from 'src/theme/Colors';
-import Fonts from './Fonts';
 import { extendTheme } from 'native-base';
+import Fonts from './Fonts';
+
 export const customTheme = extendTheme({
   fontConfig: {
     'RobotoCondensed-Regular': {
@@ -92,7 +93,7 @@ export const customTheme = extendTheme({
       divider: '#BABABA',
       errorRed: '#ff0033',
       textWallet: '#113834',
-      transactionPolicyCard: '#FAD8B4',
+      transactionPolicyCard: '#F2C693',
       inheritanceBullet: '#E3E3E3',
       inheritanceTitle: '#055146',
       modalText: '#073B36',
@@ -107,6 +108,7 @@ export const customTheme = extendTheme({
       lgStart: Colors.linearGradientStart, // linearGradient
       lgEnd: Colors.linearGradientEnd, // linearGradient
       error: '#FF8F79',
+
     },
     dark: {
       black: '#000000',
@@ -117,15 +119,13 @@ export const customTheme = extendTheme({
   },
   components: {
     Text: {
-      baseStyle: (props) => {
-        return {
+      baseStyle: (props) => ({
           _light: {
             color: 'light.lightBlack',
             // fontFamily: 'RobotoCondensed-Regular',
           },
           _dark: { color: 'dark.black' },
-        };
-      },
+        }),
     },
   },
 });

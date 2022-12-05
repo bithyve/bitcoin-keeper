@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const CurrencyTypeSwitch = () => {
+function CurrencyTypeSwitch() {
   const { currencyKind } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
 
@@ -50,9 +50,9 @@ const CurrencyTypeSwitch = () => {
       >
         <Box
           borderRadius={10}
-          justifyContent={'space-between'}
+          justifyContent="space-between"
           flexDirection="row"
-          alignItems={'center'}
+          alignItems="center"
         >
           <Box
             height={7}
@@ -62,8 +62,8 @@ const CurrencyTypeSwitch = () => {
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
-            justifyContent={'center'}
-            alignItems={'center'}
+            justifyContent="center"
+            alignItems="center"
           >
             {/* <FontAwesome
               name={'dollar'}
@@ -80,8 +80,8 @@ const CurrencyTypeSwitch = () => {
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
-            justifyContent={'center'}
-            alignItems={'center'}
+            justifyContent="center"
+            alignItems="center"
           >
             {/* <FontAwesome
               name={'bitcoin'}
@@ -94,6 +94,6 @@ const CurrencyTypeSwitch = () => {
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+}
 
 export default CurrencyTypeSwitch;
