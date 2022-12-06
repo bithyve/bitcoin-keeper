@@ -18,10 +18,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <TouchableOpacity
-          onPress={onPressHandler || navigation.goBack}
-          style={styles.back}
-        >
+        <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.back}>
           <BackButton />
         </TouchableOpacity>
       )}

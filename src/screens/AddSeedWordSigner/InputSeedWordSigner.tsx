@@ -30,9 +30,9 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 function InputSeedWordSigner({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const {seed} = translations;
-  const {common} = translations;
-  const {onSuccess} = route.params;
+  const { seed } = translations;
+  const { common } = translations;
+  const { onSuccess } = route.params;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -127,7 +127,7 @@ function InputSeedWordSigner({ route }) {
   const getSeedWord = () => {
     let seedWord = '';
     for (let i = 0; i < 12; i++) {
-      seedWord += `${seedData[i].name  } `;
+      seedWord += `${seedData[i].name} `;
     }
     return seedWord.trim();
   };
@@ -158,23 +158,26 @@ function InputSeedWordSigner({ route }) {
           <InvalidSeeds />
         </Box>
         <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit
         </Text>
       </View>
     );
   }
 
   const getFormattedNumber = (number) => {
-    if (number < 9) return `0${  number + 1}`;
+    if (number < 9) return `0${number + 1}`;
     return number + 1;
   };
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex  }st`;
-    if (mainIndex == 2) return `${mainIndex  }nd`;
-    if (mainIndex == 3) return `${mainIndex  }rd`;
-    return `${mainIndex  }th`;
+    if (mainIndex == 1) return `${mainIndex}st`;
+    if (mainIndex == 2) return `${mainIndex}nd`;
+    if (mainIndex == 3) return `${mainIndex}rd`;
+    return `${mainIndex}th`;
   };
 
   return (
@@ -207,57 +210,55 @@ function InputSeedWordSigner({ route }) {
                 marginStart: 15,
               }}
               renderItem={({ item, index }) => (
-                  <View
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 20,
+                    marginVertical: 10,
+                  }}
+                >
+                  <Text
                     style={{
-                      flexDirection: 'row',
-                      marginHorizontal: 20,
-                      marginVertical: 10,
+                      width: 22,
+                      fontSize: 16,
+                      color: '#00836A',
+                      fontWeight: 'bold',
+                      marginTop: 8,
                     }}
                   >
-                    <Text
-                      style={{
-                        width: 22,
-                        fontSize: 16,
-                        color: '#00836A',
-                        fontWeight: 'bold',
-                        marginTop: 8,
-                      }}
-                    >
-                      {getFormattedNumber(index)}
-                    </Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        item.invalid == true
-                          ? {
-                              borderColor: '#F58E6F',
-                            }
-                          : { borderColor: '#FDF7F0' },
-                      ]}
-                      placeholder={`enter ${getPlaceholder(index)} word`}
-                      value={item?.name}
-                      textContentType="none"
-                      returnKeyType="next"
-                      autoCorrect={false}
-                      autoCapitalize="none"
-                      keyboardType={
-                        Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
-                      }
-                      onChangeText={(text) => {
+                    {getFormattedNumber(index)}
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      item.invalid == true
+                        ? {
+                            borderColor: '#F58E6F',
+                          }
+                        : { borderColor: '#FDF7F0' },
+                    ]}
+                    placeholder={`enter ${getPlaceholder(index)} word`}
+                    value={item?.name}
+                    textContentType="none"
+                    returnKeyType="next"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
+                    onChangeText={(text) => {
+                      const data = [...seedData];
+                      data[index].name = text.trim();
+                      setSeedData(data);
+                    }}
+                    onBlur={() => {
+                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
                         const data = [...seedData];
-                        data[index].name = text.trim();
+                        data[index].invalid = true;
                         setSeedData(data);
-                      }}
-                      onBlur={() => {
-                        if (!bip39.wordlists.english.includes(seedData[index].name)) {
-                          const data = [...seedData];
-                          data[index].invalid = true;
-                          setSeedData(data);
-                        }
-                      }}
-                    />
-                  </View>
-                )}
+                      }
+                    }}
+                  />
+                </View>
+              )}
             />
           </View>
           <Text color="#4F5955" marginX={10} marginY={10} fontSize={12}>
