@@ -29,7 +29,7 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import idx from 'idx';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
@@ -38,11 +38,11 @@ function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
-  const {vault} = translations;
-  const {healthcheck} = translations;
-  const {tapsigner} = translations;
-  const {coldcard} = translations;
+  const { common } = translations;
+  const { vault } = translations;
+  const { healthcheck } = translations;
+  const { tapsigner } = translations;
+  const { coldcard } = translations;
   const { SignerIcon, signer, vaultId } = route.params;
   const [editDescriptionModal, setEditDescriptionModal] = useState(false);
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
@@ -56,14 +56,14 @@ function SigningDeviceDetails({ route }) {
   const [cvc, setCvc] = useState('');
   const card = React.useRef(new CKTapCard()).current;
   const modalHandler = (callback) => Platform.select({
-      android: async () => {
-        setNfcVisible(true);
-        const resp = await card.nfcWrapper(callback);
-        setNfcVisible(false);
-        return resp;
-      },
-      ios: async () => card.nfcWrapper(callback),
-    });
+    android: async () => {
+      setNfcVisible(true);
+      const resp = await card.nfcWrapper(callback);
+      setNfcVisible(false);
+      return resp;
+    },
+    ios: async () => card.nfcWrapper(callback),
+  });
 
   const scanMK4 = async () => {
     setNfcVisible(true);
@@ -225,7 +225,7 @@ function SigningDeviceDetails({ route }) {
           fontFamily="body"
           fontWeight="200"
           p={2}
-         />
+        />
       </View>
     );
   }
@@ -386,8 +386,9 @@ function SigningDeviceDetails({ route }) {
         bottom={0}
         alignItems="center"
         justifyContent="center"
-        width="100%"
+        width={windowWidth}
         height={hp(188)}
+        backgroundColor={'light.ReceiveBackground'}
       >
         <Text
           fontSize={13}
