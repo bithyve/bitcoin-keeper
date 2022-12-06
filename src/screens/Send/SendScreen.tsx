@@ -36,13 +36,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
-const SendScreen = ({ route }) => {
+function SendScreen({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const wallet: Wallet = route.params.wallet;
+  const {wallet} = route.params;
   const { translations } = useContext(LocalizationContext);
-  const common = translations['common'];
-  const home = translations['home'];
+  const {common} = translations;
+  const {home} = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -86,18 +86,18 @@ const SendScreen = ({ route }) => {
         navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
-        return;
+        
     }
   };
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigateToNext(getNextFreeAddress(item), '0', 'Wallet');
+      navigateToNext(getNextFreeAddress(item), null, 'Wallet');
     };
     return (
       <Box
-        justifyContent={'center'}
-        alignItems={'center'}
+        justifyContent="center"
+        alignItems="center"
         style={{ marginRight: wp(10) }}
         width={wp(60)}
       >
@@ -105,7 +105,7 @@ const SendScreen = ({ route }) => {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontFamily={'body'} fontWeight={'100'} fontSize={12} mt={'1'} numberOfLines={1}>
+          <Text fontFamily="body" fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
@@ -122,8 +122,8 @@ const SendScreen = ({ route }) => {
       >
         <HeaderTitle
           title={common.send}
-          subtitle={'Scan a bitcoin address'}
-          headerTitleColor={'light.textBlack'}
+          subtitle="Scan a bitcoin address"
+          headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
         />
         <ScrollView>
@@ -138,15 +138,15 @@ const SendScreen = ({ route }) => {
           </Box>
           {/* send manually option */}
           <Box
-            flexDirection={'row'}
+            flexDirection="row"
             marginY={hp(2)}
-            width={'100%'}
-            justifyContent={'center'}
-            alignItems={'center'}
+            width="100%"
+            justifyContent="center"
+            alignItems="center"
           >
             <TextInput
               placeholder="or enter address manually"
-              placeholderTextColor={'#4F5955'}
+              placeholderTextColor="#4F5955"
               style={styles.textInput}
               value={paymentInfo}
               onChangeText={handleTextChange}
@@ -158,7 +158,7 @@ const SendScreen = ({ route }) => {
             <Text
               marginX={5}
               fontWeight={200}
-              fontFamily={'body'}
+              fontFamily="body"
               fontSize={14}
               letterSpacing={1.12}
             >
@@ -166,9 +166,9 @@ const SendScreen = ({ route }) => {
             </Text>
             <View>
               <View
-                flexDirection={'row'}
+                flexDirection="row"
                 style={styles.walletContainer}
-                backgroundColor={'light.textInputBackground'}
+                backgroundColor="light.textInputBackground"
               >
                 <FlatList
                   data={otherWallets}
@@ -185,17 +185,15 @@ const SendScreen = ({ route }) => {
           <Box marginTop={hp(40)} marginX={2}>
             <Note
               title={common.note}
-              subtitle={
-                'Make sure the address or QR is the one where you want to send the funds to'
-              }
-              subtitleColor={'GreyText'}
+              subtitle="Make sure the address or QR is the one where you want to send the funds to"
+              subtitleColor="GreyText"
             />
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   linearGradient: {

@@ -10,41 +10,40 @@ import EditIcon from 'src/assets/images/svgs/edit.svg';
 import BTCIcon from 'src/assets/images/svgs/btc_black.svg';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 
-const WalletDetails = ({ availableAmt, walletName }) => {
+function WalletDetails({ availableAmt, walletName }) {
   return (
-    <>
-      <Box
-        justifyContent={'space-between'}
-        alignItems={'center'}
+    <Box
+        justifyContent="space-between"
+        alignItems="center"
         style={{ marginRight: wp(10) }}
-        flexDirection={'row'}
-        backgroundColor={'light.lightYellow'}
-        width={'97%'}
+        flexDirection="row"
+        backgroundColor="light.lightYellow"
+        width="97%"
         height={hp(54)}
         borderRadius={10}
       >
-        <Box flexDirection={'row'}>
+        <Box flexDirection="row">
           <TouchableOpacity style={styles.buttonBackground}>
             <IconWallet />
           </TouchableOpacity>
           <Box marginLeft={wp(10)}>
             <Text
-              fontFamily={'body'}
-              fontWeight={'200'}
+              fontFamily="body"
+              fontWeight="200"
               fontSize={14}
-              mt={'1'}
+              mt="1"
               numberOfLines={1}
               letterSpacing={1.12}
-              color={'light.sendCardHeading'}
+              color="light.sendCardHeading"
               width={wp(100)}
             >
               {walletName && walletName}
             </Text>
-            <Text fontFamily={'body'} fontSize={12} numberOfLines={1}>
+            <Text fontFamily="body" fontSize={12} numberOfLines={1}>
               Available to spend &nbsp;
               <BTCIcon />
               &nbsp;
-              <Text fontWeight={'bold'} fontSize={14}>
+              <Text fontWeight="bold" fontSize={14}>
                 {availableAmt && availableAmt}
               </Text>
             </Text>
@@ -59,9 +58,8 @@ const WalletDetails = ({ availableAmt, walletName }) => {
           <EditIcon />
         </TouchableOpacity>
       </Box>
-    </>
   );
-};
+}
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,

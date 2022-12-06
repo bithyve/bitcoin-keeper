@@ -10,7 +10,7 @@ type Props = {
   width?: string | number;
 };
 
-const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) => {
+function Note({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) {
   const { colorMode } = useColorMode();
 
   return (
@@ -27,7 +27,7 @@ const Note = ({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }:
       </Box>
     </Box>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

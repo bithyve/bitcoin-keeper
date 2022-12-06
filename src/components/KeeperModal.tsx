@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const KeeperModal = (props: {
+function KeeperModal(props: {
   visible: boolean;
   close: any;
   title?: string;
@@ -29,7 +29,7 @@ const KeeperModal = (props: {
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
-}) => {
+}) {
   const {
     visible,
     close,
@@ -59,9 +59,7 @@ const KeeperModal = (props: {
     return null;
   }
 
-  const getCloseIcon = () => {
-    return DarkCloseIcon ? <CloseGreen /> : <Close />;
-  };
+  const getCloseIcon = () => DarkCloseIcon ? <CloseGreen /> : <Close />;
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -70,9 +68,9 @@ const KeeperModal = (props: {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      justifyContent={'flex-end'}
+      justifyContent="flex-end"
     >
-      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight={'full'}>
+      <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
           <Box
             bg={{
@@ -101,15 +99,15 @@ const KeeperModal = (props: {
             {((showButtons && learnMore) || buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box borderColor={'light.yellow2'} style={styles.learnMoreContainer}>
+                  <Box borderColor="light.yellow2" style={styles.learnMoreContainer}>
                     <Link onPress={learnMoreCallback}>
-                      <Text color={'light.yellow2'} style={styles.seeFAQs}>
-                        {'See FAQs'}
+                      <Text color="light.yellow2" style={styles.seeFAQs}>
+                        See FAQs
                       </Text>
                     </Link>
                   </Box>
                 ) : (
-                  <Box></Box>
+                  <Box />
                 )}
                 {buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
@@ -136,7 +134,7 @@ const KeeperModal = (props: {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default KeeperModal;
 

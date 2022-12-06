@@ -1,10 +1,10 @@
+import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { Merkle, hashLeaf } from './merkle';
 import { pathElementsToBuffer, pathStringToArray } from './bip32';
 
 import { ClientCommandInterpreter } from './clientCommands';
 import { MerkelizedPsbt } from './merkelizedPsbt';
 import { PsbtV2 } from './psbtv2';
-import TransportBLE from '@ledgerhq/react-native-hw-transport-ble';
 import { WalletPolicy } from './policy';
 import { createVarint } from './varint';
 

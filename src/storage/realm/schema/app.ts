@@ -1,6 +1,6 @@
 import { ObjectSchema } from 'realm';
-import { RealmSchema } from '../enum';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { RealmSchema } from '../enum';
 
 export const StoreSubscriptionSchema: ObjectSchema = {
   name: RealmSchema.StoreSubscription,

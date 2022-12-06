@@ -1,12 +1,10 @@
 import { call, put, select } from 'redux-saga/effects';
-import { createWatcher } from '../utilities';
-import {
-  UPDATE_FCM_TOKENS,
-  FETCH_NOTIFICATIONS,
-  GET_MESSAGES,
-  UPDATE_MESSAGES_STATUS_INAPP,
-  UPDATE_MESSAGES_STATUS,
-} from '../sagaActions/notifications';
+import Relay from 'src/core/services/operations/Relay';
+import { addToUaiStack } from 'src/store/sagaActions/uai';
+import { Platform } from 'react-native';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RootState } from '../store';
 import {
   notificationsFetched,
   fetchNotificationStarted,
@@ -14,12 +12,14 @@ import {
   messageFetched,
   setFcmToken,
 } from '../reducers/notifications';
-import Relay from 'src/core/services/operations/Relay';
-import { RootState } from '../store';
-import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { Platform } from 'react-native';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
+import {
+  UPDATE_FCM_TOKENS,
+  FETCH_NOTIFICATIONS,
+  GET_MESSAGES,
+  UPDATE_MESSAGES_STATUS_INAPP,
+  UPDATE_MESSAGES_STATUS,
+} from '../sagaActions/notifications';
+import { createWatcher } from '../utilities';
 
 function* updateFCMTokensWorker({ payload }) {
   try {
@@ -46,7 +46,7 @@ export function* fetchNotificationsWorker() {
   const appId = yield select((state: RootState) => state.storage.appId);
   const { notifications } = yield call(Relay.fetchNotifications, appId);
   yield call(notificationsFetched, notifications);
-  //yield call( setupNotificationListWorker )
+  // yield call( setupNotificationListWorker )
   yield put(fetchNotificationStarted(false));
 }
 

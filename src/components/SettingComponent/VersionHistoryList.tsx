@@ -2,12 +2,12 @@ import React, { useContext } from 'react';
 import { FlatList, Box, Text } from 'native-base';
 
 import { RFValue } from 'react-native-responsive-fontsize';
-import DotView from '../DotView';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import DotView from '../DotView';
 
-const VersionHistoryList = () => {
+function VersionHistoryList() {
   const { useQuery } = useContext(RealmWrapperContext);
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
 
@@ -19,34 +19,34 @@ const VersionHistoryList = () => {
         <Box p={1} position="relative">
           <Box
             zIndex={99}
-            position={'absolute'}
+            position="absolute"
             left={-3}
             top={0}
-            bg={'light.ReceiveBackground'}
+            bg="light.ReceiveBackground"
             p={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color={'#E3BE96'} />
+            <DotView height={2} width={2} color="#E3BE96" />
           </Box>
-          <Box borderLeftColor={'#E3BE96'} borderLeftWidth={1} w={'100%'} >
+          <Box borderLeftColor="#E3BE96" borderLeftWidth={1} w="100%" >
             <Text
-              color={'light.GreyText'}
+              color="light.GreyText"
               fontSize={RFValue(10)}
-              fontWeight={'300'}
+              fontWeight="300"
               ml={5}
               opacity={0.7}
               letterSpacing={0.3}
             >
               {item.date}
             </Text>
-            <Box bg={'light.lightYellow'} p={5} borderRadius={10} my={2} ml={5}>
-              <Text color={'light.headerText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(14)} fontFamily={'heading'}>
+            <Box bg="light.lightYellow" p={5} borderRadius={10} my={2} ml={5}>
+              <Text color="light.headerText" fontWeight={200} letterSpacing={1} fontSize={RFValue(14)} fontFamily="heading">
                 {item.title}
               </Text>
-              <Text color={'light.GreyText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily={'body'}>
+              <Text color="light.GreyText" fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily="body">
                 {item.version}
               </Text>
-              <Text color={'light.GreyText'} fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily={'body'}>
+              <Text color="light.GreyText" fontWeight={200} letterSpacing={1} fontSize={RFValue(12)} fontFamily="body">
                 {item.releaseNote}
               </Text>
             </Box>
@@ -56,5 +56,5 @@ const VersionHistoryList = () => {
       keyExtractor={(item) => item.version}
     />
   );
-};
+}
 export default VersionHistoryList;

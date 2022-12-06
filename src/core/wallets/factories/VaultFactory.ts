@@ -2,6 +2,12 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 import {
+  decrypt,
+  encrypt,
+  generateEncryptionKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
+import {
   EntityKind,
   NetworkType,
   SignerType,
@@ -16,17 +22,11 @@ import {
   VaultSigner,
   VaultSpecs,
 } from '../interfaces/vault';
-import {
-  decrypt,
-  encrypt,
-  generateEncryptionKey,
-  hash256,
-} from 'src/core/services/operations/encryption';
 
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
-import config from './../../config';
+import config from "../../config";
 
 const crypto = require('crypto');
 
@@ -66,7 +66,7 @@ export const generateVault = ({
   const { vac } = generateVAC();
 
   const specs: VaultSpecs = {
-    xpubs: xpubs,
+    xpubs,
     activeAddresses: {
       external: {},
       internal: {},
@@ -87,6 +87,9 @@ export const generateVault = ({
     transactionNote: {},
   };
 
+  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
+
+  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
   const vault: Vault = {
     id,
     vaultShellId,
@@ -94,7 +97,7 @@ export const generateVault = ({
     type,
     networkType,
     isUsable: true,
-    isMultiSig: true,
+    isMultiSig,
     scheme,
     signers,
     presentationData,
@@ -124,7 +127,7 @@ export const generateMobileKey = async (
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
 
   const DEFAULT_CHILD_PATH = 0;
-  let xDerivationPath = WalletUtilities.getDerivationPath(
+  const xDerivationPath = WalletUtilities.getDerivationPath(
     EntityKind.VAULT,
     networkType,
     DEFAULT_CHILD_PATH
@@ -158,7 +161,7 @@ export const generateSeedWordsKey = (
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
 
   const DEFAULT_CHILD_PATH = 0;
-  let xDerivationPath = WalletUtilities.getDerivationPath(
+  const xDerivationPath = WalletUtilities.getDerivationPath(
     EntityKind.VAULT,
     networkType,
     DEFAULT_CHILD_PATH
@@ -192,7 +195,7 @@ export const generateMockExtendedKey = (
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const randomWalletNumber = Math.floor(Math.random() * 10e5);
-  let xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
+  const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed.toString('hex'),
@@ -226,9 +229,7 @@ export const generateMockExtendedKeyForSigner = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateIDForVAC = (str: string) => {
-  return hash256(str);
-};
+export const generateIDForVAC = (str: string) => hash256(str);
 
 export const generateVAC = (entropy?: string): { vac: string; vacId: string } => {
   const vac = generateEncryptionKey(entropy);

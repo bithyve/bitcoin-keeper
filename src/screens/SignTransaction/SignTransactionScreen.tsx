@@ -4,14 +4,6 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
-import {
-  signTransactionWithColdCard,
-  signTransactionWithLedger,
-  signTransactionWithMobileKey,
-  signTransactionWithSeedWords,
-  signTransactionWithSigningServer,
-  signTransactionWithTapsigner,
-} from './signWithSD';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -23,23 +15,29 @@ import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SignerList from './SignerList';
-import SignerModals from './SignerModals';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import idx from 'idx';
-import { readTapsigner } from 'src/hardware/tapsigner';
 import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
-import { signWithColdCard } from 'src/hardware/coldcard';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
+import SignerModals from './SignerModals';
+import SignerList from './SignerList';
+import {
+  signTransactionWithColdCard,
+  signTransactionWithLedger,
+  signTransactionWithMobileKey,
+  signTransactionWithSeedWords,
+  signTransactionWithSigningServer,
+  signTransactionWithTapsigner,
+} from './signWithSD';
 
-const SignTransactionScreen = () => {
+function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -50,6 +48,11 @@ const SignTransactionScreen = () => {
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
+  const [passportModal, setPassportModal] = useState(false);
+  const [seedSignerModal, setSeedSignerModal] = useState(false);
+  const [keystoneModal, setKeystoneModal] = useState(false);
+  const [jadeModal, setJadeModal] = useState(false);
+  const [keeperModal, setKeeperModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -81,10 +84,9 @@ const SignTransactionScreen = () => {
         dispatch(finaliseVaultMigration(vaultId));
         navigation.dispatch(CommonActions.reset(navigationState));
       } else {
-        return;
+        
       }
-    } else {
-      if (sendSuccessful) {
+    } else if (sendSuccessful) {
         navigation.dispatch(
           CommonActions.reset({
             index: 1,
@@ -92,14 +94,11 @@ const SignTransactionScreen = () => {
           })
         );
       }
-    }
   }, [sendSuccessful, isMigratingNewVault]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       dispatch(sendPhaseThreeReset());
-    };
-  }, []);
+    }, []);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -143,7 +142,6 @@ const SignTransactionScreen = () => {
               signingPayload,
               currentSigner,
               withModal,
-              readTapsigner,
               defaultVault,
               serializedPSBT,
               card,
@@ -156,7 +154,6 @@ const SignTransactionScreen = () => {
           await signTransactionWithColdCard({
             setColdCardModal,
             withNfcModal,
-            signWithColdCard,
             serializedPSBTEnvelop,
             signers,
             activeSignerId,
@@ -201,7 +198,7 @@ const SignTransactionScreen = () => {
           });
           dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
         } else {
-          return;
+          
         }
       }
     },
@@ -247,6 +244,21 @@ const SignTransactionScreen = () => {
           })
         );
         break;
+      case SignerType.PASSPORT:
+        setPassportModal(true);
+        break;
+      case SignerType.SEEDSIGNER:
+        setSeedSignerModal(true);
+        break;
+      case SignerType.KEYSTONE:
+        setKeystoneModal(true);
+        break;
+      case SignerType.JADE:
+        setJadeModal(true);
+        break;
+      case SignerType.KEEPER:
+        setKeeperModal(true);
+        break;
       default:
         Alert.alert(`action not set for ${type}`);
         break;
@@ -273,17 +285,15 @@ const SignTransactionScreen = () => {
         )}
       />
       <Note
-        title={'Note'}
-        subtitle={
-          'Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted.'
-        }
-        subtitleColor={'GreyText'}
+        title="Note"
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitleColor="GreyText"
       />
-      <Box alignItems={'flex-end'} marginY={5}>
+      <Box alignItems="flex-end" marginY={5}>
         <Buttons
           primaryDisable={!areSignaturesSufficient()}
           primaryLoading={broadcasting}
-          primaryText={'Broadcast'}
+          primaryText="Broadcast"
           primaryCallback={() => {
             if (areSignaturesSufficient()) {
               setBroadcasting(true);
@@ -307,6 +317,16 @@ const SignTransactionScreen = () => {
         ledgerModal={ledgerModal}
         otpModal={otpModal}
         passwordModal={passwordModal}
+        passportModal={passportModal}
+        seedSignerModal={seedSignerModal}
+        keystoneModal={keystoneModal}
+        jadeModal={jadeModal}
+        setJadeModal={setJadeModal}
+        setKeystoneModal={setKeystoneModal}
+        keeperModal={keeperModal}
+        setSeedSignerModal={setSeedSignerModal}
+        setPassportModal={setPassportModal}
+        setKeeperModal={setKeeperModal}
         setColdCardModal={setColdCardModal}
         setLedgerModal={setLedgerModal}
         setPasswordModal={setPasswordModal}
@@ -319,6 +339,6 @@ const SignTransactionScreen = () => {
       <NfcPrompt visible={nfcVisible || TSNfcVisible} />
     </ScreenWrapper>
   );
-};
+}
 
 export default SignTransactionScreen;

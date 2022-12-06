@@ -1,33 +1,33 @@
-import React, { useState } from 'react';
-import { Keyboard } from 'react-native';
 import { Box, Input, Text } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
-
-import { RFValue } from 'react-native-responsive-fontsize';
-import { ScaledSheet } from 'react-native-size-matters';
-// components, interfaces
-import HeaderTitle from 'src/components/HeaderTitle';
-import ScreenWrapper from 'src/components/ScreenWrapper';
+import React, { useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+
+import AppNumPad from 'src/components/AppNumPad';
+import Buttons from 'src/components/Buttons';
 // asserts
 import Fonts from 'src/common/Fonts';
-import Buttons from 'src/components/Buttons';
-import AppNumPad from 'src/components/AppNumPad';
+// components, interfaces
+import HeaderTitle from 'src/components/HeaderTitle';
+import { Keyboard } from 'react-native';
 import Note from 'src/components/Note/Note';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { ScaledSheet } from 'react-native-size-matters';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import { useNavigation } from '@react-navigation/native';
 
-const TimelockScreen = () => {
+function TimelockScreen() {
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
 
   return (
-    <Box flex={1} position={'relative'}>
+    <Box flex={1} position="relative">
       <ScreenWrapper>
         <Box marginX={3}>
           <Box width={wp(320)}>
             <HeaderTitle
               onPressHandler={() => navigation.goBack()}
-              title={'Timelock Vault'}
-              subtitle={'Provide number of blocks from the current block'}
+              title="Timelock Vault"
+              subtitle="Provide number of blocks from the current block"
             />
             <Box
               style={{
@@ -35,16 +35,16 @@ const TimelockScreen = () => {
               }}
             >
               <Input
-                placeholder={''}
-                placeholderTextColor={'light.greenText'}
+                placeholder=""
+                placeholderTextColor="light.greenText"
                 style={styles.inputField}
-                borderWidth={'0'}
+                borderWidth="0"
                 value={amount}
                 onFocus={() => Keyboard.dismiss()}
-                backgroundColor={'light.lightYellow'}
+                backgroundColor="light.lightYellow"
               />
               <Text
-                color={'light.time'}
+                color="light.time"
                 fontWeight={300}
                 letterSpacing={2.8}
                 fontSize={13}
@@ -58,11 +58,9 @@ const TimelockScreen = () => {
 
           <Box width={wp(285)}>
             <Note
-              title={'Note'}
-              subtitle={
-                'Times estimated here are approximates based on ~10 mins every block as an average'
-              }
-              subtitleColor={'GreyText'}
+              title="Note"
+              subtitle="Times estimated here are approximates based on ~10 mins every block as an average"
+              subtitleColor="GreyText"
             />
           </Box>
           <Box marginTop={hp(20)}>
@@ -70,21 +68,18 @@ const TimelockScreen = () => {
           </Box>
         </Box>
       </ScreenWrapper>
-      <Box position={'absolute'} bottom={0}>
+      <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          ok={() => {
-            console.log('ok');
-          }}
           clear={() => {}}
-          color={'#073E39'}
+          color="#073E39"
           height={windowHeight >= 850 ? 80 : 60}
-          darkDeleteIcon={true}
+          darkDeleteIcon
         />
       </Box>
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   inputField: {

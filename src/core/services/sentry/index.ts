@@ -11,7 +11,7 @@ export const sentryConfig = {
   maxBreadcrumbs: 50,
   tracesSampleRate: 1.0,
   dsn: config.SENTRY_DNS,
-  environment: config.ENVIRONMENT,
+  environment: __DEV__ ? 'LOCAL' : config.ENVIRONMENT,
   integrations: [
     new Sentry.ReactNativeTracing({
       routingInstrumentation,
@@ -31,8 +31,6 @@ export const captureError = (error: Error, context?: CaptureContext) => {
   return Sentry.captureException(error, context);
 };
 
-export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => {
-  return Sentry.captureMessage(message, captureContext);
-};
+export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => Sentry.captureMessage(message, captureContext);
 
 export { routingInstrumentation };

@@ -10,19 +10,19 @@ import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 
-const TorConnectionContent = () => {
+function TorConnectionContent() {
   // assert missing
   return (
     <Box width={wp(300)}>
-      <Box alignItems={'center'}>
+      <Box alignItems="center">
         <TOR />
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontSize={13}
-          fontFamily={'body'}
-          fontWeight={'200'}
+          fontFamily="body"
+          fontWeight="200"
           p={1}
           letterSpacing={0.65}
         >
@@ -31,20 +31,20 @@ const TorConnectionContent = () => {
       </Box>
     </Box>
   );
-};
+}
 
-const TorContent = () => {
+function TorContent() {
   return (
     <Box width={wp(300)}>
-      <Box alignItems={'center'}>
+      <Box alignItems="center">
         <TOR />
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color={'light.white1'}
+          color="light.white1"
           fontSize={13}
-          fontFamily={'body'}
-          fontWeight={'200'}
+          fontFamily="body"
+          fontWeight="200"
           p={1}
           letterSpacing={0.65}
         >
@@ -52,10 +52,10 @@ const TorContent = () => {
           ut labore et dolore magna aliqua.
         </Text>
         <Text
-          color={'light.white1'}
+          color="light.white1"
           fontSize={13}
-          fontFamily={'body'}
-          fontWeight={'200'}
+          fontFamily="body"
+          fontWeight="200"
           p={1}
           letterSpacing={0.65}
           marginTop={hp(10)}
@@ -66,20 +66,20 @@ const TorContent = () => {
       </Box>
     </Box>
   );
-};
+}
 
-const TorConnectionFailed = () => {
+function TorConnectionFailed() {
   return (
     <Box width={wp(270)}>
-      <Box alignItems={'center'}>
+      <Box alignItems="center">
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontSize={13}
-          fontFamily={'body'}
-          fontWeight={'200'}
+          fontFamily="body"
+          fontWeight="200"
           p={1}
           letterSpacing={0.65}
         >
@@ -88,20 +88,20 @@ const TorConnectionFailed = () => {
       </Box>
     </Box>
   );
-};
+}
 
-const TorEnabledContent = () => {
+function TorEnabledContent() {
   return (
     <Box width={wp(270)}>
-      <Box alignItems={'center'}>
+      <Box alignItems="center">
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontSize={13}
-          fontFamily={'body'}
-          fontWeight={'200'}
+          fontFamily="body"
+          fontWeight="200"
           p={1}
           letterSpacing={0.65}
         >
@@ -110,9 +110,9 @@ const TorEnabledContent = () => {
       </Box>
     </Box>
   );
-};
+}
 
-const TorModalMap = ({ visible, close, onPressTryAgain }) => {
+function TorModalMap({ visible, close, onPressTryAgain }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const [message, setMessage] = useState('');
 
@@ -150,45 +150,45 @@ const TorModalMap = ({ visible, close, onPressTryAgain }) => {
       <KeeperModal
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
-        title={'Connecting to Tor'}
-        subTitle={'Network calls and some functions may work slower when the Tor is enabled '}
+        title="Connecting to Tor"
+        subTitle="Network calls and some functions may work slower when the Tor is enabled "
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#041513'}
-        subTitleColor={'#5F6965'}
+        textColor="#041513"
+        subTitleColor="#5F6965"
         Content={TorConnectionContent}
       />
       <KeeperModal
         visible={visible && torStatus === TorStatus.ERROR}
         close={close}
-        title={'Connection Error'}
-        subTitle={'This can be due to the network or other conditions '}
-        subTitleColor={'#5F6965'}
+        title="Connection Error"
+        subTitle="This can be due to the network or other conditions "
+        subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Try Again'}
-        buttonTextColor={'#FAFAFA'}
+        buttonText="Try Again"
+        buttonTextColor="#FAFAFA"
         buttonCallback={() => {
           onPressTryAgain();
         }}
-        textColor={'#041513'}
+        textColor="#041513"
         Content={TorConnectionFailed}
       />
       <KeeperModal
         visible={visible && torStatus === TorStatus.CONNECTED}
         close={close}
-        title={'Tor Enabled Successfully!'}
-        subTitle={'The app may be slower than usual over Tor'}
-        subTitleColor={'#5F6965'}
+        title="Tor Enabled Successfully!"
+        subTitle="The app may be slower than usual over Tor"
+        subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText={'Close'}
-        buttonTextColor={'#FAFAFA'}
+        buttonText="Close"
+        buttonTextColor="#FAFAFA"
         buttonCallback={close}
-        textColor={'#041513'}
+        textColor="#041513"
         Content={TorEnabledContent}
       />
     </>
   );
-};
+}
 
 export default TorModalMap;

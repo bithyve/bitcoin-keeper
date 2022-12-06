@@ -39,14 +39,14 @@ function NfcPrompt({ visible }) {
   };
 
   return (
-    <Modal transparent={true} visible={visible}>
+    <Modal transparent visible={visible}>
       <View style={[styles.wrapper]}>
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <NFC />
             <Text style={{ textAlign: 'center', color: '#073E39' }}>
-              {`Please hold until the scanning is complete...`}
+              Please hold until the scanning is complete...
             </Text>
           </View>
         </Animated.View>

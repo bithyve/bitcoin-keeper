@@ -1,4 +1,27 @@
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
+import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
+import { call, put, select } from 'redux-saga/effects';
+
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
+import idx from 'idx';
+import { createWatcher } from '../utilities';
+import dbManager from '../../storage/realm/dbManager';
+import {
+  SendPhaseOneExecutedPayload,
+  sendPhaseOneExecuted,
+  sendPhaseThreeExecuted,
+  sendPhaseTwoExecuted,
+  setAverageTxFee,
+  setExchangeRates,
+  setSendMaxFee,
+  updatePSBTEnvelops,
+} from '../reducers/send_and_receive';
 import {
   CALCULATE_CUSTOM_FEE,
   CALCULATE_SEND_MAX_FEE,
@@ -18,29 +41,6 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { EntityKind, TxPriority } from 'src/core/wallets/enums';
-import {
-  SendPhaseOneExecutedPayload,
-  sendPhaseOneExecuted,
-  sendPhaseThreeExecuted,
-  sendPhaseTwoExecuted,
-  setAverageTxFee,
-  setExchangeRates,
-  setSendMaxFee,
-  updatePSBTEnvelops,
-} from '../reducers/send_and_receive';
-import { call, put, select } from 'redux-saga/effects';
-
-import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletOperations from 'src/core/wallets/operations';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
-import { createWatcher } from '../utilities';
-import dbManager from '../../storage/realm/dbManager';
-import idx from 'idx';
 import { updatVaultImage } from '../sagaActions/bhr';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
@@ -110,7 +110,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
         err: err.message,
       })
     );
-    return;
+    
   }
 }
 
@@ -175,12 +175,13 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
 function* updatePSBTSignaturesWorker({ payload }: UpdatePSBTAction) {
-  const { signerId, signedSerializedPSBT, signingPayload } = payload;
+  const { signerId, signedSerializedPSBT, signingPayload, txHex } = payload;
   yield put(
     updatePSBTEnvelops({
       signerId,
       signedSerializedPSBT,
       signingPayload,
+      txHex,
     })
   );
 }
@@ -203,20 +204,28 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
-    for (let serializedPSBTEnvelop of serializedPSBTEnvelops) {
-      if (serializedPSBTEnvelop.isSigned) availableSignatures++;
+    let txHex;
+    for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
+      if (serializedPSBTEnvelop.isSigned) {
+        availableSignatures++;
+      }
+      if (serializedPSBTEnvelop.signerType === SignerType.COLDCARD && serializedPSBTEnvelop.txHex) {
+        txHex = serializedPSBTEnvelop.txHex;
+      }
     }
     if (availableSignatures < threshold)
       throw new Error(
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
+
     const { txid } = yield call(
       WalletOperations.transferST3,
       wallet,
       serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
-      recipients
+      recipients,
+      txHex
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
     yield put(
@@ -290,7 +299,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     } else throw new Error('Failed to generate txPrerequisites for cross transfer');
   } catch (err) {
     console.log({ err });
-    return;
+    
   }
 }
 
@@ -302,7 +311,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     (state) => state.sendAndReceive.averageTxFees
   );
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-  const feePerByte = averageTxFeeByNetwork[TxPriority.LOW].feePerByte;
+  const {feePerByte} = averageTxFeeByNetwork[TxPriority.LOW];
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { fee } = WalletOperations.calculateSendMaxFee(

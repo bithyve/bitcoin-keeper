@@ -5,7 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
 import tapsignerLogo from 'src/assets/images/tapsignerLogo.png';
 
-const ApproveTransactionModal = (props) => {
+function ApproveTransactionModal(props) {
   const {
     visible,
     close,
@@ -31,44 +31,44 @@ const ApproveTransactionModal = (props) => {
         >
           <Modal.CloseButton style={styles.close} size={8} />
           <Modal.Header
-            alignSelf={'flex-start'}
+            alignSelf="flex-start"
             borderBottomWidth={0}
-            backgroundColor={'transparent'}
+            backgroundColor="transparent"
           >
             <Text
               style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
+              fontFamily="body"
+              fontWeight="200"
               color={textColor}
               paddingBottom={1}
             >
               {title}
             </Text>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
           <Modal.Body>
             <View>
               <Image style={styles.dummy} source={tapsignerLogo} />
-              <Text color={textColor} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
-                {'incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam'}
+              <Text color={textColor} fontSize={13} fontFamily="body" fontWeight="100" p={2}>
+                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam
               </Text>
               <Link>
-                <Text color={'#00836A'} fontSize={13} fontFamily={'body'} fontWeight={'100'} p={2}>
-                  {'Learn More'}
+                <Text color="#00836A" fontSize={13} fontFamily="body" fontWeight="100" p={2}>
+                  Learn More
                 </Text>
               </Link>
             </View>
           </Modal.Body>
-          <Modal.Footer alignSelf={'flex-end'} bg={'transparent'}>
+          <Modal.Footer alignSelf="flex-end" bg="transparent">
             <TouchableOpacity onPress={close}>
               <Text
-                mr={'10%'}
-                mt={'13%'}
+                mr="10%"
+                mt="13%"
                 fontSize={13}
-                fontFamily={'body'}
-                fontWeight={'300'}
+                fontFamily="body"
+                fontWeight="300"
                 letterSpacing={1}
                 color={cancelButtonColor}
               >
@@ -84,8 +84,8 @@ const ApproveTransactionModal = (props) => {
               >
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   color={buttonTextColor}
                 >
@@ -98,7 +98,7 @@ const ApproveTransactionModal = (props) => {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default ApproveTransactionModal;
 

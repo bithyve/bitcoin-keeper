@@ -1,21 +1,20 @@
-import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
-import CustomYellowButton from '../CustomButton/CustomYellowButton';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const ChoosePlanCarousel = (props) => {
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import CustomYellowButton from '../CustomButton/CustomYellowButton';
+
+function ChoosePlanCarousel(props) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const [currentPosition, setCurrentPosition] = useState(subscription.level);
-
-  console.log('subscription', subscription.level);
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
@@ -35,7 +34,7 @@ const ChoosePlanCarousel = (props) => {
     return 'Upgrade';
   };
 
-  const _renderItem = ({ item, index }) => {
+  function _renderItem({ item, index }) {
     return (
       <Pressable onPress={() => _onSnapToItem(index)}>
         <Box
@@ -54,9 +53,9 @@ const ChoosePlanCarousel = (props) => {
             },
           ]}
         >
-          <Box py={5} alignItems={'center'} justifyContent={'center'}>
+          <Box py={5} alignItems="center" justifyContent="center">
             {subscription.productId === item.productId && (
-              <Box bg={'light.white'} borderRadius={10} px={2}>
+              <Box bg="light.white" borderRadius={10} px={2}>
                 <Text fontSize={RFValue(8)} letterSpacing={0.64} fontWeight={300}>
                   Current
                 </Text>
@@ -65,19 +64,19 @@ const ChoosePlanCarousel = (props) => {
             <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
             <Text
               fontSize={RFValue(13)}
-              fontWeight={'300'}
-              color={'light.textLight'}
+              fontWeight="300"
+              color="light.textLight"
               mt={2}
-              fontFamily={'body'}
+              fontFamily="body"
               letterSpacing={0.48}
             >
               {item.name}
             </Text>
             <Text
               fontSize={RFValue(10)}
-              color={'light.textLight'}
+              color="light.textLight"
               mb={2}
-              fontWeight={'200'}
+              fontWeight="200"
               letterSpacing={0.5}
             >
               {item.subTitle}
@@ -98,7 +97,7 @@ const ChoosePlanCarousel = (props) => {
         </Box>
       </Pressable>
     );
-  };
+  }
   return (
     <Box
       style={{
@@ -115,7 +114,7 @@ const ChoosePlanCarousel = (props) => {
       />
     </Box>
   );
-};
+}
 const styles = StyleSheet.create({
   wrapperView: {
     borderRadius: 20,

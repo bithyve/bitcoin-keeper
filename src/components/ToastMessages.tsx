@@ -6,14 +6,13 @@ const HexaToastMessages: React.FunctionComponent<{
   title: string;
   Image?: any;
   error?: boolean;
-}> = ({ title, Image, error }) => {
-  return (
+}> = ({ title, Image, error }) => (
     <Box
       bg={error ? 'error.500' : 'light.yellow1'}
-      flexDirection={'row'}
+      flexDirection="row"
       borderRadius={10}
-      alignItems={'center'}
-      justifyContent={'center'}
+      alignItems="center"
+      justifyContent="center"
       height={70}
       width={310}
       fontSize={13}
@@ -24,6 +23,5 @@ const HexaToastMessages: React.FunctionComponent<{
       </Text>
     </Box>
   );
-};
 
 export default HexaToastMessages;

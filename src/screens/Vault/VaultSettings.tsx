@@ -4,7 +4,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 
-//components and functions
+// components and functions
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
@@ -26,24 +26,24 @@ type Props = {
   Icon: boolean;
 };
 
-const Option = ({ title, subTitle, onPress, Icon }: Props) => {
+function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
     <Pressable
-      flexDirection={'row'}
-      alignItems={'center'}
-      width={'100%'}
+      flexDirection="row"
+      alignItems="center"
+      width="100%"
       style={{ marginVertical: hp(20) }}
       onPress={onPress}
     >
       {Icon && (
-        <Box w={'16%'}>
+        <Box w="16%">
           <BackupIcon />
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
         <Text
-          color={'light.lightBlack'}
-          fontFamily={'body'}
+          color="light.lightBlack"
+          fontFamily="body"
           fontWeight={200}
           fontSize={RFValue(14)}
           letterSpacing={1.12}
@@ -51,8 +51,8 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
           {title}
         </Text>
         <Text
-          color={'light.GreyText'}
-          fontFamily={'body'}
+          color="light.GreyText"
+          fontFamily="body"
           fontWeight={200}
           fontSize={RFValue(12)}
           letterSpacing={0.6}
@@ -60,14 +60,14 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
           {subTitle}
         </Text>
       </Box>
-      <Box w={'4%'}>
+      <Box w="4%">
         <Arrow />
       </Box>
     </Pressable>
   );
-};
+}
 
-const VaultSettings = ({ route }) => {
+function VaultSettings({ route }) {
   const navigtaion = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
 
@@ -81,7 +81,7 @@ const VaultSettings = ({ route }) => {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
-  const VaultCard = ({ vaultName, vaultBalance, vaultDescription }) => {
+  function VaultCard({ vaultName, vaultBalance, vaultDescription }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
@@ -98,16 +98,16 @@ const VaultSettings = ({ route }) => {
       >
         <Box
           marginTop={hp(17)}
-          flexDirection={'row'}
-          alignItems={'center'}
-          justifyContent={'space-between'}
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="space-between"
           style={{
             marginHorizontal: wp(20),
           }}
         >
           <Box>
             <Text
-              color={'light.white'}
+              color="light.white"
               letterSpacing={0.28}
               fontSize={RFValue(14)}
               fontWeight={200}
@@ -115,7 +115,7 @@ const VaultSettings = ({ route }) => {
               {vaultName}
             </Text>
             <Text
-              color={'light.white'}
+              color="light.white"
               letterSpacing={0.24}
               fontSize={RFValue(12)}
               fontWeight={100}
@@ -123,28 +123,28 @@ const VaultSettings = ({ route }) => {
               {vaultDescription}
             </Text>
           </Box>
-          <Text color={'light.white'} letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
             {vaultBalance}sats
           </Text>
         </Box>
       </LinearGradient>
     );
-  };
+  }
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
-          title={'Vault Settings'}
-          subtitle={'See the app settings screen and the items that will go in here.'}
+          title="Vault Settings"
+          subtitle="See the app settings screen and the items that will go in here."
           onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor={'light.textBlack'}
+          headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
         />
       </Box>
       <Box
-        borderBottomColor={'light.divider'}
+        borderBottomColor="light.divider"
         borderBottomWidth={0.2}
         marginTop={hp(60)}
         paddingX={wp(25)}
@@ -155,30 +155,30 @@ const VaultSettings = ({ route }) => {
           vaultBalance={getAmount(confirmed + unconfirmed)}
         />
       </Box>
-      <Box alignItems={'center'} paddingX={wp(25)}>
+      <Box alignItems="center" paddingX={wp(25)}>
         <Option
-          title={'Timelock Vault'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+          title="Timelock Vault"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
           onPress={() => {
             console.log('Wallet Details');
           }}
           Icon={false}
         />
         <Option
-          title={'Generate Descriptors'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+          title="Generate Descriptors"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
           onPress={() => { }}
           Icon={false}
         />
         <Option
-          title={'Consectetur'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+          title="Consectetur"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
           onPress={() => { }}
           Icon={false}
         />
         <Option
-          title={'Archived Vaults'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+          title="Archived Vaults"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
           onPress={() => {
             navigtaion.navigate('ArchivedVault');
           }}
@@ -187,18 +187,16 @@ const VaultSettings = ({ route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
+      <Box position="absolute" bottom={hp(45)} marginX={5}>
         <InfoBox
-          title={'Note'}
-          desciption={
-            'These settings are for your active wallet only and does not affect other wallets'
-          }
+          title="Note"
+          desciption="These settings are for your active wallet only and does not affect other wallets"
           width={250}
         />
       </Box>
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

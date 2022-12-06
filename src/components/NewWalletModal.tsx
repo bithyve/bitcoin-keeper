@@ -1,17 +1,17 @@
 import { Box, Modal, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
-import CheckBox from './Checkbox';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import KeeperModal from './KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import GoogleDrive from 'src/assets/images/drive.svg';
 import ICloud from 'src/assets/images/icloud.svg';
+import KeeperModal from './KeeperModal';
+import CheckBox from './Checkbox';
 
-const NewWalletModal = (props) => {
+function NewWalletModal(props) {
   const {
     visible,
     close,
@@ -41,7 +41,7 @@ const NewWalletModal = (props) => {
   const navigation = useNavigation();
 
   const { translations } = useContext(LocalizationContext);
-  const seed = translations['seed'];
+  const {seed} = translations;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
@@ -75,43 +75,43 @@ const NewWalletModal = (props) => {
     setPasswordModal(false);
   };
 
-  const RecoverWalletScreen = () => {
+  function RecoverWalletScreen() {
     const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
 
     return (
       <View>
         <View style={{ backgroundColor: '#FDF7F0', marginVertical: 20 }}>
-          <Box flexDirection={'row'} marginY={5} alignSelf={'center'}>
+          <Box flexDirection="row" marginY={5} alignSelf="center">
             {IconName}
-            <Text color={'#4F5955'} marginLeft={5} marginTop={1}>
+            <Text color="#4F5955" marginLeft={5} marginTop={1}>
               dastanp@gmail.com
             </Text>
           </Box>
-          <Box flexDirection={'row'} justifyContent={'space-between'}>
+          <Box flexDirection="row" justifyContent="space-between">
             <View>
-              <Text fontSize={12} color={'#4F5955'}>
+              <Text fontSize={12} color="#4F5955">
                 Folder: Blue Wallet Backup
               </Text>
-              <Text fontSize={12} color={'#4F5955'}>
+              <Text fontSize={12} color="#4F5955">
                 Pro Tier Backup
               </Text>
             </View>
             <View>
-              <Text fontSize={12} color={'#4F5955'}>
+              <Text fontSize={12} color="#4F5955">
                 Backed Up
               </Text>
-              <Text fontSize={12} color={'#4F5955'}>
+              <Text fontSize={12} color="#4F5955">
                 July 15, 2021
               </Text>
             </View>
           </Box>
         </View>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
     );
-  };
+  }
 
   return (
     <Modal
@@ -120,7 +120,7 @@ const NewWalletModal = (props) => {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      justifyContent={'flex-end'}
+      justifyContent="flex-end"
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
@@ -133,15 +133,15 @@ const NewWalletModal = (props) => {
             <Close />
           </TouchableOpacity>
           <Modal.Header
-            alignSelf={'flex-start'}
+            alignSelf="flex-start"
             borderBottomWidth={0}
-            backgroundColor={'transparent'}
-            width={'90%'}
+            backgroundColor="transparent"
+            width="90%"
           >
             <Text
               style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
+              fontFamily="body"
+              fontWeight="200"
               color={textColor}
               paddingBottom={1}
             >
@@ -149,10 +149,10 @@ const NewWalletModal = (props) => {
             </Text>
           </Modal.Header>
           <Modal.Body>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" fontWeight="200" color={textColor}>
               {createTitle}
             </Text>
-            <Text style={styles.subTitle2} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Text style={styles.subTitle2} fontFamily="body" fontWeight="200" color={textColor}>
               {createSubTitle}
             </Text>
           </Modal.Body>
@@ -169,10 +169,10 @@ const NewWalletModal = (props) => {
             />
           </Modal.Body>
           <Modal.Body>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" fontWeight="200" color={textColor}>
               {existingButtonTitle}
             </Text>
-            <Text style={styles.subTitle2} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Text style={styles.subTitle2} fontFamily="body" fontWeight="200" color={textColor}>
               {existingButtonSubTitle}
             </Text>
           </Modal.Body>
@@ -201,21 +201,21 @@ const NewWalletModal = (props) => {
             />
           </Modal.Body>
           <Modal.Body>
-            <Text style={styles.subTitle2} fontFamily={'body'} fontWeight={'200'} color={textColor}>
+            <Text style={styles.subTitle2} fontFamily="body" fontWeight="200" color={textColor}>
               {mainDesc}
             </Text>
           </Modal.Body>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Box bg={'transparent'} flexDirection={'row'} marginLeft={5} marginTop={4}>
-              <View style={styles.dot}></View>
-              <View style={styles.dash}></View>
+            <Box bg="transparent" flexDirection="row" marginLeft={5} marginTop={4}>
+              <View style={styles.dot} />
+              <View style={styles.dash} />
             </Box>
-            <Box bg={'transparent'} flexDirection={'row'} marginRight={5}>
+            <Box bg="transparent" flexDirection="row" marginRight={5}>
               <TouchableOpacity onPress={buttonCallback}>
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   marginTop={2}
                   color={buttonCancelColor}
@@ -233,8 +233,8 @@ const NewWalletModal = (props) => {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
+                    fontFamily="body"
+                    fontWeight="300"
                     letterSpacing={1}
                     color={buttonTextColor}
                   >
@@ -252,10 +252,10 @@ const NewWalletModal = (props) => {
           subTitle={seed.seedDescription}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Next'}
-          buttonTextColor={'#FAFAFA'}
+          buttonText="Next"
+          buttonTextColor="#FAFAFA"
           buttonCallback={passwordScreen}
-          textColor={'#041513'}
+          textColor="#041513"
           Content={RecoverWalletScreen}
         />
         {/* <PasswordModal
@@ -273,7 +273,7 @@ const NewWalletModal = (props) => {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default NewWalletModal;
 

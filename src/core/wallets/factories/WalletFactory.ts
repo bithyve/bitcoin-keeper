@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-
+import * as bitcoinJS from 'bitcoinjs-lib';
 import { EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
 import {
   Wallet,
@@ -36,7 +36,7 @@ export const generateWallet = async ({
   transferPolicy: number;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
-  let xpriv: string, xpub: string, id: string, derivationDetails: WalletDerivationDetails;
+  let xpriv: string; let xpub: string; let id: string; let derivationDetails: WalletDerivationDetails;
 
   switch (type) {
     case WalletType.READ_ONLY:
@@ -45,7 +45,7 @@ export const generateWallet = async ({
       break;
 
     default:
-      let mnemonic: string, bip85Config: BIP85Config;
+      let mnemonic: string; let bip85Config: BIP85Config;
       if (type === WalletType.IMPORTED) mnemonic = importedMnemonic;
       else {
         if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
@@ -120,4 +120,42 @@ export const generateWallet = async ({
     specs,
   };
   return wallet;
+};
+
+export const getCosignerDetails = (wallet: Wallet, appId: string) => {
+  const deviceId = appId;
+  const masterFingerprint = wallet.id;
+  const derivationPath = wallet.derivationDetails.xDerivationPath;
+  const {xpub} = wallet.specs;
+
+  return { deviceId, mfp: masterFingerprint, xpub, derivationPath };
+};
+
+export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
+  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+
+  let vin = 0;
+  PSBT.data.inputs.forEach((input) => {
+    if (!input.bip32Derivation) return 'signing failed: bip32Derivation missing';
+
+    const {path} = input.bip32Derivation[0];
+    const path_levels = path.split('/');
+
+    // const subPath = path_levels.splice(path_levels.length - 2)
+    const internal = parseInt(path_levels[path_levels.length - 2]) === 1;
+    const childIndex = parseInt(path_levels[path_levels.length - 1]);
+
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
+      wallet.specs.xpriv,
+      internal,
+      childIndex,
+      network
+    );
+    const keyPair = WalletUtilities.getKeyPair(privateKey, network);
+    PSBT.signInput(vin, keyPair);
+    vin += 1;
+  });
+
+  return PSBT.toBase64();
 };

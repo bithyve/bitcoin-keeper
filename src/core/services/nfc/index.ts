@@ -1,6 +1,7 @@
 import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
 
 import { Platform } from 'react-native';
+import { captureError } from '../sentry';
 
 const TNF_MAP = {
   EMPTY: 0x0,
@@ -17,13 +18,13 @@ const RTD_MAP = {
   TEXT: 'T', // [0x54]
   URI: 'U', // [0x55]
   SMART_POSTER: 'Sp', // [0x53, 0x70]
-  ALTERNATIVE_CARRIER: 'ac', //[0x61, 0x63]
+  ALTERNATIVE_CARRIER: 'ac', // [0x61, 0x63]
   HANDOVER_CARRIER: 'Hc', // [0x48, 0x63]
   HANDOVER_REQUEST: 'Hr', // [0x48, 0x72]
   HANDOVER_SELECT: 'Hs', // [0x48, 0x73]
 };
 function tnfValueToName(value) {
-  for (let name in TNF_MAP) {
+  for (const name in TNF_MAP) {
     if (value === TNF_MAP[name]) {
       return name;
     }
@@ -33,12 +34,12 @@ function tnfValueToName(value) {
 
 function rtdValueToName(value) {
   value = value.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-  for (let name in RTD_MAP) {
+  for (const name in RTD_MAP) {
     if (value === RTD_MAP[name]) {
       return name;
     }
   }
-  return null;
+  return value;
 }
 
 export default class NFC {
@@ -62,7 +63,7 @@ export default class NFC {
           } else if (rtdName === 'TEXT') {
             data = Ndef.text.decodePayload(record.payload as any);
           } else if (tnfName === 'EXTERNAL_TYPE') {
-            Buffer.from(record.payload).toString('base64');
+            data = Buffer.from(record.payload).toString('base64');
           } else {
             data = JSON.parse(Buffer.from(record.payload).toString());
           }
@@ -71,7 +72,7 @@ export default class NFC {
         return records;
       }
     } catch (error) {
-      console.log(error);
+      captureError(error);
       if (Platform.OS === 'ios') {
         await NfcManager.setAlertMessageIOS('Something went wrong!');
       }
@@ -79,6 +80,7 @@ export default class NFC {
       throw error;
     }
   };
+
   public static send = async (techRequest: NfcTech | NfcTech[], bytes: number[]) => {
     try {
       const supported = await NfcManager.isSupported();
@@ -102,15 +104,9 @@ export default class NFC {
     }
   };
 
-  public static encodeForColdCard = (message) => {
-    return Ndef.encodeMessage([Ndef.textRecord(message)]);
-  };
+  public static encodeForColdCard = (message) => Ndef.encodeMessage([Ndef.textRecord(message)]);
 
-  public static isNFCSupported = async () => {
-    return NfcManager.isSupported();
-  };
+  public static isNFCSupported = async () => NfcManager.isSupported();
 
-  public static showiOSMessage = async (message: string) => {
-    return NfcManager.setAlertMessageIOS(message);
-  };
+  public static showiOSMessage = async (message: string) => NfcManager.setAlertMessageIOS(message);
 }

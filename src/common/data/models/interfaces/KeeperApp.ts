@@ -1,7 +1,7 @@
 import { NodeConnect, TwoFADetails } from 'src/core/wallets/interfaces';
 
-import { BackupType } from '../../enums/BHR';
 import { NetworkType } from 'src/core/wallets/enums';
+import { BackupType } from '../../enums/BHR';
 import SubScription from './Subscription';
 
 export interface KeeperApp {

@@ -8,13 +8,13 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { hash512 } from 'src/core/services/operations/encryption';
 import Close from 'src/assets/icons/modal_close.svg';
 
-const FogotPassword = (props) => {
+function FogotPassword(props) {
   const [passwordText, setPasswordText] = useState('');
   const { resetCred } = useAppSelector((state) => state.storage);
   const [invalid, setInvalid] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
+  const {login} = translations;
 
   const getSeedIndexText = (seedNumber) => {
     switch (seedNumber) {
@@ -59,16 +59,16 @@ const FogotPassword = (props) => {
   }
 
   return (
-    <Box bg={'#F7F2EC'} p={10}>
+    <Box bg="#F7F2EC" p={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          bg={'#E3BE96'}
+          bg="#E3BE96"
           borderRadius={32}
           h={8}
           w={8}
-          alignItems={'center'}
-          justifyContent={'center'}
-          alignSelf={'flex-end'}
+          alignItems="center"
+          justifyContent="center"
+          alignSelf="flex-end"
         >
           <Close />
         </Box>
@@ -98,7 +98,7 @@ const FogotPassword = (props) => {
               fontWeight={500}
               fontSize={RFValue(13)}
             >
-              {" " + getSeedIndexText(resetCred.index + 1) + " "}
+              {` ${  getSeedIndexText(resetCred.index + 1)  } `}
             </Text>
             word
           </Text>
@@ -110,11 +110,11 @@ const FogotPassword = (props) => {
             borderWidth={0}
             borderRightRadius={10}
             placeholder="Enter Seed Word"
-            placeholderTextColor={'#2F2F2F'}
+            placeholderTextColor="#2F2F2F"
             fontSize={13}
-            fontWeight={'bold'}
-            color={'#000000'}
-            bg={'#FDF7F0'}
+            fontWeight="bold"
+            color="#000000"
+            bg="#FDF7F0"
             pl={5}
             py={4}
             my={6}
@@ -143,11 +143,11 @@ const FogotPassword = (props) => {
             borderWidth={0}
             borderRightRadius={10}
             placeholder="Enter Encryption Password"
-            placeholderTextColor={'#2F2F2F'}
+            placeholderTextColor="#2F2F2F"
             fontSize={13}
-            fontWeight={'bold'}
-            color={'#000000'}
-            bg={'#FDF7F0'}
+            fontWeight="bold"
+            color="#000000"
+            bg="#FDF7F0"
             pl={5}
             py={4}
             my={6}
@@ -156,14 +156,14 @@ const FogotPassword = (props) => {
           />
         </Box>
       )}
-      <Box alignSelf={'flex-end'}>
+      <Box alignSelf="flex-end">
         <CustomGreenButton
           onPress={onPressProceed}
-          value={'Proceed'}
+          value="Proceed"
           disabled={passwordText.trim() === ''}
         />
       </Box>
     </Box>
   );
-};
+}
 export default FogotPassword;

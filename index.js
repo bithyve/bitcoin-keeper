@@ -6,10 +6,10 @@ import 'react-native-gesture-handler';
 import './shim';
 import { AppRegistry, Text as NativeText } from 'react-native';
 import 'react-native-get-random-values';
+import { Text, Input } from "native-base";
 import App from './App';
 import { name as appName } from './app.json';
 import { enableAndroidFontFix } from './AndroidFontFix';
-import { Text, Input } from "native-base";
 
 enableAndroidFontFix();
 
