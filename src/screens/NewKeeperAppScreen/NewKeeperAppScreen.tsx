@@ -78,7 +78,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const {seed} = translations;
+  const { seed } = translations;
   const dispatch = useAppDispatch();
   const [cloudModal, setCloudModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
@@ -128,7 +128,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       setTimeout(() => {
         closePassword();
         closeLoaderModal();
-        navigation.navigate('App', { screen: 'NewHome' });
+        navigation.replace('App', { screen: 'NewHome' });
       }, 3000);
     }
   }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
@@ -307,7 +307,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title="Shake to send feedback"
         subTitle="Shake your device to send us a bug report or a feature request"
@@ -315,7 +315,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
-          navigation.navigate('App', { screen: 'NewHome' });
+          navigation.replace('App', { screen: 'NewHome' });
         }}
         subTitleColor="#5F6965"
         subTitleWidth={wp(210)}

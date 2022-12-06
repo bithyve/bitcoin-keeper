@@ -169,9 +169,9 @@ function WalletSettings({ route }) {
         navigation.goBack();
       }, 3000);
     } else if (testCoinsFailed) {
-        Alert.alert('Process Failed');
-        dispatch(setTestCoinsFailed(false));
-      }
+      Alert.alert('Process Failed');
+      dispatch(setTestCoinsFailed(false));
+    }
   }, [testCoinsReceived, testCoinsFailed]);
 
   const signPSBT = (serializedPSBT) => {
@@ -269,7 +269,7 @@ function WalletSettings({ route }) {
             title="Receive Test Sats"
             subTitle="Recieve Test Sats to this address"
             onPress={() => {
-              // setAppLoading(true);
+              setAppLoading(true);
               getTestSats();
             }}
             Icon={false}

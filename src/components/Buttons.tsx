@@ -15,6 +15,7 @@ function Buttons({
   secondaryDisable = false,
   primaryLoading = false,
   paddingHorizontal = wp(40),
+  activeOpacity = 0
 }) {
 
   const getPrimaryButton = () => {
@@ -22,39 +23,39 @@ function Buttons({
       return (
         <ActivityIndicator style={styles.createBtn} />
       );
-    } 
-      return (
-        <TouchableOpacity
-          onPress={primaryCallback}
-          disabled={primaryDisable}
+    }
+    return (
+      <TouchableOpacity
+        onPress={primaryCallback}
+        disabled={primaryDisable}
+        activeOpacity={activeOpacity}
+      >
+        <Shadow
+          distance={10}
+          startColor="#073E3926"
+          offset={[3, 4]}
         >
-          <Shadow
-            distance={10}
-            startColor="#073E3926"
-            offset={[3, 4]}
+          <Box
+            style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
+            bg={{
+              linearGradient: {
+                colors: ['light.lgStart', 'light.lgEnd'],
+                start: [0, 0],
+                end: [1, 1]
+              }
+            }}
           >
-            <Box
-              style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
-              bg={{
-                linearGradient: {
-                  colors: ['light.lgStart', 'light.lgEnd'],
-                  start: [0, 0],
-                  end: [1, 1]
-                }
-              }}
+            <Text
+              numberOfLines={1}
+              style={styles.btnText}
+              color="light.white"
             >
-              <Text
-                numberOfLines={1}
-                style={styles.btnText}
-                color="light.white"
-              >
-                {primaryText}
-              </Text>
-            </Box>
-          </Shadow>
-        </TouchableOpacity>
-      );
-    
+              {primaryText}
+            </Text>
+          </Box>
+        </Shadow>
+      </TouchableOpacity>
+    );
   }
 
   return (
@@ -63,7 +64,9 @@ function Buttons({
     >
       {secondaryText != '' && (
         <TouchableOpacity
-          style={[styles.cancelBtn, { opacity: secondaryDisable ? 0.5 : 1 }]}
+          style={[styles.cancelBtn, {
+            opacity: secondaryDisable ? 0.5 : 1
+          }]}
           onPress={secondaryCallback}
           disabled={secondaryDisable}
           activeOpacity={0.5}

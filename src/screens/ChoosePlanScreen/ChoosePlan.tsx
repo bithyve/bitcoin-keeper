@@ -82,7 +82,7 @@ const plans = [
 
 function ChoosePlan(props) {
   const { translations } = useContext(LocalizationContext);
-  const {choosePlan} = translations;
+  const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
@@ -139,10 +139,10 @@ function ChoosePlan(props) {
     try {
       if (Platform.OS === 'ios') {
         return subscription.localizedPrice;
-      } 
-        return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
-          .formattedPrice;
-      
+      }
+      return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
+        .formattedPrice;
+
     } catch (error) {
       console.log('error', error);
     }
@@ -209,9 +209,9 @@ function ChoosePlan(props) {
   const getBenifitsTitle = (name) => {
     if (name === 'Diamond Hands') {
       return `${name} means`;
-    } 
-      return `A ${name} gets`;
-    
+    }
+    return `A ${name} gets`;
+
   };
 
   return (
@@ -289,7 +289,7 @@ function ChoosePlan(props) {
             </Box>
           </ScrollView>
         )}
-        <Box position="absolute" bottom={-10} justifyContent="flex-end" width={wp(285)}>
+        <Box position="absolute" bottom={-10} justifyContent="flex-end" width={wp(330)}>
           <Note title="Note" subtitle={choosePlan.noteSubTitle} subtitleColor="GreyText" />
         </Box>
       </Box>

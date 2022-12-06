@@ -27,7 +27,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletOperations from 'src/core/wallets/operations';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import moment from 'moment';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -42,12 +42,12 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
       return VaultMigrationType.DOWNGRADE;
     } if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
-    } 
-      return VaultMigrationType.CHANGE;
-    
-  } 
+    }
     return VaultMigrationType.CHANGE;
-  
+
+  }
+  return VaultMigrationType.CHANGE;
+
 };
 
 export const checkSigningDevice = async (id) => {
@@ -245,10 +245,10 @@ function AddSigningDevice() {
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex  }st`;
-    if (mainIndex == 2) return `${mainIndex  }nd`;
-    if (mainIndex == 3) return `${mainIndex  }rd`;
-    return `${mainIndex  }th`;
+    if (mainIndex == 1) return `${mainIndex}st`;
+    if (mainIndex == 2) return `${mainIndex}nd`;
+    if (mainIndex == 3) return `${mainIndex}rd`;
+    return `${mainIndex}th`;
   };
 
   function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
@@ -266,7 +266,6 @@ function AddSigningDevice() {
                     numberOfLines={2}
                     alignItems="center"
                     letterSpacing={1.12}
-                    fontWeight={200}
                   >
                     {`Add ${getPlaceholder(index)} Signing Device`}
                   </Text>
@@ -325,7 +324,7 @@ function AddSigningDevice() {
   }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
-  const {common} = translations;
+  const { common } = translations;
   const AstrixSigners = [];
   signersState.forEach((signer: VaultSigner) => {
     if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))
@@ -359,9 +358,11 @@ function AddSigningDevice() {
           marginTop: hp(52),
         }}
       />
-      <Box width="100%">
+      <Box
+        style={styles.bottomContainer}>
         {AstrixSigners.length ? (
-          <Box padding="4">
+          <Box
+            style={styles.noteContainer}>
             <Note
               title={common.note}
               subtitle={`* ${AstrixSigners.join(
@@ -399,6 +400,16 @@ const styles = ScaledSheet.create({
     backgroundColor: '#FAC48B',
     justifyContent: 'center',
   },
+  bottomContainer: {
+    width: windowWidth,
+    position: 'absolute',
+    bottom: 35,
+    right: 20,
+    paddingLeft: 40
+  },
+  noteContainer: {
+    width: wp(330)
+  }
 });
 
 export default AddSigningDevice;
