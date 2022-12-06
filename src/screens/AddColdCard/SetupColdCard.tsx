@@ -1,4 +1,4 @@
-import { Alert, SafeAreaView, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import {
@@ -22,6 +22,7 @@ import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function SetupColdCard() {
   const dispatch = useDispatch();
@@ -68,7 +69,7 @@ function SetupColdCard() {
     ? 'Go to Settings > Multisig wallets > Export xPub on your Coldcard'
     : 'Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper>
       <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>
         <Box flex={1}>
           <Box style={styles.header}>
@@ -77,14 +78,14 @@ function SetupColdCard() {
               subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
               onPressHandler={() => navigation.goBack()}
             />
-            <Box style={{ padding: 30 }}>
+            <Box style={styles.buttonContainer}>
               <Buttons primaryText="Proceed" primaryCallback={addColdCard} />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} />
         </Box>
       </TapGestureHandler>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
@@ -98,6 +99,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: '5%',
   },
+  buttonContainer: {
+    bottom: 0,
+    position: 'absolute',
+    right: 0
+  }
 });
 
 export default SetupColdCard;
