@@ -203,7 +203,7 @@ function AppSettings({ navigation }) {
         >
           <Option
             title="App Backup"
-            subTitle="Seed words health check is due"
+            subTitle="Recovery Phrases health check is due"
             onPress={() => {
               navigation.navigate('BackupWallet');
             }}
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   socialMediaLinkWrapper: {
     width: wp(340),
     position: 'absolute',
-    bottom: -hp(20),
+    bottom: -hp(10),
     justifyContent: 'space-evenly',
   },
   socialMediaLinkWrapper2: {
