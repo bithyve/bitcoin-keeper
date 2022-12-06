@@ -33,8 +33,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 function EnterSeedScreen() {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const {seed} = translations;
-  const {common} = translations;
+  const { seed } = translations;
+  const { common } = translations;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -148,7 +148,7 @@ function EnterSeedScreen() {
   const getSeedWord = () => {
     let seedWord = '';
     for (let i = 0; i < 12; i++) {
-      seedWord += `${seedData[i].name  } `;
+      seedWord += `${seedData[i].name} `;
     }
     return seedWord.trim();
   };
@@ -185,16 +185,16 @@ function EnterSeedScreen() {
   }
 
   const getFormattedNumber = (number) => {
-    if (number < 9) return `0${  number + 1}`;
+    if (number < 9) return `0${number + 1}`;
     return number + 1;
   };
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex  }st`;
-    if (mainIndex == 2) return `${mainIndex  }nd`;
-    if (mainIndex == 3) return `${mainIndex  }rd`;
-    return `${mainIndex  }th`;
+    if (mainIndex == 1) return `${mainIndex}st`;
+    if (mainIndex == 2) return `${mainIndex}nd`;
+    if (mainIndex == 3) return `${mainIndex}rd`;
+    return `${mainIndex}th`;
   };
 
   return (
@@ -222,66 +222,64 @@ function EnterSeedScreen() {
               showsVerticalScrollIndicator={false}
               numColumns={2}
               contentContainerStyle={{
-                marginStart: 15,
+                margin: 15,
               }}
               renderItem={({ item, index }) => (
-                  <View
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 20,
+                    marginVertical: 10,
+                  }}
+                >
+                  <Text
                     style={{
-                      flexDirection: 'row',
-                      marginHorizontal: 20,
-                      marginVertical: 10,
+                      width: 22,
+                      fontSize: 16,
+                      color: '#00836A',
+                      marginTop: 8,
+                      letterSpacing: 1.23,
                     }}
+                    fontWeight="300"
                   >
-                    <Text
-                      style={{
-                        width: 22,
-                        fontSize: 16,
-                        color: '#00836A',
-                        marginTop: 8,
-                        letterSpacing: 1.23,
-                      }}
-                      fontWeight="300"
-                    >
-                      {getFormattedNumber(index)}
-                    </Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        item.invalid
-                          ? {
+                    {getFormattedNumber(index)}
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      item.invalid
+                        ? {
                             borderColor: '#F58E6F',
                           }
-                          : { borderColor: '#FDF7F0' },
-                      ]}
-                      placeholder={`enter ${getPlaceholder(index)} word`}
-                      value={item?.name}
-                      textContentType="none"
-                      returnKeyType="next"
-                      autoCorrect={false}
-                      autoCapitalize="none"
-                      keyboardType={
-                        Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
+                        : { borderColor: '#FDF7F0' },
+                    ]}
+                    placeholder={`Enter ${getPlaceholder(index)} phrase`}
+                    value={item?.name}
+                    textContentType="none"
+                    returnKeyType="next"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
+                    onChangeText={(text) => {
+                      const data = [...seedData];
+                      data[index].name = text.trim();
+                      setSeedData(data);
+                    }}
+                    onBlur={() => {
+                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
+                        const data = [...seedData];
+                        data[index].invalid = true;
+                        setSeedData(data);
                       }
-                      onChangeText={(text) => {
-                        const data = [...seedData];
-                        data[index].name = text.trim();
-                        setSeedData(data);
-                      }}
-                      onBlur={() => {
-                        if (!bip39.wordlists.english.includes(seedData[index].name)) {
-                          const data = [...seedData];
-                          data[index].invalid = true;
-                          setSeedData(data);
-                        }
-                      }}
-                      onFocus={() => {
-                        const data = [...seedData];
-                        data[index].invalid = false;
-                        setSeedData(data);
-                      }}
-                    />
-                  </View>
-                )}
+                    }}
+                    onFocus={() => {
+                      const data = [...seedData];
+                      data[index].invalid = false;
+                      setSeedData(data);
+                    }}
+                  />
+                </View>
+              )}
             />
           </View>
           <Text
@@ -391,9 +389,9 @@ const styles = ScaledSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 1, height: 10 },
     borderRadius: 10,
-    fontSize: 12,
-    height: 35,
-    width: 110,
+    fontSize: 11,
+    height: 40,
+    width: 122,
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
