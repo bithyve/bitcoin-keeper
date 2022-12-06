@@ -15,7 +15,6 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
@@ -33,6 +32,7 @@ import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
+import { getSignerNameFromType } from 'src/hardware';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -358,7 +358,7 @@ function SigningDeviceDetails({ route }) {
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
-            <Text fontSize={14} letterSpacing={1.15}>{signer.signerName}</Text>
+            <Text fontSize={14} letterSpacing={1.15}>{getSignerNameFromType(signer.type)}</Text>
             <Text fontSize={13} color="light.modalText">{`Added on ${moment(signer.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               .toLowerCase()}`}</Text>
@@ -444,7 +444,7 @@ function SigningDeviceDetails({ route }) {
           closeHealthCheck={closeEditDescription}
           title={vault.EditDescription}
           subTitle={vault.Description}
-          SignerName={signer.signerName}
+          SignerName={getSignerNameFromType(signer.type)}
           SignerDate={signer.lastHealthCheck}
           placeHolderName="Add Description"
           SignerIcon={SignerIcon}

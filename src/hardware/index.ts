@@ -61,7 +61,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Signing Server';
       break;
     case SignerType.SEED_WORDS:
-      name = 'Seed Words';
+      name = 'Soft Key';
       break;
     case SignerType.TAPSIGNER:
       name = 'TAPSIGNER';
@@ -77,12 +77,12 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       break;
   }
   if (isMock) {
-    return `${name  }**`;
+    return `${name}**`;
   } if (isAmf) {
-    return `${name  }*`;
-  } 
-    return name;
-  
+    return `${name}*`;
+  }
+  return name;
+
 };
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
