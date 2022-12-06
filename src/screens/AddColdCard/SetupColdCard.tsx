@@ -79,7 +79,10 @@ function SetupColdCard() {
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={styles.buttonContainer}>
-              <Buttons primaryText="Proceed" primaryCallback={addColdCard} />
+              <Buttons
+                activeOpacity={0.7}
+                primaryText="Proceed"
+                primaryCallback={addColdCard} />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} />
