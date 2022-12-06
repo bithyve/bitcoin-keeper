@@ -253,7 +253,7 @@ function EnterSeedScreen() {
                           }
                         : { borderColor: '#FDF7F0' },
                     ]}
-                    placeholder={`enter ${getPlaceholder(index)} word`}
+                    placeholder={`Enter ${getPlaceholder(index)} phrase`}
                     value={item?.name}
                     textContentType="none"
                     returnKeyType="next"
@@ -389,9 +389,9 @@ const styles = ScaledSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 1, height: 10 },
     borderRadius: 10,
-    fontSize: 12,
+    fontSize: 11,
     height: 40,
-    width: 120,
+    width: 122,
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
