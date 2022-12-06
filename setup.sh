@@ -9,16 +9,12 @@ cp mods/bitcoinjs-lib/psbt.js ./node_modules/bitcoinjs-lib/src/psbt.js
 cp mods/bitcoinjs-lib/psbt.d.ts ./node_modules/bitcoinjs-lib/types/psbt.d.ts
 
 # enabling node core modules
-rn-nodeify --install --hack --yarn
+rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto,constants --hack --yarn
 
-echo "patch cocoapods"
-cp ./rnPatchFiles/RNLocalize.podspec ./node_modules/react-native-localize/RNLocalize.podspec
-cp ./rnPatchFiles/react-native-netinfo.podspec ./node_modules/@react-native-community/netinfo/react-native-netinfo.podspec
-rm -rf ./node_modules/react-native-udp/ios/CocoaAsyncSocket/
-rm -rf ./node_modules/react-native-tcp/ios/CocoaAsyncSocket/
-cp ./rnPatchFiles/TcpSockets.podspec ./node_modules/react-native-tcp/TcpSockets.podspec
+# echo "patch cocoapods"
+
 # ios dependency installation
-cd ios && pod deintegrate && pod install
+cd ios && pod install
 
 # android SDK location configuration
 cd ../android && touch local.properties && echo "sdk.dir = /Users/$(whoami)/Library/Android/sdk" >local.properties
