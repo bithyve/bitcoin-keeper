@@ -111,6 +111,7 @@ const styles = ScaledSheet.create({
     width: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20
   },
   learnMoreContainer: {
     borderWidth: 0.5,
