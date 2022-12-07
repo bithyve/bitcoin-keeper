@@ -9,7 +9,7 @@ cp mods/bitcoinjs-lib/psbt.js ./node_modules/bitcoinjs-lib/src/psbt.js
 cp mods/bitcoinjs-lib/psbt.d.ts ./node_modules/bitcoinjs-lib/types/psbt.d.ts
 
 # enabling node core modules
-rn-nodeify --install --hack --yarn
+rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path,assert,crypto --hack --yarn
 
 echo "patch cocoapods"
 cp ./rnPatchFiles/RNLocalize.podspec ./node_modules/react-native-localize/RNLocalize.podspec
