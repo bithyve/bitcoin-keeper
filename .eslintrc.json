@@ -36,5 +36,9 @@
       "@typescript-eslint/parser": [".ts", ".tsx"]
     }
   },
-  "ignorePatterns": ["test-setup.js"]
+  "ignorePatterns": [
+    "test-setup.js",
+    "src/hardware/ledger/client/",
+    "src/core/services/qr/bc-ur-registry/"
+  ]
 }
