@@ -425,7 +425,7 @@
     "privacy": "privacy",
     "slide01Paragraph": "Use trusted signing devices (hardware wallets) for air-gapped signing or multi-sig. Add BIP 85 hot wallets or set up inheritance.",
     "slide02Title": "Security should not\ncome at the cost of",
-    "slide02Paragraph": "You do not need to register or provide any PII to use Keeper. Run your own node. Connect via. Tor.",
+    "slide02Paragraph": "You do not need to register or provide any PII to use Keeper. Run your own node. Connect via TOR.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
