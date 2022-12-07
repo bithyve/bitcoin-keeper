@@ -48,7 +48,6 @@ export const customTheme = extendTheme({
     body: 'RobotoCondensed-Regular',
     mono: 'RobotoCondensed-Regular',
   },
-
   colors: {
     light: {
       light: '#00836A',
@@ -108,7 +107,6 @@ export const customTheme = extendTheme({
       lgStart: Colors.linearGradientStart, // linearGradient
       lgEnd: Colors.linearGradientEnd, // linearGradient
       error: '#FF8F79',
-
     },
     dark: {
       black: '#000000',
@@ -119,13 +117,14 @@ export const customTheme = extendTheme({
   },
   components: {
     Text: {
-      baseStyle: (props) => ({
-          _light: {
-            color: 'light.lightBlack',
-            // fontFamily: 'RobotoCondensed-Regular',
-          },
-          _dark: { color: 'dark.black' },
-        }),
+      baseStyle: () => ({
+        _light: {
+          color: 'light.lightBlack',
+        },
+        _dark: { color: 'dark.black' },
+      }),
     },
   },
 });
+
+export default customTheme;

@@ -104,6 +104,10 @@ function ChoosePolicyNew({ navigation, route }) {
               value={value}
               showSoftInputOnFocus={false}
               onFocus={() => Keyboard.dismiss()}
+              selection={{
+                start: 0,
+                end: 0
+              }}
             />
           </Box>
         </Box>
@@ -153,7 +157,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
+          clear={() => { }}
           color="#073E39"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
