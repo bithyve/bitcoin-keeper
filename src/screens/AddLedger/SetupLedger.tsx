@@ -49,7 +49,7 @@ function AddLedger() {
   const [connecting, setConnecting] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const {ledger} = translations;
+  const { ledger } = translations;
   const open = () => setVisible(true);
   const navigation = useNavigation();
   const close = () => {
@@ -108,7 +108,9 @@ function AddLedger() {
             <ActivityIndicator />
           ) : (
             <Box ml={wp(21)}>
-              {allDevices.map((device) => <Item device={device} />)}
+              {allDevices.map((device) => (
+                <Item device={device} />
+              ))}
             </Box>
           )}
           <Box marginTop="4">
@@ -127,7 +129,7 @@ function AddLedger() {
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
-  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
+  const isAMF = false;
 
   const addLedger = async () => {
     try {

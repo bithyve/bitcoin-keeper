@@ -45,10 +45,10 @@ function SetupColdCard() {
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
       });
-      const exsists = await checkSigningDevice(coldcard.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
       dispatch(addSigningDevice(coldcard));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      const exsists = await checkSigningDevice(coldcard.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
       captureError(error);
     }

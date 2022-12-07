@@ -7,7 +7,6 @@ import { AppContextProvider } from 'src/common/content/AppContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { NativeBaseProvider } from 'native-base';
-import { Ndef } from 'react-native-nfc-manager';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { sentryConfig } from 'src/core/services/sentry';
@@ -57,11 +56,13 @@ function App() {
 }
 
 function AppWrapper() {
-  return <PersistGate persistor={persistor} loading={null}>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </PersistGate>
+  return (
+    <PersistGate persistor={persistor} loading={null}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </PersistGate>
+  );
 }
 
 const SentryApp = Sentry.wrap(AppWrapper);

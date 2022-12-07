@@ -70,10 +70,10 @@ function SetupTapsigner() {
         signerType: SignerType.TAPSIGNER,
         storageType: SignerStorage.COLD,
       });
-      const exsists = await checkSigningDevice(tapsigner.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (err) {
       let message: string;
       if (err.toString().includes('401')) {
