@@ -401,11 +401,11 @@ PODS:
     - RCTTypeSafety
     - React
     - ReactCommon/turbomodule/core
-  - react-native-tor (0.1.8):
-    - React
-  - react-native-udp (4.1.5):
+  - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
+  - react-native-tor (0.1.8):
+    - React
   - react-native-video (5.2.0):
     - React-Core
     - react-native-video/Video (= 5.2.0)
@@ -499,8 +499,6 @@ PODS:
     - React-Core
   - RNLocalize (2.2.2):
     - React-Core
-  - RNOS (1.2.6):
-    - React
   - RNPermissions (3.6.1):
     - React-Core
   - RNReanimated (2.9.1):
@@ -542,9 +540,6 @@ PODS:
     - Sentry/Core (= 7.24.1)
   - Sentry/Core (7.24.1)
   - SocketRocket (0.6.0)
-  - TcpSockets (4.0.0):
-    - CocoaAsyncSocket
-    - React
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -609,8 +604,8 @@ DEPENDENCIES:
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-tor (from `../node_modules/react-native-tor`)
-  - react-native-udp (from `../node_modules/react-native-udp`)
   - react-native-video (from `../node_modules/react-native-video`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -634,13 +629,11 @@ DEPENDENCIES:
   - RNInstabug (from `../node_modules/instabug-reactnative`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
-  - RNOS (from `../node_modules/react-native-os`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
-  - TcpSockets (from `../node_modules/react-native-tcp`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -742,10 +735,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-tcp-socket:
+    :path: "../node_modules/react-native-tcp-socket"
   react-native-tor:
     :path: "../node_modules/react-native-tor"
-  react-native-udp:
-    :path: "../node_modules/react-native-udp"
   react-native-video:
     :path: "../node_modules/react-native-video"
   React-perflogger:
@@ -792,8 +785,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
-  RNOS:
-    :path: "../node_modules/react-native-os"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -804,8 +795,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  TcpSockets:
-    :path: "../node_modules/react-native-tcp"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -869,8 +858,8 @@ SPEC CHECKSUMS:
   react-native-pdf: 33c622cbdf776a649929e8b9d1ce2d313347c4fa
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 6c12e3859b6f27b25de4fee8201cfb858432d8de
+  react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-udp: 8864b1211857e9d8224ae5cbaf8580970fb99de1
   react-native-video: a4c2635d0802f983594b7057e1bce8f442f0ad28
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
@@ -894,7 +883,6 @@ SPEC CHECKSUMS:
   RNInstabug: 7c6c25176a8fca8f6269031c9ef93629d6cc1804
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
-  RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
   RNReanimated: 5c8c17e26787fd8984cd5accdc70fef2ca70aafd
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
@@ -902,7 +890,6 @@ SPEC CHECKSUMS:
   RNSVG: f3b60aeeaa81960e2e0536c3a9eef50b667ef3a9
   Sentry: 1ed2d3f2973658bf6ab7ed43857c8e321a1625dd
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
-  TcpSockets: a8eb6b5867fe643e6cfed5db2e4de62f4d1e8fd0
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
