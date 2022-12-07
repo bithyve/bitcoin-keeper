@@ -19,7 +19,6 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletDetails from './WalletDetails';
-import Transactions from './Transactions';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -90,9 +89,12 @@ function AddSendAmount({ route }) {
     }
   }, [sendPhaseOneState]);
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       dispatch(sendPhaseOneReset());
-    }, []);
+    },
+    []
+  );
 
   return (
     <ScreenWrapper>
@@ -168,12 +170,7 @@ function AddSendAmount({ route }) {
           marginVertical: hp(20),
         }}
       >
-        <Box
-          borderBottomColor="light.Border"
-          borderBottomWidth={1}
-          width={wp(280)}
-          opacity={0.1}
-        />
+        <Box borderBottomColor="light.Border" borderBottomWidth={1} width={wp(280)} opacity={0.1} />
       </Box>
       <Box marginX={3}>
         <Box
@@ -226,12 +223,7 @@ function AddSendAmount({ route }) {
               borderRadius: 5,
             }}
           >
-            <Text
-              color="light.sendMax"
-              fontSize={RFValue(12)}
-              letterSpacing={0.6}
-              fontWeight={300}
-            >
+            <Text color="light.sendMax" fontSize={RFValue(12)} letterSpacing={0.6} fontWeight={300}>
               Send Max
             </Text>
           </Pressable>
