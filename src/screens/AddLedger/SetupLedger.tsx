@@ -129,7 +129,7 @@ function AddLedger() {
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
   };
 
-  const isAMF = false;
+  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
 
   const addLedger = async () => {
     try {
