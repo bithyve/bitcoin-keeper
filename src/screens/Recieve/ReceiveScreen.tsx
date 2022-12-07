@@ -28,8 +28,8 @@ function ReceiveScreen({ route }: { route }) {
   const [paymentURI, setPaymentURI] = useState(null);
 
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
-  const {home} = translations;
+  const { common } = translations;
+  const { home } = translations;
 
   useEffect(() => {
     const receivingAddress = getNextFreeAddress(wallet);
@@ -73,7 +73,7 @@ function ReceiveScreen({ route }: { route }) {
             width="100%"
             noOfLines={1}
           >
-            Recieve Address
+            Receive Address
           </Text>
         </Box>
       </Box>

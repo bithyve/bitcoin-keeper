@@ -262,7 +262,7 @@ function WalletSettings({ route }) {
 
           <Option
             title="Receive Test Sats"
-            subTitle="Recieve Test Sats to this address"
+            subTitle="Receive Test Sats to this address"
             onPress={() => {
               setAppLoading(true);
               getTestSats();
