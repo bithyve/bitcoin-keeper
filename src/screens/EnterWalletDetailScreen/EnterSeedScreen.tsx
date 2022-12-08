@@ -209,7 +209,7 @@ function EnterSeedScreen() {
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.recoveryPhrase}
+              title={seed.enterRecoveryPhrase}
               subtitle={seed.recoverWallet}
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
