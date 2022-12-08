@@ -146,7 +146,7 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setLoadingContent({
       title: 'Please Wait',
-      subtitle: 'Recieving test sats',
+      subtitle: 'Receiving test sats',
       message: '',
     });
 
