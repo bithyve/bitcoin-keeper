@@ -17,11 +17,9 @@ import {
   sendPhaseOneExecuted,
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
-  setAverageTxFee,
-  setExchangeRates,
   setSendMaxFee,
-  updatePSBTEnvelops,
 } from '../reducers/send_and_receive';
+import { setAverageTxFee, setExchangeRates } from '../reducers/network';
 import {
   CALCULATE_CUSTOM_FEE,
   CALCULATE_SEND_MAX_FEE,
@@ -36,8 +34,6 @@ import {
   SendPhaseOneAction,
   SendPhaseThreeAction,
   SendPhaseTwoAction,
-  UPDATE_PSBT_SIGNATURES,
-  UpdatePSBTAction,
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
@@ -72,7 +68,7 @@ export const feeAndExchangeRatesWatcher = createWatcher(
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   const { wallet, recipients } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
-    (state) => state.sendAndReceive.averageTxFees
+    (state) => state.network.averageTxFees
   );
   if (!averageTxFees) {
     yield put(
@@ -235,7 +231,7 @@ export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PH
 function* corssTransferWorker({ payload }: CrossTransferAction) {
   const { sender, recipient, amount } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
-    (state) => state.sendAndReceive.averageTxFees
+    (state) => state.network.averageTxFees
   );
   if (!averageTxFees) {
     yield put(
@@ -289,7 +285,7 @@ export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRA
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { numberOfRecipients, wallet } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
-    (state) => state.sendAndReceive.averageTxFees
+    (state) => state.network.averageTxFees
   );
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
   const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];

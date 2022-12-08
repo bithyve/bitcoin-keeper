@@ -1,4 +1,4 @@
-import { SigningPayload, TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
+import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
 
 import { Action } from 'redux';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
@@ -22,7 +22,6 @@ export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
-export const UPDATE_PSBT_SIGNATURES = 'UPDATE_PSBT_SIGNATURES';
 export const SEND_PHASE_THREE = 'SEND_PHASE_THREE';
 export const SENDING_FAILED = 'SENDING_FAILED';
 export const SENDING_SUCCEEDED = 'SENDING_SUCCEEDED';
@@ -175,16 +174,6 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
-  };
-}
-
-export interface UpdatePSBTAction extends Action {
-  type: typeof UPDATE_PSBT_SIGNATURES;
-  payload: {
-    signedSerializedPSBT?: string;
-    signingPayload?: SigningPayload[];
-    signerId: string;
-    txHex?: string;
   };
 }
 

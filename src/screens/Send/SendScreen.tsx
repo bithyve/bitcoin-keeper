@@ -39,10 +39,10 @@ import { useNavigation } from '@react-navigation/native';
 function SendScreen({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const {wallet} = route.params;
+  const { wallet } = route.params;
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
-  const {home} = translations;
+  const { common } = translations;
+  const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -57,7 +57,7 @@ function SendScreen({ route }) {
     });
   }, []);
 
-  const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+  const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const navigateToNext = (address: string, amount?: string, from = 'Address') => {
     if (!avgFees) {
@@ -86,7 +86,6 @@ function SendScreen({ route }) {
         navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
-        
     }
   };
 
@@ -155,13 +154,7 @@ function SendScreen({ route }) {
 
           {/* Send to Wallet options */}
           <Box marginTop={hp(40)}>
-            <Text
-              marginX={5}
-              fontWeight={200}
-              fontFamily="body"
-              fontSize={14}
-              letterSpacing={1.12}
-            >
+            <Text marginX={5} fontWeight={200} fontFamily="body" fontSize={14} letterSpacing={1.12}>
               or send to a wallet
             </Text>
             <View>
