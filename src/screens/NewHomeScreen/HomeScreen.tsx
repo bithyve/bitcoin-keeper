@@ -1,7 +1,6 @@
 import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ImageBackground, Platform, TouchableOpacity } from 'react-native';
-import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
@@ -38,7 +37,6 @@ import { useDispatch } from 'react-redux';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import KeeperModal from 'src/components/KeeperModal';
 import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
-import config from 'src/core/config';
 import { WalletMap } from '../Vault/WalletMap';
 import UaiDisplay from './UaiDisplay';
 
@@ -51,7 +49,7 @@ function InheritanceComponent() {
   const [visible, setVisible] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const {wallet} = translations;
+  const { wallet } = translations;
   const onPress = () => {
     navigation.navigate('SetupInheritance');
   };
@@ -73,12 +71,7 @@ function InheritanceComponent() {
         <Box marginLeft={wp(9.75)} flexDirection="row" alignItems="center">
           <Inheritance />
           <Box marginLeft={wp(18)}>
-            <Text
-              color="light.white1"
-              letterSpacing={0.8}
-              fontSize={RFValue(16)}
-              fontWeight={200}
-            >
+            <Text color="light.white1" letterSpacing={0.8} fontSize={RFValue(16)} fontWeight={200}>
               Inheritance
             </Text>
             <Text
@@ -134,7 +127,7 @@ function LinkedWallets(props) {
     <Pressable
       style={{
         alignItems: 'center',
-        marginTop: hp(8)
+        marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
@@ -151,12 +144,7 @@ function LinkedWallets(props) {
         <Box marginLeft={wp(9.75)} flexDirection="row" alignItems="center">
           <LinkedWallet />
           <Box marginLeft={wp(18)} flexDirection="row" alignItems="center">
-            <Text
-              color="light.white1"
-              letterSpacing={1.76}
-              fontSize={RFValue(22)}
-              fontWeight={200}
-            >
+            <Text color="light.white1" letterSpacing={1.76} fontSize={RFValue(22)} fontWeight={200}>
               {wallets?.length}
             </Text>
             <Text
@@ -200,8 +188,8 @@ function VaultStatus(props) {
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const vaultTranslations = translations.vault;
-  const {wallet} = translations;
-  const {common} = translations;
+  const { wallet } = translations;
+  const { common } = translations;
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const Vault: Vault =
@@ -304,12 +292,7 @@ function VaultStatus(props) {
               alignItems: 'center',
             }}
           >
-            <Text
-              color="light.white1"
-              letterSpacing={0.8}
-              fontSize={RFValue(16)}
-              fontWeight={300}
-            >
+            <Text color="light.white1" letterSpacing={0.8} fontSize={RFValue(16)} fontWeight={300}>
               Your Vault
             </Text>
 
@@ -352,7 +335,7 @@ function VaultStatus(props) {
           <HStack
             style={{
               alignItems: 'center',
-              marginTop: hp(windowHeight > 700 ? 20 : 10)
+              marginTop: hp(windowHeight > 700 ? 20 : 10),
             }}
           >
             <BTC style={{ height: '20%' }} />
@@ -368,12 +351,7 @@ function VaultStatus(props) {
                   >
                     {getAmount(vaultBalance)}
                   </Text>
-                  <Text
-                    color="light.white1"
-                    letterSpacing={0.6}
-                    fontSize={hp(12)}
-                    fontWeight={200}
-                  >
+                  <Text color="light.white1" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
                     {getUnit()}
                   </Text>
                 </Box>
@@ -414,11 +392,11 @@ function VaultInfo() {
   function getPlanIcon() {
     if (subscription.name.toLowerCase().includes('diamond')) {
       return <DiamondHandsFocused />;
-    } if (subscription.name.toLowerCase().includes('hodler')) {
+    }
+    if (subscription.name.toLowerCase().includes('hodler')) {
       return <HodlerFocused />;
-    } 
-      return <PlebFocused />;
-    
+    }
+    return <PlebFocused />;
   }
 
   return (
@@ -433,12 +411,7 @@ function VaultInfo() {
       style={styles.linearGradient}
     >
       <Box paddingX={10} alignItems="center">
-        <Box
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
-          width="100%"
-        >
+        <Box flexDirection="row" alignItems="center" justifyContent="space-between" width="100%">
           <Pressable
             justifyContent="center"
             alignItems="center"
@@ -503,21 +476,6 @@ function HomeScreen({ navigation }) {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
 
-  useEffect(() => {
-    try {
-      Instabug.start(config.INSTABUG_TOKEN, [Instabug.invocationEvent.shake]);
-      BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
-      BugReporting.setInvocationEvents([
-        Instabug.invocationEvent.shake,
-      ]);
-      BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
-      BugReporting.setShakingThresholdForiPhone(1.0);
-      Instabug.setPrimaryColor('rgb(7, 62, 57)');
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
   return (
     <Box flex={1} backgroundColor="light.lightYellow" position="relative">
       <VaultInfo />
@@ -535,7 +493,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
