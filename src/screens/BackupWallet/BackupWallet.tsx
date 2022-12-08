@@ -31,7 +31,7 @@ type Props = {
 function BackupWallet() {
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
+  const { BackupWallet } = translations;
   const { backupMethod, loading, isBackupError, backupError, cloudBackupCompleted } =
     useAppSelector((state) => state.bhr);
   const [cloudBackupModal, setCloudBackupModal] = useState(false);

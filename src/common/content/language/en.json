@@ -317,7 +317,8 @@
     "longing": "longing",
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
-    "recoveryPhrase": "Recovery Phrase"
+    "recoveryPhrase": "Recovery Phrase",
+    "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",
@@ -451,7 +452,7 @@
     "home": "Home",
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
-    "exportAppSeed": "Export app individual seeds",
+    "exportAppSeed": "Export app individual phrase",
     "backupOnCloud": "Backup on cloud service",
     "appGeneratePassTitle": "App Generated Password",
     "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",

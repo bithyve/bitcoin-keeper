@@ -40,14 +40,13 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
-    } if (currentScheme.m < subscriptionScheme.m) {
+    }
+    if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
     }
     return VaultMigrationType.CHANGE;
-
   }
   return VaultMigrationType.CHANGE;
-
 };
 
 export const checkSigningDevice = async (id) => {
@@ -358,11 +357,9 @@ function AddSigningDevice() {
           marginTop: hp(52),
         }}
       />
-      <Box
-        style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer}>
         {AstrixSigners.length ? (
-          <Box
-            style={styles.noteContainer}>
+          <Box style={styles.noteContainer}>
             <Note
               title={common.note}
               subtitle={`* ${AstrixSigners.join(
@@ -405,11 +402,11 @@ const styles = ScaledSheet.create({
     position: 'absolute',
     bottom: 35,
     right: 20,
-    paddingLeft: 40
+    paddingLeft: 40,
   },
   noteContainer: {
-    width: wp(330)
-  }
+    width: wp(330),
+  },
 });
 
 export default AddSigningDevice;
