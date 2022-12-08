@@ -2,8 +2,8 @@
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import ElectrumCli from 'electrum-client';
-
-// const reverse = require('buffer-reverse');
+import reverse from 'buffer-reverse';
+import * as bitcoinJS from 'bitcoinjs-lib';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '35.177.46.45', ssl: '50002' }],
@@ -103,5 +103,48 @@ export default class ElectrumClient {
 
     const peer = ElectrumClient.getCurrentPeer();
     return peer;
+  }
+
+  public static splitIntoChunks(arr, chunkSize) {
+    const groups = [];
+    for (let itr = 0; itr < arr.length; itr += chunkSize)
+      groups.push(arr.slice(itr, itr + chunkSize));
+    return groups;
+  }
+
+  public static async syncBalanceByAddresses(addresses: string[], batchsize: number = 150) {
+    if (!this.electrumClient) throw new Error('Electrum client is not connected');
+    const res = { balance: 0, unconfirmed_balance: 0, addresses: {} };
+
+    const chunks = this.splitIntoChunks(addresses, batchsize);
+    for (let itr = 0; itr < chunks.length; itr += 1) {
+      const chunk = chunks[itr];
+      const scripthashes = [];
+      const scripthash2addr = {};
+
+      for (let index = 0; index < chunk.length; index += 1) {
+        const addr = chunk[index];
+        const script = bitcoinJS.address.toOutputScript(addr);
+        const hash = bitcoinJS.crypto.sha256(script);
+        const reversedHash = Buffer.from(reverse(hash));
+        const reversedHashHex = reversedHash.toString('hex');
+        scripthashes.push(reversedHashHex);
+        scripthash2addr[reversedHashHex] = addr;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const balances = await this.electrumClient.blockchainScripthash_getBalanceBatch(scripthashes);
+
+      for (let index = 0; index < balances.length; index += 1) {
+        const bal = balances[index];
+        if (bal.error) console.log('syncBalanceByAddresses:', bal.error);
+
+        res.balance += +bal.result.confirmed;
+        res.unconfirmed_balance += +bal.result.unconfirmed;
+        res.addresses[scripthash2addr[bal.param]] = bal.result;
+      }
+    }
+
+    return res;
   }
 }
