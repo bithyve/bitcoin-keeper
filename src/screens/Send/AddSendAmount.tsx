@@ -43,8 +43,6 @@ function AddSendAmount({ route }) {
   const [amount, setAmount] = useState(prefillAmount || '');
   const [recipientCount, setReicipientCount] = useState(1);
 
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  console.log('isKeyboardVisible', isKeyboardVisible);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
@@ -55,21 +53,6 @@ function AddSendAmount({ route }) {
       setAmount(`${sendMaxBalance}`);
     }
   }, [sendMaxFee]);
-
-  // keyboard status
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true); // or some other action
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false); // or some other action
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
 
   const navigateToNext = (recipients) => {
     navigation.navigate('SendConfirmation', {
