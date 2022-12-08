@@ -216,7 +216,7 @@ function WalletSettings({ route }) {
         style={{
           marginLeft: wp(25),
         }}
-        height={hp(400)}
+        height={hp(425)}
       >
         <ScrollView>
           <Option
@@ -294,7 +294,7 @@ function WalletSettings({ route }) {
       <Box
         style={{
           position: 'absolute',
-          bottom: hp(30),
+          bottom: hp(35),
           marginLeft: 26,
           width: '90%',
         }}
@@ -379,7 +379,7 @@ function WalletSettings({ route }) {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
 });
