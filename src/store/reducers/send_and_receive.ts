@@ -156,7 +156,7 @@ const sendAndReceiveSlice = createSlice({
     },
 
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
-      const {transactionFeeInfo} = state;
+      const { transactionFeeInfo } = state;
       let txPrerequisites: TransactionPrerequisite;
       let recipients;
       const { successful, outputs, err } = action.payload;
@@ -197,6 +197,7 @@ const sendAndReceiveSlice = createSlice({
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
       const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
+      console.log({ signerId, signingPayload, signedSerializedPSBT, txHex });
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
         serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {

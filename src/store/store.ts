@@ -31,7 +31,7 @@ export type AppDispatch = typeof store.dispatch;
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  blacklist: ['login', 'bhr'],
+  blacklist: ['login', 'bhr', 'sendAndReceive'],
   version: 1,
 };
 

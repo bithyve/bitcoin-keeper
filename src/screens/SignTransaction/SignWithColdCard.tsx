@@ -7,9 +7,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/rightarrow.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
-import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { NfcTech } from 'react-native-nfc-manager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -19,8 +17,8 @@ import {
   receiveTxHexFromColdCard,
   registerToColcard,
 } from 'src/hardware/coldcard';
-import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useDispatch } from 'react-redux';
+import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -87,11 +85,11 @@ function SignWithColdCard({ route }) {
     if (!isMultisig) {
       const { txn } = await receiveTxHexFromColdCard();
       setNfcVisible(false);
-      dispatch(updatePSBTSignatures({ signerId: signer.signerId, txHex: txn }));
+      dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
     } else {
       const { psbt } = await receivePSBTFromColdCard();
       setNfcVisible(false);
-      dispatch(updatePSBTSignatures({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+      dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
     }
   };
   const registerCC = async () => {
@@ -159,45 +157,45 @@ function SignWithColdCard({ route }) {
         title="Need help with Coldcard?"
         subTitle="Try to map the error on your Coldcard to one of the options here"
         Content={() => (
-            <Box>
-              <TouchableOpacity
-                onPress={() => {
-                  showMk4Helper(false);
-                  registerCC();
-                }}
-                activeOpacity={0.8}
-                style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
-              >
-                <VStack width="97%">
-                  <Text fontSize={14} fontFamily="body">
-                    Manually Register Mk4
-                  </Text>
-                  <Text fontSize={12} fontFamily="body">
-                    Please resigister the Vault if not already registered
-                  </Text>
-                </VStack>
-                <Arrow />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  showMk4Helper(false);
-                  Linking.openURL('https://coldcard.com/docs/');
-                }}
-                activeOpacity={0.8}
-                style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
-              >
-                <VStack width="97%">
-                  <Text fontSize={14} fontFamily="body">
-                    Learn more about Mk4
-                  </Text>
-                  <Text fontSize={12} fontFamily="body">
-                    Here you will find all of our User Documentation for the COLDCARD.
-                  </Text>
-                </VStack>
-                <Arrow />
-              </TouchableOpacity>
-            </Box>
-          )}
+          <Box>
+            <TouchableOpacity
+              onPress={() => {
+                showMk4Helper(false);
+                registerCC();
+              }}
+              activeOpacity={0.8}
+              style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
+            >
+              <VStack width="97%">
+                <Text fontSize={14} fontFamily="body">
+                  Manually Register Mk4
+                </Text>
+                <Text fontSize={12} fontFamily="body">
+                  Please resigister the Vault if not already registered
+                </Text>
+              </VStack>
+              <Arrow />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                showMk4Helper(false);
+                Linking.openURL('https://coldcard.com/docs/');
+              }}
+              activeOpacity={0.8}
+              style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
+            >
+              <VStack width="97%">
+                <Text fontSize={14} fontFamily="body">
+                  Learn more about Mk4
+                </Text>
+                <Text fontSize={12} fontFamily="body">
+                  Here you will find all of our User Documentation for the COLDCARD.
+                </Text>
+              </VStack>
+              <Arrow />
+            </TouchableOpacity>
+          </Box>
+        )}
       />
       <NfcPrompt visible={nfcVisible} />
     </ScreenWrapper>

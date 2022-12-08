@@ -110,7 +110,6 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
         err: err.message,
       })
     );
-    
   }
 }
 
@@ -173,23 +172,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 }
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
-
-function* updatePSBTSignaturesWorker({ payload }: UpdatePSBTAction) {
-  const { signerId, signedSerializedPSBT, signingPayload, txHex } = payload;
-  yield put(
-    updatePSBTEnvelops({
-      signerId,
-      signedSerializedPSBT,
-      signingPayload,
-      txHex,
-    })
-  );
-}
-
-export const updatePSBTSignaturesWatcher = createWatcher(
-  updatePSBTSignaturesWorker,
-  UPDATE_PSBT_SIGNATURES
-);
 
 function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
@@ -299,7 +281,6 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     } else throw new Error('Failed to generate txPrerequisites for cross transfer');
   } catch (err) {
     console.log({ err });
-    
   }
 }
 
@@ -311,7 +292,7 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     (state) => state.sendAndReceive.averageTxFees
   );
   const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-  const {feePerByte} = averageTxFeeByNetwork[TxPriority.LOW];
+  const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { fee } = WalletOperations.calculateSendMaxFee(
