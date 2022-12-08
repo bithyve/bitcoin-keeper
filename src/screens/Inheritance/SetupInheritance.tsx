@@ -195,6 +195,7 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
     width: wp(340)
   },
+
   message: {
     opacity: 0.85,
     fontSize: 12,

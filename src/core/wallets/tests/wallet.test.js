@@ -1,14 +1,19 @@
+/* eslint-disable no-undef */
 import Relay from 'src/core/services/operations/Relay';
-
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 import WalletOperations from '../operations';
 import WalletUtilities from '../operations/utils';
+import { WalletType, NetworkType, TxPriority } from '../enums';
+import { generateWallet } from '../factories/WalletFactory';
 
-const { WalletType, NetworkType, TxPriority } = require('../enums');
-const { generateWallet } = require('../factories/WalletFactory');
-
-describe('Testing wallet primitives', () => {
-  let primaryMnemonic; let walletShell; let wallet; let averageTxFees; let txPrerequisites; let txnPriority; let PSBT;
+describe('Wallet primitives', () => {
+  let primaryMnemonic;
+  let walletShell;
+  let wallet;
+  let averageTxFees;
+  let txPrerequisites;
+  let txnPriority;
+  let PSBT;
 
   beforeAll(() => {
     primaryMnemonic =
@@ -46,13 +51,17 @@ describe('Testing wallet primitives', () => {
   test('wallet operations: fetching balance, utxos & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const { synchedWallets } = await WalletOperations.syncWallets([wallet], network);
-    wallet = synchedWallets[0];
+    [wallet] = synchedWallets;
 
     const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = wallet.specs;
 
     let netBalance = 0;
-    confirmedUTXOs.forEach((utxo) => (netBalance += utxo.value));
-    unconfirmedUTXOs.forEach((utxo) => (netBalance += utxo.value));
+    confirmedUTXOs.forEach((utxo) => {
+      netBalance += utxo.value;
+    });
+    unconfirmedUTXOs.forEach((utxo) => {
+      netBalance += utxo.value;
+    });
 
     expect(balances.confirmed + balances.unconfirmed).toEqual(5000);
     expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
@@ -92,7 +101,7 @@ describe('Testing wallet primitives', () => {
   });
 
   test('wallet operations: transaction signing(PSBT)', async () => {
-    const {inputs} = txPrerequisites[txnPriority];
+    const { inputs } = txPrerequisites[txnPriority];
     const { signedPSBT } = await WalletOperations.signTransaction(wallet, inputs, PSBT);
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     expect(areSignaturesValid).toEqual(true);

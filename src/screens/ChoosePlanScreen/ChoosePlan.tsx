@@ -289,6 +289,7 @@ function ChoosePlan(props) {
             </Box>
           </ScrollView>
         )}
+
         <Box
           backgroundColor={'light.ReceiveBackground'}
           position="absolute"

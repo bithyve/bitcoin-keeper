@@ -40,10 +40,6 @@ export interface VaultScheme {
   n: number; // total number of xpubs
 }
 
-export interface VaultScheme {
-  m: number; // threshold number of signatures required
-  n: number; // total number of xpubs
-}
 export interface VaultSigner {
   signerId: string;
   type: SignerType;

@@ -14,11 +14,11 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 function SetupSeedWordSigner({ route, navigation }) {
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const {login} = translations;
-  const {seed} = route.params;
+  const { login } = translations;
+  const { seed } = route.params;
   const [words] = useState(seed.split(' '));
-  const {next} = route.params;
-  const {onSuccess} = route.params;
+  const { next } = route.params;
+  const { onSuccess } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState('');
   const seedText = translations.seed;
@@ -34,6 +34,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         <Box
           backgroundColor="light.lightYellow"
           flexDirection="row"
+          justifyContent={'space-evenly'}
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -44,7 +45,7 @@ function SetupSeedWordSigner({ route, navigation }) {
             fontSize={20}
             fontWeight={300}
             letterSpacing={1.64}
-            marginRight={5}
+            // marginRight={3}
             color="light.greenText2"
           >
             {index < 9 ? '0' : null}
@@ -64,7 +65,9 @@ function SetupSeedWordSigner({ route, navigation }) {
     );
   }
 
-  const renderSeedCard = ({ item, index }: { item; index }) => <SeedCard item={item} index={index} />;
+  const renderSeedCard = ({ item, index }: { item; index }) => (
+    <SeedCard item={item} index={index} />
+  );
 
   return (
     <Box flex={1} padding={5} background="light.ReceiveBackground">

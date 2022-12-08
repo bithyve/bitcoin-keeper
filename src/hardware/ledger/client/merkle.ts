@@ -7,37 +7,31 @@ import { crypto } from 'bitcoinjs-lib';
  */
 export class Merkle {
   private leaves: Buffer[];
-
   private rootNode: Node;
-
   private leafNodes: Node[];
-
   private h: (buf: Buffer) => Buffer;
-
-  constructor(leaves: Buffer[], hasher: (buf: Buffer) => Buffer = crypto.sha256) {
+  constructor(
+    leaves: Buffer[],
+    hasher: (buf: Buffer) => Buffer = crypto.sha256
+  ) {
     this.leaves = leaves;
     this.h = hasher;
     const nodes = this.calculateRoot(leaves);
     this.rootNode = nodes.root;
     this.leafNodes = nodes.leaves;
   }
-
   getRoot(): Buffer {
     return this.rootNode.hash;
   }
-
   size(): number {
     return this.leaves.length;
   }
-
   getLeaves(): Buffer[] {
     return this.leaves;
   }
-
   getLeafHash(index: number): Buffer {
     return this.leafNodes[index].hash;
   }
-
   getProof(index: number): Buffer[] {
     if (index >= this.leaves.length) throw Error('Index out of bounds');
     return proveNode(this.leafNodes[index]);
@@ -82,25 +76,24 @@ export function hashLeaf(
   return hashConcat(Buffer.from([0]), buf, hashFunction);
 }
 
-function hashConcat(bufA: Buffer, bufB: Buffer, hashFunction: (buf: Buffer) => Buffer): Buffer {
+function hashConcat(
+  bufA: Buffer,
+  bufB: Buffer,
+  hashFunction: (buf: Buffer) => Buffer
+): Buffer {
   return hashFunction(Buffer.concat([bufA, bufB]));
 }
 
 class Node {
   leftChild?: Node;
-
   rightChild?: Node;
-
   parent?: Node;
-
   hash: Buffer;
-
   constructor(left: Node | undefined, right: Node | undefined, hash: Buffer) {
     this.leftChild = left;
     this.rightChild = right;
     this.hash = hash;
   }
-
   isLeaf(): boolean {
     return this.leftChild == undefined;
   }
@@ -115,12 +108,12 @@ function proveNode(node: Node): Buffer[] {
       throw new Error('Expected right child to exist');
     }
     return [node.parent.rightChild.hash, ...proveNode(node.parent)];
-  } 
+  } else {
     if (!node.parent.leftChild) {
       throw new Error('Expected left child to exist');
     }
     return [node.parent.leftChild.hash, ...proveNode(node.parent)];
-  
+  }
 }
 
 function highestPowerOf2LessThan(n: number) {
