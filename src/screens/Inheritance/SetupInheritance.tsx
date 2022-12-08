@@ -149,7 +149,7 @@ function SetupInheritance() {
         >
           This can be activated once you are at the Diamond Hands level
         </Text>
-        <Box style={styles.buttons}>
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
           <Buttons
             primaryText="Select Country"
             primaryCallback={() => {
@@ -190,13 +190,10 @@ function SetupInheritance() {
 const styles = ScaledSheet.create({
   note: {
     position: 'absolute',
-    bottom: 30,
+    bottom: hp(20),
     paddingHorizontal: 25,
     justifyContent: 'center',
     width: wp(340)
-  },
-  buttons: {
-    marginTop: hp(30)
   },
   message: {
     opacity: 0.85,
@@ -207,7 +204,7 @@ const styles = ScaledSheet.create({
     textAlign: "center",
   },
   bottomContainer: {
-    marginTop: hp(50),
+    marginTop: hp(30),
     alignItems: 'center',
     flex: 1
   },
@@ -228,7 +225,7 @@ const styles = ScaledSheet.create({
     letterSpacing: 1.3
   },
   header: {
-    marginBottom: -20
+    marginBottom: -50
   },
   modalContainer: {
     marginBottom: hp(25),
