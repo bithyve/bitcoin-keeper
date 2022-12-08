@@ -62,6 +62,99 @@ const styles = StyleSheet.create({
     height: '70%',
     top: 50,
   },
+  menuWrapper: {
+    height: wp('13%'),
+    width: wp('15%'),
+    backgroundColor: '#FAF4ED',
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 28,
+  },
+  emptyView: {
+    height: '55%',
+    marginTop: 10,
+    width: 2,
+    backgroundColor: '#D8A572',
+  },
+  textValueWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    height: wp('13%'),
+  },
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#F7F2EC',
+  },
+  symbolWrapper: {
+    height: wp('13%'),
+    width: wp('15%'),
+    paddingLeft: wp('5%'),
+    backgroundColor: '#FAF4ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+  },
+  symbolText: {
+    fontFamily: Fonts.FiraSansMedium,
+    fontSize: RFValue(13),
+    color: '#00836A',
+    fontWeight: '700',
+  },
+  codeTextWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    height: wp('13%'),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+    backgroundColor: '#FAF4ED',
+  },
+  codeText: {
+    fontFamily: Fonts.RobotoCondensedRegular,
+    fontSize: RFValue(13),
+    marginLeft: wp('7%'),
+    letterSpacing: 0.6,
+    color: '#4F5955',
+  },
+  flagWrapper1: {
+    flexDirection: 'row',
+    height: wp('13%'),
+  },
+  flagWrapper2: {
+    height: wp('13%'),
+    width: wp('15%'),
+    marginLeft: wp('8%'),
+    backgroundColor: '#FAF4ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+  },
+  flagStyle: {
+    fontFamily: Fonts.FiraSansMedium,
+    fontSize: RFValue(13),
+    color: '#00836A',
+    fontWeight: '700',
+  },
+  countryCodeWrapper1: {
+    flex: 1,
+    justifyContent: 'center',
+    height: wp('13%'),
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderColor,
+  },
+  countryCodeWrapper2: {
+    fontFamily: Fonts.RobotoCondensedRegular,
+    fontSize: RFValue(13),
+    marginLeft: wp('3%'),
+    letterSpacing: 0.6,
+    color: '#4F5955',
+  },
+  countryCodeText: {
+    textTransform: 'uppercase',
+  },
 });
 
 function ChangeLanguage() {
@@ -87,40 +180,16 @@ function ChangeLanguage() {
   };
 
   const { translations } = useContext(LocalizationContext);
-  const {settings} = translations;
+  const { settings } = translations;
 
   function Menu({ label, value, onPress, arrow }) {
     return (
       <TouchableOpacity onPress={onPress} style={styles.btn}>
-        <View
-          style={{
-            height: wp('13%'),
-            width: wp('15%'),
-            backgroundColor: '#FAF4ED',
-            borderTopLeftRadius: 10,
-            borderBottomLeftRadius: 10,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginLeft: 28,
-          }}
-        >
+        <View style={styles.menuWrapper}>
           <Text style={styles.textCurrency}>{label}</Text>
         </View>
-        <View
-          style={{
-            height: '55%',
-            marginTop: 10,
-            width: 2,
-            backgroundColor: '#D8A572',
-          }}
-         />
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            height: wp('13%'),
-          }}
-        >
+        <View style={styles.emptyView} />
+        <View style={styles.textValueWrapper}>
           <Text style={styles.textValue} fontWeight={200} color="light.GreyText">
             {value}
           </Text>
@@ -148,12 +217,7 @@ function ChangeLanguage() {
   }
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#F7F2EC',
-      }}
-    >
+    <SafeAreaView style={styles.wrapper}>
       <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
       <Box mx={5} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -207,64 +271,25 @@ function ChangeLanguage() {
         {Visible && (
           <ScrollView style={styles.scrollViewWrapper}>
             {currencyList.map((item) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    setCurrency(item);
-                    setVisible(false);
-                    dispatch(setCurrencyCode(item.code));
-                  }}
-                  style={{
-                    flexDirection: 'row',
-                    height: wp('13%'),
-                  }}
-                >
-                  <View
-                    style={{
-                      height: wp('13%'),
-                      width: wp('15%'),
-                      paddingLeft: wp('5%'),
-                      backgroundColor: '#FAF4ED',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderBottomWidth: 1,
-                      borderBottomColor: Colors.borderColor,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: Fonts.FiraSansMedium,
-                        fontSize: RFValue(13),
-                        color: '#00836A',
-                        fontWeight: '700',
-                      }}
-                    >
-                      {item.symbol}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      height: wp('13%'),
-                      borderBottomWidth: 1,
-                      borderBottomColor: Colors.borderColor,
-                      backgroundColor: '#FAF4ED',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: Fonts.RobotoCondensedRegular,
-                        fontSize: RFValue(13),
-                        marginLeft: wp('7%'),
-                        letterSpacing: 0.6,
-                        color: '#4F5955',
-                      }}
-                    >
-                      {item.code}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
+              <TouchableOpacity
+                onPress={() => {
+                  setCurrency(item);
+                  setVisible(false);
+                  dispatch(setCurrencyCode(item.code));
+                }}
+                style={{
+                  flexDirection: 'row',
+                  height: wp('13%'),
+                }}
+              >
+                <View style={styles.symbolWrapper}>
+                  <Text style={styles.symbolText}>{item.symbol}</Text>
+                </View>
+                <View style={styles.codeTextWrapper}>
+                  <Text style={styles.codeText}>{item.code}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         )}
         <CountrySwitchCard
@@ -289,72 +314,27 @@ function ChangeLanguage() {
         {showLanguages && (
           <ScrollView style={styles.scrollViewWrapper}>
             {availableLanguages.map((item) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    setAppLanguage(item.iso);
-                    setShowLanguages(false);
-                    setIsVisible(false);
-                    dispatch(setLanguage(item.iso));
-                    setSelectedLanguage(availableLanguages.find((lang) => lang.iso === item.iso));
-                  }}
-                  style={{
-                    flexDirection: 'row',
-                    height: wp('13%'),
-                  }}
-                >
-                  <View
-                    style={{
-                      height: wp('13%'),
-                      width: wp('15%'),
-                      marginLeft: wp('8%'),
-                      backgroundColor: '#FAF4ED',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      borderBottomWidth: 1,
-                      borderBottomColor: Colors.borderColor,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: Fonts.FiraSansMedium,
-                        fontSize: RFValue(13),
-                        color: '#00836A',
-                        fontWeight: '700',
-                      }}
-                    >
-                      {item.flag}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      height: wp('13%'),
-                      borderBottomWidth: 1,
-                      borderBottomColor: Colors.borderColor,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: Fonts.RobotoCondensedRegular,
-                        fontSize: RFValue(13),
-                        marginLeft: wp('3%'),
-                        letterSpacing: 0.6,
-                        color: '#4F5955',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {item.country_code}
-                      </Text>
-                      <Text>{`- ${item.displayTitle}`}</Text>
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
+              <TouchableOpacity
+                onPress={() => {
+                  setAppLanguage(item.iso);
+                  setShowLanguages(false);
+                  setIsVisible(false);
+                  dispatch(setLanguage(item.iso));
+                  setSelectedLanguage(availableLanguages.find((lang) => lang.iso === item.iso));
+                }}
+                style={styles.flagWrapper1}
+              >
+                <View style={styles.flagWrapper2}>
+                  <Text style={styles.flagStyle}>{item.flag}</Text>
+                </View>
+                <View style={styles.countryCodeWrapper1}>
+                  <Text style={styles.countryCodeWrapper2}>
+                    <Text style={styles.countryCodeText}>{item.country_code}</Text>
+                    <Text>{`- ${item.displayTitle}`}</Text>
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         )}
         {/* </ScrollView> */}

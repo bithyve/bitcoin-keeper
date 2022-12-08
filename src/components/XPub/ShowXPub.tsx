@@ -12,7 +12,7 @@ import Note from '../Note/Note';
 
 function ShowXPub({
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
@@ -24,14 +24,14 @@ function ShowXPub({
   copyable?: boolean;
 }) {
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
+  const { common } = translations;
 
   return (
     <>
       <Box justifyContent="center" alignItems="center" width={wp(275)}>
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
-          <Box bg="light.QrCode" alignItems="center" justifyContent="center" p={1} w={200}>
+          <Box bg="light.QrCode" alignItems="center" justifyContent="center" p={1} w={hp(200)}>
             <Text fontSize={RFValue(12)} color="light.recieverAddress" fontFamily="body">
               {subText}
             </Text>

@@ -4,7 +4,6 @@ import {
   InteractionManager,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
@@ -125,7 +124,7 @@ function SendScreen({ route }) {
           headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
         />
-        <ScrollView>
+        <Box>
           <Box style={styles.qrcontainer}>
             <RNCamera
               style={styles.cameraView}
@@ -173,17 +172,23 @@ function SendScreen({ route }) {
               </View>
             </View>
           </Box>
-
-          {/* {Bottom note} */}
-          <Box marginTop={hp(40)} marginX={2}>
-            <Note
-              title={common.note}
-              subtitle="Make sure the address or QR is the one where you want to send the funds to"
-              subtitleColor="GreyText"
-            />
-          </Box>
-        </ScrollView>
+        </Box>
       </KeyboardAvoidingView>
+      {/* {Bottom note} */}
+      <Box
+        style={{
+          paddingLeft: 20,
+          position: 'absolute',
+          bottom: hp(20),
+          width: wp(300),
+        }}
+      >
+        <Note
+          title={common.note}
+          subtitle="Make sure the address or QR is the one where you want to send the funds to"
+          subtitleColor="GreyText"
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -239,7 +244,7 @@ const styles = ScaledSheet.create({
     borderRadius: hp(10),
     marginHorizontal: wp(16),
     paddingHorizontal: wp(25),
-    marginTop: hp(10),
+    marginTop: hp(5),
   },
   buttonBackground: {
     backgroundColor: '#FAC48B',

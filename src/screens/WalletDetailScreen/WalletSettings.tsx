@@ -122,12 +122,7 @@ function WalletSettings({ route }) {
             <Text color="light.white" letterSpacing={0.28} fontSize={RFValue(14)}>
               {walletName}
             </Text>
-            <Text
-              color="light.white"
-              letterSpacing={0.24}
-              fontSize={RFValue(12)}
-              fontWeight={100}
-            >
+            <Text color="light.white" letterSpacing={0.24} fontSize={RFValue(12)} fontWeight={100}>
               {walletDescription}
             </Text>
           </Box>
@@ -146,7 +141,7 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setLoadingContent({
       title: 'Please Wait',
-      subtitle: 'Recieving test sats',
+      subtitle: 'Receiving test sats',
       message: '',
     });
 
@@ -221,7 +216,7 @@ function WalletSettings({ route }) {
         style={{
           marginLeft: wp(25),
         }}
-        height={hp(400)}
+        height={hp(425)}
       >
         <ScrollView>
           <Option
@@ -242,7 +237,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Show Cosigner Details"
-            subTitle="Use to create a signing device"
+            subTitle="Use this wallet as a signing device"
             onPress={() => {
               setCosignerVisible(true);
             }}
@@ -267,7 +262,7 @@ function WalletSettings({ route }) {
 
           <Option
             title="Receive Test Sats"
-            subTitle="Recieve Test Sats to this address"
+            subTitle="Receive Test Sats to this address"
             onPress={() => {
               setAppLoading(true);
               getTestSats();
@@ -277,7 +272,7 @@ function WalletSettings({ route }) {
 
           <Option
             title="Sign PSBT"
-            subTitle="Lorem ipsum dolor sit amet, consectetur"
+            subTitle="Sign a transaction if this wallet has been used as a co-signer"
             onPress={() => {
               navigation.dispatch(
                 CommonActions.navigate({
@@ -299,14 +294,14 @@ function WalletSettings({ route }) {
       <Box
         style={{
           position: 'absolute',
-          bottom: hp(30),
+          bottom: hp(35),
           marginLeft: 26,
           width: '90%',
         }}
       >
         <Note
           title="Note"
-          subtitle="These settings are for your Default Wallet only and does not affect other wallets"
+          subtitle="These settings are for your selected wallet only and does not affect other wallets"
           subtitleColor="GreyText"
         />
       </Box>
@@ -371,7 +366,9 @@ function WalletSettings({ route }) {
           subTitleColor="#5F6965"
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
-          Content={() => <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />}
+          Content={() => (
+            <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />
+          )}
         />
       </Box>
       {/* end */}
@@ -382,7 +379,7 @@ function WalletSettings({ route }) {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
 });

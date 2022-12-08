@@ -1,7 +1,6 @@
 import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { ImageBackground, Platform, TouchableOpacity } from 'react-native';
-import Instabug, { BugReporting } from 'instabug-reactnative';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
@@ -34,7 +33,6 @@ import { identifyUser } from 'src/core/services/sentry';
 import { useUaiStack } from 'src/hooks/useUaiStack';
 import KeeperModal from 'src/components/KeeperModal';
 import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
-import config from 'src/core/config';
 import { WalletMap } from '../Vault/WalletMap';
 import UaiDisplay from './UaiDisplay';
 
@@ -84,32 +82,30 @@ function InheritanceComponent() {
           </Box>
         </Box>
         <NextIcon pressHandler={() => onPress()} />
-        <>
-          <NewWalletModal
-            visible={visible}
-            close={close}
-            title={wallet.AddNewWallet}
-            createTitle={wallet.CreateNewwallet}
-            createSubTitle={wallet.WalletDesc}
-            newButton={wallet.CreateNew}
-            newButtonDesc={wallet.WalletDesc}
-            existingButtonTitle={wallet.Recoverexisting}
-            existingButtonSubTitle={wallet.WalletDesc}
-            seedButton={wallet.UsingSeed}
-            seedButtonDesc={wallet.WalletDesc}
-            cloudButton={wallet.FromCloud}
-            cloudButtonDesc={wallet.WalletDesc}
-            mainDesc={wallet.XPubSubTitle}
-            modalBackground={['#F7F2EC', '#F7F2EC']}
-            buttonBackground={['#00836A', '#073E39']}
-            buttonCancel="Cancel"
-            buttonText="Next"
-            buttonTextColor="#FAFAFA"
-            buttonCancelColor="#073E39"
-            buttonCallback={navigateBack}
-            textColor="#041513"
-          />
-        </>
+        <NewWalletModal
+          visible={visible}
+          close={close}
+          title={wallet.AddNewWallet}
+          createTitle={wallet.CreateNewwallet}
+          createSubTitle={wallet.WalletDesc}
+          newButton={wallet.CreateNew}
+          newButtonDesc={wallet.WalletDesc}
+          existingButtonTitle={wallet.Recoverexisting}
+          existingButtonSubTitle={wallet.WalletDesc}
+          seedButton={wallet.UsingSeed}
+          seedButtonDesc={wallet.WalletDesc}
+          cloudButton={wallet.FromCloud}
+          cloudButtonDesc={wallet.WalletDesc}
+          mainDesc={wallet.XPubSubTitle}
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonCancel="Cancel"
+          buttonText="Next"
+          buttonTextColor="#FAFAFA"
+          buttonCancelColor="#073E39"
+          buttonCallback={navigateBack}
+          textColor="#041513"
+        />
       </Box>
     </Box>
   );
@@ -484,19 +480,6 @@ function TransVaultSuccessfulContent() {
 function HomeScreen({ navigation }) {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
-
-  useEffect(() => {
-    try {
-      Instabug.start(config.INSTABUG_TOKEN, [Instabug.invocationEvent.shake]);
-      BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
-      BugReporting.setInvocationEvents([Instabug.invocationEvent.shake]);
-      BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
-      BugReporting.setShakingThresholdForiPhone(1.0);
-      Instabug.setPrimaryColor('rgb(7, 62, 57)');
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
 
   return (
     <Box flex={1} backgroundColor="light.lightYellow" position="relative">

@@ -18,11 +18,11 @@ function ExportSeedScreen({ route, navigation }) {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
-  const {login} = translations;
-  const {seed} = route.params;
+  const { BackupWallet } = translations;
+  const { login } = translations;
+  const { seed } = route.params;
   const [words] = useState(seed.split(' '));
-  const {next} = route.params;
+  const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
@@ -45,12 +45,11 @@ function ExportSeedScreen({ route, navigation }) {
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex(prev => {
+          setShowWordIndex((prev) => {
             if (prev === index) {
               return '';
-            } 
-              return index;
-            
+            }
+            return index;
           });
         }}
       >
@@ -87,7 +86,9 @@ function ExportSeedScreen({ route, navigation }) {
     );
   }
 
-  const renderSeedCard = ({ item, index }: { item; index }) => <SeedCard item={item} index={index} />;
+  const renderSeedCard = ({ item, index }: { item; index }) => (
+    <SeedCard item={item} index={index} />
+  );
 
   return (
     <Box flex={1} padding={5} background="light.ReceiveBackground">
@@ -98,7 +99,7 @@ function ExportSeedScreen({ route, navigation }) {
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={10} height={windowHeight / 1.5}>
+      <Box marginTop={windowHeight > 800 ? 10 : 5} height={windowHeight / 1.5}>
         <FlatList
           data={words}
           numColumns={2}
