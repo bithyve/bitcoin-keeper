@@ -56,14 +56,14 @@ function ChoosePlanCarousel(props) {
           <Box py={5} alignItems="center" justifyContent="center">
             {subscription.productId === item.productId && (
               <Box bg="light.white" borderRadius={10} px={2}>
-                <Text fontSize={RFValue(8)} letterSpacing={0.64} fontWeight={300}>
+                <Text fontSize={8} letterSpacing={0.64} fontWeight={300}>
                   Current
                 </Text>
               </Box>
             )}
             <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
             <Text
-              fontSize={RFValue(13)}
+              fontSize={13}
               fontWeight="300"
               color="light.textLight"
               mt={2}
@@ -73,7 +73,7 @@ function ChoosePlanCarousel(props) {
               {item.name}
             </Text>
             <Text
-              fontSize={RFValue(10)}
+              fontSize={10}
               color="light.textLight"
               mb={2}
               fontWeight="200"

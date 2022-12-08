@@ -39,10 +39,10 @@ import { useNavigation } from '@react-navigation/native';
 function SendScreen({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const {wallet} = route.params;
+  const { wallet } = route.params;
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
-  const {home} = translations;
+  const { common } = translations;
+  const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -86,7 +86,7 @@ function SendScreen({ route }) {
         navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
-        
+
     }
   };
 
@@ -126,7 +126,7 @@ function SendScreen({ route }) {
           headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
         />
-        <ScrollView>
+        <Box>
           <Box style={styles.qrcontainer}>
             <RNCamera
               style={styles.cameraView}
@@ -154,10 +154,9 @@ function SendScreen({ route }) {
           </Box>
 
           {/* Send to Wallet options */}
-          <Box marginTop={hp(40)}>
+          <Box marginTop={hp(20)}>
             <Text
               marginX={5}
-              fontWeight={200}
               fontFamily="body"
               fontSize={14}
               letterSpacing={1.12}
@@ -181,16 +180,23 @@ function SendScreen({ route }) {
             </View>
           </Box>
 
-          {/* {Bottom note} */}
-          <Box marginTop={hp(40)} marginX={2}>
-            <Note
-              title={common.note}
-              subtitle="Make sure the address or QR is the one where you want to send the funds to"
-              subtitleColor="GreyText"
-            />
-          </Box>
-        </ScrollView>
+
+        </Box>
       </KeyboardAvoidingView>
+      {/* {Bottom note} */}
+      <Box style={{
+        paddingLeft: 20,
+        position: 'absolute',
+        bottom: hp(20),
+        width: wp(300)
+      }}
+      >
+        <Note
+          title={common.note}
+          subtitle="Make sure the address or QR is the one where you want to send the funds to"
+          subtitleColor="GreyText"
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -246,7 +252,7 @@ const styles = ScaledSheet.create({
     borderRadius: hp(10),
     marginHorizontal: wp(16),
     paddingHorizontal: wp(25),
-    marginTop: hp(10),
+    marginTop: hp(5),
   },
   buttonBackground: {
     backgroundColor: '#FAC48B',
