@@ -40,14 +40,13 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
-    } if (currentScheme.m < subscriptionScheme.m) {
+    }
+    if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
-    } 
-      return VaultMigrationType.CHANGE;
-    
-  } 
+    }
     return VaultMigrationType.CHANGE;
-  
+  }
+  return VaultMigrationType.CHANGE;
 };
 
 export const checkSigningDevice = async (id) => {
@@ -245,10 +244,10 @@ function AddSigningDevice() {
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex  }st`;
-    if (mainIndex == 2) return `${mainIndex  }nd`;
-    if (mainIndex == 3) return `${mainIndex  }rd`;
-    return `${mainIndex  }th`;
+    if (mainIndex == 1) return `${mainIndex}st`;
+    if (mainIndex == 2) return `${mainIndex}nd`;
+    if (mainIndex == 3) return `${mainIndex}rd`;
+    return `${mainIndex}th`;
   };
 
   function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
@@ -325,7 +324,7 @@ function AddSigningDevice() {
   }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
-  const {common} = translations;
+  const { common } = translations;
   const AstrixSigners = [];
   signersState.forEach((signer: VaultSigner) => {
     if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))

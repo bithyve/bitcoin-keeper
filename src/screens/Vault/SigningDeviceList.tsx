@@ -33,8 +33,8 @@ type HWProps = {
   first?: boolean;
   last?: boolean;
 };
-
-const findKeyInServer = (vaultSigners, type: SignerType) => vaultSigners.find((element) => element.type === type);
+const findKeyInServer = (vaultSigners, type: SignerType) =>
+  vaultSigners.find((element) => element.type === type);
 
 const getDisabled = (type: SignerType, isOnPleb, vaultSigners) => {
   // Keys Incase of level 1 we have level 1
@@ -109,7 +109,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
   const [isBLESupported, setBLESupport] = useState(false);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
-  const {vault} = translations;
+  const { vault } = translations;
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
@@ -123,10 +123,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
         <Box alignSelf="center">
           <SigningDevicesIllustration />
         </Box>
-        <Text
-          color="light.white"
-          style={styles.modalText}
-        >
+        <Text color="light.white" style={styles.modalText}>
           {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -237,22 +234,22 @@ function SigningDeviceList({ navigation }: { navigation }) {
   }
 
   const nfcAlertConternt = () => (
-      <Box>
-        <Box justifyContent="center" alignItems="center">
-          <Alert />
-        </Box>
-        <Text
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          width={wp(260)}
-          color="light.modalText"
-          marginY={4}
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        </Text>
+    <Box>
+      <Box justifyContent="center" alignItems="center">
+        <Alert />
       </Box>
-    );
+      <Text
+        fontSize={13}
+        fontWeight={200}
+        letterSpacing={0.65}
+        width={wp(260)}
+        color="light.modalText"
+        marginY={4}
+      >
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+      </Text>
+    </Box>
+  );
 
   return (
     <ScreenWrapper>
@@ -266,7 +263,10 @@ function SigningDeviceList({ navigation }: { navigation }) {
         }}
       />
       <Box alignItems="center" justifyContent="center">
-        <ScrollView style={{ height: '90%' }} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={{ height: windowHeight > 800 ? '90%' : '85%' }}
+          showsVerticalScrollIndicator={false}
+        >
           {!signersLoaded ? (
             <ActivityIndicator />
           ) : (
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     fontSize: 13,
     marginTop: 5,
-    padding: 1
-  }
-})
+    padding: 1,
+  },
+});
 export default SigningDeviceList;
