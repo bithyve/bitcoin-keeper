@@ -147,4 +147,46 @@ export default class ElectrumClient {
 
     return res;
   }
+
+  public static async syncUTXOByAddresses(addresses: string[], batchsize: number = 150) {
+    if (!this.electrumClient) throw new Error('Electrum client is not connected');
+    const res = {};
+
+    const chunks = this.splitIntoChunks(addresses, batchsize);
+    for (let itr = 0; itr < chunks.length; itr += 1) {
+      const chunk = chunks[itr];
+      const scripthashes = [];
+      const scripthash2addr = {};
+
+      for (let index = 0; index < chunk.length; index += 1) {
+        const addr = chunk[index];
+        const script = bitcoinJS.address.toOutputScript(addr);
+        const hash = bitcoinJS.crypto.sha256(script);
+        const reversedHash = Buffer.from(reverse(hash));
+        const reversedHashHex = reversedHash.toString('hex');
+        scripthashes.push(reversedHashHex);
+        scripthash2addr[reversedHashHex] = addr;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const results = await this.electrumClient.blockchainScripthash_listunspentBatch(scripthashes);
+
+      for (let index = 0; index < results.length; index += 1) {
+        const utxos = results[index];
+        const address = scripthash2addr[utxos.param];
+        res[address] = utxos.result;
+
+        for (let utIdx = 0; utIdx < res[address].length; utIdx += 1) {
+          const utxo = res[address][utIdx];
+          utxo.address = address;
+          utxo.txId = utxo.tx_hash;
+          utxo.vout = utxo.tx_pos;
+          delete utxo.tx_pos;
+          delete utxo.tx_hash;
+        }
+      }
+    }
+
+    return res;
+  }
 }
