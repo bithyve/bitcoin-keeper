@@ -99,7 +99,7 @@ function ExportSeedScreen({ route, navigation }) {
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={windowHeight > 800 ? 10 : 5} height={windowHeight / 1.5}>
+      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList
           data={words}
           numColumns={2}
