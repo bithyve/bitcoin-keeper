@@ -253,13 +253,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 }
 
-function SignerList({
-  upgradeStatus,
-  vault,
-}: {
-  upgradeStatus: VaultMigrationType;
-  vault: Vault;
-}) {
+function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
   const Signers = vault.signers;
   const styles = getStyles(0);
   const navigation = useNavigation();
@@ -359,7 +353,9 @@ function SignerList({
                 letterSpacing={0.6}
                 textAlign="center"
               >
-                {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
+                {signer.signerDescription
+                  ? signer.signerDescription
+                  : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
               </Text>
             </VStack>
           </TouchableOpacity>
@@ -395,11 +391,11 @@ function VaultDetails({ route, navigation }) {
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
-    } if (currentScheme.m < subscriptionScheme.m) {
+    }
+    if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
     }
     return VaultMigrationType.CHANGE;
-
   };
 
   const syncVault = () => {
@@ -435,7 +431,8 @@ function VaultDetails({ route, navigation }) {
           fontWeight="200"
           p={1}
         >
-          Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select
+          Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
+          select
         </Text>
         <Text
           color="white"
@@ -503,7 +500,8 @@ function VaultDetails({ route, navigation }) {
               color="light.modalText"
               marginTop={3}
             >
-              For sending out of the vault you will need the signing devices. This means no one can steal your bitcoin in the vault unless they also have the signing devices
+              For sending out of the vault you will need the signing devices. This means no one can
+              steal your bitcoin in the vault unless they also have the signing devices
             </Text>
           </View>
         )}

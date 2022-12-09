@@ -236,11 +236,11 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               <Box style={styles.descriptionBox}>
                 <Text
                   noOfLines={1}
-                  color="#387F6A"
+                  color={signer.signerDescription ? '#6A7772' : '#387F6A'}
                   fontSize={12}
-                  fontWeight={300}
+                  fontWeight={signer.signerDescription ? 200 : 300}
                   letterSpacing={0.6}
-                  fontStyle="italic"
+                  fontStyle={signer.signerDescription ? null : 'italic'}
                   maxWidth={width * 0.6}
                 >
                   {signer.signerDescription ? signer.signerDescription : 'Add Description'}
@@ -532,7 +532,7 @@ const styles = ScaledSheet.create({
     height: 24,
     backgroundColor: '#FDF7F0',
     borderRadius: 8,
-    alignItems: 'center',
+    paddingHorizontal: 10,
     justifyContent: 'center',
   },
   descriptionEdit: {

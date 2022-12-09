@@ -105,7 +105,7 @@ function SignTransactionScreen() {
     let signedTxCount = 0;
     serializedPSBTEnvelops.forEach((envelop) => {
       if (envelop.isSigned) {
-        signedTxCount++;
+        signedTxCount += 1;
       }
     });
     // modify this in dev builds for mock signers
@@ -198,7 +198,6 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-        } else {
         }
       }
     },
