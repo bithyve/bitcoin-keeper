@@ -1,8 +1,9 @@
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { RFValue } from 'react-native-responsive-fontsize';
 
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -56,6 +57,7 @@ function ExportSeedScreen({ route, navigation }) {
         <Box
           backgroundColor="light.lightYellow"
           flexDirection="row"
+          alignItems={'center'}
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -63,17 +65,17 @@ function ExportSeedScreen({ route, navigation }) {
           opacity={showWordIndex === index ? 1 : 0.5}
         >
           <Text
-            fontSize={20}
+            fontSize={RFValue(19)}
             fontWeight={300}
             letterSpacing={1.64}
-            marginRight={5}
+            marginRight={3}
             color="light.greenText2"
           >
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
           <Text
-            fontSize={20}
+            fontSize={RFValue(19)}
             fontWeight={200}
             backgroundColor="green.700"
             letterSpacing={1}
