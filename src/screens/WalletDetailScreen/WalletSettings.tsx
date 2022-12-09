@@ -198,7 +198,7 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        marginTop={hp(40)}
+        marginTop={hp(35)}
         style={{
           marginLeft: wp(25),
         }}
@@ -212,13 +212,19 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        alignItems="center"
         style={{
+          alignItems: "center",
           marginLeft: wp(25),
+          marginTop: 10,
+          height: hp(425)
         }}
-        height={hp(425)}
       >
-        <ScrollView>
+        <ScrollView
+          style={{
+            marginBottom: 10
+          }}
+          showsVerticalScrollIndicator={false}
+        >
           <Option
             title="Wallet Details"
             subTitle="Change wallet name & description"
@@ -291,14 +297,7 @@ function WalletSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box
-        style={{
-          position: 'absolute',
-          bottom: hp(35),
-          marginLeft: 26,
-          width: '90%',
-        }}
-      >
+      <Box style={styles.note} backgroundColor={'light.ReceiveBackground'}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -382,6 +381,13 @@ const styles = ScaledSheet.create({
     padding: 20,
     position: 'relative',
   },
+  note: {
+    position: 'absolute',
+    bottom: hp(35),
+    marginLeft: 26,
+    width: '90%',
+    paddingTop: hp(10),
+  }
 });
 export default WalletSettings;
 export { Option };
