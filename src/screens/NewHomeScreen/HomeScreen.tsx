@@ -30,7 +30,7 @@ import VaultImage from 'src/assets/images/Vault.png';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { identifyUser } from 'src/core/services/sentry';
-import { useUaiStack } from 'src/hooks/useUaiStack';
+import useUaiStack from 'src/hooks/useUaiStack';
 import KeeperModal from 'src/components/KeeperModal';
 import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
 import { WalletMap } from '../Vault/WalletMap';
