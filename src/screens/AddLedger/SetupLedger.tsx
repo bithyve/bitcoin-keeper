@@ -25,6 +25,8 @@ import config from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function AddLedger() {
@@ -122,11 +124,12 @@ function AddLedger() {
       </TapGestureHandler>
     );
   }
-
+  const { showToast } = useToastMessage();
   const addMockLedger = (amfData = null) => {
     const ledger = getMockLedgerDetails(amfData);
     dispatch(addSigningDevice(ledger));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    showToast(`${ledger.signerName} added successfully`, <TickIcon />);
   };
 
   const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
@@ -149,6 +152,7 @@ function AddLedger() {
       }
       dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${ledger.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(ledger.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
