@@ -4,7 +4,6 @@ import {
   InteractionManager,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
@@ -57,7 +56,7 @@ function SendScreen({ route }) {
     });
   }, []);
 
-  const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+  const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const navigateToNext = (address: string, amount?: string, from = 'Address') => {
     if (!avgFees) {
@@ -86,7 +85,6 @@ function SendScreen({ route }) {
         navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
-
     }
   };
 
@@ -154,13 +152,8 @@ function SendScreen({ route }) {
           </Box>
 
           {/* Send to Wallet options */}
-          <Box marginTop={hp(20)}>
-            <Text
-              marginX={5}
-              fontFamily="body"
-              fontSize={14}
-              letterSpacing={1.12}
-            >
+          <Box marginTop={hp(40)}>
+            <Text marginX={5} fontWeight={200} fontFamily="body" fontSize={14} letterSpacing={1.12}>
               or send to a wallet
             </Text>
             <View>
@@ -179,17 +172,16 @@ function SendScreen({ route }) {
               </View>
             </View>
           </Box>
-
-
         </Box>
       </KeyboardAvoidingView>
       {/* {Bottom note} */}
-      <Box style={{
-        paddingLeft: 20,
-        position: 'absolute',
-        bottom: hp(20),
-        width: wp(300)
-      }}
+      <Box
+        style={{
+          paddingLeft: 20,
+          position: 'absolute',
+          bottom: hp(20),
+          width: wp(300),
+        }}
       >
         <Note
           title={common.note}

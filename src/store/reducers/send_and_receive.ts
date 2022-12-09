@@ -1,6 +1,4 @@
 import {
-  AverageTxFeesByNetwork,
-  ExchangeRates,
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
@@ -48,8 +46,6 @@ export interface SendPhaseThreeExecutedPayload {
 export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
 const initialState: {
-  exchangeRates: ExchangeRates;
-  averageTxFees: AverageTxFeesByNetwork;
   sendPhaseOne: {
     inProgress: boolean;
     hasFailed: boolean;
@@ -86,8 +82,6 @@ const initialState: {
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
 } = {
-  exchangeRates: null,
-  averageTxFees: null,
   sendPhaseOne: {
     inProgress: false,
     hasFailed: false,
@@ -143,20 +137,12 @@ const sendAndReceiveSlice = createSlice({
   name: 'sendAndReceive',
   initialState,
   reducers: {
-    setExchangeRates: (state, action) => {
-      state.exchangeRates = action.payload;
-    },
-
-    setAverageTxFee: (state, action: PayloadAction<AverageTxFeesByNetwork>) => {
-      state.averageTxFees = action.payload;
-    },
-
     setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
       state.sendMaxFee = action.payload;
     },
 
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
-      const {transactionFeeInfo} = state;
+      const { transactionFeeInfo } = state;
       let txPrerequisites: TransactionPrerequisite;
       let recipients;
       const { successful, outputs, err } = action.payload;
@@ -244,8 +230,6 @@ const sendAndReceiveSlice = createSlice({
 });
 
 export const {
-  setExchangeRates,
-  setAverageTxFee,
   setSendMaxFee,
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,
