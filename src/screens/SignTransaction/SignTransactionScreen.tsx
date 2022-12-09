@@ -3,7 +3,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { sendPhaseThree, updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
+import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -21,7 +21,7 @@ import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import idx from 'idx';
-import { sendPhaseThreeReset } from 'src/store/reducers/send_and_receive';
+import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -83,22 +83,23 @@ function SignTransactionScreen() {
       if (sendSuccessful) {
         dispatch(finaliseVaultMigration(vaultId));
         navigation.dispatch(CommonActions.reset(navigationState));
-      } else {
-        
       }
     } else if (sendSuccessful) {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 1,
-            routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
-          })
-        );
-      }
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 1,
+          routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
+        })
+      );
+    }
   }, [sendSuccessful, isMigratingNewVault]);
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       dispatch(sendPhaseThreeReset());
-    }, []);
+    },
+    []
+  );
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -148,7 +149,7 @@ function SignTransactionScreen() {
               cvc: textRef.current,
             });
           dispatch(
-            updatePSBTSignatures({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
+            updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
           );
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
@@ -168,7 +169,7 @@ function SignTransactionScreen() {
             defaultVault,
             serializedPSBT,
           });
-          dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.MOBILE_KEY === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithMobileKey({
             setPasswordModal,
@@ -177,7 +178,7 @@ function SignTransactionScreen() {
             serializedPSBT,
             signerId,
           });
-          dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             showOTPModal,
@@ -187,7 +188,7 @@ function SignTransactionScreen() {
             serializedPSBT,
             SigningServer,
           });
-          dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -196,9 +197,8 @@ function SignTransactionScreen() {
             serializedPSBT,
             signerId,
           });
-          dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else {
-          
         }
       }
     },

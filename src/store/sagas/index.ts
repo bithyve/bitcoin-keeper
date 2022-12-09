@@ -53,7 +53,6 @@ import {
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
-  updatePSBTSignaturesWatcher,
 } from './send_and_receive';
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
@@ -101,7 +100,6 @@ export const rootSaga = function* () {
     corssTransferWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
-    updatePSBTSignaturesWatcher,
 
     // UAI
     uaiChecksWatcher,

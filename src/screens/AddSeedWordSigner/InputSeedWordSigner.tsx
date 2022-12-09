@@ -26,6 +26,7 @@ import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { getPlaceholder } from 'src/common/utilities';
 
 function InputSeedWordSigner({ route }) {
   const navigation = useNavigation();
@@ -170,14 +171,6 @@ function InputSeedWordSigner({ route }) {
   const getFormattedNumber = (number) => {
     if (number < 9) return `0${number + 1}`;
     return number + 1;
-  };
-
-  const getPlaceholder = (index) => {
-    const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex}st`;
-    if (mainIndex == 2) return `${mainIndex}nd`;
-    if (mainIndex == 3) return `${mainIndex}rd`;
-    return `${mainIndex}th`;
   };
 
   return (

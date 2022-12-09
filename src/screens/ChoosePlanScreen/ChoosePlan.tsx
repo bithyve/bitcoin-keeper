@@ -289,7 +289,14 @@ function ChoosePlan(props) {
             </Box>
           </ScrollView>
         )}
-        <Box position="absolute" bottom={-10} justifyContent="flex-end" width={wp(330)}>
+
+        <Box
+          backgroundColor={'light.ReceiveBackground'}
+          position="absolute"
+          bottom={-10}
+          justifyContent="flex-end"
+          width={wp(340)}
+        >
           <Note title="Note" subtitle={choosePlan.noteSubTitle} subtitleColor="GreyText" />
         </Box>
       </Box>

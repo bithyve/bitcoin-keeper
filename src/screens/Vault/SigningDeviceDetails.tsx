@@ -325,7 +325,7 @@ function SigningDeviceDetails({ route }) {
             numberOfLines={2}
             fontSize={12}
             letterSpacing={0.84}
-            width={wp(86)}
+            width={wp(100)}
             textAlign="center"
           >
             {title}
