@@ -1,7 +1,7 @@
-import { Alert, Pressable } from 'react-native';
+import { Alert, Dimensions, Pressable, TextInput } from 'react-native';
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
@@ -9,6 +9,7 @@ import {
   addSigningDevice,
   removeSigningDevice,
   updateIntrimVault,
+  updateSigningDevice,
 } from 'src/store/reducers/vaults';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
@@ -34,7 +35,10 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/core/services/sentry';
 import { getPlaceholder } from 'src/common/utilities';
+import KeeperModal from 'src/components/KeeperModal';
 import { WalletMap } from './WalletMap';
+
+const { width } = Dimensions.get('screen');
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
@@ -61,9 +65,103 @@ export const checkSigningDevice = async (id) => {
   }
 };
 
+function SignerData({ signer }: { signer: VaultSigner }) {
+  return (
+    <HStack>
+      <Box
+        width="8"
+        height="8"
+        borderRadius={30}
+        bg="#725436"
+        justifyContent="center"
+        alignItems="center"
+        alignSelf="center"
+      >
+        {WalletMap(signer.type, true).Icon}
+      </Box>
+      <VStack marginX="4" maxW="80%">
+        <Text
+          color="light.lightBlack"
+          fontSize={15}
+          numberOfLines={2}
+          alignItems="center"
+          fontWeight={200}
+          letterSpacing={1.12}
+        >
+          {signer.signerName}
+        </Text>
+        <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
+          {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
+        </Text>
+      </VStack>
+    </HStack>
+  );
+}
+
+function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
+  const updateDescription = (text) => {
+    descRef.current = text;
+  };
+
+  const inputRef = useRef<TextInput>();
+
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current.focus();
+    }, 100);
+  }, []);
+  return (
+    <VStack style={styles.descriptionContainer}>
+      <SignerData signer={signer} />
+      <TextInput
+        ref={inputRef}
+        autoCapitalize="sentences"
+        onChangeText={updateDescription}
+        style={styles.descriptionEdit}
+        defaultValue={signer.signerDescription}
+      />
+    </VStack>
+  );
+}
+
+function DescriptionModal({
+  visible,
+  close,
+  signer,
+}: {
+  visible: boolean;
+  close: () => void;
+  signer: VaultSigner;
+}) {
+  const dispatch = useDispatch();
+  const descRef = useRef();
+  const MemoisedContent = React.useCallback(
+    () => <Content signer={signer} descRef={descRef} />,
+    [signer]
+  );
+  const onSave = () => {
+    close();
+    dispatch(updateSigningDevice({ signer, key: 'signerDescription', value: descRef.current }));
+  };
+  return (
+    <KeeperModal
+      visible={visible}
+      close={close}
+      title="Add Description"
+      subTitle="Optionally you can add a short description to the signing device"
+      buttonText="Save"
+      justifyContent="center"
+      Content={MemoisedContent}
+      buttonCallback={onSave}
+    />
+  );
+}
+
 function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const [visible, setVisible] = useState(false);
 
   const removeSigner = () => {
     dispatch(removeSigningDevice(signer));
@@ -71,6 +169,9 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
 
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
+
+  const openDescriptionModal = () => setVisible(true);
+  const closeDescriptionModal = () => setVisible(false);
 
   if (!signer) {
     return (
@@ -131,6 +232,21 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
             </Text>
+            <Pressable onPress={openDescriptionModal}>
+              <Box style={styles.descriptionBox}>
+                <Text
+                  noOfLines={1}
+                  color="#387F6A"
+                  fontSize={12}
+                  fontWeight={300}
+                  letterSpacing={0.6}
+                  fontStyle="italic"
+                  maxWidth={width * 0.6}
+                >
+                  {signer.signerDescription ? signer.signerDescription : 'Add Description'}
+                </Text>
+              </Box>
+            </Pressable>
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
@@ -139,6 +255,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </Text>
         </Pressable>
       </HStack>
+      <DescriptionModal visible={visible} close={closeDescriptionModal} signer={signer} />
     </Box>
   );
 }
@@ -410,6 +527,22 @@ const styles = ScaledSheet.create({
   },
   noteContainer: {
     width: wp(330),
+  },
+  descriptionBox: {
+    height: 24,
+    backgroundColor: '#FDF7F0',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  descriptionEdit: {
+    height: 50,
+    backgroundColor: '#FDF7F0',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  descriptionContainer: {
+    width: width * 0.8,
   },
 });
 
