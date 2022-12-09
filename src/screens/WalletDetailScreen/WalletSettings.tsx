@@ -43,10 +43,13 @@ type Props = {
 function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
     <Pressable
-      flexDirection="row"
-      alignItems="center"
-      width="100%"
-      style={{ marginTop: hp(20) }}
+
+      style={{
+        marginTop: hp(20),
+        flexDirection: "row",
+        alignItems: "center",
+        width: "100%",
+      }}
       onPress={onPress}
     >
       {Icon && (
@@ -110,11 +113,11 @@ function WalletSettings({ route }) {
         }}
       >
         <Box
-          marginTop={hp(17)}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
           style={{
+            marginTop: hp(17),
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
             marginHorizontal: wp(20),
           }}
         >
@@ -198,8 +201,8 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        marginTop={hp(35)}
         style={{
+          marginTop: hp(35),
           marginLeft: wp(25),
         }}
       >
