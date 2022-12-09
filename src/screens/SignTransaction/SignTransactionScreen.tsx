@@ -94,9 +94,12 @@ function SignTransactionScreen() {
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
-  useEffect(() => {
-    dispatch(sendPhaseThreeReset());
-  }, []);
+  useEffect(
+    () => () => {
+      dispatch(sendPhaseThreeReset());
+    },
+    []
+  );
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;

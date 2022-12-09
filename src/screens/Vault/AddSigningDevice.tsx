@@ -33,6 +33,7 @@ import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/core/services/sentry';
+import { getPlaceholder } from 'src/common/utilities';
 import { WalletMap } from './WalletMap';
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
@@ -68,14 +69,6 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
     dispatch(removeSigningDevice(signer));
   };
 
-  const getPlaceholder = () => {
-    const mainIndex = index + 1;
-    if (mainIndex === 1) return `${mainIndex}st`;
-    if (mainIndex === 2) return `${mainIndex}nd`;
-    if (mainIndex === 3) return `${mainIndex}rd`;
-    return `${mainIndex}th`;
-  };
-
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
 
@@ -94,7 +87,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                   alignItems="center"
                   letterSpacing={1.12}
                 >
-                  {`Add ${getPlaceholder()} Signing Device`}
+                  {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
                 <Text fontWeight={200} color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                   Select signing device
