@@ -91,7 +91,7 @@ function AddLedger() {
 
   function LedgerSetupContent() {
     return (
-      <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
+      <TapGestureHandler numberOfTaps={3} onActivated={() => addMockLedger()}>
         <View>
           {isScanning && !allDevices.length ? (
             <Image
