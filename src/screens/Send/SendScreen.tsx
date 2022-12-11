@@ -203,19 +203,22 @@ function SendScreen({ route }) {
         </KeyboardAvoidingView>
       </ScrollView>
       {/* {Bottom note} */}
-      {showNote && <Box style={{
-        paddingLeft: 20,
-        position: 'absolute',
-        bottom: hp(20),
-        width: wp(300)
-      }}
-      >
-        <Note
-          title={common.note}
-          subtitle="Make sure the address or QR is the one where you want to send the funds to"
-          subtitleColor="GreyText"
-        />
-      </Box>}
+      {showNote &&
+        <Box
+          style={{
+            paddingLeft: 20,
+            position: 'absolute',
+            bottom: hp(20),
+            width: wp(300),
+          }}
+          backgroundColor={'light.ReceiveBackground'}
+        >
+          <Note
+            title={common.note}
+            subtitle="Make sure the address or QR is the one where you want to send the funds to"
+            subtitleColor="GreyText"
+          />
+        </Box>}
     </ScreenWrapper>
   );
 }
