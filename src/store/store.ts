@@ -13,6 +13,7 @@ import settingsReducer from './reducers/settings';
 import storageReducer from './reducers/storage';
 import vaultReducer from './reducers/vaults';
 import walletReducer from './reducers/wallets';
+import networkReducer from './reducers/network';
 
 export const rootReducer = combineReducers({
   settings: settingsReducer,
@@ -23,6 +24,7 @@ export const rootReducer = combineReducers({
   notifications: notificationsReducer,
   bhr: bhrReducer,
   vault: vaultReducer,
+  network: networkReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -31,7 +33,7 @@ export type AppDispatch = typeof store.dispatch;
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  blacklist: ['login', 'bhr'],
+  blacklist: ['login', 'bhr', 'sendAndReceive'],
   version: 1,
 };
 

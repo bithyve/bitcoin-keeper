@@ -8,13 +8,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { Alert, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { updatePSBTSignatures } from 'src/store/sagaActions/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
 import { captureError } from 'src/core/services/sentry';
 import usePlan from 'src/hooks/usePlan';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
+import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import DisplayQR from '../QRScreens/DisplayQR';
 
 function SignWithQR() {
@@ -35,10 +35,10 @@ function SignWithQR() {
       if (!isMultisig && signer.type === SignerType.SEEDSIGNER) {
         const { signedPsbt } = updateInputsForSeedSigner({ serializedPSBT, signedSerializedPSBT });
         dispatch(
-          updatePSBTSignatures({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
+          updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
         );
       } else {
-        dispatch(updatePSBTSignatures({ signedSerializedPSBT, signerId: signer.signerId }));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
       }
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     } catch (err) {

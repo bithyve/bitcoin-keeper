@@ -5,9 +5,9 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Platform,
-  ScrollView,
   TextInput,
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
 // libraries
 import { Box, Text, View } from 'native-base';
@@ -103,7 +103,6 @@ function SendScreen({ route }) {
         navigateToNext(address, amount ? amount.toString() : null);
         break;
       default:
-
     }
   };
 
@@ -200,8 +199,6 @@ function SendScreen({ route }) {
                 </View>
               </View>
             </Box>
-
-
           </Box>
         </KeyboardAvoidingView>
       </ScrollView>
