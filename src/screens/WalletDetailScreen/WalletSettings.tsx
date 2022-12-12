@@ -224,7 +224,7 @@ function WalletSettings({ route }) {
       >
         <ScrollView
           style={{
-            marginBottom: 10
+            marginBottom: hp(40)
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -309,7 +309,7 @@ function WalletSettings({ route }) {
       </Box>
       {/* Modals */}
       <Box>
-        <ModalWrapper
+        {/* <ModalWrapper
           visible={confirmPassVisible}
           onSwipeComplete={() => setConfirmPassVisible(false)}
         >
@@ -318,7 +318,25 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(false);
             }}
           />
-        </ModalWrapper>
+        </ModalWrapper> */}
+        <KeeperModal
+          visible={confirmPassVisible}
+          close={() => setConfirmPassVisible(false)}
+          title={walletTranslation.confirmPassTitle}
+          subTitleWidth={wp(240)}
+          subTitle={walletTranslation.confirmPassSubTitle}
+          subTitleColor="#5F6965"
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor="#041513"
+          Content={() => (
+            <SeedConfirmPasscode
+              closeBottomSheet={() => {
+                setConfirmPassVisible(false);
+              }}
+              wallets={wallets}
+              navigation={navigation} />
+          )}
+        />
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
