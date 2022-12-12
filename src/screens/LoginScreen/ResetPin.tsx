@@ -28,8 +28,8 @@ export default function ResetPin(props) {
   const oldPasscode = props.route.params.oldPin || '';
 
   const { translations } = useContext(LocalizationContext);
-  const {login} = translations;
-  const {common} = translations;
+  const { login } = translations;
+  const { common } = translations;
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -152,14 +152,11 @@ export default function ResetPin(props) {
               </Text>
               <Box mb={10}>
                 {/* pin input view */}
-                <PinInputsView
-                  passCode={confirmPasscode}
-                  passcodeFlag={confirmPasscodeFlag != 0}
-                />
+                <PinInputsView passCode={confirmPasscode} passcodeFlag={confirmPasscodeFlag != 0} />
                 {/*  */}
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                   <Text
-                    color="light.white"
+                    color="light.error"
                     fontSize={RFValue(13)}
                     fontWeight="500"
                     width={wp('72%')}
