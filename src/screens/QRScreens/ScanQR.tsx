@@ -10,6 +10,7 @@ import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -85,6 +86,6 @@ const styles = StyleSheet.create({
     width: '85%',
     bottom: 5,
     position: 'absolute',
-    margin: 20,
+    marginHorizontal: 20,
   },
 });
