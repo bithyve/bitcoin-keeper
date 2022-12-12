@@ -10,7 +10,6 @@ import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
