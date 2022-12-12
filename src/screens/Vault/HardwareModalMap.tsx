@@ -102,9 +102,7 @@ function TapsignerSetupContent() {
     <View>
       <TapsignerSetupImage />
       <BulletPoint text="You will need the Pin/CVC at the back of TAPSIGNER" />
-      <BulletPoint
-        text="You should generally not use the same signing device on multiple wallets/apps"
-      />
+      <BulletPoint text="You should generally not use the same signing device on multiple wallets/apps" />
     </View>
   );
 }
@@ -354,9 +352,7 @@ function SettingSigningServer() {
     <Box>
       <SigningServerIllustration />
       <BulletPoint text="A 2FA authenticator will have to be set up to use this option" />
-      <BulletPoint
-        text="On providing the correct code from the auth app, the Signing Server will sign the transaction"
-      />
+      <BulletPoint text="On providing the correct code from the auth app, the Signing Server will sign the transaction" />
     </Box>
   );
 }
@@ -365,12 +361,8 @@ function SetUpMobileKey() {
   return (
     <Box>
       <MobileKeyIllustration />
-      <BulletPoint
-        text="To secure this key, you need the Recovery Phrase of the wallets to be backed up"
-      />
-      <BulletPoint
-        text="This key available for signing transactions if you confirm your passcode or biometrics"
-      />
+      <BulletPoint text="To secure this key, you need the Recovery Phrase of the wallets to be backed up" />
+      <BulletPoint text="This key available for signing transactions if you confirm your passcode or biometrics" />
     </Box>
   );
 }
@@ -380,9 +372,7 @@ function SetupSeedWords() {
     <Box>
       <SeedWordsIllustration />
       <BulletPoint text="Once the transaction is signed the key is not stored on the app" />
-      <BulletPoint
-        text="Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer"
-      />
+      <BulletPoint text="Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer" />
     </Box>
   );
 }
@@ -510,9 +500,9 @@ function HardwareModalMap({ type, visible, close }) {
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const {tapsigner} = translations;
-  const {coldcard} = translations;
-  const {ledger} = translations;
+  const { tapsigner } = translations;
+  const { coldcard } = translations;
+  const { ledger } = translations;
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
