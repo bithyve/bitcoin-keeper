@@ -7,7 +7,7 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 // libraries
 import { Box, Text, View } from 'native-base';
@@ -74,7 +74,7 @@ function SendScreen({ route }) {
     };
   }, []);
 
-  const avgFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+  const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const navigateToNext = (address: string, amount?: string, from = 'Address') => {
     if (!avgFees) {
@@ -131,10 +131,11 @@ function SendScreen({ route }) {
 
   return (
     <ScreenWrapper>
-      <ScrollView style={{
-        flex: 1
-      }}>
-
+      <ScrollView
+        style={{
+          flex: 1,
+        }}
+      >
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : null}
           enabled
@@ -175,12 +176,7 @@ function SendScreen({ route }) {
 
             {/* Send to Wallet options */}
             <Box marginTop={hp(20)}>
-              <Text
-                marginX={5}
-                fontFamily="body"
-                fontSize={14}
-                letterSpacing={1.12}
-              >
+              <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>
@@ -203,7 +199,7 @@ function SendScreen({ route }) {
         </KeyboardAvoidingView>
       </ScrollView>
       {/* {Bottom note} */}
-      {showNote &&
+      {showNote && (
         <Box
           style={{
             paddingLeft: 20,
@@ -211,14 +207,15 @@ function SendScreen({ route }) {
             bottom: hp(20),
             width: wp(300),
           }}
-          backgroundColor={'light.ReceiveBackground'}
+          backgroundColor="light.ReceiveBackground"
         >
           <Note
             title={common.note}
             subtitle="Make sure the address or QR is the one where you want to send the funds to"
             subtitleColor="GreyText"
           />
-        </Box>}
+        </Box>
+      )}
     </ScreenWrapper>
   );
 }
