@@ -3,9 +3,11 @@ import {
   FlatList,
   InteractionManager,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 // libraries
 import { Box, Text, View } from 'native-base';
@@ -43,6 +45,8 @@ function SendScreen({ route }) {
   const { common } = translations;
   const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
+  const [showNote, setShowNote] = useState(true);
+
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const { useQuery } = useContext(RealmWrapperContext);
   const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -54,6 +58,20 @@ function SendScreen({ route }) {
     InteractionManager.runAfterInteractions(() => {
       dispatch(sendPhasesReset());
     });
+  }, []);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setShowNote(false);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setShowNote(true);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
   }, []);
 
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
@@ -113,82 +131,91 @@ function SendScreen({ route }) {
 
   return (
     <ScreenWrapper>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        enabled
-        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-      >
-        <HeaderTitle
-          title={common.send}
-          subtitle="Scan a bitcoin address"
-          headerTitleColor="light.textBlack"
-          paddingTop={hp(5)}
-        />
-        <Box>
-          <Box style={styles.qrcontainer}>
-            <RNCamera
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={(data) => {
-                handleTextChange(data.data);
-              }}
-            />
-          </Box>
-          {/* send manually option */}
-          <Box
-            flexDirection="row"
-            marginY={hp(2)}
-            width="100%"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <TextInput
-              placeholder="or enter address manually"
-              placeholderTextColor="#4F5955"
-              style={styles.textInput}
-              value={paymentInfo}
-              onChangeText={handleTextChange}
-            />
-          </Box>
-
-          {/* Send to Wallet options */}
-          <Box marginTop={hp(40)}>
-            <Text marginX={5} fontWeight={200} fontFamily="body" fontSize={14} letterSpacing={1.12}>
-              or send to a wallet
-            </Text>
-            <View>
-              <View
-                flexDirection="row"
-                style={styles.walletContainer}
-                backgroundColor="light.textInputBackground"
-              >
-                <FlatList
-                  data={otherWallets}
-                  renderItem={renderWallets}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                />
-              </View>
-            </View>
-          </Box>
-        </Box>
-      </KeyboardAvoidingView>
-      {/* {Bottom note} */}
-      <Box
+      <ScrollView
         style={{
-          paddingLeft: 20,
-          position: 'absolute',
-          bottom: hp(20),
-          width: wp(300),
+          flex: 1,
         }}
       >
-        <Note
-          title={common.note}
-          subtitle="Make sure the address or QR is the one where you want to send the funds to"
-          subtitleColor="GreyText"
-        />
-      </Box>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
+          enabled
+          keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+        >
+          <HeaderTitle
+            title={common.send}
+            subtitle="Scan a bitcoin address"
+            headerTitleColor="light.textBlack"
+            paddingTop={hp(5)}
+          />
+          <Box>
+            <Box style={styles.qrcontainer}>
+              <RNCamera
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={(data) => {
+                  handleTextChange(data.data);
+                }}
+              />
+            </Box>
+            {/* send manually option */}
+            <Box
+              flexDirection="row"
+              marginY={hp(2)}
+              width="100%"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <TextInput
+                placeholder="or enter address manually"
+                placeholderTextColor="#4F5955"
+                style={styles.textInput}
+                value={paymentInfo}
+                onChangeText={handleTextChange}
+              />
+            </Box>
+
+            {/* Send to Wallet options */}
+            <Box marginTop={hp(20)}>
+              <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
+                or send to a wallet
+              </Text>
+              <View>
+                <View
+                  flexDirection="row"
+                  style={styles.walletContainer}
+                  backgroundColor="light.textInputBackground"
+                >
+                  <FlatList
+                    data={otherWallets}
+                    renderItem={renderWallets}
+                    keyExtractor={(item) => item.id}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
+              </View>
+            </Box>
+          </Box>
+        </KeyboardAvoidingView>
+      </ScrollView>
+      {/* {Bottom note} */}
+      {showNote && (
+        <Box
+          style={{
+            paddingLeft: 20,
+            position: 'absolute',
+            bottom: hp(20),
+            width: wp(300),
+          }}
+          backgroundColor="light.ReceiveBackground"
+        >
+          <Note
+            title={common.note}
+            subtitle="Make sure the address or QR is the one where you want to send the funds to"
+            subtitleColor="GreyText"
+          />
+        </Box>
+      )}
     </ScreenWrapper>
   );
 }

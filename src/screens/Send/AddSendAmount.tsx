@@ -66,7 +66,7 @@ function AddSendAmount({ route }) {
     const recipients = [];
     recipients.push({
       address,
-      amount: parseInt(amount),
+      amount: amount ? parseInt(amount) : 0,
     });
     dispatch(
       sendPhaseOne({
@@ -81,7 +81,7 @@ function AddSendAmount({ route }) {
       const recipients = [];
       recipients.push({
         address,
-        amount: parseInt(amount),
+        amount: amount ? parseInt(amount) : 0,
       });
       navigateToNext(recipients);
     } else if (sendPhaseOneState.hasFailed) {
@@ -262,7 +262,7 @@ function AddSendAmount({ route }) {
         </Box>
       </Box>
       {/* {!isKeyboardVisible && ( */}
-      <Box justifyContent="center" alignItems="center" width={'100%'}>
+      <Box justifyContent="center" alignItems="center" width="100%">
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
