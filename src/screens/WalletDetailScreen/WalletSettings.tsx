@@ -216,7 +216,7 @@ function WalletSettings({ route }) {
         style={{
           marginLeft: wp(25),
         }}
-        height={hp(425)}
+        height={'52%'}
       >
         <ScrollView>
           <Option
@@ -293,9 +293,9 @@ function WalletSettings({ route }) {
       {/* {Bottom note} */}
       <Box
         style={{
-          position: 'absolute',
-          bottom: hp(35),
-          marginLeft: 26,
+          // position: 'absolute',
+          // bottom: hp(30),
+          // marginLeft: 26,
           width: '90%',
         }}
       >

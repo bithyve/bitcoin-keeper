@@ -198,7 +198,7 @@ function EnterSeedScreen() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={windowHeight > 800 ? 10 : 5}>
+        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView

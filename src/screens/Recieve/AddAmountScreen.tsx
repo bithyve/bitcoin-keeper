@@ -12,7 +12,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 
 function AddAmountScreen({ route }: { route }) {
@@ -20,8 +20,8 @@ function AddAmountScreen({ route }: { route }) {
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
   const { translations } = useContext(LocalizationContext);
-  const {home} = translations;
-  const {common} = translations;
+  const { home } = translations;
+  const { common } = translations;
 
   return (
     <View flex={1}>
@@ -32,7 +32,7 @@ function AddAmountScreen({ route }: { route }) {
           subtitle={home.amountdesc}
           onPressHandler={() => navigtaion.goBack()}
         />
-        <View marginX={8} marginTop={hp(80)}>
+        <View marginX={8} marginTop={hp(60)}>
           <View
             flexDirection="row"
             width="100%"
@@ -58,7 +58,7 @@ function AddAmountScreen({ route }: { route }) {
             />
           </View>
 
-          <View marginY={hp(70)}>
+          <View marginY={windowHeight > 800 ? hp(70) : hp(40)}>
             <Buttons
               secondaryText={common.cancel}
               secondaryCallback={() => {

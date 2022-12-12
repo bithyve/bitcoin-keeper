@@ -117,7 +117,7 @@ function BackupWallet() {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box alignItems="center" paddingX={wp(25)} marginTop={hp(60)}>
+      <Box alignItems="center" marginTop={hp(40)} padding={7}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
