@@ -45,6 +45,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
+import { TransferType } from 'src/common/data/enums/TransferType';
 
 function WalletDetails() {
   const navigation = useNavigation();
@@ -60,7 +61,7 @@ function WalletDetails() {
   const introModal = useAppSelector((state) => state.wallet.introModal);
 
   const { translations } = useContext(LocalizationContext);
-  const {wallet} = translations;
+  const { wallet } = translations;
 
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -210,7 +211,8 @@ function WalletDetails() {
           fontWeight="200"
           p={1}
         >
-          You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper
+          You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to
+          Keeper
         </Text>
         <Text
           color="white"
@@ -220,7 +222,8 @@ function WalletDetails() {
           fontWeight="200"
           p={1}
         >
-          When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This ensures you don’t have more sats in hot wallets than you need.
+          When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This
+          ensures you don’t have more sats in hot wallets than you need.
         </Text>
       </View>
     );
@@ -290,13 +293,10 @@ function WalletDetails() {
           <Box
             style={{
               flexDirection: 'row',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
             }}
           >
-            <Box
-              backgroundColor="light.transactionPolicyCard"
-              style={styles.transferPolicyCard}
-            >
+            <Box backgroundColor="light.transactionPolicyCard" style={styles.transferPolicyCard}>
               <Box style={{ paddingLeft: wp(10) }}>
                 <Text
                   color="light.brownborder"
@@ -305,7 +305,10 @@ function WalletDetails() {
                   fontWeight={200}
                 >
                   Available to spend
-                  <Text fontWeight="bold"> {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats</Text>
+                  <Text fontWeight="bold">
+                    {' '}
+                    {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
+                  </Text>
                 </Text>
               </Box>
             </Box>
@@ -316,6 +319,7 @@ function WalletDetails() {
                 if (vaultExsist) {
                   navigation.navigate('SendConfirmation', {
                     isVaultTransfer: true,
+                    transferType: TransferType.WALLET_TO_VAULT,
                     walletId: wallets[walletIndex].id,
                   });
                 } else Alert.alert('Vault is not created');
@@ -335,12 +339,7 @@ function WalletDetails() {
             </Pressable>
           </Box>
 
-          <Box
-            flexDirection="row"
-            justifyContent="space-between"
-            marginTop={hp(24)}
-            width="100%"
-          >
+          <Box flexDirection="row" justifyContent="space-between" marginTop={hp(24)} width="100%">
             <Text
               color="light.textBlack"
               marginLeft={wp(3)}
@@ -393,7 +392,7 @@ function WalletDetails() {
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {
-                  navigation.navigate('Send', { wallet: currentWallet });
+                  navigation.navigate('Send', { sender: currentWallet });
                 }}
               >
                 <Send />
@@ -487,7 +486,7 @@ const styles = StyleSheet.create({
     borderRadius: hp(10),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 export default WalletDetails;

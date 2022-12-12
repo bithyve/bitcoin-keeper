@@ -33,6 +33,7 @@ import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { WalletMap } from './WalletMap';
+import { TransferType } from 'src/common/data/enums/TransferType';
 
 const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
   if (vault) {
@@ -40,14 +41,13 @@ const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => 
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
-    } if (currentScheme.m < subscriptionScheme.m) {
+    }
+    if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
-    } 
-      return VaultMigrationType.CHANGE;
-    
-  } 
+    }
     return VaultMigrationType.CHANGE;
-  
+  }
+  return VaultMigrationType.CHANGE;
 };
 
 export const checkSigningDevice = async (id) => {
@@ -166,12 +166,10 @@ function AddSigningDevice() {
         CommonActions.navigate('SendConfirmation', {
           wallet: activeVault,
           recipients,
+          transferType: TransferType.VAULT_TO_VAULT,
           uiMetaData: {
             title: 'Transfer Funds to the New Vault',
             subtitle: 'On-chain transaction incurs fees',
-            from: 'Old Vault',
-            to: 'New Vault',
-            vaultToVault: true,
           },
         })
       );
@@ -245,10 +243,10 @@ function AddSigningDevice() {
 
   const getPlaceholder = (index) => {
     const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex  }st`;
-    if (mainIndex == 2) return `${mainIndex  }nd`;
-    if (mainIndex == 3) return `${mainIndex  }rd`;
-    return `${mainIndex  }th`;
+    if (mainIndex == 1) return `${mainIndex}st`;
+    if (mainIndex == 2) return `${mainIndex}nd`;
+    if (mainIndex == 3) return `${mainIndex}rd`;
+    return `${mainIndex}th`;
   };
 
   function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
@@ -325,7 +323,7 @@ function AddSigningDevice() {
   }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
-  const {common} = translations;
+  const { common } = translations;
   const AstrixSigners = [];
   signersState.forEach((signer: VaultSigner) => {
     if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))

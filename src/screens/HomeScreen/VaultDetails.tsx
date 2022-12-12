@@ -57,7 +57,7 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Send', { wallet: vault }));
+            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
           <Send />
@@ -191,17 +191,17 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
-      <TransactionElement
-        transaction={item}
-        onPress={() => {
-          navigation.dispatch(
-            CommonActions.navigate('TransactionDetails', {
-              transaction: item,
-            })
-          );
-        }}
-      />
-    );
+    <TransactionElement
+      transaction={item}
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate('TransactionDetails', {
+            transaction: item,
+          })
+        );
+      }}
+    />
+  );
   return (
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
@@ -253,13 +253,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
 }
 
-function SignerList({
-  upgradeStatus,
-  vault,
-}: {
-  upgradeStatus: VaultMigrationType;
-  vault: Vault;
-}) {
+function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
   const Signers = vault.signers;
   const styles = getStyles(0);
   const navigation = useNavigation();
@@ -316,55 +310,55 @@ function SignerList({
       horizontal
     >
       {Signers.map((signer) => (
-          <Box style={styles.signerCard} marginRight="3">
-            <TouchableOpacity
-              onPress={() => {
-                navigation.dispatch(
-                  CommonActions.navigate('SigningDeviceDetails', {
-                    SignerIcon: <SignerIcon />,
-                    signer,
-                    vaultId: vault.id,
-                  })
-                );
-              }}
+        <Box style={styles.signerCard} marginRight="3">
+          <TouchableOpacity
+            onPress={() => {
+              navigation.dispatch(
+                CommonActions.navigate('SigningDeviceDetails', {
+                  SignerIcon: <SignerIcon />,
+                  signer,
+                  vaultId: vault.id,
+                })
+              );
+            }}
+          >
+            <Box
+              margin="1"
+              marginBottom="3"
+              width="12"
+              height="12"
+              borderRadius={30}
+              bg="#725436"
+              justifyContent="center"
+              alignItems="center"
+              alignSelf="center"
             >
-              <Box
-                margin="1"
-                marginBottom="3"
-                width="12"
-                height="12"
-                borderRadius={30}
-                bg="#725436"
-                justifyContent="center"
-                alignItems="center"
-                alignSelf="center"
+              {WalletMap(signer.type, true).Icon}
+            </Box>
+            <VStack pb={2}>
+              <Text
+                color="light.textBlack"
+                fontSize={11}
+                fontWeight={200}
+                letterSpacing={0.6}
+                textAlign="center"
+                noOfLines={1}
               >
-                {WalletMap(signer.type, true).Icon}
-              </Box>
-              <VStack pb={2}>
-                <Text
-                  color="light.textBlack"
-                  fontSize={11}
-                  fontWeight={200}
-                  letterSpacing={0.6}
-                  textAlign="center"
-                  noOfLines={1}
-                >
-                  {getSignerNameFromType(signer.type)}
-                </Text>
-                <Text
-                  color="light.textBlack"
-                  fontSize={8}
-                  fontWeight={200}
-                  letterSpacing={0.6}
-                  textAlign="center"
-                >
-                  {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
-                </Text>
-              </VStack>
-            </TouchableOpacity>
-          </Box>
-        ))}
+                {getSignerNameFromType(signer.type)}
+              </Text>
+              <Text
+                color="light.textBlack"
+                fontSize={8}
+                fontWeight={200}
+                letterSpacing={0.6}
+                textAlign="center"
+              >
+                {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
+              </Text>
+            </VStack>
+          </TouchableOpacity>
+        </Box>
+      ))}
       <AddSigner />
     </ScrollView>
   );
@@ -395,11 +389,11 @@ function VaultDetails({ route, navigation }) {
     const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
-    } if (currentScheme.m < subscriptionScheme.m) {
+    }
+    if (currentScheme.m < subscriptionScheme.m) {
       return VaultMigrationType.UPGRADE;
-    } 
-      return VaultMigrationType.CHANGE;
-    
+    }
+    return VaultMigrationType.CHANGE;
   };
 
   const syncVault = () => {
@@ -435,7 +429,8 @@ function VaultDetails({ route, navigation }) {
           fontWeight="200"
           p={1}
         >
-          Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select
+          Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
+          select
         </Text>
         <Text
           color="white"
@@ -494,19 +489,20 @@ function VaultDetails({ route, navigation }) {
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={() => (
-            <View>
-              <Success />
-              <Text
-                fontWeight={200}
-                fontSize={13}
-                letterSpacing={0.65}
-                color="light.modalText"
-                marginTop={3}
-              >
-                For sending out of the vault you will need the signing devices. This means no one can steal your bitcoin in the vault unless they also have the signing devices
-              </Text>
-            </View>
-          )}
+          <View>
+            <Success />
+            <Text
+              fontWeight={200}
+              fontSize={13}
+              letterSpacing={0.65}
+              color="light.modalText"
+              marginTop={3}
+            >
+              For sending out of the vault you will need the signing devices. This means no one can
+              steal your bitcoin in the vault unless they also have the signing devices
+            </Text>
+          </View>
+        )}
       />
       <KeeperModal
         visible={introModal}
