@@ -43,10 +43,13 @@ type Props = {
 function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
     <Pressable
-      flexDirection="row"
-      alignItems="center"
-      width="100%"
-      style={{ marginTop: hp(20) }}
+
+      style={{
+        marginTop: hp(20),
+        flexDirection: "row",
+        alignItems: "center",
+        width: "100%",
+      }}
       onPress={onPress}
     >
       {Icon && (
@@ -110,11 +113,11 @@ function WalletSettings({ route }) {
         }}
       >
         <Box
-          marginTop={hp(17)}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
           style={{
+            marginTop: hp(17),
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
             marginHorizontal: wp(20),
           }}
         >
@@ -198,8 +201,8 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        marginTop={hp(40)}
         style={{
+          marginTop: hp(35),
           marginLeft: wp(25),
         }}
       >
@@ -212,13 +215,19 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        alignItems="center"
         style={{
+          alignItems: "center",
           marginLeft: wp(25),
+          marginTop: 10,
+          height: hp(425)
         }}
-        height={'52%'}
       >
-        <ScrollView>
+        <ScrollView
+          style={{
+            marginBottom: 10
+          }}
+          showsVerticalScrollIndicator={false}
+        >
           <Option
             title="Wallet Details"
             subTitle="Change wallet name & description"
@@ -291,14 +300,7 @@ function WalletSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box
-        style={{
-          // position: 'absolute',
-          // bottom: hp(30),
-          // marginLeft: 26,
-          width: '90%',
-        }}
-      >
+      <Box style={styles.note} backgroundColor={'light.ReceiveBackground'}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -382,6 +384,13 @@ const styles = ScaledSheet.create({
     padding: 20,
     position: 'relative',
   },
+  note: {
+    position: 'absolute',
+    bottom: hp(35),
+    marginLeft: 26,
+    width: '90%',
+    paddingTop: hp(10),
+  }
 });
 export default WalletSettings;
 export { Option };
