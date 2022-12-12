@@ -3,6 +3,7 @@ import { KeyValue, PsbtGlobalUpdate, PsbtInput, PsbtInputUpdate, PsbtOutput, Psb
 import { Signer, SignerAsync } from './ecpair';
 import { Network } from './networks';
 import { Transaction } from './transaction';
+
 export interface PsbtTxInput extends TransactionInput {
     hash: Buffer;
 }
@@ -43,58 +44,111 @@ export interface PsbtTxOutput extends TransactionOutput {
  */
 export declare class Psbt {
     readonly data: PsbtBase;
+
     static fromBase64(data: string, opts?: PsbtOptsOptional): Psbt;
+
     static fromHex(data: string, opts?: PsbtOptsOptional): Psbt;
+
     static fromBuffer(buffer: Buffer, opts?: PsbtOptsOptional): Psbt;
+
     private __CACHE;
+
     private opts;
+
     constructor(opts?: PsbtOptsOptional, data?: PsbtBase);
+
     readonly inputCount: number;
+
     version: number;
+
     locktime: number;
+
     readonly txInputs: PsbtTxInput[];
+
     readonly txOutputs: PsbtTxOutput[];
+
     combine(...those: Psbt[]): this;
+
     clone(): Psbt;
+
     setMaximumFeeRate(satoshiPerByte: number): void;
+
     setVersion(version: number): this;
+
     setLocktime(locktime: number): this;
+
     setInputSequence(inputIndex: number, sequence: number): this;
+
     addInputs(inputDatas: PsbtInputExtended[]): this;
+
     addInput(inputData: PsbtInputExtended): this;
+
     addOutputs(outputDatas: PsbtOutputExtended[]): this;
+
     addOutput(outputData: PsbtOutputExtended): this;
+
     extractTransaction(disableFeeCheck?: boolean): Transaction;
+
     getFeeRate(): number;
+
     getFee(): number;
+
     finalizeAllInputs(): this;
+
     finalizeInput(inputIndex: number, finalScriptsFunc?: FinalScriptsFunc): this;
+
     getInputType(inputIndex: number): AllScriptType;
+
     inputHasPubkey(inputIndex: number, pubkey: Buffer): boolean;
+
     inputHasHDKey(inputIndex: number, root: HDSigner): boolean;
+
     outputHasPubkey(outputIndex: number, pubkey: Buffer): boolean;
+
     outputHasHDKey(outputIndex: number, root: HDSigner): boolean;
+
     validateSignaturesOfAllInputs(): boolean;
+
     validateSignaturesOfInput(inputIndex: number, pubkey?: Buffer): boolean;
+
     signAllInputsHD(hdKeyPair: HDSigner, sighashTypes?: number[]): this;
+
     signAllInputsHDAsync(hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
+
     signInputHD(inputIndex: number, hdKeyPair: HDSigner, sighashTypes?: number[]): this;
+
     signInputHDAsync(inputIndex: number, hdKeyPair: HDSigner | HDSignerAsync, sighashTypes?: number[]): Promise<void>;
+
     signAllInputs(keyPair: Signer, sighashTypes?: number[]): this;
+
     signAllInputsAsync(keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
+
     getDigestToSign(inputIndex: number, publicKey: Buffer, sighashTypes?: number[]): { hash: Buffer; sighashType: any }
+
     addSignedDisgest(inputIndex: number, publicKey: Buffer, signature: Buffer, sighashType: any): this;
+
     signInput(inputIndex: number, keyPair: Signer, sighashTypes?: number[]): this;
+
     signInputAsync(inputIndex: number, keyPair: Signer | SignerAsync, sighashTypes?: number[]): Promise<void>;
+
     toBuffer(): Buffer;
+
     toHex(): string;
+
     toBase64(): string;
+
     updateGlobal(updateData: PsbtGlobalUpdate): this;
+
     updateInput(inputIndex: number, updateData: PsbtInputUpdate): this;
+
     updateOutput(outputIndex: number, updateData: PsbtOutputUpdate): this;
+
     addUnknownKeyValToGlobal(keyVal: KeyValue): this;
+
     addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this;
+
     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
+
     clearFinalizedInput(inputIndex: number): this;
 }
 interface PsbtOptsOptional {

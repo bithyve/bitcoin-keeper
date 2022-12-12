@@ -1,6 +1,6 @@
-import { Alert, Box, HStack, Pressable, Text, VStack } from 'native-base';
+import { Box, HStack, Pressable, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, View } from 'react-native';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import AddIcon from 'src/assets/images/green_add.svg';
@@ -14,40 +14,39 @@ import Relay from 'src/core/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/svgs/successSvg.svg';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { WalletMap } from '../Vault/WalletMap';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { reoverVault } from 'src/store/sagaActions/bhr';
 import { setVaultMetaData } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
+import { WalletMap } from '../Vault/WalletMap';
 
-const SignerItem = ({ signer, index }: { signer: any | undefined; index: number }) => {
+function SignerItem({ signer, index }: { signer: any | undefined; index: number }) {
   const { navigate } = useNavigation();
   if (!signer) {
     return (
       <Pressable onPress={() => navigate('LoginStack', { screen: 'SignersList' })}>
-        <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'12'}>
+        <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
           <HStack style={styles.signerItem}>
-            <HStack alignItems={'center'}>
+            <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX={'4'} maxW={'64'}>
+              <VStack marginX="4" maxW="64">
                 <Text
-                  color={'light.lightBlack'}
+                  color="light.lightBlack"
                   fontSize={15}
                   numberOfLines={2}
-                  alignItems={'center'}
+                  alignItems="center"
                   letterSpacing={1.12}
                   fontWeight={200}
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text color={'light.GreyText'} fontSize={13} fontWeight={200} letterSpacing={0.6}>
-                  {`Lorem ipsum dolor sit amet, consectetur`}
+                <Text color="light.GreyText" fontSize={13} fontWeight={200} letterSpacing={0.6}>
+                  Lorem ipsum dolor sit amet, consectetur
                 </Text>
               </VStack>
             </HStack>
-            <Box w={'15%'} alignItems={'center'}>
+            <Box w="15%" alignItems="center">
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -56,26 +55,26 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
     );
   }
   return (
-    <Box flexDir={'row'} alignItems={'center'} marginX={'3'} marginBottom={'12'}>
+    <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
       <HStack style={styles.signerItem}>
         <HStack>
           <Box
-            width={'8'}
-            height={'8'}
+            width="8"
+            height="8"
             borderRadius={30}
-            bg={'#725436'}
-            justifyContent={'center'}
-            alignItems={'center'}
-            alignSelf={'center'}
+            bg="#725436"
+            justifyContent="center"
+            alignItems="center"
+            alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX={'4'} maxW={'80%'}>
+          <VStack marginX="4" maxW="80%">
             <Text
-              color={'light.lightBlack'}
+              color="light.lightBlack"
               fontSize={15}
               numberOfLines={2}
-              alignItems={'center'}
+              alignItems="center"
               letterSpacing={1.12}
               fontWeight={200}
             >
@@ -84,16 +83,16 @@ const SignerItem = ({ signer, index }: { signer: any | undefined; index: number 
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text color={'light.GreyText'} fontWeight={200} fontSize={12} letterSpacing={0.6}>
-            {`Remove`}
+          <Text color="light.GreyText" fontWeight={200} fontSize={12} letterSpacing={0.6}>
+            Remove
           </Text>
         </Pressable>
       </HStack>
     </Box>
   );
-};
+}
 
-const VaultRecovery = () => {
+function VaultRecovery() {
   const { navigate } = useNavigation();
   const dispatch = useDispatch();
   const { vaultMetaData, signingDevices } = useAppSelector((state) => state.bhr);
@@ -121,7 +120,7 @@ const VaultRecovery = () => {
 
   useEffect(() => {
     if (vaultMetaData.m && signingDevices) {
-      let fills = new Array(vaultMetaData.m - signingDevices.length).fill(null);
+      const fills = new Array(vaultMetaData.m - signingDevices.length).fill(null);
       setsignersList(signingDevices.concat(fills));
     }
   }, [vaultMetaData, signingDevices]);
@@ -132,25 +131,25 @@ const VaultRecovery = () => {
     }
   }, [appId]);
 
-  const SuccessModalContent = () => (
-    <View>
-      <Box alignSelf={'center'}>
+  function SuccessModalContent() {
+  return <View>
+      <Box alignSelf="center">
         <SuccessSvg />
       </Box>
-      <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
+      <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
         The BIP-85 wallets in the app are new as they can’t be recovered using this method
       </Text>
     </View>
-  );
+}
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   const navigation = useNavigation();
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={'Add signing devices'}
-        subtitle={'To recover your inherited vault'}
-        headerTitleColor={'light.textBlack'}
+        title="Add signing devices"
+        subtitle="To recover your inherited vault"
+        headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -164,9 +163,9 @@ const VaultRecovery = () => {
             }}
           />
         ) : (
-          <Box alignItems={'center'} style={{ flex: 1, justifyContent: 'center' }}>
+          <Box alignItems="center" style={{ flex: 1, justifyContent: 'center' }}>
             <TouchableOpacity onPress={() => navigate('LoginStack', { screen: 'SignersList' })}>
-              <Box alignItems={'center'}>
+              <Box alignItems="center">
                 <AddSignerIcon />
               </Box>
             </TouchableOpacity>
@@ -176,7 +175,7 @@ const VaultRecovery = () => {
           </Box>
         )}
         {signingDevices && signingDevices.length === vaultMetaData.m && (
-          <Box position={'absolute'} bottom={10} width={'100%'} marginBottom={10}>
+          <Box position="absolute" bottom={10} width="100%" marginBottom={10}>
             <Buttons
               primaryText="Recover Vault"
               primaryDisable={disable}
@@ -185,24 +184,24 @@ const VaultRecovery = () => {
           </Box>
         )}
         <Note
-          title={'Note'}
-          subtitle={'Signing Server cannot be used as the first signing device while recovering'}
+          title="Note"
+          subtitle="Signing Server cannot be used as the first signing device while recovering"
         />
       </View>
       <KeeperModal
         visible={successModal}
-        title={'Vault Recovered!'}
-        subTitle={'Your Keeper vault has successfully been recovered.'}
-        buttonText={'View Vault'}
+        title="Vault Recovered!"
+        subTitle="Your Keeper vault has successfully been recovered."
+        buttonText="View Vault"
         Content={SuccessModalContent}
         close={() => setSuccessModal(false)}
         buttonCallback={() =>
-          navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }))
+          navigation.dispatch(CommonActions.navigate('App', { name: 'VaultDetails', params: {} }))
         }
       />
     </ScreenWrapper>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   signerItem: {

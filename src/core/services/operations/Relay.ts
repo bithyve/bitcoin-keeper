@@ -1,13 +1,13 @@
-import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
 import { AxiosResponse } from 'axios';
-import { INotification } from '../interfaces';
-import RestClient from '../rest/RestClient';
-import { captureError } from '../sentry';
-import config from '../../config';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import idx from 'idx';
 import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
+import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
+import { INotification } from '../interfaces';
+import RestClient from '../rest/RestClient';
+import { captureError } from '../sentry';
+import config from '../../config';
 
 const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
@@ -254,7 +254,7 @@ export default class Relay {
       try {
         res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
           AUTH_ID,
-          appId: appId,
+          appId,
         });
       } catch (err) {
         if (err.response) throw new Error(err.response.data.err);
@@ -276,8 +276,8 @@ export default class Relay {
     data?: {
       updated: boolean;
     };
-    err?: undefined;
-    message?: undefined;
+    err?: string;
+    message?: string;
   }> => {
     try {
       let res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
@@ -298,8 +298,8 @@ export default class Relay {
     data?: {
       updated: boolean;
     };
-    err?: undefined;
-    message?: undefined;
+    err?: string;
+    message?: string;
   }> => {
     try {
       let res;
@@ -321,7 +321,7 @@ export default class Relay {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
         id: appId,
       });
-      const data = res.data;
+      const {data} = res;
       return data;
     } catch (err) {
       captureError(err);

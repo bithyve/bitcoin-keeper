@@ -1,19 +1,16 @@
 import React, { useMemo } from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box } from 'native-base';
-
-import LinearGradient from 'react-native-linear-gradient';
-import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
-import IconDollerWhite from 'src/assets/icons/Wallets/icon_dollar_white.svg';
-import IconBitcoinWhite from 'src/assets/icons/Wallets/icon_bitcoin_white.svg';
-
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { setCurrencyKind } from 'src/store/reducers/settings';
+
+import { Box } from 'native-base';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
+import IconBitcoinWhite from 'src/assets/icons/Wallets/icon_bitcoin_white.svg';
+import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
+import IconDollerWhite from 'src/assets/icons/Wallets/icon_dollar_white.svg';
+import LinearGradient from 'react-native-linear-gradient';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,7 +22,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const CurrencyTypeSwitch = () => {
+function CurrencyTypeSwitch() {
   const { currencyKind } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
 
@@ -53,9 +50,9 @@ const CurrencyTypeSwitch = () => {
       >
         <Box
           borderRadius={10}
-          justifyContent={'space-between'}
+          justifyContent="space-between"
           flexDirection="row"
-          alignItems={'center'}
+          alignItems="center"
         >
           <Box
             height={7}
@@ -65,8 +62,8 @@ const CurrencyTypeSwitch = () => {
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
-            justifyContent={'center'}
-            alignItems={'center'}
+            justifyContent="center"
+            alignItems="center"
           >
             {/* <FontAwesome
               name={'dollar'}
@@ -83,8 +80,8 @@ const CurrencyTypeSwitch = () => {
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
-            justifyContent={'center'}
-            alignItems={'center'}
+            justifyContent="center"
+            alignItems="center"
           >
             {/* <FontAwesome
               name={'bitcoin'}
@@ -97,6 +94,6 @@ const CurrencyTypeSwitch = () => {
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+}
 
 export default CurrencyTypeSwitch;

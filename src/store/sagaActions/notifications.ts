@@ -1,31 +1,25 @@
 // types and action creators: dispatched by components and sagas
-import { Alert } from 'react-native'
-import {
-  notificationTag,
-  notificationType,
-} from '../../core/interfaces/Interface'
+import { notificationTag, notificationType } from 'src/core/services/enums';
 
-export const UPDATE_FCM_TOKENS = 'UPDATE_FCM_TOKENS'
-export const SEND_NOTIFICATION = 'SEND_NOTIFICATION'
-export const FETCH_NOTIFICATIONS = 'FETCH_NOTIFICATIONS'
-export const NOTIFICATION_UPDATED = 'NOTIFICATION_UPDATED'
-export const SETUP_NOTIFICATION_LIST = 'SETUP_NOTIFICATION_LIST'
-export const UPDATED_NOTIFICATION_LIST = 'UPDATED_NOTIFICATION_LIST'
-export const FETCH_NOTIFICATION_STARTED = 'FETCH_NOTIFICATION_STARTED'
-export const GET_MESSAGES = 'GET_MESSAGES'
-export const STORE_MESSAGE_TIMESTAMP = 'STORE_MESSAGE_TIMESTAMP'
-export const MESSAGES_FETCHED = 'MESSAGES_FETCHED'
-export const UPDATE_MESSAGES_STATUS_INAPP = 'UPDATE_MESSAGES_STATUS_INAPP'
-export const UPDATE_MESSAGES_STATUS = 'UPDATE_MESSAGES_STATUS'
+export const UPDATE_FCM_TOKENS = 'UPDATE_FCM_TOKENS';
+export const SEND_NOTIFICATION = 'SEND_NOTIFICATION';
+export const FETCH_NOTIFICATIONS = 'FETCH_NOTIFICATIONS';
+export const NOTIFICATION_UPDATED = 'NOTIFICATION_UPDATED';
+export const SETUP_NOTIFICATION_LIST = 'SETUP_NOTIFICATION_LIST';
+export const UPDATED_NOTIFICATION_LIST = 'UPDATED_NOTIFICATION_LIST';
+export const FETCH_NOTIFICATION_STARTED = 'FETCH_NOTIFICATION_STARTED';
+export const GET_MESSAGES = 'GET_MESSAGES';
+export const STORE_MESSAGE_TIMESTAMP = 'STORE_MESSAGE_TIMESTAMP';
+export const MESSAGES_FETCHED = 'MESSAGES_FETCHED';
+export const UPDATE_MESSAGES_STATUS_INAPP = 'UPDATE_MESSAGES_STATUS_INAPP';
+export const UPDATE_MESSAGES_STATUS = 'UPDATE_MESSAGES_STATUS';
 
-export const updateFCMTokens = ( FCMs: string[] ) => {
-  return {
+export const updateFCMTokens = (FCMs: string[]) => ({
     type: UPDATE_FCM_TOKENS,
     payload: {
-      FCMs
+      FCMs,
     },
-  }
-}
+  });
 
 export const sendNotification = (
   contactName: string,
@@ -33,105 +27,92 @@ export const sendNotification = (
   title: string,
   body: string,
   data: Object,
-  tag: notificationTag,
-) => {
-  return {
+  tag: notificationTag
+) => ({
     type: SEND_NOTIFICATION,
     payload: {
-      contactName, notificationType, title, body, data, tag
+      contactName,
+      notificationType,
+      title,
+      body,
+      data,
+      tag,
     },
-  }
-}
+  });
 
-export const fetchNotifications = () => {
-  return {
+export const fetchNotifications = () => ({
     type: FETCH_NOTIFICATIONS,
-  }
-}
-export const setupNotificationList = ( ) => {
-  return {
-    type: SETUP_NOTIFICATION_LIST
-  }
-}
+  });
+export const setupNotificationList = () => ({
+    type: SETUP_NOTIFICATION_LIST,
+  });
 
 // types and action creators: dispatched sagas
 
-export const NOTIFICATIONS_FETCHED = 'NOTIFICATIONS_FETCHED'
+export const NOTIFICATIONS_FETCHED = 'NOTIFICATIONS_FETCHED';
 
-export const notificationsFetched = ( notifications ) => {
-  console.log( 'notificationsFetched notifications', notifications )
+export const notificationsFetched = (notifications) => {
+  console.log('notificationsFetched notifications', notifications);
   return {
     type: NOTIFICATIONS_FETCHED,
     payload: {
-      notifications
+      notifications,
     },
-  }
-}
+  };
+};
 
-export const notificationsUpdated = ( notifications ) => {
-  return {
+export const notificationsUpdated = (notifications) => ({
     type: NOTIFICATION_UPDATED,
     payload: {
-      notificationListNew: notifications
+      notificationListNew: notifications,
     },
-  }
-}
+  });
 
-export const updateNotificationList = ( notifications ) => {
-  return {
+export const updateNotificationList = (notifications) => ({
     type: UPDATED_NOTIFICATION_LIST,
     payload: {
-      updatedNotificationList: notifications
+      updatedNotificationList: notifications,
     },
-  }
-}
+  });
 
-export const fetchNotificationStarted = ( fetchStarted ) => {
-  return {
-    type: FETCH_NOTIFICATION_STARTED, payload: {
-      fetchStarted
-    }
-  }
-}
+export const fetchNotificationStarted = (fetchStarted) => ({
+    type: FETCH_NOTIFICATION_STARTED,
+    payload: {
+      fetchStarted,
+    },
+  });
 
-export const getMessages = () => {
-  return {
+export const getMessages = () => ({
     type: GET_MESSAGES,
-  }
-}
+  });
 
-export const storeMessagesTimeStamp = () => {
-  return {
+export const storeMessagesTimeStamp = () => ({
     type: STORE_MESSAGE_TIMESTAMP,
-  }
-}
+  });
 
-export const messageFetched = ( messages ) => {
+export const messageFetched = (messages) => 
   // console.log( 'messagesFetched messages', messages )
-  return {
+   ({
     type: MESSAGES_FETCHED,
     payload: {
-      messages
+      messages,
     },
-  }
-}
+  })
+;
 
-export const updateMessageStatusInApp = ( messageNotificationId ) => {
-  console.log( 'updateMessageStatus messages', messageNotificationId )
+export const updateMessageStatusInApp = (messageNotificationId) => {
+  console.log('updateMessageStatus messages', messageNotificationId);
   return {
     type: UPDATE_MESSAGES_STATUS_INAPP,
     payload: {
-      messageNotificationId
+      messageNotificationId,
     },
-  }
-}
+  };
+};
 
-export const updateMessageStatus = ( data : [] ) => {
-  return {
+export const updateMessageStatus = (data: []) => ({
     type: UPDATE_MESSAGES_STATUS,
     payload: {
-      data
+      data,
     },
-  }
-}
-
+  });

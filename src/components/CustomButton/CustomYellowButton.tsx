@@ -3,18 +3,17 @@ import { TouchableHighlight, StyleSheet } from 'react-native';
 import { Text } from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
 }
-const CustomYellowButton = (props: Props) => {
+function CustomYellowButton(props: Props) {
   return (
     <TouchableHighlight
       style={styles.button}
       disabled={props.disabled}
-      underlayColor={'none'}
+      underlayColor="none"
       onPress={() => {
         props.onPress();
       }}
@@ -28,7 +27,7 @@ const CustomYellowButton = (props: Props) => {
           x: 0,
           y: 0,
         }}
-        useAngle={true}
+        useAngle
         angle={286}
         angleCenter={{
           x: 1,
@@ -37,13 +36,13 @@ const CustomYellowButton = (props: Props) => {
         colors={['#E3BE96', '#E3BE96']}
         style={styles.linearGradient}
       >
-        <Text color={'#30292F'} fontSize={12} fontWeight={'300'} fontFamily={'body'}>
+        <Text color="#30292F" fontSize={12} fontWeight="300" fontFamily="body">
           {props.value}
         </Text>
       </LinearGradient>
     </TouchableHighlight>
   );
-};
+}
 
 const styles = StyleSheet.create({
   button: {

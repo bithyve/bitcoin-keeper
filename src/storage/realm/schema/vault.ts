@@ -1,5 +1,5 @@
-import { Balances } from './wallet';
 import { ObjectSchema } from 'realm';
+import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
 export const Scheme = {

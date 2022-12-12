@@ -1,117 +1,75 @@
-import { Alert, SafeAreaView, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import config, { APP_STAGE } from 'src/core/config';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import {
+  getCCGenericJSON,
+  getColdcardDetails,
+  getMockColdcardDetails,
+} from 'src/hardware/coldcard';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { NfcTech } from 'react-native-nfc-manager';
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { captureError } from 'src/core/services/sentry';
+import config from 'src/core/config';
+import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
+import usePlan from 'src/hooks/usePlan';
+import useNfcModal from 'src/hooks/useNfcModal';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
-const SetupColdCard = () => {
-  const [nfcVisible, setNfcVisible] = React.useState(false);
-
+function SetupColdCard() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
-  const scanMK4 = async () => {
-    setNfcVisible(true);
-    try {
-      const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2sh_p2wsh;
-      const path = data?.p2sh_p2wsh_deriv ?? '';
-      const xfp = data?.xfp ?? '';
-      setNfcVisible(false);
-      return { xpub, path, xfp };
-    } catch (err) {
-      console.log(err);
-      setNfcVisible(false);
-    }
-  };
-
-  const getColdCardDetails = async () => {
-    const { xpub, path: derivationPath, xfp } = await scanMK4();
-    return { xpub, derivationPath, xfp };
-  };
-
-  const saveColdCard = async (coldCardData) => {
-    let { xpub, derivationPath, xfp } = coldCardData;
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-    const signer: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.COLDCARD,
-      signerName: 'Mk4',
-      xpub,
-      xpubInfo: {
-        derivationPath,
-        xfp,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-      storageType: SignerStorage.COLD,
-    };
-    const exsists = await checkSigningDevice(signer.signerId);
-    if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
-    dispatch(addSigningDevice(signer));
-  };
+  const { nfcVisible, withNfcModal } = useNfcModal();
 
   const addColdCard = async () => {
     try {
-      const colcard = await getColdCardDetails();
-      saveColdCard(colcard);
+      let { xpub, derivationPath, xfp } = await withNfcModal(
+        isMultisig ? getColdcardDetails : getCCGenericJSON
+      );
+      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const coldcard = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.COLDCARD,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(addSigningDevice(coldcard));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-    } catch (err) {
-      console.log(err);
+      const exsists = await checkSigningDevice(coldcard.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+    } catch (error) {
+      captureError(error);
     }
   };
 
   const addMockColdCard = () => {
     try {
-      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const networkType = config.NETWORK_TYPE;
-        const network = WalletUtilities.getNetworkByType(networkType);
-        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-          EntityKind.VAULT,
-          SignerType.COLDCARD,
-          networkType
-        );
-        const cc: VaultSigner = {
-          signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-          type: SignerType.COLDCARD,
-          isMock: true,
-          signerName: 'Mk4**',
-          xpub,
-          xpriv,
-          xpubInfo: {
-            derivationPath,
-            xfp: masterFingerprint,
-          },
-          lastHealthCheck: new Date(),
-          addedOn: new Date(),
-          storageType: SignerStorage.COLD,
-        };
-        dispatch(addSigningDevice(cc));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      }
-    } catch (err) {
-      console.log(err);
+      const cc = getMockColdcardDetails();
+      dispatch(addSigningDevice(cc));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    } catch (error) {
+      captureError(error);
     }
   };
 
+  const instructions = isMultisig
+    ? 'Go to Settings > Multisig wallets > Export xPub on your Coldcard'
+    : 'Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper>
       <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>
         <Box flex={1}>
           <Box style={styles.header}>
@@ -120,16 +78,19 @@ const SetupColdCard = () => {
               subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
               onPressHandler={() => navigation.goBack()}
             />
-            <Box style={{ padding: 30 }}>
-              <Buttons primaryText="Proceed" primaryCallback={addColdCard} />
+            <Box style={styles.buttonContainer}>
+              <Buttons
+                activeOpacity={0.7}
+                primaryText="Proceed"
+                primaryCallback={addColdCard} />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} />
         </Box>
       </TapGestureHandler>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -141,6 +102,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: '5%',
   },
+  buttonContainer: {
+    bottom: 0,
+    position: 'absolute',
+    right: 0
+  }
 });
 
 export default SetupColdCard;

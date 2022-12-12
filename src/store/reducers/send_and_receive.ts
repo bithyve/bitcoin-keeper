@@ -1,6 +1,4 @@
 import {
-  AverageTxFeesByNetwork,
-  ExchangeRates,
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
@@ -36,6 +34,7 @@ export interface UpdatePSBTPayload {
   signedSerializedPSBT?: string;
   signingPayload?: SigningPayload[];
   signerId: string;
+  txHex?: string;
 }
 
 export interface SendPhaseThreeExecutedPayload {
@@ -47,8 +46,6 @@ export interface SendPhaseThreeExecutedPayload {
 export type TransactionFeeInfo = Record<TxPriority, TransactionFeeSnapshot>;
 
 const initialState: {
-  exchangeRates: ExchangeRates;
-  averageTxFees: AverageTxFeesByNetwork;
   sendPhaseOne: {
     inProgress: boolean;
     hasFailed: boolean;
@@ -85,8 +82,6 @@ const initialState: {
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
 } = {
-  exchangeRates: null,
-  averageTxFees: null,
   sendPhaseOne: {
     inProgress: false,
     hasFailed: false,
@@ -142,20 +137,12 @@ const sendAndReceiveSlice = createSlice({
   name: 'sendAndReceive',
   initialState,
   reducers: {
-    setExchangeRates: (state, action) => {
-      state.exchangeRates = action.payload;
-    },
-
-    setAverageTxFee: (state, action: PayloadAction<AverageTxFeesByNetwork>) => {
-      state.averageTxFees = action.payload;
-    },
-
     setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
       state.sendMaxFee = action.payload;
     },
 
     sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
-      const transactionFeeInfo: TransactionFeeInfo = state.transactionFeeInfo;
+      const { transactionFeeInfo } = state;
       let txPrerequisites: TransactionPrerequisite;
       let recipients;
       const { successful, outputs, err } = action.payload;
@@ -195,16 +182,15 @@ const sendAndReceiveSlice = createSlice({
     },
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
-      const { signerId, signingPayload, signedSerializedPSBT } = action.payload;
+      const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
         serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
           if (envelop.signerId === signerId) {
-            envelop.serializedPSBT = signedSerializedPSBT
-              ? signedSerializedPSBT
-              : envelop.serializedPSBT;
-            envelop.isSigned = signedSerializedPSBT ? true : envelop.isSigned;
-            envelop.signingPayload = signingPayload ? signingPayload : envelop.signingPayload;
+            envelop.serializedPSBT = signedSerializedPSBT || envelop.serializedPSBT;
+            envelop.isSigned = signedSerializedPSBT || txHex ? true : envelop.isSigned;
+            envelop.signingPayload = signingPayload || envelop.signingPayload;
+            envelop.txHex = txHex || envelop.txHex;
           }
           return envelop;
         }),
@@ -244,8 +230,6 @@ const sendAndReceiveSlice = createSlice({
 });
 
 export const {
-  setExchangeRates,
-  setAverageTxFee,
   setSendMaxFee,
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,

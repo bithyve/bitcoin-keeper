@@ -1,5 +1,9 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import { call, put } from 'redux-saga/effects';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { createWatcher } from '../utilities';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -7,22 +11,17 @@ import {
   UAI_CHECKS,
   UPADTE_UAI_STACK,
 } from '../sagaActions/uai';
-import { createWatcher } from '../utilities';
-import { all, call, put } from 'redux-saga/effects';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 const healthCheckRemider = (signer: VaultSigner) => {
-  var today = new Date();
-  var Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
-  var Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
-  console.log(Difference_In_Days);
+  const today = new Date();
+  const Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
+  const Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
   return Difference_In_Days;
 };
 
 function* addToUaiStackWorker({ payload }) {
   const { uai } = payload;
-  let uaiData = { ...uai, timeStamp: new Date() };
+  const uaiData = { ...uai, timeStamp: new Date() };
   try {
     yield call(dbManager.createObject, RealmSchema.UAI, uaiData);
   } catch (err) {
@@ -36,11 +35,10 @@ function* updateUaiStackWorker({ payload }) {
 }
 
 function* uaiChecksWorker({ payload }) {
-  const { isFirstLogin } = payload;
   const vaults = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
 
-  for (var vault of vaults) {
-    for (var signer of vault.signers) {
+  for (const vault of vaults) {
+    for (const signer of vault.signers) {
       const lastHealthCheckDays = healthCheckRemider(signer);
       if (lastHealthCheckDays >= 90) {
         const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
@@ -57,7 +55,7 @@ function* uaiChecksWorker({ payload }) {
           );
         } else {
           const uai = uais[0];
-          let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
+          let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
           updatedUai = { ...updatedUai, isActioned: false };
           yield call(dbManager.updateObjectById, RealmSchema.UAI, updatedUai.id, updatedUai);
         }
@@ -71,7 +69,7 @@ function* uaiActionedEntityWorker({ payload }) {
   const uais = yield call(dbManager.getObjectByField, RealmSchema.UAI, entityId, 'entityId');
   if (uais.length > 0) {
     const uai = uais[0];
-    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); //Need to get a better way
+    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
     updatedUai = { ...updatedUai, isActioned: action };
     yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, updatedUai);
   }

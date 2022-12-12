@@ -1,16 +1,14 @@
 import { Box, Input, Text } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { TouchableOpacity } from 'react-native';
 import Buttons from '../Buttons';
 
-const ConfirmSeedWord = (props) => {
+function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
-  const common = translations['common'];
+  const {BackupWallet} = translations;
+  const {common} = translations;
   const { words } = props;
   const [seedWord, setSeedWord] = useState('');
   const [index] = useState(Math.floor(Math.random() * words.length));
@@ -75,12 +73,12 @@ const ConfirmSeedWord = (props) => {
   };
 
   return (
-    <Box bg={'light.ReceiveBackground'} p={10} borderRadius={10}>
+    <Box bg="light.ReceiveBackground" p={10} borderRadius={10}>
       <Box>
-        <Text fontSize={RFValue(19)} color={'light.lightBlack'}>
+        <Text fontSize={RFValue(19)} color="light.lightBlack">
           {BackupWallet.confirmSeedWord}
         </Text>
-        <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
+        <Text fontSize={RFValue(13)} color="light.lightBlack2" mb={10}>
           Exactly as they were displayed
         </Text>
       </Box>
@@ -90,8 +88,8 @@ const ConfirmSeedWord = (props) => {
         </Text>
         <Input
           placeholder={`Enter ${getHint(index)} word`}
-          placeholderTextColor={'light.lightBlack2'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.lightBlack2"
+          backgroundColor="light.lightYellow"
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"
@@ -107,37 +105,18 @@ const ConfirmSeedWord = (props) => {
           }}
           borderRadius={10}
           marginY={2}
-          borderWidth={'0'}
+          borderWidth="0"
         />
       </Box>
       {invalid && (
         <Text color="red.400" fontSize={RFValue(13)} ml={1}>
-          {'Invalid word'}
+          Invalid word
         </Text>
       )}
 
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.seedWordNote}</Text>
       </Box>
-      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}> */}
-      {/* <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
-          <Text fontSize={RFValue(14)} textAlign={'center'}>
-            {BackupWallet.startOver}
-          </Text>
-        </TouchableOpacity>
-        <Box>
-          <CustomGreenButton
-            onPress={() => {
-              if (seedWord === words[index]) {
-                props.confirmBtnPress();
-              } else {
-                setInvalid(true);
-              }
-            }}
-            value={common.confirm}
-          />
-        </Box> 
-        </Box>*/}
       <Buttons
         secondaryText={BackupWallet.startOver}
         secondaryCallback={() => {
@@ -154,5 +133,5 @@ const ConfirmSeedWord = (props) => {
       />
     </Box>
   );
-};
+}
 export default ConfirmSeedWord;

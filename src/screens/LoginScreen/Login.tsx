@@ -1,40 +1,33 @@
-import { Box, HStack, Switch, Text, Image } from 'native-base';
+import { Box, HStack, Image, Switch, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import {
-  heightPercentageToDP,
-  widthPercentageToDP,
-} from 'react-native-responsive-screen';
+import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { AppContext } from 'src/common/content/AppContext';
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import FogotPassword from './components/FogotPassword';
-import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import ResetPassSuccess from './components/ResetPassSuccess';
-import config from 'src/core/config';
-import { credsAuth } from '../../store/sagaActions/login';
-import { credsAuthenticated } from '../../store/reducers/login';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
-import KeeperModal from 'src/components/KeeperModal';
+import ResetPassSuccess from './components/ResetPassSuccess';
+import { credsAuth } from '../../store/sagaActions/login';
+import { credsAuthenticated } from '../../store/reducers/login';
+import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import FogotPassword from './components/FogotPassword';
+import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
-const LoginScreen = ({ navigation, route }) => {
+function LoginScreen({ navigation, route }) {
   const { relogin } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
@@ -54,15 +47,14 @@ const LoginScreen = ({ navigation, route }) => {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
-  const common = translations['common'];
+  const {login} = translations;
+  const {common} = translations;
 
   useEffect(() => {
     if (loggingIn) {
       attemptLogin(passcode);
     }
   }, [loggingIn]);
-
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -71,7 +63,7 @@ const LoginScreen = ({ navigation, route }) => {
       if (retryTime > waitingTime) {
         setCanLogin(true);
         return;
-      } else {
+      } 
         setTimeout(() => {
           setLoginError(true);
           setErrMessage(`Please try after sometime`);
@@ -86,7 +78,7 @@ const LoginScreen = ({ navigation, route }) => {
         //   setCanLogin(false)
         //   return
         // }
-      }
+      
     }
     setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
@@ -127,6 +119,7 @@ const LoginScreen = ({ navigation, route }) => {
               cancelButtonText: 'Use PIN',
             });
             if (success) {
+              setLoginModal(true);
               dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
             }
           }
@@ -176,39 +169,20 @@ const LoginScreen = ({ navigation, route }) => {
     }
   }, [authenticationFailed]);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     setLoginModal(false);
-  //     if (relogin) {
-  //       navigation.goBack();
-  //     } else {
-  //       if (appId !== '') {
-  //         updateFCM();
-  //         navigation.replace('App');
-  //       } else {
-  //         navigation.replace('NewKeeperApp');
-  //       }
-  //     }
-  //     dispatch(credsAuthenticated(false));
-  //   }
-  // }, [isAuthenticated]);
-
   const loginModalAction = () => {
     if (isAuthenticated) {
       setLoginModal(false);
       if (relogin) {
         navigation.goBack();
-      } else {
-        if (appId !== '') {
+      } else if (appId !== '') {
           updateFCM();
           navigation.replace('App');
         } else {
           navigation.replace('NewKeeperApp');
         }
-      }
       dispatch(credsAuthenticated(false));
     }
-  }
+  };
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
@@ -230,7 +204,7 @@ const LoginScreen = ({ navigation, route }) => {
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
-  const LoginModalContent = () => {
+  function LoginModalContent() {
     return (
       <Box>
         <Image
@@ -239,19 +213,21 @@ const LoginScreen = ({ navigation, route }) => {
             width: wp(270),
             height: hp(200),
             alignSelf: 'center',
-          }} />
+          }}
+        />
         <Text
-          color={'light.modalText'}
+          color="light.modalText"
           fontWeight={200}
           fontSize={13}
           letterSpacing={0.65}
           width={wp(260)}
         >
-          This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.
+          This feature is *only* for the testnet version of the app. The developers will get your
+          message along with other information from the app.
         </Text>
       </Box>
     );
-  };
+  }
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
@@ -260,19 +236,26 @@ const LoginScreen = ({ navigation, route }) => {
           <Box>
             <Text
               ml={5}
-              color={'light.textLight'}
+              color="light.textLight"
               fontSize={RFValue(22)}
-              fontWeight={'200'}
-              fontFamily={'heading'}
+              fontWeight="200"
+              fontFamily="heading"
               style={{
-                marginTop: heightPercentageToDP('10%')
+                marginTop: heightPercentageToDP('10%'),
               }}
             >
               {login.welcomeback}
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text fontSize={RFValue(13)} ml={5} color={'light.textColor'} fontFamily={'body'}>
+              <Text
+                fontSize={RFValue(13)}
+                ml={5}
+                letterSpacing={0.65}
+                color="light.textColor"
+                fontFamily="body"
+                fontWeight={200}
+              >
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
@@ -289,10 +272,10 @@ const LoginScreen = ({ navigation, route }) => {
 
             {loginError && (
               <Text
-                color={'light.white'}
+                color="light.white"
                 fontSize={RFValue(12)}
-                fontStyle={'italic'}
-                textAlign={'right'}
+                fontStyle="italic"
+                textAlign="right"
                 fontWeight={200}
                 letterSpacing={0.65}
                 mr={12}
@@ -300,25 +283,25 @@ const LoginScreen = ({ navigation, route }) => {
                 {errMessage}
               </Text>
             )}
-            <HStack justifyContent={'space-between'} mr={10} paddingTop={'2'}>
+            <HStack justifyContent="space-between" mr={10} paddingTop="2">
               <Text
-                color={'light.white1'}
-                fontWeight={'200'}
-                px={'5'}
+                color="light.white1"
+                fontWeight="200"
+                px="5"
                 fontSize={13}
                 letterSpacing={1}
               >
-                {'Use bitcoin testnet'}
+                Use bitcoin testnet
               </Text>
               <Switch
                 defaultIsChecked
-                disabled={true}
+                disabled
                 trackColor={{ true: '#FFFA' }}
-                thumbColor={'#358475'}
-                onChange={() => { }}
+                thumbColor="#358475"
+                onChange={() => {}}
               />
             </HStack>
-            <Box mt={10} alignSelf={'flex-end'} mr={10}>
+            <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length == 4 && (
                 <Box>
                   <CustomButton
@@ -346,10 +329,10 @@ const LoginScreen = ({ navigation, route }) => {
               }}
             >
               <Text
-                color={'light.white'}
-                fontWeight={'300'}
+                color="light.white"
+                fontWeight="300"
                 fontSize={RFValue(14)}
-                fontFamily={'body'}
+                fontFamily="body"
               >
                 {login.ForgotPasscode}
               </Text>
@@ -361,29 +344,31 @@ const LoginScreen = ({ navigation, route }) => {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
-        <ModalContainer
-          visible={forgotVisible}
-          closeBottomSheet={() => {
-            setForgotVisible(false);
-          }}
-        >
-          <FogotPassword
-            type="seed"
+        {forgotVisible && (
+          <ModalContainer
+            visible={forgotVisible}
             closeBottomSheet={() => {
               setForgotVisible(false);
             }}
-            onVerify={() => {
-              setForgotVisible(false);
-              navigation.navigate('ResetPin', {
-                onPinChange,
-              });
-            }}
-          />
-        </ModalContainer>
+          >
+            <FogotPassword
+              type="seed"
+              closeBottomSheet={() => {
+                setForgotVisible(false);
+              }}
+              onVerify={() => {
+                setForgotVisible(false);
+                navigation.navigate('ResetPin', {
+                  onPinChange,
+                });
+              }}
+            />
+          </ModalContainer>
+        )}
         {/* reset password success modal */}
         <Box>
           <ModalWrapper
@@ -400,12 +385,12 @@ const LoginScreen = ({ navigation, route }) => {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
-        title={'Logging in to your Keeper'}
-        subTitle={'Shake your device or take a screenshot to send feedback'}
+        close={() => {}}
+        title="Share Feedback (Testnet only)"
+        subTitle="Shake your device to send us a bug report or a feature request"
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#000'}
-        subTitleColor={'#5F6965'}
+        textColor="#000"
+        subTitleColor="#5F6965"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
         buttonCallback={loginModalAction}
@@ -414,7 +399,7 @@ const LoginScreen = ({ navigation, route }) => {
       />
     </LinearGradient>
   );
-};
+}
 
 const styles = StyleSheet.create({
   textBoxStyles: {

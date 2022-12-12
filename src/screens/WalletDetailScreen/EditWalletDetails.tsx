@@ -1,31 +1,29 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Text } from 'native-base';
+import { Input, View } from 'native-base';
+import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
+import { Alert } from 'react-native';
 
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
-import { newWalletInfo } from 'src/store/sagas/wallets';
-import { WalletType } from 'src/core/wallets/enums';
-import { useDispatch } from 'react-redux';
-import { addNewWallets, updateWalletDetails } from 'src/store/sagaActions/wallets';
+import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Alert } from 'react-native';
 
-const EditWalletSettings = ({ route }) => {
+function EditWalletSettings({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const walletText = translations['wallet'];
-  const common = translations['common'];
+  const walletText = translations.wallet;
+  const {common} = translations;
 
-  const wallet: Wallet = route.params.wallet;
+  const {wallet} = route.params;
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
@@ -41,7 +39,7 @@ const EditWalletSettings = ({ route }) => {
   };
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
+    <View style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletText.WalletDetails}
@@ -52,24 +50,24 @@ const EditWalletSettings = ({ route }) => {
       <View marginX={4} marginY={windowHeight / 12}>
         <Input
           //   placeholder={walletText.WalletName}
-          placeholderTextColor={'light.greenText'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.greenText"
+          backgroundColor="light.lightYellow"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
           borderRadius={10}
           marginY={2}
-          borderWidth={'0'}
+          borderWidth="0"
         />
         <Input
           //   placeholder={walletText.SinglesigWallet}
-          placeholderTextColor={'light.greenText'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.greenText"
+          backgroundColor="light.lightYellow"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
           borderRadius={10}
-          borderWidth={'0'}
+          borderWidth="0"
           marginY={2}
         />
         <View marginY={20}>
@@ -78,7 +76,7 @@ const EditWalletSettings = ({ route }) => {
             secondaryCallback={() => {
               navigtaion.goBack();
             }}
-            primaryText={'Save'}
+            primaryText="Save"
             primaryCallback={editWallet}
             primaryDisable={!walletName || !walletDescription}
           />
@@ -86,7 +84,7 @@ const EditWalletSettings = ({ route }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

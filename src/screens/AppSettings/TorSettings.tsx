@@ -1,7 +1,7 @@
 import { Box, Text, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -10,7 +10,7 @@ import { setTorEnabled } from 'src/store/reducers/settings';
 import { useAppDispatch } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 
-const TorSettings = () => {
+function TorSettings() {
   const { colorMode } = useColorMode();
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
   const { showToast } = useToastMessage();
@@ -47,16 +47,16 @@ const TorSettings = () => {
   return (
     <ScreenWrapper>
       <HeaderTitle title="Tos Settings" subtitle="Tor deamon" />
-      <Box paddingY={'10'}>
-        <Text color={'light.GreyText'} fontSize={RFValue(12)} fontFamily={'body'} pl={10}>
+      <Box paddingY="10">
+        <Text color="light.GreyText" fontSize={RFValue(12)} fontFamily="body" pl={10}>
           {`Status: ${torStatus}`}
         </Text>
-        <Text color={'light.GreyText'} fontSize={RFValue(11)} fontFamily={'body'} pl={10}>
+        <Text color="light.GreyText" fontSize={RFValue(11)} fontFamily="body" pl={10}>
           {message}
         </Text>
         <SettingsSwitchCard
-          title={'Enable'}
-          description={'Enable tor daemon'}
+          title="Enable"
+          description="Enable tor daemon"
           my={2}
           bgColor={`${colorMode}.backgroundColor2`}
           onSwitchToggle={toggleTor}
@@ -65,6 +65,6 @@ const TorSettings = () => {
       </Box>
     </ScreenWrapper>
   );
-};
+}
 
 export default TorSettings;

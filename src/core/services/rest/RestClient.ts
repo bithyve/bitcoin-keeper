@@ -19,8 +19,11 @@ enum TorStatus {
 
 class RestClient {
   public static useTor: boolean;
+
   public static headers: object;
+
   public static torStatus: TorStatus = TorStatus.OFF;
+
   public static torPort: number | null = null;
 
   subscribers = [];
@@ -40,7 +43,7 @@ class RestClient {
   constructor() {
     RestClient.headers = {
       'HEXA-ID': HEXA_ID,
-      HEXA_ID: HEXA_ID,
+      HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
       os: Platform.OS,
@@ -110,10 +113,6 @@ class RestClient {
     headers?: object
   ): Promise<AxiosResponse | RequestResponse> {
     if (RestClient.useTor && RestClient.torStatus === TorStatus.CONNECTED) {
-      // console.log(
-      //   `using tor to connect  ${path}`,
-      //   JSON.stringify(body, this.getCircularReplacer())
-      // );
       return tor.post(
         path,
         JSON.stringify(body, this.getCircularReplacer()),
@@ -123,14 +122,14 @@ class RestClient {
         },
         true
       );
-    } else {
+    } 
       return axios.post(path, body, {
         headers: {
           ...RestClient.headers,
           ...headers,
         },
       });
-    }
+    
   }
 
   async get(path: string, headers?: object): Promise<AxiosResponse | RequestResponse> {
@@ -143,14 +142,14 @@ class RestClient {
         },
         true
       );
-    } else {
+    } 
       return axios.post(path, {
         headers: {
           ...RestClient.headers,
           ...headers,
         },
       });
-    }
+    
   }
 }
 

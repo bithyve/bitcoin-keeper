@@ -1,8 +1,9 @@
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { RFValue } from 'react-native-responsive-fontsize';
 
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -14,20 +15,22 @@ import { seedBackedUp } from 'src/store/sagaActions/bhr';
 import { useNavigation } from '@react-navigation/native';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
-const ExportSeedScreen = ({ route, navigation }) => {
+function ExportSeedScreen({ route, navigation }) {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
-  const login = translations['login'];
-  const seed = route.params.seed;
+  const { BackupWallet } = translations;
+  const { login } = translations;
+  const { seed } = route.params;
   const [words] = useState(seed.split(' '));
-  const next = route.params.next;
+  const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const seedText = translations['seed'];
+  const seedText = translations.seed;
+
+  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
   console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
@@ -40,17 +43,23 @@ const ExportSeedScreen = ({ route, navigation }) => {
     }
   }, [backupMethod]);
 
-  const SeedCard = ({ item, index }: { item; index }) => {
+  function SeedCard({ item, index }: { item; index }) {
     return (
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex((showWordIndex || showWordIndex === 0) ? '' : index);
+          setShowWordIndex((prev) => {
+            if (prev === index) {
+              return '';
+            }
+            return index;
+          });
         }}
       >
         <Box
-          backgroundColor={'light.lightYellow'}
-          flexDirection={'row'}
+          backgroundColor="light.lightYellow"
+          flexDirection="row"
+          alignItems="center"
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -58,43 +67,43 @@ const ExportSeedScreen = ({ route, navigation }) => {
           opacity={showWordIndex === index ? 1 : 0.5}
         >
           <Text
-            fontSize={20}
+            fontSize={RFValue(19)}
             fontWeight={300}
             letterSpacing={1.64}
-            marginRight={5}
-            color={'light.greenText2'}
+            marginRight={3}
+            color="light.greenText2"
           >
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
           <Text
-            fontSize={20}
+            fontSize={RFValue(19)}
             fontWeight={200}
-            backgroundColor={'green.700'}
+            backgroundColor="green.700"
             letterSpacing={1}
-            color={'light.seedText'}
+            color="light.seedText"
           >
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
       </TouchableOpacity>
     );
-  };
+  }
 
-  const renderSeedCard = ({ item, index }: { item; index }) => {
-    return <SeedCard item={item} index={index} />;
-  };
+  const renderSeedCard = ({ item, index }: { item; index }) => (
+    <SeedCard item={item} index={index} />
+  );
 
   return (
-    <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
+    <Box flex={1} padding={5} background="light.ReceiveBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title={seedText.ExportSeed}
+        title={seedText.recoveryPhrase}
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={10} height={windowHeight / 1.5}>
+      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList
           data={words}
           numColumns={2}
@@ -103,12 +112,11 @@ const ExportSeedScreen = ({ route, navigation }) => {
           keyExtractor={(item) => item}
         />
       </Box>
-      <Box alignItems={'flex-end'} mb={5}>
+      <Box alignItems="flex-end" mb={5}>
         {next && (
           <Box>
             <CustomGreenButton
               onPress={() => {
-                //setBackupSuccessModal(true);
                 setConfirmSeedModal(true);
               }}
               value={login.Next}
@@ -124,7 +132,7 @@ const ExportSeedScreen = ({ route, navigation }) => {
           fontWeight={200}
           letterSpacing={0.6}
           marginRight={10}
-          color={'light.GreyText'}
+          color="light.GreyText"
         >
           {seedText.desc}
         </Text>
@@ -134,7 +142,7 @@ const ExportSeedScreen = ({ route, navigation }) => {
         <ModalWrapper
           visible={confirmSeedModal}
           onSwipeComplete={() => setConfirmSeedModal(false)}
-          position={'center'}
+          position="center"
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
@@ -168,6 +176,6 @@ const ExportSeedScreen = ({ route, navigation }) => {
       </Box>
     </Box>
   );
-};
+}
 
 export default ExportSeedScreen;

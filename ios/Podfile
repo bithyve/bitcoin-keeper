@@ -13,7 +13,7 @@ def common_pods
   use_react_native!(
     :path => config[:reactNativePath],
     # to enable hermes on iOS, change `false` to `true` and then install pods
-    :hermes_enabled => true,
+    :hermes_enabled => false,
     :fabric_enabled => flags[:fabric_enabled],
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
@@ -24,10 +24,6 @@ end
 
 target 'hexa_keeper' do
   common_pods
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
-
-  pod 'react-native-html-to-pdf', :path => '../node_modules/react-native-html-to-pdf'
-
 end
 
 target 'hexa_keeper_dev' do

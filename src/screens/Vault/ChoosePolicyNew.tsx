@@ -1,5 +1,6 @@
 import { Box, Input, Text } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
 import {
   SignerException,
   SignerPolicy,
@@ -15,12 +16,11 @@ import { CommonActions } from '@react-navigation/native';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Keyboard, StyleSheet } from 'react-native';
 import idx from 'idx';
-import { useDispatch } from 'react-redux';
 import { numberWithCommas } from 'src/common/utilities';
+import { useDispatch } from 'react-redux';
 
-const ChoosePolicyNew = ({ navigation, route }) => {
+function ChoosePolicyNew({ navigation, route }) {
   const [selectedPolicy, setSelectedPolicy] = useState('max');
 
   const isUpdate = route.params.update;
@@ -79,14 +79,14 @@ const ChoosePolicyNew = ({ navigation, route }) => {
     }
   };
 
-  const Field = ({ title, subTitle, value, onPress }) => {
+  function Field({ title, subTitle, value, onPress }) {
     return (
-      <Box flexDirection={'row'} alignItems={'center'} marginTop={hp(40)}>
+      <Box flexDirection="row" alignItems="center" marginTop={hp(40)}>
         <Box width={wp(175)}>
           <Text fontWeight={200} fontSize={13} letterSpacing={0.96}>
             {title}
           </Text>
-          <Text color={'light.GreyText'} fontWeight={200} fontSize={10} letterSpacing={0.5}>
+          <Text color="light.GreyText" fontWeight={200} fontSize={10} letterSpacing={0.5}>
             {subTitle}
           </Text>
         </Box>
@@ -104,15 +104,19 @@ const ChoosePolicyNew = ({ navigation, route }) => {
               value={value}
               showSoftInputOnFocus={false}
               onFocus={() => Keyboard.dismiss()}
+              selection={{
+                start: 0,
+                end: 0
+              }}
             />
           </Box>
         </Box>
       </Box>
     );
-  };
+  }
 
   return (
-    <Box flex={1} position={'relative'}>
+    <Box flex={1} position="relative">
       <ScreenWrapper barStyle="dark-content">
         <Box
           style={{
@@ -131,18 +135,14 @@ const ChoosePolicyNew = ({ navigation, route }) => {
             }}
           >
             <Field
-              title={'Max no-check amount'}
-              subTitle={
-                'The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code'
-              }
+              title="Max no-check amount"
+              subTitle="The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code"
               onPress={() => setSelectedPolicy('min')}
               value={numberWithCommas(minTransaction)}
             />
             <Field
-              title={'Max allowed amount'}
-              subTitle={
-                'If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it'
-              }
+              title="Max allowed amount"
+              subTitle="If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
               onPress={() => setSelectedPolicy('max')}
               value={numberWithCommas(maxTransaction)}
             />
@@ -154,21 +154,18 @@ const ChoosePolicyNew = ({ navigation, route }) => {
         </Box>
       </ScreenWrapper>
 
-      <Box position={'absolute'} bottom={0}>
+      <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          ok={() => {
-            console.log('ok');
-          }}
           clear={() => { }}
-          color={'#073E39'}
+          color="#073E39"
           height={windowHeight >= 850 ? 80 : 60}
-          darkDeleteIcon={true}
+          darkDeleteIcon
         />
       </Box>
     </Box>
   );
-};
+}
 const styles = StyleSheet.create({
   textInput: {
     backgroundColor: '#FDF7F0',

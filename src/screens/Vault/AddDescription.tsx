@@ -5,20 +5,17 @@ import {
 import { Box, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-
-import HeaderTitle from 'src/components/HeaderTitle';
 import Tapsigner from 'src/assets/images/svgs/Tapsigner_brown.svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // components
+import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { useDispatch } from 'react-redux';
 import Buttons from 'src/components/Buttons';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const AddDescription = ({ route }) => {
+function AddDescription({ route }) {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   return (
     <Box
@@ -28,17 +25,17 @@ const AddDescription = ({ route }) => {
       <Box marginX={3} >
         <Box width={wp(200)}>
           <HeaderTitle
-            title={'Add Description'}
-            subtitle={'Optionally you can add a short description to the Signing Device'}
+            title="Add Description"
+            subtitle="Optionally you can add a short description to the Signing Device"
             onPressHandler={() => navigation.goBack()}
-            headerTitleColor={'light.textBlack'}
+            headerTitleColor="light.textBlack"
             paddingTop={hp(5)}
           />
         </Box>
-        {/* {card} */}
+
         <Box
-          flexDirection={'row'}
-          alignItems={'center'}
+          flexDirection="row"
+          alignItems="center"
           marginTop={hp(91)}
         >
           <Tapsigner />
@@ -54,20 +51,19 @@ const AddDescription = ({ route }) => {
               fontWeight={200}
               fontSize={10}
               letterSpacing={1}
-              color={'light.modalText'}
+              color="light.modalText"
             >
               Added on 12 January 2022
             </Text>
           </Box>
         </Box>
 
-        {/* send manually option */}
         <Box
           marginTop={hp(20)}
-          width={'100%'}
+          width="100%"
         >
           <Text
-            textAlign={'right'}
+            textAlign="right"
             fontWeight={200}
             fontSize={10}
             letterSpacing={1}
@@ -77,11 +73,11 @@ const AddDescription = ({ route }) => {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor={'#073E39'}
+            placeholderTextColor="#073E39"
 
           />
         </Box>
-        {/* {buttons} */}
+
         <Box marginTop={hp(70)}>
           <Buttons
             primaryText='Proceed'
@@ -96,7 +92,7 @@ const AddDescription = ({ route }) => {
 
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

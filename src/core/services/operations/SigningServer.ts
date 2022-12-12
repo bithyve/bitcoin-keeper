@@ -7,6 +7,7 @@ import {
   SingerVerification,
 } from '../interfaces';
 import RestClient from '../rest/RestClient';
+
 const { HEXA_ID, SIGNING_SERVER } = config;
 
 export default class SigningServer {
@@ -126,7 +127,7 @@ export default class SigningServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const signedPSBT = res.data.signedPSBT;
+    const {signedPSBT} = res.data;
     return {
       signedPSBT,
     };

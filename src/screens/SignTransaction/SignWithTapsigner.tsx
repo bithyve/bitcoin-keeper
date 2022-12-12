@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import Buttons from 'src/components/Buttons';
@@ -15,14 +15,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { wp } from 'src/common/data/responsiveness/responsive';
 
-const SignWithTapsigner = () => {
+function SignWithTapsigner() {
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
 
   const { params = { signTransaction: () => {}, signer: null } as any } = useRoute();
-  const { signTransaction, signer, textRef } = params;
+  const { signTransaction, textRef } = params;
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -73,7 +73,7 @@ const SignWithTapsigner = () => {
       <Box flex={1}>
         <Box style={styles.header}>
           <HeaderTitle
-            title={'Sign with Tapsigner'}
+            title="Sign with Tapsigner"
             subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
             onPressHandler={() => navigation.goBack()}
           />
@@ -81,7 +81,7 @@ const SignWithTapsigner = () => {
         <ScrollView>
           <TextInput
             style={styles.input}
-            secureTextEntry={true}
+            secureTextEntry
             showSoftInputOnFocus={false}
             value={cvc}
             onChangeText={setCvc}
@@ -92,25 +92,25 @@ const SignWithTapsigner = () => {
             width={wp(250)}
             fontSize={13}
             letterSpacing={0.65}
-            color={'light.modalText'}
+            color="light.modalText"
           >
             You will be scanning the TAPSIGNER after this step
           </Text>
-          <Box flex={1} justifyContent={'flex-end'} flexDirection={'row'} mr={wp(15)}>
-            <Buttons primaryText={'Sign'} primaryCallback={sign} />
+          <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
+            <Buttons primaryText="Sign" primaryCallback={sign} />
           </Box>
         </ScrollView>
         <KeyPadView
           onPressNumber={onPressHandler}
-          keyColor={'#041513'}
+          keyColor="#041513"
           ClearIcon={<DeleteIcon />}
           onDeletePressed={onDeletePressed}
         />
-        <NfcPrompt visible={nfcVisible} on />
+        <NfcPrompt visible={nfcVisible} />
       </Box>
     </SafeAreaView>
   );
-};
+}
 
 export default SignWithTapsigner;
 

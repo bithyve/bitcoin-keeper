@@ -1,3 +1,4 @@
+import { all, call, spawn } from 'redux-saga/effects';
 import {
   addNewVaultWatcher,
   addNewWalletsWatcher,
@@ -21,7 +22,6 @@ import {
   uaiChecksWatcher,
   updateUaiStackWatcher,
 } from './uai';
-import { all, call, spawn } from 'redux-saga/effects';
 import {
   applicationUpdateWatcher,
   changeAuthCredWatcher,
@@ -53,7 +53,6 @@ import {
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
-  updatePSBTSignaturesWatcher,
 } from './send_and_receive';
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
@@ -101,7 +100,6 @@ export const rootSaga = function* () {
     corssTransferWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
-    updatePSBTSignaturesWatcher,
 
     // UAI
     uaiChecksWatcher,
@@ -109,7 +107,7 @@ export const rootSaga = function* () {
     updateUaiStackWatcher,
     uaiActionedEntityWatcher,
 
-    //BHR
+    // BHR
     updateAppImageWatcher,
     updateVaultImageWatcher,
     getAppImageWatcher,

@@ -1,12 +1,7 @@
-import {
-  ActivityIndicator,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Box, StatusBar, Text } from 'native-base';
+import { ActivityIndicator, Platform, ScrollView } from 'react-native';
+import { Box, Text } from 'native-base';
 import RNIap, {
+  Subscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -30,12 +25,11 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
-import { Subscription } from 'react-native-iap';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import TierUpgradeModal from './TierUpgradeModal';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import TierUpgradeModal from './TierUpgradeModal';
 
 const plans = [
   {
@@ -86,9 +80,9 @@ const plans = [
   },
 ];
 
-const ChoosePlan = (props) => {
+function ChoosePlan(props) {
   const { translations } = useContext(LocalizationContext);
-  const choosePlan = translations['choosePlan'];
+  const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([plans[0]]);
@@ -110,7 +104,7 @@ const ChoosePlan = (props) => {
           const sub = await getSubscriptions([purchase.productId]);
           const subscription: SubScription = {
             productId: purchase.productId,
-            receipt: receipt,
+            receipt,
             name: sub[0].title.split(' ')[0],
             level: 1, // todo get level
           };
@@ -145,10 +139,10 @@ const ChoosePlan = (props) => {
     try {
       if (Platform.OS === 'ios') {
         return subscription.localizedPrice;
-      } else {
-        return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
-          .formattedPrice;
       }
+      return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
+        .formattedPrice;
+
     } catch (error) {
       console.log('error', error);
     }
@@ -169,7 +163,7 @@ const ChoosePlan = (props) => {
            price: getAmt(subscription),
            name: subscription.title.split(' (')[0],
          });
-       });*/
+       }); */
       setItems(plans);
       setLoading(false);
       // console.log('subscriptions', JSON.stringify(data));
@@ -202,35 +196,6 @@ const ChoosePlan = (props) => {
       }
       setShowUpgradeModal(true);
       return;
-      if (__DEV__) {
-        const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-        const sub: SubScription = {
-          productId: subscription.productId,
-          receipt: 'free',
-          name: subscription.name.split(' ')[0],
-        };
-        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-          subscription: sub,
-        });
-      } else {
-        if (Platform.OS === 'android') {
-          await requestSubscription({
-            sku: subscription.productId,
-            ...(subscription.subscriptionOfferDetails[0].offerToken && {
-              subscriptionOffers: [
-                {
-                  sku: subscription.productId,
-                  offerToken: subscription.subscriptionOfferDetails[0].offerToken,
-                },
-              ],
-            }),
-          });
-        } else {
-          await requestSubscription({
-            sku: subscription.productId,
-          });
-        }
-      }
     } catch (err) {
       console.log(err.code, err.message);
     }
@@ -244,14 +209,14 @@ const ChoosePlan = (props) => {
   const getBenifitsTitle = (name) => {
     if (name === 'Diamond Hands') {
       return `${name} means`;
-    } else {
-      return `A ${name} gets`;
     }
+    return `A ${name} gets`;
+
   };
 
   return (
-    <ScreenWrapper barStyle="dark-content" >
-      <Box position={'relative'} flex={1}>
+    <ScreenWrapper barStyle="dark-content">
+      <Box position="relative" flex={1}>
         <HeaderTitle
           title={choosePlan.choosePlantitle}
           subtitle={
@@ -259,7 +224,7 @@ const ChoosePlan = (props) => {
               ? `You are currently a ${subscription.name.slice(0, -1)}`
               : `You are currently a ${subscription.name}`
           }
-          headerTitleColor={'light.lightBlack'}
+          headerTitleColor="light.lightBlack"
         />
 
         <TierUpgradeModal
@@ -274,7 +239,7 @@ const ChoosePlan = (props) => {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            style={{ height: '80%', marginVertical: 0, }}
+            style={{ height: '80%', marginVertical: 0 }}
           >
             <ChoosePlanCarousel
               data={items}
@@ -284,17 +249,17 @@ const ChoosePlan = (props) => {
 
             <Box
               opacity={0.1}
-              backgroundColor={'light.Border'}
-              width={'100%'}
+              backgroundColor="light.Border"
+              width="100%"
               height={0.5}
               my={5}
             />
 
             <Box ml={8}>
-              <Box >
+              <Box>
                 <Text
                   fontSize={RFValue(14)}
-                  color={'light.lightBlack'}
+                  color="light.lightBlack"
                   fontWeight={200}
                   letterSpacing={1.12}
                 >
@@ -306,13 +271,13 @@ const ChoosePlan = (props) => {
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
-                  <Box flexDirection={'row'} alignItems={'center'}>
+                  <Box flexDirection="row" alignItems="center">
                     <Text
                       fontSize={RFValue(13)}
-                      color={'light.GreyText'}
+                      color="light.GreyText"
                       mb={2}
                       ml={3}
-                      fontFamily={'body'}
+                      fontFamily="body"
                       fontWeight={200}
                       letterSpacing={0.65}
                     >
@@ -324,15 +289,18 @@ const ChoosePlan = (props) => {
             </Box>
           </ScrollView>
         )}
-        <Box position={'absolute'} bottom={-10} justifyContent={'flex-end'} width={wp(285)}>
-          <Note
-            title={'Note'}
-            subtitle={choosePlan.noteSubTitle}
-            subtitleColor={'GreyText'}
-          />
+
+        <Box
+          backgroundColor={'light.ReceiveBackground'}
+          position="absolute"
+          bottom={-10}
+          justifyContent="flex-end"
+          width={wp(340)}
+        >
+          <Note title="Note" subtitle={choosePlan.noteSubTitle} subtitleColor="GreyText" />
         </Box>
       </Box>
     </ScreenWrapper>
   );
-};
+}
 export default ChoosePlan;

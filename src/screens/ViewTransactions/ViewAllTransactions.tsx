@@ -18,7 +18,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import TransactionElement from 'src/components/TransactionElement';
 
-const ViewAllTransactions = ({ route }) => {
+function ViewAllTransactions({ route }) {
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -40,8 +40,7 @@ const ViewAllTransactions = ({ route }) => {
     dispatch(refreshWallets([vault], { hardRefresh: true }));
   };
 
-  const renderTransactionElement = ({ item }) => {
-    return (
+  const renderTransactionElement = ({ item }) => (
       <TransactionElement
         transaction={item}
         onPress={() => {
@@ -49,16 +48,15 @@ const ViewAllTransactions = ({ route }) => {
             transaction: item,
           });
         }} />
-    )
-  };
+    );
 
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor={'light.headerText'}
+          headerTitleColor="light.headerText"
           titleFontSize={16}
           paddingTop={hp(5)}
           title={title}
@@ -75,7 +73,7 @@ const ViewAllTransactions = ({ route }) => {
       />
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

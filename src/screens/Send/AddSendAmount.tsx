@@ -1,6 +1,7 @@
 import { Box, Input, Pressable, Text } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
@@ -11,25 +12,37 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import Transactions from './Transactions';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useAppSelector } from 'src/store/hooks';
+import WalletDetails from './WalletDetails';
+import Transactions from './Transactions';
 
-const AddSendAmount = ({ route }) => {
+function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {
     wallet,
     address,
     amount: prefillAmount,
-  }: { wallet: Wallet; address: string; amount: string } = route.params;
-  const [amount, setAmount] = useState(prefillAmount ? prefillAmount : '');
+    availableAmt,
+    walletName,
+    from,
+  }: {
+    wallet: Wallet;
+    address: string;
+    amount: string;
+    availableAmt: string;
+    walletName: string;
+    from: string;
+  } = route.params;
+
+  const [amount, setAmount] = useState(prefillAmount || '');
   const [recipientCount, setReicipientCount] = useState(1);
+
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
@@ -53,7 +66,7 @@ const AddSendAmount = ({ route }) => {
     const recipients = [];
     recipients.push({
       address,
-      amount: parseInt(amount),
+      amount: amount ? parseInt(amount) : 0,
     });
     dispatch(
       sendPhaseOne({
@@ -68,7 +81,7 @@ const AddSendAmount = ({ route }) => {
       const recipients = [];
       recipients.push({
         address,
-        amount: parseInt(amount),
+        amount: amount ? parseInt(amount) : 0,
       });
       navigateToNext(recipients);
     } else if (sendPhaseOneState.hasFailed) {
@@ -78,17 +91,18 @@ const AddSendAmount = ({ route }) => {
     }
   }, [sendPhaseOneState]);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       dispatch(sendPhaseOneReset());
-    };
-  }, []);
+    },
+    []
+  );
 
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={`Enter the amount`}
-      // subtitle={`Sending to ${address}`}
+        title={from == 'Wallet' ? `Sending to Wallet` : `Enter the amount`}
+        // subtitle={`Sending to ${address}`}
       />
       {/* <Box
         flexDirection={'row'}
@@ -131,66 +145,69 @@ const AddSendAmount = ({ route }) => {
       {/* { Transaction list} */}
       <Box
         style={{
-          marginTop: hp(32),
-          marginBottom: hp(32)
-        }}>
-        <Transactions
-          transactions={[
-            {
-              address,
-              amount,
-            },
-          ]}
-          addTransaction={() => { }}
-        />
-      </Box>
-      <Box
-        alignItems={'center'}
-        style={{
-          marginBottom: hp(30),
+          marginVertical: hp(5),
         }}
       >
-        <Box
-          borderBottomColor={'light.Border'}
-          borderBottomWidth={1}
-          width={wp(280)}
-          opacity={0.1}
-        />
+        <WalletDetails availableAmt={availableAmt} walletName={walletName} />
+      </Box>
+      <Box
+      // style={{
+      //   marginTop: hp(32),
+      //   marginBottom: hp(32),
+      // }}
+      >
+        {/* <Transactions
+            transactions={[
+              {
+                address,
+                amount,
+              },
+            ]}
+            addTransaction={() => {}}
+          /> */}
+      </Box>
+      <Box
+        alignItems="center"
+        style={{
+          marginVertical: hp(20),
+        }}
+      >
+        <Box borderBottomColor="light.Border" borderBottomWidth={1} width={wp(280)} opacity={0.1} />
       </Box>
       <Box marginX={3}>
         <Box
-          flexDirection={'row'}
-          width={'100%'}
-          justifyContent={'space-between'}
-          alignItems={'center'}
+          flexDirection="row"
+          width="100%"
+          justifyContent="space-between"
+          alignItems="center"
           borderRadius={10}
-          backgroundColor={'light.lightYellow'}
+          backgroundColor="light.lightYellow"
           style={{
-            marginVertical: hp(2)
+            marginVertical: hp(5),
           }}
           padding={3}
         >
-          <Box flexDirection={'row'} alignItems={'center'}>
+          <Box flexDirection="row" alignItems="center">
             <Box marginRight={2}>
               <DollarInput />
             </Box>
             <Box
               marginLeft={2}
               width={0.5}
-              backgroundColor={'light.borderSaperator'}
+              backgroundColor="light.borderSaperator"
               opacity={0.3}
               height={7}
             />
             <Input
               placeholder="Enter Amount"
-              placeholderTextColor={'light.greenText'}
-              color={'light.greenText'}
+              placeholderTextColor="light.greenText"
+              color="light.greenText"
               opacity={0.5}
-              width={'70%'}
+              width="70%"
               fontSize={RFValue(12)}
               letterSpacing={1.04}
               fontWeight={300}
-              borderWidth={'0'}
+              borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}
               onFocus={() => Keyboard.dismiss()}
@@ -208,25 +225,20 @@ const AddSendAmount = ({ route }) => {
               borderRadius: 5,
             }}
           >
-            <Text
-              color={'light.sendMax'}
-              fontSize={RFValue(12)}
-              letterSpacing={0.6}
-              fontWeight={300}
-            >
+            <Text color="light.sendMax" fontSize={RFValue(12)} letterSpacing={0.6} fontWeight={300}>
               Send Max
             </Text>
           </Pressable>
         </Box>
 
         <Box
-          flexDirection={'row'}
+          flexDirection="row"
           style={{
             marginVertical: hp(2),
           }}
-          width={'100%'}
-          justifyContent={'center'}
-          alignItems={'center'}
+          width="100%"
+          justifyContent="center"
+          alignItems="center"
         >
           <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
@@ -234,40 +246,34 @@ const AddSendAmount = ({ route }) => {
           style={{
             marginBottom: hp(5),
           }}
-          flexDirection={'row'}
-          justifyContent={'flex-end'}
+          flexDirection="row"
+          justifyContent="flex-end"
         >
           <Box ml={windowWidth * -0.09}>
             <Buttons
-              secondaryText={'Cancel'}
+              secondaryText="Cancel"
               secondaryCallback={() => {
                 navigation.goBack();
               }}
-              primaryText={'Send'}
+              primaryText="Send"
               primaryCallback={executeSendPhaseOne}
             />
           </Box>
         </Box>
       </Box>
-      <Box
-        position={'absolute'}
-        bottom={0}
-        alignItems={'center'}
-        width={wp(375)}
-      >
+      {/* {!isKeyboardVisible && ( */}
+      <Box justifyContent="center" alignItems="center" width="100%">
         <AppNumPad
           setValue={setAmount}
-          ok={() => {
-            console.log('ok');
-          }}
           clear={() => setAmount('')}
-          color={'#073E39'}
-          height={windowHeight >= 850 ? 80 : 60}
+          color="#073E39"
+          height={windowHeight > 800 ? 90 : 60}
         />
       </Box>
+      {/* )} */}
     </ScreenWrapper>
   );
-};
+}
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,

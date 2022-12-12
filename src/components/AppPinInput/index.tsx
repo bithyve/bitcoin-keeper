@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React from 'react';
 
-const AppPinInput = ({ value, maxLength }) => {
+function AppPinInput({ value, maxLength }) {
   const noOfChecked = value.length;
   const noOfunChecked = maxLength - noOfChecked;
   return (
@@ -14,7 +14,7 @@ const AppPinInput = ({ value, maxLength }) => {
       ))}
     </View>
   );
-};
+}
 
 export default AppPinInput;
 

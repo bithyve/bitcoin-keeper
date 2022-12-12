@@ -1,3 +1,18 @@
+import { call, put, select } from 'redux-saga/effects';
+import {
+  decrypt,
+  encrypt,
+  generateEncryptionKey,
+  hash512,
+} from 'src/core/services/operations/encryption';
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { Platform } from 'react-native';
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { getReleaseTopic } from 'src/utils/releaseTopic';
+import messaging from '@react-native-firebase/messaging';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -9,7 +24,6 @@ import {
   UPDATE_APPLICATION,
   updateApplication,
 } from '../sagaActions/login';
-import { call, put, select } from 'redux-saga/effects';
 import {
   credsAuthenticated,
   credsChanged,
@@ -19,35 +33,20 @@ import {
   setupLoading,
 } from '../reducers/login';
 import {
-  decrypt,
-  encrypt,
-  generateEncryptionKey,
-  hash512,
-} from 'src/core/services/operations/encryption';
-import {
   resetPinFailAttempts,
   setAppVersion,
   setPinHash,
   setPinResetCreds,
 } from '../reducers/storage';
 
-import DeviceInfo from 'react-native-device-info';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { Platform } from 'react-native';
-import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
 import { RootState } from '../store';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
-import { getReleaseTopic } from 'src/utils/releaseTopic';
-import messaging from '@react-native-firebase/messaging';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
-import { setupKeeperApp } from '../sagaActions/storage';
 import { uaiChecks } from '../sagaActions/uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
@@ -57,9 +56,9 @@ export const stringToArrayBuffer = (byteString: string): Uint8Array => {
       byteArray[i] = byteString.codePointAt(i);
     }
     return byteArray;
-  } else {
+  } 
     return null;
-  }
+  
 };
 
 function* credentialsStorageWorker({ payload }) {
@@ -106,7 +105,7 @@ function* credentialsAuthWorker({ payload }) {
     const { method } = payload;
     yield put(setupLoading('authenticating'));
 
-    let hash, encryptedKey;
+    let hash; let encryptedKey;
     if (method === LoginMethod.PIN) {
       hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
@@ -152,8 +151,8 @@ export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
-
   try {
+    // todo
   } catch (err) {
     console.log({
       err,
@@ -174,7 +173,7 @@ function* resetPinWorker({ payload }) {
     const newHash = yield call(hash512, newPasscode);
     const newencryptedKey = yield call(encrypt, newHash, key);
 
-    //store the AES key against the hash
+    // store the AES key against the hash
     if (!(yield call(SecureStore.store, newHash, newencryptedKey))) {
       throw new Error('Unable to access secure store');
     }
@@ -244,7 +243,7 @@ function* applicationUpdateWorker({
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
       date: new Date().toString(),
-      title: 'Upgraded from ' + previousVersion,
+      title: `Upgraded from ${  previousVersion}`,
     });
     messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
     messaging().subscribeToTopic(getReleaseTopic(newVersion));
@@ -260,7 +259,7 @@ function* applicationUpdateWorker({
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: notes,
       date: new Date().toString(),
-      title: 'Upgraded from ' + previousVersion,
+      title: `Upgraded from ${  previousVersion}`,
     });
   } catch (error) {
     console.log(error);

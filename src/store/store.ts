@@ -1,27 +1,19 @@
-import {
-  FLUSH,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
-  REHYDRATE,
-  persistReducer,
-  persistStore,
-} from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 
-import bhrReducer from './reducers/bhr';
 import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
+import { reduxStorage } from 'src/storage';
 import loginReducer from './reducers/login';
 import notificationsReducer from './reducers/notifications';
-import { reduxStorage } from 'src/storage';
+import bhrReducer from './reducers/bhr';
 import { rootSaga } from './sagas';
 import sendAndReceiveReducer from './reducers/send_and_receive';
 import settingsReducer from './reducers/settings';
 import storageReducer from './reducers/storage';
 import vaultReducer from './reducers/vaults';
 import walletReducer from './reducers/wallets';
+import networkReducer from './reducers/network';
 
 export const rootReducer = combineReducers({
   settings: settingsReducer,
@@ -32,6 +24,7 @@ export const rootReducer = combineReducers({
   notifications: notificationsReducer,
   bhr: bhrReducer,
   vault: vaultReducer,
+  network: networkReducer,
 });
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -40,7 +33,7 @@ export type AppDispatch = typeof store.dispatch;
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  blacklist: ['login', 'bhr'],
+  blacklist: ['login', 'bhr', 'sendAndReceive'],
   version: 1,
 };
 

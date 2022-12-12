@@ -6,18 +6,18 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
+import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
 
+import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
+import Fonts from 'src/common/Fonts';
 import Illustration from 'src/assets/images/illustration.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -29,15 +29,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/common/Fonts';
-import Buttons from 'src/components/Buttons';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { getPlaceholder } from 'src/common/utilities';
 
-const EnterSeedScreen = () => {
+function EnterSeedScreen() {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const seed = translations['seed'];
-  const common = translations['common'];
+  const { seed } = translations;
+  const { common } = translations;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -110,7 +108,6 @@ const EnterSeedScreen = () => {
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
@@ -123,8 +120,6 @@ const EnterSeedScreen = () => {
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
-
-  const { appId } = useAppSelector((state) => state.storage);
 
   useEffect(() => {
     console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
@@ -143,9 +138,9 @@ const EnterSeedScreen = () => {
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
+      if (seedData[i].invalid) {
         showToast('Enter correct seedwords', <TickIcon />);
-        return true;
+        return false;
       }
     }
     return true;
@@ -154,53 +149,45 @@ const EnterSeedScreen = () => {
   const getSeedWord = () => {
     let seedWord = '';
     for (let i = 0; i < 12; i++) {
-      seedWord += seedData[i].name + ' ';
+      seedWord += `${seedData[i].name} `;
     }
     return seedWord.trim();
   };
 
   const onPressNext = async () => {
     if (isSeedFilled()) {
-      let seedWord = getSeedWord();
+      const seedWord = getSeedWord();
       dispatch(getAppImage(seedWord));
     }
   };
 
-  const RecoverWalletScreen = () => {
+  function RecoverWalletScreen() {
     return (
       <View>
         <Illustration />
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
     );
-  };
+  }
 
-  const InValidSeedsScreen = () => {
+  function InValidSeedsScreen() {
     return (
       <View>
-        <Box alignSelf={'center'}>
+        <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Make sure the words are entered in the correct sequence'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          Make sure the words are entered in the correct sequence
         </Text>
       </View>
     );
-  };
+  }
 
   const getFormattedNumber = (number) => {
-    if (number < 9) return '0' + (number + 1);
-    else return number + 1;
-  };
-
-  const getPlaceholder = (index) => {
-    const mainIndex = index + 1;
-    if (mainIndex == 1) return mainIndex + 'st';
-    else if (mainIndex == 2) return mainIndex + 'nd';
-    else if (mainIndex == 3) return mainIndex + 'rd';
-    else return mainIndex + 'th';
+    if (number < 9) return `0${number + 1}`;
+    return number + 1;
   };
 
   return (
@@ -211,11 +198,11 @@ const EnterSeedScreen = () => {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={10}>
+        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.EnterSeed}
+              title={seed.enterRecoveryPhrase}
               subtitle={seed.recoverWallet}
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
@@ -228,73 +215,69 @@ const EnterSeedScreen = () => {
               showsVerticalScrollIndicator={false}
               numColumns={2}
               contentContainerStyle={{
-                marginStart: 15,
+                marginHorizontal: 15,
               }}
-              renderItem={({ item, index }) => {
-                return (
-                  <View
+              renderItem={({ item, index }) => (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 10,
+                    marginVertical: 10,
+                  }}
+                >
+                  <Text
                     style={{
-                      flexDirection: 'row',
-                      marginHorizontal: 20,
-                      marginVertical: 10,
+                      width: 22,
+                      fontSize: 16,
+                      color: '#00836A',
+                      marginTop: 8,
+                      letterSpacing: 1.23,
                     }}
+                    fontWeight="300"
                   >
-                    <Text
-                      style={{
-                        width: 22,
-                        fontSize: 16,
-                        color: '#00836A',
-                        marginTop: 8,
-                        letterSpacing: 1.23
-                      }}
-                      fontWeight={'300'}
-                    >
-                      {getFormattedNumber(index)}
-                    </Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        item.invalid == true
-                          ? {
+                    {getFormattedNumber(index)}
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      item.invalid
+                        ? {
                             borderColor: '#F58E6F',
                           }
-                          : { borderColor: '#FDF7F0' },
-                      ]}
-                      placeholder={`enter ${getPlaceholder(index)} word`}
-                      value={item?.name}
-                      textContentType="none"
-                      returnKeyType="next"
-                      autoCorrect={false}
-                      autoCapitalize="none"
-                      keyboardType={
-                        Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
+                        : { borderColor: '#FDF7F0' },
+                    ]}
+                    placeholder={`Enter ${getPlaceholder(index)} phrase`}
+                    value={item?.name}
+                    textContentType="none"
+                    returnKeyType="next"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
+                    onChangeText={(text) => {
+                      const data = [...seedData];
+                      data[index].name = text.trim();
+                      setSeedData(data);
+                    }}
+                    onBlur={() => {
+                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
+                        const data = [...seedData];
+                        data[index].invalid = true;
+                        setSeedData(data);
                       }
-                      onChangeText={(text) => {
-                        const data = [...seedData];
-                        data[index].name = text.trim();
-                        setSeedData(data);
-                      }}
-                      onBlur={() => {
-                        if (!bip39.wordlists.english.includes(seedData[index].name)) {
-                          const data = [...seedData];
-                          data[index].invalid = true;
-                          setSeedData(data);
-                        }
-                      }}
-                      onFocus={() => {
-                        const data = [...seedData];
-                        data[index].invalid = false;
-                        setSeedData(data);
-                      }}
-                    />
-                  </View>
-                );
-              }}
+                    }}
+                    onFocus={() => {
+                      const data = [...seedData];
+                      data[index].invalid = false;
+                      setSeedData(data);
+                    }}
+                  />
+                </View>
+              )}
             />
           </View>
           <Text
             fontWeight={200}
-            color={'#4F5955'}
+            color="#4F5955"
             marginX={10}
             marginY={hp(10)}
             fontSize={12}
@@ -308,22 +291,14 @@ const EnterSeedScreen = () => {
               justifyContent: 'space-between',
               width: wp(375),
               alignItems: 'center',
-              paddingHorizontal: wp(20)
+              paddingHorizontal: wp(20),
             }}
           >
-            <Box
-              bg={'transparent'}
-              flexDirection={'row'}
-              marginLeft={10}
-              marginTop={4}
-            >
-              <View style={styles.dot}></View>
-              <View style={styles.dash}></View>
+            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+              <View style={styles.dot} />
+              <View style={styles.dash} />
             </Box>
-            <Buttons
-              primaryCallback={onPressNext}
-              primaryText={'Next'}
-            />
+            <Buttons primaryCallback={onPressNext} primaryText="Next" />
           </View>
           <KeeperModal
             visible={invalidSeedsModal}
@@ -332,10 +307,10 @@ const EnterSeedScreen = () => {
             subTitle={seed.seedDescription}
             modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
-            buttonText={'Retry'}
-            buttonTextColor={'#FAFAFA'}
+            buttonText="Retry"
+            buttonTextColor="#FAFAFA"
             buttonCallback={closeInvalidSeedsModal}
-            textColor={'#041513'}
+            textColor="#041513"
             Content={InValidSeedsScreen}
           />
           <KeeperModal
@@ -345,10 +320,10 @@ const EnterSeedScreen = () => {
             subTitle={seed.seedDescription}
             modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
-            buttonText={'View Wallet'}
-            buttonTextColor={'#FAFAFA'}
+            buttonText="View Wallet"
+            buttonTextColor="#FAFAFA"
             buttonCallback={closeWalletSuccessModal}
-            textColor={'#041513'}
+            textColor="#041513"
             Content={RecoverWalletScreen}
           />
           <ModalWrapper
@@ -361,7 +336,7 @@ const EnterSeedScreen = () => {
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {
@@ -407,14 +382,14 @@ const styles = ScaledSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 1, height: 10 },
     borderRadius: 10,
-    fontSize: 12,
-    height: 35,
-    width: 110,
+    fontSize: 11,
+    height: 40,
+    width: 120,
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
-    letterSpacing: 1.32
+    letterSpacing: 1.32,
   },
 });
 

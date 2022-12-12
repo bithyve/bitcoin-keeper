@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import { NetworkType, WalletType } from './wallets/enums';
 import axios, { AxiosInstance } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
-import PersonalNode from '../common/data/models/PersonalNode';
 import { Platform } from 'react-native';
 import _ from 'lodash';
 import config from 'react-native-config';
+import PersonalNode from '../common/data/models/PersonalNode';
+import { NetworkType, WalletType } from './wallets/enums';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
@@ -38,17 +38,25 @@ class Configuration {
   public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER
     ? config.TESTNET_WRAPPER.trim()
     : DEFAULT_CONFIG.TESTNET_WRAPPER;
+
   public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER
     ? config.MAINNET_WRAPPER.trim()
     : DEFAULT_CONFIG.MAINNET_WRAPPER;
+
   public RELAY = config.RELAY ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
+
   public SIGNING_SERVER = config.SIGNING_SERVER
     ? config.SIGNING_SERVER.trim()
     : DEFAULT_CONFIG.SIGNING_SERVER;
+
   public AUTH_ID: string = config.AUTH_ID ? config.AUTH_ID.trim() : DEFAULT_CONFIG.AUTH_ID;
+
   public HEXA_ID: string = config.HEXA_ID ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
+
   public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = `m/83696968'/39'/0'/12'/83696968'`;
+
   public VAC_CHILD_INDEX: number = 3012009;
+
   public ENC_KEY_STORAGE_IDENTIFIER: string = config.ENC_KEY_STORAGE_IDENTIFIER
     ? config.ENC_KEY_STORAGE_IDENTIFIER.trim()
     : DEFAULT_CONFIG.ENC_KEY_STORAGE_IDENTIFIER;
@@ -81,7 +89,9 @@ class Configuration {
   };
 
   public REQUEST_TIMEOUT: number = 15000;
+
   public GAP_LIMIT: number = 5;
+
   public RELAY_AXIOS: AxiosInstance = axios.create({
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
@@ -92,14 +102,19 @@ class Configuration {
       os: Platform.OS,
     },
   });
+
   public SIGNING_AXIOS: AxiosInstance = axios.create({
     baseURL: this.SIGNING_SERVER,
     timeout: this.REQUEST_TIMEOUT,
   });
 
   public NETWORK: bitcoinJS.Network;
+
   public NETWORK_TYPE: NetworkType;
+
   public ENVIRONMENT: string;
+
+  public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN ? config.INSTABUG_TOKEN : '';
 
   constructor() {
     this.NETWORK = bitcoinJS.networks.testnet;
@@ -109,42 +124,44 @@ class Configuration {
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {
     TESTNET: {
-      MULTIBALANCE: this.TESTNET_WRAPPER + '/balances',
-      MULTIUTXO: this.TESTNET_WRAPPER + '/utxos',
-      MULTITXN: this.TESTNET_WRAPPER + '/data',
-      MULTIBALANCETXN: this.TESTNET_WRAPPER + '/baltxs',
-      NEWMULTIUTXOTXN: this.TESTNET_WRAPPER + '/nutxotxs',
-      TXN_FEE: this.TESTNET_WRAPPER + '/fee-estimates',
-      TXNDETAILS: this.TESTNET_WRAPPER + '/tx',
-      BROADCAST_TX: this.TESTNET_WRAPPER + '/tx',
+      MULTIBALANCE: `${this.TESTNET_WRAPPER  }/balances`,
+      MULTIUTXO: `${this.TESTNET_WRAPPER  }/utxos`,
+      MULTITXN: `${this.TESTNET_WRAPPER  }/data`,
+      MULTIBALANCETXN: `${this.TESTNET_WRAPPER  }/baltxs`,
+      NEWMULTIUTXOTXN: `${this.TESTNET_WRAPPER  }/nutxotxs`,
+      TXN_FEE: `${this.TESTNET_WRAPPER  }/fee-estimates`,
+      TXNDETAILS: `${this.TESTNET_WRAPPER  }/tx`,
+      BROADCAST_TX: `${this.TESTNET_WRAPPER  }/tx`,
     },
     MAINNET: {
-      MULTIBALANCE: this.MAINNET_WRAPPER + '/balances',
-      MULTIUTXO: this.MAINNET_WRAPPER + '/utxos',
-      MULTITXN: this.MAINNET_WRAPPER + '/data',
-      MULTIBALANCETXN: this.MAINNET_WRAPPER + '/baltxs',
-      NEWMULTIUTXOTXN: this.MAINNET_WRAPPER + '/nutxotxs',
-      TXN_FEE: this.MAINNET_WRAPPER + '/fee-estimates',
-      TXNDETAILS: this.MAINNET_WRAPPER + '/tx',
-      BROADCAST_TX: this.MAINNET_WRAPPER + '/tx',
+      MULTIBALANCE: `${this.MAINNET_WRAPPER  }/balances`,
+      MULTIUTXO: `${this.MAINNET_WRAPPER  }/utxos`,
+      MULTITXN: `${this.MAINNET_WRAPPER  }/data`,
+      MULTIBALANCETXN: `${this.MAINNET_WRAPPER  }/baltxs`,
+      NEWMULTIUTXOTXN: `${this.MAINNET_WRAPPER  }/nutxotxs`,
+      TXN_FEE: `${this.MAINNET_WRAPPER  }/fee-estimates`,
+      TXNDETAILS: `${this.MAINNET_WRAPPER  }/tx`,
+      BROADCAST_TX: `${this.MAINNET_WRAPPER  }/tx`,
     },
   };
+
   public ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS); // current API-endpoints being used
+
   public USE_ESPLORA_FALLBACK = false; // BITHYVE_ESPLORA_API_ENDPOINT acts as the fallback(when true)
 
   public connectToPersonalNode = async (personalNode: PersonalNode) => {
     const personalNodeURL = personalNode.urlPath;
     if (personalNodeURL && personalNode.isConnectionActive) {
       const personalNodeEPs = {
-        MULTIBALANCE: personalNodeURL + '/balances',
-        MULTIUTXO: personalNodeURL + '/utxos',
-        MULTITXN: personalNodeURL + '/data',
-        MULTIBALANCETXN: personalNodeURL + '/baltxs',
-        MULTIUTXOTXN: personalNodeURL + '/utxotxs',
-        NEWMULTIUTXOTXN: personalNodeURL + '/nutxotxs',
-        TXN_FEE: personalNodeURL + 'fee-estimates',
-        TXNDETAILS: personalNodeURL + '/tx',
-        BROADCAST_TX: personalNodeURL + '/tx',
+        MULTIBALANCE: `${personalNodeURL  }/balances`,
+        MULTIUTXO: `${personalNodeURL  }/utxos`,
+        MULTITXN: `${personalNodeURL  }/data`,
+        MULTIBALANCETXN: `${personalNodeURL  }/baltxs`,
+        MULTIUTXOTXN: `${personalNodeURL  }/utxotxs`,
+        NEWMULTIUTXOTXN: `${personalNodeURL  }/nutxotxs`,
+        TXN_FEE: `${personalNodeURL  }fee-estimates`,
+        TXNDETAILS: `${personalNodeURL  }/tx`,
+        BROADCAST_TX: `${personalNodeURL  }/tx`,
       };
 
       if (this.NETWORK === bitcoinJS.networks.bitcoin)

@@ -1,5 +1,6 @@
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { v4 as uuidv4 } from 'uuid';
+
 export const ADD_TO_UAI_STACK = 'ADD_TO_UAI_STACK';
 export const UPADTE_UAI_STACK = 'UPADTE_UAI_STACK';
 export const UAI_CHECKS = 'UAI_CHECKS';
@@ -33,30 +34,24 @@ export const addToUaiStack = (
   };
 };
 
-export const updateUaiStack = (uai: UAI) => {
-  return {
+export const updateUaiStack = (uai: UAI) => ({
     type: UPADTE_UAI_STACK,
     payload: {
       uai,
     },
-  };
-};
+  });
 
-export const uaiChecks = (isFirstLogin: boolean = false) => {
-  return {
+export const uaiChecks = (isFirstLogin: boolean = false) => ({
     type: UAI_CHECKS,
     payload: {
       isFirstLogin,
     },
-  };
-};
+  });
 
-export const uaiActionedEntity = (entityId: string, action: boolean = true) => {
-  return {
+export const uaiActionedEntity = (entityId: string, action: boolean = true) => ({
     type: UAI_ACTIONED_ENTITY,
     payload: {
       entityId,
       action,
     },
-  };
-};
+  });

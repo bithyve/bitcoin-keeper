@@ -3,7 +3,7 @@ import { Box, Text, Pressable } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-//components and functions
+// components and functions
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
@@ -21,24 +21,24 @@ type Props = {
   Icon: boolean;
 };
 
-const Option = ({ title, subTitle, onPress, Icon }: Props) => {
+function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
     <Pressable
-      flexDirection={'row'}
-      alignItems={'center'}
-      width={'100%'}
+      flexDirection="row"
+      alignItems="center"
+      width="100%"
       style={{ marginVertical: hp(20) }}
       onPress={onPress}
     >
       {Icon && (
-        <Box w={'16%'}>
+        <Box w="16%">
           <BackupIcon />
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
         <Text
-          color={'light.lightBlack'}
-          fontFamily={'body'}
+          color="light.lightBlack"
+          fontFamily="body"
           fontWeight={200}
           fontSize={RFValue(14)}
           letterSpacing={1.12}
@@ -46,8 +46,8 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
           {title}
         </Text>
         <Text
-          color={'light.GreyText'}
-          fontFamily={'body'}
+          color="light.GreyText"
+          fontFamily="body"
           fontWeight={200}
           fontSize={RFValue(12)}
           letterSpacing={0.6}
@@ -55,17 +55,17 @@ const Option = ({ title, subTitle, onPress, Icon }: Props) => {
           {subTitle}
         </Text>
       </Box>
-      <Box w={'4%'}>
+      <Box w="4%">
         <Arrow />
       </Box>
     </Pressable>
   );
-};
+}
 
-const SigningServerSettings = ({ route }) => {
+function SigningServerSettings({ route }) {
   const navigtaion = useNavigation();
 
-  const GradientIcon = ({ height, Icon }) => {
+  function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
         colors={['#694B2E', '#694B2E']}
@@ -82,9 +82,9 @@ const SigningServerSettings = ({ route }) => {
         <Icon />
       </LinearGradient>
     );
-  };
+  }
 
-  const VaultCard = ({ signingServerName, addedOn, signingServerDescription }) => {
+  function VaultCard({ signingServerName, addedOn, signingServerDescription }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
@@ -97,24 +97,21 @@ const SigningServerSettings = ({ route }) => {
           position: 'relative',
           marginLeft: -wp(20),
           marginBottom: hp(30),
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
-        <Box
-          flexDirection={'row'}
-          alignItems={'center'}
-          style={{
-          }}
-        >
-          <Box style={{
-            marginHorizontal: wp(20),
-            opacity: 0.9
-          }}>
+        <Box flexDirection="row" alignItems="center" style={{}}>
+          <Box
+            style={{
+              marginHorizontal: wp(20),
+              opacity: 0.9,
+            }}
+          >
             <GradientIcon Icon={Server} height={hp(48)} />
           </Box>
           <Box>
             <Text
-              color={'light.white'}
+              color="light.white"
               letterSpacing={0.28}
               fontSize={RFValue(14)}
               fontWeight={200}
@@ -122,7 +119,7 @@ const SigningServerSettings = ({ route }) => {
               {signingServerName}
             </Text>
             <Text
-              color={'light.vaultCardText'}
+              color="light.vaultCardText"
               letterSpacing={1}
               fontSize={RFValue(10)}
               fontWeight={200}
@@ -130,7 +127,7 @@ const SigningServerSettings = ({ route }) => {
               {addedOn}
             </Text>
             <Text
-              color={'light.vaultCardText'}
+              color="light.vaultCardText"
               letterSpacing={0.6}
               fontSize={RFValue(12)}
               fontWeight={200}
@@ -143,69 +140,59 @@ const SigningServerSettings = ({ route }) => {
     );
   }
   return (
-    <Box style={styles.Container} background={'light.ReceiveBackground'}>
+    <Box style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
-          title={'Signing Server Settings'}
-          subtitle={'Lorem Ipsum Dolor'}
+          title="Signing Server Settings"
+          subtitle="Lorem Ipsum Dolor"
           onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor={'light.textBlack'}
+          headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
         />
       </Box>
-      <Box
-        borderBottomColor={'light.divider'}
-        marginTop={hp(40)}
-        paddingX={wp(25)}
-      >
+      <Box borderBottomColor="light.divider" marginTop={hp(40)} paddingX={wp(25)}>
         <VaultCard
-          signingServerName={'Signing Server'}
-          signingServerDescription={'Lorem ipsum dolor sit amet, '}
-          addedOn={'Added on 12 January 2022'}
+          signingServerName="Signing Server"
+          signingServerDescription="Lorem ipsum dolor sit amet, "
+          addedOn="Added on 12 January 2022"
         />
-
       </Box>
-      <Box alignItems={'center'} paddingX={wp(25)}>
+      <Box alignItems="center" paddingX={wp(25)}>
         <Option
-          title={'Change Verification & Policy'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
+          title="Change Verification & Policy"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
           onPress={() => {
             console.log('Change Verification & Policy');
           }}
           Icon={false}
         />
         <Option
-          title={'Consectetur'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
-          onPress={() => {
-          }}
+          title="Consectetur"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
+          onPress={() => {}}
           Icon={false}
         />
         <Option
-          title={'Consectetur'}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur'}
-          onPress={() => {
-          }}
+          title="Consectetur"
+          subTitle="Lorem ipsum dolor sit amet, consectetur"
+          onPress={() => {}}
           Icon={false}
         />
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
+      <Box position="absolute" bottom={hp(45)} marginX={5}>
         <InfoBox
-          title={'Note'}
-          desciption={
-            'Lorem ipsum dolor sit amet, consec tetur adi piscing elit, sed do eiusmod tempor incididunt ut labore et'
-          }
+          title="Note"
+          desciption="Lorem ipsum dolor sit amet, consec tetur adi piscing elit, sed do eiusmod tempor incididunt ut labore et"
           width={250}
         />
       </Box>
-
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

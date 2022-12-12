@@ -1,8 +1,8 @@
 import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
 import { Box, DeleteIcon, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Buttons from 'src/components/Buttons';
@@ -10,10 +10,10 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
-import InfoBox from '../../components/InfoBox';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -34,7 +34,7 @@ import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
 
-const SetupSigningServer = ({ route }: { route }) => {
+function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -65,7 +65,7 @@ const SetupSigningServer = ({ route }: { route }) => {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const policy: SignerPolicy = route.params.policy;
+    const {policy} = route.params;
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
       type: SignerType.POLICY_SERVER,
@@ -110,27 +110,27 @@ const SetupSigningServer = ({ route }: { route }) => {
           <CVVInputsView
             passCode={otp}
             passcodeFlag={false}
-            backgroundColor={true}
-            textColor={true}
+            backgroundColor
+            textColor
           />
           <Text
             fontSize={13}
             fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
-            color={'light.modalText'}
+            color="light.modalText"
             marginTop={2}
           >
             If you lose your authenticator app, use the other Signing Devices to reset the Signing
             Server
           </Text>
-          <Box mt={10} alignSelf={'flex-end'} mr={2}>
+          <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
               <CustomGreenButton
                 onPress={() => {
                   dispatch(validateSigningServerRegistration(Number(otp)));
                 }}
-                value={'Confirm'}
+                value="Confirm"
               />
             </Box>
           </Box>
@@ -138,7 +138,7 @@ const SetupSigningServer = ({ route }: { route }) => {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor={'light.lightBlack'}
+          keyColor="light.lightBlack"
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -146,76 +146,61 @@ const SetupSigningServer = ({ route }: { route }) => {
   }, []);
 
   return (
-    <View style={styles.Container} background={'light.ReceiveBackground'}>
+    <View style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
-          title={'Set up 2FA for Signing Server'}
-          subtitle={'Scan on any 2FA auth app'}
+          title="Set up 2FA for Signing Server"
+          subtitle="Scan on any 2FA auth app"
           onPressHandler={() => navigation.goBack()}
-          headerTitleColor={'light.headerText'}
+          headerTitleColor="light.headerText"
           paddingTop={hp(5)}
         />
       </Box>
-      <Box marginTop={hp(50)} alignItems={'center'} alignSelf={'center'} width={wp(250)}>
+      <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {twoFAKey === '' ? (
-          <Box height={hp(250)} justifyContent={'center'}>
-            <ActivityIndicator animating={true} size="small" />
+          <Box height={hp(250)} justifyContent="center">
+            <ActivityIndicator animating size="small" />
           </Box>
         ) : (
           <Box
-            alignItems={'center'}
-            alignSelf={'center'}
+            alignItems="center"
+            alignSelf="center"
             width={hp(200)}
             style={{
               marginTop: hp(30),
             }}
           >
-            {/* <Text
-              color={'light.recieverAddress'}
-              fontFamily={'body'}
-              fontWeight={300}
-              fontSize={12}
-              letterSpacing={1.08}
-              noOfLines={1}
-              backgroundColor={'amber.400'}
-              style={{
-                marginVertical: hp(30),
-              }}
-            >
-              Scan the QR below to add Backup Key
-            </Text> */}
             <QRCode
               value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
               logoBackgroundColor="transparent"
               size={hp(200)}
             />
-            <Box background={'light.QrCode'} height={6} width={'100%'} justifyContent={'center'}>
+            <Box background="light.QrCode" height={6} width="100%" justifyContent="center">
               <Text
-                textAlign={'center'}
-                color={'light.recieverAddress'}
-                fontFamily={'body'}
+                textAlign="center"
+                color="light.recieverAddress"
+                fontFamily="body"
                 fontWeight={300}
                 fontSize={12}
                 letterSpacing={1.08}
-                width={'100%'}
+                width="100%"
                 noOfLines={1}
               >
-                {/* {twoFAKey} */}
                 2FA Signing Server
               </Text>
             </Box>
-            <Box alignItems={'center'} marginTop={hp(30)} width={wp(320)}>
+            <Box alignItems="center" marginTop={hp(30)} width={wp(320)}>
               <Box
-                flexDirection={'row'}
-                width={'90%'}
-                alignItems={'center'}
-                justifyContent={'space-between'}
-                backgroundColor={'light.textInputBackground'}
+                flexDirection="row"
+                width="90%"
+                alignItems="center"
+                justifyContent="space-between"
+                backgroundColor="light.textInputBackground"
                 borderBottomLeftRadius={10}
                 borderTopLeftRadius={10}
               >
-                <Text width={'80%'} marginLeft={4} noOfLines={1}>
+                <Text width="80%" marginLeft={4} noOfLines={1}>
                   {twoFAKey}
                 </Text>
                 <TouchableOpacity
@@ -226,7 +211,7 @@ const SetupSigningServer = ({ route }: { route }) => {
                   }}
                 >
                   <Box
-                    backgroundColor={'light.copyBackground'}
+                    backgroundColor="light.copyBackground"
                     padding={3}
                     borderTopRightRadius={10}
                     borderBottomRightRadius={10}
@@ -241,20 +226,20 @@ const SetupSigningServer = ({ route }: { route }) => {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position={'absolute'} bottom={hp(45)} marginX={5}>
+      <Box position="absolute" bottom={hp(45)} marginX={5} width="100%">
         <Box marginBottom={hp(30)}>
-          <InfoBox
-            title={'Note'}
-            desciption={'It is a good idea to have the authenticator app on another device'}
-            width={300}
+          <Note
+            title="Note"
+            subtitle="It is a good idea to have the authenticator app on another device"
+            subtitleColor="GreyText"
           />
         </Box>
         <Buttons
           primaryCallback={() => {
             showValidationModal(true);
           }}
-          primaryText={'Next'}
-          secondaryText={'Cancel'}
+          primaryText="Next"
+          secondaryText="Cancel"
           secondaryCallback={() => {
             navigation.goBack();
           }}
@@ -265,15 +250,15 @@ const SetupSigningServer = ({ route }: { route }) => {
         close={() => {
           showValidationModal(false);
         }}
-        title={'Confirm OTP to setup 2FA'}
-        subTitle={'To complete setting up the signing server'}
+        title="Confirm OTP to setup 2FA"
+        subTitle="To complete setting up the signing server"
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#041513'}
+        textColor="#041513"
         Content={otpContent}
       />
     </View>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

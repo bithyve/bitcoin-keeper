@@ -6,15 +6,15 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { resetPin } from '../../store/sagaActions/login';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import DotView from 'src/components/DotView';
+
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { resetPin } from '../../store/sagaActions/login';
 
 export default function ResetPin(props) {
   const [passcode, setPasscode] = useState('');
@@ -28,8 +28,8 @@ export default function ResetPin(props) {
   const oldPasscode = props.route.params.oldPin || '';
 
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
-  const common = translations['common'];
+  const {login} = translations;
+  const {common} = translations;
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
@@ -108,6 +108,7 @@ export default function ResetPin(props) {
 
   useEffect(() => {
     if (isPinChangedFailed) {
+      // todo
     }
   }, [isPinChangedFailed]);
 
@@ -123,7 +124,7 @@ export default function ResetPin(props) {
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
         <Box pt={50}>
-          <StatusBar barStyle={'light-content'} />
+          <StatusBar barStyle="light-content" />
         </Box>
         <Box flex={1}>
           <Box>
@@ -132,12 +133,12 @@ export default function ResetPin(props) {
                 ml={5}
                 mt={hp(1)}
                 fontSize={RFValue(22)}
-                color={'light.white'}
-                fontFamily={'heading'}
+                color="light.white"
+                fontFamily="heading"
               >
                 {login.ResetPasscode}
               </Text>
-              <Text color={'light.white'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
+              <Text color="light.white" fontSize={RFValue(12)} ml={5} fontFamily="body">
                 {login.Createpasscode}
               </Text>
 
@@ -146,30 +147,30 @@ export default function ResetPin(props) {
               {/*  */}
             </Box>
             <Box>
-              <Text color={'#FFFFFF'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
+              <Text color="#FFFFFF" fontSize={RFValue(12)} ml={5} fontFamily="body">
                 {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
                 {/* pin input view */}
                 <PinInputsView
                   passCode={confirmPasscode}
-                  passcodeFlag={confirmPasscodeFlag == 0 ? false : true}
+                  passcodeFlag={confirmPasscodeFlag != 0}
                 />
                 {/*  */}
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                   <Text
-                    color={'light.white'}
+                    color="light.white"
                     fontSize={RFValue(13)}
-                    fontWeight={'500'}
+                    fontWeight="500"
                     width={wp('72%')}
-                    textAlign={'right'}
+                    textAlign="right"
                     mt={hp('1.5%')}
                   >
                     {login.MismatchPasscode}
                   </Text>
                 )}
               </Box>
-              <Box alignSelf={'flex-end'} mr={5}>
+              <Box alignSelf="flex-end" mr={5}>
                 <CustomButton
                   onPress={() => {
                     dispatch(resetPin(passcode));

@@ -1,35 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, ScrollView, StatusBar, useColorMode, Pressable } from 'native-base';
-import { SafeAreaView, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Box, Text, ScrollView, StatusBar } from 'native-base';
+import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+
+import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 import BackIcon from 'src/assets/icons/back.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
 
-const AppVersionHistory = ({ navigation }) => {
+function AppVersionHistory({ navigation }) {
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#F7F2EC',
-      }}
-    >
-      <StatusBar backgroundColor={'#F7F2EC'} barStyle="dark-content" />
-      <Box mx={10} my={10}>
+    <SafeAreaView style={styles.wrapper}>
+      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <Box style={styles.backBtnWrapper}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
       </Box>
 
-      <Box mx={10} mb={5}>
-        <Text
-          color={'light.headerText'}
-          fontWeight={200}
-          letterSpacing={1}
-          fontSize={RFValue(16)}
-          fontFamily={'heading'}
-          pl={10}
-        >
+      <Box style={styles.versionHistoryTitleWrapper}>
+        <Text color="light.headerText" fontFamily="heading" style={styles.versionHistoryTitle}>
           Version History
         </Text>
       </Box>
@@ -40,5 +30,26 @@ const AppVersionHistory = ({ navigation }) => {
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#F7F2EC',
+  },
+  backBtnWrapper: {
+    marginTop: wp('18%'),
+    marginBottom: wp('12%'),
+    marginHorizontal: wp('8%'),
+  },
+  versionHistoryTitleWrapper: {
+    marginHorizontal: wp('10%'),
+    marginBottom: 5,
+  },
+  versionHistoryTitle: {
+    fontWeight: '300',
+    letterSpacing: 1,
+    fontSize: RFValue(16),
+    paddingLeft: 7,
+  },
+});
 export default AppVersionHistory;

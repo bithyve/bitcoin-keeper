@@ -3,11 +3,10 @@ import { Box, Text } from 'native-base';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Check from 'src/assets/images/check.svg';
 
-const CreateCloudBackup = (props) => {
+function CreateCloudBackup(props) {
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
+  const {BackupWallet} = translations;
 
   const [currentPosition, setCurrentPosition] = useState(0);
   const [items, setItems] = useState([
@@ -19,7 +18,7 @@ const CreateCloudBackup = (props) => {
     },
   ]);
   return (
-    <Box bg={'#F7F2EC'} borderRadius={10}>
+    <Box bg="#F7F2EC" borderRadius={10}>
       {/* <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
@@ -85,7 +84,7 @@ const CreateCloudBackup = (props) => {
       </Box> */}
     </Box>
   );
-};
+}
 export default CreateCloudBackup;
 const styles = StyleSheet.create({
   selectedDot: {

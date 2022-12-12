@@ -1,5 +1,4 @@
-import { Merkle, hashLeaf } from './merkle';
-
+import { hashLeaf, Merkle } from './merkle';
 import { createVarint } from './varint';
 
 /**

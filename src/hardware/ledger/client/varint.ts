@@ -1,4 +1,9 @@
-function bigintToSmallEndian(value: bigint, length: number, buffer: Buffer, offset: number): void {
+function bigintToSmallEndian(
+  value: bigint,
+  length: number,
+  buffer: Buffer,
+  offset: number
+): void {
   for (let i = 0; i < length; i++) {
     if (buffer[i + offset] == undefined) {
       throw Error('Buffer too small');
@@ -8,7 +13,11 @@ function bigintToSmallEndian(value: bigint, length: number, buffer: Buffer, offs
   }
 }
 
-function smallEndianToBigint(buffer: Buffer, offset: number, length: number): bigint {
+function smallEndianToBigint(
+  buffer: Buffer,
+  offset: number,
+  length: number
+): bigint {
   let result = BigInt(0);
   for (let i = 0; i < length; i++) {
     if (buffer[i + offset] == undefined) {
@@ -27,7 +36,7 @@ function smallEndianToBigint(buffer: Buffer, offset: number, length: number): bi
  * @param n the number to convert
  * @returns `n` as a `number`
  */
-export function sanitizeBigintToNumber(n: number | bigint): number {
+ export function sanitizeBigintToNumber(n: number | bigint): number {
   if (n < 0) throw RangeError('Negative bigint is not a valid varint');
   if (n > Number.MAX_SAFE_INTEGER) throw RangeError('Too large for a Number');
 
@@ -65,9 +74,12 @@ function getVarintSize(value: number | bigint): 1 | 3 | 5 | 9 {
  * @throws `RangeError` if offset is negative.
  * @throws `Error` if the buffer's end is reached withut parsing being completed.
  */
-export function parseVarint(data: Buffer, offset: number): readonly [bigint, number] {
+export function parseVarint(
+  data: Buffer,
+  offset: number
+): readonly [bigint, number] {
   if (offset < 0) {
-    throw RangeError('Negative offset is invalid');
+    throw RangeError("Negative offset is invalid");
   }
   if (data[offset] == undefined) {
     throw Error('Buffer too small');

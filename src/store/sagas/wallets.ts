@@ -1,37 +1,18 @@
-import { ADD_NEW_VAULT, FINALISE_VAULT_MIGRATION, MIGRATE_VAULT } from '../sagaActions/vaults';
-import {
-  ADD_NEW_WALLETS,
-  AUTO_SYNC_WALLETS,
-  IMPORT_NEW_WALLET,
-  REFRESH_WALLETS,
-  REGISTER_WITH_SIGNING_SERVER,
-  SYNC_WALLETS,
-  UPDATE_WALLET_SETTINGS,
-  VALIDATE_SIGNING_SERVER_REGISTRATION,
-  refreshWallets,
-  walletSettingsUpdateFailed,
-  walletSettingsUpdated,
-  TEST_SATS_RECIEVE,
-  UPDATE_SIGNER_POLICY,
-  UPDATE_WALLET_DETAILS,
-} from '../sagaActions/wallets';
 import {
   EntityKind,
-  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import { Storage, getString, setItem } from 'src/storage';
-import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { Wallet, WalletShell, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
 import {
-  addSigningDevice,
-  initiateVaultMigration,
-  vaultCreated,
-  vaultMigrationCompleted,
-} from '../reducers/vaults';
+  SignerException,
+  SignerRestriction,
+  SingerVerification,
+  VerificationType,
+} from 'src/core/services/interfaces';
+import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Wallet, WalletPresentationData, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
@@ -39,17 +20,15 @@ import {
   setTestCoinsReceived,
   signingServerRegistrationVerified,
 } from 'src/store/reducers/wallets';
-import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 
-import { ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { Alert } from 'react-native';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RootState } from '../store';
+import Relay from 'src/core/services/operations/Relay';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import { TwoFADetails } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import _ from 'lodash';
 import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
@@ -57,15 +36,36 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import Relay from 'src/core/services/operations/Relay';
+import { RootState } from '../store';
+import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 import {
-  SignerException,
-  SignerRestriction,
-  SingerVerification,
-  VerificationType,
-} from 'src/core/services/interfaces';
-import { vs } from 'react-native-size-matters';
-import { Alert } from 'react-native';
+  addSigningDevice,
+  initiateVaultMigration,
+  vaultCreated,
+  vaultMigrationCompleted,
+} from '../reducers/vaults';
+import {
+  ADD_NEW_WALLETS,
+  AUTO_SYNC_WALLETS,
+  IMPORT_NEW_WALLET,
+  REFRESH_WALLETS,
+  REGISTER_WITH_SIGNING_SERVER,
+  SYNC_WALLETS,
+  TEST_SATS_RECIEVE,
+  UPDATE_SIGNER_POLICY,
+  UPDATE_WALLET_DETAILS,
+  UPDATE_WALLET_SETTINGS,
+  VALIDATE_SIGNING_SERVER_REGISTRATION,
+  refreshWallets,
+  walletSettingsUpdateFailed,
+  walletSettingsUpdated,
+} from '../sagaActions/wallets';
+import {
+  ADD_NEW_VAULT,
+  ADD_SIGINING_DEVICE,
+  FINALISE_VAULT_MIGRATION,
+  MIGRATE_VAULT,
+} from '../sagaActions/vaults';
 
 export interface newWalletDetails {
   name?: string;
@@ -98,8 +98,8 @@ function* addNewWallet(
         type: WalletType.CHECKING,
         instanceNum: walletInstances[WalletType.CHECKING] | 0,
         walletShellId: walletShell.id,
-        walletName: walletName ? walletName : 'Checking Wallet',
-        walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
+        walletName: walletName || 'Checking Wallet',
+        walletDescription: walletDescription || 'Bitcoin Wallet',
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
@@ -111,8 +111,8 @@ function* addNewWallet(
         type: walletType,
         instanceNum: walletInstances[walletType] | 0,
         walletShellId: walletShell.id,
-        walletName: walletName ? walletName : 'Lightning Wallet',
-        walletDescription: walletDescription ? walletDescription : '',
+        walletName: walletName || 'Lightning Wallet',
+        walletDescription: walletDescription || '',
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
@@ -124,8 +124,8 @@ function* addNewWallet(
         type: WalletType.IMPORTED,
         instanceNum: null, // bip-85 instance number is null for imported wallets
         walletShellId: walletShell.id,
-        walletName: walletName ? walletName : 'Imported Wallet',
-        walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
+        walletName: walletName || 'Imported Wallet',
+        walletDescription: walletDescription || 'Bitcoin Wallet',
         importedMnemonic: importDetails.primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
@@ -137,8 +137,8 @@ function* addNewWallet(
         type: WalletType.READ_ONLY,
         instanceNum: null, // bip-85 instance number is null for read-only wallets
         walletShellId: walletShell.id,
-        walletName: walletName ? walletName : 'Read-Only Wallet',
-        walletDescription: walletDescription ? walletDescription : 'Bitcoin Wallet',
+        walletName: walletName || 'Read-Only Wallet',
+        walletDescription: walletDescription || 'Bitcoin Wallet',
         importedXpub: importDetails.xpub,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
@@ -250,7 +250,7 @@ function* addNewVaultWorker({
     yield call(dbManager.createObject, RealmSchema.Vault, vault);
 
     if (!newVaultShell) {
-      let presentVaultInstances = { ...vaultShell.vaultInstances };
+      const presentVaultInstances = { ...vaultShell.vaultInstances };
       presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
 
       yield call(dbManager.updateObjectById, RealmSchema.VaultShell, vaultShell.id, {
@@ -301,7 +301,7 @@ function* migrateVaultWorker({
     if (vaultScheme.n !== vaultSigners.length)
       throw new Error('Vault schema(n) and signers mismatch');
 
-    let vaultShell: VaultShell = yield call(
+    const vaultShell: VaultShell = yield call(
       dbManager.getObjectById,
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
@@ -466,7 +466,7 @@ function* refreshWalletsWorker({
   };
 }) {
   const { wallets } = payload;
-  const options: { hardRefresh?: boolean } = payload.options;
+  const {options} = payload;
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
@@ -661,7 +661,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
   const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
   const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
   for (let i = 0; i < signers.length; i++) {
-    let current = signers[i];
+    const current = signers[i];
     if (current.signerId === signer.signerId) {
       current.signerPolicy = {
         ...current.signerPolicy,

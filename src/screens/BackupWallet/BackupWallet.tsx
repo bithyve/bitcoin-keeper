@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable, StatusBar, ScrollView } from 'native-base';
+import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -28,10 +28,10 @@ type Props = {
   onPress: () => void;
 };
 
-const BackupWallet = () => {
+function BackupWallet() {
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
+  const { BackupWallet } = translations;
   const { backupMethod, loading, isBackupError, backupError, cloudBackupCompleted } =
     useAppSelector((state) => state.bhr);
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
@@ -62,46 +62,48 @@ const BackupWallet = () => {
     };
   }, [loading, isBackupError, cloudBackupCompleted]);
 
-  const Option = ({ title, subTitle, onPress }: Props) => {
+  function Option({ title, subTitle, onPress }: Props) {
     return (
       <Pressable
-        flexDirection={'row'}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        width={'100%'}
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+        width="100%"
         style={{ marginVertical: hp(20) }}
         onPress={onPress}
       >
-        <Box>
+        <Box width="100%">
           <Text
-            color={'light.lightBlack'}
-            fontFamily={'body'}
+            color="light.lightBlack"
+            fontFamily="body"
             fontWeight={200}
             fontSize={RFValue(14)}
             letterSpacing={1.12}
           >
             {title}
           </Text>
-          <Text
-            color={'light.GreyText'}
-            fontFamily={'body'}
-            fontWeight={200}
-            fontSize={RFValue(12)}
-            letterSpacing={0.6}
-          >
-            {subTitle}
-          </Text>
+          {subTitle ? (
+            <Text
+              color="light.GreyText"
+              fontFamily="body"
+              fontWeight={200}
+              fontSize={RFValue(12)}
+              letterSpacing={0.6}
+            >
+              {subTitle}
+            </Text>
+          ) : null}
         </Box>
         <Box>
           <Arrow />
         </Box>
       </Pressable>
     );
-  };
+  }
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box flex={1} padding={5} background={'light.ReceiveBackground'}>
+    <Box flex={1} padding={5} background="light.ReceiveBackground">
       <StatusBarComponent padding={30} />
       <Box
         style={{
@@ -115,11 +117,11 @@ const BackupWallet = () => {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box alignItems={'center'} paddingX={wp(25)} marginTop={hp(60)}>
+      <Box alignItems="center" marginTop={hp(40)} padding={7}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
-          subTitle={''}
+          subTitle=""
           onPress={() => {
             navigation.replace('ExportSeed', {
               seed: primaryMnemonic,
@@ -127,17 +129,6 @@ const BackupWallet = () => {
             });
           }}
         />
-        {/* <Option
-          title={BackupWallet.backupOnCloud}
-          subTitle={'Lorem ipsum dolor sit amet,'}
-          onPress={() => {
-            setCloudBackupModal(true);
-            // setCreateCloudBackupModal(true);
-            // setHealthCheckModal(true);
-            // setHealthCheckSuccessModal(true);
-            // setSkipHealthCheckModal(true);
-          }}
-        /> */}
       </Box>
       <Box>
         <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>
@@ -158,7 +149,7 @@ const BackupWallet = () => {
         <ModalWrapper
           visible={healthCheckModal}
           onSwipeComplete={() => setHealthCheckModal(false)}
-          position={'center'}
+          position="center"
         >
           <HealthCheckComponent
             closeBottomSheet={() => {
@@ -201,5 +192,5 @@ const BackupWallet = () => {
       </Box>
     </Box>
   );
-};
+}
 export default BackupWallet;

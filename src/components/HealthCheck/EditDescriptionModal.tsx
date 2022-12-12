@@ -1,16 +1,14 @@
+import React from 'react';
 import { Box, Modal, Text, Input } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { useAppDispatch } from 'src/store/hooks';
 import moment from 'moment';
 
-const EditDescriptionModal = (props) => {
+function EditDescriptionModal(props) {
   const {
     visible,
     closeHealthCheck,
@@ -43,7 +41,7 @@ const EditDescriptionModal = (props) => {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      marginTop={'20%'}
+      marginTop="20%"
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
@@ -56,55 +54,55 @@ const EditDescriptionModal = (props) => {
             <Close />
           </TouchableOpacity>
           <Modal.Header
-            alignSelf={'flex-start'}
+            alignSelf="flex-start"
             borderBottomWidth={0}
-            backgroundColor={'transparent'}
-            width={'90%'}
+            backgroundColor="transparent"
+            width="90%"
           >
             <Text
               style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
+              fontFamily="body"
+              fontWeight="200"
               color={textColor}
               paddingBottom={1}
             >
               {title}
             </Text>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
           <Box style={{ flexDirection: 'row', marginLeft: 10, alignSelf: 'flex-start' }}>
             <Box>{SignerIcon}</Box>
             <Box style={{ marginTop: 8, flexDirection: 'column' }}>
-              <Text color={'light.lightBlack'} fontSize={14}>
+              <Text color="light.lightBlack" fontSize={14}>
                 {SignerName}
               </Text>
-              <Box flexDirection={'row'}>
-                <Text fontSize={12} color={'light.greyText'}>
+              <Box flexDirection="row">
+                <Text fontSize={12} color="light.greyText">
                   Added on{' '}
                 </Text>
-                <Text fontSize={12} color={'light.greyText'}>
+                <Text fontSize={12} color="light.greyText">
                   {moment(SignerDate).format('DD MMM YYYY')}
                 </Text>
               </Box>
             </Box>
           </Box>
           <Input
-            placeholderTextColor={'grey'}
-            backgroundColor={'light.lightYellow'}
+            placeholderTextColor="grey"
+            backgroundColor="light.lightYellow"
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}
             w="90%"
             marginY={2}
-            height={'10'}
+            height="10"
             value={inputText}
             onChangeText={(text) => {
               setInputText(text);
             }}
           />
-          <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>
+          <Box alignSelf="flex-end" flexDirection="row" bg="transparent">
             <TouchableOpacity onPress={onPress}>
               <LinearGradient
                 start={{ x: 0, y: 0 }}
@@ -114,8 +112,8 @@ const EditDescriptionModal = (props) => {
               >
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   color={buttonTextColor}
                 >
@@ -128,7 +126,7 @@ const EditDescriptionModal = (props) => {
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default EditDescriptionModal;
 

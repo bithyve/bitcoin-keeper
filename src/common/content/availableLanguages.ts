@@ -55,7 +55,7 @@ export default [
     country: 'India',
     country_code: 'in',
   },
-  /*{
+  /* {
     language: 'Marathi',
     displayTitle: 'मराठी',
     iso: 'mr',
@@ -77,6 +77,6 @@ export default [
     flag: '🇮🇳',
     country: 'India',
     country_code: 'bn',
-  },*/
+  }, */
 ]
 

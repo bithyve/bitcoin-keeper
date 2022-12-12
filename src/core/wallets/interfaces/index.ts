@@ -241,4 +241,5 @@ export interface SerializedPSBTEnvelop {
   serializedPSBT: string;
   signingPayload?: SigningPayload[];
   isSigned: boolean;
+  txHex?: string;
 }

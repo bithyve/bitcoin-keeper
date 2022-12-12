@@ -8,6 +8,7 @@ import {
 } from 'react-native-responsive-screen';
 
 import DotView from 'src/components/DotView';
+
 export interface Props {
   passCode?: string;
   passcodeFlag?: boolean;
@@ -15,7 +16,7 @@ export interface Props {
   textColor?: boolean;
   length?: number
 }
-const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, length = 6 }: Props) => {
+function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, length = 6 }: Props) {
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -28,41 +29,53 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
     }
   }, [passCode]);
 
+  const getBackgroundColor = () => backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
+
+  const getTextColor = () => textColor ? 'light.textBlack' : 'light.white'
+
+  const getDotColor = () => textColor ? 'black' : 'white'
+
+  const getPin = (num: number) => {
+    if (passCode.length == num && !hide) {
+      return (
+        <Text
+          color={getTextColor()}
+          fontWeight="300"
+          fontSize={RFValue(20)}
+          fontFamily="body"
+        >
+          {passCode[num - 1]}
+        </Text>
+      )
+    } if (passCode.length >= num) {
+      return (
+        <DotView height={3} width={3} color={getDotColor()} />
+      )
+    } if (passCode.length == num - 1) {
+      return (
+        <Text color={getTextColor()}>
+          |
+        </Text>
+      )
+    } 
+      return '';
+    
+  }
+
   return (
-    <Box alignSelf={'baseline'}>
-      <Box flexDirection={'row'} mt={hp('2%')} marginBottom={hp('2.5%')} width={'auto'}>
+    <Box alignSelf="baseline">
+      <Box flexDirection="row" mt={hp('2%')} marginBottom={hp('2.5%')} width="auto">
         <Box
           height={wp('9%')}
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor={getBackgroundColor()}
         >
           <Box>
-            {passCode.length == 1 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[0]}
-              </Text>
-            ) : passCode.length >= 2 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 0 && passcodeFlag == true ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(1)}
           </Box>
         </Box>
         <Box
@@ -70,33 +83,12 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor={getBackgroundColor()}
         >
           <Box>
-            {passCode.length == 2 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[1]}
-              </Text>
-            ) : passCode.length >= 3 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 1 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(2)}
           </Box>
         </Box>
         <Box
@@ -104,33 +96,12 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor={getBackgroundColor()}
         >
           <Box>
-            {passCode.length == 3 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[2]}
-              </Text>
-            ) : passCode.length >= 4 ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 2 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(3)}
           </Box>
         </Box>
         <Box
@@ -138,33 +109,12 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
           width={wp('9%')}
           borderRadius={7}
           ml={4}
-          alignItems={'center'}
-          justifyContent={'center'}
-          backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor={getBackgroundColor()}
         >
           <Box>
-            {passCode.length == 4 && !hide ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(20)}
-                fontFamily={'body'}
-              >
-                {passCode[3]}
-              </Text>
-            ) : passCode.length >= 4 && hide ? (
-              <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-            ) : passCode.length == 3 ? (
-              <Text
-                color={textColor ? 'light.textBlack' : 'light.white'}
-                fontWeight={'300'}
-                fontSize={RFValue(13)}
-              >
-                {'|'}
-              </Text>
-            ) : (
-              ''
-            )}
+            {getPin(4)}
           </Box>
         </Box>
         {length === 6 &&
@@ -174,33 +124,12 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
               width={wp('9%')}
               borderRadius={7}
               ml={4}
-              alignItems={'center'}
-              justifyContent={'center'}
-              backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+              alignItems="center"
+              justifyContent="center"
+              backgroundColor={getBackgroundColor()}
             >
               <Box>
-                {passCode.length == 5 && !hide ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(20)}
-                    fontFamily={'body'}
-                  >
-                    {passCode[4]}
-                  </Text>
-                ) : passCode.length >= 5 && hide ? (
-                  <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-                ) : passCode.length == 4 ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(13)}
-                  >
-                    {'|'}
-                  </Text>
-                ) : (
-                  ''
-                )}
+                {getPin(5)}
               </Box>
             </Box>
             <Box
@@ -208,33 +137,12 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
               width={wp('9%')}
               borderRadius={7}
               ml={4}
-              alignItems={'center'}
-              justifyContent={'center'}
-              backgroundColor={backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'}
+              alignItems="center"
+              justifyContent="center"
+              backgroundColor={getBackgroundColor()}
             >
               <Box>
-                {passCode.length == 6 && !hide ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(20)}
-                    fontFamily={'body'}
-                  >
-                    {passCode[5]}
-                  </Text>
-                ) : passCode.length >= 6 && hide ? (
-                  <DotView height={3} width={3} color={textColor ? 'black' : 'white'} />
-                ) : passCode.length == 5 ? (
-                  <Text
-                    color={textColor ? 'light.textBlack' : 'light.white'}
-                    fontWeight={'300'}
-                    fontSize={RFValue(13)}
-                  >
-                    {'|'}
-                  </Text>
-                ) : (
-                  ''
-                )}
+                {getPin(6)}
               </Box>
             </Box>
           </>
@@ -242,5 +150,5 @@ const CVVInputsView = ({ passCode, passcodeFlag, backgroundColor, textColor, len
       </Box>
     </Box>
   );
-};
+}
 export default CVVInputsView;

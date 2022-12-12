@@ -1,8 +1,7 @@
 import { Box, Text, View, ScrollView } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Platform,
-  StyleSheet,
   TouchableOpacity,
   Keyboard,
   KeyboardAvoidingView,
@@ -11,30 +10,30 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+
 import { useNavigation } from '@react-navigation/native';
+import { ScaledSheet } from 'react-native-size-matters';
+import LinearGradient from 'react-native-linear-gradient';
+import * as bip39 from 'bip39';
+
+import StatusBarComponent from 'src/components/StatusBarComponent';
 import SeedWordsView from 'src/components/SeedWordsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import LinearGradient from 'react-native-linear-gradient';
 import KeeperModal from 'src/components/KeeperModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import { useDispatch } from 'react-redux';
-import { getAppImage } from 'src/store/sagaActions/bhr';
-import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import * as bip39 from 'bip39';
+import { getPlaceholder } from 'src/common/utilities';
 
-const InputSeedWordSigner = ({ route }) => {
+function InputSeedWordSigner({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const seed = translations['seed'];
-  const common = translations['common'];
-  const onSuccess = route.params.onSuccess;
+  const { seed } = translations;
+  const { common } = translations;
+  const { onSuccess } = route.params;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -129,7 +128,7 @@ const InputSeedWordSigner = ({ route }) => {
   const getSeedWord = () => {
     let seedWord = '';
     for (let i = 0; i < 12; i++) {
-      seedWord += seedData[i].name + ' ';
+      seedWord += `${seedData[i].name} `;
     }
     return seedWord.trim();
   };
@@ -142,43 +141,36 @@ const InputSeedWordSigner = ({ route }) => {
     } else Alert.alert('Invalid Mnemonic');
   };
 
-  const RecoverWalletScreen = () => {
+  function RecoverWalletScreen() {
     return (
       <View>
         <Illustration />
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
     );
-  };
+  }
 
-  const InValidSeedsScreen = () => {
+  function InValidSeedsScreen() {
     return (
       <View>
-        <Box alignSelf={'center'}>
+        <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit'
-          }
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit
         </Text>
       </View>
     );
-  };
+  }
 
   const getFormattedNumber = (number) => {
-    if (number < 9) return '0' + (number + 1);
-    else return number + 1;
-  };
-
-  const getPlaceholder = (index) => {
-    const mainIndex = index + 1;
-    if (mainIndex == 1) return mainIndex + 'st';
-    else if (mainIndex == 2) return mainIndex + 'nd';
-    else if (mainIndex == 3) return mainIndex + 'rd';
-    else return mainIndex + 'th';
+    if (number < 9) return `0${number + 1}`;
+    return number + 1;
   };
 
   return (
@@ -210,63 +202,59 @@ const InputSeedWordSigner = ({ route }) => {
               contentContainerStyle={{
                 marginStart: 15,
               }}
-              renderItem={({ item, index }) => {
-                return (
-                  <View
+              renderItem={({ item, index }) => (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 20,
+                    marginVertical: 10,
+                  }}
+                >
+                  <Text
                     style={{
-                      flexDirection: 'row',
-                      marginHorizontal: 20,
-                      marginVertical: 10,
+                      width: 22,
+                      fontSize: 16,
+                      color: '#00836A',
+                      fontWeight: 'bold',
+                      marginTop: 8,
                     }}
                   >
-                    <Text
-                      style={{
-                        width: 22,
-                        fontSize: 16,
-                        color: '#00836A',
-                        fontWeight: 'bold',
-                        marginTop: 8,
-                      }}
-                    >
-                      {getFormattedNumber(index)}
-                    </Text>
-                    <TextInput
-                      style={[
-                        styles.input,
-                        item.invalid == true
-                          ? {
-                              borderColor: '#F58E6F',
-                            }
-                          : { borderColor: '#FDF7F0' },
-                      ]}
-                      placeholder={`enter ${getPlaceholder(index)} word`}
-                      value={item?.name}
-                      textContentType="none"
-                      returnKeyType="next"
-                      autoCorrect={false}
-                      autoCapitalize="none"
-                      keyboardType={
-                        Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
-                      }
-                      onChangeText={(text) => {
+                    {getFormattedNumber(index)}
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      item.invalid == true
+                        ? {
+                            borderColor: '#F58E6F',
+                          }
+                        : { borderColor: '#FDF7F0' },
+                    ]}
+                    placeholder={`enter ${getPlaceholder(index)} word`}
+                    value={item?.name}
+                    textContentType="none"
+                    returnKeyType="next"
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
+                    onChangeText={(text) => {
+                      const data = [...seedData];
+                      data[index].name = text.trim();
+                      setSeedData(data);
+                    }}
+                    onBlur={() => {
+                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
                         const data = [...seedData];
-                        data[index].name = text.trim();
+                        data[index].invalid = true;
                         setSeedData(data);
-                      }}
-                      onBlur={() => {
-                        if (!bip39.wordlists.english.includes(seedData[index].name)) {
-                          const data = [...seedData];
-                          data[index].invalid = true;
-                          setSeedData(data);
-                        }
-                      }}
-                    />
-                  </View>
-                );
-              }}
+                      }
+                    }}
+                  />
+                </View>
+              )}
             />
           </View>
-          <Text color={'#4F5955'} marginX={10} marginY={10} fontSize={12}>
+          <Text color="#4F5955" marginX={10} marginY={10} fontSize={12}>
             {seed.seedDescription}
           </Text>
           <View
@@ -275,16 +263,16 @@ const InputSeedWordSigner = ({ route }) => {
               justifyContent: 'space-between',
             }}
           >
-            <Box bg={'transparent'} flexDirection={'row'} marginLeft={10} marginTop={4}>
-              <View style={styles.dot}></View>
-              <View style={styles.dash}></View>
+            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+              <View style={styles.dot} />
+              <View style={styles.dash} />
             </Box>
-            <Box bg={'transparent'} flexDirection={'row'} marginRight={10}>
+            <Box bg="transparent" flexDirection="row" marginRight={10}>
               <TouchableOpacity>
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   marginTop={2}
                   //   color={buttonCancelColor}
@@ -302,10 +290,10 @@ const InputSeedWordSigner = ({ route }) => {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
+                    fontFamily="body"
+                    fontWeight="300"
                     letterSpacing={1}
-                    color={'white'}
+                    color="white"
                   >
                     {common.next}
                   </Text>
@@ -319,10 +307,10 @@ const InputSeedWordSigner = ({ route }) => {
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
-              buttonText={'Retry'}
-              buttonTextColor={'#FAFAFA'}
+              buttonText="Retry"
+              buttonTextColor="#FAFAFA"
               buttonCallback={closeInvalidSeedsModal}
-              textColor={'#041513'}
+              textColor="#041513"
               Content={InValidSeedsScreen}
             />
             <KeeperModal
@@ -332,10 +320,10 @@ const InputSeedWordSigner = ({ route }) => {
               subTitle={seed.seedDescription}
               modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
-              buttonText={'View Wallet'}
-              buttonTextColor={'#FAFAFA'}
+              buttonText="View Wallet"
+              buttonTextColor="#FAFAFA"
               buttonCallback={closeWalletSuccessModal}
-              textColor={'#041513'}
+              textColor="#041513"
               Content={RecoverWalletScreen}
             />
             <ModalWrapper
@@ -349,7 +337,7 @@ const InputSeedWordSigner = ({ route }) => {
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   container: {

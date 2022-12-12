@@ -5,11 +5,9 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -18,9 +16,8 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
-import messaging from '@react-native-firebase/messaging';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
+import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -36,8 +33,8 @@ export default function CreatePin(props) {
   const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
 
   const { translations } = useContext(LocalizationContext);
-  const login = translations['login'];
-  const common = translations['common'];
+  const { login } = translations;
+  const { common } = translations;
 
   useEffect(() => {
     if (hasCreds) {
@@ -56,7 +53,7 @@ export default function CreatePin(props) {
 
   const switchConfig = () => {
     config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
-    setTestnet(isTestnet ? false : true);
+    setTestnet(!isTestnet);
   };
 
   function onPressNumber(text) {
@@ -153,15 +150,15 @@ export default function CreatePin(props) {
     <LinearGradient testID="main" colors={['#00836A', '#073E39']} style={styles.linearGradient}>
       <Box flex={1}>
         <Box pt={50}>
-          <StatusBar barStyle={'light-content'} />
+          <StatusBar barStyle="light-content" />
         </Box>
         <Box flex={1}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text ml={5} fontSize={RFValue(22)} color={'light.textLight'} fontFamily={'heading'}>
+              <Text ml={5} fontSize={RFValue(22)} color="light.textLight" fontFamily="heading">
                 {login.welcome}
               </Text>
-              <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5} fontFamily={'body'}>
+              <Text color="light.textColor" fontSize={RFValue(12)} ml={5} fontFamily="body">
                 {login.Createpasscode}
               </Text>
 
@@ -171,7 +168,8 @@ export default function CreatePin(props) {
                 passcodeFlag={passcodeFlag}
                 borderColor={
                   passcode != confirmPasscode && confirmPasscode.length == 4
-                    ? 'light.error'
+                    ? // ? '#FF8F79'
+                      `light.error`
                     : 'transparent'
                 }
               />
@@ -179,15 +177,18 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length == 4 ? (
               <Box>
-                <Text color={'light.textColor'} fontSize={RFValue(12)} ml={5}>
+                <Text color="light.textColor" fontSize={RFValue(12)} ml={5}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
                   {/* pin input view */}
                   <PinInputsView
                     passCode={confirmPasscode}
-                    passcodeFlag={
-                      confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2 ? false : true
+                    passcodeFlag={!(confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2)}
+                    borderColor={
+                      passcode !== confirmPasscode && confirmPasscode.length == 4
+                        ? '#FF8F79'
+                        : 'transparent'
                     }
                     borderColor={
                       passcode != confirmPasscode && confirmPasscode.length == 4
@@ -198,38 +199,38 @@ export default function CreatePin(props) {
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                     <Text
-                      color={'light.error'}
+                      color="light.error"
                       fontSize={RFValue(10)}
                       fontWeight={200}
-                      width={wp('72%')}
-                      textAlign={'right'}
-                      fontStyle={'italic'}
+                      width={wp('68%')}
+                      textAlign="right"
+                      fontStyle="italic"
                       // mt={hp('1.5%')}
                     >
                       {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
-                <HStack justifyContent={'space-between'} paddingTop={'7'}>
+                <HStack justifyContent="space-between" paddingTop="7">
                   <Text
-                    color={'light.white1'}
-                    fontWeight={'200'}
-                    px={'8'}
+                    color="light.white1"
+                    fontWeight="200"
+                    px="8"
                     fontSize={13}
                     letterSpacing={1}
                   >
-                    {'Use bitcoin testnet'}
+                    Use bitcoin testnet
                   </Text>
                   <Switch
                     defaultIsChecked
                     trackColor={{ true: '#FFFA' }}
-                    thumbColor={'#358475'}
+                    thumbColor="#358475"
                     style={{ marginRight: '5%' }}
                     onChange={switchConfig}
                     disabled
                   />
                 </HStack>
-                <Box alignSelf={'flex-end'} mr={5} mt={5}>
+                <Box alignSelf="flex-end" mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
                     testID="button"

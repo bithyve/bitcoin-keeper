@@ -24,14 +24,22 @@ export class MerkelizedPsbt extends PsbtV2 {
     this.globalMerkleMap = MerkelizedPsbt.createMerkleMap(this.globalMap);
 
     for (let i = 0; i < this.getGlobalInputCount(); i++) {
-      this.inputMerkleMaps.push(MerkelizedPsbt.createMerkleMap(this.inputMaps[i]));
+      this.inputMerkleMaps.push(
+        MerkelizedPsbt.createMerkleMap(this.inputMaps[i])
+      );
     }
-    this.inputMapCommitments = [...this.inputMerkleMaps.values()].map((v) => v.commitment());
+    this.inputMapCommitments = [...this.inputMerkleMaps.values()].map((v) =>
+      v.commitment()
+    );
 
     for (let i = 0; i < this.getGlobalOutputCount(); i++) {
-      this.outputMerkleMaps.push(MerkelizedPsbt.createMerkleMap(this.outputMaps[i]));
+      this.outputMerkleMaps.push(
+        MerkelizedPsbt.createMerkleMap(this.outputMaps[i])
+      );
     }
-    this.outputMapCommitments = [...this.outputMerkleMaps.values()].map((v) => v.commitment());
+    this.outputMapCommitments = [...this.outputMerkleMaps.values()].map((v) =>
+      v.commitment()
+    );
   }
   // These public functions are for MerkelizedPsbt.
   getGlobalSize(): number {

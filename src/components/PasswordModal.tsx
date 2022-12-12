@@ -5,14 +5,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import KeeperModal from './KeeperModal';
 import BTC from 'src/assets/images/btc_white.svg';
-import { NavigationContainer } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { setInvalidPassword } from 'src/store/reducers/bhr';
+import KeeperModal from './KeeperModal';
 
-const PasswordModal = (props) => {
+function PasswordModal(props) {
   const {
     visible,
     closePasswordModal,
@@ -45,11 +44,11 @@ const PasswordModal = (props) => {
   };
 
   const { translations } = useContext(LocalizationContext);
-  const seed = translations['seed'];
+  const {seed} = translations;
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
 
-  const RecoverWalletScreen = () => {
+  function RecoverWalletScreen() {
     return (
       <View>
         <LinearGradient
@@ -58,15 +57,15 @@ const PasswordModal = (props) => {
           colors={buttonBackground}
           style={styles.ctabutton}
         >
-          <Text textAlign={'right'} fontSize={12} fontFamily={'body'} color={buttonTextColor}>
+          <Text textAlign="right" fontSize={12} fontFamily="body" color={buttonTextColor}>
             Last Backup: July 15, 2021
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={{ marginTop: 10, flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Text fontSize={16} fontWeight={'bold'} fontFamily={'body'} color={buttonTextColor}>
+              <Text fontSize={16} fontWeight="bold" fontFamily="body" color={buttonTextColor}>
                 Blue Wallet
               </Text>
-              <Text fontSize={14} fontFamily={'body'} color={buttonTextColor}>
+              <Text fontSize={14} fontFamily="body" color={buttonTextColor}>
                 Lorem Ipsum
               </Text>
             </View>
@@ -74,10 +73,10 @@ const PasswordModal = (props) => {
               <View style={{ flexDirection: 'row', marginTop: 20 }}>
                 <BTC style={{ marginTop: 15, marginRight: 5 }} />
                 <Text
-                  textAlign={'right'}
+                  textAlign="right"
                   marginBottom={15}
                   fontSize={28}
-                  fontFamily={'body'}
+                  fontFamily="body"
                   color={buttonTextColor}
                 >
                   0.000090
@@ -86,12 +85,12 @@ const PasswordModal = (props) => {
             </View>
           </View>
         </LinearGradient>
-        <Text color={'#073B36'} fontSize={13} fontFamily={'body'} fontWeight={'200'} p={2}>
-          {'Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua'}
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
     );
-  };
+  }
 
   return (
     <Modal
@@ -100,7 +99,7 @@ const PasswordModal = (props) => {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      marginTop={'20%'}
+      marginTop="20%"
       //   justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
@@ -114,31 +113,31 @@ const PasswordModal = (props) => {
             <Close />
           </TouchableOpacity>
           <Modal.Header
-            alignSelf={'flex-start'}
+            alignSelf="flex-start"
             borderBottomWidth={0}
-            backgroundColor={'transparent'}
-            width={'90%'}
+            backgroundColor="transparent"
+            width="90%"
           >
             <Text
               style={styles.title}
-              fontFamily={'body'}
-              fontWeight={'200'}
+              fontFamily="body"
+              fontWeight="200"
               color={textColor}
               paddingBottom={1}
             >
               {title}
             </Text>
-            <Text style={styles.subTitle} fontFamily={'body'} fontWeight={'100'} color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
           <Input
-            placeholderTextColor={'grey'}
-            backgroundColor={'#FDF7F0'}
-            placeholder={'Enter Password'}
+            placeholderTextColor="grey"
+            backgroundColor="#FDF7F0"
+            placeholder="Enter Password"
             w="90%"
             marginY={2}
-            height={'10'}
+            height="10"
             value={password}
             onChangeText={(text) => {
               setPassword(text);
@@ -146,24 +145,22 @@ const PasswordModal = (props) => {
                 dispatch(setInvalidPassword(false));
               }
             }}
-            //  value={firstValue}
-            //  onChangeText={handleChangeFirst}
           />
           {invalidPassword && (
-            <Text alignSelf="flex-start" mx={4} color={'red.400'}>
+            <Text alignSelf="flex-start" mx={4} color="red.400">
               Invalid password
             </Text>
           )}
           <Text
             style={styles.subTitle}
-            width={'90%'}
-            fontFamily={'body'}
-            fontWeight={'100'}
+            width="90%"
+            fontFamily="body"
+            fontWeight="100"
             color={textColor}
           >
             Hint: {backup ? backup.hint : ''}
           </Text>
-          <Box alignSelf={'flex-end'} flexDirection={'row'} bg={'transparent'}>
+          <Box alignSelf="flex-end" flexDirection="row" bg="transparent">
             <TouchableOpacity
               disabled={password.trim() === ''}
               onPress={() => props.onPressNext(password)}
@@ -176,8 +173,8 @@ const PasswordModal = (props) => {
               >
                 <Text
                   fontSize={13}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1}
                   color={buttonTextColor}
                 >
@@ -194,16 +191,16 @@ const PasswordModal = (props) => {
           subTitle={seed.seedDescription}
           modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
-          buttonText={'View Wallet'}
-          buttonTextColor={'#FAFAFA'}
+          buttonText="View Wallet"
+          buttonTextColor="#FAFAFA"
           buttonCallback={passwordScreen}
-          textColor={'#041513'}
+          textColor="#041513"
           Content={RecoverWalletScreen}
         />
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default PasswordModal;
 

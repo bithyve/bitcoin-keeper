@@ -10,7 +10,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 import { useAppSelector } from 'src/store/hooks';
 
-const CustomPriorityModal = (props) => {
+function CustomPriorityModal(props) {
   const {
     visible,
     close,
@@ -27,7 +27,7 @@ const CustomPriorityModal = (props) => {
   const { bottom } = useSafeAreaInsets();
   const [customPriorityFee, setCustomPriorityFee] = useState('');
   const [customEstBlocks, setCustomEstBlock] = useState('');
-  const averageTxFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
@@ -50,11 +50,11 @@ const CustomPriorityModal = (props) => {
       } else if (customFeeRatePerByte < feeRates['144']) {
         customEstimatedBlock = 200;
       } else {
-        const closestFeeRatePerByte = Object.values(feeRates).reduce(function (prev, curr) {
-          return Math.abs(curr - customFeeRatePerByte) < Math.abs(prev - customFeeRatePerByte)
+        const closestFeeRatePerByte = Object.values(feeRates).reduce((prev, curr) =>
+          Math.abs(curr - customFeeRatePerByte) < Math.abs(prev - customFeeRatePerByte)
             ? curr
-            : prev;
-        });
+            : prev
+        );
 
         const etimatedBlock = Object.keys(feeRates).find(
           (key) => feeRates[key] === closestFeeRatePerByte
@@ -81,7 +81,7 @@ const CustomPriorityModal = (props) => {
         onClose={close}
         size="xl"
         _backdrop={{ bg: '#000', opacity: 0.8 }}
-        justifyContent={'flex-end'}
+        justifyContent="flex-end"
       >
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
           <Box style={styles.container}>
@@ -89,26 +89,21 @@ const CustomPriorityModal = (props) => {
               <Close />
             </TouchableOpacity>
             <Modal.Header
-              alignSelf={'flex-start'}
+              alignSelf="flex-start"
               borderBottomWidth={0}
-              backgroundColor={'transparent'}
-              width={'90%'}
+              backgroundColor="transparent"
+              width="90%"
             >
               <Text
                 style={styles.title}
-                fontFamily={'body'}
-                fontWeight={'200'}
+                fontFamily="body"
+                fontWeight="200"
                 color={textColor}
                 paddingBottom={2}
               >
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily={'body'}
-                fontWeight={'100'}
-                color={textColor}
-              >
+              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -122,21 +117,16 @@ const CustomPriorityModal = (props) => {
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text
-                fontFamily={'body'}
-                fontWeight={'200'}
-                color={'#073B36'}
-                mx={windowWidth * 0.038}
-              >
+              <Text fontFamily="body" fontWeight="200" color="#073B36" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
 
             <Box
-              alignSelf={'flex-end'}
-              flexDirection={'row'}
-              bg={'transparent'}
-              alignItems={'center'}
+              alignSelf="flex-end"
+              flexDirection="row"
+              bg="transparent"
+              alignItems="center"
               my={windowWidth * 0.031}
             >
               <TouchableOpacity
@@ -146,9 +136,9 @@ const CustomPriorityModal = (props) => {
               >
                 <Text
                   mr={windowWidth * 0.07}
-                  color={'#073E39'}
-                  fontFamily={'body'}
-                  fontWeight={'300'}
+                  color="#073E39"
+                  fontFamily="body"
+                  fontWeight="300"
                   letterSpacing={1.6}
                 >
                   Start Over
@@ -167,8 +157,8 @@ const CustomPriorityModal = (props) => {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily={'body'}
-                    fontWeight={'300'}
+                    fontFamily="body"
+                    fontWeight="300"
                     letterSpacing={1.6}
                     color={buttonTextColor}
                     mx={windowWidth * 0.04}
@@ -182,7 +172,7 @@ const CustomPriorityModal = (props) => {
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
-              keyColor={'light.lightBlack'}
+              keyColor="light.lightBlack"
               ClearIcon={<DeleteIcon />}
             />
           </Box>
@@ -190,7 +180,7 @@ const CustomPriorityModal = (props) => {
       </Modal>
     </Box>
   );
-};
+}
 
 export default CustomPriorityModal;
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text } from 'native-base';
+import { Box, Text, useColorMode } from 'native-base';
 
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -9,65 +9,61 @@ import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
 import IconSent from 'src/assets/images/svgs/icon_sent.svg';
 import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
 import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import moment from 'moment';
 
-const TransactionElement = (
-  { transaction,
-    onPress = () => { } }
-    :
-    { transaction: Transaction, onPress?: () => void }) => {
+function TransactionElement({ transaction,
+    onPress = () => { }
+  }:
+    {
+      transaction: Transaction,
+      onPress?: () => void
+    }) {
+
+  const { colorMode } = useColorMode();
+  const date = new Date(transaction?.date).toLocaleString(undefined, {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
   return (
     <TouchableOpacity
       onPress={onPress}
     >
-      <Box
-        flexDirection={'row'}
-        height={getTransactionPadding()}
-        borderRadius={10}
-        justifyContent={'space-between'}
-        alignItems={'center'}
-        marginTop={hp(25)}
-      >
-        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'center'}>
+      <Box style={styles.container}>
+        <Box style={styles.rowCenter}>
           {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
-          <Box flexDirection={'column'} marginLeft={1.5}>
+          <Box style={styles.transactionContainer}>
             <Text
-              color={'light.GreyText'}
-              marginX={1}
-              fontSize={13}
-              fontWeight={200}
-              letterSpacing={0.6}
+              color={`${colorMode}.GreyText`}
+              style={styles.transactionIdText}
               numberOfLines={1}
-              width={wp(125)}
             >
               {transaction?.txid}
             </Text>
             <Text
-              color={'light.dateText'}
-              marginX={1}
-              fontSize={11}
-              fontWeight={100}
-              letterSpacing={0.5}
-              opacity={0.82}
+              color={`${colorMode}.dateText`}
+              style={styles.transactionDate}
             >
-              {transaction.date}
+              {date}
             </Text>
           </Box>
         </Box>
-        <Box flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
+        <Box style={styles.rowCenter}>
           <Box>
             <BtcBlack />
           </Box>
           <Text
-            color={'light.textBlack'}
-            fontSize={19}
-            fontWeight={200}
-            letterSpacing={0.95}
-            marginX={2}
-            marginRight={3}
+            style={styles.amountText}
           >
             {getAmount(transaction.amount)}
-            <Text color={'light.dateText'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+            <Text
+              color={`${colorMode}.dateText`}
+              style={styles.unitText}
+            >
               {getUnit()}
             </Text>
           </Text>
@@ -78,5 +74,48 @@ const TransactionElement = (
       </Box>
     </TouchableOpacity>
   );
-};
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    height: getTransactionPadding(),
+    borderRadius: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: hp(25)
+  },
+  rowCenter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  transactionContainer: {
+    flexDirection: 'column',
+    marginLeft: 1.5
+  },
+  transactionIdText: {
+    fontSize: 13,
+    letterSpacing: 0.6,
+    width: wp(125),
+    marginHorizontal: 3
+  },
+  transactionDate: {
+    marginHorizontal: 1,
+    fontSize: 11,
+    fontWeight: '200',
+    letterSpacing: 0.5,
+    opacity: 0.82
+  },
+  amountText: {
+    fontSize: 19,
+    letterSpacing: 0.95,
+    marginHorizontal: 3,
+    marginRight: 3
+  },
+  unitText: {
+    letterSpacing: 0.6,
+    fontSize: hp(12)
+  }
+})
 export default TransactionElement;

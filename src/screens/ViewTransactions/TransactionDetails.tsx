@@ -1,7 +1,6 @@
 import { Box, Text } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,17 +13,17 @@ import IconSend from 'src/assets/images/svgs/icon_send_lg.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 
-const TransactionDetails = ({ route }) => {
+function TransactionDetails({ route }) {
 
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const transactions = translations['transactions'];
-  const transaction: Transaction = route.params.transaction;
+  const {transactions} = translations;
+  const {transaction} = route.params;
 
-  const InfoCard = ({ title, describtion, width = 320 }) => {
+  function InfoCard({ title, describtion, width = 320 }) {
     return (
       <Box
-        backgroundColor={'light.lightYellow'}
+        backgroundColor="light.lightYellow"
         style={{
           height: hp(65),
           width: wp(width),
@@ -39,8 +38,8 @@ const TransactionDetails = ({ route }) => {
           fontWeight={200}
           fontSize={14}
           letterSpacing={1.12}
-          color={'light.headerText'}
-          width={'90%'}
+          color="light.headerText"
+          width="90%"
           noOfLines={1}
         >
           {title}
@@ -49,15 +48,15 @@ const TransactionDetails = ({ route }) => {
           fontWeight={200}
           fontSize={12}
           letterSpacing={2.4}
-          color={'light.GreyText'}
-          width={'90%'}
+          color="light.GreyText"
+          width="90%"
           noOfLines={1}
         >
           {describtion}
         </Text>
       </Box>
     );
-  };
+  }
 
   return (
     <Box
@@ -68,19 +67,18 @@ const TransactionDetails = ({ route }) => {
         <HeaderTitle
           onPressHandler={() => navigation.goBack()}
           title={transactions.TransactionDetails}
-          subtitle={''}
+          subtitle=""
           paddingTop={hp(20)}
         />
-        {/* {card} */}
         <Box
-          flexDirection={'row'}
-          alignItems={'center'}
+          flexDirection="row"
+          alignItems="center"
           marginTop={hp(40)}
           width={wp(320)}
-          justifyContent={'space-between'}
+          justifyContent="space-between"
         >
           <Box
-            flexDirection={'row'}
+            flexDirection="row"
           >
             {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSend />}
             <Box
@@ -93,7 +91,7 @@ const TransactionDetails = ({ route }) => {
                 fontWeight={200}
                 fontSize={14}
                 letterSpacing={0.7}
-                color={'light.headerText'}
+                color="light.headerText"
                 noOfLines={1}
                 width={wp(120)}
               >
@@ -103,7 +101,7 @@ const TransactionDetails = ({ route }) => {
                 fontWeight={200}
                 fontSize={10}
                 letterSpacing={0.5}
-                color={'light.dateText'}
+                color="light.dateText"
               >
                 {transaction.date}
               </Text>
@@ -115,8 +113,8 @@ const TransactionDetails = ({ route }) => {
               fontSize={19}
               letterSpacing={0.95}
             >
-              {getAmount(transaction.amount) + ' '}
-              <Text color={'light.dateText'} letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+              {`${getAmount(transaction.amount)  } `}
+              <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
                 {getUnit()}
               </Text>
             </Text>
@@ -124,28 +122,27 @@ const TransactionDetails = ({ route }) => {
         </Box>
       </Box>
 
-      {/* {flatlist} */}
       <Box
-        alignItems={'center'}
+        alignItems="center"
         marginTop={hp(44)}
-        justifyContent={'center'}
+        justifyContent="center"
         marginX={3}
       >
-        <InfoCard title={'To Address'} describtion={transaction.recipientAddresses} />
-        <InfoCard title={'From Address'} describtion={transaction.senderAddresses} />
-        <InfoCard title={'Transaction ID'} describtion={transaction.txid} />
-        <Box flexDirection={'row'} alignItems={'center'} justifyContent={'space-between'} width={'100%'}>
-          <InfoCard title={'Fee'} describtion={transaction.fee} width={145} />
-          <InfoCard title={'Transaction Type'} describtion={transaction.transactionType} width={145} />
+        <InfoCard title="To Address" describtion={transaction.recipientAddresses} />
+        <InfoCard title="From Address" describtion={transaction.senderAddresses} />
+        <InfoCard title="Transaction ID" describtion={transaction.txid} />
+        <Box flexDirection="row" alignItems="center" justifyContent="space-between" width="100%">
+          <InfoCard title="Fee" describtion={transaction.fee} width={145} />
+          <InfoCard title="Transaction Type" describtion={transaction.transactionType} width={145} />
         </Box>
-        <Box flexDirection={'row'} justifyContent={'space-between'} width={'100%'}>
-          <InfoCard title={'Privacy'} describtion={transaction.type} width={145} />
-          <InfoCard title={'Confirmations'} describtion={transaction.confirmations} width={145} />
+        <Box flexDirection="row" justifyContent="space-between" width="100%">
+          <InfoCard title="Privacy" describtion={transaction.type} width={145} />
+          <InfoCard title="Confirmations" describtion={transaction.confirmations} width={145} />
         </Box>
       </Box>
     </Box>
   );
-};
+}
 
 const styles = ScaledSheet.create({
   Container: {

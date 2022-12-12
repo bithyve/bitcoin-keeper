@@ -15,20 +15,22 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
+import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
-import Login from '../screens/LoginScreen/Login';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
 import { RealmProvider } from 'src/storage/realm/RealmProvider';
 import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import RecoveryFromSeed from 'src/screens/RecoveryFromSeed/RecoveryFromSeed';
+import RegisterWithQR from 'src/screens/QRScreens/RegisterWithQR';
 import ResetPin from 'src/screens/LoginScreen/ResetPin';
-import { RigisterToSD } from 'src/screens/Vault/RigisterToSD';
+import ScanQR from 'src/screens/QRScreens/ScanQR';
+import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
@@ -39,6 +41,7 @@ import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
+import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
 import SignersList from 'src/screens/VaultRecovery/SignersList';
@@ -59,9 +62,11 @@ import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransaction
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
-import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
+import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -71,7 +76,7 @@ const defaultTheme = {
   },
 };
 
-const LoginStack = () => {
+function LoginStack() {
   const Stack = createNativeStackNavigator();
 
   return (
@@ -90,7 +95,7 @@ const LoginStack = () => {
         name="ColdCardReocvery"
         component={ColdCardReocvery}
       />
-
+      <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
         name="SignersList"
@@ -114,9 +119,9 @@ const LoginStack = () => {
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );
-};
+}
 
-const AppStack = () => {
+function AppStack() {
   const Stack = createNativeStackNavigator();
   return (
     <RealmProvider>
@@ -155,7 +160,6 @@ const AppStack = () => {
         <Stack.Screen name="InputSeedWordSigner" component={InputSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
         <Stack.Screen name="VaultSettings" component={VaultSettings} />
-        <Stack.Screen name="RigisterToSD" component={RigisterToSD} />
         <Stack.Screen name="SignWithColdCard" component={SignWithColdCard} />
         <Stack.Screen name="ChoosePolicyNew" component={ChoosePolicyNew} />
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
@@ -165,11 +169,16 @@ const AppStack = () => {
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
+        <Stack.Screen name="SignPSBTScan" component={SignPSBTScan} />
+        <Stack.Screen name="ScanQR" component={ScanQR} />
+        <Stack.Screen name="ShowQR" component={ShowQR} />
+        <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
+        <Stack.Screen name="SignWithQR" component={SignWithQR} />
       </Stack.Navigator>
     </RealmProvider>
   );
-};
-const Navigator = () => {
+}
+function Navigator() {
   const Stack = createNativeStackNavigator();
   const navigation = useRef();
   const { appLoading, loadingContent } = useContext(AppContext);
@@ -188,13 +197,13 @@ const Navigator = () => {
         visible={appLoading}
         loadingContent={loadingContent}
         close={() => {}}
-        title={'please wait'}
-        subTitle={'loading'}
+        title="please wait"
+        subTitle="loading"
         modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor={'#000'}
+        textColor="#000"
       />
     </NavigationContainer>
   );
-};
+}
 
 export default Navigator;

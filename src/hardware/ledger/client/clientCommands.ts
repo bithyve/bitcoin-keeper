@@ -1,9 +1,10 @@
-import { Merkle, hashLeaf } from './merkle';
-import { createVarint, sanitizeBigintToNumber } from './varint';
+import { crypto } from 'bitcoinjs-lib';
 
 import { BufferReader } from './buffertools';
+import { hashLeaf, Merkle } from './merkle';
 import { MerkleMap } from './merkleMap';
-import { crypto } from 'bitcoinjs-lib';
+import { WalletPolicy } from './policy';
+import { createVarint, sanitizeBigintToNumber } from './varint';
 
 enum ClientCommandCode {
   YIELD = 0x10,
@@ -23,7 +24,10 @@ export class YieldCommand extends ClientCommand {
 
   readonly code = ClientCommandCode.YIELD;
 
-  constructor(results: Buffer[], private readonly progressCallback?: () => void) {
+  constructor(
+    results: Buffer[],
+    private readonly progressCallback?: () => void
+  ) {
     super();
     this.results = results;
   }
@@ -124,7 +128,9 @@ export class GetMerkleLeafProofCommand extends ClientCommand {
       tree_size = sanitizeBigintToNumber(reqBuf.readVarInt());
       leaf_index = sanitizeBigintToNumber(reqBuf.readVarInt());
     } catch (e) {
-      throw new Error("Invalid request, couldn't parse tree_size or leaf_index");
+      throw new Error(
+        "Invalid request, couldn't parse tree_size or leaf_index"
+      );
     }
 
     const mt = this.known_trees.get(hash_hex);
@@ -137,12 +143,17 @@ export class GetMerkleLeafProofCommand extends ClientCommand {
     }
 
     if (this.queue.length != 0) {
-      throw Error('This command should not execute when the queue is not empty.');
+      throw Error(
+        'This command should not execute when the queue is not empty.'
+      );
     }
 
     const proof = mt.getProof(leaf_index);
 
-    const n_response_elements = Math.min(Math.floor((255 - 32 - 1 - 1) / 32), proof.length);
+    const n_response_elements = Math.min(
+      Math.floor((255 - 32 - 1 - 1) / 32),
+      proof.length
+    );
     const n_leftover_elements = proof.length - n_response_elements;
 
     // Add to the queue any proof elements that do not fit the response
@@ -192,7 +203,9 @@ export class GetMerkleLeafIndexCommand extends ClientCommand {
 
     const mt = this.known_trees.get(root_hash_hex);
     if (!mt) {
-      throw Error(`Requested Merkle leaf index for unknown root: ${root_hash_hex}`);
+      throw Error(
+        `Requested Merkle leaf index for unknown root: ${root_hash_hex}`
+      );
     }
 
     let leaf_index = 0;
@@ -310,6 +323,14 @@ export class ClientCommandInterpreter {
   addKnownMapping(mm: MerkleMap): void {
     this.addKnownList(mm.keys);
     this.addKnownList(mm.values);
+  }
+
+  addKnownWalletPolicy(wp: WalletPolicy): void {
+    this.addKnownPreimage(wp.serialize());
+    this.addKnownList(
+      wp.keys.map((k) => Buffer.from(k, 'ascii'))
+    );
+    this.addKnownPreimage(Buffer.from(wp.descriptorTemplate));
   }
 
   execute(request: Buffer): Buffer {

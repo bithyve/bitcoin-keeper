@@ -1,18 +1,23 @@
-const { WalletType, NetworkType, TxPriority } = require('../enums');
-const { generateWallet } = require('../factories/WalletFactory');
-
+/* eslint-disable no-undef */
 import Relay from 'src/core/services/operations/Relay';
+import { getRandomBytes } from 'src/core/services/operations/encryption';
 import WalletOperations from '../operations';
 import WalletUtilities from '../operations/utils';
-import config from '../../config';
-import { getRandomBytes } from 'src/core/services/operations/encryption';
+import { WalletType, NetworkType, TxPriority } from '../enums';
+import { generateWallet } from '../factories/WalletFactory';
 
-describe('Testing wallet primitives', () => {
-  let primaryMnemonic, walletShell, wallet, averageTxFees, txPrerequisites, txnPriority, PSBT;
+describe('Wallet primitives', () => {
+  let primaryMnemonic;
+  let walletShell;
+  let wallet;
+  let averageTxFees;
+  let txPrerequisites;
+  let txnPriority;
+  let PSBT;
 
   beforeAll(() => {
     primaryMnemonic =
-      'such suffer age grid picture ordinary endorse danger coffee shrimp nose zone';
+      'duty burger portion domain athlete sweet birth impact miss shield help peanut';
     walletShell = {
       id: getRandomBytes(12),
       walletInstances: {},
@@ -26,13 +31,13 @@ describe('Testing wallet primitives', () => {
       type: WalletType.CHECKING,
       instanceNum: walletShell.walletInstances[WalletType.CHECKING] || 0,
       walletShellId: walletShell.id,
-      walletName: walletName,
-      walletDescription: walletDescription,
+      walletName,
+      walletDescription,
       primaryMnemonic,
-      networkType: config.NETWORK_TYPE,
+      networkType: NetworkType.TESTNET,
     });
     expect(wallet.derivationDetails.mnemonic).toEqual(
-      'tragic water gloom vocal quick culture gasp comfort gas human valley warm'
+      'trumpet access minor basic rule rifle wife summer brown deny used very'
     );
     expect(wallet.walletShellId).toEqual(walletShell.id);
   });
@@ -40,21 +45,25 @@ describe('Testing wallet primitives', () => {
   test('wallet operations: generating a receive address', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(wallet);
     wallet = updatedWallet;
-    expect(receivingAddress).toEqual('tb1qnjlm26z5vkuw9452t4k5rrluda59s84tumyq7y');
+    expect(receivingAddress).toEqual('tb1qvmww6r6zlf98a7rwp2mw7afpg32qe2j22c76tq');
   });
 
   test('wallet operations: fetching balance, utxos & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const { synchedWallets } = await WalletOperations.syncWallets([wallet], network);
-    wallet = synchedWallets[0];
+    [wallet] = synchedWallets;
 
     const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = wallet.specs;
 
     let netBalance = 0;
-    confirmedUTXOs.forEach((utxo) => (netBalance += utxo.value));
-    unconfirmedUTXOs.forEach((utxo) => (netBalance += utxo.value));
+    confirmedUTXOs.forEach((utxo) => {
+      netBalance += utxo.value;
+    });
+    unconfirmedUTXOs.forEach((utxo) => {
+      netBalance += utxo.value;
+    });
 
-    expect(balances.confirmed + balances.unconfirmed).toEqual(10000);
+    expect(balances.confirmed + balances.unconfirmed).toEqual(5000);
     expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
     expect(transactions.length).toEqual(1);
   });
@@ -71,7 +80,7 @@ describe('Testing wallet primitives', () => {
     const recipients = [
       {
         address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
-        amount: 5000,
+        amount: 3000,
       },
     ];
 
@@ -92,14 +101,14 @@ describe('Testing wallet primitives', () => {
   });
 
   test('wallet operations: transaction signing(PSBT)', async () => {
-    const inputs = txPrerequisites[txnPriority].inputs;
+    const { inputs } = txPrerequisites[txnPriority];
     const { signedPSBT } = await WalletOperations.signTransaction(wallet, inputs, PSBT);
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     expect(areSignaturesValid).toEqual(true);
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     expect(txHex).toEqual(
-      '020000000001010f2842dba0604af53f32203e9933b36d12a28f466dca23361766a17e8b21faae0000000000ffffffff02a612000000000000160014af6bf42be5406002a7711188b5c68dd78b0fc1118813000000000000160014ff9da567e62f30ea8654fa1d5fbd47bef8e3be13024730440220231becd53d99ece600551ed7ed42bdf01acef5f5c5d9af5787a180087644ad2f0220647ef7008df0aea18fb61a230bb5b5a4bf9b7419788ac5a90d9b4b33383f571f0121026d45cd4a4256307bd1f93d0e855d501ac8bd855c13471a8f274c618ad756532f00000000'
+      '02000000000101b977de2dc7ef584d8a99c73779c6e11e3ba2ea2fc791424ec0891c7939c3b5900000000000ffffffff02b80b000000000000160014ff9da567e62f30ea8654fa1d5fbd47bef8e3be13ee060000000000001600147277279d05eb0d1fdc21edda99774419667e260c02483045022100e8395b753cf4d641cb1eefa7ad3e9b3a13ea7e4eba1e2c1d053760ca7db3c8a402203290384a5b49f5697c10047e4d45a5bae291d71664f298a2b57bb7732f81bc4d012102cb7a69b95b78cf3c018e6352258fd51fff6a4bb93d7fed7eae54cc15ed6da96a00000000'
     );
   });
 });

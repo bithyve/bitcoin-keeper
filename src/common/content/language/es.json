@@ -315,7 +315,9 @@
     "SeedDesc": "Make sure you keep them safe",
     "longing": "longing",
     "walletRecoverySuccessful": "Wallet Recovery Successful",
-    "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)"
+    "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
+    "recoveryPhrase": "Recovery Phrase",
+    "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",
@@ -345,7 +347,7 @@
     "SetupTitle": "Setting up Ledger",
     "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
     "ScanningBT": "Scanning for bluetooth",
-    "KeepLedgerReady": "Keep your Ledger ready before proceeding"
+    "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
   "settings": {
     "selectCurrency": "Select currency",
@@ -436,7 +438,7 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "Currently all tiers are free for all users for the first 6 months. The subscription should be confirmed on the Play/ App Store"
+    "noteSubTitle": "The subscription should be confirmed on the Play/ App Store. After trial period the subscription auto renews monthly"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Seed Words",

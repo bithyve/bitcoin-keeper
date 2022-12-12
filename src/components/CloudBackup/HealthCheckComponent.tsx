@@ -1,20 +1,19 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native';
 
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import CustomGreenButton from '../CustomButton/CustomGreenButton';
 import { BackupType } from 'src/common/data/enums/BHR';
+import { StyleSheet } from 'react-native';
 import Buttons from '../Buttons';
 
-const HealthCheckComponent = (props) => {
+function HealthCheckComponent(props) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const BackupWallet = translations['BackupWallet'];
-  const common = translations['common'];
-  const type: BackupType = props.type;
+  const {BackupWallet} = translations;
+  const {common} = translations;
+  const {type} = props;
   const [seedWord, setSeedWord] = useState('');
   const [strongPassword, setStrongPassword] = useState('');
   const { words } = props;
@@ -87,22 +86,20 @@ const HealthCheckComponent = (props) => {
       } else {
         setInvalid(true);
       }
-    } else {
-      if (strongPassword === props.password) {
+    } else if (strongPassword === props.password) {
         props.onConfirmed(strongPassword);
       } else {
         setInvalid(true);
       }
-    }
   };
 
   return (
-    <Box bg={'light.ReceiveBackground'} p={10} borderRadius={10}>
+    <Box bg="light.ReceiveBackground" style={styles.wrapper}>
       <Box>
-        <Text fontSize={RFValue(19)} color={'light.lightBlack'}>
+        <Text fontSize={RFValue(19)} color="light.lightBlack">
           {BackupWallet.healthCheck}
         </Text>
-        <Text fontSize={RFValue(13)} color={'light.lightBlack2'} mb={10}>
+        <Text fontSize={RFValue(13)} color="light.lightBlack2" mb={10}>
           For the Recovery Phrase
         </Text>
       </Box>
@@ -114,40 +111,26 @@ const HealthCheckComponent = (props) => {
         </Text>
         <Input
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}
-          placeholderTextColor={'light.lightBlack2'}
-          backgroundColor={'light.lightYellow'}
+          placeholderTextColor="light.lightBlack2"
+          backgroundColor="light.lightYellow"
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
             type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)
           }
-          style={{
-            fontSize: RFValue(13),
-            letterSpacing: 0.96,
-            height: 50,
-          }}
+          style={styles.inputContainer}
           borderRadius={10}
           marginY={2}
-          borderWidth={'0'}
+          borderWidth="0"
         />
       </Box>
       {invalid && (
         <Text color="red.400" fontSize={RFValue(13)} ml={1}>
-          {'Invalid word'}
+          Invalid word
         </Text>
       )}
       <Box my={5}>
         <Text fontSize={RFValue(13)}>{BackupWallet.healthCheckNote}</Text>
       </Box>
-      {/* <Box alignItems={'center'} flexDirection={'row'} w={'90%'}>
-        <TouchableOpacity onPress={() => props.closeBottomSheet()} style={{ width: '60%' }}>
-          <Text fontSize={RFValue(14)} textAlign={'center'}>
-            {common.skip}
-          </Text>
-        </TouchableOpacity>
-        <Box>
-          <CustomGreenButton onPress={onPressConfirm} value={common.confirm} />
-        </Box> 
-         </Box>*/}
       <Buttons
         secondaryText={common.skip}
         secondaryCallback={() => {
@@ -158,5 +141,16 @@ const HealthCheckComponent = (props) => {
       />
     </Box>
   );
-};
+}
+const styles = StyleSheet.create({
+  wrapper: {
+    padding: 25,
+    borderRadius: 10,
+  },
+  inputContainer: {
+    fontSize: RFValue(13),
+    letterSpacing: 0.96,
+    height: 50,
+  },
+});
 export default HealthCheckComponent;

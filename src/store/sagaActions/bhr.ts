@@ -14,109 +14,83 @@ export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
 export const RECOVER_VAULT = 'RECOVER_VAULT';
 
-export const updateAppImage = (walletId?) => {
-  return {
+export const updateAppImage = (walletId?) => ({
     type: UPDATE_APP_IMAGE,
     payload: {
       walletId,
     },
-  };
-};
+  });
 
-export const updatVaultImage = () => {
-  return {
+export const updatVaultImage = () => ({
     type: UPDATE_VAULT_IMAGE,
-  };
-};
+  });
 
-export const getAppImage = (primaryMnemonic: string) => {
-  return {
+export const getAppImage = (primaryMnemonic: string) => ({
     type: GET_APP_IMAGE,
     payload: {
       primaryMnemonic,
     },
-  };
-};
+  });
 
-export const reoverVault = () => {
-  return {
+export const reoverVault = () => ({
     type: RECOVER_VAULT,
-  };
-};
+  });
 
-export const seedBackedUp = () => {
-  return {
+export const seedBackedUp = () => ({
     type: SEED_BACKEDUP,
-  };
-};
+  });
 
-export const setWarning = (history: BackupHistory = []) => {
-  return {
+export const setWarning = (history: BackupHistory = []) => ({
     type: SET_BACKUP_WARNING,
     payload: {
       history,
     },
-  };
-};
+  });
 
-export const cloudBackupSkipped = () => {
-  return {
+export const cloudBackupSkipped = () => ({
     type: CLOUD_BACKUP_SKIPPED,
-  };
-};
+  });
 
-export const confirmCloudBackup = (password: boolean) => {
-  return {
+export const confirmCloudBackup = (password: boolean) => ({
     type: CONFIRM_CLOUD_BACKUP,
     payload: {
       password,
     },
-  };
-};
+  });
 
-export const seedBackedConfirmed = (confirmed: boolean) => {
-  return {
+export const seedBackedConfirmed = (confirmed: boolean) => ({
     type: SEED_BACKEDUP_CONFIRMED,
     payload: {
       confirmed,
     },
-  };
-};
+  });
 
-export const initCloudBackup = (password: string, hint?: string) => {
-  return {
+export const initCloudBackup = (password: string, hint?: string) => ({
     type: INIT_CLOUD_BACKUP,
     payload: {
       password,
       hint,
     },
-  };
-};
+  });
 
-export const getCloudData = () => {
-  return {
+export const getCloudData = () => ({
     type: GET_CLOUD_DATA,
-  };
-};
+  });
 
-export const recoverBackup = (password: string, encData: string) => {
-  return {
+export const recoverBackup = (password: string, encData: string) => ({
     type: RECOVER_BACKUP,
     payload: {
       password,
       encData,
     },
-  };
-};
+  });
 
-//HealthChecks
+// HealthChecks
 
-export const healthCheckSigner = (vaultId: string, signerId: string) => {
-  return {
+export const healthCheckSigner = (vaultId: string, signerId: string) => ({
     type: UPADTE_HEALTH_CHECK_SIGNER,
     payload: {
       vaultId,
       signerId,
     },
-  };
-};
+  });
