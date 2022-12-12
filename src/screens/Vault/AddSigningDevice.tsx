@@ -468,6 +468,7 @@ function AddSigningDevice() {
         paddingTop={hp(5)}
       />
       <FlatList
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}

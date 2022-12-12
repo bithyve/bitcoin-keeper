@@ -352,6 +352,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
+                numberOfLines={2}
               >
                 {signer.signerDescription
                   ? signer.signerDescription
