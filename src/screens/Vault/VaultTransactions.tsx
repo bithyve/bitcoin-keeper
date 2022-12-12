@@ -44,16 +44,6 @@ function VaultTransactions({ route }) {
     dispatch(refreshWallets([vault], { hardRefresh: true }));
   };
 
-  const pullDownRefresh = () => {
-    setPullRefresh(true);
-    refreshVault();
-    setPullRefresh(false);
-  };
-
-  const refreshVault = () => {
-    dispatch(refreshWallets([vault], { hardRefresh: true }));
-  };
-
   return (
     <Box style={styles.Container}>
       <StatusBarComponent padding={50} />
