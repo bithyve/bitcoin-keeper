@@ -307,7 +307,6 @@ function SignersList() {
         case SignerType.JADE:
           return verifyJade(qrData);
         default:
-          
       }
     };
 

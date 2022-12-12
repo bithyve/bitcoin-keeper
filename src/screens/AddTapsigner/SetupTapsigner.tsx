@@ -21,8 +21,8 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupTapsigner() {
@@ -163,7 +163,8 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    padding: '5%',
+    paddingHorizontal: '5%',
+    marginBottom: windowHeight > 800 ? 0 : '25%',
   },
   stepContainer: {
     flexDirection: 'row',
