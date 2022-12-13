@@ -48,19 +48,13 @@ function Option({ title, subTitle, onPress }: Props) {
       <Box style={{ width: '96%' }}>
         <Text
           color="light.lightBlack"
-          style={{
-            fontSize: RFValue(14),
-            letterSpacing: 1.12
-          }}
+          style={styles.optionTitle}
         >
           {title}
         </Text>
         <Text
           color="light.GreyText"
-          style={{
-            fontSize: RFValue(12),
-            letterSpacing: 0.6
-          }}
+          style={styles.optionSubtitle}
         >
           {subTitle}
         </Text>
@@ -410,6 +404,14 @@ const styles = ScaledSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
+  },
+  optionTitle: {
+    fontSize: RFValue(14),
+    letterSpacing: 1.12
+  },
+  optionSubtitle: {
+    fontSize: RFValue(12),
+    letterSpacing: 0.6
   }
 });
 export default WalletSettings;
