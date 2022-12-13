@@ -1,5 +1,5 @@
 import { Box, Input, Pressable, Text } from 'native-base';
-import { Keyboard, TextInput } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, TextInput, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -141,22 +141,23 @@ function AddSendAmount({ route }) {
         </Box>
         <DollarInput />
       </Box> */}
-
-      {/* { Transaction list} */}
-      <Box
-        style={{
-          marginVertical: hp(5),
-        }}
-      >
-        <WalletDetails availableAmt={availableAmt} walletName={walletName} />
-      </Box>
-      <Box
-      // style={{
-      //   marginTop: hp(32),
-      //   marginBottom: hp(32),
-      // }}
-      >
-        {/* <Transactions
+      <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : null}
+          enabled
+          keyboardVerticalOffset={250}
+        >
+          {/* { Transaction list} */}
+          <Box style={styles.transWrapper}>
+            <WalletDetails availableAmt={availableAmt} walletName={walletName} />
+          </Box>
+          <Box
+          // style={{
+          //   marginTop: hp(32),
+          //   marginBottom: hp(32),
+          // }}
+          >
+            {/* <Transactions
             transactions={[
               {
                 address,
@@ -165,109 +166,77 @@ function AddSendAmount({ route }) {
             ]}
             addTransaction={() => {}}
           /> */}
-      </Box>
-      <Box
-        alignItems="center"
-        style={{
-          marginVertical: hp(20),
-        }}
-      >
-        <Box borderBottomColor="light.Border" borderBottomWidth={1} width={wp(280)} opacity={0.1} />
-      </Box>
-      <Box marginX={3}>
-        <Box
-          flexDirection="row"
-          width="100%"
-          justifyContent="space-between"
-          alignItems="center"
-          borderRadius={10}
-          backgroundColor="light.lightYellow"
-          style={{
-            marginVertical: hp(5),
-          }}
-          padding={3}
-        >
-          <Box flexDirection="row" alignItems="center">
-            <Box marginRight={2}>
-              <DollarInput />
+          </Box>
+          <Box style={styles.transBorderWrapper}>
+            <Box borderBottomColor="light.Border" style={styles.transborderView} />
+          </Box>
+          <Box marginX={3}>
+            <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
+              <Box flexDirection="row" alignItems="center">
+                <Box marginRight={2}>
+                  <DollarInput />
+                </Box>
+                <Box
+                  marginLeft={2}
+                  width={0.5}
+                  backgroundColor="light.borderSaperator"
+                  opacity={0.3}
+                  height={7}
+                />
+                <Input
+                  placeholder="Enter Amount"
+                  placeholderTextColor="light.greenText"
+                  color="light.greenText"
+                  opacity={0.5}
+                  width="70%"
+                  fontSize={RFValue(12)}
+                  letterSpacing={1.04}
+                  fontWeight={300}
+                  borderWidth="0"
+                  value={amount}
+                  onChangeText={(value) => setAmount(value)}
+                  onFocus={() => Keyboard.dismiss()}
+                />
+              </Box>
+              <Pressable
+                onPress={() => {
+                  const confirmBalance = wallet.specs.balances.confirmed;
+                  if (confirmBalance)
+                    dispatch(calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet }));
+                }}
+                style={styles.sendMaxWrapper}
+              >
+                <Text color="light.sendMax" style={styles.sendMaxText}>
+                  Send Max
+                </Text>
+              </Pressable>
             </Box>
-            <Box
-              marginLeft={2}
-              width={0.5}
-              backgroundColor="light.borderSaperator"
-              opacity={0.3}
-              height={7}
-            />
-            <Input
-              placeholder="Enter Amount"
-              placeholderTextColor="light.greenText"
-              color="light.greenText"
-              opacity={0.5}
-              width="70%"
-              fontSize={RFValue(12)}
-              letterSpacing={1.04}
-              fontWeight={300}
-              borderWidth="0"
-              value={amount}
-              onChangeText={(value) => setAmount(value)}
-              onFocus={() => Keyboard.dismiss()}
-            />
-          </Box>
-          <Pressable
-            onPress={() => {
-              const confirmBalance = wallet.specs.balances.confirmed;
-              if (confirmBalance)
-                dispatch(calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet }));
-            }}
-            style={{
-              paddingHorizontal: hp(10),
-              paddingVertical: hp(3),
-              borderRadius: 5,
-            }}
-          >
-            <Text color="light.sendMax" fontSize={RFValue(12)} letterSpacing={0.6} fontWeight={300}>
-              Send Max
-            </Text>
-          </Pressable>
-        </Box>
 
-        <Box
-          flexDirection="row"
-          style={{
-            marginVertical: hp(2),
-          }}
-          width="100%"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <TextInput placeholder="Add a note" style={styles.textInput} />
-        </Box>
-        <Box
-          style={{
-            marginBottom: hp(5),
-          }}
-          flexDirection="row"
-          justifyContent="flex-end"
-        >
-          <Box ml={windowWidth * -0.09}>
-            <Buttons
-              secondaryText="Cancel"
-              secondaryCallback={() => {
-                navigation.goBack();
-              }}
-              primaryText="Send"
-              primaryCallback={executeSendPhaseOne}
-            />
+            <Box style={styles.addNoteWrapper}>
+              <TextInput placeholder="Add a note" style={styles.textInput} />
+            </Box>
+            <Box style={styles.ctaBtnWrapper}>
+              <Box ml={windowWidth * -0.09}>
+                <Buttons
+                  secondaryText="Cancel"
+                  secondaryCallback={() => {
+                    navigation.goBack();
+                  }}
+                  primaryText="Send"
+                  primaryCallback={executeSendPhaseOne}
+                />
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </Box>
+        </KeyboardAvoidingView>
+      </ScrollView>
       {/* {!isKeyboardVisible && ( */}
-      <Box justifyContent="center" alignItems="center" width="100%">
+      <Box style={styles.appNumPadWrapper}>
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight > 800 ? 90 : 60}
+          height={windowHeight > 800 ? 90 : 55}
         />
       </Box>
       {/* )} */}
@@ -277,7 +246,6 @@ function AddSendAmount({ route }) {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
   },
   textInput: {
     width: '100%',
@@ -285,6 +253,54 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
+  },
+  transWrapper: {
+    marginVertical: hp(5),
+  },
+  transBorderWrapper: {
+    alignItems: 'center',
+    marginVertical: hp(20),
+  },
+  transborderView: {
+    borderBottomWidth: 1,
+    width: wp(280),
+    opacity: 0.1,
+  },
+  inputWrapper: {
+    marginVertical: hp(5),
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+  },
+  sendMaxWrapper: {
+    paddingHorizontal: hp(10),
+    paddingVertical: hp(3),
+    borderRadius: 5,
+  },
+  sendMaxText: {
+    fontSize: RFValue(12),
+    letterSpacing: 0.6,
+    fontWeight: '500',
+  },
+  addNoteWrapper: {
+    flexDirection: 'row',
+    marginVertical: hp(2),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaBtnWrapper: {
+    marginBottom: hp(5),
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  appNumPadWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
 });
 export default AddSendAmount;
