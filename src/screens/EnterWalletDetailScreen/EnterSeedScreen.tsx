@@ -103,8 +103,13 @@ function EnterSeedScreen() {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
-  const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
+  const closeInvalidSeedsModal = () => {
+    setRecoveryLoading(false);
+    setInvalidSeedsModal(false);
+  };
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
@@ -122,19 +127,23 @@ function EnterSeedScreen() {
   );
 
   useEffect(() => {
-    console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
     if (appImageError) openInvalidSeedsModal();
 
     if (appRecoveryLoading) {
+      setRecoveryLoading(true);
       openLoaderModal();
     }
+  }, [appRecoveryLoading, appImageError, appImageRecoverd]);
+
+  useEffect(() => {
     if (appRecreated) {
       setTimeout(() => {
         closeLoaderModal();
+        setRecoveryLoading(false);
         navigation.navigate('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError]);
+  }, [appRecreated]);
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
@@ -202,7 +211,7 @@ function EnterSeedScreen() {
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.enterRecoveryPhrase}
+              title={seed?.enterRecoveryPhrase}
               subtitle={seed.recoverWallet}
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
@@ -298,7 +307,11 @@ function EnterSeedScreen() {
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
-            <Buttons primaryCallback={onPressNext} primaryText="Next" />
+            <Buttons
+              primaryCallback={onPressNext}
+              primaryText="Next"
+              primaryLoading={recoveryLoading}
+            />
           </View>
           <KeeperModal
             visible={invalidSeedsModal}
@@ -326,12 +339,12 @@ function EnterSeedScreen() {
             textColor="#041513"
             Content={RecoverWalletScreen}
           />
-          <ModalWrapper
+          {/* <ModalWrapper
             visible={createCloudBackupModal}
             onSwipeComplete={() => setCreateCloudBackupModal(false)}
           >
             <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-          </ModalWrapper>
+          </ModalWrapper> */}
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
