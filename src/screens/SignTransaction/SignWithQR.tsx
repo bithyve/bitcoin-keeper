@@ -21,7 +21,9 @@ function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const { serializedPSBT } = serializedPSBTEnvelops[0];
+  const { serializedPSBT } = serializedPSBTEnvelops.filter((envelop) => !envelop.isSigned)[0] ?? {
+    serializedPSBT: '',
+  };
   const route = useRoute();
   const { signer }: { signer: VaultSigner } = route.params as any;
   const navigation = useNavigation();
