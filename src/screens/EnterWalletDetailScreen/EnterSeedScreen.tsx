@@ -218,23 +218,8 @@ function EnterSeedScreen() {
                 marginHorizontal: 15,
               }}
               renderItem={({ item, index }) => (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 10,
-                    marginVertical: 10,
-                  }}
-                >
-                  <Text
-                    style={{
-                      width: 22,
-                      fontSize: 16,
-                      color: '#00836A',
-                      marginTop: 8,
-                      letterSpacing: 1.23,
-                    }}
-                    fontWeight="300"
-                  >
+                <View style={styles.inputListWrapper}>
+                  <Text style={styles.indexText} fontWeight="300">
                     {getFormattedNumber(index)}
                   </Text>
                   <TextInput
@@ -275,26 +260,9 @@ function EnterSeedScreen() {
               )}
             />
           </View>
-          <Text
-            fontWeight={200}
-            color="#4F5955"
-            marginX={10}
-            marginY={hp(10)}
-            fontSize={12}
-            letterSpacing={0.6}
-          >
-            {seed.seedDescription}
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: wp(375),
-              alignItems: 'center',
-              paddingHorizontal: wp(20),
-            }}
-          >
-            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+          <Text style={styles.seedDescText}>{seed.seedDescription}</Text>
+          <View style={styles.bottomBtnsWrapper}>
+            <Box style={styles.bottomBtnsWrapper02}>
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
@@ -390,6 +358,39 @@ const styles = ScaledSheet.create({
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
+  },
+  inputListWrapper: {
+    flexDirection: 'row',
+    marginHorizontal: 10,
+    marginVertical: 10,
+  },
+  indexText: {
+    width: 22,
+    fontSize: 16,
+    color: '#00836A',
+    marginTop: 8,
+    letterSpacing: 1.23,
+  },
+  seedDescText: {
+    fontWeight: '400',
+    color: '#4F5955',
+    marginHorizontal: 30,
+    marginVertical: hp(10),
+    fontSize: 12,
+    letterSpacing: 0.6,
+  },
+  bottomBtnsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: wp(375),
+    alignItems: 'center',
+    paddingHorizontal: wp(20),
+  },
+  bottomBtnsWrapper02: {
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    marginLeft: 25,
+    marginTop: 6,
   },
 });
 
