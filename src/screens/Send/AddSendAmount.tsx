@@ -42,6 +42,7 @@ function AddSendAmount({ route }) {
 
   const [amount, setAmount] = useState(prefillAmount || '');
   const [recipientCount, setReicipientCount] = useState(1);
+
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
@@ -68,7 +69,7 @@ function AddSendAmount({ route }) {
     const recipients = [];
     recipients.push({
       address,
-      amount: parseInt(amount),
+      amount: amount ? parseInt(amount) : 0,
     });
     dispatch(
       sendPhaseOne({
@@ -212,14 +213,16 @@ function AddSendAmount({ route }) {
           </Box>
         </Box>
       </Box>
-      <Box position="absolute" bottom={0} alignItems="center" width={wp(375)}>
+      {/* {!isKeyboardVisible && ( */}
+      <Box justifyContent="center" alignItems="center" width="100%">
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight >= 850 ? 80 : 60}
+          height={windowHeight > 800 ? 90 : 60}
         />
       </Box>
+      {/* )} */}
     </ScreenWrapper>
   );
 }

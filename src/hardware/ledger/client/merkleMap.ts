@@ -1,5 +1,4 @@
-import { Merkle, hashLeaf } from './merkle';
-
+import { hashLeaf, Merkle } from './merkle';
 import { createVarint } from './varint';
 
 /**
@@ -14,13 +13,9 @@ import { createVarint } from './varint';
  */
 export class MerkleMap {
   readonly keys: readonly Buffer[];
-
   readonly keysTree: Merkle;
-
   readonly values: readonly Buffer[];
-
   readonly valuesTree: Merkle;
-
   /**
    * @param keys Sorted list of (unhashed) keys
    * @param values values, in corresponding order as the keys, and of equal length

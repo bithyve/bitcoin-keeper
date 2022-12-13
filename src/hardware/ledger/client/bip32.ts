@@ -18,14 +18,14 @@ export function bip32asBuffer(path: string): Buffer {
 export function pathArrayToString(pathElements: readonly number[]): string {
   // bippath doesn't handle an empty path.
   if (pathElements.length == 0) {
-    return 'm';
+    return "m";
   }
   return bippath.fromPathArray(pathElements).toString();
 }
 
 export function pathStringToArray(path: string): readonly number[] {
   // bippath doesn't handle an empty path.
-  if (path == 'm' || path == '') {
+  if (path == "m" || path == "") {
     return [];
   }
   return bippath.fromString(path).toPathArray();
@@ -49,7 +49,9 @@ export function getXpubComponents(xpub: string): {
   };
 }
 
-export function hardenedPathOf(pathElements: readonly number[]): readonly number[] {
+export function hardenedPathOf(
+  pathElements: readonly number[]
+): readonly number[] {
   for (let i = pathElements.length - 1; i >= 0; i--) {
     if (pathElements[i] >= 0x80000000) {
       return pathElements.slice(0, i + 1);

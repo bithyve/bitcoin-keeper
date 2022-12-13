@@ -43,10 +43,13 @@ type Props = {
 function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
     <Pressable
-      flexDirection="row"
-      alignItems="center"
-      width="100%"
-      style={{ marginTop: hp(20) }}
+
+      style={{
+        marginTop: hp(20),
+        flexDirection: "row",
+        alignItems: "center",
+        width: "100%",
+      }}
       onPress={onPress}
     >
       {Icon && (
@@ -110,11 +113,11 @@ function WalletSettings({ route }) {
         }}
       >
         <Box
-          marginTop={hp(17)}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="space-between"
           style={{
+            marginTop: hp(17),
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
             marginHorizontal: wp(20),
           }}
         >
@@ -122,12 +125,7 @@ function WalletSettings({ route }) {
             <Text color="light.white" letterSpacing={0.28} fontSize={RFValue(14)}>
               {walletName}
             </Text>
-            <Text
-              color="light.white"
-              letterSpacing={0.24}
-              fontSize={RFValue(12)}
-              fontWeight={100}
-            >
+            <Text color="light.white" letterSpacing={0.24} fontSize={RFValue(12)} fontWeight={100}>
               {walletDescription}
             </Text>
           </Box>
@@ -146,7 +144,7 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setLoadingContent({
       title: 'Please Wait',
-      subtitle: 'Recieving test sats',
+      subtitle: 'Receiving test sats',
       message: '',
     });
 
@@ -169,9 +167,9 @@ function WalletSettings({ route }) {
         navigation.goBack();
       }, 3000);
     } else if (testCoinsFailed) {
-        Alert.alert('Process Failed');
-        dispatch(setTestCoinsFailed(false));
-      }
+      Alert.alert('Process Failed');
+      dispatch(setTestCoinsFailed(false));
+    }
   }, [testCoinsReceived, testCoinsFailed]);
 
   const signPSBT = (serializedPSBT) => {
@@ -203,8 +201,8 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        marginTop={hp(40)}
         style={{
+          marginTop: hp(35),
           marginLeft: wp(25),
         }}
       >
@@ -217,13 +215,19 @@ function WalletSettings({ route }) {
         />
       </Box>
       <Box
-        alignItems="center"
         style={{
+          alignItems: "center",
           marginLeft: wp(25),
+          marginTop: 10,
+          height: hp(425)
         }}
-        height={hp(400)}
       >
-        <ScrollView>
+        <ScrollView
+          style={{
+            marginBottom: 10
+          }}
+          showsVerticalScrollIndicator={false}
+        >
           <Option
             title="Wallet Details"
             subTitle="Change wallet name & description"
@@ -242,7 +246,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Show Cosigner Details"
-            subTitle="Use to create a signing device"
+            subTitle="Use this wallet as a signing device"
             onPress={() => {
               setCosignerVisible(true);
             }}
@@ -267,9 +271,9 @@ function WalletSettings({ route }) {
 
           <Option
             title="Receive Test Sats"
-            subTitle="Recieve Test Sats to this address"
+            subTitle="Receive Test Sats to this address"
             onPress={() => {
-              // setAppLoading(true);
+              setAppLoading(true);
               getTestSats();
             }}
             Icon={false}
@@ -277,7 +281,7 @@ function WalletSettings({ route }) {
 
           <Option
             title="Sign PSBT"
-            subTitle="Lorem ipsum dolor sit amet, consectetur"
+            subTitle="Sign a transaction if this wallet has been used as a co-signer"
             onPress={() => {
               navigation.dispatch(
                 CommonActions.navigate({
@@ -296,17 +300,10 @@ function WalletSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box
-        style={{
-          position: 'absolute',
-          bottom: hp(30),
-          marginLeft: 26,
-          width: '90%',
-        }}
-      >
+      <Box style={styles.note} backgroundColor={'light.ReceiveBackground'}>
         <Note
           title="Note"
-          subtitle="These settings are for your Default Wallet only and does not affect other wallets"
+          subtitle="These settings are for your selected wallet only and does not affect other wallets"
           subtitleColor="GreyText"
         />
       </Box>
@@ -371,7 +368,9 @@ function WalletSettings({ route }) {
           subTitleColor="#5F6965"
           modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
-          Content={() => <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />}
+          Content={() => (
+            <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />
+          )}
         />
       </Box>
       {/* end */}
@@ -382,9 +381,16 @@ function WalletSettings({ route }) {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
+  note: {
+    position: 'absolute',
+    bottom: hp(35),
+    marginLeft: 26,
+    width: '90%',
+    paddingTop: hp(10),
+  }
 });
 export default WalletSettings;
 export { Option };

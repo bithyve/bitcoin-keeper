@@ -408,7 +408,7 @@ function WalletDetails() {
               >
                 <Recieve />
                 <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                  Recieve
+                  Receive
                 </Text>
               </TouchableOpacity>
               {/* <TouchableOpacity style={styles.IconText}>

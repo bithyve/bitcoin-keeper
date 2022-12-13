@@ -21,7 +21,7 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupTapsigner() {
@@ -70,10 +70,10 @@ function SetupTapsigner() {
         signerType: SignerType.TAPSIGNER,
         storageType: SignerStorage.COLD,
       });
-      const exsists = await checkSigningDevice(tapsigner.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (err) {
       let message: string;
       if (err.toString().includes('401')) {
@@ -159,7 +159,8 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    padding: '5%',
+    paddingHorizontal: '5%',
+    marginBottom: windowHeight > 800 ? 0 : '25%',
   },
   stepContainer: {
     flexDirection: 'row',

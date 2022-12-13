@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { Alert, NativeModules } from 'react-native';
+import { Alert, NativeModules, StyleSheet } from 'react-native';
 import { Box, Pressable, ScrollView, Text, useColorMode } from 'native-base';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -24,7 +24,7 @@ import TorModalMap from './TorModalMap';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const RNBiometrics = new ReactNativeBiometrics();
-const {GoogleDrive} = NativeModules;
+const { GoogleDrive } = NativeModules;
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
@@ -36,7 +36,7 @@ function AppSettings({ navigation }) {
   const dispatch = useAppDispatch();
   const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
-  const {common} = translations;
+  const { common } = translations;
   const { settings } = translations;
   const [showTorModal, setShowTorModal] = useState(false);
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
@@ -56,11 +56,14 @@ function AppSettings({ navigation }) {
     init();
   }, []);
 
-  const RenderTorStatus = useCallback(() => (
+  const RenderTorStatus = useCallback(
+    () => (
       <Box backgroundColor="#E3BE96" py={0.5} px={1.5} borderRadius={10}>
         <Text fontSize={11}>{torStatus}</Text>
       </Box>
-    ), [torStatus]);
+    ),
+    [torStatus]
+  );
 
   const init = async () => {
     try {
@@ -70,8 +73,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -137,49 +140,26 @@ function AppSettings({ navigation }) {
         alignItems="center"
         onPress={onPress}
         backgroundColor="light.lightYellow"
-        style={{
-          borderRadius: 10,
-          height: hp(116),
-          paddingLeft: wp(20),
-          width: '100%',
-        }}
+        style={styles.appBackupWrapper}
       >
         {Icon && (
-          <Box position="relative" style={{ width: wp(40) }}>
+          <Box style={styles.appBackupIconWrapper}>
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
-                height={3}
-                width={3}
                 bg="light.indicator"
-                borderRadius={10}
                 borderColor="light.white1"
-                borderWidth={0.3}
-                position="absolute"
-                right={wp(-2)}
-                zIndex={999}
+                style={styles.notificationIndicator}
               />
             )}
             <BackupIcon />
           </Box>
         )}
         <Box style={{ marginLeft: wp(20) }}>
-          <Text
-            color="light.lightBlack"
-            fontFamily="body"
-            fontWeight={200}
-            fontSize={RFValue(14)}
-            letterSpacing={1.12}
-          >
+          <Text color="light.lightBlack" fontFamily="body" style={styles.appBackupTitle}>
             {title}
           </Text>
-          <Text
-            color="light.GreyText"
-            fontFamily="body"
-            fontWeight={200}
-            fontSize={RFValue(12)}
-            letterSpacing={0.6}
-          >
+          <Text color="light.GreyText" fontFamily="body" style={styles.appBackupSubTitle}>
             {subTitle}
           </Text>
         </Box>
@@ -202,16 +182,12 @@ function AppSettings({ navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
-      <Box mx="4" mb={5} flexDirection="row" w="100%" alignItems="center">
-        <Box w="60%">
-          <Text fontSize={RFValue(20)} fontWeight={200} letterSpacing={1}>
-            {`App ${  common.settings}`}
-          </Text>
-          <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6}>
-            For the vault and wallets
-          </Text>
+      <Box style={styles.appSettingTitleWrapper}>
+        <Box w="70%">
+          <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
+          <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
         </Box>
-        <Box alignItems="center" justifyContent="center" w="30%">
+        <Box style={styles.currentTypeSwitchWrapper}>
           <CurrencyTypeSwitch />
         </Box>
       </Box>
@@ -227,7 +203,7 @@ function AppSettings({ navigation }) {
         >
           <Option
             title="App Backup"
-            subTitle="Seed words health check is due"
+            subTitle="Recovery Phrases health check is due"
             onPress={() => {
               navigation.navigate('BackupWallet');
             }}
@@ -266,7 +242,11 @@ function AppSettings({ navigation }) {
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onSwitchToggle={onPressTor}
-            renderStatus={(torStatus === TorStatus.OFF || torStatus === TorStatus.CONNECTED) ? null : RenderTorStatus}
+            renderStatus={
+              torStatus === TorStatus.OFF || torStatus === TorStatus.CONNECTED
+                ? null
+                : RenderTorStatus
+            }
             value={torStatus === TorStatus.CONNECTED}
           />
           <SettingsCard
@@ -279,86 +259,42 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box
-          width={wp(340)}
-          position="absolute"
-          bottom={-hp(20)}
-          backgroundColor="light.ReceiveBackground"
-        >
-          <Box flexDirection="row" justifyContent="space-between" alignItems="center">
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.ReceiveBackground">
+          <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
-              <Box
-                flexDirection="row"
-                justifyContent="space-evenly"
-                height={hp(45)}
-                width={wp(169)}
-                borderRadius={8}
-                marginBottom={hp(8)}
-                backgroundColor="light.lightYellow"
-                alignItems="center"
-              >
-                <Box
-                  flexDirection="row"
-                  alignItems="center"
-                  style={{ marginRight: wp(3) }}
-
-                >
+              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.lightYellow">
+                <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
                       color="light.textColor2"
-                      fontWeight={200}
-                      fontSize={RFValue(13)}
-                      letterSpacing={0.79}
                       fontFamily="body"
+                      style={styles.telTweetLinkTitle}
                     >
                       Keeper Telegram
                     </Text>
                   </Box>
                 </Box>
-                <Box
-                  flex={0.1}
-                  justifyContent="center"
-                  alignItems="center"
-                >
+                <Box style={styles.linkIconWrapper}>
                   <LinkIcon />
                 </Box>
               </Box>
             </Pressable>
             <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
-              <Box
-                flexDirection="row"
-                justifyContent="space-evenly"
-                height={hp(45)}
-                width={wp(165)}
-                borderRadius={8}
-                marginBottom={hp(8)}
-                backgroundColor="light.lightYellow"
-                alignItems="center"
-              >
-                <Box
-                  flexDirection="row"
-                  alignItems="center"
-                  style={{ marginRight: wp(3) }}
-                >
+              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.lightYellow">
+                <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
                       color="light.textColor2"
-                      fontWeight={200}
-                      fontSize={RFValue(13)}
-                      letterSpacing={0.79}
                       fontFamily="body"
+                      style={styles.telTweetLinkTitle}
                     >
                       Keeper Twitter
                     </Text>
                   </Box>
                 </Box>
-                <Box
-                  flex={0.1}
-                  justifyContent="center"
-                  alignItems="center"
-                >
+                <Box style={styles.linkIconWrapper}>
                   <LinkIcon />
                 </Box>
               </Box>
@@ -366,20 +302,10 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box
-              flexDirection="row"
-              justifyContent="space-evenly"
-              alignItems="center"
-              borderRadius={8}
-              p={2}
-              height={hp(45)}
-              bg="light.lightYellow"
-            >
+            <Box style={styles.bottomLinkWrapper} bg="light.lightYellow">
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
-                  fontSize={13}
-                  fontWeight={200}
-                  letterSpacing={0.79}
+                  style={styles.bottomLinkText}
                   fontFamily="body"
                   color={`${colorMode}.textColor2`}
                 >
@@ -391,9 +317,7 @@ function AppSettings({ navigation }) {
               </Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
-                  fontSize={13}
-                  fontWeight={200}
-                  letterSpacing={0.79}
+                  style={styles.bottomLinkText}
                   fontFamily="body"
                   color={`${colorMode}.textColor2`}
                 >
@@ -405,9 +329,7 @@ function AppSettings({ navigation }) {
               </Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
-                  fontSize={13}
-                  fontWeight={200}
-                  letterSpacing={0.79}
+                  style={styles.bottomLinkText}
                   fontFamily="body"
                   color={`${colorMode}.textColor2`}
                 >
@@ -426,4 +348,105 @@ function AppSettings({ navigation }) {
     </ScreenWrapper>
   );
 }
+const styles = StyleSheet.create({
+  appBackupWrapper: {
+    borderRadius: 10,
+    height: hp(116),
+    paddingLeft: wp(20),
+    width: '100%',
+  },
+  appBackupIconWrapper: {
+    width: wp(40),
+    position: 'relative',
+  },
+  notificationIndicator: {
+    height: 10,
+    width: 10,
+    borderRadius: 10,
+    borderWidth: 0.3,
+    position: 'absolute',
+    right: wp(-2),
+    zIndex: 999,
+  },
+  appBackupTitle: {
+    fontWeight: '400',
+    fontSize: RFValue(14),
+    letterSpacing: 1.12,
+  },
+  appBackupSubTitle: {
+    fontWeight: '400',
+    fontSize: RFValue(12),
+    letterSpacing: 0.6,
+  },
+  appSettingTitleWrapper: {
+    marginHorizontal: 5,
+    marginBottom: 4,
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+  },
+  appSettingTitle: {
+    fontSize: RFValue(18),
+    fontWeight: '400',
+    letterSpacing: 1,
+  },
+  appSettingSubTitle: {
+    fontSize: RFValue(12),
+    fontWeight: '300',
+    letterSpacing: 0.6,
+  },
+  currentTypeSwitchWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '30%',
+  },
+  socialMediaLinkWrapper: {
+    width: wp(340),
+    position: 'absolute',
+    bottom: -hp(10),
+    justifyContent: 'space-evenly',
+  },
+  socialMediaLinkWrapper2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  telTweetLinkWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    height: hp(45),
+    width: wp(166),
+    borderRadius: 8,
+    marginBottom: hp(8),
+    alignItems: 'center',
+  },
+  telTweetLinkTitle: {
+    fontWeight: '400',
+    fontSize: RFValue(13),
+    letterSpacing: 0.79,
+  },
+  telTweetLinkWrapper2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: wp(3),
+  },
+  linkIconWrapper: {
+    flex: 0.1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomLinkWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    borderRadius: 8,
+    padding: 2,
+    height: hp(45),
+  },
+  bottomLinkText: {
+    fontSize: 13,
+    fontWeight: '400',
+    letterSpacing: 0.79,
+  },
+});
 export default AppSettings;

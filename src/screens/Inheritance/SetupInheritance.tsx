@@ -53,23 +53,17 @@ function SetupInheritance() {
 
   function InheritancePoint({ title, subTitle, description, Icon }) {
     return (
-      <Box
-        style={{
-          marginBottom: hp(25),
-        }}
-      >
-        <Box width={wp(300)} flexDir="row" alignItems="center">
+      <Box style={styles.modalContainer}>
+        <Box style={styles.modalTopContainer} >
           <Icon />
-          <Box marginLeft={wp(15)}>
-            <Text color="light.white1" fontSize={15} numberOfLines={2} fontWeight={200}>
+          <Box style={{ marginLeft: wp(15) }}>
+            <Text color="light.white1" numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
             <Text
               color="light.white1"
-              fontSize={12}
               numberOfLines={2}
-              fontWeight={200}
-              opacity={0.7}
+              style={styles.modalSubtitle}
             >
               {subTitle}
             </Text>
@@ -77,12 +71,7 @@ function SetupInheritance() {
         </Box>
         <Text
           color="light.white1"
-          fontSize={14}
-          style={{ marginTop: hp(16) }}
-          alignItems="center"
-          width={wp(280)}
-          fontWeight={200}
-          letterSpacing={0.65}
+          style={styles.modalDesc}
         >
           {description}
         </Text>
@@ -94,13 +83,13 @@ function SetupInheritance() {
     return (
       <Box>
         {inheritanceData.map((item) => (
-            <InheritancePoint
-              title={item.title}
-              description={item.description}
-              subTitle={item.subTitle}
-              Icon={item.Icon}
-            />
-          ))}
+          <InheritancePoint
+            title={item.title}
+            description={item.description}
+            subTitle={item.subTitle}
+            Icon={item.Icon}
+          />
+        ))}
       </Box>
     );
   }
@@ -112,11 +101,10 @@ function SetupInheritance() {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
+          ...styles.gradientIcon,
           height: hp(height),
           width: hp(height),
           borderRadius: height,
-          justifyContent: 'center',
-          alignItems: 'center',
         }}
       >
         <Icon />
@@ -126,7 +114,7 @@ function SetupInheritance() {
 
   return (
     <ScreenWrapper>
-      <Box marginBottom={-7}>
+      <Box style={styles.header}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
           learnMore
@@ -135,48 +123,33 @@ function SetupInheritance() {
           }}
         />
       </Box>
-      <Box alignItems="center" paddingX={1}>
-        <Box alignItems="center">
-          <GradientIcon Icon={Inheritance} height={50} />
-          <Text
-            color="light.textWallet"
-            fontSize={16}
-            letterSpacing={0.96}
-            marginTop={hp(10)}
-            fontWeight={200}
-          >
-            Inheritance Support
-          </Text>
-          <Text
-            color="light.lightBlack2"
-            fontSize={13}
-            letterSpacing={1.3}
-            marginTop={hp(4)}
-            width={wp(250)}
-            textAlign="center"
-            fontWeight={200}
-          >
-            Keeper provides you with the tips and tools you need to include the vault in your estate
-            planning
-          </Text>
-        </Box>
+      <Box style={styles.topContainer}>
+        <GradientIcon Icon={Inheritance} height={50} />
+        <Text
+          color="light.textWallet"
+          style={styles.title}
+        >
+          Inheritance Support
+        </Text>
+        <Text
+          color="light.lightBlack2"
+          style={styles.subtitle}
+        >
+          Keeper provides you with the tips and tools you need to include the vault in your estate
+          planning
+        </Text>
       </Box>
 
-      <Box marginTop={hp(50)} alignItems="center" flex={1}>
+      <Box style={styles.bottomContainer}>
         <Assert />
         <Text
-          fontSize={12}
-          letterSpacing={0.6}
-          marginTop={hp(36)}
-          width={wp(220)}
-          textAlign="center"
           numberOfLines={2}
-          opacity={0.85}
           fontWeight={100}
+          style={styles.message}
         >
           This can be activated once you are at the Diamond Hands level
         </Text>
-        <Box marginTop={hp(windowHeight > 700 ? 50 : 0)}>
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
           <Buttons
             primaryText="Select Country"
             primaryCallback={() => {
@@ -185,13 +158,13 @@ function SetupInheritance() {
             paddingHorizontal={wp(20)}
           />
         </Box>
-        <Box position="absolute" bottom={hp(10)} width={wp(320)} justifyContent="center">
-          <Note
-            title="Note"
-            subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
-            subtitleColor="GreyText"
-          />
-        </Box>
+      </Box>
+      <Box style={styles.note}>
+        <Note
+          title="Note"
+          subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+          subtitleColor="GreyText"
+        />
       </Box>
       <KeeperModal
         visible={introModal}
@@ -210,9 +183,76 @@ function SetupInheritance() {
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 
-const styles = ScaledSheet.create({});
+const styles = ScaledSheet.create({
+  note: {
+    position: 'absolute',
+    bottom: hp(20),
+    paddingHorizontal: 25,
+    justifyContent: 'center',
+    width: wp(340)
+  },
+
+  message: {
+    opacity: 0.85,
+    fontSize: 12,
+    letterSpacing: 0.6,
+    marginTop: hp(36),
+    width: wp(220),
+    textAlign: "center",
+  },
+  bottomContainer: {
+    marginTop: hp(30),
+    alignItems: 'center',
+    flex: 1
+  },
+  topContainer: {
+    alignItems: "center",
+    paddingHorizontal: 1
+  },
+  title: {
+    fontSize: 16,
+    letterSpacing: 0.96,
+    marginTop: hp(10)
+  },
+  subtitle: {
+    textAlign: 'center',
+    width: wp(250),
+    marginTop: hp(4),
+    fontSize: 13,
+    letterSpacing: 1.3
+  },
+  header: {
+    marginBottom: -50
+  },
+  modalContainer: {
+    marginBottom: hp(25),
+  },
+  modalTitle: {
+    fontSize: 15
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    opacity: 0.7
+  },
+  modalDesc: {
+    marginTop: hp(16),
+    letterSpacing: 0.65,
+    width: wp(280),
+    alignItems: 'center',
+    fontSize: 14
+  },
+  modalTopContainer: {
+    width: wp(300),
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  gradientIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
+});
 export default SetupInheritance;
