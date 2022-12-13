@@ -13,21 +13,19 @@ const ELECTRUM_CLIENT_CONFIG = {
   maxConnectionAttempt: 5,
   reconnectDelay: 1000, // 1 second
 };
+
+const ELECTRUM_CLIENT = {
+  electrumClient: null,
+  isClientConnected: false,
+  currentPeerIndex: Math.floor(Math.random() * ELECTRUM_CLIENT_CONFIG.predefinedPeers.length),
+  connectionAttempt: 0,
+};
+
 export default class ElectrumClient {
-  public static electrumClient;
-
-  public static isClientConnected = false;
-
-  public static currentPeerIndex = Math.floor(
-    Math.random() * ELECTRUM_CLIENT_CONFIG.predefinedPeers.length
-  );
-
-  public static connectionAttempt = 0;
-
   public static async connect() {
     const peer = await ElectrumClient.getNextPeer();
     try {
-      ElectrumClient.electrumClient = new ElectrumCli(
+      ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
         global.net,
         global.tls,
         peer.ssl || peer.tcp,
@@ -35,48 +33,48 @@ export default class ElectrumClient {
         peer.ssl ? 'tls' : 'tcp'
       ); // tcp or tls
 
-      ElectrumClient.electrumClient.onError = (error) => {
+      ELECTRUM_CLIENT.electrumClient.onError = (error) => {
         console.log('Electrum mainClient.onError():', error.message);
 
-        if (ElectrumClient.isClientConnected) {
-          if (ElectrumClient.electrumClient.close) ElectrumClient.electrumClient.close();
+        if (ELECTRUM_CLIENT.isClientConnected) {
+          if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
-          ElectrumClient.isClientConnected = false;
+          ELECTRUM_CLIENT.isClientConnected = false;
           console.log('Error: Close the connection');
           setTimeout(ElectrumClient.connect, ELECTRUM_CLIENT_CONFIG.reconnectDelay);
         }
       };
       console.log('Initiate electrum server');
-      const ver = await ElectrumClient.electrumClient.initElectrum({
+      const ver = await ELECTRUM_CLIENT.electrumClient.initElectrum({
         client: 'bitcoin-keeper',
         version: '1.4',
       });
       console.log('Connection to electrum server is established', { ver });
       if (ver && ver[0]) {
         console.log(`ver : ${ver}`);
-        ElectrumClient.isClientConnected = true;
+        ELECTRUM_CLIENT.isClientConnected = true;
       }
     } catch (error) {
-      ElectrumClient.isClientConnected = false;
+      ELECTRUM_CLIENT.isClientConnected = false;
       console.log('Bad connection:', JSON.stringify(peer), error);
     }
 
-    if (ElectrumClient.isClientConnected) return ElectrumClient.isClientConnected;
+    if (ELECTRUM_CLIENT.isClientConnected) return ELECTRUM_CLIENT.isClientConnected;
     return ElectrumClient.reconnect();
   }
 
   public static async reconnect() {
     console.log('Trying to reconnect');
-    ElectrumClient.connectionAttempt += 1;
+    ELECTRUM_CLIENT.connectionAttempt += 1;
 
     // close the connection before attempting again
-    if (ElectrumClient.electrumClient.close) ElectrumClient.electrumClient.close();
+    if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
-    if (ElectrumClient.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
+    if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       console.log('Could not find the working electrum server. Please try again later.');
-      return ElectrumClient.isClientConnected; // false
+      return ELECTRUM_CLIENT.isClientConnected; // false
     }
-    console.log(`Reconnection attempt #${ElectrumClient.connectionAttempt}`);
+    console.log(`Reconnection attempt #${ELECTRUM_CLIENT.connectionAttempt}`);
     await new Promise((resolve) => {
       setTimeout(resolve, ELECTRUM_CLIENT_CONFIG.reconnectDelay); // attempts reconnection after 1 second
     });
@@ -86,20 +84,20 @@ export default class ElectrumClient {
   public static getCurrentPeer() {
     const isTestnet = config.NETWORK_TYPE === NetworkType.TESTNET;
     return isTestnet
-      ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers[ElectrumClient.currentPeerIndex]
-      : ELECTRUM_CLIENT_CONFIG.predefinedPeers[ElectrumClient.currentPeerIndex];
+      ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers[ELECTRUM_CLIENT.currentPeerIndex]
+      : ELECTRUM_CLIENT_CONFIG.predefinedPeers[ELECTRUM_CLIENT.currentPeerIndex];
   }
 
   public static getNextPeer() {
     const isTestnet = config.NETWORK_TYPE === NetworkType.TESTNET;
-    ElectrumClient.currentPeerIndex += 1;
+    ELECTRUM_CLIENT.currentPeerIndex += 1;
     if (
-      ElectrumClient.currentPeerIndex >
+      ELECTRUM_CLIENT.currentPeerIndex >
       (isTestnet
         ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers.length - 1
         : ELECTRUM_CLIENT_CONFIG.predefinedPeers.length - 1)
     )
-      ElectrumClient.currentPeerIndex = 0; // reset(out of bounds)
+      ELECTRUM_CLIENT.currentPeerIndex = 0; // reset(out of bounds)
 
     const peer = ElectrumClient.getCurrentPeer();
     return peer;
@@ -112,11 +110,15 @@ export default class ElectrumClient {
     return groups;
   }
 
-  public static async syncBalanceByAddresses(addresses: string[], batchsize: number = 150) {
-    if (!this.electrumClient) throw new Error('Electrum client is not connected');
+  public static async syncBalanceByAddresses(
+    addresses: string[],
+    network: bitcoinJS.Network = config.NETWORK,
+    batchsize: number = 150
+  ) {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const res = { balance: 0, unconfirmed_balance: 0, addresses: {} };
 
-    const chunks = this.splitIntoChunks(addresses, batchsize);
+    const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
       const chunk = chunks[itr];
       const scripthashes = [];
@@ -124,7 +126,7 @@ export default class ElectrumClient {
 
       for (let index = 0; index < chunk.length; index += 1) {
         const addr = chunk[index];
-        const script = bitcoinJS.address.toOutputScript(addr);
+        const script = bitcoinJS.address.toOutputScript(addr, network);
         const hash = bitcoinJS.crypto.sha256(script);
         const reversedHash = Buffer.from(reverse(hash));
         const reversedHashHex = reversedHash.toString('hex');
@@ -133,7 +135,9 @@ export default class ElectrumClient {
       }
 
       // eslint-disable-next-line no-await-in-loop
-      const balances = await this.electrumClient.blockchainScripthash_getBalanceBatch(scripthashes);
+      const balances = await ELECTRUM_CLIENT.electrumClient.blockchainScripthash_getBalanceBatch(
+        scripthashes
+      );
 
       for (let index = 0; index < balances.length; index += 1) {
         const bal = balances[index];
@@ -148,11 +152,15 @@ export default class ElectrumClient {
     return res;
   }
 
-  public static async syncUTXOByAddresses(addresses: string[], batchsize: number = 150) {
-    if (!this.electrumClient) throw new Error('Electrum client is not connected');
+  public static async syncUTXOByAddresses(
+    addresses: string[],
+    network: bitcoinJS.Network = config.NETWORK,
+    batchsize: number = 150
+  ) {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const res = {};
 
-    const chunks = this.splitIntoChunks(addresses, batchsize);
+    const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
       const chunk = chunks[itr];
       const scripthashes = [];
@@ -160,7 +168,7 @@ export default class ElectrumClient {
 
       for (let index = 0; index < chunk.length; index += 1) {
         const addr = chunk[index];
-        const script = bitcoinJS.address.toOutputScript(addr);
+        const script = bitcoinJS.address.toOutputScript(addr, network);
         const hash = bitcoinJS.crypto.sha256(script);
         const reversedHash = Buffer.from(reverse(hash));
         const reversedHashHex = reversedHash.toString('hex');
@@ -169,7 +177,9 @@ export default class ElectrumClient {
       }
 
       // eslint-disable-next-line no-await-in-loop
-      const results = await this.electrumClient.blockchainScripthash_listunspentBatch(scripthashes);
+      const results = await ELECTRUM_CLIENT.electrumClient.blockchainScripthash_listunspentBatch(
+        scripthashes
+      );
 
       for (let index = 0; index < results.length; index += 1) {
         const utxos = results[index];
@@ -188,5 +198,17 @@ export default class ElectrumClient {
     }
 
     return res;
+  }
+
+  public static async estimateFee(numberOfBlocks: number = 1) {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    const feePerKB = await ELECTRUM_CLIENT.electrumClient.blockchainEstimatefee(numberOfBlocks); // in bitcoin
+    if (feePerKB === -1) return 1;
+    return Math.round((feePerKB / 1024) * 1e8); // feePerByte(sats)
+  }
+
+  public static async broadcast(txHex: string) {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    return ELECTRUM_CLIENT.electrumClient.blockchainTransaction_broadcast(txHex);
   }
 }
