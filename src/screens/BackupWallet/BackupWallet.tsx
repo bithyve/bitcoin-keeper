@@ -31,7 +31,7 @@ type Props = {
 function BackupWallet() {
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
+  const { BackupWallet } = translations;
   const { backupMethod, loading, isBackupError, backupError, cloudBackupCompleted } =
     useAppSelector((state) => state.bhr);
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
@@ -117,7 +117,7 @@ function BackupWallet() {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box alignItems="center" paddingX={wp(25)} marginTop={hp(60)}>
+      <Box alignItems="center" marginTop={hp(40)} padding={7}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}

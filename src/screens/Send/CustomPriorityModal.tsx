@@ -27,7 +27,7 @@ function CustomPriorityModal(props) {
   const { bottom } = useSafeAreaInsets();
   const [customPriorityFee, setCustomPriorityFee] = useState('');
   const [customEstBlocks, setCustomEstBlock] = useState('');
-  const averageTxFees = useAppSelector((state) => state.sendAndReceive.averageTxFees);
+  const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
@@ -50,9 +50,11 @@ function CustomPriorityModal(props) {
       } else if (customFeeRatePerByte < feeRates['144']) {
         customEstimatedBlock = 200;
       } else {
-        const closestFeeRatePerByte = Object.values(feeRates).reduce((prev, curr) => Math.abs(curr - customFeeRatePerByte) < Math.abs(prev - customFeeRatePerByte)
+        const closestFeeRatePerByte = Object.values(feeRates).reduce((prev, curr) =>
+          Math.abs(curr - customFeeRatePerByte) < Math.abs(prev - customFeeRatePerByte)
             ? curr
-            : prev);
+            : prev
+        );
 
         const etimatedBlock = Object.keys(feeRates).find(
           (key) => feeRates[key] === closestFeeRatePerByte
@@ -101,12 +103,7 @@ function CustomPriorityModal(props) {
               >
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily="body"
-                fontWeight="100"
-                color={textColor}
-              >
+              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -120,12 +117,7 @@ function CustomPriorityModal(props) {
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text
-                fontFamily="body"
-                fontWeight="200"
-                color="#073B36"
-                mx={windowWidth * 0.038}
-              >
+              <Text fontFamily="body" fontWeight="200" color="#073B36" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>

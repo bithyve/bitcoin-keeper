@@ -6,11 +6,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
-export const useUaiStack = () => {
+const useUaiStack = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const [uaiStack, setuaiStack] = useState([]);
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI);
@@ -34,7 +33,7 @@ export const useUaiStack = () => {
             'Add a signing device to activate your vault',
             false,
             uaiType.SECURE_VAULT,
-            80,
+            100,
             null
           )
         );
@@ -61,7 +60,7 @@ export const useUaiStack = () => {
               `Transfer fund to vault for ${wallet.presentationData.name}`,
               false,
               uaiType.VAULT_TRANSFER,
-              100,
+              80,
               null,
               wallet.id
             )
@@ -85,3 +84,5 @@ export const useUaiStack = () => {
 
   return { uaiStack };
 };
+
+export default useUaiStack;

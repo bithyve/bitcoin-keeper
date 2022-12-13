@@ -1,8 +1,9 @@
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { RFValue } from 'react-native-responsive-fontsize';
 
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -18,11 +19,11 @@ function ExportSeedScreen({ route, navigation }) {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
-  const {login} = translations;
-  const {seed} = route.params;
+  const { BackupWallet } = translations;
+  const { login } = translations;
+  const { seed } = route.params;
   const [words] = useState(seed.split(' '));
-  const {next} = route.params;
+  const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
@@ -45,18 +46,18 @@ function ExportSeedScreen({ route, navigation }) {
       <TouchableOpacity
         style={{ width: '50%' }}
         onPress={() => {
-          setShowWordIndex(prev => {
+          setShowWordIndex((prev) => {
             if (prev === index) {
               return '';
-            } 
-              return index;
-            
+            }
+            return index;
           });
         }}
       >
         <Box
           backgroundColor="light.lightYellow"
           flexDirection="row"
+          alignItems={'center'}
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -64,17 +65,17 @@ function ExportSeedScreen({ route, navigation }) {
           opacity={showWordIndex === index ? 1 : 0.5}
         >
           <Text
-            fontSize={20}
+            fontSize={RFValue(19)}
             fontWeight={300}
             letterSpacing={1.64}
-            marginRight={5}
+            marginRight={3}
             color="light.greenText2"
           >
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
           <Text
-            fontSize={20}
+            fontSize={RFValue(19)}
             fontWeight={200}
             backgroundColor="green.700"
             letterSpacing={1}
@@ -87,7 +88,9 @@ function ExportSeedScreen({ route, navigation }) {
     );
   }
 
-  const renderSeedCard = ({ item, index }: { item; index }) => <SeedCard item={item} index={index} />;
+  const renderSeedCard = ({ item, index }: { item; index }) => (
+    <SeedCard item={item} index={index} />
+  );
 
   return (
     <Box flex={1} padding={5} background="light.ReceiveBackground">
@@ -98,7 +101,7 @@ function ExportSeedScreen({ route, navigation }) {
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={10} height={windowHeight / 1.5}>
+      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList
           data={words}
           numColumns={2}

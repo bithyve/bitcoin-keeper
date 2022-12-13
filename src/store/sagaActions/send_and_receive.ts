@@ -1,8 +1,4 @@
-import {
-  SerializedPSBTEnvelop,
-  SigningPayload,
-  TransactionPrerequisiteElements,
-} from 'src/core/wallets/interfaces';
+import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
 
 import { Action } from 'redux';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
@@ -26,7 +22,6 @@ export const CROSS_TRANSFER = 'CROSS_TRANSFER';
 export const RESET_SEND_PHASE_ONE = 'RESET_SEND_PHASE_ONE';
 export const FEE_INTEL_MISSING = 'FEE_INTEL_MISSING';
 export const SEND_PHASE_TWO = 'SEND_PHASE_TWO';
-export const UPDATE_PSBT_SIGNATURES = 'UPDATE_PSBT_SIGNATURES';
 export const SEND_PHASE_THREE = 'SEND_PHASE_THREE';
 export const SENDING_FAILED = 'SENDING_FAILED';
 export const SENDING_SUCCEEDED = 'SENDING_SUCCEEDED';
@@ -44,8 +39,8 @@ export interface ResetSendState extends Action {
 }
 
 export const resetSendState = (): ResetSendState => ({
-    type: RESET_SEND_STATE,
-  });
+  type: RESET_SEND_STATE,
+});
 
 export interface SourceAccountSelectedForSendingAction extends Action {
   type: typeof SOURCE_WALLET_SELECTED_FOR_SENDING;
@@ -55,9 +50,9 @@ export interface SourceAccountSelectedForSendingAction extends Action {
 export const sourceAccountSelectedForSending = (
   payload: Wallet | Vault
 ): SourceAccountSelectedForSendingAction => ({
-    type: SOURCE_WALLET_SELECTED_FOR_SENDING,
-    payload,
-  });
+  type: SOURCE_WALLET_SELECTED_FOR_SENDING,
+  payload,
+});
 
 export interface AddRecipientForSendingAction extends Action {
   type: typeof ADD_RECIPIENT_FOR_SENDING;
@@ -65,9 +60,9 @@ export interface AddRecipientForSendingAction extends Action {
 }
 
 export const addRecipientForSending = (payload: Recipient): AddRecipientForSendingAction => ({
-    type: ADD_RECIPIENT_FOR_SENDING,
-    payload,
-  });
+  type: ADD_RECIPIENT_FOR_SENDING,
+  payload,
+});
 
 export interface RecipientSelectedForAmountSettingAction extends Action {
   type: typeof RECIPIENT_SELECTED_FOR_AMOUNT_SETTING;
@@ -77,9 +72,9 @@ export interface RecipientSelectedForAmountSettingAction extends Action {
 export const recipientSelectedForAmountSetting = (
   payload: Recipient
 ): RecipientSelectedForAmountSettingAction => ({
-    type: RECIPIENT_SELECTED_FOR_AMOUNT_SETTING,
-    payload,
-  });
+  type: RECIPIENT_SELECTED_FOR_AMOUNT_SETTING,
+  payload,
+});
 
 export interface RecipientRemovedFromSendingAction extends Action {
   type: typeof RECIPIENT_REMOVED_FROM_SENDING;
@@ -89,9 +84,9 @@ export interface RecipientRemovedFromSendingAction extends Action {
 export const recipientRemovedFromSending = (
   payload: Recipient
 ): RecipientRemovedFromSendingAction => ({
-    type: RECIPIENT_REMOVED_FROM_SENDING,
-    payload,
-  });
+  type: RECIPIENT_REMOVED_FROM_SENDING,
+  payload,
+});
 
 export interface AmountForRecipientUpdatedAction extends Action {
   type: typeof AMOUNT_FOR_RECIPIENT_UPDATED;
@@ -105,13 +100,13 @@ export const amountForRecipientUpdated = (payload: {
   recipient: Recipient;
   amount: Satoshis;
 }): AmountForRecipientUpdatedAction => ({
-    type: AMOUNT_FOR_RECIPIENT_UPDATED,
-    payload,
-  });
+  type: AMOUNT_FOR_RECIPIENT_UPDATED,
+  payload,
+});
 
 export const fetchFeeAndExchangeRates = () => ({
-    type: FETCH_FEE_AND_EXCHANGE_RATES,
-  });
+  type: FETCH_FEE_AND_EXCHANGE_RATES,
+});
 
 export interface SendPhaseOneAction extends Action {
   type: typeof SEND_PHASE_ONE;
@@ -131,17 +126,17 @@ export const sendPhaseOne = (payload: {
     amount: number;
   }[];
 }): SendPhaseOneAction => ({
-    type: SEND_PHASE_ONE,
-    payload,
-  });
+  type: SEND_PHASE_ONE,
+  payload,
+});
 
 export interface ResetSendStage1Action extends Action {
   type: typeof RESET_SEND_PHASE_ONE;
 }
 
 export const resetSendStage1 = (): ResetSendStage1Action => ({
-    type: RESET_SEND_PHASE_ONE,
-  });
+  type: RESET_SEND_PHASE_ONE,
+});
 
 export interface FeeIntelMissingAction extends Action {
   type: typeof FEE_INTEL_MISSING;
@@ -151,9 +146,9 @@ export interface FeeIntelMissingAction extends Action {
 }
 
 export const feeIntelMissing = (payload: { intelMissing: boolean }): FeeIntelMissingAction => ({
-    type: FEE_INTEL_MISSING,
-    payload,
-  });
+  type: FEE_INTEL_MISSING,
+  payload,
+});
 
 export interface SendPhaseTwoAction extends Action {
   type: typeof SEND_PHASE_TWO;
@@ -170,9 +165,9 @@ export const sendPhaseTwo = (payload: {
   token?: number;
   note?: string;
 }): SendPhaseTwoAction => ({
-    type: SEND_PHASE_TWO,
-    payload,
-  });
+  type: SEND_PHASE_TWO,
+  payload,
+});
 
 export interface SendPhaseThreeAction extends Action {
   type: typeof SEND_PHASE_THREE;
@@ -182,33 +177,13 @@ export interface SendPhaseThreeAction extends Action {
   };
 }
 
-export interface UpdatePSBTAction extends Action {
-  type: typeof UPDATE_PSBT_SIGNATURES;
-  payload: {
-    signedSerializedPSBT?: string;
-    signingPayload?: SigningPayload[];
-    signerId: string;
-    txHex?: string;
-  };
-}
-
-export const updatePSBTSignatures = (payload: {
-  signedSerializedPSBT?: string;
-  signingPayload?: SigningPayload[];
-  signerId: string;
-  txHex?: string;
-}): UpdatePSBTAction => ({
-    type: UPDATE_PSBT_SIGNATURES,
-    payload,
-  });
-
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
 }): SendPhaseThreeAction => ({
-    type: SEND_PHASE_THREE,
-    payload,
-  });
+  type: SEND_PHASE_THREE,
+  payload,
+});
 
 export interface CrossTransferAction extends Action {
   type: typeof CROSS_TRANSFER;
@@ -224,32 +199,32 @@ export const crossTransfer = (payload: {
   recipient: Wallet | Vault;
   amount: number;
 }): CrossTransferAction => ({
-    type: CROSS_TRANSFER,
-    payload,
-  });
+  type: CROSS_TRANSFER,
+  payload,
+});
 export interface SendingFailureAction extends Action {
   type: typeof SENDING_FAILED;
 }
 
 export const sendingFailed = (): SendingFailureAction => ({
-    type: SENDING_FAILED,
-  });
+  type: SENDING_FAILED,
+});
 
 export interface SendingSuccessAction extends Action {
   type: typeof SENDING_SUCCEEDED;
 }
 
 export const sendingSucceeded = (): SendingSuccessAction => ({
-    type: SENDING_SUCCEEDED,
-  });
+  type: SENDING_SUCCEEDED,
+});
 
 export interface SendingCompletionAction extends Action {
   type: typeof SENDING_COMPLETED;
 }
 
 export const sendingCompleted = (): SendingCompletionAction => ({
-    type: SENDING_COMPLETED,
-  });
+  type: SENDING_COMPLETED,
+});
 
 export interface CalculateSendMaxFeeAction extends Action {
   type: typeof CALCULATE_SEND_MAX_FEE;
@@ -263,13 +238,13 @@ export const calculateSendMaxFee = (payload: {
   numberOfRecipients: number;
   wallet: Wallet | Vault;
 }): CalculateSendMaxFeeAction => ({
-    type: CALCULATE_SEND_MAX_FEE,
-    payload,
-  });
+  type: CALCULATE_SEND_MAX_FEE,
+  payload,
+});
 
 export const clearSendMaxFee = () => ({
-    type: CLEAR_SEND_MAX_FEE,
-  });
+  type: CLEAR_SEND_MAX_FEE,
+});
 
 export interface CalculateCustomFeeAction extends Action {
   type: typeof CALCULATE_CUSTOM_FEE;
@@ -293,9 +268,9 @@ export const calculateCustomFee = (payload: {
   feePerByte: string;
   customEstimatedBlocks: string;
 }): CalculateCustomFeeAction => ({
-    type: CALCULATE_CUSTOM_FEE,
-    payload,
-  });
+  type: CALCULATE_CUSTOM_FEE,
+  payload,
+});
 
 export interface CustomFeeCalculatedAction extends Action {
   type: typeof CUSTOM_FEE_CALCULATED;
@@ -311,9 +286,9 @@ export const customFeeCalculated = (payload: {
   carryOver?: { customTxPrerequisites: TransactionPrerequisiteElements };
   err?: string | null;
 }): CustomFeeCalculatedAction => ({
-    type: CUSTOM_FEE_CALCULATED,
-    payload,
-  });
+  type: CUSTOM_FEE_CALCULATED,
+  payload,
+});
 
 export interface CustomSendMaxCalculatedAction extends Action {
   type: typeof CUSTOM_SEND_MAX_CALCULATED;
@@ -325,9 +300,9 @@ export interface CustomSendMaxCalculatedAction extends Action {
 export const customSendMaxUpdated = (payload: {
   recipients: Recipient[];
 }): CustomSendMaxCalculatedAction => ({
-    type: CUSTOM_SEND_MAX_CALCULATED,
-    payload,
-  });
+  type: CUSTOM_SEND_MAX_CALCULATED,
+  payload,
+});
 
 export interface SendTxNotificationAction extends Action {
   type: typeof SEND_TX_NOTIFICATION;
@@ -337,8 +312,8 @@ export interface SendTxNotificationAction extends Action {
 }
 
 export const sendTxNotification = (txid?): SendTxNotificationAction => ({
-    type: SEND_TX_NOTIFICATION,
-    payload: {
-      txid,
-    },
-  });
+  type: SEND_TX_NOTIFICATION,
+  payload: {
+    txid,
+  },
+});

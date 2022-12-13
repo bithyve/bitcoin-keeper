@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
@@ -29,6 +29,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { getPlaceholder } from 'src/common/utilities';
 
 function EnterSeedScreen() {
   const navigation = useNavigation();
@@ -189,14 +190,6 @@ function EnterSeedScreen() {
     return number + 1;
   };
 
-  const getPlaceholder = (index) => {
-    const mainIndex = index + 1;
-    if (mainIndex == 1) return `${mainIndex}st`;
-    if (mainIndex == 2) return `${mainIndex}nd`;
-    if (mainIndex == 3) return `${mainIndex}rd`;
-    return `${mainIndex}th`;
-  };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -205,11 +198,11 @@ function EnterSeedScreen() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={10}>
+        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.recoveryPhrase}
+              title={seed.enterRecoveryPhrase}
               subtitle={seed.recoverWallet}
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
@@ -222,13 +215,13 @@ function EnterSeedScreen() {
               showsVerticalScrollIndicator={false}
               numColumns={2}
               contentContainerStyle={{
-                margin: 15,
+                marginHorizontal: 15,
               }}
               renderItem={({ item, index }) => (
                 <View
                   style={{
                     flexDirection: 'row',
-                    marginHorizontal: 20,
+                    marginHorizontal: 10,
                     marginVertical: 10,
                   }}
                 >
@@ -391,7 +384,7 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
     fontSize: 11,
     height: 40,
-    width: 122,
+    width: 120,
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,

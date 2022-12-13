@@ -60,7 +60,7 @@ function WalletDetails() {
   const introModal = useAppSelector((state) => state.wallet.introModal);
 
   const { translations } = useContext(LocalizationContext);
-  const {wallet} = translations;
+  const { wallet } = translations;
 
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -409,7 +409,7 @@ function WalletDetails() {
               >
                 <Recieve />
                 <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                  Recieve
+                  Receive
                 </Text>
               </TouchableOpacity>
               {/* <TouchableOpacity style={styles.IconText}>
