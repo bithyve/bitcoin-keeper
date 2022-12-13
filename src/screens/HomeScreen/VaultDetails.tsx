@@ -25,7 +25,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
-import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
@@ -44,6 +43,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType } from 'src/hardware';
+import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from '../Vault/WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
@@ -381,6 +381,7 @@ function VaultDetails({ route, navigation }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const [tireChangeModal, setTireChangeModal] = useState(false);
+  const { subscriptionScheme } = usePlan();
 
   const onPressModalBtn = () => {
     setTireChangeModal(false);
@@ -390,7 +391,6 @@ function VaultDetails({ route, navigation }) {
   const transactions = vault?.specs?.transactions || [];
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     }
