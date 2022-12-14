@@ -16,28 +16,28 @@ function KeeperLoader(props) {
     subTitleColor = 'light.lightBlack2',
     loadingContent,
     Content = () => (
-        <Box>
-          <Image
-            source={require('src/assets/video/Loader.gif')}
-            style={{
-              width: wp(250),
-              height: wp(100),
-              alignSelf: 'center',
-              marginTop: hp(30),
-            }}
-          />
-          <Text
-            color="light.modalText"
-            fontWeight={200}
-            fontSize={13}
-            letterSpacing={0.65}
-            marginTop={hp(60)}
-            width={wp(240)}
-          >
-            {loadingContent?.message}
-          </Text>
-        </Box>
-      ),
+      <Box>
+        <Image
+          source={require('src/assets/video/Loader.gif')}
+          style={{
+            width: wp(250),
+            height: wp(100),
+            alignSelf: 'center',
+            marginTop: hp(30),
+          }}
+        />
+        <Text
+          color="light.modalText"
+          fontWeight={200}
+          fontSize={13}
+          letterSpacing={0.65}
+          marginTop={hp(60)}
+          width={wp(240)}
+        >
+          {loadingContent?.message}
+        </Text>
+      </Box>
+    ),
     dismissible = true,
   } = props;
   const { bottom } = useSafeAreaInsets();
@@ -48,7 +48,7 @@ function KeeperLoader(props) {
       isOpen={visible}
       onClose={dismissible ? close : null}
       avoidKeyboard
-      size="lg"
+      size="xl"
       _backdrop={{ bg: '#000', opacity: 0.3 }}
       justifyContent="flex-end"
       closeOnOverlayClick={false}
