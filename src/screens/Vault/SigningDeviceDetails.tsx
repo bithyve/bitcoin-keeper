@@ -1,13 +1,11 @@
-import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Text, VStack, View, Pressable } from 'native-base';
+import { Alert, Platform, TouchableOpacity } from 'react-native';
+import { Box, HStack, Text, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 
 import AdvnaceOptions from 'src/assets/images/svgs/Advancedoptions.svg';
-import BackIcon from 'src/assets/icons/back.svg';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import Change from 'src/assets/images/svgs/change.svg';
-import Edit from 'src/assets/images/svgs/edit.svg';
 import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -20,11 +18,9 @@ import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 import { SignerType } from 'src/core/wallets/enums';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import idx from 'idx';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -293,7 +289,11 @@ function SigningDeviceDetails({ route }) {
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
             <Text fontSize={14} letterSpacing={1.15}>
-              {getSignerNameFromType(signer.type)}
+              {getSignerNameFromType(
+                signer.type,
+                signer.isMock,
+                signer.amfData && signer.amfData.xpub
+              )}
             </Text>
             <Text fontSize={13} color="light.modalText">{`Added on ${moment(signer.addedOn)
               .format('DD MMM YYYY, hh:mmA')

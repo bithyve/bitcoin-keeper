@@ -16,7 +16,7 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
@@ -97,10 +97,12 @@ function SetupTapsigner() {
 
   const addMockTapsigner = React.useCallback(async () => {
     try {
-      const mockTapsigner = getMockTapsignerDetails();
-      dispatch(addSigningDevice(mockTapsigner));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      showToast(`${mockTapsigner.signerName} added successfully`, <TickIcon />);
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockTapsigner = getMockTapsignerDetails();
+        dispatch(addSigningDevice(mockTapsigner));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${mockTapsigner.signerName} added successfully`, <TickIcon />);
+      }
     } catch (err) {
       Alert.alert(err.toString());
     }

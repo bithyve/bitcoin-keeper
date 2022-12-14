@@ -3,7 +3,7 @@ import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { VaultMigrationType, VaultType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import {
   addSigningDevice,
@@ -17,13 +17,11 @@ import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Relay from 'src/core/services/operations/Relay';
-import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletOperations from 'src/core/wallets/operations';
@@ -35,15 +33,15 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/core/services/sentry';
 import { getPlaceholder } from 'src/common/utilities';
+import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 
 const { width } = Dimensions.get('screen');
 
-const hasPlanChanged = (vault: Vault, keeper: KeeperApp): VaultMigrationType => {
+const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
   if (vault) {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     }
@@ -177,8 +175,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
 
 function AddSigningDevice() {
   const { useQuery } = useContext(RealmWrapperContext);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
+  const { subscriptionScheme, plan } = usePlan();
   const currentSignerLimit = subscriptionScheme.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
@@ -198,7 +195,7 @@ function AddSigningDevice() {
     unconfirmed: 0,
   };
 
-  const planStatus = hasPlanChanged(activeVault, keeper);
+  const planStatus = hasPlanChanged(activeVault, subscriptionScheme);
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -327,11 +324,10 @@ function AddSigningDevice() {
   };
 
   const initiateNewVault = () => {
-    const currentScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (activeVault) {
       const newVaultDetails: newVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: currentScheme,
+        vaultScheme: subscriptionScheme,
         vaultSigners: signersState,
         vaultDetails: {
           name: 'Vault',
@@ -340,7 +336,7 @@ function AddSigningDevice() {
       };
       dispatch(migrateVault(newVaultDetails, planStatus));
     } else {
-      const freshVault = createVault(signersState, currentScheme);
+      const freshVault = createVault(signersState, subscriptionScheme);
       if (freshVault && !activeVault) {
         const navigationState = {
           index: 1,
@@ -374,6 +370,38 @@ function AddSigningDevice() {
   } else {
     preTitle = 'Change';
   }
+
+  const areSignersSame = () => {
+    if (!activeVault) {
+      return false;
+    }
+    const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
+    const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
+    return currentSignerIds.sort().join() === activeSignerIds.sort().join();
+  };
+
+  const areSignersValidInCurrentScheme = () => {
+    if (plan !== 'PLEB') {
+      return true;
+    }
+    return signersState.every(
+      (signer) =>
+        signer &&
+        ![
+          SignerType.MOBILE_KEY,
+          SignerType.POLICY_SERVER,
+          SignerType.KEEPER,
+          SignerType.SEED_WORDS,
+        ].includes(signer.type)
+    );
+  };
+
+  const validateSigners = () =>
+    signersState.every((signer) => !signer) ||
+    (vaultSigners && vaultSigners.length !== currentSignerLimit) ||
+    areSignersSame() ||
+    !areSignersValidInCurrentScheme();
+
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -401,15 +429,12 @@ function AddSigningDevice() {
               title={common.note}
               subtitle={`* ${AstrixSigners.join(
                 ' and '
-              )} does not support Testnet directly, so the app creates a proxy Testnet key for use in the beta app`}
+              )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`}
             />
           </Box>
         ) : null}
         <Buttons
-          primaryDisable={
-            signersState.every((signer) => !signer) ||
-            (vaultSigners && vaultSigners.length !== currentSignerLimit)
-          }
+          primaryDisable={validateSigners()}
           primaryLoading={vaultCreating}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}

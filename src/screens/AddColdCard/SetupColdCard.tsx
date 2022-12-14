@@ -62,9 +62,11 @@ function SetupColdCard() {
   const addMockColdCard = () => {
     try {
       const cc = getMockColdcardDetails();
-      dispatch(addSigningDevice(cc));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      showToast(`${cc.signerName} added successfully`, <TickIcon />);
+      if (cc) {
+        dispatch(addSigningDevice(cc));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${cc.signerName} added successfully`, <TickIcon />);
+      }
     } catch (error) {
       captureError(error);
     }
