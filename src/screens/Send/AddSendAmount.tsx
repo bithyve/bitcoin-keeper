@@ -90,7 +90,7 @@ function AddSendAmount({ route }) {
       else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
     }
   }, [sendPhaseOneState]);
-
+  console.log('windowHeight', windowHeight);
   useEffect(
     () => () => {
       dispatch(sendPhaseOneReset());
@@ -228,7 +228,7 @@ function AddSendAmount({ route }) {
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight > 800 ? 70 : 65}
+          height={windowHeight > 670 ? 90 : 65}
         />
       </Box>
       {/* )} */}
