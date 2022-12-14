@@ -127,23 +127,17 @@ export default function ResetPin(props) {
 
   return (
     <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
-      <Box flex={1}>
+      <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
         </Box>
-        <Box flex={1}>
+        <Box style={styles.wrapper}>
           <Box>
             <Box>
-              <Text
-                ml={5}
-                mt={hp(1)}
-                fontSize={RFValue(22)}
-                color="light.white"
-                fontFamily="heading"
-              >
+              <Text style={styles.titleText} color="light.white" fontFamily="heading">
                 {login.ResetPasscode}
               </Text>
-              <Text color="light.white" fontSize={RFValue(12)} ml={5} fontFamily="body">
+              <Text style={styles.labelText} color="light.white" fontFamily="body">
                 {login.Createpasscode}
               </Text>
 
@@ -152,7 +146,7 @@ export default function ResetPin(props) {
               {/*  */}
             </Box>
             <Box>
-              <Text color="#FFFFFF" fontSize={RFValue(12)} ml={5} fontFamily="body">
+              <Text style={styles.labelText} color="light.white" fontFamily="body">
                 {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
@@ -172,14 +166,7 @@ export default function ResetPin(props) {
                 />
                 {/*  */}
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
-                  <Text
-                    color="light.error"
-                    fontSize={RFValue(13)}
-                    fontWeight="500"
-                    width={wp('72%')}
-                    textAlign="right"
-                    mt={hp('1.5%')}
-                  >
+                  <Text color="light.error" style={styles.errorText}>
                     {login.MismatchPasscode}
                   </Text>
                 )}
@@ -206,74 +193,28 @@ export default function ResetPin(props) {
 }
 
 const styles = StyleSheet.create({
-  textBoxStyles: {
-    borderWidth: 0.5,
-    height: wp('13%'),
-    width: wp('13%'),
-    borderRadius: 7,
-    marginLeft: 20,
-    // borderColor: Colors.borderColor,
-    borderColor: '#E3E3E3',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: Colors.white,
-    backgroundColor: '#FDF7F0',
-  },
-  textBoxActive: {
-    borderWidth: 0.5,
-    height: wp('13%'),
-    width: wp('13%'),
-    borderRadius: 7,
-    marginLeft: 20,
-    elevation: 10,
-    // shadowColor: Colors.borderColor,
-    shadowColor: '#E3E3E3',
-    shadowOpacity: 0.35,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    // borderColor: Colors.borderColor,
-    borderColor: '#E3E3E3',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: Colors.white,
-    backgroundColor: '#FDF7F0',
-  },
-  keyPadElementTouchable: {
-    flex: 1,
-    height: hp('8%'),
-    fontSize: RFValue(18),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  keyPadElementText: {
-    // color: Colors.blue,
-    color: '#FFF',
-    fontSize: RFValue(25),
-    // fontFamily: Fonts.FiraSansRegular,
-    fontStyle: 'normal',
-  },
-  proceedButtonView: {
-    marginLeft: 20,
-    marginTop: hp('4%'),
-    height: wp('13%'),
-    width: wp('30%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    elevation: 10,
-    // shadowColor: Colors.shadowBlue,
-    // shadowColor: '#DDECF5',
-    shadowOpacity: 0.2,
-    shadowOffset: {
-      width: 15,
-      height: 15,
-    },
-  },
   linearGradient: {
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,
+  },
+  wrapper: {
+    flex: 1,
+  },
+  titleText: {
+    marginLeft: 18,
+    marginTop: hp(4),
+    fontSize: RFValue(20),
+  },
+  labelText: {
+    fontSize: RFValue(12),
+    marginLeft: 20,
+  },
+  errorText: {
+    fontSize: RFValue(13),
+    fontWeight: '400',
+    width: wp('68%'),
+    textAlign: 'right',
+    marginTop: hp('1.5%'),
   },
 });
