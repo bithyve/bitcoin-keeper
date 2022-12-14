@@ -165,7 +165,7 @@ function SendScreen({ route }) {
             </Box>
 
             {/* Send to Wallet options */}
-            <Box marginTop={hp(20)}>
+            <Box style={styles.sendToWalletWrapper}>
               <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
@@ -274,6 +274,9 @@ const styles = ScaledSheet.create({
     position: 'absolute',
     bottom: hp(20),
     width: wp(300),
+  },
+  sendToWalletWrapper: {
+    marginTop: hp(20),
   },
 });
 export default SendScreen;
