@@ -46,9 +46,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType } from 'src/hardware';
 import { WalletMap } from '../Vault/WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+
   const styles = getStyles(0);
   return (
     <Box>
@@ -76,13 +79,13 @@ function Footer({ vault }: { vault: Vault }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText}>
+        <TouchableOpacity style={styles.IconText} onPress={() => { showToast('Comming Soon') }}>
           <Buy />
           <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Buy
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText}>
+        <TouchableOpacity style={styles.IconText} onPress={() => { showToast('Comming Soon') }}>
           <IconSettings />
           <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Settings
