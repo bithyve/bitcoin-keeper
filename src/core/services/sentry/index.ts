@@ -26,11 +26,13 @@ export const identifyUser = (id: string) => {
 
 export const captureError = (error: Error, context?: CaptureContext) => {
   if (__DEV__) {
+    // eslint-disable-next-line no-console
     console.log('@captureError: ', error);
   }
   return Sentry.captureException(error, context);
 };
 
-export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) => Sentry.captureMessage(message, captureContext);
+export const logMessage = (message: string, captureContext?: CaptureContext | SeverityLevel) =>
+  Sentry.captureMessage(message, captureContext);
 
 export { routingInstrumentation };

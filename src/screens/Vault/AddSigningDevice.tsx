@@ -1,4 +1,4 @@
-import { Alert, Pressable } from 'react-native';
+import { Alert, Dimensions, Pressable } from 'react-native';
 import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import {
   addSigningDevice,
   removeSigningDevice,
   updateIntrimVault,
+  updateSigningDevice,
 } from 'src/store/reducers/vaults';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
@@ -34,6 +35,9 @@ import { captureError } from 'src/core/services/sentry';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from './WalletMap';
+import DescriptionModal from './components/EditDescriptionModal';
+
+const { width } = Dimensions.get('screen');
 
 const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
   if (vault) {
@@ -63,12 +67,17 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  const [visible, setVisible] = useState(false);
+
   const removeSigner = () => {
     dispatch(removeSigningDevice(signer));
   };
 
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
+
+  const openDescriptionModal = () => setVisible(true);
+  const closeDescriptionModal = () => setVisible(false);
 
   if (!signer) {
     return (
@@ -129,6 +138,21 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
             </Text>
+            <Pressable onPress={openDescriptionModal}>
+              <Box style={styles.descriptionBox}>
+                <Text
+                  noOfLines={1}
+                  color={signer.signerDescription ? '#6A7772' : '#387F6A'}
+                  fontSize={12}
+                  fontWeight={signer.signerDescription ? 200 : 300}
+                  letterSpacing={0.6}
+                  fontStyle={signer.signerDescription ? null : 'italic'}
+                  maxWidth={width * 0.6}
+                >
+                  {signer.signerDescription ? signer.signerDescription : 'Add Description'}
+                </Text>
+              </Box>
+            </Pressable>
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
@@ -137,6 +161,14 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </Text>
         </Pressable>
       </HStack>
+      <DescriptionModal
+        visible={visible}
+        close={closeDescriptionModal}
+        signer={signer}
+        callback={(value: any) =>
+          dispatch(updateSigningDevice({ signer, key: 'signerDescription', value }))
+        }
+      />
     </Box>
   );
 }
@@ -379,6 +411,7 @@ function AddSigningDevice() {
         paddingTop={hp(5)}
       />
       <FlatList
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}
@@ -435,6 +468,22 @@ const styles = ScaledSheet.create({
   },
   noteContainer: {
     width: wp(330),
+  },
+  descriptionBox: {
+    height: 24,
+    backgroundColor: '#FDF7F0',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    justifyContent: 'center',
+  },
+  descriptionEdit: {
+    height: 50,
+    backgroundColor: '#FDF7F0',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  descriptionContainer: {
+    width: width * 0.8,
   },
 });
 
