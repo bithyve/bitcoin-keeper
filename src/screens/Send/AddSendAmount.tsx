@@ -141,23 +141,17 @@ function AddSendAmount({ route }) {
         </Box>
         <DollarInput />
       </Box> */}
-      <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          enabled
-          keyboardVerticalOffset={250}
-        >
-          {/* { Transaction list} */}
-          <Box style={styles.transWrapper}>
-            <WalletDetails availableAmt={availableAmt} walletName={walletName} />
-          </Box>
-          <Box
-          // style={{
-          //   marginTop: hp(32),
-          //   marginBottom: hp(32),
-          // }}
-          >
-            {/* <Transactions
+      {/* { Transaction list} */}
+      <Box style={styles.transWrapper}>
+        <WalletDetails availableAmt={availableAmt} walletName={walletName} />
+      </Box>
+      <Box
+      // style={{
+      //   marginTop: hp(32),
+      //   marginBottom: hp(32),
+      // }}
+      >
+        {/* <Transactions
             transactions={[
               {
                 address,
@@ -166,77 +160,75 @@ function AddSendAmount({ route }) {
             ]}
             addTransaction={() => {}}
           /> */}
-          </Box>
-          <Box style={styles.transBorderWrapper}>
-            <Box borderBottomColor="light.Border" style={styles.transborderView} />
-          </Box>
-          <Box marginX={3}>
-            <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
-              <Box flexDirection="row" alignItems="center">
-                <Box marginRight={2}>
-                  <DollarInput />
-                </Box>
-                <Box
-                  marginLeft={2}
-                  width={0.5}
-                  backgroundColor="light.borderSaperator"
-                  opacity={0.3}
-                  height={7}
-                />
-                <Input
-                  placeholder="Enter Amount"
-                  placeholderTextColor="light.greenText"
-                  color="light.greenText"
-                  opacity={0.5}
-                  width="70%"
-                  fontSize={RFValue(12)}
-                  letterSpacing={1.04}
-                  fontWeight={300}
-                  borderWidth="0"
-                  value={amount}
-                  onChangeText={(value) => setAmount(value)}
-                  onFocus={() => Keyboard.dismiss()}
-                />
-              </Box>
-              <Pressable
-                onPress={() => {
-                  const confirmBalance = wallet.specs.balances.confirmed;
-                  if (confirmBalance)
-                    dispatch(calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet }));
-                }}
-                style={styles.sendMaxWrapper}
-              >
-                <Text color="light.sendMax" style={styles.sendMaxText}>
-                  Send Max
-                </Text>
-              </Pressable>
+      </Box>
+      <Box style={styles.transBorderWrapper}>
+        <Box borderBottomColor="light.Border" style={styles.transborderView} />
+      </Box>
+      <Box marginX={3}>
+        <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
+          <Box flexDirection="row" alignItems="center">
+            <Box marginRight={2}>
+              <DollarInput />
             </Box>
+            <Box
+              marginLeft={2}
+              width={0.5}
+              backgroundColor="light.borderSaperator"
+              opacity={0.3}
+              height={7}
+            />
+            <Input
+              placeholder="Enter Amount"
+              placeholderTextColor="light.greenText"
+              color="light.greenText"
+              opacity={0.5}
+              width="70%"
+              fontSize={RFValue(12)}
+              letterSpacing={1.04}
+              fontWeight={300}
+              borderWidth="0"
+              value={amount}
+              onChangeText={(value) => setAmount(value)}
+              onFocus={() => Keyboard.dismiss()}
+            />
+          </Box>
+          <Pressable
+            onPress={() => {
+              const confirmBalance = wallet.specs.balances.confirmed;
+              if (confirmBalance)
+                dispatch(calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet }));
+            }}
+            style={styles.sendMaxWrapper}
+          >
+            <Text color="light.sendMax" style={styles.sendMaxText}>
+              Send Max
+            </Text>
+          </Pressable>
+        </Box>
 
-            <Box style={styles.addNoteWrapper}>
-              <TextInput placeholder="Add a note" style={styles.textInput} />
-            </Box>
-            <Box style={styles.ctaBtnWrapper}>
-              <Box ml={windowWidth * -0.09}>
-                <Buttons
-                  secondaryText="Cancel"
-                  secondaryCallback={() => {
-                    navigation.goBack();
-                  }}
-                  primaryText="Send"
-                  primaryCallback={executeSendPhaseOne}
-                />
-              </Box>
-            </Box>
+        <Box style={styles.addNoteWrapper}>
+          <TextInput placeholder="Add a note" style={styles.textInput} />
+        </Box>
+        <Box style={styles.ctaBtnWrapper}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              secondaryText="Cancel"
+              secondaryCallback={() => {
+                navigation.goBack();
+              }}
+              primaryText="Send"
+              primaryCallback={executeSendPhaseOne}
+            />
           </Box>
-        </KeyboardAvoidingView>
-      </ScrollView>
+        </Box>
+      </Box>
       {/* {!isKeyboardVisible && ( */}
       <Box style={styles.appNumPadWrapper}>
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight > 800 ? 90 : 55}
+          height={windowHeight > 800 ? 70 : 65}
         />
       </Box>
       {/* )} */}
