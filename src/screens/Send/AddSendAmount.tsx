@@ -90,7 +90,6 @@ function AddSendAmount({ route }) {
       else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
     }
   }, [sendPhaseOneState]);
-  console.log('windowHeight', windowHeight);
   useEffect(
     () => () => {
       dispatch(sendPhaseOneReset());
