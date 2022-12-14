@@ -21,13 +21,13 @@ function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const { serializedPSBT } = serializedPSBTEnvelops.filter((envelop) => !envelop.isSigned)[0] ?? {
-    serializedPSBT: '',
-  };
   const route = useRoute();
-  const { signer }: { signer: VaultSigner } = route.params as any;
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { signer }: { signer: VaultSigner } = route.params as any;
+  const { serializedPSBT } = serializedPSBTEnvelops.filter(
+    (envelop) => signer.signerId === envelop.signerId
+  )[0];
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
 

@@ -207,11 +207,11 @@ function SignTransactionScreen() {
   );
 
   const callbackForSigners = ({ type, signerId, signerPolicy }: VaultSigner) => {
+    setActiveSignerId(signerId);
     if (areSignaturesSufficient()) {
       showToast('We already have enough signatures, you can now broadcast.');
       return;
     }
-    setActiveSignerId(signerId);
     switch (type) {
       case SignerType.TAPSIGNER:
         setTapsignerModal(true);
