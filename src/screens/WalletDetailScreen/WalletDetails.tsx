@@ -91,13 +91,7 @@ function WalletDetails() {
           colors={isActive ? ['#00836A', '#073E39'] : ['#06423C', '#06423C']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{
-            borderRadius: hp(10),
-            width: wp(170),
-            height: hp(Platform.OS === 'android' ? 170 : 160),
-            position: 'relative',
-            marginLeft: 0,
-          }}
+          style={styles.walletContainer}
         >
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
@@ -112,21 +106,13 @@ function WalletDetails() {
 
               <Text
                 color="light.white"
-                fontFamily="body"
-                fontWeight="200"
-                fontSize={RFValue(14)}
-                marginTop={hp(10)}
+                style={styles.addWalletText}
               >
                 {wallet.AddNewWallet}
               </Text>
             </TouchableOpacity>
           ) : (
-            <Box
-              marginTop={hp(20)}
-              style={{
-                marginLeft: wp(20),
-              }}
-            >
+            <Box style={styles.walletCard}>
               <GradientIcon
                 Icon={WalletInsideGreen}
                 height={40}
@@ -134,30 +120,39 @@ function WalletDetails() {
               />
               <Box>
                 <Text
-                  marginTop={hp(16)}
                   color="light.white"
-                  letterSpacing={0.2}
-                  fontSize={RFValue(10)}
-                  fontWeight={100}
+                  style={styles.walletDescription}
                 >
                   {walletDescription}
                 </Text>
                 <Text
                   color="light.white"
-                  letterSpacing={0.24}
-                  fontSize={RFValue(12)}
-                  fontWeight={200}
+                  style={styles.walletName}
                 >
                   {walletName}
                 </Text>
               </Box>
-              <Box flexDirection="row" alignItems="center">
-                <Box marginRight={1}>
+              <Box
+                style={styles.walletBalance}
+              >
+                <Box
+                  style={{
+                    marginRight: 3
+                  }} >
                   <BtcWallet />
                 </Box>
-                <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+                <Text
+                  color="light.white"
+                  fontSize={hp(24)}
+                  style={{
+                    letterSpacing: 1.2
+                  }}
+                >
                   {getAmount(walletBalance)}
-                  <Text color="light.sats" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+                  <Text
+                    color="light.sats"
+                    style={styles.balanceUnit}
+                  >
                     {getUnit()}
                   </Text>
                 </Text>
@@ -187,8 +182,7 @@ function WalletDetails() {
           height: hp(height),
           width: hp(height),
           borderRadius: height,
-          justifyContent: 'center',
-          alignItems: 'center',
+          ...styles.center
         }}
       >
         <Icon />
@@ -206,8 +200,6 @@ function WalletDetails() {
           color="white"
           fontSize={13}
           letterSpacing={0.65}
-          fontFamily="body"
-          fontWeight="200"
           p={1}
         >
           You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper
@@ -216,8 +208,6 @@ function WalletDetails() {
           color="white"
           fontSize={13}
           letterSpacing={0.65}
-          fontFamily="body"
-          fontWeight="200"
           p={1}
         >
           When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This ensures you don’t have more sats in hot wallets than you need.
@@ -228,48 +218,51 @@ function WalletDetails() {
   return (
     <Box
       backgroundColor="light.lightYellow"
-      flex={1}
-      paddingLeft={wp(28)}
-      paddingRight={wp(27)}
-      paddingTop={hp(30)}
+      style={styles.container}
     >
       <StatusBarComponent padding={50} />
-
       <Pressable
-        zIndex={999}
         onPress={() => navigation.goBack()}
-        width={5}
-        padding={2}
-        alignItems="center"
+        style={styles.backIcon}
       >
         <BackIcon />
       </Pressable>
 
-      <Box alignItems="center">
+      <Box
+        style={styles.headerContainer}
+      >
         <Text
           color="light.textWallet"
-          letterSpacing={0.96}
-          fontSize={RFValue(16)}
-          fontWeight={200}
-          marginTop={hp(10)}
+          style={styles.headerTitle}
         >
           {wallets?.length} Linked Wallets
         </Text>
 
-        <Box flexDirection="row" alignItems="center" height={10}>
-          <Box marginRight={1} marginBottom={-2}>
+        <Box style={styles.headerBalanceContainer}>
+          <Box
+            style={styles.headerBTCIcon}
+          >
             <BTC />
           </Box>
-          <Text color="light.textWallet" letterSpacing={1.5} fontSize={hp(30)} fontWeight={200}>
+          <Text
+            color="light.textWallet"
+            fontSize={hp(30)}
+            style={styles.headerBalance}
+          >
             {getAmount(netBalance)}
-            <Text color="light.satsDark" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+            <Text
+              color="light.satsDark"
+              style={styles.balanceUnit}
+            >
               {getUnit()}
             </Text>
           </Text>
         </Box>
       </Box>
 
-      <Box marginTop={18} height={hp(180)} width="100%">
+      <Box
+        style={styles.walletsContainer}
+      >
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -288,24 +281,29 @@ function WalletDetails() {
         <>
           {/* {Transfer pollicy} */}
           <Box
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between'
-            }}
+            style={styles.transferPolicyContainer}
           >
             <Box
               backgroundColor="light.transactionPolicyCard"
               style={styles.transferPolicyCard}
             >
-              <Box style={{ paddingLeft: wp(10) }}>
+              <Box
+                style={{
+                  paddingLeft: wp(10)
+                }}>
                 <Text
                   color="light.brownborder"
-                  letterSpacing={0.6}
                   fontSize={RFValue(12)}
-                  fontWeight={200}
+                  style={{
+                    letterSpacing: 0.6,
+                  }}
                 >
                   Available to spend
-                  <Text fontWeight="bold"> {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats</Text>
+                  <Text
+                    style={{
+                      fontWeight: "bold"
+                    }}
+                  > {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats</Text>
                 </Text>
               </Box>
             </Box>
@@ -324,39 +322,34 @@ function WalletDetails() {
               <Box style={{ paddingLeft: wp(10) }}>
                 <Text
                   color="light.brownborder"
-                  letterSpacing={0.6}
                   fontSize={RFValue(12)}
-                  fontWeight={200}
+                  style={{
+                    letterSpacing: 0.6,
+                  }}
                 >
                   Transfer Policy is set at{'  '}
-                  <Text fontWeight="bold">฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
+                  <Text
+                    style={{
+                      fontWeight: "bold"
+                    }}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
                 </Text>
               </Box>
             </Pressable>
           </Box>
 
-          <Box
-            flexDirection="row"
-            justifyContent="space-between"
-            marginTop={hp(24)}
-            width="100%"
-          >
+          <Box style={styles.transactions}>
             <Text
               color="light.textBlack"
-              marginLeft={wp(3)}
-              fontSize={16}
-              fontWeight={200}
-              letterSpacing={1.28}
+              style={styles.transactionText}
             >
               Transactions
             </Text>
-            <Box flexDirection="row" alignItems="center" marginRight={wp(2)}>
+            <Box
+              style={styles.viewAllContainer}
+            >
               <Text
                 color="light.light"
-                marginRight={1}
-                fontSize={11}
-                fontWeight={300}
-                letterSpacing={0.6}
+                style={styles.viewAllText}
               >
                 View All
               </Text>
@@ -364,7 +357,9 @@ function WalletDetails() {
             </Box>
           </Box>
 
-          <Box marginTop={hp(10)} height={hp(250)} position="relative">
+          <Box
+            style={styles.transactionsListContainer}
+          >
             <FlatList
               refreshControl={
                 <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
@@ -376,19 +371,15 @@ function WalletDetails() {
             />
           </Box>
           <Box
-            position="absolute"
-            bottom={0}
-            width={wp(375)}
-            paddingX={5}
             backgroundColor="light.lightYellow"
+            style={styles.footerContainer}
           >
-            <Box borderWidth={0.5} borderColor="light.GreyText" borderRadius={20} opacity={0.2} />
             <Box
-              flexDirection="row"
-              marginTop={4}
-              marginBottom={hp(2)}
-              justifyContent="space-evenly"
-              marginX={10}
+              style={styles.border}
+              borderColor="light.GreyText"
+            />
+            <Box
+              style={styles.footerItemContainer}
             >
               <TouchableOpacity
                 style={styles.IconText}
@@ -397,7 +388,10 @@ function WalletDetails() {
                 }}
               >
                 <Send />
-                <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                <Text
+                  color="light.lightBlack"
+                  style={styles.footerItemText}
+                >
                   Send
                 </Text>
               </TouchableOpacity>
@@ -408,27 +402,24 @@ function WalletDetails() {
                 }}
               >
                 <Recieve />
-                <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                <Text
+                  color="light.lightBlack"
+                  style={styles.footerItemText}
+                >
                   Receive
                 </Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity style={styles.IconText}>
-                <Buy />
-                <Text color={'light.lightBlack'} fontSize={12} letterSpacing={0.84} marginY={2.5}>
-                  Buy
-                </Text>
-              </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {
                   navigation.navigate('WalletSettings', { wallet: currentWallet });
-                  // navigation.navigate('ExportSeed', {
-                  //   seed: currentWallet?.derivationDetails?.mnemonic,
-                  // });
                 }}
               >
                 <IconSettings />
-                <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+                <Text
+                  color="light.lightBlack"
+                  style={styles.footerItemText}
+                >
                   Settings
                 </Text>
               </TouchableOpacity>
@@ -436,17 +427,12 @@ function WalletDetails() {
           </Box>
         </>
       ) : (
-        <Box justifyContent="center" alignItems="center" flex={1}>
+        <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
           <Text
             color="light.lightBlack"
-            fontSize={12}
-            letterSpacing={0.6}
-            marginY={5}
-            marginX={8}
-            opacity={0.85}
             noOfLines={2}
-            fontWeight={100}
+            style={styles.addNewWalletText}
           >
             Add a new wallet or import one
           </Text>
@@ -471,6 +457,18 @@ function WalletDetails() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingLeft: wp(28),
+    paddingRight: wp(27),
+    paddingTop: hp(30)
+  },
+  backIcon: {
+    zIndex: 999,
+    width: 5,
+    padding: 2,
+    alignItems: "center"
+  },
   IconText: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -488,6 +486,135 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    letterSpacing: 0.96,
+    fontSize: RFValue(16),
+    marginTop: hp(10)
+  },
+  headerContainer: {
+    alignItems: "center"
+  },
+  headerBalanceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: hp(35)
+  },
+  headerBTCIcon: {
+    marginRight: 3,
+    marginBottom: -hp(10)
+  },
+  headerBalance: {
+    letterSpacing: 1.5,
+  },
+  balanceUnit: {
+    letterSpacing: 0.6,
+    fontSize: 12
+  },
+  walletsContainer: {
+    marginTop: 18,
+    height: hp(180),
+    width: '100%'
+  },
+  walletContainer: {
+    borderRadius: hp(10),
+    width: wp(170),
+    height: hp(Platform.OS === 'android' ? 170 : 165),
+    position: 'relative',
+    marginLeft: 0,
+  },
+  addWalletText: {
+    fontSize: 14,
+    marginTop: hp(10)
+  },
+  walletCard: {
+    marginTop: hp(20),
+    marginLeft: wp(20),
+  },
+  walletName: {
+    letterSpacing: 0.24,
+    fontSize: RFValue(12)
+  },
+  walletDescription: {
+    letterSpacing: 0.2,
+    fontSize: RFValue(10),
+    fontWeight: '400',
+    marginTop: hp(16)
+  },
+  walletBalance: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  transferPolicyContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  transactions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: hp(24),
+    width: "100%"
+  },
+  transactionText: {
+    marginLeft: wp(10),
+    fontSize: 16,
+    letterSpacing: 1.28
+  },
+  viewAllContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: wp(2)
+  },
+  viewAllText: {
+    letterSpacing: 0.6,
+    marginRight: 5,
+    fontSize: 11,
+    fontWeight: 'bold'
+  },
+  transactionsListContainer: {
+    marginTop: hp(10),
+    height: hp(250),
+    position: 'relative'
+  },
+  footerContainer: {
+    position: "absolute",
+    bottom: 0,
+    width: wp(375),
+    paddingHorizontal: 5
+  },
+  border: {
+    borderWidth: 0.5,
+    borderRadius: 20,
+    opacity: 0.2
+  },
+  footerItemContainer: {
+    flexDirection: 'row',
+    marginTop: 15,
+    marginBottom: hp(10),
+    justifyContent: 'space-evenly',
+    marginHorizontal: 16
+  },
+  footerItemText: {
+    fontSize: 12,
+    letterSpacing: 0.84,
+    marginVertical: 5
+  },
+  addNewWalletText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    marginVertical: 5,
+    marginHorizontal: 16,
+    opacity: 0.85,
+    fontWeight: '300'
+  },
+  addNewWalletContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1
   }
 });
 export default WalletDetails;
