@@ -48,7 +48,7 @@ function SignerList({
                 fontFamily="heading"
                 letterSpacing={1.12}
               >
-                {signer.signerName}
+                {`${signer.signerName} (${signer.xpubInfo.xfp})`}
               </Text>
               <Text
                 color="light.GreyText"
