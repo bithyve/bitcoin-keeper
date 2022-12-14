@@ -228,6 +228,7 @@ function AddSendAmount({ route }) {
           clear={() => setAmount('')}
           color="#073E39"
           height={windowHeight > 670 ? 85 : 65}
+          darkDeleteIcon={true}
         />
       </Box>
       {/* )} */}
