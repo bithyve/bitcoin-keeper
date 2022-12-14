@@ -13,7 +13,6 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -23,15 +22,14 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
-// icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import Note from 'src/components/Note/Note';
+// icons
+import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type Props = {
   title: string;
