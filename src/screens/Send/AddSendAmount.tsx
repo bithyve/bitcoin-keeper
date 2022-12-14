@@ -19,7 +19,6 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletDetails from './WalletDetails';
-import Transactions from './Transactions';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -102,7 +101,7 @@ function AddSendAmount({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         title={from == 'Wallet' ? `Sending to Wallet` : `Enter the amount`}
-        // subtitle={`Sending to ${address}`}
+      // subtitle={`Sending to ${address}`}
       />
       {/* <Box
         flexDirection={'row'}
@@ -262,12 +261,20 @@ function AddSendAmount({ route }) {
         </Box>
       </Box>
       {/* {!isKeyboardVisible && ( */}
-      <Box justifyContent="center" alignItems="center" width="100%">
+      <Box
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          width: windowWidth,
+          position: 'absolute',
+          bottom: 0,
+        }}
+      >
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight > 800 ? 90 : 60}
+          height={windowHeight > 800 ? 80 : 55}
         />
       </Box>
       {/* )} */}
