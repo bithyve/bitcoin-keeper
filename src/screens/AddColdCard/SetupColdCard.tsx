@@ -21,8 +21,8 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupColdCard() {
   const dispatch = useDispatch();
@@ -58,8 +58,10 @@ function SetupColdCard() {
   const addMockColdCard = () => {
     try {
       const cc = getMockColdcardDetails();
-      dispatch(addSigningDevice(cc));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (cc) {
+        dispatch(addSigningDevice(cc));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
     } catch (error) {
       captureError(error);
     }
@@ -75,14 +77,11 @@ function SetupColdCard() {
           <Box style={styles.header}>
             <HeaderTitle
               title="Setting up Coldcard"
-              subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
+              subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={styles.buttonContainer}>
-              <Buttons
-                activeOpacity={0.7}
-                primaryText="Proceed"
-                primaryCallback={addColdCard} />
+              <Buttons activeOpacity={0.7} primaryText="Proceed" primaryCallback={addColdCard} />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} />
@@ -105,8 +104,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     bottom: 0,
     position: 'absolute',
-    right: 0
-  }
+    right: 0,
+  },
 });
 
 export default SetupColdCard;

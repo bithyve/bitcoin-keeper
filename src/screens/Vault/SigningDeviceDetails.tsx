@@ -30,9 +30,9 @@ import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
+import { getSignerNameFromType } from 'src/hardware';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import { getSignerNameFromType } from 'src/hardware';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -55,15 +55,16 @@ function SigningDeviceDetails({ route }) {
   const [description, setDescription] = useState('');
   const [cvc, setCvc] = useState('');
   const card = React.useRef(new CKTapCard()).current;
-  const modalHandler = (callback) => Platform.select({
-    android: async () => {
-      setNfcVisible(true);
-      const resp = await card.nfcWrapper(callback);
-      setNfcVisible(false);
-      return resp;
-    },
-    ios: async () => card.nfcWrapper(callback),
-  });
+  const modalHandler = (callback) =>
+    Platform.select({
+      android: async () => {
+        setNfcVisible(true);
+        const resp = await card.nfcWrapper(callback);
+        setNfcVisible(false);
+        return resp;
+      },
+      ios: async () => card.nfcWrapper(callback),
+    });
 
   const scanMK4 = async () => {
     setNfcVisible(true);
@@ -184,22 +185,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <TapsignerSetupImage />
         </Box>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        >
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        >
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
           You will need the Pin/ CVC at the back of the card
         </Text>
       </View>
@@ -210,22 +199,10 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <TapsignerSetupImage /> */}</Box>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        >
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        />
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2} />
       </View>
     );
   }
@@ -234,22 +211,11 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <SuccessIcon /> */}</Box>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        >
-          You can choose to manually confirm the health of the signing device if you are sure that they are secure and accessible.
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          You can choose to manually confirm the health of the signing device if you are sure that
+          they are secure and accessible.
         </Text>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        >
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -263,13 +229,7 @@ function SigningDeviceDetails({ route }) {
           {' '}
           <Illustration />
         </Box>
-        <Text
-          color="light.lightBlack2"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={2}
-        >
+        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
           You will be reminded in 90 days for the health check
         </Text>
       </View>
@@ -351,14 +311,20 @@ function SigningDeviceDetails({ route }) {
             width: hp(48),
             height: hp(48),
             borderRadius: 30,
-            backgroundColor: '#725436'
+            backgroundColor: '#725436',
           }}
         >
           {WalletMap(signer.type, true).Icon}
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
-            <Text fontSize={14} letterSpacing={1.15}>{getSignerNameFromType(signer.type)}</Text>
+            <Text fontSize={14} letterSpacing={1.15}>
+              {getSignerNameFromType(
+                signer.type,
+                signer.isMock,
+                signer.amfData && signer.amfData.xpub
+              )}
+            </Text>
             <Text fontSize={13} color="light.modalText">{`Added on ${moment(signer.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               .toLowerCase()}`}</Text>
@@ -388,13 +354,9 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor={'light.ReceiveBackground'}
+        backgroundColor="light.ReceiveBackground"
       >
-        <Text
-          fontSize={13}
-          color="light.modalText"
-          letterSpacing={0.65}
-        >
+        <Text fontSize={13} color="light.modalText" letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
         </Text>
         <Box
@@ -404,7 +366,7 @@ function SigningDeviceDetails({ route }) {
             width: '90%',
             borderRadius: 20,
             opacity: 0.2,
-            marginVertical: hp(15)
+            marginVertical: hp(15),
           }}
         />
 
