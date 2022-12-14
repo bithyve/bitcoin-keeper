@@ -69,8 +69,7 @@ export default function ResetPin(props) {
     }
   }
 
-  const onDeletePressed = (text) => {
-    // setPasscode(passcode.slice(0, passcode.length - 1));
+  const onDeletePressed = () => {
     if (passcodeFlag) {
       setPasscode(passcode.slice(0, -1));
     } else {

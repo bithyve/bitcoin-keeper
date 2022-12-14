@@ -1,5 +1,5 @@
 import { Box, Input, Pressable, Text } from 'native-base';
-import { Keyboard, KeyboardAvoidingView, Platform, TextInput, ScrollView } from 'react-native';
+import { Keyboard, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -19,7 +19,6 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletDetails from './WalletDetails';
-import Transactions from './Transactions';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
