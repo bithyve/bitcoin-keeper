@@ -1,4 +1,6 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-console */
+
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import ElectrumCli from 'electrum-client';
@@ -193,6 +195,50 @@ export default class ElectrumClient {
           utxo.vout = utxo.tx_pos;
           delete utxo.tx_pos;
           delete utxo.tx_hash;
+        }
+      }
+    }
+
+    return res;
+  }
+
+  public static async syncHistoryByAddresses(
+    addresses: string[],
+    network: bitcoinJS.Network = config.NETWORK,
+    batchsize: number = 150
+  ) {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    const res = {};
+
+    const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
+    for (let itr = 0; itr < chunks.length; itr += 1) {
+      const chunk = chunks[itr];
+      const scripthashes = [];
+      const scripthash2addr = {};
+
+      for (let index = 0; index < chunk.length; index += 1) {
+        const addr = chunk[index];
+        const script = bitcoinJS.address.toOutputScript(addr, network);
+        const hash = bitcoinJS.crypto.sha256(script);
+        const reversedHash = Buffer.from(reverse(hash));
+        const reversedHashHex = reversedHash.toString('hex');
+        scripthashes.push(reversedHashHex);
+        scripthash2addr[reversedHashHex] = addr;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const results = await ELECTRUM_CLIENT.electrumClient.blockchainScripthash_getHistoryBatch(
+        scripthashes
+      );
+
+      for (let index = 0; index < results.length; index += 1) {
+        const history = results[index];
+        if (history.error) console.log('syncHistoryByAddresses:', history.error);
+
+        const address = scripthash2addr[history.param];
+        res[address] = history.result || [];
+        for (const hist of res[address]) {
+          hist.address = address;
         }
       }
     }
