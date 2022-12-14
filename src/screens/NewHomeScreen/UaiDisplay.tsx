@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { Box, Text } from 'native-base';
+import { Text, Pressable } from 'native-base';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { updateUaiStack } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { NextIcon } from './HomeScreen';
+import { StyleSheet } from 'react-native';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState({});
@@ -104,30 +105,20 @@ function UaiDisplay({ uaiStack }) {
   if (uaiStack.length > 0) {
     return (
       <>
-        <Box
-          backgroundColor="light.AddSignerCard"
-          height={hp(60)}
-          width={wp(259)}
-          borderRadius={hp(20)}
-          marginTop={hp(44)}
-          flexDirection="row"
-          justifyContent="space-between"
-          alignItems="center"
-          paddingX={4}
+        <Pressable
+          backgroundColor={"light.AddSignerCard"}
+          onPress={pressHandler}
+          style={styles.container}
         >
           <Text
             noOfLines={2}
-            width={wp(170)}
             color="light.white1"
-            letterSpacing={0.6}
-            fontSize={RFValue(12)}
-            fontWeight={200}
-            lineHeight={14}
+            style={styles.uaiTitle}
           >
             {uai?.title}
           </Text>
           <NextIcon pressHandler={pressHandler} />
-        </Box>
+        </Pressable>
         <KeeperModal
           visible={showModal}
           close={() => setShowModal(false)}
@@ -140,7 +131,7 @@ function UaiDisplay({ uaiStack }) {
           buttonCallback={uaiConfig?.cta}
           textColor="#000"
           Content={() => (
-            <Text fontWeight={200} color="#073B36">
+            <Text color="#073B36">
               {uai?.displayText}
             </Text>
           )}
@@ -149,5 +140,24 @@ function UaiDisplay({ uaiStack }) {
     );
   } return null;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    height: hp(60),
+    width: wp(259),
+    borderRadius: hp(20),
+    marginTop: hp(45),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16
+  },
+  uaiTitle: {
+    width: wp(170),
+    letterSpacing: 0.6,
+    fontSize: RFValue(12),
+    lineHeight: 14
+  }
+})
 
 export default UaiDisplay;

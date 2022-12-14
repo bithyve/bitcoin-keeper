@@ -88,14 +88,13 @@ function AddSendAmount({ route }) {
       else showToast(sendPhaseOneState.failedErrorMessage, null, 1000);
     }
   }, [sendPhaseOneState]);
-
   useEffect(
     () => () => {
       dispatch(sendPhaseOneReset());
     },
     []
   );
-
+  console.log(windowHeight);
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -124,18 +123,7 @@ function AddSendAmount({ route }) {
         <Box borderBottomColor="light.Border" borderBottomWidth={1} width={wp(280)} opacity={0.1} />
       </Box>
       <Box marginX={3}>
-        <Box
-          flexDirection="row"
-          width="100%"
-          justifyContent="space-between"
-          alignItems="center"
-          borderRadius={10}
-          backgroundColor="light.lightYellow"
-          style={{
-            marginVertical: hp(5),
-          }}
-          padding={3}
-        >
+        <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
           <Box flexDirection="row" alignItems="center">
             <Box marginRight={2}>
               <BitcoinInput />
@@ -170,36 +158,18 @@ function AddSendAmount({ route }) {
                   calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet: sender })
                 );
             }}
-            style={{
-              paddingHorizontal: hp(10),
-              paddingVertical: hp(6),
-              borderRadius: 5,
-            }}
+            style={styles.sendMaxWrapper}
           >
-            <Text color="light.sendMax" fontSize={RFValue(12)} letterSpacing={0.6} fontWeight={300}>
+            <Text color="light.sendMax" style={styles.sendMaxText}>
               Send Max
             </Text>
           </Pressable>
         </Box>
 
-        <Box
-          flexDirection="row"
-          style={{
-            marginVertical: hp(2),
-          }}
-          width="100%"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <TextInput placeholder="Add a note to self" style={styles.textInput} />
+        <Box style={styles.addNoteWrapper}>
+          <TextInput placeholder="Add a note" style={styles.textInput} />
         </Box>
-        <Box
-          style={{
-            marginBottom: hp(5),
-          }}
-          flexDirection="row"
-          justifyContent="flex-end"
-        >
+        <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>
             <Buttons
               secondaryText="Cancel"
@@ -214,12 +184,13 @@ function AddSendAmount({ route }) {
         </Box>
       </Box>
       {/* {!isKeyboardVisible && ( */}
-      <Box justifyContent="center" alignItems="center" width="100%">
+      <Box style={styles.appNumPadWrapper}>
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight > 800 ? 90 : 60}
+          height={windowHeight > 670 ? 85 : 65}
+          darkDeleteIcon={true}
         />
       </Box>
       {/* )} */}
@@ -229,7 +200,6 @@ function AddSendAmount({ route }) {
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
   },
   textInput: {
     width: '100%',
@@ -237,6 +207,54 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
+  },
+  transWrapper: {
+    marginVertical: hp(5),
+  },
+  transBorderWrapper: {
+    alignItems: 'center',
+    marginVertical: hp(20),
+  },
+  transborderView: {
+    borderBottomWidth: 1,
+    width: wp(280),
+    opacity: 0.1,
+  },
+  inputWrapper: {
+    marginVertical: hp(5),
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+  },
+  sendMaxWrapper: {
+    paddingHorizontal: hp(10),
+    paddingVertical: hp(3),
+    borderRadius: 5,
+  },
+  sendMaxText: {
+    fontSize: RFValue(12),
+    letterSpacing: 0.6,
+    fontWeight: '500',
+  },
+  addNoteWrapper: {
+    flexDirection: 'row',
+    marginVertical: hp(2),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaBtnWrapper: {
+    marginBottom: hp(5),
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  appNumPadWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
 });
 export default AddSendAmount;

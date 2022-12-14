@@ -88,7 +88,7 @@ function SendConfirmation({ route }) {
   );
 
   const { translations } = useContext(LocalizationContext);
-
+  const { common } = translations;
   const walletTransactions = translations.wallet;
 
   const [visibleModal, setVisibleModal] = useState(false);
@@ -584,7 +584,7 @@ function SendConfirmation({ route }) {
           />
         ) : null}
       </Box>
-      <Box position="absolute" bottom={windowHeight * 0.025} right={10}>
+      <Box position="absolute" bottom={windowHeight > 800 ? windowHeight * 0.025 : 2} right={10}>
         <Buttons
           primaryText="Proceed"
           secondaryText="Cancel"

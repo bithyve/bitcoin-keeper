@@ -6,6 +6,7 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 type Props = {
   title?: string;
@@ -28,7 +29,7 @@ function HeaderTitle({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   titleFontSize = 16,
 }: Props) {
   const navigation = useNavigation();
@@ -36,10 +37,7 @@ function HeaderTitle({
     <Box style={styles.container}>
       {enableBack && (
         <Box style={styles.backContainer}>
-          <TouchableOpacity
-            onPress={onPressHandler || navigation.goBack}
-            style={styles.backButton}
-          >
+          <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
@@ -58,10 +56,11 @@ function HeaderTitle({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box style={{
-          paddingLeft,
-          paddingTop
-        }}
+        <Box
+          style={{
+            paddingLeft,
+            paddingTop,
+          }}
         >
           {title && (
             <Text
@@ -105,14 +104,14 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: '5@s',
-    paddingVertical: '15@s',
+    paddingVertical: windowHeight > 680 ? '15@s' : '7@s',
   },
   backButton: {
     height: 20,
     width: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20
+    padding: 20,
   },
   learnMoreContainer: {
     borderWidth: 0.5,

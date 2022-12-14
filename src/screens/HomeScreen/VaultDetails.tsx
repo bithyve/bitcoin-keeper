@@ -25,7 +25,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
-import { SUBSCRIPTION_SCHEME_MAP } from 'src/common/constants';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/svgs/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
@@ -44,11 +43,15 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType } from 'src/hardware';
+import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from '../Vault/WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+
   const styles = getStyles(0);
   return (
     <Box>
@@ -76,13 +79,13 @@ function Footer({ vault }: { vault: Vault }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText}>
+        <TouchableOpacity style={styles.IconText} onPress={() => { showToast('Comming Soon') }}>
           <Buy />
           <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Buy
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText}>
+        <TouchableOpacity style={styles.IconText} onPress={() => { showToast('Comming Soon') }}>
           <IconSettings />
           <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Settings
@@ -344,7 +347,11 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 textAlign="center"
                 noOfLines={1}
               >
-                {getSignerNameFromType(signer.type)}
+                {getSignerNameFromType(
+                  signer.type,
+                  signer.isMock,
+                  signer.amfData && signer.amfData.xpub
+                )}
               </Text>
               <Text
                 color="light.textBlack"
@@ -377,6 +384,7 @@ function VaultDetails({ route, navigation }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const [tireChangeModal, setTireChangeModal] = useState(false);
+  const { subscriptionScheme } = usePlan();
 
   const onPressModalBtn = () => {
     setTireChangeModal(false);
@@ -386,7 +394,6 @@ function VaultDetails({ route, navigation }) {
   const transactions = vault?.specs?.transactions || [];
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
-    const subscriptionScheme = SUBSCRIPTION_SCHEME_MAP[keeper.subscription.name.toUpperCase()];
     if (currentScheme.m > subscriptionScheme.m) {
       return VaultMigrationType.DOWNGRADE;
     }
