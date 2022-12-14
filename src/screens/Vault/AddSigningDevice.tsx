@@ -255,10 +255,6 @@ function AddSigningDevice() {
           wallet: activeVault,
           recipients,
           transferType: TransferType.VAULT_TO_VAULT,
-          uiMetaData: {
-            title: 'Transfer Funds to the New Vault',
-            subtitle: 'On-chain transaction incurs fees',
-          },
         })
       );
     } else if (sendPhaseOneState.hasFailed) {
