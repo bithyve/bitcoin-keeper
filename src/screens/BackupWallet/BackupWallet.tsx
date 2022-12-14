@@ -21,6 +21,7 @@ import { initCloudBackup } from 'src/store/sagaActions/bhr';
 import { setBackupError, setBackupLoading } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
+import { StyleSheet } from 'react-native';
 
 type Props = {
   title: string;
@@ -103,7 +104,7 @@ function BackupWallet() {
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box flex={1} padding={5} background="light.ReceiveBackground">
+    <Box style={styles.wrapper} background="light.ReceiveBackground">
       <StatusBarComponent padding={30} />
       <Box
         style={{
@@ -117,7 +118,7 @@ function BackupWallet() {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box alignItems="center" marginTop={hp(40)} padding={7}>
+      <Box style={styles.optionWrapper}>
         {/* {backupMethod && <WalletBackHistory navigation />} */}
         <Option
           title={BackupWallet.exportAppSeed}
@@ -193,4 +194,15 @@ function BackupWallet() {
     </Box>
   );
 }
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    padding: 10,
+  },
+  optionWrapper: {
+    alignItems: 'center',
+    marginTop: hp(40),
+    padding: 25,
+  },
+});
 export default BackupWallet;
