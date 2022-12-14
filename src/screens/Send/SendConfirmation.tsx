@@ -25,6 +25,8 @@ import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
+import VaultIcon from 'src/assets/images/svgs/icon_vault.svg';
+
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -85,6 +87,7 @@ function SendConfirmation({ route }) {
   const [transactionPriorities, setTransactionPriorities] = useState(
     availableTransactionPriorities
   );
+
   const { translations } = useContext(LocalizationContext);
 
   const walletTransactions = translations.wallet;
@@ -199,7 +202,7 @@ function SendConfirmation({ route }) {
     }
   }, [walletSendSuccessful]);
 
-  const Card = ({ title, subTitle }) => {
+  const Card = ({ title, subTitle, isVault = false }) => {
     return (
       <Box
         borderRadius={10}
@@ -215,7 +218,7 @@ function SendConfirmation({ route }) {
           justifyContent="center"
           alignItems="center"
         >
-          <WalletIcon />
+          {isVault ? <VaultIcon /> : <WalletIcon />}
         </Box>
         <Box marginLeft={3}>
           <Text color="light.sendCardHeading" fontSize={14} letterSpacing={1.12} fontWeight={200}>
@@ -237,11 +240,16 @@ function SendConfirmation({ route }) {
             <Card
               title="New Vault"
               subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
+              isVault={true}
             />
           );
         case TransferType.VAULT_TO_WALLET:
           return isSend ? (
-            <Card title="Vault" subTitle={`Available: ${sender.specs.balances.confirmed} sats`} />
+            <Card
+              title="Vault"
+              subTitle={`Available: ${sender.specs.balances.confirmed} sats`}
+              isVault={true}
+            />
           ) : (
             <Card
               title={recipient?.presentationData.name}
@@ -250,7 +258,7 @@ function SendConfirmation({ route }) {
           );
         case TransferType.VAULT_TO_ADDRESS:
           return isSend ? (
-            <Card title="Vault" subTitle={getAmount(amount)} />
+            <Card title="Vault" subTitle={getAmount(amount)} isVault={true} />
           ) : (
             <Card title={address} subTitle={getAmount(amount)} />
           );
@@ -275,7 +283,7 @@ function SendConfirmation({ route }) {
               )} sats`}
             />
           ) : (
-            <Card title="Vault" subTitle={'Transferings all avaiable funds'} />
+            <Card title="Vault" subTitle={'Transferings all avaiable funds'} isVault={true} />
           );
         case TransferType.WALLET_TO_ADDRESS:
           return isSend ? (
@@ -311,7 +319,7 @@ function SendConfirmation({ route }) {
           Transaction Priority
         </Text>
         <Text color="light.seedText" fontSize={14} fontWeight={200} letterSpacing={0.28}>
-          {txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
+          {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
         </Text>
       </Box>
     );
