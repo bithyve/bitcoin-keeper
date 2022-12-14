@@ -131,11 +131,7 @@ function SendScreen({ route }) {
 
   return (
     <ScreenWrapper>
-      <ScrollView
-        style={{
-          flex: 1,
-        }}
-      >
+      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : null}
           enabled
@@ -158,13 +154,7 @@ function SendScreen({ route }) {
               />
             </Box>
             {/* send manually option */}
-            <Box
-              flexDirection="row"
-              marginY={hp(2)}
-              width="100%"
-              justifyContent="center"
-              alignItems="center"
-            >
+            <Box style={styles.inputWrapper}>
               <TextInput
                 placeholder="or enter address manually"
                 placeholderTextColor="#4F5955"
@@ -180,11 +170,7 @@ function SendScreen({ route }) {
                 or send to a wallet
               </Text>
               <View>
-                <View
-                  flexDirection="row"
-                  style={styles.walletContainer}
-                  backgroundColor="light.textInputBackground"
-                >
+                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
                   <FlatList
                     data={otherWallets}
                     renderItem={renderWallets}
@@ -200,15 +186,7 @@ function SendScreen({ route }) {
       </ScrollView>
       {/* {Bottom note} */}
       {showNote && (
-        <Box
-          style={{
-            paddingLeft: 20,
-            position: 'absolute',
-            bottom: hp(20),
-            width: wp(300),
-          }}
-          backgroundColor="light.ReceiveBackground"
-        >
+        <Box style={styles.noteWrapper} backgroundColor="light.ReceiveBackground">
           <Note
             title={common.note}
             subtitle="Make sure the address or QR is the one where you want to send the funds to"
@@ -245,6 +223,16 @@ const styles = ScaledSheet.create({
     marginVertical: hp(40),
     flex: 1,
   },
+  scrollViewWrapper: {
+    flex: 1,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    marginVertical: hp(2),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   textInput: {
     width: '90%',
     backgroundColor: Colors?.textInputBackground,
@@ -280,6 +268,12 @@ const styles = ScaledSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  noteWrapper: {
+    paddingLeft: 20,
+    position: 'absolute',
+    bottom: hp(20),
+    width: wp(300),
   },
 });
 export default SendScreen;
