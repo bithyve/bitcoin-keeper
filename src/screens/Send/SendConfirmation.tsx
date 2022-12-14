@@ -48,6 +48,10 @@ const customFeeOptionTransfers = [
   TransferType.WALLET_TO_ADDRESS,
 ];
 
+const vaultTransfers = [TransferType.WALLET_TO_VAULT];
+const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
+const internalTransfers = [TransferType.VAULT_TO_VAULT];
+
 function SendConfirmation({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
@@ -57,7 +61,6 @@ function SendConfirmation({ route }) {
     address,
     amount,
     walletId,
-    uiMetaData = {},
     transferType,
     uaiSetActionFalse,
   }: {
@@ -70,11 +73,7 @@ function SendConfirmation({ route }) {
     transferType: TransferType;
     uaiSetActionFalse: any;
   } = route.params;
-  const {
-    title = 'Sending to address',
-    subtitle = 'Choose priority and fee',
-    note = '',
-  } = uiMetaData;
+
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -93,6 +92,8 @@ function SendConfirmation({ route }) {
   const walletTransactions = translations.wallet;
 
   const [visibleModal, setVisibleModal] = useState(false);
+  const [title, setTitle] = useState('Sending to address');
+  const [subTitle, setSubTitle] = useState('Choose priority and fee');
 
   // // Sending process is still not executed
   // const [sendingModal, setSendingModal] = useState(false);
@@ -114,6 +115,17 @@ function SendConfirmation({ route }) {
   //   close()
   //   closeSendModal()
   // }
+
+  useEffect(() => {
+    if (vaultTransfers.includes(transferType)) {
+      setTitle('Sending to vault');
+    } else if (walletTransfers.includes(transferType)) {
+      setTitle('Sending to wallet');
+    } else if (internalTransfers.includes(transferType)) {
+      setTitle('Transfer Funds to the new vault');
+      setSubTitle('On-chain transaction incurs fees');
+    }
+  }, []);
 
   function SendSuccessfulContent() {
     return (
@@ -221,7 +233,14 @@ function SendConfirmation({ route }) {
           {isVault ? <VaultIcon /> : <WalletIcon />}
         </Box>
         <Box marginLeft={3}>
-          <Text color="light.sendCardHeading" fontSize={14} letterSpacing={1.12} fontWeight={200}>
+          <Text
+            color="light.sendCardHeading"
+            fontSize={14}
+            letterSpacing={1.12}
+            fontWeight={200}
+            noOfLines={1}
+            maxWidth={200}
+          >
             {title}
           </Text>
           <Box flexDirection="row">{subTitle}</Box>
@@ -292,7 +311,7 @@ function SendConfirmation({ route }) {
               subTitle={`Available balance: ${getAmount(sender.specs.balances.confirmed)} sats`}
             />
           ) : (
-            <Card title={address} subTitle={getAmount(amount)} />
+            <Card title={address} subTitle={`Transfering: ${getAmount(amount)} sats `} />
           );
       }
     };
@@ -548,7 +567,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subtitle} paddingTop={hp(5)} />
+      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
         <SendingCard isSend={false} />
@@ -570,7 +589,7 @@ function SendConfirmation({ route }) {
           primaryText="Proceed"
           secondaryText="Cancel"
           secondaryCallback={() => {
-            console.log('Cancel');
+            navigation.navigate('NewHome');
           }}
           primaryCallback={onProceed}
         />
