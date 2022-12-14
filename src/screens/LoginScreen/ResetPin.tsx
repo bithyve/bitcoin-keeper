@@ -70,7 +70,12 @@ export default function ResetPin(props) {
   }
 
   const onDeletePressed = (text) => {
-    setPasscode(passcode.slice(0, passcode.length - 1));
+    // setPasscode(passcode.slice(0, passcode.length - 1));
+    if (passcodeFlag) {
+      setPasscode(passcode.slice(0, -1));
+    } else {
+      setConfirmPasscode(confirmPasscode.slice(0, confirmPasscode.length - 1));
+    }
   };
 
   useEffect(() => {
@@ -152,7 +157,19 @@ export default function ResetPin(props) {
               </Text>
               <Box mb={10}>
                 {/* pin input view */}
-                <PinInputsView passCode={confirmPasscode} passcodeFlag={confirmPasscodeFlag != 0} />
+                {/* <PinInputsView
+                  passCode={confirmPasscode}
+                  passcodeFlag={confirmPasscodeFlag !== 0 && confirmPasscodeFlag == 2}
+                /> */}
+                <PinInputsView
+                  passCode={confirmPasscode}
+                  passcodeFlag={!(confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2)}
+                  borderColor={
+                    passcode !== confirmPasscode && confirmPasscode.length == 4
+                      ? '#FF8F79'
+                      : 'transparent'
+                  }
+                />
                 {/*  */}
                 {passcode != confirmPasscode && confirmPasscode.length == 4 && (
                   <Text
@@ -180,7 +197,7 @@ export default function ResetPin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>
