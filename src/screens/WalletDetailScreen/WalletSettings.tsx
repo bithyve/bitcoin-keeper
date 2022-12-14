@@ -138,7 +138,7 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setAppLoading(false);
     if (testCoinsReceived) {
-      Alert.alert('5000 Sats Received');
+      showToast('5000 Sats Received');
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();

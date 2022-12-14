@@ -73,7 +73,7 @@ function SendConfirmation({ route }) {
     availableTransactionPriorities
   );
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
+  const { common } = translations;
   const walletTransactions = translations.wallet;
 
   const [visibleModal, setVisibleModal] = useState(false);
@@ -106,7 +106,8 @@ function SendConfirmation({ route }) {
           <SuccessIcon />
         </Box>
         <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
-          You can view the confirmation status of the transaction on any block explorer or when the vault transaction list is refreshed
+          You can view the confirmation status of the transaction on any block explorer or when the
+          vault transaction list is refreshed
         </Text>
       </View>
     );
@@ -145,9 +146,12 @@ function SendConfirmation({ route }) {
     }
   };
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       dispatch(sendPhaseTwoReset());
-    }, []);
+    },
+    []
+  );
 
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
@@ -212,23 +216,13 @@ function SendConfirmation({ route }) {
             <WalletIcon />
           </Box>
           <Box marginLeft={3}>
-            <Text
-              color="light.sendCardHeading"
-              fontSize={14}
-              letterSpacing={1.12}
-              fontWeight={200}
-            >
+            <Text color="light.sendCardHeading" fontSize={14} letterSpacing={1.12} fontWeight={200}>
               {isVaultTransfer && !isSend ? 'Vault' : isSend ? from : to}
             </Text>
             <Box flexDirection="row">
               {vaultToVault ? (
                 !isSend ? (
-                  <Text
-                    color="light.GreyText"
-                    fontSize={12}
-                    letterSpacing={0.24}
-                    fontWeight={100}
-                  >
+                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.24} fontWeight={100}>
                     {`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
                   </Text>
                 ) : (
@@ -242,24 +236,14 @@ function SendConfirmation({ route }) {
                       {`Moving Funds  `}
                       <BTC />
                     </Text>
-                    <Text
-                      color="light.GreyText"
-                      fontSize={14}
-                      letterSpacing={1.4}
-                      fontWeight={300}
-                    >
+                    <Text color="light.GreyText" fontSize={14} letterSpacing={1.4} fontWeight={300}>
                       {` ${getAmount(recipients[0].amount)}`}
                     </Text>
                   </>
                 )
               ) : (
                 <>
-                  <Text
-                    color="light.GreyText"
-                    fontSize={12}
-                    letterSpacing={0.24}
-                    fontWeight={100}
-                  >
+                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.24} fontWeight={100}>
                     {isVaultTransfer && !isSend ? '' : `Policy ${' '}`}
                   </Text>
                   <Box justifyContent="center">
@@ -330,54 +314,54 @@ function SendConfirmation({ route }) {
         {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
         <Box mt={hp(1)}>
           {availableTransactionPriorities?.map((priority) => (
-              <TouchableOpacity
-                style={styles.priorityRowContainer}
-                key={priority}
-                onPress={() => {
-                  setTransactionPriority(priority);
-                  // onTransactionPriorityChanged(priority)
-                }}
-              >
-                <Box style={styles.priorityBox}>
-                  <RadioButton
-                    size={20}
-                    isChecked={transactionPriority == priority}
-                    borderColor="#E3E3E3"
-                    onpress={() => {
-                      setTransactionPriority(priority);
-                      // onTransactionPriorityChanged(priority)
-                    }}
-                  />
+            <TouchableOpacity
+              style={styles.priorityRowContainer}
+              key={priority}
+              onPress={() => {
+                setTransactionPriority(priority);
+                // onTransactionPriorityChanged(priority)
+              }}
+            >
+              <Box style={styles.priorityBox}>
+                <RadioButton
+                  size={20}
+                  isChecked={transactionPriority == priority}
+                  borderColor="#E3E3E3"
+                  onpress={() => {
+                    setTransactionPriority(priority);
+                    // onTransactionPriorityChanged(priority)
+                  }}
+                />
 
-                  <Text
-                    style={{
-                      ...styles.priorityTableText,
-                      marginLeft: 12,
-                      fontStyle: 'normal',
-                    }}
-                  >
-                    {String(priority)}
-                  </Text>
-                </Box>
                 <Text
                   style={{
                     ...styles.priorityTableText,
-                    flex: 1,
+                    marginLeft: 12,
+                    fontStyle: 'normal',
                   }}
                 >
-                  ~
-                  {timeConvertNear30(
-                    (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
-                  )}
+                  {String(priority)}
                 </Text>
-                <TextValue
-                  amt={txFeeInfo[priority?.toLowerCase()]?.amount}
-                  unit={{
-                    bitcoinUnit: BitcoinUnit.SATS,
-                  }}
-                />
-              </TouchableOpacity>
-            ))}
+              </Box>
+              <Text
+                style={{
+                  ...styles.priorityTableText,
+                  flex: 1,
+                }}
+              >
+                ~
+                {timeConvertNear30(
+                  (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
+                )}
+              </Text>
+              <TextValue
+                amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                unit={{
+                  bitcoinUnit: BitcoinUnit.SATS,
+                }}
+              />
+            </TouchableOpacity>
+          ))}
           {/* {Disable custom priority for now } */}
 
           {/* <TouchableOpacity
@@ -518,11 +502,11 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subtitle} paddingTop={hp(5)} />
-      <Box marginTop={windowHeight * 0.01} marginX={7}>
+      <HeaderTitle title={title} subtitle={subtitle} paddingTop={windowHeight > 800 ? hp(5) : 0} />
+      <Box marginTop={windowHeight > 800 ? windowHeight * 0.01 : 0} marginX={7}>
         <SendingCard isSend />
         <SendingCard isSend={false} />
-        <Box marginTop={windowHeight * 0.01}>
+        <Box marginTop={windowHeight > 800 ? windowHeight * 0.01 : 0}>
           {vaultToVault ? <FeeInfo /> : <SendingPriority />}
         </Box>
       </Box>
@@ -535,7 +519,7 @@ function SendConfirmation({ route }) {
           />
         ) : null}
       </Box>
-      <Box position="absolute" bottom={windowHeight * 0.025} right={10}>
+      <Box position="absolute" bottom={windowHeight > 800 ? windowHeight * 0.025 : 2} right={10}>
         <Buttons
           primaryText="Proceed"
           secondaryText="Cancel"

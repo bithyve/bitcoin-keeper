@@ -47,8 +47,8 @@ function LoginScreen({ navigation, route }) {
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
-  const {login} = translations;
-  const {common} = translations;
+  const { login } = translations;
+  const { common } = translations;
 
   useEffect(() => {
     if (loggingIn) {
@@ -63,22 +63,21 @@ function LoginScreen({ navigation, route }) {
       if (retryTime > waitingTime) {
         setCanLogin(true);
         return;
-      } 
-        setTimeout(() => {
-          setLoginError(true);
-          setErrMessage(`Please try after sometime`);
-          setCanLogin(false);
-        }, 100);
-        return;
-        // if (!timer) {
-        //   setTimeout(waitingTime - retryTime)
-        //   setCanLogin(false)
-        //   return
-        // } else if (timeout !== 0) {
-        //   setCanLogin(false)
-        //   return
-        // }
-      
+      }
+      setTimeout(() => {
+        setLoginError(true);
+        setErrMessage(`Please try after sometime`);
+        setCanLogin(false);
+      }, 100);
+      return;
+      // if (!timer) {
+      //   setTimeout(waitingTime - retryTime)
+      //   setCanLogin(false)
+      //   return
+      // } else if (timeout !== 0) {
+      //   setCanLogin(false)
+      //   return
+      // }
     }
     setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
@@ -175,11 +174,11 @@ function LoginScreen({ navigation, route }) {
       if (relogin) {
         navigation.goBack();
       } else if (appId !== '') {
-          updateFCM();
-          navigation.replace('App');
-        } else {
-          navigation.replace('NewKeeperApp');
-        }
+        updateFCM();
+        navigation.replace('App');
+      } else {
+        navigation.replace('NewKeeperApp');
+      }
       dispatch(credsAuthenticated(false));
     }
   };
@@ -272,7 +271,7 @@ function LoginScreen({ navigation, route }) {
 
             {loginError && (
               <Text
-                color="light.white"
+                color="light.error"
                 fontSize={RFValue(12)}
                 fontStyle="italic"
                 textAlign="right"
@@ -284,13 +283,7 @@ function LoginScreen({ navigation, route }) {
               </Text>
             )}
             <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text
-                color="light.white1"
-                fontWeight="200"
-                px="5"
-                fontSize={13}
-                letterSpacing={1}
-              >
+              <Text color="light.white1" fontWeight="200" px="5" fontSize={13} letterSpacing={1}>
                 Use bitcoin testnet
               </Text>
               <Switch
@@ -328,12 +321,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text
-                color="light.white"
-                fontWeight="300"
-                fontSize={RFValue(14)}
-                fontFamily="body"
-              >
+              <Text color="light.white" fontWeight="300" fontSize={RFValue(14)} fontFamily="body">
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
@@ -357,9 +345,7 @@ function LoginScreen({ navigation, route }) {
           >
             <FogotPassword
               type="seed"
-              closeBottomSheet={() => {
-                setForgotVisible(false);
-              }}
+              closeBottomSheet={() => setForgotVisible(false)}
               onVerify={() => {
                 setForgotVisible(false);
                 navigation.navigate('ResetPin', {
