@@ -96,7 +96,7 @@ function AddSendAmount({ route }) {
     },
     []
   );
-
+  console.log(windowHeight);
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -227,7 +227,7 @@ function AddSendAmount({ route }) {
           setValue={setAmount}
           clear={() => setAmount('')}
           color="#073E39"
-          height={windowHeight > 670 ? 90 : 65}
+          height={windowHeight > 670 ? 85 : 65}
         />
       </Box>
       {/* )} */}
