@@ -4,6 +4,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   calculateCustomFee,
+  calculateSendMaxFee,
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
@@ -75,6 +76,7 @@ function SendConfirmation({ route }) {
   } = route.params;
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
+  const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -141,21 +143,26 @@ function SendConfirmation({ route }) {
     );
   }
 
+  useEffect(() => {
+    if (transferType === TransferType.WALLET_TO_VAULT) {
+      dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
+    }
+  }, []);
+
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
         Alert.alert('Not enough Balance');
         return;
       }
-      if (uaiSetActionFalse) {
-        uaiSetActionFalse();
-      }
       if (defaultVault) {
+        console.log({ sendMaxFee });
+        console.log(sourceWallet.specs.transferPolicy - sendMaxFee);
         dispatch(
           crossTransfer({
             sender: sourceWallet,
             recipient: defaultVault,
-            amount: sourceWallet.specs.transferPolicy,
+            amount: sourceWallet.specs.transferPolicy - sendMaxFee,
           })
         );
         if (uaiSetActionFalse) {
@@ -559,7 +566,9 @@ function SendConfirmation({ route }) {
           marginTop={windowHeight * 0.011}
         >
           <BTC />
-          {` ${getAmount(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}`}
+          {transferType === TransferType.WALLET_TO_VAULT
+            ? sendMaxFee
+            : getAmount(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
         </Text>
       </HStack>
     );
