@@ -31,7 +31,7 @@ import VaultIcon from 'src/assets/images/svgs/icon_vault.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
-import { sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
+import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
@@ -77,6 +77,9 @@ function SendConfirmation({ route }) {
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const { isSuccessful: crossTransferSuccess, hasFailed: crossTransferFailed } = useAppSelector(
+    (state) => state.sendAndReceive.crossTransfer
+  );
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -160,13 +163,9 @@ function SendConfirmation({ route }) {
           crossTransfer({
             sender: sourceWallet,
             recipient: defaultVault,
-            amount: sourceWallet.specs.transferPolicy - sendMaxFee,
+            amount: sourceWallet.specs.balances.confirmed - sendMaxFee,
           })
         );
-        if (uaiSetActionFalse) {
-          uaiSetActionFalse();
-        }
-        navigtaion.goBack();
       }
     } else {
       dispatch(
@@ -181,6 +180,7 @@ function SendConfirmation({ route }) {
   useEffect(
     () => () => {
       dispatch(sendPhaseTwoReset());
+      dispatch(crossTransferReset());
     },
     []
   );
@@ -210,6 +210,9 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
+    if (vaultTransfers.includes(transferType)) {
+      navigation.navigate('VaultDetails');
+    }
     navigation.navigate('WalletDetails');
   };
 
@@ -218,6 +221,15 @@ function SendConfirmation({ route }) {
       setVisibleModal(true);
     }
   }, [walletSendSuccessful]);
+
+  useEffect(() => {
+    if (crossTransferSuccess) {
+      setVisibleModal(true);
+      if (uaiSetActionFalse) {
+        uaiSetActionFalse();
+      }
+    }
+  }, [crossTransferSuccess]);
 
   const Card = ({ title, subTitle, isVault = false }) => {
     return (
@@ -608,6 +620,7 @@ function SendConfirmation({ route }) {
         title={walletTransactions.SendSuccess}
         subTitle="The transaction has been successfully broadcasted"
         buttonText={walletTransactions.ViewDetails}
+        buttonCallback={() => viewDetails()}
         textColor="#073B36"
         buttonTextColor="#FAFAFA"
         Content={SendSuccessfulContent}

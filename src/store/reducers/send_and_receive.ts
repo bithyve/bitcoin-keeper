@@ -78,6 +78,10 @@ const initialState: {
     isSuccessful: boolean;
     txid: string | null;
   };
+  crossTransfer: {
+    hasFailed: boolean;
+    isSuccessful: boolean;
+  };
   sendMaxFee: number;
   feeIntelMissing: boolean;
   transactionFeeInfo: TransactionFeeInfo;
@@ -110,6 +114,10 @@ const initialState: {
     failedErrorMessage: null,
     isSuccessful: false,
     txid: null,
+  },
+  crossTransfer: {
+    hasFailed: false,
+    isSuccessful: false,
   },
   sendMaxFee: 0,
   feeIntelMissing: false,
@@ -208,6 +216,13 @@ const sendAndReceiveSlice = createSlice({
       };
     },
 
+    crossTransferFailed: (state) => {
+      state.crossTransfer.hasFailed = true;
+    },
+    crossTransferExecuted: (state) => {
+      state.crossTransfer.isSuccessful = true;
+    },
+
     sendPhasesReset: (state) => {
       state.sendMaxFee = 0;
       state.sendPhaseOne = initialState.sendPhaseOne;
@@ -226,6 +241,9 @@ const sendAndReceiveSlice = createSlice({
     sendPhaseThreeReset: (state) => {
       state.sendPhaseThree = initialState.sendPhaseThree;
     },
+    crossTransferReset: (state) => {
+      state.crossTransfer = initialState.crossTransfer;
+    },
   },
 });
 
@@ -234,6 +252,9 @@ export const {
   sendPhaseOneExecuted,
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
+  crossTransferExecuted,
+  crossTransferFailed,
+  crossTransferReset,
   sendPhasesReset,
   sendPhaseOneReset,
   sendPhaseTwoReset,
