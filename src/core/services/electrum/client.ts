@@ -112,49 +112,7 @@ export default class ElectrumClient {
     return groups;
   }
 
-  public static async syncBalanceByAddresses(
-    addresses: string[],
-    network: bitcoinJS.Network = config.NETWORK,
-    batchsize: number = 150
-  ) {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
-    const res = { balance: 0, unconfirmed_balance: 0, addresses: {} };
-
-    const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
-    for (let itr = 0; itr < chunks.length; itr += 1) {
-      const chunk = chunks[itr];
-      const scripthashes = [];
-      const scripthash2addr = {};
-
-      for (let index = 0; index < chunk.length; index += 1) {
-        const addr = chunk[index];
-        const script = bitcoinJS.address.toOutputScript(addr, network);
-        const hash = bitcoinJS.crypto.sha256(script);
-        const reversedHash = Buffer.from(reverse(hash));
-        const reversedHashHex = reversedHash.toString('hex');
-        scripthashes.push(reversedHashHex);
-        scripthash2addr[reversedHashHex] = addr;
-      }
-
-      // eslint-disable-next-line no-await-in-loop
-      const balances = await ELECTRUM_CLIENT.electrumClient.blockchainScripthash_getBalanceBatch(
-        scripthashes
-      );
-
-      for (let index = 0; index < balances.length; index += 1) {
-        const bal = balances[index];
-        if (bal.error) console.log('syncBalanceByAddresses:', bal.error);
-
-        res.balance += +bal.result.confirmed;
-        res.unconfirmed_balance += +bal.result.unconfirmed;
-        res.addresses[scripthash2addr[bal.param]] = bal.result;
-      }
-    }
-
-    return res;
-  }
-
-  public static async syncUTXOByAddresses(
+  public static async syncUTXOByAddress(
     addresses: string[],
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
@@ -202,13 +160,14 @@ export default class ElectrumClient {
     return res;
   }
 
-  public static async syncHistoryByAddresses(
+  public static async syncHistoryByAddress(
     addresses: string[],
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
   ) {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
-    const res = {};
+    const historyByAddress = {};
+    const txids = [];
 
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
@@ -236,10 +195,42 @@ export default class ElectrumClient {
         if (history.error) console.log('syncHistoryByAddresses:', history.error);
 
         const address = scripthash2addr[history.param];
-        res[address] = history.result || [];
-        for (const hist of res[address]) {
-          hist.address = address;
+        historyByAddress[address] = history.result || [];
+        if (historyByAddress[address].length) {
+          // eslint-disable-next-line camelcase
+          for (const { tx_hash } of historyByAddress[address]) txids.push(tx_hash);
         }
+      }
+    }
+
+    return { historyByAddress, txids };
+  }
+
+  public static async getTransactionsById(
+    txids: string[],
+    verbose: boolean = true,
+    batchsize: number = 40
+  ) {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    const res = {};
+    txids = [...new Set(txids)]; // remove duplicates, if any
+
+    // TODO: lets try cache first
+
+    const chunks = ElectrumClient.splitIntoChunks(txids, batchsize);
+    for (const chunk of chunks) {
+      let results = [];
+
+      // eslint-disable-next-line no-await-in-loop
+      results = await ELECTRUM_CLIENT.electrumClient.blockchainTransaction_getBatch(chunk, verbose);
+
+      for (const txdata of results) {
+        if (txdata.error && txdata.error.code === -32600) {
+          // TODO: response too large, might have to handle it by doing a single call
+        }
+
+        res[txdata.param] = txdata.result;
+        if (res[txdata.param]) delete res[txdata.param].hex;
       }
     }
 
