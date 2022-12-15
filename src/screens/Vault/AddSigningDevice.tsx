@@ -35,6 +35,7 @@ import { captureError } from 'src/core/services/sentry';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from './WalletMap';
+import { TransferType } from 'src/common/data/enums/TransferType';
 import DescriptionModal from './components/EditDescriptionModal';
 
 const { width } = Dimensions.get('screen');
@@ -280,15 +281,9 @@ function AddSigningDevice() {
     if (sendPhaseOneState.isSuccessful) {
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
-          wallet: activeVault,
+          sender: activeVault,
           recipients,
-          uiMetaData: {
-            title: 'Transfer Funds to the New Vault',
-            subtitle: 'On-chain transaction incurs fees',
-            from: 'Old Vault',
-            to: 'New Vault',
-            vaultToVault: true,
-          },
+          transferType: TransferType.VAULT_TO_VAULT,
         })
       );
     } else if (sendPhaseOneState.hasFailed) {

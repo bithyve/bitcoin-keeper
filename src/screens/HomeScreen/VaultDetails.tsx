@@ -60,7 +60,7 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Send', { wallet: vault }));
+            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
           <Send />

@@ -97,7 +97,8 @@ const vaultSlice = createSlice({
       state.intrimVault = intrimVault;
     },
     updateIntrimVault: (state, action: PayloadAction<Vault>) => {
-      state.intrimVault = action.payload;
+      if (!Object.keys(state.intrimVault.specs.activeAddresses.external).length)
+        state.intrimVault = action.payload;
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
