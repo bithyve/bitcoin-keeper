@@ -23,6 +23,7 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
+import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from './WalletMap';
 import HardwareModalMap from './HardwareModalMap';
 
@@ -36,9 +37,9 @@ type HWProps = {
 const findKeyInServer = (vaultSigners, type: SignerType) =>
   vaultSigners.find((element) => element.type === type);
 
-const getDisabled = (type: SignerType, isOnPleb, vaultSigners) => {
+const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   // Keys Incase of level 1 we have level 1
-  if (isOnPleb) {
+  if (isOnL1) {
     return { disabled: true, message: 'Upgrade to use these keys' };
   }
   // Keys Incase of already added
@@ -52,7 +53,7 @@ const getDeviceStatus = (
   type: SignerType,
   isNfcSupported,
   isBLESupported,
-  isOnPleb,
+  isOnL1,
   vaultSigners
 ) => {
   switch (type) {
@@ -73,8 +74,8 @@ const getDeviceStatus = (
     case SignerType.KEYSTONE:
     case SignerType.KEEPER:
       return {
-        message: getDisabled(type, isOnPleb, vaultSigners).message,
-        disabled: getDisabled(type, isOnPleb, vaultSigners).disabled,
+        message: getDisabled(type, isOnL1, vaultSigners).message,
+        disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
 
     case SignerType.TREZOR:
@@ -95,12 +96,9 @@ const getDeviceStatus = (
 
 function SigningDeviceList({ navigation }: { navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { useQuery } = useContext(RealmWrapperContext);
-  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
-    getJSONFromRealmObject
-  )[0];
+  const { plan } = usePlan();
   const dispatch = useAppDispatch();
-  const isOnPleb = subscription.name.toLowerCase() === SubscriptionTier.PLEB.toLowerCase();
+  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
@@ -124,7 +122,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
           <SigningDevicesIllustration />
         </Box>
         <Text color="light.white" style={styles.modalText}>
-          {`For the Pleb tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on Hodler and Diamond Hands tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+          {`For the ${SubscriptionTier.L1} tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
     );
@@ -242,7 +240,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   type,
                   isNfcSupported,
                   isBLESupported,
-                  isOnPleb,
+                  isOnL1,
                   vaultSigners
                 );
                 return (

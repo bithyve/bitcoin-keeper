@@ -5,17 +5,18 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 const SUBSCRIPTION_SCHEME_MAP = {
-  PLEB: {
+  [SubscriptionTier.L1.toUpperCase()]: {
     m: 1,
     n: 1,
   },
-  HODLER: {
+  [SubscriptionTier.L2.toUpperCase()]: {
     m: 2,
     n: 3,
   },
-  'DIAMOND HANDS': {
+  [SubscriptionTier.L3.toUpperCase()]: {
     m: 3,
     n: 5,
   },
