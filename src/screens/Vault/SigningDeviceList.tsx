@@ -184,48 +184,17 @@ function SigningDeviceList({ navigation }: { navigation }) {
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
-            <Box
-              alignItems="center"
-              height={windowHeight * 0.08}
-              flexDirection="row"
-              style={{
-                paddingLeft: wp(40),
-              }}
-            >
-              <Box
-                style={{
-                  marginRight: wp(20),
-                  width: wp(15),
-                }}
-              >
-                {WalletMap(type).Icon}
-              </Box>
+            <Box style={styles.walletMapContainer}>
+              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
               <Box opacity={0.3} backgroundColor="light.divider" height={hp(24)} width={0.5} />
-              <Box
-                style={{
-                  marginLeft: wp(23),
-                  justifyContent: 'flex-end',
-                  marginTop: hp(20),
-                }}
-              >
+              <Box style={styles.walletMapLogoWrapper}>
                 {WalletMap(type).Logo}
-                <Text
-                  color="light.inActiveMsg"
-                  fontSize={10}
-                  fontWeight={200}
-                  letterSpacing={1.3}
-                  marginTop={hp(5)}
-                >
+                <Text color="light.inActiveMsg" style={styles.messageText}>
                   {message}
                 </Text>
               </Box>
             </Box>
-            <Box
-              opacity={0.1}
-              backgroundColor="light.divider"
-              width={windowWidth * 0.8}
-              height={0.5}
-            />
+            <Box backgroundColor="light.divider" style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
         <HardwareModalMap visible={visible} close={close} type={type} />
@@ -262,11 +231,8 @@ function SigningDeviceList({ navigation }: { navigation }) {
           dispatch(setSdIntroModal(true));
         }}
       />
-      <Box alignItems="center" justifyContent="center">
-        <ScrollView
-          style={{ height: windowHeight > 800 ? '90%' : '85%' }}
-          showsVerticalScrollIndicator={false}
-        >
+      <Box style={styles.scrollViewContainer}>
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           {!signersLoaded ? (
             <ActivityIndicator />
           ) : (
@@ -289,15 +255,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   />
                 );
               })}
-              <Text
-                fontSize={RFValue(12)}
-                letterSpacing={0.6}
-                fontWeight={100}
-                color="light.lightBlack"
-                width={wp(300)}
-                lineHeight={20}
-                marginTop={hp(20)}
-              >
+              <Text color="light.lightBlack" style={styles.contactUsText}>
                 {vault.VaultInfo}{' '}
                 <Text fontStyle="italic" fontWeight="bold">
                   Contact Us
@@ -351,6 +309,47 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 5,
     padding: 1,
+  },
+  scrollViewContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollViewWrapper: {
+    height: windowHeight > 800 ? '90%' : '85%',
+  },
+  contactUsText: {
+    fontSize: RFValue(12),
+    letterSpacing: 0.6,
+    fontWeight: '200',
+    width: wp(300),
+    lineHeight: 20,
+    marginTop: hp(20),
+  },
+  walletMapContainer: {
+    alignItems: 'center',
+    height: windowHeight * 0.08,
+    flexDirection: 'row',
+    paddingLeft: wp(40),
+  },
+  walletMapWrapper: {
+    marginRight: wp(20),
+    width: wp(15),
+  },
+  walletMapLogoWrapper: {
+    marginLeft: wp(23),
+    justifyContent: 'flex-end',
+    marginTop: hp(20),
+  },
+  messageText: {
+    fontSize: 10,
+    fontWeight: '400',
+    letterSpacing: 1.3,
+    marginTop: hp(5),
+  },
+  dividerStyle: {
+    opacity: 0.1,
+    width: windowWidth * 0.8,
+    height: 0.5,
   },
 });
 export default SigningDeviceList;
