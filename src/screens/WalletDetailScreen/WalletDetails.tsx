@@ -43,8 +43,9 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
+import { TransferType } from 'src/common/data/enums/TransferType';
 
 function WalletDetails() {
   const navigation = useNavigation();
@@ -104,10 +105,7 @@ function WalletDetails() {
                 gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
               />
 
-              <Text
-                color="light.white"
-                style={styles.addWalletText}
-              >
+              <Text color="light.white" style={styles.addWalletText}>
                 {wallet.AddNewWallet}
               </Text>
             </TouchableOpacity>
@@ -119,40 +117,30 @@ function WalletDetails() {
                 gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
               />
               <Box>
-                <Text
-                  color="light.white"
-                  style={styles.walletDescription}
-                >
+                <Text color="light.white" style={styles.walletDescription}>
                   {walletDescription}
                 </Text>
-                <Text
-                  color="light.white"
-                  style={styles.walletName}
-                >
+                <Text color="light.white" style={styles.walletName}>
                   {walletName}
                 </Text>
               </Box>
-              <Box
-                style={styles.walletBalance}
-              >
+              <Box style={styles.walletBalance}>
                 <Box
                   style={{
-                    marginRight: 3
-                  }} >
+                    marginRight: 3,
+                  }}
+                >
                   <BtcWallet />
                 </Box>
                 <Text
                   color="light.white"
                   fontSize={hp(24)}
                   style={{
-                    letterSpacing: 1.2
+                    letterSpacing: 1.2,
                   }}
                 >
                   {getAmount(walletBalance)}
-                  <Text
-                    color="light.sats"
-                    style={styles.balanceUnit}
-                  >
+                  <Text color="light.sats" style={styles.balanceUnit}>
                     {getUnit()}
                   </Text>
                 </Text>
@@ -170,7 +158,18 @@ function WalletDetails() {
     setPullRefresh(false);
   };
 
-  const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
+  const renderTransactionElement = ({ item }) => (
+    <TransactionElement
+      transaction={item}
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate('TransactionDetails', {
+            transaction: item,
+          })
+        );
+      }}
+    />
+  );
 
   function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) {
     return (
@@ -182,7 +181,7 @@ function WalletDetails() {
           height: hp(height),
           width: hp(height),
           borderRadius: height,
-          ...styles.center
+          ...styles.center,
         }}
       >
         <Icon />
@@ -195,74 +194,43 @@ function WalletDetails() {
         <Box alignSelf="center">
           <VaultSetupIcon />
         </Box>
-        <Text
-          marginTop={hp(20)}
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          p={1}
-        >
-          You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper
+        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} p={1}>
+          You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to
+          Keeper
         </Text>
-        <Text
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          p={1}
-        >
-          When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This ensures you don’t have more sats in hot wallets than you need.
+        <Text color="white" fontSize={13} letterSpacing={0.65} p={1}>
+          When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This
+          ensures you don’t have more sats in hot wallets than you need.
         </Text>
       </View>
     );
   }
   return (
-    <Box
-      backgroundColor="light.lightYellow"
-      style={styles.container}
-    >
+    <Box backgroundColor="light.lightYellow" style={styles.container}>
       <StatusBarComponent padding={50} />
-      <Pressable
-        onPress={() => navigation.goBack()}
-        style={styles.backIcon}
-      >
+      <Pressable onPress={() => navigation.goBack()} style={styles.backIcon}>
         <BackIcon />
       </Pressable>
 
-      <Box
-        style={styles.headerContainer}
-      >
-        <Text
-          color="light.textWallet"
-          style={styles.headerTitle}
-        >
+      <Box style={styles.headerContainer}>
+        <Text color="light.textWallet" style={styles.headerTitle}>
           {wallets?.length} Linked Wallets
         </Text>
 
         <Box style={styles.headerBalanceContainer}>
-          <Box
-            style={styles.headerBTCIcon}
-          >
+          <Box style={styles.headerBTCIcon}>
             <BTC />
           </Box>
-          <Text
-            color="light.textWallet"
-            fontSize={hp(30)}
-            style={styles.headerBalance}
-          >
+          <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
             {getAmount(netBalance)}
-            <Text
-              color="light.satsDark"
-              style={styles.balanceUnit}
-            >
+            <Text color="light.satsDark" style={styles.balanceUnit}>
               {getUnit()}
             </Text>
           </Text>
         </Box>
       </Box>
 
-      <Box
-        style={styles.walletsContainer}
-      >
+      <Box style={styles.walletsContainer}>
         <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
@@ -280,17 +248,13 @@ function WalletDetails() {
       {walletIndex !== wallets.length ? (
         <>
           {/* {Transfer pollicy} */}
-          <Box
-            style={styles.transferPolicyContainer}
-          >
-            <Box
-              backgroundColor="light.transactionPolicyCard"
-              style={styles.transferPolicyCard}
-            >
+          <Box style={styles.transferPolicyContainer}>
+            <Box backgroundColor="light.transactionPolicyCard" style={styles.transferPolicyCard}>
               <Box
                 style={{
-                  paddingLeft: wp(10)
-                }}>
+                  paddingLeft: wp(10),
+                }}
+              >
                 <Text
                   color="light.brownborder"
                   fontSize={RFValue(12)}
@@ -301,9 +265,12 @@ function WalletDetails() {
                   Available to spend
                   <Text
                     style={{
-                      fontWeight: "bold"
+                      fontWeight: 'bold',
                     }}
-                  > {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats</Text>
+                  >
+                    {' '}
+                    {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
+                  </Text>
                 </Text>
               </Box>
             </Box>
@@ -313,7 +280,7 @@ function WalletDetails() {
               onPress={() => {
                 if (vaultExsist) {
                   navigation.navigate('SendConfirmation', {
-                    isVaultTransfer: true,
+                    transferType: TransferType.WALLET_TO_VAULT,
                     walletId: wallets[walletIndex].id,
                   });
                 } else Alert.alert('Vault is not created');
@@ -330,36 +297,30 @@ function WalletDetails() {
                   Transfer Policy is set at{'  '}
                   <Text
                     style={{
-                      fontWeight: "bold"
-                    }}>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    ฿ {wallets[walletIndex].specs.transferPolicy}sats
+                  </Text>
                 </Text>
               </Box>
             </Pressable>
           </Box>
 
           <Box style={styles.transactions}>
-            <Text
-              color="light.textBlack"
-              style={styles.transactionText}
-            >
+            <Text color="light.textBlack" style={styles.transactionText}>
               Transactions
             </Text>
-            <Box
-              style={styles.viewAllContainer}
-            >
-              <Text
-                color="light.light"
-                style={styles.viewAllText}
-              >
+            {/* Screen not implemented yet  */}
+            {/* <Box style={styles.viewAllContainer}>
+              <Text color="light.light" style={styles.viewAllText}>
                 View All
               </Text>
               <IconArrowBlack />
-            </Box>
+            </Box> */}
           </Box>
 
-          <Box
-            style={styles.transactionsListContainer}
-          >
+          <Box style={styles.transactionsListContainer}>
             <FlatList
               refreshControl={
                 <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
@@ -370,28 +331,17 @@ function WalletDetails() {
               showsVerticalScrollIndicator={false}
             />
           </Box>
-          <Box
-            backgroundColor="light.lightYellow"
-            style={styles.footerContainer}
-          >
-            <Box
-              style={styles.border}
-              borderColor="light.GreyText"
-            />
-            <Box
-              style={styles.footerItemContainer}
-            >
+          <Box backgroundColor="light.lightYellow" style={styles.footerContainer}>
+            <Box style={styles.border} borderColor="light.GreyText" />
+            <Box style={styles.footerItemContainer}>
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {
-                  navigation.navigate('Send', { wallet: currentWallet });
+                  navigation.navigate('Send', { sender: currentWallet });
                 }}
               >
                 <Send />
-                <Text
-                  color="light.lightBlack"
-                  style={styles.footerItemText}
-                >
+                <Text color="light.lightBlack" style={styles.footerItemText}>
                   Send
                 </Text>
               </TouchableOpacity>
@@ -402,10 +352,7 @@ function WalletDetails() {
                 }}
               >
                 <Recieve />
-                <Text
-                  color="light.lightBlack"
-                  style={styles.footerItemText}
-                >
+                <Text color="light.lightBlack" style={styles.footerItemText}>
                   Receive
                 </Text>
               </TouchableOpacity>
@@ -416,10 +363,7 @@ function WalletDetails() {
                 }}
               >
                 <IconSettings />
-                <Text
-                  color="light.lightBlack"
-                  style={styles.footerItemText}
-                >
+                <Text color="light.lightBlack" style={styles.footerItemText}>
                   Settings
                 </Text>
               </TouchableOpacity>
@@ -429,11 +373,7 @@ function WalletDetails() {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text
-            color="light.lightBlack"
-            noOfLines={2}
-            style={styles.addNewWalletText}
-          >
+          <Text color="light.lightBlack" noOfLines={2} style={styles.addNewWalletText}>
             Add a new wallet or import one
           </Text>
         </Box>
@@ -461,13 +401,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: wp(28),
     paddingRight: wp(27),
-    paddingTop: hp(30)
+    paddingTop: hp(30),
   },
   backIcon: {
     zIndex: 999,
     width: 5,
     padding: 2,
-    alignItems: "center"
+    alignItems: 'center',
   },
   IconText: {
     justifyContent: 'center',
@@ -485,7 +425,7 @@ const styles = StyleSheet.create({
     borderRadius: hp(10),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   center: {
     justifyContent: 'center',
@@ -494,31 +434,31 @@ const styles = StyleSheet.create({
   headerTitle: {
     letterSpacing: 0.96,
     fontSize: RFValue(16),
-    marginTop: hp(10)
+    marginTop: hp(10),
   },
   headerContainer: {
-    alignItems: "center"
+    alignItems: 'center',
   },
   headerBalanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: hp(35)
+    height: hp(35),
   },
   headerBTCIcon: {
     marginRight: 3,
-    marginBottom: -hp(10)
+    marginBottom: -hp(10),
   },
   headerBalance: {
     letterSpacing: 1.5,
   },
   balanceUnit: {
     letterSpacing: 0.6,
-    fontSize: 12
+    fontSize: 12,
   },
   walletsContainer: {
     marginTop: 18,
     height: hp(180),
-    width: '100%'
+    width: '100%',
   },
   walletContainer: {
     borderRadius: hp(10),
@@ -529,7 +469,7 @@ const styles = StyleSheet.create({
   },
   addWalletText: {
     fontSize: 14,
-    marginTop: hp(10)
+    marginTop: hp(10),
   },
   walletCard: {
     marginTop: hp(20),
@@ -537,71 +477,71 @@ const styles = StyleSheet.create({
   },
   walletName: {
     letterSpacing: 0.24,
-    fontSize: RFValue(12)
+    fontSize: RFValue(12),
   },
   walletDescription: {
     letterSpacing: 0.2,
     fontSize: RFValue(10),
     fontWeight: '400',
-    marginTop: hp(16)
+    marginTop: hp(16),
   },
   walletBalance: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   transferPolicyContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   transactions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: hp(24),
-    width: "100%"
+    width: '100%',
   },
   transactionText: {
     marginLeft: wp(10),
     fontSize: 16,
-    letterSpacing: 1.28
+    letterSpacing: 1.28,
   },
   viewAllContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: wp(2)
+    marginRight: wp(2),
   },
   viewAllText: {
     letterSpacing: 0.6,
     marginRight: 5,
     fontSize: 11,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   transactionsListContainer: {
     marginTop: hp(10),
     height: hp(250),
-    position: 'relative'
+    position: 'relative',
   },
   footerContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     width: wp(375),
-    paddingHorizontal: 5
+    paddingHorizontal: 5,
   },
   border: {
     borderWidth: 0.5,
     borderRadius: 20,
-    opacity: 0.2
+    opacity: 0.2,
   },
   footerItemContainer: {
     flexDirection: 'row',
     marginTop: 15,
     marginBottom: hp(10),
     justifyContent: 'space-evenly',
-    marginHorizontal: 16
+    marginHorizontal: 16,
   },
   footerItemText: {
     fontSize: 12,
     letterSpacing: 0.84,
-    marginVertical: 5
+    marginVertical: 5,
   },
   addNewWalletText: {
     fontSize: 12,
@@ -609,12 +549,12 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 16,
     opacity: 0.85,
-    fontWeight: '300'
+    fontWeight: '300',
   },
   addNewWalletContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1
-  }
+    flex: 1,
+  },
 });
 export default WalletDetails;
