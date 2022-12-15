@@ -6,6 +6,7 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 type Props = {
   title?: string;
@@ -103,7 +104,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: '5@s',
-    paddingVertical: '15@s',
+    paddingVertical: windowHeight > 680 ? '15@s' : '7@s',
   },
   backButton: {
     height: 20,

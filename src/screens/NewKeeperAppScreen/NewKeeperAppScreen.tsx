@@ -3,7 +3,6 @@ import { Box, Image, Pressable, ScrollView, Text } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
 import App from 'src/assets/images/svgs/app.svg';
 import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
 import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
@@ -83,13 +82,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const [cloudModal, setCloudModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState(null);
-  const {
-    appImageRecoverd,
-    appRecreated,
-    appRecoveryLoading,
-    appImageError,
-    appImagerecoveryRetry,
-  } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
   const appCreated = useAppSelector((state) => state.storage.appId);
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
@@ -119,11 +114,16 @@ function NewKeeperApp({ navigation }: { navigation }) {
       closePassword();
       showToast('Failed to get app image');
     }
+  }, [appImageRecoverd, appImageError]);
 
+  useEffect(() => {
     if (appRecoveryLoading) {
       closePassword();
       openLoaderModal();
     }
+  }, [appRecoveryLoading]);
+
+  useEffect(() => {
     if (appRecreated) {
       setTimeout(() => {
         closePassword();
@@ -131,7 +131,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         navigation.replace('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError, appImagerecoveryRetry]);
+  }, [appRecreated]);
 
   const passwordScreen = () => {
     setCloudModal(false);
@@ -235,12 +235,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             >
               Existing Keeper App
             </Text>
-            <Text
-              color="light.blackHeaderText"
-              fontSize={RFValue(12)}
-              fontFamily="body"
-              px="8"
-            >
+            <Text color="light.blackHeaderText" fontSize={RFValue(12)} fontFamily="body" px="8">
               If you previously had a Keeper wallet you can recover it
             </Text>
 
@@ -307,7 +302,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title="Shake to send feedback"
         subTitle="Shake your device to send us a bug report or a feature request"
@@ -324,4 +319,5 @@ function NewKeeperApp({ navigation }: { navigation }) {
     </ScreenWrapper>
   );
 }
+
 export default NewKeeperApp;

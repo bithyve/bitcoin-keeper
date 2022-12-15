@@ -59,6 +59,7 @@ import {
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
+  UPDATE_SIGNER_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -66,6 +67,8 @@ import {
   FINALISE_VAULT_MIGRATION,
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
+import { addToUaiStack, uaiActionedEntity } from '../sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 export interface newWalletDetails {
   name?: string;
@@ -466,7 +469,7 @@ function* refreshWalletsWorker({
   };
 }) {
   const { wallets } = payload;
-  const {options} = payload;
+  const { options } = payload;
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
@@ -502,6 +505,38 @@ function* refreshWalletsWorker({
       const { confirmed, unconfirmed } = wallet.specs.balances;
       netBalance = netBalance + confirmed + unconfirmed;
     });
+
+    const UAIcollection: Wallet[] = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.UAI,
+      null,
+      true
+    );
+
+    for (const wallet of wallets) {
+      const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
+
+      if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+        if (uai) {
+          if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+            yield put(uaiActionedEntity(uai.entityId, false));
+          }
+        } else {
+          yield put(
+            addToUaiStack(
+              `Transfer fund to vault for ${wallet.presentationData.name}`,
+              false,
+              uaiType.VAULT_TRANSFER,
+              80,
+              null,
+              wallet.id
+            )
+          );
+        }
+      } else {
+        if (uai) yield put(uaiActionedEntity(uai.entityId, true));
+      }
+    }
 
     yield put(setNetBalance(netBalance));
   }
@@ -723,3 +758,33 @@ export const updateWalletDetailWatcher = createWatcher(
   updateWalletDetailsWorker,
   UPDATE_WALLET_DETAILS
 );
+
+function* updateSignerDetailsWorker({ payload }) {
+  const {
+    signer,
+    key,
+    value,
+  }: {
+    signer: VaultSigner;
+    key: string;
+    value: any;
+  } = payload;
+
+  const activeVault: Vault = dbManager
+    .getCollection(RealmSchema.Vault)
+    .filter((vault: Vault) => !vault.archived)[0];
+
+  const updatedSigners = activeVault.signers.map((item) => {
+    if (item.signerId === signer.signerId) {
+      item[key] = value;
+      return item;
+    }
+    return item;
+  });
+
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, activeVault.id, {
+    signers: updatedSigners,
+  });
+}
+
+export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);

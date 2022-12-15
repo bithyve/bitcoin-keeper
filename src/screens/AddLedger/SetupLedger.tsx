@@ -21,10 +21,12 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function AddLedger() {
@@ -91,7 +93,7 @@ function AddLedger() {
 
   function LedgerSetupContent() {
     return (
-      <TapGestureHandler numberOfTaps={3} onActivated={addMockLedger}>
+      <TapGestureHandler numberOfTaps={3} onActivated={() => addMockLedger()}>
         <View>
           {isScanning && !allDevices.length ? (
             <Image
@@ -122,11 +124,14 @@ function AddLedger() {
       </TapGestureHandler>
     );
   }
-
+  const { showToast } = useToastMessage();
   const addMockLedger = (amfData = null) => {
-    const ledger = getMockLedgerDetails(amfData);
-    dispatch(addSigningDevice(ledger));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+      const ledger = getMockLedgerDetails(amfData);
+      dispatch(addSigningDevice(ledger));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${ledger.signerName} added successfully`, <TickIcon />);
+    }
   };
 
   const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
@@ -144,11 +149,14 @@ function AddLedger() {
       if (isAMF) {
         const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
         const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-        addMockLedger({ signerId, xpub });
+        const mockLedger = getMockLedgerDetails({ signerId, xpub });
+        dispatch(addSigningDevice(mockLedger));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
         return;
       }
       dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${ledger.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(ledger.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {

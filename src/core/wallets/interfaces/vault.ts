@@ -48,6 +48,7 @@ export interface VaultSigner {
   xpub: string;
   xpriv?: string;
   signerName?: string;
+  signerDescription?: string;
   xpubInfo: {
     derivationPath: string;
     xfp: string;

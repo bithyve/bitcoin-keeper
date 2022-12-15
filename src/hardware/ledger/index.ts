@@ -1,5 +1,5 @@
 import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import config, { APP_STAGE } from 'src/core/config';
+import config from 'src/core/config';
 
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -20,30 +20,28 @@ export const getLedgerDetails = async (transport: BluetoothTransport) => {
 };
 
 export const getMockLedgerDetails = (amfData = null) => {
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.LEDGER,
-      config.NETWORK_TYPE
-    );
+  const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+    EntityKind.VAULT,
+    SignerType.LEDGER,
+    config.NETWORK_TYPE
+  );
 
-    const ledger: VaultSigner = generateSignerFromMetaData({
-      xpub,
-      xpriv,
-      derivationPath,
-      xfp: masterFingerprint,
-      signerType: SignerType.LEDGER,
-      storageType: SignerStorage.COLD,
-      isMock: true,
-    });
+  const ledger: VaultSigner = generateSignerFromMetaData({
+    xpub,
+    xpriv,
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.LEDGER,
+    storageType: SignerStorage.COLD,
+    isMock: true,
+  });
 
-    if (amfData) {
-      ledger.amfData = amfData;
-      ledger.signerName = 'Nano X*';
-      ledger.isMock = false;
-    }
-    return ledger;
+  if (amfData) {
+    ledger.amfData = amfData;
+    ledger.signerName = 'Nano X*';
+    ledger.isMock = false;
   }
+  return ledger;
 };
 
 export { AppClient, PsbtV2, DefaultWalletPolicy, WalletPolicy };

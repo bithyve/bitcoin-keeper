@@ -26,6 +26,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
+import useToastMessage from 'src/hooks/useToastMessage';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -58,6 +59,7 @@ function SignTransactionScreen() {
 
   const [activeSignerId, setActiveSignerId] = useState<string>();
   const LedgerCom = useRef();
+  const { showToast } = useToastMessage();
 
   const navigation = useNavigation();
   const serializedPSBTEnvelops = useAppSelector(
@@ -105,7 +107,7 @@ function SignTransactionScreen() {
     let signedTxCount = 0;
     serializedPSBTEnvelops.forEach((envelop) => {
       if (envelop.isSigned) {
-        signedTxCount++;
+        signedTxCount += 1;
       }
     });
     // modify this in dev builds for mock signers
@@ -198,7 +200,6 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-        } else {
         }
       }
     },
@@ -207,6 +208,10 @@ function SignTransactionScreen() {
 
   const callbackForSigners = ({ type, signerId, signerPolicy }: VaultSigner) => {
     setActiveSignerId(signerId);
+    if (areSignaturesSufficient()) {
+      showToast('We already have enough signatures, you can now broadcast.');
+      return;
+    }
     switch (type) {
       case SignerType.TAPSIGNER:
         setTapsignerModal(true);

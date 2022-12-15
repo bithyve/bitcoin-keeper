@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CheckIcon from 'src/assets/images/checked.svg';
 import Next from 'src/assets/images/svgs/icon_arrow.svg';
@@ -9,6 +9,8 @@ import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
 import { WalletMap } from '../Vault/WalletMap';
+
+const { width } = Dimensions.get('screen');
 
 function SignerList({
   signer,
@@ -48,7 +50,7 @@ function SignerList({
                 fontFamily="heading"
                 letterSpacing={1.12}
               >
-                {signer.signerName}
+                {`${signer.signerName} (${signer.xpubInfo.xfp})`}
               </Text>
               <Text
                 color="light.GreyText"
@@ -59,6 +61,19 @@ function SignerList({
               >
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
               </Text>
+              {!!signer.signerDescription && (
+                <Text
+                  noOfLines={1}
+                  color="#6A7772"
+                  fontSize={12}
+                  fontWeight={200}
+                  letterSpacing={0.6}
+                  fontStyle={null}
+                  maxWidth={width * 0.6}
+                >
+                  {signer.signerDescription}
+                </Text>
+              )}
             </View>
           </Box>
           <Box alignItems="center" justifyContent="center">

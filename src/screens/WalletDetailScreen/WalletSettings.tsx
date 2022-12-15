@@ -13,7 +13,6 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -23,49 +22,42 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
-// icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
-import TickIcon from 'src/assets/images/icon_tick.svg';
-import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import Note from 'src/components/Note/Note';
+// icons
+import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 type Props = {
   title: string;
   subTitle: string;
   onPress: () => void;
-  Icon: boolean;
 };
 
-function Option({ title, subTitle, onPress, Icon }: Props) {
+function Option({ title, subTitle, onPress }: Props) {
   return (
     <Pressable
-
-      style={{
-        marginTop: hp(20),
-        flexDirection: "row",
-        alignItems: "center",
-        width: "100%",
-      }}
+      style={styles.optionContainer}
       onPress={onPress}
     >
-      {Icon && (
-        <Box w="16%">
-          <BackupIcon />
-        </Box>
-      )}
-      <Box w={Icon ? '80%' : '96%'}>
-        <Text color="light.lightBlack" fontSize={RFValue(14)} letterSpacing={1.12}>
+      <Box style={{ width: '96%' }}>
+        <Text
+          color="light.lightBlack"
+          style={styles.optionTitle}
+        >
           {title}
         </Text>
-        <Text color="light.GreyText" fontSize={RFValue(12)} letterSpacing={0.6}>
+        <Text
+          color="light.GreyText"
+          style={styles.optionSubtitle}
+        >
           {subTitle}
         </Text>
       </Box>
-      <Box w="4%">
+      <Box style={{ width: '4%' }}>
         <Arrow />
       </Box>
     </Pressable>
@@ -103,33 +95,18 @@ function WalletSettings({ route }) {
             end: [1, 1],
           },
         }}
-        style={{
-          borderRadius: hp(20),
-          width: wp(320),
-          height: hp(75),
-          position: 'relative',
-          marginLeft: -wp(20),
-          marginBottom: hp(0),
-        }}
+        style={styles.walletCardContainer}
       >
-        <Box
-          style={{
-            marginTop: hp(17),
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginHorizontal: wp(20),
-          }}
-        >
+        <Box style={styles.walletCard} >
           <Box>
-            <Text color="light.white" letterSpacing={0.28} fontSize={RFValue(14)}>
+            <Text color="light.white" style={styles.walletName}>
               {walletName}
             </Text>
-            <Text color="light.white" letterSpacing={0.24} fontSize={RFValue(12)} fontWeight={100}>
+            <Text color="light.white" style={styles.walletDescription}>
               {walletDescription}
             </Text>
           </Box>
-          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
+          <Text color="light.white" style={styles.walletBalance}>
             {walletBalance}
           </Text>
         </Box>
@@ -161,7 +138,7 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setAppLoading(false);
     if (testCoinsReceived) {
-      Alert.alert('5000 Sats Received');
+      showToast('5000 Sats Received');
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();
@@ -214,17 +191,10 @@ function WalletSettings({ route }) {
           )}
         />
       </Box>
-      <Box
-        style={{
-          alignItems: "center",
-          marginLeft: wp(25),
-          marginTop: 10,
-          height: hp(425)
-        }}
-      >
+      <Box style={styles.optionsListContainer}>
         <ScrollView
           style={{
-            marginBottom: 10
+            marginBottom: hp(40)
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -234,7 +204,6 @@ function WalletSettings({ route }) {
             onPress={() => {
               navigation.navigate('EditWalletDetails', { wallet });
             }}
-            Icon={false}
           />
           <Option
             title="Show xPub"
@@ -242,7 +211,6 @@ function WalletSettings({ route }) {
             onPress={() => {
               setXPubVisible(true);
             }}
-            Icon={false}
           />
           <Option
             title="Show Cosigner Details"
@@ -250,7 +218,6 @@ function WalletSettings({ route }) {
             onPress={() => {
               setCosignerVisible(true);
             }}
-            Icon={false}
           />
           <Option
             title="Wallet seed words"
@@ -258,7 +225,6 @@ function WalletSettings({ route }) {
             onPress={() => {
               setConfirmPassVisible(true);
             }}
-            Icon={false}
           />
           <Option
             title="Transfer Policy"
@@ -266,7 +232,6 @@ function WalletSettings({ route }) {
             onPress={() => {
               setTransferPolicyVisible(true);
             }}
-            Icon={false}
           />
 
           <Option
@@ -276,7 +241,6 @@ function WalletSettings({ route }) {
               setAppLoading(true);
               getTestSats();
             }}
-            Icon={false}
           />
 
           <Option
@@ -294,7 +258,6 @@ function WalletSettings({ route }) {
                 })
               );
             }}
-            Icon={false}
           />
         </ScrollView>
       </Box>
@@ -309,16 +272,24 @@ function WalletSettings({ route }) {
       </Box>
       {/* Modals */}
       <Box>
-        <ModalWrapper
+        <KeeperModal
           visible={confirmPassVisible}
-          onSwipeComplete={() => setConfirmPassVisible(false)}
-        >
-          <SeedConfirmPasscode
-            closeBottomSheet={() => {
-              setConfirmPassVisible(false);
-            }}
-          />
-        </ModalWrapper>
+          close={() => setConfirmPassVisible(false)}
+          title={walletTranslation.confirmPassTitle}
+          subTitleWidth={wp(240)}
+          subTitle={walletTranslation.confirmPassSubTitle}
+          subTitleColor="#5F6965"
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          textColor="#041513"
+          Content={() => (
+            <SeedConfirmPasscode
+              closeBottomSheet={() => {
+                setConfirmPassVisible(false);
+              }}
+              wallets={wallets}
+              navigation={navigation} />
+          )}
+        />
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
@@ -390,7 +361,55 @@ const styles = ScaledSheet.create({
     marginLeft: 26,
     width: '90%',
     paddingTop: hp(10),
+  },
+  walletCardContainer: {
+    borderRadius: hp(20),
+    width: wp(320),
+    height: hp(75),
+    position: 'relative',
+    marginLeft: -wp(20),
+    marginBottom: hp(0),
+  },
+  walletCard: {
+    marginTop: hp(17),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginHorizontal: wp(20),
+  },
+  walletName: {
+    letterSpacing: 0.28,
+    fontSize: 15
+  },
+  walletDescription: {
+    letterSpacing: 0.24,
+    fontSize: 13,
+    fontWeight: '300'
+  },
+  walletBalance: {
+    letterSpacing: 1.2,
+    fontSize: 23,
+    padding: 5
+  },
+  optionsListContainer: {
+    alignItems: "center",
+    marginLeft: wp(25),
+    marginTop: 10,
+    height: hp(425)
+  },
+  optionContainer: {
+    marginTop: hp(20),
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+  },
+  optionTitle: {
+    fontSize: RFValue(14),
+    letterSpacing: 1.12
+  },
+  optionSubtitle: {
+    fontSize: RFValue(12),
+    letterSpacing: 0.6
   }
 });
 export default WalletSettings;
-export { Option };

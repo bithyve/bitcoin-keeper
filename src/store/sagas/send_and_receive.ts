@@ -18,6 +18,8 @@ import {
   sendPhaseThreeExecuted,
   sendPhaseTwoExecuted,
   setSendMaxFee,
+  crossTransferExecuted,
+  crossTransferFailed,
 } from '../reducers/send_and_receive';
 import { setAverageTxFee, setExchangeRates } from '../reducers/network';
 import {
@@ -269,13 +271,18 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
         recipients
       );
 
-      if (txid)
+      if (txid) {
         yield call(dbManager.updateObjectById, RealmSchema.Wallet, sender.id, {
           specs: sender.specs,
         });
-      else throw new Error('Failed to execute cross transfer; txid missing');
+        yield put(crossTransferExecuted());
+      } else {
+        yield put(crossTransferFailed());
+        throw new Error('Failed to execute cross transfer; txid missing');
+      }
     } else throw new Error('Failed to generate txPrerequisites for cross transfer');
   } catch (err) {
+    yield put(crossTransferFailed());
     console.log({ err });
   }
 }
