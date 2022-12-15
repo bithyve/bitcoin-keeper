@@ -9,6 +9,7 @@ import { updateUaiStack } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { NextIcon } from './HomeScreen';
 import { StyleSheet } from 'react-native';
+import { TransferType } from 'src/common/data/enums/TransferType';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState({});
@@ -52,9 +53,9 @@ function UaiDisplay({ uaiStack }) {
           },
           cta: () => {
             navigtaion.navigate('SendConfirmation', {
-              isVaultTransfer: true,
               uaiSetActionFalse,
               walletId: uai?.entityId,
+              transferType: TransferType.WALLET_TO_VAULT,
             });
             setShowModal(false);
           },
@@ -106,15 +107,11 @@ function UaiDisplay({ uaiStack }) {
     return (
       <>
         <Pressable
-          backgroundColor={"light.AddSignerCard"}
+          backgroundColor={'light.AddSignerCard'}
           onPress={pressHandler}
           style={styles.container}
         >
-          <Text
-            noOfLines={2}
-            color="light.white1"
-            style={styles.uaiTitle}
-          >
+          <Text noOfLines={2} color="light.white1" style={styles.uaiTitle}>
             {uai?.title}
           </Text>
           <NextIcon pressHandler={pressHandler} />
@@ -130,15 +127,12 @@ function UaiDisplay({ uaiStack }) {
           buttonTextColor="#FAFAFA"
           buttonCallback={uaiConfig?.cta}
           textColor="#000"
-          Content={() => (
-            <Text color="#073B36">
-              {uai?.displayText}
-            </Text>
-          )}
+          Content={() => <Text color="#073B36">{uai?.displayText}</Text>}
         />
       </>
     );
-  } return null;
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({
@@ -147,17 +141,17 @@ const styles = StyleSheet.create({
     width: wp(259),
     borderRadius: hp(20),
     marginTop: hp(45),
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   uaiTitle: {
     width: wp(170),
     letterSpacing: 0.6,
     fontSize: RFValue(12),
-    lineHeight: 14
-  }
-})
+    lineHeight: 14,
+  },
+});
 
 export default UaiDisplay;
