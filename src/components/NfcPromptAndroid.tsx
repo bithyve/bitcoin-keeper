@@ -13,15 +13,15 @@ function NfcPrompt({ visible }) {
 
   visible
     ? Animated.timing(animation, {
-        duration: 500,
-        toValue: 1,
-        useNativeDriver: true,
-      }).start()
+      duration: 500,
+      toValue: 1,
+      useNativeDriver: true,
+    }).start()
     : Animated.timing(animation, {
-        duration: 400,
-        toValue: 0,
-        useNativeDriver: true,
-      }).start();
+      duration: 400,
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
 
   const bgAnimStyle = {
     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -43,9 +43,13 @@ function NfcPrompt({ visible }) {
       <View style={[styles.wrapper]}>
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={styles.center}>
             <NFC />
-            <Text style={{ textAlign: 'center', color: '#073E39' }}>
+            <Text
+              color={'light.greenText'}
+              style={{
+                textAlign: 'center',
+              }}>
               Please hold until the scanning is complete...
             </Text>
           </View>
@@ -80,6 +84,11 @@ const styles = StyleSheet.create({
     margin: 20,
     zIndex: 2,
   },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
 
 export default NfcPrompt;
