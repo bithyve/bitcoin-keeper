@@ -13,26 +13,9 @@ import { WalletMap } from '../WalletMap';
 function SignerData({ signer }: { signer: VaultSigner }) {
   return (
     <HStack>
-      <Box
-        width="8"
-        height="8"
-        borderRadius={30}
-        bg="#725436"
-        justifyContent="center"
-        alignItems="center"
-        alignSelf="center"
-      >
-        {WalletMap(signer.type, true).Icon}
-      </Box>
+      <Box style={styles.icon}>{WalletMap(signer.type, true).Icon}</Box>
       <VStack marginX="4" maxW="80%">
-        <Text
-          color="light.lightBlack"
-          fontSize={15}
-          numberOfLines={2}
-          alignItems="center"
-          fontWeight={200}
-          letterSpacing={1.12}
-        >
+        <Text style={styles.name} color="light.lightBlack" numberOfLines={2}>
           {signer.signerName}
         </Text>
         <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
@@ -105,12 +88,30 @@ export default DescriptionModal;
 
 const styles = ScaledSheet.create({
   descriptionEdit: {
-    height: 50,
+    height: 45,
     backgroundColor: '#FDF7F0',
     alignItems: 'center',
     paddingHorizontal: 10,
+    marginVertical: 10,
+    borderRadius: 10,
+    width: windowWidth * 0.7,
   },
   descriptionContainer: {
     width: windowWidth * 0.8,
+  },
+  icon: {
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    backgroundColor: '#725436',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  name: {
+    fontSize: 15,
+    alignItems: 'center',
+    fontWeight: '200',
+    letterSpacing: 1.12,
   },
 });
