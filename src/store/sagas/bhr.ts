@@ -59,6 +59,7 @@ import {
 } from '../sagaActions/bhr';
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
+import { setAppId } from '../reducers/storage';
 
 function* updateAppImageWorker({ payload }) {
   const { walletId } = payload;
@@ -104,7 +105,8 @@ function* updateAppImageWorker({ payload }) {
   }
 }
 
-const getPermutations = (a, n, s = [], t = []) => a.reduce((p, c, i, a) => {
+const getPermutations = (a, n, s = [], t = []) =>
+  a.reduce((p, c, i, a) => {
     n > 1
       ? getPermutations(a.slice(0, i).concat(a.slice(i + 1)), n - 1, p, (t.push(c), t))
       : p.push((t.push(c), t).slice(0));
@@ -136,7 +138,7 @@ function* updateVaultImageWorker({ payload }) {
   );
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
   const vault: Vault = vaults[vaults.length - 1];
-  const {m} = vault.scheme;
+  const { m } = vault.scheme;
   let signersIds = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
@@ -395,6 +397,8 @@ function* getAppImageWorker({ payload }) {
           : null,
         networkType: appImage.networkType,
       };
+      console.log({ app });
+
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
       yield call(
         dbManager.createObject,
@@ -403,22 +407,22 @@ function* getAppImageWorker({ payload }) {
       );
 
       // Wallet recreation
-      if (appImage) {
-        if (appImage.wallets) {
-          for (const [key, value] of Object.entries(appImage.wallets)) {
-            const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
-            yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-            yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
-          }
+      if (appImage.wallets) {
+        for (const [key, value] of Object.entries(appImage.wallets)) {
+          const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+          yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+          yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
         }
-        yield put(setAppRecreated(true));
       }
-    }
-    // Vault recreation
-    if (vaultImage) {
-      const vac = decrypt(encryptionKey, vaultImage.vac);
-      const vault = JSON.parse(decrypt(vac, vaultImage.vault));
-      yield call(dbManager.createObject, RealmSchema.Vault, vault);
+
+      // Vault recreation
+      if (vaultImage) {
+        const vac = decrypt(encryptionKey, vaultImage.vac);
+        const vault = JSON.parse(decrypt(vac, vaultImage.vault));
+        yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      }
+      yield put(setAppId(app.appID));
+      yield put(setAppRecreated(true));
     }
   } catch (err) {
     console.log(err);
