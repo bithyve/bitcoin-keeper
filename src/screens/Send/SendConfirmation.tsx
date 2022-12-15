@@ -156,8 +156,6 @@ function SendConfirmation({ route }) {
         return;
       }
       if (defaultVault) {
-        console.log({ sendMaxFee });
-        console.log(sourceWallet.specs.transferPolicy - sendMaxFee);
         dispatch(
           crossTransfer({
             sender: sourceWallet,
