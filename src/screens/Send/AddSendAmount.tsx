@@ -101,7 +101,7 @@ function AddSendAmount({ route }) {
         title={
           transferType == TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
         }
-        // subtitle={`Sending to ${address}`}
+      // subtitle={`Sending to ${address}`}
       />
       <Box
         style={{
@@ -184,7 +184,9 @@ function AddSendAmount({ route }) {
         </Box>
       </Box>
       {/* {!isKeyboardVisible && ( */}
-      <Box style={styles.appNumPadWrapper}>
+      <Box
+        style={styles.appNumPadWrapper}
+      >
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
@@ -252,9 +254,11 @@ const styles = ScaledSheet.create({
     justifyContent: 'flex-end',
   },
   appNumPadWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    width: windowWidth,
+    position: 'absolute',
+    bottom: 0,
   },
 });
 export default AddSendAmount;

@@ -13,33 +13,24 @@ import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 function WalletDetails({ availableAmt, walletName, isEditable = false }) {
   return (
     <Box
-      justifyContent="space-between"
-      alignItems="center"
-      style={{ marginRight: wp(10) }}
-      flexDirection="row"
+      style={styles.container}
       backgroundColor="light.lightYellow"
-      width="97%"
-      height={hp(54)}
-      borderRadius={10}
     >
       <Box flexDirection="row">
         <TouchableOpacity style={styles.buttonBackground}>
           <IconWallet />
         </TouchableOpacity>
-        <Box marginLeft={wp(10)}>
+        <Box style={{
+          marginLeft: wp(10)
+        }}>
           <Text
-            fontFamily="body"
-            fontWeight="200"
-            fontSize={14}
-            mt="1"
-            numberOfLines={1}
-            letterSpacing={1.12}
             color="light.sendCardHeading"
-            width={wp(100)}
+            numberOfLines={1}
+            style={styles.walletNameText}
           >
             {walletName && walletName}
           </Text>
-          <Text fontFamily="body" fontSize={12} numberOfLines={1}>
+          <Text fontSize={12} numberOfLines={1}>
             Available to spend &nbsp;
             <BTCIcon />
             &nbsp;
@@ -59,23 +50,32 @@ function WalletDetails({ availableAmt, walletName, isEditable = false }) {
           <EditIcon />
         </TouchableOpacity>
       )}
-    </Box>
+    </Box >
   );
 }
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-  },
-
   buttonBackground: {
     backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
+    width: hp(45),
+    height: hp(45),
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: wp(10),
   },
+  container: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "97%",
+    height: hp(70),
+    borderRadius: 10
+  },
+  walletNameText: {
+    marginTop: 3,
+    fontSize: 14,
+    letterSpacing: 1.12,
+    width: wp(100)
+  }
 });
 export default WalletDetails;
