@@ -19,7 +19,6 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
-import { SignerPolicy } from 'src/core/services/interfaces';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -65,7 +64,7 @@ function SetupSigningServer({ route }: { route }) {
     const networkType = config.NETWORK_TYPE;
     const network = WalletUtilities.getNetworkByType(networkType);
 
-    const {policy} = route.params;
+    const { policy } = route.params;
     const signingServerKey: VaultSigner = {
       signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
       type: SignerType.POLICY_SERVER,
@@ -82,6 +81,7 @@ function SetupSigningServer({ route }: { route }) {
     };
     dispatch(addSigningDevice(signingServerKey));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 
   const otpContent = useCallback(() => {
@@ -90,29 +90,24 @@ function SetupSigningServer({ route }: { route }) {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
       if (otp.length < 6) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpPasscode += text;
           setOtp(tmpPasscode);
         }
       }
-      if (otp && text == 'x') {
+      if (otp && text === 'x') {
         setOtp(otp.slice(0, -1));
       }
     };
 
-    const onDeletePressed = (text) => {
+    const onDeletePressed = () => {
       setOtp(otp.slice(0, otp.length - 1));
     };
 
     return (
       <Box width={hp(280)}>
         <Box>
-          <CVVInputsView
-            passCode={otp}
-            passcodeFlag={false}
-            backgroundColor
-            textColor
-          />
+          <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           <Text
             fontSize={13}
             fontWeight={200}

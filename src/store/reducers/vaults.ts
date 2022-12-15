@@ -35,6 +35,12 @@ export type VaultState = {
   sdIntroModal: boolean;
 };
 
+export type SignerUpdatePayload = {
+  signer: VaultSigner;
+  key: string;
+  value: any;
+};
+
 const initialState: VaultState = {
   signers: [],
   isGeneratingNewVault: false,
@@ -65,6 +71,16 @@ const vaultSlice = createSlice({
         );
       }
     },
+    updateSigningDevice: (state, action: PayloadAction<SignerUpdatePayload>) => {
+      const { signer, key, value } = action.payload;
+      state.signers = state.signers.map((item) => {
+        if (item && item.signerId === signer.signerId) {
+          item[key] = value;
+          return item;
+        }
+        return item;
+      });
+    },
     vaultCreated: (state, action: PayloadAction<VaultCreationPayload>) => {
       const {
         hasNewVaultGenerationFailed = false,
@@ -81,7 +97,8 @@ const vaultSlice = createSlice({
       state.intrimVault = intrimVault;
     },
     updateIntrimVault: (state, action: PayloadAction<Vault>) => {
-      state.intrimVault = action.payload;
+      if (!Object.keys(state.intrimVault.specs.activeAddresses.external).length)
+        state.intrimVault = action.payload;
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
@@ -118,7 +135,8 @@ export const {
   removeSigningDevice,
   updateIntrimVault,
   setIntroModal,
-  setSdIntroModal
+  setSdIntroModal,
+  updateSigningDevice,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

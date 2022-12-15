@@ -60,7 +60,7 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Send', { wallet: vault }));
+            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
           <Send />
@@ -359,8 +359,11 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
+                numberOfLines={2}
               >
-                {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
+                {signer.signerDescription
+                  ? signer.signerDescription
+                  : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
               </Text>
             </VStack>
           </TouchableOpacity>

@@ -1,4 +1,5 @@
 import Realm from 'realm';
+import { captureError } from 'src/core/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
 
@@ -7,7 +8,7 @@ export class RealmDatabase {
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 33;
+  public static schemaVersion = 34;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -24,12 +25,12 @@ export class RealmDatabase {
         schema,
         schemaVersion: RealmDatabase.schemaVersion,
         encryptionKey: key,
-        migration: (oldRealm, newRealm) => {},
+        migration: () => {},
       };
       this.realm = await Realm.open(realmConfig);
       return true;
     } catch (err) {
-      console.log('failed to initialize the database', { err });
+      captureError(err);
       return false;
     }
   };

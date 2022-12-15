@@ -22,6 +22,8 @@ import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useNfcModal from 'src/hooks/useNfcModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupColdCard() {
@@ -31,12 +33,13 @@ function SetupColdCard() {
   const isMultisig = subscriptionScheme.n !== 1;
 
   const { nfcVisible, withNfcModal } = useNfcModal();
+  const { showToast } = useToastMessage();
 
   const addColdCard = async () => {
     try {
-      let { xpub, derivationPath, xfp } = await withNfcModal(
-        isMultisig ? getColdcardDetails : getCCGenericJSON
-      );
+      const ccDetails = await withNfcModal(isMultisig ? getColdcardDetails : getCCGenericJSON);
+      let { xpub } = ccDetails;
+      const { derivationPath, xfp } = ccDetails;
       const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
       const coldcard = generateSignerFromMetaData({
@@ -48,6 +51,7 @@ function SetupColdCard() {
       });
       dispatch(addSigningDevice(coldcard));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(coldcard.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
@@ -61,6 +65,7 @@ function SetupColdCard() {
       if (cc) {
         dispatch(addSigningDevice(cc));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${cc.signerName} added successfully`, <TickIcon />);
       }
     } catch (error) {
       captureError(error);

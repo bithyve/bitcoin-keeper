@@ -10,18 +10,10 @@ import EditIcon from 'src/assets/images/svgs/edit.svg';
 import BTCIcon from 'src/assets/images/svgs/btc_black.svg';
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 
-function WalletDetails({ availableAmt, walletName }) {
+function WalletDetails({ availableAmt, walletName, isEditable = false }) {
   return (
     <Box
-
-      style={{
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexDirection: "row",
-        width: "97%",
-        height: hp(70),
-        borderRadius: 10
-      }}
+      style={styles.container}
       backgroundColor="light.lightYellow"
     >
       <Box flexDirection="row">
@@ -34,12 +26,7 @@ function WalletDetails({ availableAmt, walletName }) {
           <Text
             color="light.sendCardHeading"
             numberOfLines={1}
-            style={{
-              marginTop: 3,
-              fontSize: 14,
-              letterSpacing: 1.12,
-              width: wp(100)
-            }}
+            style={styles.walletNameText}
           >
             {walletName && walletName}
           </Text>
@@ -48,28 +35,25 @@ function WalletDetails({ availableAmt, walletName }) {
             <BTCIcon />
             &nbsp;
             <Text fontWeight="bold" fontSize={14}>
-              {availableAmt && availableAmt}
+              {availableAmt && availableAmt} sats
             </Text>
           </Text>
         </Box>
       </Box>
-      <TouchableOpacity
-        style={{
-          marginRight: wp(5),
-        }}
-      >
-        {/* { Do not have right assert in xd} */}
-        <EditIcon />
-      </TouchableOpacity>
-    </Box>
+      {isEditable && (
+        <TouchableOpacity
+          style={{
+            marginRight: wp(5),
+          }}
+        >
+          {/* { Do not have right assert in xd} */}
+          <EditIcon />
+        </TouchableOpacity>
+      )}
+    </Box >
   );
 }
 const styles = ScaledSheet.create({
-  Container: {
-    flex: 1,
-    padding: '20@s',
-  },
-
   buttonBackground: {
     backgroundColor: '#FAC48B',
     width: hp(45),
@@ -79,5 +63,19 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
     marginLeft: wp(10),
   },
+  container: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "97%",
+    height: hp(70),
+    borderRadius: 10
+  },
+  walletNameText: {
+    marginTop: 3,
+    fontSize: 14,
+    letterSpacing: 1.12,
+    width: wp(100)
+  }
 });
 export default WalletDetails;
