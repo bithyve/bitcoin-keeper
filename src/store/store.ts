@@ -7,7 +7,7 @@ import { reduxStorage } from 'src/storage';
 import loginReducer from './reducers/login';
 import notificationsReducer from './reducers/notifications';
 import bhrReducer from './reducers/bhr';
-import { rootSaga } from './sagas';
+import rootSaga from './sagas';
 import sendAndReceiveReducer from './reducers/send_and_receive';
 import settingsReducer from './reducers/settings';
 import storageReducer from './reducers/storage';

@@ -1,4 +1,4 @@
-import { Box, Link, Modal, Text } from 'native-base';
+import { Box, Modal, Pressable, Text } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -7,8 +7,9 @@ import CloseGreen from 'src/assets/icons/modal_close_green.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 
-function KeeperModal(props: {
+type ModalProps = {
   visible: boolean;
   close: any;
   title?: string;
@@ -29,29 +30,56 @@ function KeeperModal(props: {
   learnMoreCallback?: any;
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
-}) {
+  justifyContent?: ResponsiveValue<string | number>;
+};
+
+KeeperModal.defaultProps = {
+  title: 'Title',
+  subTitle: null,
+  subTitleWidth: wp(270),
+  modalBackground: ['#F7F2EC', '#F7F2EC'],
+  buttonBackground: ['#00836A', '#073E39'],
+  buttonText: null,
+  buttonTextColor: 'white',
+  buttonCallback: () => {},
+  textColor: '#000',
+  subTitleColor: null,
+  DarkCloseIcon: false,
+  Content: () => null,
+  dismissible: true,
+  showButtons: true,
+  learnMore: false,
+  learnMoreCallback: () => {},
+  closeOnOverlayClick: true,
+  showCloseIcon: true,
+  justifyContent: 'flex-end',
+};
+
+function KeeperModal(props: ModalProps) {
   const {
     visible,
     close,
-    title = 'Title',
-    subTitle = null,
-    subTitleWidth = wp(270),
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
-    buttonBackground = ['#00836A', '#073E39'],
-    buttonText = null,
-    buttonTextColor = 'white',
-    buttonCallback = props.close || null,
-    textColor = '#000',
-    subTitleColor = textColor,
-    DarkCloseIcon = false,
-    Content = () => <></>,
-    dismissible = true,
-    showButtons = true,
-    learnMore = false,
-    learnMoreCallback = () => {},
-    closeOnOverlayClick = true,
-    showCloseIcon = true,
+    title,
+    subTitle,
+    subTitleWidth,
+    modalBackground,
+    buttonBackground,
+    buttonText,
+    buttonTextColor,
+    buttonCallback,
+    textColor,
+    subTitleColor: ignored,
+    DarkCloseIcon,
+    Content,
+    dismissible,
+    showButtons,
+    learnMore,
+    learnMoreCallback,
+    closeOnOverlayClick,
+    showCloseIcon,
+    justifyContent,
   } = props;
+  const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
 
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
@@ -59,7 +87,7 @@ function KeeperModal(props: {
     return null;
   }
 
-  const getCloseIcon = () => DarkCloseIcon ? <CloseGreen /> : <Close />;
+  const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -68,7 +96,7 @@ function KeeperModal(props: {
       avoidKeyboard
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
-      justifyContent="flex-end"
+      justifyContent={justifyContent}
     >
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
@@ -96,20 +124,20 @@ function KeeperModal(props: {
             <Modal.Body>
               <Content />
             </Modal.Body>
-            {((showButtons && learnMore) || buttonText) && (
+            {((showButtons && learnMore) || !!buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
                   <Box borderColor="light.yellow2" style={styles.learnMoreContainer}>
-                    <Link onPress={learnMoreCallback}>
+                    <Pressable onPress={learnMoreCallback}>
                       <Text color="light.yellow2" style={styles.seeFAQs}>
                         See FAQs
                       </Text>
-                    </Link>
+                    </Pressable>
                   </Box>
                 ) : (
                   <Box />
                 )}
-                {buttonText && (
+                {!!buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
                     <Box
                       bg={{

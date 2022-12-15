@@ -33,8 +33,8 @@ export default function CreatePin(props) {
   const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
 
   const { translations } = useContext(LocalizationContext);
-  const {login} = translations;
-  const {common} = translations;
+  const { login } = translations;
+  const { common } = translations;
 
   useEffect(() => {
     if (hasCreds) {
@@ -148,17 +148,17 @@ export default function CreatePin(props) {
 
   return (
     <LinearGradient testID="main" colors={['#00836A', '#073E39']} style={styles.linearGradient}>
-      <Box flex={1}>
+      <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
         </Box>
-        <Box flex={1}>
+        <Box style={styles.wrapper}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text ml={5} fontSize={RFValue(22)} color="light.textLight" fontFamily="heading">
+              <Text style={styles.welcomeText} color="light.textLight" fontFamily="heading">
                 {login.welcome}
               </Text>
-              <Text color="light.textColor" fontSize={RFValue(12)} ml={5} fontFamily="body">
+              <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -177,16 +177,14 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length == 4 ? (
               <Box>
-                <Text color="light.textColor" fontSize={RFValue(12)} ml={5}>
+                <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
                   {/* pin input view */}
                   <PinInputsView
                     passCode={confirmPasscode}
-                    passcodeFlag={
-                      !(confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2)
-                    }
+                    passcodeFlag={!(confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2)}
                     borderColor={
                       passcode !== confirmPasscode && confirmPasscode.length == 4
                         ? '#FF8F79'
@@ -195,27 +193,13 @@ export default function CreatePin(props) {
                   />
                   {/*  */}
                   {passcode != confirmPasscode && confirmPasscode.length == 4 && (
-                    <Text
-                      color="light.error"
-                      fontSize={RFValue(10)}
-                      fontWeight={200}
-                      width={wp('68%')}
-                      textAlign="right"
-                      fontStyle="italic"
-                      // mt={hp('1.5%')}
-                    >
+                    <Text color="light.error" fontStyle="italic" style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
                 </Box>
                 <HStack justifyContent="space-between" paddingTop="7">
-                  <Text
-                    color="light.white1"
-                    fontWeight="200"
-                    px="8"
-                    fontSize={13}
-                    letterSpacing={1}
-                  >
+                  <Text color="light.white1" style={styles.bitcoinTestnetText}>
                     Use bitcoin testnet
                   </Text>
                   <Switch
@@ -253,73 +237,31 @@ export default function CreatePin(props) {
 }
 
 const styles = StyleSheet.create({
-  textBoxStyles: {
-    borderWidth: 0.5,
-    height: wp('13%'),
-    width: wp('13%'),
-    borderRadius: 7,
-    marginLeft: 20,
-    // borderColor: Colors.borderColor,
-    borderColor: '#E3E3E3',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: Colors.white,
-    backgroundColor: '#FDF7F0',
-  },
-  textBoxActive: {
-    borderWidth: 0.5,
-    height: wp('13%'),
-    width: wp('13%'),
-    borderRadius: 7,
-    marginLeft: 20,
-    elevation: 10,
-    // shadowColor: Colors.borderColor,
-    shadowColor: '#E3E3E3',
-    shadowOpacity: 0.35,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    // borderColor: Colors.borderColor,
-    borderColor: '#E3E3E3',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: Colors.white,
-    backgroundColor: '#FDF7F0',
-  },
-  keyPadElementTouchable: {
-    flex: 1,
-    height: hp('8%'),
-    fontSize: RFValue(18),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  keyPadElementText: {
-    // color: Colors.blue,
-    color: '#FFF',
-    fontSize: RFValue(25),
-    // fontFamily: Fonts.FiraSansRegular,
-    fontStyle: 'normal',
-  },
-  proceedButtonView: {
-    marginLeft: 20,
-    marginTop: hp('4%'),
-    height: wp('13%'),
-    width: wp('30%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-    elevation: 10,
-    // shadowColor: Colors.shadowBlue,
-    // shadowColor: '#DDECF5',
-    shadowOpacity: 0.2,
-    shadowOffset: {
-      width: 15,
-      height: 15,
-    },
-  },
   linearGradient: {
     flex: 1,
     padding: 10,
+  },
+  wrapper: {
+    flex: 1,
+  },
+  welcomeText: {
+    marginLeft: 18,
+    fontSize: RFValue(22),
+  },
+  labelText: {
+    fontSize: RFValue(12),
+    marginLeft: 18,
+  },
+  errorText: {
+    fontSize: RFValue(10),
+    fontWeight: '400',
+    width: wp('68%'),
+    textAlign: 'right',
+  },
+  bitcoinTestnetText: {
+    fontWeight: '400',
+    paddingHorizontal: 16,
+    fontSize: 13,
+    letterSpacing: 1,
   },
 });

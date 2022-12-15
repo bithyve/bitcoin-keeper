@@ -36,22 +36,25 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { TransferType } from 'src/common/data/enums/TransferType';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { wallet } = route.params;
+  const { useQuery } = useContext(RealmWrapperContext);
+
+  const { sender } = route.params;
+  const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [showNote, setShowNote] = useState(true);
 
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
-  const { useQuery } = useContext(RealmWrapperContext);
+  const network = WalletUtilities.getNetworkByType(sender.networkType);
   const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const otherWallets: Wallet[] = allWallets.filter(
-    (existingWallet) => existingWallet.id !== wallet.id
+    (existingWallet) => existingWallet.id !== sender.id
   );
 
   useEffect(() => {
@@ -76,18 +79,23 @@ function SendScreen({ route }) {
 
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
-  const navigateToNext = (address: string, amount?: string, from = 'Address') => {
+  const navigateToNext = (
+    address: string,
+    transferType: TransferType,
+    amount?: string,
+    recipient?: Wallet | Vault
+  ) => {
     if (!avgFees) {
       Alert.alert("Average transaction fees couldn't be fetched!");
       return;
     }
+
     navigation.navigate('AddSendAmount', {
-      wallet,
+      sender,
+      recipient,
       address,
       amount,
-      availableAmt: wallet.specs.balances.confirmed,
-      walletName: wallet.presentationData.name,
-      from,
+      transferType,
     });
   };
 
@@ -97,10 +105,22 @@ function SendScreen({ route }) {
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        navigateToNext(address);
+        sender.entityKind == 'VAULT'
+          ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
+          : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        navigateToNext(address, amount ? amount.toString() : null);
+        sender.entityKind == 'VAULT'
+          ? navigateToNext(
+              address,
+              TransferType.VAULT_TO_ADDRESS,
+              amount ? amount.toString() : null
+            )
+          : navigateToNext(
+              address,
+              TransferType.WALLET_TO_ADDRESS,
+              amount ? amount.toString() : null
+            );
         break;
       default:
     }
@@ -108,7 +128,11 @@ function SendScreen({ route }) {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      navigateToNext(getNextFreeAddress(item), null, 'Wallet');
+      if (sender.entityKind == 'VAULT') {
+        navigateToNext(getNextFreeAddress(item), TransferType.VAULT_TO_WALLET, null, item);
+      } else {
+        navigateToNext(getNextFreeAddress(item), TransferType.WALLET_TO_WALLET, null, item);
+      }
     };
     return (
       <Box
@@ -131,11 +155,7 @@ function SendScreen({ route }) {
 
   return (
     <ScreenWrapper>
-      <ScrollView
-        style={{
-          flex: 1,
-        }}
-      >
+      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : null}
           enabled
@@ -158,13 +178,7 @@ function SendScreen({ route }) {
               />
             </Box>
             {/* send manually option */}
-            <Box
-              flexDirection="row"
-              marginY={hp(2)}
-              width="100%"
-              justifyContent="center"
-              alignItems="center"
-            >
+            <Box style={styles.inputWrapper}>
               <TextInput
                 placeholder="or enter address manually"
                 placeholderTextColor="#4F5955"
@@ -175,16 +189,12 @@ function SendScreen({ route }) {
             </Box>
 
             {/* Send to Wallet options */}
-            <Box marginTop={hp(20)}>
+            <Box style={styles.sendToWalletWrapper}>
               <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>
-                <View
-                  flexDirection="row"
-                  style={styles.walletContainer}
-                  backgroundColor="light.textInputBackground"
-                >
+                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
                   <FlatList
                     data={otherWallets}
                     renderItem={renderWallets}
@@ -200,15 +210,7 @@ function SendScreen({ route }) {
       </ScrollView>
       {/* {Bottom note} */}
       {showNote && (
-        <Box
-          style={{
-            paddingLeft: 20,
-            position: 'absolute',
-            bottom: hp(20),
-            width: wp(300),
-          }}
-          backgroundColor="light.ReceiveBackground"
-        >
+        <Box style={styles.noteWrapper} backgroundColor="light.ReceiveBackground">
           <Note
             title={common.note}
             subtitle="Make sure the address or QR is the one where you want to send the funds to"
@@ -245,6 +247,16 @@ const styles = ScaledSheet.create({
     marginVertical: hp(40),
     flex: 1,
   },
+  scrollViewWrapper: {
+    flex: 1,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    marginVertical: hp(2),
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   textInput: {
     width: '90%',
     backgroundColor: Colors?.textInputBackground,
@@ -280,6 +292,15 @@ const styles = ScaledSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  noteWrapper: {
+    paddingLeft: 20,
+    position: 'absolute',
+    bottom: hp(20),
+    width: wp(300),
+  },
+  sendToWalletWrapper: {
+    marginTop: hp(20),
   },
 });
 export default SendScreen;
