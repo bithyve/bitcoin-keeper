@@ -59,6 +59,7 @@ import {
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
+  UPDATE_SIGNER_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -466,7 +467,7 @@ function* refreshWalletsWorker({
   };
 }) {
   const { wallets } = payload;
-  const {options} = payload;
+  const { options } = payload;
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
@@ -723,3 +724,33 @@ export const updateWalletDetailWatcher = createWatcher(
   updateWalletDetailsWorker,
   UPDATE_WALLET_DETAILS
 );
+
+function* updateSignerDetailsWorker({ payload }) {
+  const {
+    signer,
+    key,
+    value,
+  }: {
+    signer: VaultSigner;
+    key: string;
+    value: any;
+  } = payload;
+
+  const activeVault: Vault = dbManager
+    .getCollection(RealmSchema.Vault)
+    .filter((vault: Vault) => !vault.archived)[0];
+
+  const updatedSigners = activeVault.signers.map((item) => {
+    if (item.signerId === signer.signerId) {
+      item[key] = value;
+      return item;
+    }
+    return item;
+  });
+
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, activeVault.id, {
+    signers: updatedSigners,
+  });
+}
+
+export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);

@@ -7,6 +7,7 @@ import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -45,6 +46,7 @@ import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -548,6 +550,7 @@ function HardwareModalMap({ type, visible, close }) {
     );
   };
 
+  const { showToast } = useToastMessage();
   const navigateToSeedWordSetup = () => {
     close();
     const mnemonic = bip39.generateMnemonic();
@@ -561,6 +564,7 @@ function HardwareModalMap({ type, visible, close }) {
             const softSigner = setupSeedWordsBasedKey(mnemonic);
             dispatch(addSigningDevice(softSigner));
             navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+            showToast(`${softSigner.signerName} added successfully`, <TickIcon />);
           },
         },
       })
@@ -591,6 +595,7 @@ function HardwareModalMap({ type, visible, close }) {
       }
       dispatch(addSigningDevice(hw));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${hw.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       captureError(error);
       Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
@@ -645,6 +650,7 @@ function HardwareModalMap({ type, visible, close }) {
                     const mobileKey = await setupMobileKey({ primaryMnemonic });
                     dispatch(addSigningDevice(mobileKey));
                     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+                    showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
                   } else Alert.alert('Incorrect password. Try again!');
                 }}
                 value="Confirm"

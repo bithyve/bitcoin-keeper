@@ -359,8 +359,11 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
+                numberOfLines={2}
               >
-                {`Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
+                {signer.signerDescription
+                  ? signer.signerDescription
+                  : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
               </Text>
             </VStack>
           </TouchableOpacity>
