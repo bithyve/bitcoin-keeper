@@ -6,6 +6,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
+import { ElectrumTransaction } from './interface';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '35.177.46.45', ssl: '50002' }],
@@ -116,7 +117,7 @@ export default class ElectrumClient {
     addresses: string[],
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
-  ) {
+  ): Promise<{}> {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const res = {};
 
@@ -164,7 +165,10 @@ export default class ElectrumClient {
     addresses: string[],
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
-  ) {
+  ): Promise<{
+    historyByAddress: {};
+    txids: any[];
+  }> {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const historyByAddress = {};
     const txids = [];
@@ -210,7 +214,7 @@ export default class ElectrumClient {
     txids: string[],
     verbose: boolean = true,
     batchsize: number = 40
-  ) {
+  ): Promise<{ [txid: string]: ElectrumTransaction }> {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
@@ -226,11 +230,17 @@ export default class ElectrumClient {
 
       for (const txdata of results) {
         if (txdata.error && txdata.error.code === -32600) {
-          // TODO: response too large, might have to handle it by doing a single call
+          // TODO: large response error, would need to handle it over a single call
         }
 
         res[txdata.param] = txdata.result;
         if (res[txdata.param]) delete res[txdata.param].hex;
+
+        // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
+        for (const vout of res[txdata.param].vout || []) {
+          if (vout?.scriptPubKey?.address)
+            vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+        }
       }
     }
 
