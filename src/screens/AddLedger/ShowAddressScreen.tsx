@@ -10,6 +10,8 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config from 'src/core/config';
 import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function ShowAddressScreen({ transport }) {
   const [error, setError] = useState(null);
@@ -30,6 +32,7 @@ function ShowAddressScreen({ transport }) {
       unmounted.current = true;
     };
   }, []);
+  const { showToast } = useToastMessage();
 
   const fetchAddress = async () => {
     try {
@@ -56,13 +59,9 @@ function ShowAddressScreen({ transport }) {
         addedOn: new Date(),
         storageType: SignerStorage.COLD,
       };
-      // const {
-      //   xpub: xpub2,
-      //   masterFingerprint: xfp,
-      //   derivationPath,
-      // } = generateMockExtendedKey(EntityKind.VAULT);
       dispatch(addSigningDevice(signer));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${signer.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       // in this case, user is likely not on Ethereum app
       if (unmounted) return;
