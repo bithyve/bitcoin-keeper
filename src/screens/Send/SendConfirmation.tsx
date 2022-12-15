@@ -254,7 +254,7 @@ function SendConfirmation({ route }) {
       switch (transferType) {
         case TransferType.VAULT_TO_VAULT:
           return isSend ? (
-            <Card title="Old Vault" subTitle={`Moving funds ${getAmount(amount)}sats`} />
+            <Card title="Old Vault" subTitle={`Moving funds all funds`} isVault={true} />
           ) : (
             <Card
               title="New Vault"

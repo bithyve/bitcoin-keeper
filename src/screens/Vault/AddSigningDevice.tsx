@@ -249,7 +249,7 @@ function AddSigningDevice() {
     if (sendPhaseOneState.isSuccessful) {
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
-          wallet: activeVault,
+          sender: activeVault,
           recipients,
           transferType: TransferType.VAULT_TO_VAULT,
         })

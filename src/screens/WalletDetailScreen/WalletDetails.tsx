@@ -43,7 +43,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
 import { TransferType } from 'src/common/data/enums/TransferType';
 
@@ -158,7 +158,18 @@ function WalletDetails() {
     setPullRefresh(false);
   };
 
-  const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
+  const renderTransactionElement = ({ item }) => (
+    <TransactionElement
+      transaction={item}
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate('TransactionDetails', {
+            transaction: item,
+          })
+        );
+      }}
+    />
+  );
 
   function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) {
     return (
@@ -269,7 +280,6 @@ function WalletDetails() {
               onPress={() => {
                 if (vaultExsist) {
                   navigation.navigate('SendConfirmation', {
-                    isVaultTransfer: true,
                     transferType: TransferType.WALLET_TO_VAULT,
                     walletId: wallets[walletIndex].id,
                   });
@@ -301,12 +311,13 @@ function WalletDetails() {
             <Text color="light.textBlack" style={styles.transactionText}>
               Transactions
             </Text>
-            <Box style={styles.viewAllContainer}>
+            {/* Screen not implemented yet  */}
+            {/* <Box style={styles.viewAllContainer}>
               <Text color="light.light" style={styles.viewAllText}>
                 View All
               </Text>
               <IconArrowBlack />
-            </Box>
+            </Box> */}
           </Box>
 
           <Box style={styles.transactionsListContainer}>
