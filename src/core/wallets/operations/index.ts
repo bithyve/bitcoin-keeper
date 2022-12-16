@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-dupe-else-if */
@@ -38,6 +39,7 @@ import {
   EntityKind,
   NetworkType,
   SignerType,
+  TransactionType,
   TxPriority,
   WalletType,
 } from '../enums';
@@ -439,7 +441,88 @@ export default class WalletOperations {
       }
 
       // sync utxos against external + internal addresses(w/ gap-limit)
-      const utxosByAddress = await ElectrumClient.syncUTXOByAddresses(addresses, network);
+      const utxosByAddress = await ElectrumClient.syncUTXOByAddress(addresses, network);
+      const { historyByAddress, txids } = await ElectrumClient.syncHistoryByAddress(
+        addresses,
+        network
+      );
+
+      const transactions: Transaction[] = [];
+      const txs = await ElectrumClient.getTransactionsById(txids);
+
+      // saturate transaction:  inputs-params, type, amount
+      const inputTxIds = [];
+      for (const txid in txs) {
+        for (const vin of txs[txid].vin) inputTxIds.push(vin.txid);
+      }
+      const inputTxs = await ElectrumClient.getTransactionsById(inputTxIds);
+
+      for (const txid in txs) {
+        const tx = txs[txid];
+        // popluate tx-inputs with addresses and values
+        const inputs = tx.vin;
+        for (let index = 0; index < tx.vin.length; index++) {
+          const input = inputs[index];
+
+          const inputTx = inputTxs[input.txid];
+          if (inputTx && inputTx.vout[input.vout]) {
+            const vout = inputTx.vout[input.vout];
+            input.addresses = vout.scriptPubKey.addresses;
+            input.value = vout.value;
+          }
+        }
+
+        // calculate cumulative amount and transaction type
+        const outputs = tx.vout;
+        let fee = 0; // delta b/w inputs and outputs
+        let amount = 0;
+        const senderAddresses = [];
+        const recipientAddresses = [];
+
+        for (const input of inputs) {
+          const inputAddress = input.addresses[0];
+          if (
+            externalAddresses[inputAddress] !== undefined ||
+            internalAddresses[inputAddress] !== undefined
+          )
+            amount -= input.value;
+
+          senderAddresses.push(inputAddress);
+          fee += input.value;
+        }
+
+        for (const output of outputs) {
+          const outputAddress = output.scriptPubKey.addresses[0];
+          if (
+            externalAddresses[outputAddress] !== undefined ||
+            internalAddresses[outputAddress] !== undefined
+          )
+            amount += output.value;
+
+          recipientAddresses.push(outputAddress);
+          fee -= output.value;
+        }
+
+        const transaction: Transaction = {
+          txid,
+          confirmations: tx.confirmations ? tx.confirmations : 0,
+          status: tx.confirmations ? 'Confirmed' : 'Unconfirmed',
+          fee: Math.floor(fee * 1e8),
+          date: tx.time
+            ? new Date(tx.time * 1000).toUTCString()
+            : new Date(Date.now()).toUTCString(),
+          transactionType: amount > 0 ? TransactionType.RECEIVED : TransactionType.SENT,
+          amount: Math.floor(Math.abs(amount) * 1e8),
+          walletType: wallet.type,
+          walletName: wallet.presentationData.name,
+          recipientAddresses,
+          senderAddresses,
+          blockTime: tx.blocktime,
+          blockhash: tx.blockhash,
+        };
+
+        transactions.push(transaction);
+      }
 
       const balances: Balances = {
         confirmed: 0,
@@ -467,6 +550,7 @@ export default class WalletOperations {
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
       wallet.specs.confirmedUTXOs = confirmedUTXOs;
       wallet.specs.balances = balances;
+      wallet.specs.transactions = transactions;
       // wallet.specs.nextFreeAddressIndex = nextFreeAddressIndex;
       // wallet.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
       // wallet.specs.activeAddresses = activeAddresses;
