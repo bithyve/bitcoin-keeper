@@ -48,7 +48,7 @@ function EditWalletSettings({ route }) {
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
       />
-      <View marginX={4} marginY={windowHeight / 12}>
+      <View style={styles.inputWrapper}>
         <Input
           //   placeholder={walletText.WalletName}
           placeholderTextColor="light.greenText"
@@ -71,7 +71,7 @@ function EditWalletSettings({ route }) {
           borderWidth="0"
           marginY={2}
         />
-        <View marginY={20}>
+        <View style={styles.buttonWrapper}>
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
@@ -110,6 +110,13 @@ const styles = ScaledSheet.create({
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: RFValue(13),
     letterSpacing: 0.96,
+  },
+  inputWrapper: {
+    marginHorizontal: 4,
+    marginVertical: windowHeight / 15,
+  },
+  buttonWrapper: {
+    marginVertical: 25,
   },
 });
 export default EditWalletSettings;
