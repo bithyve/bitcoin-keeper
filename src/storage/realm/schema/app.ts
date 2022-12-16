@@ -7,11 +7,11 @@ export const StoreSubscriptionSchema: ObjectSchema = {
   properties: {
     name: {
       type: 'string',
-      default: SubscriptionTier.PLEB,
+      default: SubscriptionTier.L1,
     },
     productId: {
       type: 'string',
-      default: SubscriptionTier.PLEB,
+      default: SubscriptionTier.L1,
     },
     receipt: {
       type: 'string?',

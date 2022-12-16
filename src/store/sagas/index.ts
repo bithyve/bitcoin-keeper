@@ -15,6 +15,7 @@ import {
   updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
   validateSigningServerRegistrationWatcher,
+  updateSignerDetails,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -57,9 +58,8 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
-import { updateSignerPolicy } from '../sagaActions/wallets';
 
-export const rootSaga = function* () {
+const rootSaga = function* () {
   const sagas = [
     // login
     credentialsAuthWatcher,
@@ -91,6 +91,7 @@ export const rootSaga = function* () {
     addSigningDeviceWatcher,
     migrateVaultWatcher,
     finaliseVaultMigrationWatcher,
+    updateSignerDetails,
 
     // send and receive
     feeAndExchangeRatesWatcher,
@@ -139,3 +140,5 @@ export const rootSaga = function* () {
     )
   );
 };
+
+export default rootSaga;

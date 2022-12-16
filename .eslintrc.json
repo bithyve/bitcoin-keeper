@@ -29,7 +29,8 @@
     "import/extensions": "off",
     "import/no-extraneous-dependencies": "off",
     "global-require": "off",
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
+    "no-shadow": "off"
   },
   "settings": {
     "import/parsers": {

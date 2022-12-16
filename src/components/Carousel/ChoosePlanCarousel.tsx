@@ -22,12 +22,12 @@ function ChoosePlanCarousel(props) {
   };
 
   const getBtnTitle = (item) => {
-    if (item.productId === SubscriptionTier.PLEB) {
+    if (item.productId === SubscriptionTier.L1) {
       return 'Downgrade';
     }
     if (
-      item.name.split(' ')[0] === SubscriptionTier.HODLER &&
-      subscription.name === SubscriptionTier.DIAMOND_HANDS
+      item.name.split(' ')[0] === SubscriptionTier.L2 &&
+      subscription.name === SubscriptionTier.L3
     ) {
       return 'Downgrade';
     }
@@ -72,13 +72,7 @@ function ChoosePlanCarousel(props) {
             >
               {item.name}
             </Text>
-            <Text
-              fontSize={10}
-              color="light.textLight"
-              mb={2}
-              fontWeight="200"
-              letterSpacing={0.5}
-            >
+            <Text fontSize={10} color="light.textLight" mb={2} fontWeight="200" letterSpacing={0.5}>
               {item.subTitle}
             </Text>
             {currentPosition == index && subscription.productId !== item.productId ? (

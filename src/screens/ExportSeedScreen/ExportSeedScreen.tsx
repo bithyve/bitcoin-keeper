@@ -1,5 +1,5 @@
 import { Box, Text } from 'native-base';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -46,7 +46,7 @@ function ExportSeedScreen({ route, navigation }) {
   function SeedCard({ item, index }: { item; index }) {
     return (
       <TouchableOpacity
-        style={{ width: '50%' }}
+        style={styles.seedCardContainer}
         onPress={() => {
           setShowWordIndex((prev) => {
             if (prev === index) {
@@ -58,31 +58,14 @@ function ExportSeedScreen({ route, navigation }) {
       >
         <Box
           backgroundColor="light.lightYellow"
-          flexDirection="row"
-          alignItems="center"
-          padding={4}
-          borderRadius={10}
-          marginX={3}
-          marginY={1.5}
           opacity={showWordIndex === index ? 1 : 0.5}
+          style={styles.seedCardWrapper}
         >
-          <Text
-            fontSize={RFValue(19)}
-            fontWeight={300}
-            letterSpacing={1.64}
-            marginRight={3}
-            color="light.greenText2"
-          >
+          <Text style={styles.seedTextStyle} color="light.greenText2">
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text
-            fontSize={RFValue(19)}
-            fontWeight={200}
-            backgroundColor="green.700"
-            letterSpacing={1}
-            color="light.seedText"
-          >
+          <Text style={styles.seedTextStyle01} backgroundColor="green.700" color="light.seedText">
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -95,7 +78,7 @@ function ExportSeedScreen({ route, navigation }) {
   );
 
   return (
-    <Box flex={1} padding={5} background="light.ReceiveBackground">
+    <Box style={styles.container} background="light.ReceiveBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title={seedText.recoveryPhrase}
@@ -112,7 +95,7 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
-      <Box alignItems="flex-end" mb={5}>
+      <Box style={styles.nextButtonWrapper}>
         {next && (
           <Box>
             <CustomGreenButton
@@ -125,15 +108,7 @@ function ExportSeedScreen({ route, navigation }) {
         )}
       </Box>
       {!next && (
-        <Text
-          marginX={2}
-          marginTop={5}
-          fontSize={12}
-          fontWeight={200}
-          letterSpacing={0.6}
-          marginRight={10}
-          color="light.GreyText"
-        >
+        <Text style={styles.seedDescParagraph} color="light.GreyText">
           {seedText.desc}
         </Text>
       )}
@@ -177,5 +152,44 @@ function ExportSeedScreen({ route, navigation }) {
     </Box>
   );
 }
-
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 15,
+  },
+  seedCardContainer: {
+    width: '50%',
+  },
+  seedCardWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 8,
+    marginVertical: 10,
+  },
+  seedTextStyle: {
+    fontSize: RFValue(19),
+    fontWeight: '500',
+    letterSpacing: 1.64,
+    marginRight: 5,
+  },
+  seedTextStyle01: {
+    fontSize: RFValue(19),
+    fontWeight: '400',
+    letterSpacing: 1,
+  },
+  nextButtonWrapper: {
+    alignItems: 'flex-end',
+    marginBottom: 5,
+  },
+  seedDescParagraph: {
+    marginHorizontal: 2,
+    marginTop: 5,
+    fontSize: 12,
+    fontWeight: '400',
+    letterSpacing: 0.6,
+    marginRight: 10,
+  },
+});
 export default ExportSeedScreen;

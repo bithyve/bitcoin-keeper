@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Box, Text, Input } from 'native-base';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
@@ -14,7 +14,7 @@ function FogotPassword(props) {
   const [invalid, setInvalid] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
-  const {login} = translations;
+  const { login } = translations;
 
   const getSeedIndexText = (seedNumber) => {
     switch (seedNumber) {
@@ -59,7 +59,7 @@ function FogotPassword(props) {
   }
 
   return (
-    <Box bg="#F7F2EC" p={10}>
+    <Box bg="#F7F2EC" p={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           bg="#E3BE96"
@@ -73,32 +73,18 @@ function FogotPassword(props) {
           <Close />
         </Box>
       </TouchableOpacity>
-      <Text
-        fontWeight={200}
-        fontSize={RFValue(19)}
-        letterSpacing={1}
-      >
+      <Text fontWeight={200} fontSize={RFValue(19)} letterSpacing={1}>
         {login.ForgotPasscode}
       </Text>
-      <Text
-        fontWeight={200}
-        fontSize={RFValue(12)}
-      >
+      <Text fontWeight={200} fontSize={RFValue(12)}>
         {login.forgotPasscodeDesc}
       </Text>
       {props.type === 'seed' ? (
         <Box>
-          <Text
-            fontWeight={200}
-            fontSize={RFValue(13)}
-            mt={10}
-          >
+          <Text fontWeight={200} fontSize={RFValue(13)} mt={10}>
             Enter the
-            <Text
-              fontWeight={500}
-              fontSize={RFValue(13)}
-            >
-              {` ${  getSeedIndexText(resetCred.index + 1)  } `}
+            <Text fontWeight={500} fontSize={RFValue(13)}>
+              {` ${getSeedIndexText(resetCred.index + 1)} `}
             </Text>
             word
           </Text>
@@ -127,11 +113,7 @@ function FogotPassword(props) {
           />
 
           {invalid && (
-            <Text
-              fontWeight={200}
-              color="#FF0000"
-              m={2}
-            >
+            <Text fontWeight={200} color="#FF0000" m={2}>
               {login.Invalidword}
             </Text>
           )}
@@ -152,7 +134,6 @@ function FogotPassword(props) {
             py={4}
             my={6}
             value={passwordText}
-
           />
         </Box>
       )}

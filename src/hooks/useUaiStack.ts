@@ -9,6 +9,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useDispatch } from 'react-redux';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
+//TO-DO: Write on DB should not happen
+
 const useUaiStack = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const [uaiStack, setuaiStack] = useState([]);
@@ -19,7 +21,6 @@ const useUaiStack = () => {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
 
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet);
   // creation of default stack
   useEffect(() => {
     const uai_SECURE_VAULT = UAIcollection.filter(
@@ -47,37 +48,14 @@ const useUaiStack = () => {
     }
   }, [defaultVault]);
 
-  useEffect(() => {
-    wallets.forEach((wallet) => {
-      if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) {
-        const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
-        if (uai) {
-          if (wallet.specs.balances.unconfirmed >= Number(wallet.specs.transferPolicy)) return;
-          dispatch(uaiActionedEntity(uai.entityId, false));
-        } else {
-          dispatch(
-            addToUaiStack(
-              `Transfer fund to vault for ${wallet.presentationData.name}`,
-              false,
-              uaiType.VAULT_TRANSFER,
-              80,
-              null,
-              wallet.id
-            )
-          );
-        }
-      }
-    });
-  }, []);
-
   // TO-DO: fetch notifications and converto UAI
-
   const uaiStackCreation = (UAIcollection) => {
     const filteredStack = UAIcollection.filter((uai) => uai.isActioned === false);
     const sortedStack = filteredStack.sort((a, b) => b.prirority - a.prirority);
     setuaiStack(sortedStack);
   };
 
+  //Realm UAI updates
   useEffect(() => {
     uaiStackCreation(UAIcollection);
   }, [JSON.stringify(UAIcollection)]);

@@ -103,8 +103,13 @@ function EnterSeedScreen() {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
-  const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
+  const closeInvalidSeedsModal = () => {
+    setRecoveryLoading(false);
+    setInvalidSeedsModal(false);
+  };
 
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
@@ -122,19 +127,23 @@ function EnterSeedScreen() {
   );
 
   useEffect(() => {
-    console.log(appImageRecoverd, appRecreated, appRecoveryLoading, appImageError);
     if (appImageError) openInvalidSeedsModal();
 
     if (appRecoveryLoading) {
+      setRecoveryLoading(true);
       openLoaderModal();
     }
+  }, [appRecoveryLoading, appImageError, appImageRecoverd]);
+
+  useEffect(() => {
     if (appRecreated) {
       setTimeout(() => {
         closeLoaderModal();
+        setRecoveryLoading(false);
         navigation.navigate('App', { screen: 'NewHome' });
       }, 3000);
     }
-  }, [appImageRecoverd, appRecreated, appRecoveryLoading, appImageError]);
+  }, [appRecreated]);
 
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
@@ -202,7 +211,7 @@ function EnterSeedScreen() {
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
-              title={seed.enterRecoveryPhrase}
+              title={seed?.enterRecoveryPhrase}
               subtitle={seed.recoverWallet}
               onPressHandler={() => navigation.navigate('NewKeeperApp')}
             />
@@ -218,23 +227,8 @@ function EnterSeedScreen() {
                 marginHorizontal: 15,
               }}
               renderItem={({ item, index }) => (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 10,
-                    marginVertical: 10,
-                  }}
-                >
-                  <Text
-                    style={{
-                      width: 22,
-                      fontSize: 16,
-                      color: '#00836A',
-                      marginTop: 8,
-                      letterSpacing: 1.23,
-                    }}
-                    fontWeight="300"
-                  >
+                <View style={styles.inputListWrapper}>
+                  <Text style={styles.indexText} fontWeight="300">
                     {getFormattedNumber(index)}
                   </Text>
                   <TextInput
@@ -247,6 +241,7 @@ function EnterSeedScreen() {
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`Enter ${getPlaceholder(index)} phrase`}
+                    placeholderTextColor={'rgba(7,62,57,0.6)'}
                     value={item?.name}
                     textContentType="none"
                     returnKeyType="next"
@@ -275,30 +270,17 @@ function EnterSeedScreen() {
               )}
             />
           </View>
-          <Text
-            fontWeight={200}
-            color="#4F5955"
-            marginX={10}
-            marginY={hp(10)}
-            fontSize={12}
-            letterSpacing={0.6}
-          >
-            {seed.seedDescription}
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: wp(375),
-              alignItems: 'center',
-              paddingHorizontal: wp(20),
-            }}
-          >
-            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+          <Text style={styles.seedDescText}>{seed.seedDescription}</Text>
+          <View style={styles.bottomBtnsWrapper}>
+            <Box style={styles.bottomBtnsWrapper02}>
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
-            <Buttons primaryCallback={onPressNext} primaryText="Next" />
+            <Buttons
+              primaryCallback={onPressNext}
+              primaryText="Next"
+              primaryLoading={recoveryLoading}
+            />
           </View>
           <KeeperModal
             visible={invalidSeedsModal}
@@ -326,12 +308,12 @@ function EnterSeedScreen() {
             textColor="#041513"
             Content={RecoverWalletScreen}
           />
-          <ModalWrapper
+          {/* <ModalWrapper
             visible={createCloudBackupModal}
             onSwipeComplete={() => setCreateCloudBackupModal(false)}
           >
             <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-          </ModalWrapper>
+          </ModalWrapper> */}
         </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -390,6 +372,39 @@ const styles = ScaledSheet.create({
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
+  },
+  inputListWrapper: {
+    flexDirection: 'row',
+    marginHorizontal: 10,
+    marginVertical: 10,
+  },
+  indexText: {
+    width: 22,
+    fontSize: 16,
+    color: '#00836A',
+    marginTop: 8,
+    letterSpacing: 1.23,
+  },
+  seedDescText: {
+    fontWeight: '400',
+    color: '#4F5955',
+    marginHorizontal: 30,
+    marginVertical: hp(10),
+    fontSize: 12,
+    letterSpacing: 0.6,
+  },
+  bottomBtnsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: wp(375),
+    alignItems: 'center',
+    paddingHorizontal: wp(20),
+  },
+  bottomBtnsWrapper02: {
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    marginLeft: 25,
+    marginTop: 6,
   },
 });
 

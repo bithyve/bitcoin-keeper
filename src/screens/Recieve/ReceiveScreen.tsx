@@ -56,41 +56,21 @@ function ReceiveScreen({ route }: { route }) {
         headerTitleColor="light.textBlack"
         paddingTop={hp(6)}
       />
-      <Box marginTop={hp(80)} alignItems="center" alignSelf="center" width={hp(200)}>
+      <Box style={styles.qrWrapper}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"
           size={hp(200)}
         />
-        <Box background="light.QrCode" height={6} width="100%" justifyContent="center">
-          <Text
-            textAlign="center"
-            color="light.recieverAddress"
-            fontFamily="body"
-            fontWeight={300}
-            fontSize={12}
-            letterSpacing={1.08}
-            width="100%"
-            noOfLines={1}
-          >
+        <Box background="light.QrCode" style={styles.receiveAddressWrapper}>
+          <Text style={styles.receiveAddressText} color="light.recieverAddress" fontFamily="body">
             Receive Address
           </Text>
         </Box>
       </Box>
       {/* {Input Field} */}
-      <Box
-        alignItems="center"
-        borderBottomLeftRadius={10}
-        borderTopLeftRadius={10}
-        marginTop={hp(20)}
-      >
-        <Box
-          flexDirection="row"
-          width="80%"
-          alignItems="center"
-          justifyContent="space-between"
-          backgroundColor="light.textInputBackground"
-        >
+      <Box style={styles.inputContainer}>
+        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
           <Text width="80%" marginLeft={4} noOfLines={1}>
             {paymentURI || receivingAddress}
           </Text>
@@ -101,12 +81,7 @@ function ReceiveScreen({ route }: { route }) {
               showToast('Address Copied Successfully', <TickIcon />);
             }}
           >
-            <Box
-              backgroundColor="light.copyBackground"
-              padding={3}
-              borderTopRightRadius={10}
-              borderBottomRightRadius={10}
-            >
+            <Box backgroundColor="light.copyBackground" style={styles.copyIconWrapper}>
               <CopyIcon />
             </Box>
           </TouchableOpacity>
@@ -115,40 +90,19 @@ function ReceiveScreen({ route }: { route }) {
       {/* {Add amount component} */}
       <TouchableOpacity
         activeOpacity={0.5}
-        style={{ marginTop: hp(50) }}
+        style={styles.addAmountContainer}
         onPress={() => {
           navigtaion.navigate('AddAmount', { wallet });
         }}
       >
-        <Box
-          flexDirection="row"
-          height={hp(70)}
-          borderRadius={10}
-          justifyContent="space-between"
-          alignItems="center"
-          paddingX={3}
-          marginX={3}
-          backgroundColor="light.lightYellow"
-        >
+        <Box style={styles.addAmountWrapper01} backgroundColor="light.lightYellow">
           <Box flexDirection="row">
             <BtcGreen />
             <Box flexDirection="column" marginLeft={5}>
-              <Text
-                color="light.lightBlack"
-                fontWeight={200}
-                fontFamily="body"
-                fontSize={14}
-                letterSpacing={1.12}
-              >
+              <Text color="light.lightBlack" fontFamily="body" style={styles.addAmountText}>
                 {home.AddAmount}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontWeight={200}
-                fontFamily="body"
-                fontSize={12}
-                letterSpacing={0.6}
-              >
+              <Text color="light.GreyText" fontFamily="body" style={styles.addAmountSubTitleText}>
                 Add a specific invoice amount
               </Text>
             </Box>
@@ -169,8 +123,66 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: hp(20),
     width: '90%',
-    marginLeft: 30
-  }
-})
+    marginLeft: 30,
+  },
+  qrWrapper: {
+    marginTop: hp(50),
+    alignItems: 'center',
+    alignSelf: 'center',
+    width: hp(200),
+  },
+  receiveAddressWrapper: {
+    height: 28,
+    width: '100%',
+    justifyContent: 'center',
+  },
+  receiveAddressText: {
+    textAlign: 'center',
+    fontWeight: '500',
+    fontSize: 12,
+    letterSpacing: 1.08,
+    width: '100%',
+    noOfLines: 1,
+  },
+  inputContainer: {
+    alignItems: 'center',
+    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 10,
+    marginTop: hp(40),
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    width: '90%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  copyIconWrapper: {
+    padding: 10,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  addAmountContainer: {
+    marginTop: hp(50),
+  },
+  addAmountWrapper01: {
+    flexDirection: 'row',
+    height: hp(70),
+    borderRadius: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    marginHorizontal: 16,
+  },
+  addAmountText: {
+    fontWeight: '400',
+    fontSize: 14,
+    letterSpacing: 1.12,
+  },
+  addAmountSubTitleText: {
+    fontWeight: '400',
+    fontSize: 12,
+    letterSpacing: 0.6,
+  },
+});
 
 export default ReceiveScreen;

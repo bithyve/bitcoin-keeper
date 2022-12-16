@@ -16,11 +16,12 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
@@ -32,11 +33,11 @@ function SetupTapsigner() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       setCvc(cvc.slice(0, -1));
     }
   };
@@ -61,6 +62,7 @@ function SetupTapsigner() {
         const tapsigner = getMockTapsignerDetails({ signerId, xpub });
         dispatch(addSigningDevice(tapsigner));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
         return;
       }
       const tapsigner = generateSignerFromMetaData({
@@ -72,6 +74,7 @@ function SetupTapsigner() {
       });
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(tapsigner.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (err) {
@@ -94,9 +97,12 @@ function SetupTapsigner() {
 
   const addMockTapsigner = React.useCallback(async () => {
     try {
-      const mockTapsigner = getMockTapsignerDetails();
-      dispatch(addSigningDevice(mockTapsigner));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+        const mockTapsigner = getMockTapsignerDetails();
+        dispatch(addSigningDevice(mockTapsigner));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${mockTapsigner.signerName} added successfully`, <TickIcon />);
+      }
     } catch (err) {
       Alert.alert(err.toString());
     }

@@ -1,6 +1,6 @@
 import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import { Box, HStack, Text } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
@@ -8,6 +8,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import Note from 'src/components/Note/Note';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -16,6 +18,10 @@ function ScanQR() {
   const [qrData, setData] = useState(0);
   const route = useRoute();
   const { title = '', subtitle = '', onQrScan = () => {} } = route.params as any;
+
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+
   useEffect(() => {
     if (qrData) {
       onQrScan(qrData);
@@ -49,6 +55,15 @@ function ScanQR() {
         {qrPercent !== 100 && <ActivityIndicator />}
         <Text>{`Scanned ${qrPercent}%`}</Text>
       </HStack>
+      <Box style={styles.noteWrapper}>
+        <Note
+          title={common.note}
+          subtitle={
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+          }
+          subtitleColor="GreyText"
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -65,5 +80,11 @@ const styles = StyleSheet.create({
   cameraView: {
     height: width * 0.9,
     width: width * 0.9,
+  },
+  noteWrapper: {
+    width: '85%',
+    bottom: 5,
+    position: 'absolute',
+    marginHorizontal: 20,
   },
 });

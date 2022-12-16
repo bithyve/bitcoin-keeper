@@ -57,9 +57,9 @@ function* setupKeeperAppWorker({ payload }) {
         activeShell: null,
       },
       subscription: {
-        productId: SubscriptionTier.PLEB,
-        name: SubscriptionTier.PLEB,
-        level: 0
+        productId: SubscriptionTier.L1,
+        name: SubscriptionTier.L1,
+        level: 0,
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
@@ -123,7 +123,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       subscription: {
         productId: subscription.productId,
         name: subscription.name,
-        level: 0
+        level: 0,
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
