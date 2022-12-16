@@ -32,6 +32,8 @@ function ExportSeedScreen({ route, navigation }) {
 
   console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
+  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
+
   useEffect(() => {
     if (backupMethod !== null) {
       setBackupSuccessModal(true);
