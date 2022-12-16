@@ -39,21 +39,12 @@ type Props = {
 
 function Option({ title, subTitle, onPress }: Props) {
   return (
-    <Pressable
-      style={styles.optionContainer}
-      onPress={onPress}
-    >
+    <Pressable style={styles.optionContainer} onPress={onPress}>
       <Box style={{ width: '96%' }}>
-        <Text
-          color="light.lightBlack"
-          style={styles.optionTitle}
-        >
+        <Text color="light.lightBlack" style={styles.optionTitle}>
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          style={styles.optionSubtitle}
-        >
+        <Text color="light.GreyText" style={styles.optionSubtitle}>
           {subTitle}
         </Text>
       </Box>
@@ -97,7 +88,7 @@ function WalletSettings({ route }) {
         }}
         style={styles.walletCardContainer}
       >
-        <Box style={styles.walletCard} >
+        <Box style={styles.walletCard}>
           <Box>
             <Text color="light.white" style={styles.walletName}>
               {walletName}
@@ -138,7 +129,7 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setAppLoading(false);
     if (testCoinsReceived) {
-      showToast('5000 Sats Received');
+      showToast('5000 Sats Received', <TickIcon />);
       setTimeout(() => {
         dispatch(setTestCoinsReceived(false));
         navigation.goBack();
@@ -194,7 +185,7 @@ function WalletSettings({ route }) {
       <Box style={styles.optionsListContainer}>
         <ScrollView
           style={{
-            marginBottom: hp(40)
+            marginBottom: hp(40),
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -287,7 +278,8 @@ function WalletSettings({ route }) {
                 setConfirmPassVisible(false);
               }}
               wallets={wallets}
-              navigation={navigation} />
+              navigation={navigation}
+            />
           )}
         />
         <KeeperModal
@@ -372,44 +364,44 @@ const styles = ScaledSheet.create({
   },
   walletCard: {
     marginTop: hp(17),
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginHorizontal: wp(20),
   },
   walletName: {
     letterSpacing: 0.28,
-    fontSize: 15
+    fontSize: 15,
   },
   walletDescription: {
     letterSpacing: 0.24,
     fontSize: 13,
-    fontWeight: '300'
+    fontWeight: '300',
   },
   walletBalance: {
     letterSpacing: 1.2,
     fontSize: 23,
-    padding: 5
+    padding: 5,
   },
   optionsListContainer: {
-    alignItems: "center",
+    alignItems: 'center',
     marginLeft: wp(25),
     marginTop: 10,
-    height: hp(425)
+    height: hp(425),
   },
   optionContainer: {
     marginTop: hp(20),
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
   },
   optionTitle: {
     fontSize: RFValue(14),
-    letterSpacing: 1.12
+    letterSpacing: 1.12,
   },
   optionSubtitle: {
     fontSize: RFValue(12),
-    letterSpacing: 0.6
-  }
+    letterSpacing: 0.6,
+  },
 });
 export default WalletSettings;
