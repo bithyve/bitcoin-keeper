@@ -14,6 +14,7 @@ import Buttons from 'src/components/Buttons';
 import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function EditWalletSettings({ route }) {
   const navigtaion = useNavigation();
@@ -34,7 +35,7 @@ function EditWalletSettings({ route }) {
       description: walletDescription,
     };
     dispatch(updateWalletDetails(wallet, details));
-    showToast('Wallet details updated');
+    showToast('Wallet details updated', <TickIcon />);
     navigtaion.goBack();
   };
 
