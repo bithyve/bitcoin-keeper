@@ -73,8 +73,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -227,6 +227,14 @@ function AppSettings({ navigation }) {
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
           /> */}
+          <SettingsCard
+            title={settings.nodeSettings}
+            description={settings.nodeSettingsSubtitle}
+            my={1}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('NodeSettings')}
+          />
           <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}

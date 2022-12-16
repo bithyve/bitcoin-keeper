@@ -67,6 +67,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Login from '../screens/LoginScreen/Login';
+import NodeSettings from 'src/screens/AppSettings/NodeSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -174,6 +175,7 @@ function AppStack() {
         <Stack.Screen name="ShowQR" component={ShowQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
+        <Stack.Screen name="NodeSettings" component={NodeSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -196,7 +198,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
         modalBackground={['#F7F2EC', '#F7F2EC']}
