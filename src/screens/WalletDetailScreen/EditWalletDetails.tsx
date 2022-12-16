@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { Alert } from 'react-native';
 
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,16 +13,17 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function EditWalletSettings({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const walletText = translations.wallet;
-  const {common} = translations;
+  const { common } = translations;
 
-  const {wallet} = route.params;
+  const { wallet } = route.params;
+  const { showToast } = useToastMessage();
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
@@ -34,7 +34,7 @@ function EditWalletSettings({ route }) {
       description: walletDescription,
     };
     dispatch(updateWalletDetails(wallet, details));
-    Alert.alert('Wallet details updated');
+    showToast('Wallet details updated');
     navigtaion.goBack();
   };
 
