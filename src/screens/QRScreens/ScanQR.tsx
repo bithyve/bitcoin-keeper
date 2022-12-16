@@ -47,7 +47,10 @@ function ScanQR() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subtitle} />
+      <HeaderTitle
+        title={title === 'Setting up SEEDSIGNER' ? 'Setting up SeedSigner' : title}
+        subtitle={subtitle}
+      />
       <Box style={styles.qrcontainer}>
         <RNCamera style={styles.cameraView} captureAudio={false} onBarCodeRead={onBarCodeRead} />
       </Box>
