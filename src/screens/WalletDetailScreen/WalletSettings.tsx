@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import { Box, Text, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -135,7 +134,7 @@ function WalletSettings({ route }) {
         navigation.goBack();
       }, 3000);
     } else if (testCoinsFailed) {
-      Alert.alert('Process Failed');
+      showToast('Process Failed');
       dispatch(setTestCoinsFailed(false));
     }
   }, [testCoinsReceived, testCoinsFailed]);
