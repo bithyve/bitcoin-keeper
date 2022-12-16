@@ -142,7 +142,6 @@ function ChoosePlan(props) {
       }
       return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
         .formattedPrice;
-
     } catch (error) {
       console.log('error', error);
     }
@@ -184,11 +183,11 @@ function ChoosePlan(props) {
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
       });
-      if (item.productId === SubscriptionTier.PLEB) {
+      if (item.productId === SubscriptionTier.L1) {
         setIsUpgrade(false);
       } else if (
-        item.name.split(' ')[0] === SubscriptionTier.HODLER &&
-        subscription.name === SubscriptionTier.DIAMOND_HANDS
+        item.name.split(' ')[0] === SubscriptionTier.L2 &&
+        subscription.name === SubscriptionTier.L3
       ) {
         setIsUpgrade(false);
       } else {
@@ -211,7 +210,6 @@ function ChoosePlan(props) {
       return `${name} means`;
     }
     return `A ${name} gets`;
-
   };
 
   return (
@@ -247,13 +245,7 @@ function ChoosePlan(props) {
               onChange={(item) => setCurrentPosition(item)}
             />
 
-            <Box
-              opacity={0.1}
-              backgroundColor="light.Border"
-              width="100%"
-              height={0.5}
-              my={5}
-            />
+            <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
 
             <Box ml={8}>
               <Box>
@@ -291,7 +283,7 @@ function ChoosePlan(props) {
         )}
 
         <Box
-          backgroundColor={'light.ReceiveBackground'}
+          backgroundColor="light.ReceiveBackground"
           position="absolute"
           bottom={-10}
           justifyContent="flex-end"

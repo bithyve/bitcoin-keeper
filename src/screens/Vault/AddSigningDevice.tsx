@@ -3,7 +3,12 @@ import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
+import {
+  DerivationPurpose,
+  SignerType,
+  VaultMigrationType,
+  VaultType,
+} from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import {
   addSigningDevice,
@@ -34,8 +39,10 @@ import { useDispatch } from 'react-redux';
 import { captureError } from 'src/core/services/sentry';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
-import { WalletMap } from './WalletMap';
 import { TransferType } from 'src/common/data/enums/TransferType';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 
 const { width } = Dimensions.get('screen');
@@ -376,7 +383,7 @@ function AddSigningDevice() {
   };
 
   const areSignersValidInCurrentScheme = () => {
-    if (plan !== 'PLEB') {
+    if (plan !== SubscriptionTier.L1.toUpperCase()) {
       return true;
     }
     return signersState.every(
