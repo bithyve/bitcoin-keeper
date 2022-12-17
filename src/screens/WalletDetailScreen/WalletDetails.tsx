@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   Alert,
   FlatList,
@@ -7,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Box, Pressable, Text, View } from 'native-base';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -47,7 +48,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
 import { TransferType } from 'src/common/data/enums/TransferType';
 
-function WalletDetails() {
+function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -67,6 +68,11 @@ function WalletDetails() {
   const [pullRefresh, setPullRefresh] = useState(false);
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
+  const { autoRefresh } = route?.params || {};
+
+  useEffect(() => {
+    if (autoRefresh) pullDownRefresh();
+  }, [autoRefresh, route]);
 
   const _onSnapToItem = (index: number) => {
     setWalletIndex(index);

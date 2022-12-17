@@ -38,8 +38,8 @@ import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
-import CustomPriorityModal from './CustomPriorityModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -205,7 +205,7 @@ function SendConfirmation({ route }) {
 
   const viewDetails = () => {
     setVisibleModal(false);
-    navigation.navigate('WalletDetails');
+    navigation.navigate('WalletDetails', { autoRefresh: true });
   };
 
   useEffect(() => {
@@ -214,7 +214,7 @@ function SendConfirmation({ route }) {
     }
   }, [walletSendSuccessful]);
 
-  const Card = ({ title, subTitle, isVault = false }) => {
+  function Card({ title, subTitle, isVault = false }) {
     return (
       <Box
         borderRadius={10}
@@ -247,19 +247,19 @@ function SendConfirmation({ route }) {
         </Box>
       </Box>
     );
-  };
+  }
 
   function SendingCard({ isSend }) {
     const getCardDetails = () => {
       switch (transferType) {
         case TransferType.VAULT_TO_VAULT:
           return isSend ? (
-            <Card title="Old Vault" subTitle={`Moving funds all funds`} isVault={true} />
+            <Card title="Old Vault" subTitle="Moving funds all funds" isVault />
           ) : (
             <Card
               title="New Vault"
               subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
-              isVault={true}
+              isVault
             />
           );
         case TransferType.VAULT_TO_WALLET:
@@ -267,7 +267,7 @@ function SendConfirmation({ route }) {
             <Card
               title="Vault"
               subTitle={`Available: ${sender.specs.balances.confirmed} sats`}
-              isVault={true}
+              isVault
             />
           ) : (
             <Card
@@ -277,7 +277,7 @@ function SendConfirmation({ route }) {
           );
         case TransferType.VAULT_TO_ADDRESS:
           return isSend ? (
-            <Card title="Vault" subTitle={getAmount(amount)} isVault={true} />
+            <Card title="Vault" subTitle={getAmount(amount)} isVault />
           ) : (
             <Card title={address} subTitle={getAmount(amount)} />
           );
@@ -302,7 +302,7 @@ function SendConfirmation({ route }) {
               )} sats`}
             />
           ) : (
-            <Card title="Vault" subTitle={'Transferings all avaiable funds'} isVault={true} />
+            <Card title="Vault" subTitle="Transferings all avaiable funds" isVault />
           );
         case TransferType.WALLET_TO_ADDRESS:
           return isSend ? (
@@ -604,6 +604,7 @@ function SendConfirmation({ route }) {
         textColor="#073B36"
         buttonTextColor="#FAFAFA"
         Content={SendSuccessfulContent}
+        buttonCallback={() => viewDetails()}
       />
     </ScreenWrapper>
   );
