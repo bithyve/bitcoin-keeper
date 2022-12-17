@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   NetworkType,
   NodeType,
@@ -12,6 +13,7 @@ export interface InputUTXOs {
   vout: number;
   value: number;
   address: string;
+  height: number;
 }
 
 export interface OutputUTXOs {
@@ -107,7 +109,7 @@ export interface Transaction {
   txid: string;
   status?: string;
   confirmations?: number;
-  fee?: string;
+  fee?: number;
   date?: string;
   transactionType?: TransactionType;
   amount: number;
@@ -153,12 +155,7 @@ export interface UTXO {
   vout: number;
   value: number;
   address: string;
-  status?: {
-    confirmed: boolean;
-    block_height?: number;
-    block_hash?: string;
-    block_time?: number;
-  };
+  height: number;
 }
 
 export interface WalletImportedAddresses {

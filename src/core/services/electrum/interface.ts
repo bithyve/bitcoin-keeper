@@ -4,7 +4,6 @@ export type ElectrumUTXO = {
   address: string;
   txId: string;
   vout: number;
-  wif?: string;
 };
 
 export type ElectrumTransaction = {

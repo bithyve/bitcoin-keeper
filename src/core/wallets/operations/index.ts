@@ -467,7 +467,6 @@ export default class WalletOperations {
         senderAddresses,
         address,
         blockTime: tx.blocktime,
-        blockhash: tx.blockhash,
       };
       transactions.push(transaction);
 
@@ -492,7 +491,7 @@ export default class WalletOperations {
     };
   };
 
-  static syncWalletsV2 = async (
+  static syncWalletsViaElectrumClient = async (
     wallets: (Wallet | Vault)[],
     network: bitcoinJS.networks.Network
   ): Promise<{
@@ -559,8 +558,8 @@ export default class WalletOperations {
         confirmed: 0,
         unconfirmed: 0,
       };
-      const confirmedUTXOs = [];
-      const unconfirmedUTXOs = [];
+      const confirmedUTXOs: InputUTXOs[] = [];
+      const unconfirmedUTXOs: InputUTXOs[] = [];
       for (const address in utxosByAddress) {
         const utxos = utxosByAddress[address];
         for (const utxo of utxos) {
@@ -876,21 +875,9 @@ export default class WalletOperations {
     customTxFeePerByte: number
   ): TransactionPrerequisiteElements => {
     const inputUTXOs = wallet.specs.confirmedUTXOs;
-    console.log({
-      inputUTXOs,
-      outputUTXOs,
-      customTxFeePerByte,
-    });
     const { inputs, outputs, fee } = coinselect(inputUTXOs, outputUTXOs, customTxFeePerByte);
-    console.log({
-      inputs,
-      outputs,
-      fee,
-    });
-    if (!inputs)
-      return {
-        fee,
-      };
+
+    if (!inputs) return { fee };
 
     return {
       inputs,
