@@ -291,7 +291,7 @@ function LoginScreen({ navigation, route }) {
                 disabled
                 trackColor={{ true: '#FFFA' }}
                 thumbColor="#358475"
-                onChange={() => {}}
+                onChange={() => { }}
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
@@ -332,7 +332,7 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+          // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
@@ -371,9 +371,9 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
-        title="Share Feedback (Testnet only)"
-        subTitle="Shake your device to send us a bug report or a feature request"
+        close={() => { }}
+        title="Share Feedback"
+        subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
         modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#000"
         subTitleColor="#5F6965"

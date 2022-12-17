@@ -72,7 +72,7 @@ function WalletDetails({ route }) {
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
-  }, [autoRefresh, route]);
+  }, [autoRefresh]);
 
   const _onSnapToItem = (index: number) => {
     setWalletIndex(index);

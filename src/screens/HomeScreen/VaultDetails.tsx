@@ -44,9 +44,10 @@ import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from '../Vault/WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import useToastMessage from 'src/hooks/useToastMessage';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -79,13 +80,23 @@ function Footer({ vault }: { vault: Vault }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText} onPress={() => { showToast('Comming Soon') }}>
+        <TouchableOpacity
+          style={styles.IconText}
+          onPress={() => {
+            showToast('Comming Soon');
+          }}
+        >
           <Buy />
           <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Buy
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText} onPress={() => { showToast('Comming Soon') }}>
+        <TouchableOpacity
+          style={styles.IconText}
+          onPress={() => {
+            showToast('Comming Soon');
+          }}
+        >
           <IconSettings />
           <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Settings
@@ -375,7 +386,8 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
 }
 
 function VaultDetails({ route, navigation }) {
-  const { vaultTransferSuccessful = false } = route.params || {};
+  const { vaultTransferSuccessful = false, autoRefresh } = route.params || {};
+
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -405,6 +417,10 @@ function VaultDetails({ route, navigation }) {
     }
     return VaultMigrationType.CHANGE;
   };
+
+  useEffect(() => {
+    if (autoRefresh) syncVault();
+  }, [autoRefresh]);
 
   const syncVault = () => {
     setPullRefresh(true);
@@ -520,7 +536,7 @@ function VaultDetails({ route, navigation }) {
           dispatch(setIntroModal(false));
         }}
         title="Keeper Vault"
-        subTitle="Depending on your tier - Pleb, Hodler or Diamond Hands, you need to add signing devices to the vault"
+        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
         modalBackground={['#00836A', '#073E39']}
         textColor="#FFF"
         Content={VaultContent}
