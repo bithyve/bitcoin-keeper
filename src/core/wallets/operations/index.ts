@@ -1288,9 +1288,12 @@ export default class WalletOperations {
       address: string;
       amount: number;
     }[],
-    network
+    network: bitcoinJS.Network
   ) => {
-    const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+    // const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+
+    const txid = await ElectrumClient.broadcast(txHex);
+
     if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
       let err;

@@ -13,6 +13,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
+import ElectrumClient from 'src/core/services/electrum/client';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -56,9 +57,8 @@ export const stringToArrayBuffer = (byteString: string): Uint8Array => {
       byteArray[i] = byteString.codePointAt(i);
     }
     return byteArray;
-  } 
-    return null;
-  
+  }
+  return null;
 };
 
 function* credentialsStorageWorker({ payload }) {
@@ -105,7 +105,8 @@ function* credentialsAuthWorker({ payload }) {
     const { method } = payload;
     yield put(setupLoading('authenticating'));
 
-    let hash; let encryptedKey;
+    let hash;
+    let encryptedKey;
     if (method === LoginMethod.PIN) {
       hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
@@ -131,6 +132,8 @@ function* credentialsAuthWorker({ payload }) {
   }
   yield put(credsAuthenticated(true));
   yield put(setKey(key));
+  yield call(ElectrumClient.connect);
+
   if (!payload.reLogin) {
     // case: login
     const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
@@ -243,7 +246,7 @@ function* applicationUpdateWorker({
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
       date: new Date().toString(),
-      title: `Upgraded from ${  previousVersion}`,
+      title: `Upgraded from ${previousVersion}`,
     });
     messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
     messaging().subscribeToTopic(getReleaseTopic(newVersion));
@@ -259,7 +262,7 @@ function* applicationUpdateWorker({
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: notes,
       date: new Date().toString(),
-      title: `Upgraded from ${  previousVersion}`,
+      title: `Upgraded from ${previousVersion}`,
     });
   } catch (error) {
     console.log(error);

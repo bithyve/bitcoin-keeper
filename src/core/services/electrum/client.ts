@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-console */
 
@@ -6,7 +7,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { ElectrumTransaction } from './interface';
+import { ElectrumTransaction, ElectrumUTXO } from './interface';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '35.177.46.45', ssl: '50002' }],
@@ -117,7 +118,7 @@ export default class ElectrumClient {
     addresses: string[],
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
-  ): Promise<{}> {
+  ): Promise<{ [address: string]: ElectrumUTXO[] }> {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const res = {};
 
@@ -168,10 +169,12 @@ export default class ElectrumClient {
   ): Promise<{
     historyByAddress: {};
     txids: any[];
+    txidToAddress: { [tx_hash: string]: string };
   }> {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
     const historyByAddress = {};
     const txids = [];
+    const txidToAddress = {};
 
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
@@ -201,13 +204,15 @@ export default class ElectrumClient {
         const address = scripthash2addr[history.param];
         historyByAddress[address] = history.result || [];
         if (historyByAddress[address].length) {
-          // eslint-disable-next-line camelcase
-          for (const { tx_hash } of historyByAddress[address]) txids.push(tx_hash);
+          for (const { tx_hash } of historyByAddress[address]) {
+            txids.push(tx_hash);
+            txidToAddress[tx_hash] = address;
+          }
         }
       }
     }
 
-    return { historyByAddress, txids };
+    return { historyByAddress, txids, txidToAddress };
   }
 
   public static async getTransactionsById(
