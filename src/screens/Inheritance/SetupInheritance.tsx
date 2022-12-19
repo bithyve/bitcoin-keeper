@@ -20,6 +20,7 @@ import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 function SetupInheritance() {
   const navigtaion = useNavigation();
@@ -130,7 +131,7 @@ function SetupInheritance() {
       <Box style={styles.bottomContainer}>
         <Assert />
         <Text numberOfLines={2} fontWeight={100} style={styles.message}>
-          This can be activated once you are at the Diamond Hands level
+          {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
           <Buttons
