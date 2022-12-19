@@ -61,9 +61,7 @@ function ScanQR() {
       <Box style={styles.noteWrapper}>
         <Note
           title={common.note}
-          subtitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-          }
+          subtitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
           subtitleColor="GreyText"
         />
       </Box>
