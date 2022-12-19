@@ -4,7 +4,7 @@ import {
   NodeType,
   SignerType,
   TransactionType,
-  TxPriority,
+  TxPriorityDefault,
   WalletType,
 } from '../enums';
 
@@ -27,7 +27,7 @@ export interface AverageTxFeeElements {
   estimatedBlocks: number;
 }
 
-export type AverageTxFees = Record<TxPriority, AverageTxFeeElements>;
+export type AverageTxFees = Record<TxPriorityDefault, AverageTxFeeElements>;
 export type AverageTxFeesByNetwork = Record<NetworkType, AverageTxFees>;
 
 export enum CurrencyCodes {

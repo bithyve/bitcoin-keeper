@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export enum DerivationPurpose {
   BIP44 = 44, // P2PKH: legacy, single-sig
   BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
@@ -30,6 +31,12 @@ export enum BIP85Words {
 export enum TransactionType {
   RECEIVED = 'Received',
   SENT = 'Sent',
+}
+
+export enum TxPriorityDefault {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
 }
 
 export enum TxPriority {
