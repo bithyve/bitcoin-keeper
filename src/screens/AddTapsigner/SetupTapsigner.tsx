@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
     paddingHorizontal: '5%',
-    marginBottom: windowHeight > 800 ? 0 : '25%',
+    marginBottom: windowHeight > 850 ? 0 : '25%',
   },
   stepContainer: {
     flexDirection: 'row',
