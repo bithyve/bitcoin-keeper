@@ -5,6 +5,7 @@ import config, { APP_STAGE } from 'src/core/config';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateSignerFromMetaData, getWalletConfig } from '..';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
@@ -15,13 +16,19 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
 
 export const getCCGenericJSON = async () => {
   const packet = await NFC.read(NfcTech.NfcV);
-  const { xpub, deriv } = packet[0].data.bip84;
+  const data = packet[0].data.bip84;
+  const { deriv } = data;
+  let { xpub } = data;
+  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
   return { xpub, derivationPath: deriv, xfp: packet[0].data.xfp };
 };
 
 export const getColdcardDetails = async () => {
   const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-  const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
+  let xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
+  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
   const derivationPath = data?.p2wsh_deriv ?? '';
   const xfp = data?.xfp ?? '';
   return { xpub, derivationPath, xfp };
