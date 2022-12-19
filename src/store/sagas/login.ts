@@ -1,3 +1,5 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
   decrypt,
@@ -44,7 +46,7 @@ import { RootState } from '../store';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
-import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
+import { fetchFeeRates, fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -80,12 +82,18 @@ function* credentialsStorageWorker({ payload }) {
     // setup the application
     // yield put(setupKeeperApp());
     yield put(setPinHash(hash));
-
     yield put(setCredStored());
     yield put(setAppVersion(DeviceInfo.getVersion()));
-    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
+
+    // connect electrum-client
+    yield call(ElectrumClient.connect);
+
     // fetch fee and exchange rates
-    yield put(fetchFeeAndExchangeRates());
+    yield put(fetchFeeRates());
+    yield put(fetchExchangeRates());
+
+    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
+
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
@@ -139,7 +147,11 @@ function* credentialsAuthWorker({ payload }) {
     const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
 
     yield put(autoSyncWallets());
-    yield put(fetchFeeAndExchangeRates());
+
+    // fetch fee and exchange rates
+    yield put(fetchFeeRates());
+    yield put(fetchExchangeRates());
+
     yield put(getMessages());
     yield put(setWarning(history));
     yield put(uaiChecks());
@@ -154,6 +166,7 @@ export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
+  console.log({ oldPasscode, newPasscode });
   try {
     // todo
   } catch (err) {
@@ -254,7 +267,7 @@ function* applicationUpdateWorker({
     const res = yield call(Relay.fetchReleaseNotes, newVersion);
     let notes = '';
     notes = res.release
-      ? Platform.OS == 'ios'
+      ? Platform.OS === 'ios'
         ? res.release.releaseNotes.ios
         : res.release.releaseNotes.android
       : '';
