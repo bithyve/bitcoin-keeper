@@ -14,11 +14,10 @@ import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 
 function TransactionDetails({ route }) {
-
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const {transactions} = translations;
-  const {transaction} = route.params;
+  const { transactions } = translations;
+  const { transaction } = route.params;
 
   function InfoCard({ title, describtion, width = 320 }) {
     return (
@@ -31,7 +30,7 @@ function TransactionDetails({ route }) {
           justifyContent: 'center',
           paddingLeft: wp(15),
           borderRadius: 10,
-          padding: 3
+          padding: 3,
         }}
       >
         <Text
@@ -59,9 +58,7 @@ function TransactionDetails({ route }) {
   }
 
   return (
-    <Box
-      style={styles.Container}
-    >
+    <Box style={styles.Container}>
       <StatusBarComponent padding={50} />
       <Box width={wp(250)}>
         <HeaderTitle
@@ -77,14 +74,12 @@ function TransactionDetails({ route }) {
           width={wp(320)}
           justifyContent="space-between"
         >
-          <Box
-            flexDirection="row"
-          >
+          <Box flexDirection="row">
             {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSend />}
             <Box
               style={{
                 marginLeft: wp(10),
-                width: wp(100)
+                width: wp(100),
               }}
             >
               <Text
@@ -97,23 +92,14 @@ function TransactionDetails({ route }) {
               >
                 {transaction.address}
               </Text>
-              <Text
-                fontWeight={200}
-                fontSize={10}
-                letterSpacing={0.5}
-                color="light.dateText"
-              >
+              <Text fontWeight={200} fontSize={10} letterSpacing={0.5} color="light.dateText">
                 {transaction.date}
               </Text>
             </Box>
           </Box>
-          <Box >
-            <Text
-              fontWeight={200}
-              fontSize={19}
-              letterSpacing={0.95}
-            >
-              {`${getAmount(transaction.amount)  } `}
+          <Box>
+            <Text fontWeight={200} fontSize={19} letterSpacing={0.95}>
+              {`${getAmount(transaction.amount)} `}
               <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
                 {getUnit()}
               </Text>
@@ -122,18 +108,13 @@ function TransactionDetails({ route }) {
         </Box>
       </Box>
 
-      <Box
-        alignItems="center"
-        marginTop={hp(44)}
-        justifyContent="center"
-        marginX={3}
-      >
+      <Box alignItems="center" marginTop={hp(44)} justifyContent="center" marginX={3}>
         <InfoCard title="To Address" describtion={transaction.recipientAddresses} />
         <InfoCard title="From Address" describtion={transaction.senderAddresses} />
         <InfoCard title="Transaction ID" describtion={transaction.txid} />
         <Box flexDirection="row" alignItems="center" justifyContent="space-between" width="100%">
           <InfoCard title="Fee" describtion={transaction.fee} width={145} />
-          <InfoCard title="Transaction Type" describtion={transaction.transactionType} width={145} />
+          <InfoCard title="Type" describtion={transaction.transactionType} width={145} />
         </Box>
         <Box flexDirection="row" justifyContent="space-between" width="100%">
           <InfoCard title="Privacy" describtion={transaction.type} width={145} />
