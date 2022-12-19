@@ -3,7 +3,7 @@ import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { DerivationPurpose, SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -29,6 +29,7 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
@@ -62,6 +63,7 @@ export const checkSigningDevice = async (id) => {
 function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const { plan } = usePlan();
   const [visible, setVisible] = useState(false);
 
   const removeSigner = () => dispatch(removeSigningDevice(signer));
@@ -100,6 +102,13 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
       </Pressable>
     );
   }
+  const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
+  let shouldReconfigure = false;
+  if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
+    shouldReconfigure = true;
+  } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+    shouldReconfigure = true;
+  }
   return (
     <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
       <HStack style={styles.signerItem}>
@@ -124,7 +133,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               fontWeight={200}
               letterSpacing={1.12}
             >
-              {signer.signerName}
+              {`${signer.signerName} (${signer.xpubInfo.xfp})`}
             </Text>
             <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
@@ -148,7 +157,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
           <Text fontWeight={200} color="light.GreyText" fontSize={12} letterSpacing={0.6}>
-            Remove
+            {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>
       </HStack>
@@ -163,6 +172,47 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
     </Box>
   );
 }
+
+const areSignersSame = ({ activeVault, signersState }) => {
+  if (!activeVault) {
+    return false;
+  }
+  const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
+  const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
+  return currentSignerIds.sort().join() === activeSignerIds.sort().join();
+};
+
+const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
+  if (plan !== SubscriptionTier.L1.toUpperCase()) {
+    return true;
+  }
+  return signersState.every(
+    (signer) =>
+      signer &&
+      ![
+        SignerType.MOBILE_KEY,
+        SignerType.POLICY_SERVER,
+        SignerType.KEEPER,
+        SignerType.SEED_WORDS,
+      ].includes(signer.type)
+  );
+};
+
+const PATH_INSENSITIVE_SIGNERS = [SignerType.TAPSIGNER];
+
+const signerLimitMatchesSubscriptionScheme = ({ vaultSigners, currentSignerLimit }) =>
+  vaultSigners && vaultSigners.length !== currentSignerLimit;
+
+const getSignerInfoFromPath = (signer: VaultSigner) => {
+  const purpose = WalletUtilities.getSignerPurposeFromPath(signer.xpubInfo.derivationPath);
+  if (PATH_INSENSITIVE_SIGNERS.includes(signer.type) || signer.isMock) {
+    return { isSingleSig: true, isMultiSig: true, purpose };
+  }
+  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
+    return { isSingleSig: false, isMultiSig: true, purpose };
+  }
+  return { isSingleSig: true, isMultiSig: false, purpose };
+};
 
 function AddSigningDevice() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -204,13 +254,28 @@ function AddSigningDevice() {
   const triggerVaultCreation = () => {
     setCreating(true);
   };
+  const validateSigners = () =>
+    signersState.every((signer) => !signer) ||
+    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit }) ||
+    areSignersSame({ activeVault, signersState }) ||
+    !areSignersValidInCurrentScheme({ plan, signersState });
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   const { common } = translations;
-  const AstrixSigners = [];
+
+  const amfSigners = [];
+  const misMatchedSigners = [];
   signersState.forEach((signer: VaultSigner) => {
-    if (signer && signer.signerName.includes('*') && !signer.signerName.includes('**'))
-      AstrixSigners.push(signer.type);
+    if (signer) {
+      if (signer.signerName.includes('*') && !signer.signerName.includes('**'))
+        amfSigners.push(signer.type);
+      const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
+      if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
+        misMatchedSigners.push(signer.xpubInfo.xfp);
+      } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+        misMatchedSigners.push(signer.xpubInfo.xfp);
+      }
+    }
   });
 
   let preTitle: string;
@@ -221,37 +286,6 @@ function AddSigningDevice() {
   } else {
     preTitle = 'Change';
   }
-
-  const areSignersSame = () => {
-    if (!activeVault) {
-      return false;
-    }
-    const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
-    const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
-    return currentSignerIds.sort().join() === activeSignerIds.sort().join();
-  };
-
-  const areSignersValidInCurrentScheme = () => {
-    if (plan !== SubscriptionTier.L1.toUpperCase()) {
-      return true;
-    }
-    return signersState.every(
-      (signer) =>
-        signer &&
-        ![
-          SignerType.MOBILE_KEY,
-          SignerType.POLICY_SERVER,
-          SignerType.KEEPER,
-          SignerType.SEED_WORDS,
-        ].includes(signer.type)
-    );
-  };
-
-  const validateSigners = () =>
-    signersState.every((signer) => !signer) ||
-    (vaultSigners && vaultSigners.length !== currentSignerLimit) ||
-    areSignersSame() ||
-    !areSignersValidInCurrentScheme();
 
   return (
     <ScreenWrapper>
@@ -279,13 +313,26 @@ function AddSigningDevice() {
         }}
       />
       <Box style={styles.bottomContainer}>
-        {AstrixSigners.length ? (
+        {amfSigners.length ? (
           <Box style={styles.noteContainer}>
             <Note
               title={common.note}
-              subtitle={`* ${AstrixSigners.join(
+              subtitle={`* ${amfSigners.join(
                 ' and '
               )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`}
+            />
+          </Box>
+        ) : null}
+        {misMatchedSigners.length ? (
+          <Box style={styles.noteContainer}>
+            <Note
+              title="WARNING"
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(
+                ' and '
+              )}'s xpub from the right section`}
+              subtitleColor="error"
             />
           </Box>
         ) : null}
