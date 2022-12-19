@@ -3,22 +3,23 @@ import { View, StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import { NodeDetail } from 'src/core/wallets/interfaces';
 import CheckBox from 'src/components/Checkbox';
 import Buttons from 'src/components/Buttons';
-import { LocalizationContext } from 'src/common/content/LocContext';
 
-function AddNode(params) {
+function AddNode(params: NodeDetail, onSave: (nodeDetails: NodeDetail) => void) {
     const { translations } = useContext(LocalizationContext);
     const { common } = translations;
     const { settings } = translations;
 
-    const [useKeeperNode, setuseKeeperNode] = useState(params.useKeeperNode);
-    const [host, setHost] = useState(params.host);
-    const [port, setPort] = useState(params.port);
+    const [useKeeperNode, setuseKeeperNode] = useState(params?.useKeeperNode);
+    const [host, setHost] = useState(params?.host);
+    const [port, setPort] = useState(params?.port);
     const [isHostValid, setIsHostValid] = useState(true);
     const [isPortValid, setIsPortValid] = useState(true);
 
-    const onValidate = () => {
+    const onValidateAndSave = () => {
         if (host == null || host.length == 0) {
             setIsHostValid(false);
         }
@@ -27,16 +28,19 @@ function AddNode(params) {
             setIsPortValid(false);
         }
 
-        if (isHostValid && isPortValid)
-            params.onSave(params.id, host, port, useKeeperNode)
+        if (isHostValid && isPortValid) {
+            const nodeDetails: NodeDetail = {
+                id: params.id, host: host, port: port, useKeeperNode: useKeeperNode, isConnected: params.isConnected
+            };
+            onSave(nodeDetails);
+        }
     }
 
     return (
         <View style={styles.container}>
             <Box style={styles.box}>
                 <Box style={!isHostValid ? [styles.error, { borderColor: '#ff0033' }] : null}>
-                    <Input style={styles.input}
-                        placeholderTextColor="grey"
+                    <Input placeholderTextColor="grey"
                         backgroundColor="light.lightYellow"
                         placeholder={settings.host}
                         borderRadius={5}
@@ -53,8 +57,7 @@ function AddNode(params) {
                 </Box>
                 <Box style={styles.spacer} />
                 <Box style={!isPortValid ? [styles.error, { borderColor: '#ff0033' }] : null}>
-                    <Input style={styles.input}
-                        placeholderTextColor="grey"
+                    <Input placeholderTextColor="grey"
                         backgroundColor="light.lightYellow"
                         placeholder={settings.portNumberPlaceholder}
                         keyboardType="number-pad"
@@ -81,7 +84,7 @@ function AddNode(params) {
                 <Box style={styles.saveButton}>
                     <Buttons
                         primaryText={common.save}
-                        primaryCallback={() => onValidate()}
+                        primaryCallback={() => onValidateAndSave()}
                     />
                 </Box>
             </Box>

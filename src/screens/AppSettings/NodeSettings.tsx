@@ -1,70 +1,100 @@
 import { Box } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, FlatList } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { setConnectToMyNode, setNodeDetails } from 'src/store/reducers/settings';
+import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import KeeperModal from 'src/components/KeeperModal';
-import AddNode from './AddNode';
+import AddNode from './AddNodeModal';
 
-const nodeList = [
-    { id: 1, host: '192.168.1.1', port: '8080', useKeeperNode: false },
-    { id: 2, host: '192.168.1.2', port: '663', useKeeperNode: true },
-    { id: 3, host: '192.168.1.3', port: '665', useKeeperNode: false },
-];
 
 function NodeSettings() {
+    const dispatch = useAppDispatch();
     const { translations } = useContext(LocalizationContext);
     const { common } = translations;
     const { settings } = translations;
+    const { connectToMyNodeEnabled, nodeDetails } = useAppSelector((state) => state.settings);
+    const [nodeList, setNodeList] = useState(nodeDetails || []);
+    const [ConnectToNode, setConnectToNode] = useState(connectToMyNodeEnabled);
     const [visible, setVisible] = useState(false);
     const [selectedNodeItem, setSelectedNodeItem] = useState(null);
 
-    const open = () => setVisible(true);
-    const close = () => setVisible(false);
+    useEffect(() => {
+        setNodeList(nodeList);
+    }, []);
 
-    const onConnect = async (selectedItem) => {
-
+    const openAddNodeModal = () => {
+        setVisible(true);
     }
 
-    const onEdit = async (selectedItem) => {
-        setSelectedNodeItem(selectedItem);
-        open();
-    }
-
-    const onSave = async (id, host, port, useKeeperNode) => {
-        console.log(id);
-        console.log(host);
-        console.log(port);
-        console.log(useKeeperNode);
-
-        if (host == null
-            || port == null) {
-
+    const closeAddNodeModal = () => {
+        if (nodeList.length == 0 || nodeList.filter(item => item.isConnected == true).length == 0) {
+            setConnectToNode(false);
+            dispatch(setConnectToMyNode(false));
         }
+        setVisible(false);
+    };
+
+    const onSave = async (nodeDetail: NodeDetail) => {
+        if (nodeDetail.host == null || nodeDetail.host.length == 0 || nodeDetail.port == null || nodeDetail.port.length == 0)
+            return;
+
+        let nodes = [...nodeList];
+
+        if (nodeDetail.id == null) {
+            nodeDetail.id = nodeList.length + 1;
+            nodes.push(nodeDetail);
+        }
+        else {
+            const index = nodes.findIndex(item => item.id == nodeDetail.id);
+            nodes[index] = nodeDetail;
+        }
+        setNodeList(nodes);
+        dispatch(setNodeDetails(nodes));
+        closeAddNodeModal();
     }
 
     const onAdd = () => {
         setSelectedNodeItem(null);
-        open();
+        openAddNodeModal();
     }
 
-    const handleSelection = (selectedItem) => {
+    const onEdit = async (selectedItem: NodeDetail) => {
+        setSelectedNodeItem(selectedItem);
+        openAddNodeModal();
+    }
+
+    const onConnectToNode = async (selectedItem: NodeDetail) => {
+        // TODO: Connect the node to electrum client logic goes here
+    }
+
+    const onHandleNodeItemSelection = (selectedItem: NodeDetail) => {
         setSelectedNodeItem(selectedItem);
     }
 
-    const paramsToPass = {
+    const onChangeConnectToMyNode = (value: boolean) => {
+        setConnectToNode(value);
+        dispatch(setConnectToMyNode(value));
+        if (value)
+            openAddNodeModal();
+    }
+
+    const paramsToPass: NodeDetail = {
         id: selectedNodeItem?.id || null,
         host: selectedNodeItem?.host || '',
         port: selectedNodeItem?.port || '',
         useKeeperNode: selectedNodeItem?.useKeeperNode || false,
-        onSave
+        isConnected: selectedNodeItem?.isConnected || false,
     }
 
     return (
@@ -82,7 +112,7 @@ function NodeSettings() {
                     <Text style={styles.appSettingSubTitle}>{settings.connectToMyNodeSubtitle}</Text>
                 </Box>
                 <Box>
-                    <Switch value={false} onValueChange={() => console.log("")} />
+                    <Switch value={ConnectToNode} onValueChange={onChangeConnectToMyNode} />
                 </Box>
             </Box>
             <Box borderColor="light.GreyText" style={styles.splitter}></Box>
@@ -95,7 +125,7 @@ function NodeSettings() {
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
                         <TouchableOpacity
-                            onPress={() => handleSelection(item)}
+                            onPress={() => onHandleNodeItemSelection(item)}
                             style={item.id === selectedNodeItem?.id ? [styles.selectedItem, { borderColor: '#017963' }] : null} >
                             <Box backgroundColor="light.lightYellow" style={styles.nodeList}>
                                 <Box style={styles.nodeDetail}>
@@ -107,7 +137,7 @@ function NodeSettings() {
                                 <TouchableOpacity onPress={() => onEdit(item)}>
                                     <Text style={[styles.editText, { color: '#017963' }]}>{common.edit}</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={onConnect}>
+                                <TouchableOpacity onPress={onConnectToNode}>
                                     <Box borderColor="light.brownborder"
                                         backgroundColor="light.yellow2"
                                         style={styles.connectButton}>
@@ -118,7 +148,6 @@ function NodeSettings() {
                         </TouchableOpacity>
                     )}
                 />
-
             </Box>
             <TouchableOpacity onPress={onAdd}>
                 <Box backgroundColor="light.lightYellow" style={styles.addNewNode}>
@@ -134,7 +163,7 @@ function NodeSettings() {
             </Box>
             <KeeperModal
                 visible={visible}
-                close={close}
+                close={closeAddNodeModal}
                 title={settings.nodeDetailsTitle}
                 subTitle={settings.nodeDetailsSubtitle}
                 subTitleColor="#5F6965"
@@ -142,9 +171,10 @@ function NodeSettings() {
                 buttonBackground={['#00836A', '#073E39']}
                 buttonText=""
                 buttonTextColor="#FAFAFA"
-                buttonCallback={close}
+                buttonCallback={closeAddNodeModal}
                 textColor="#041513"
-                Content={() => AddNode(paramsToPass)}
+                closeOnOverlayClick={false}
+                Content={() => AddNode(paramsToPass, onSave)}
             />
         </ScreenWrapper >
     );
