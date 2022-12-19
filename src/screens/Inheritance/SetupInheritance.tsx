@@ -54,25 +54,18 @@ function SetupInheritance() {
   function InheritancePoint({ title, subTitle, description, Icon }) {
     return (
       <Box style={styles.modalContainer}>
-        <Box style={styles.modalTopContainer} >
+        <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
             <Text color="light.white1" numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text
-              color="light.white1"
-              numberOfLines={2}
-              style={styles.modalSubtitle}
-            >
+            <Text color="light.white1" numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text
-          color="light.white1"
-          style={styles.modalDesc}
-        >
+        <Text color="light.white1" style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -125,16 +118,10 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text
-          color="light.textWallet"
-          style={styles.title}
-        >
+        <Text color="light.textWallet" style={styles.title}>
           Inheritance Support
         </Text>
-        <Text
-          color="light.lightBlack2"
-          style={styles.subtitle}
-        >
+        <Text color="light.lightBlack2" style={styles.subtitle}>
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>
@@ -142,11 +129,7 @@ function SetupInheritance() {
 
       <Box style={styles.bottomContainer}>
         <Assert />
-        <Text
-          numberOfLines={2}
-          fontWeight={100}
-          style={styles.message}
-        >
+        <Text numberOfLines={2} fontWeight={100} style={styles.message}>
           This can be activated once you are at the Diamond Hands level
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
@@ -178,12 +161,15 @@ function SetupInheritance() {
         buttonText="Proceed"
         buttonTextColor="#073E39"
         buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonCallback={() => {
+          dispatch(setInheritance(false)), showToast('Inheritance flow coming soon');
+        }}
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
@@ -193,7 +179,7 @@ const styles = ScaledSheet.create({
     bottom: hp(20),
     paddingHorizontal: 25,
     justifyContent: 'center',
-    width: wp(340)
+    width: wp(340),
   },
 
   message: {
@@ -202,57 +188,57 @@ const styles = ScaledSheet.create({
     letterSpacing: 0.6,
     marginTop: hp(36),
     width: wp(220),
-    textAlign: "center",
+    textAlign: 'center',
   },
   bottomContainer: {
     marginTop: hp(30),
     alignItems: 'center',
-    flex: 1
+    flex: 1,
   },
   topContainer: {
-    alignItems: "center",
-    paddingHorizontal: 1
+    alignItems: 'center',
+    paddingHorizontal: 1,
   },
   title: {
     fontSize: 16,
     letterSpacing: 0.96,
-    marginTop: hp(10)
+    marginTop: hp(10),
   },
   subtitle: {
     textAlign: 'center',
     width: wp(250),
     marginTop: hp(4),
     fontSize: 13,
-    letterSpacing: 1.3
+    letterSpacing: 1.3,
   },
   header: {
-    marginBottom: -50
+    marginBottom: -50,
   },
   modalContainer: {
     marginBottom: hp(25),
   },
   modalTitle: {
-    fontSize: 15
+    fontSize: 15,
   },
   modalSubtitle: {
     fontSize: 12,
-    opacity: 0.7
+    opacity: 0.7,
   },
   modalDesc: {
     marginTop: hp(16),
     letterSpacing: 0.65,
     width: wp(280),
     alignItems: 'center',
-    fontSize: 14
+    fontSize: 14,
   },
   modalTopContainer: {
     width: wp(300),
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   gradientIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 });
 export default SetupInheritance;
