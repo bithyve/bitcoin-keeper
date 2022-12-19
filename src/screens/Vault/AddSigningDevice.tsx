@@ -31,7 +31,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletOperations from 'src/core/wallets/operations';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import moment from 'moment';
 import { newVaultInfo } from 'src/store/sagas/wallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -90,7 +90,13 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   if (!signer) {
     return (
       <Pressable onPress={navigateToSignerList}>
-        <Box flexDir="row" alignItems="center" marginX="3" marginBottom="10">
+        <Box
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginHorizontal: 10,
+            marginBottom: hp(25),
+          }}>
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
@@ -118,7 +124,14 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
     );
   }
   return (
-    <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
+    <Box
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 10,
+        marginBottom: hp(windowHeight < 700 ? 5 : 25)
+      }}
+    >
       <HStack style={styles.signerItem}>
         <HStack>
           <Box
@@ -464,7 +477,7 @@ const styles = ScaledSheet.create({
   bottomContainer: {
     width: windowWidth,
     position: 'absolute',
-    bottom: 35,
+    bottom: 20,
     right: 20,
     paddingLeft: 40,
   },
