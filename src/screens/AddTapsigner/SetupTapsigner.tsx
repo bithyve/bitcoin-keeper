@@ -137,7 +137,14 @@ function SetupTapsigner() {
             >
               You will be scanning the TAPSIGNER after this step
             </Text>
-            <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
+            <Box
+              style={{
+                flex: 1,
+                justifyContent: "flex-end",
+                flexDirection: "row",
+                marginRight: wp(15)
+              }}
+            >
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>

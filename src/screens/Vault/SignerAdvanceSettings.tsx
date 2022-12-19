@@ -20,6 +20,7 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const { width } = Dimensions.get('screen');
 
@@ -33,6 +34,7 @@ const gradientStyles = {
 
 function SignerAdvanceSettings({ route }: any) {
   const { signer }: { signer: VaultSigner } = route.params;
+  const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(
     signer.type,
     signer.isMock,
@@ -73,6 +75,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
         break;
       default:
+        showToast('Comming soon')
         break;
     }
   };

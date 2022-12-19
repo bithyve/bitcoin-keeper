@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
@@ -74,24 +74,15 @@ function SetupSuccessfully() {
 
 export function BulletPoint({ text }) {
   return (
-    <Box marginTop="4" flexDirection="row" alignItems="flex-start">
+    <Box
+      style={styles.bulletContainer}>
       <Box
-        style={{
-          marginRight: wp(5),
-        }}
-        size={hp(5)}
-        m={1}
-        top={2}
         backgroundColor="light.modalText"
-        borderRadius={10}
+        style={styles.bulletPoint}
       />
       <Text
         color="light.modalText"
-        fontSize={13}
-        fontFamily="body"
-        fontWeight="200"
-        p={1}
-        letterSpacing={1}
+        style={styles.bullerPointText}
       >
         {text}
       </Text>
@@ -168,9 +159,8 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-    isMultisig ? 'Multisig' : 'Singlesig'
-  } > QR Code.\n`;
+  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
+    } > QR Code.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -205,9 +195,8 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-    isMultisig ? 'Multisig' : 'Singlesig'
-  } > Native Segwit > Keeper.\n`;
+  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
+    } > Native Segwit > Keeper.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -279,9 +268,8 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-    isMultisig ? 'MultiSig' : 'SingleSig'
-  } and Native Segwit in the options section.\n`;
+  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
+    } and Native Segwit in the options section.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -851,5 +839,23 @@ function HardwareModalMap({ type, visible, close }) {
     </>
   );
 }
-
+const styles = StyleSheet.create({
+  bulletContainer: {
+    marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'flex-start'
+  },
+  bulletPoint: {
+    marginRight: wp(5),
+    height: hp(5),
+    width: hp(5),
+    borderRadius: 10,
+    top: 12
+  },
+  bullerPointText: {
+    letterSpacing: 1,
+    padding: 3,
+    fontSize: 13
+  }
+})
 export default HardwareModalMap;

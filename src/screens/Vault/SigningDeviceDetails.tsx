@@ -334,7 +334,7 @@ function SigningDeviceDetails({ route }) {
         <HStack justifyContent="space-between">
           <FooterItem
             Icon={Change}
-            title="Change Signer"
+            title="Change signing device"
             onPress={() => navigation.dispatch(CommonActions.navigate('AddSigningDevice'))}
           />
           <FooterItem

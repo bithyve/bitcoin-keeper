@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   },
   vault: {
     width: wp(280),
-    height: hp(Platform.OS === 'android' ? 400 : 350),
+    height: hp(350),
     alignItems: 'center',
   },
   subscriptionContainer: {
