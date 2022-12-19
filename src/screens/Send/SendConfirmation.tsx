@@ -271,7 +271,7 @@ function SendConfirmation({ route }) {
       switch (transferType) {
         case TransferType.VAULT_TO_VAULT:
           return isSend ? (
-            <Card title="Old Vault" subTitle={`Moving funds all funds`} isVault={true} />
+            <Card title="Old Vault" subTitle={`Moving all funds`} isVault={true} />
           ) : (
             <Card
               title="New Vault"
@@ -594,12 +594,11 @@ function SendConfirmation({ route }) {
           {customFeeOptionTransfers.includes(transferType) ? <SendingPriority /> : <FeeInfo />}
         </Box>
       </Box>
-      <Box position="absolute" bottom={windowHeight * 0.14}>
+      <Box style={styles.noteBox}>
         {transferType == TransferType.VAULT_TO_VAULT ? (
           <Note
             title="Note"
             subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
-            width="70%"
           />
         ) : null}
       </Box>
@@ -667,5 +666,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
+  },
+  noteBox: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'flex-end',
+    marginBottom: hp(40),
   },
 });
