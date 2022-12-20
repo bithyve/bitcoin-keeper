@@ -11,6 +11,8 @@ import WalletUtilities from '../operations/utils';
 import { generateMobileKey, generateSeedWordsKey, generateVault } from '../factories/VaultFactory';
 import { NetworkType, SignerStorage, SignerType, TxPriority, VaultType } from '../enums';
 
+jest.setTimeout(10000);
+
 describe('Vault: Single-sig(1-of-1)', () => {
   let primaryMnemonic;
   let vaultShell;
@@ -31,7 +33,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
     const networkType = NetworkType.TESTNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
+    const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
       networkType
     );
@@ -47,7 +49,6 @@ describe('Vault: Single-sig(1-of-1)', () => {
         derivationPath,
         xfp: masterFingerprint,
       },
-      bip85Config,
       lastHealthCheck: new Date(),
       addedOn: new Date(),
     };
@@ -78,7 +79,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
   test('vault operations: generating a receive address', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
-    expect(receivingAddress).toEqual('tb1qj66at89t06cpwv6fyqps2n3q6gwzz53rsa6y4c');
+    expect(receivingAddress).toEqual('tb1qvndgkznthw8zghkwg5ayjjer473pxf8gu492j4');
   });
 
   test('vault operations: fetching balance, utxos & transactions', async () => {
@@ -96,7 +97,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
       netBalance += utxo.value;
     });
 
-    expect(balances.confirmed + balances.unconfirmed).toEqual(6000);
+    expect(balances.confirmed + balances.unconfirmed).toEqual(3300);
     expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
     expect(transactions.length).toEqual(1);
   });
@@ -113,7 +114,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
     const recipients = [
       {
         address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
-        amount: 3000,
+        amount: 2000,
       },
     ];
 
@@ -181,7 +182,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     // configure 1st singer: mobile-key
     const networkType = NetworkType.TESTNET;
     const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
+    const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
       networkType
     );
@@ -197,7 +198,6 @@ describe('Vault: Multi-sig(2-of-3)', () => {
         derivationPath,
         xfp: masterFingerprint,
       },
-      bip85Config,
       lastHealthCheck: new Date(),
       addedOn: new Date(),
     };
@@ -282,7 +282,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual(
-      'tb1qa7dwqkhm77m673kgpyd7xk9j496xgu3t6ntkq04zspmfhxdjfyxsxdfjz8'
+      'tb1qwge5tf2s48z7kqfeg6lck8yphrskvxds45jlev07dlqrjfa953zs44hgzu'
     );
   });
 

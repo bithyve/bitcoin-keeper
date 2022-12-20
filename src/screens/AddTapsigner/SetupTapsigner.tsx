@@ -137,7 +137,14 @@ function SetupTapsigner() {
             >
               You will be scanning the TAPSIGNER after this step
             </Text>
-            <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
+            <Box
+              style={{
+                flex: 1,
+                justifyContent: "flex-end",
+                flexDirection: "row",
+                marginRight: wp(15)
+              }}
+            >
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
@@ -166,7 +173,7 @@ const styles = StyleSheet.create({
   header: {
     flex: 1,
     paddingHorizontal: '5%',
-    marginBottom: windowHeight > 800 ? 0 : '25%',
+    marginBottom: windowHeight > 850 ? 0 : '25%',
   },
   stepContainer: {
     flexDirection: 'row',

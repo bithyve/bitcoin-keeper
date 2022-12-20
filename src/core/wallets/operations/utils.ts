@@ -1228,4 +1228,13 @@ export default class WalletUtilities {
     const mfp = cryptoAccount.getMasterFingerprint().toString('hex');
     return { xPub, derivationPath, mfp };
   };
+
+  static getSignerPurposeFromPath = (path: string) => {
+    const branches = path.split('/');
+    const purpose = branches.length > 1 ? branches[1].match(/(\d+)/) : null;
+    if (purpose) {
+      return purpose[0];
+    }
+    return null;
+  };
 }

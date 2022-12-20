@@ -47,7 +47,10 @@ function ScanQR() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subtitle} />
+      <HeaderTitle
+        title={title === 'Setting up SEEDSIGNER' ? 'Setting up SeedSigner' : title}
+        subtitle={subtitle}
+      />
       <Box style={styles.qrcontainer}>
         <RNCamera style={styles.cameraView} captureAudio={false} onBarCodeRead={onBarCodeRead} />
       </Box>
@@ -58,9 +61,7 @@ function ScanQR() {
       <Box style={styles.noteWrapper}>
         <Note
           title={common.note}
-          subtitle={
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-          }
+          subtitle={'Make sure that the QR is well aligned, focused and visible as a whole'}
           subtitleColor="GreyText"
         />
       </Box>

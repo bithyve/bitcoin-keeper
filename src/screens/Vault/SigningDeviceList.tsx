@@ -111,7 +111,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
-    setNfcSupport(isSupported);
+    // setNfcSupport(isSupported);
     setSignersLoaded(true);
   };
 
