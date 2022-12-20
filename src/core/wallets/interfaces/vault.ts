@@ -53,7 +53,7 @@ export interface VaultSigner {
     derivationPath: string;
     xfp: string;
   };
-  bip85Config?: BIP85Config; // configuration for mobile keys
+  bip85Config?: BIP85Config;
   lastHealthCheck: Date;
   addedOn: Date;
   hasSigned?: boolean;

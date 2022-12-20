@@ -441,7 +441,7 @@ const setupKeeperSigner = (qrData) => {
 const setupMobileKey = async ({ primaryMnemonic }) => {
   const networkType = config.NETWORK_TYPE;
   const network = WalletUtilities.getNetworkByType(networkType);
-  const { xpub, xpriv, derivationPath, masterFingerprint, bip85Config } = await generateMobileKey(
+  const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
     primaryMnemonic,
     networkType
   );
@@ -457,7 +457,6 @@ const setupMobileKey = async ({ primaryMnemonic }) => {
       derivationPath,
       xfp: masterFingerprint,
     },
-    bip85Config,
     lastHealthCheck: new Date(),
     addedOn: new Date(),
   };
