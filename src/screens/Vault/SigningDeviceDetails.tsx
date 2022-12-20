@@ -119,7 +119,7 @@ function SigningDeviceDetails({ route }) {
         dispatch(healthCheckSigner(vaultId, signer.signerId));
         setHealthCheckSuccess(true);
       } else {
-        Alert.alert('verifivation failed');
+        Alert.alert('verification failed');
       }
     } catch (err) {
       console.log(err);
