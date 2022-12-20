@@ -3,7 +3,6 @@ import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CheckIcon from 'src/assets/images/checked.svg';
 import Next from 'src/assets/images/svgs/icon_arrow.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -45,7 +44,7 @@ function SignerList({
             <View style={{ flexDirection: 'column' }}>
               <Text
                 color="light.textBlack"
-                fontSize={RFValue(14)}
+                fontSize={14}
                 fontWeight={200}
                 fontFamily="heading"
                 letterSpacing={1.12}
@@ -54,7 +53,7 @@ function SignerList({
               </Text>
               <Text
                 color="light.GreyText"
-                fontSize={RFValue(12)}
+                fontSize={12}
                 marginRight={10}
                 fontFamily="body"
                 letterSpacing={0.6}

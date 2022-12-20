@@ -1,19 +1,17 @@
 import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import KeyPadView from './AppNumPad/KeyPadView';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
 import CVVInputsView from './HealthCheck/CVVInputsView';
 
 function SettingUpTapsigner(props) {
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
-  const {tapsigner} = translations;
-  const {healthcheck} = translations;
+  const { common } = translations;
+  const { tapsigner } = translations;
+  const { healthcheck } = translations;
 
   const [passcodeFlag] = useState(true);
 
@@ -52,21 +50,16 @@ function SettingUpTapsigner(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={RFValue(19)} color="light.lightBlack" fontFamily="heading">
+        <Text fontSize={19} color="light.lightBlack" fontFamily="heading">
           {tapsigner.SetupTitle}
         </Text>
-        <Text fontSize={RFValue(13)} color="light.lightBlack2" fontFamily="body">
+        <Text fontSize={13} color="light.lightBlack2" fontFamily="body">
           {healthcheck.EnterCVV}
         </Text>
       </Box>
       <Box>
         {/* pin input view */}
-        <CVVInputsView
-          passCode={inputText}
-          passcodeFlag={passcodeFlag}
-          backgroundColor
-          textColor
-        />
+        <CVVInputsView passCode={inputText} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
         <Box mt={10} alignSelf="flex-end" mr={10}>
           {inputText.length == 6 && (

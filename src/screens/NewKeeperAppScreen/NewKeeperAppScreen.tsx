@@ -12,7 +12,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PasswordModal from 'src/components/PasswordModal';
-import { RFValue } from 'react-native-responsive-fontsize';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
@@ -47,7 +46,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
           color="light.lightBlack"
           fontFamily="body"
           fontWeight={200}
-          fontSize={RFValue(14)}
+          fontSize={14}
           letterSpacing={1.12}
           width="90%"
         >
@@ -57,7 +56,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
           color="light.GreyText"
           fontFamily="body"
           fontWeight={200}
-          fontSize={RFValue(12)}
+          fontSize={12}
           letterSpacing={0.6}
           width="80%"
         >
@@ -191,7 +190,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           >
             <Text
               color="light.blackHeaderText"
-              fontSize={RFValue(18)}
+              fontSize={18}
               fontFamily="heading"
               px="8"
               fontWeight={200}
@@ -202,7 +201,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Text
               fontWeight={200}
               color="light.GreyText"
-              fontSize={RFValue(12)}
+              fontSize={12}
               fontFamily="body"
               px="8"
               letterSpacing={0.6}
@@ -227,7 +226,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           >
             <Text
               color="light.blackHeaderText"
-              fontSize={RFValue(18)}
+              fontSize={18}
               fontFamily="heading"
               px="8"
               fontWeight={200}
@@ -235,7 +234,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             >
               Existing Keeper App
             </Text>
-            <Text color="light.blackHeaderText" fontSize={RFValue(12)} fontFamily="body" px="8">
+            <Text color="light.blackHeaderText" fontSize={12} fontFamily="body" px="8">
               If you previously had a Keeper wallet you can recover it
             </Text>
 

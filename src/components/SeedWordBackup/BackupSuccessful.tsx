@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration from 'src/assets/images/illustration.svg';
 import { useNavigation } from '@react-navigation/native';
@@ -9,7 +8,7 @@ import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
 function BackupSuccessful(props) {
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
+  const { BackupWallet } = translations;
   const navigation = useNavigation();
 
   return (
@@ -31,10 +30,10 @@ function BackupSuccessful(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={RFValue(19)} color="light.lightBlack" fontFamily="heading">
+        <Text fontSize={19} color="light.lightBlack" fontFamily="heading">
           {props.title}
         </Text>
-        <Text fontSize={RFValue(13)} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.lightBlack" fontFamily="body">
           {props.subTitle}
         </Text>
       </Box>

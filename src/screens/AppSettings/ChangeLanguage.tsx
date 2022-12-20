@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Text, ScrollView, StatusBar, useColorMode } from 'native-base';
@@ -30,7 +29,7 @@ const styles = StyleSheet.create({
   },
   textCurrency: {
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(18),
+    fontSize: 18,
     color: '#00836A',
     fontWeight: '700',
   },
@@ -41,7 +40,7 @@ const styles = StyleSheet.create({
   },
   textValue: {
     fontFamily: Fonts.FiraSansRegular,
-    fontSize: RFValue(12),
+    fontSize: 12,
     marginLeft: wp('3%'),
   },
   mainText: {
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
   },
   symbolText: {
     fontFamily: Fonts.FiraSansMedium,
-    fontSize: RFValue(13),
+    fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
   },
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
   },
   codeText: {
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     marginLeft: wp('7%'),
     letterSpacing: 0.6,
     color: '#4F5955',
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
   },
   flagStyle: {
     fontFamily: Fonts.FiraSansMedium,
-    fontSize: RFValue(13),
+    fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
   },
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
   },
   countryCodeWrapper2: {
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     marginLeft: wp('3%'),
     letterSpacing: 0.6,
     color: '#4F5955',
@@ -235,10 +234,10 @@ function ChangeLanguage() {
           py={3}
         > */}
         <Box w="60%" marginLeft="10%">
-          <Text fontSize={RFValue(16)} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>
+          <Text fontSize={16} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6} style={styles.subText}>
+          <Text fontSize={12} fontWeight={200} letterSpacing={0.6} style={styles.subText}>
             {settings.biometricsDesc}
           </Text>
         </Box>

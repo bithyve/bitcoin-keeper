@@ -26,7 +26,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -263,7 +262,7 @@ function WalletDetails({ route }) {
               >
                 <Text
                   color="light.brownborder"
-                  fontSize={RFValue(12)}
+                  fontSize={12}
                   style={{
                     letterSpacing: 0.6,
                   }}
@@ -295,7 +294,7 @@ function WalletDetails({ route }) {
               <Box style={{ paddingLeft: wp(10) }}>
                 <Text
                   color="light.brownborder"
-                  fontSize={RFValue(12)}
+                  fontSize={12}
                   style={{
                     letterSpacing: 0.6,
                   }}
@@ -439,7 +438,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     letterSpacing: 0.96,
-    fontSize: RFValue(16),
+    fontSize: 16,
     marginTop: hp(10),
   },
   headerContainer: {
@@ -483,11 +482,11 @@ const styles = StyleSheet.create({
   },
   walletName: {
     letterSpacing: 0.24,
-    fontSize: RFValue(12),
+    fontSize: 12,
   },
   walletDescription: {
     letterSpacing: 0.2,
-    fontSize: RFValue(10),
+    fontSize: 10,
     fontWeight: '400',
     marginTop: hp(16),
   },

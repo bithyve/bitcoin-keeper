@@ -12,7 +12,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -316,7 +315,7 @@ const styles = StyleSheet.create({
     height: windowHeight > 800 ? '90%' : '85%',
   },
   contactUsText: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
     fontWeight: '200',
     width: wp(300),

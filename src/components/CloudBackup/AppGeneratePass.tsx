@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity, Clipboard } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
@@ -10,7 +9,7 @@ import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
 function AppGeneratePass(props) {
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
+  const { BackupWallet } = translations;
   const [agsp] = useState(
     generateKey(18)
       .match(/.{1,6}/g)
@@ -18,7 +17,7 @@ function AppGeneratePass(props) {
   );
   const [copied, setCopied] = useState(false);
 
-  const {common} = translations;
+  const { common } = translations;
   return (
     <Box bg="#F7F2EC" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
@@ -38,10 +37,10 @@ function AppGeneratePass(props) {
         </Box>
       </TouchableOpacity>
       <Box px={10} py={5}>
-        <Text fontSize={RFValue(19)} color="light.lightBlack" fontFamily="heading">
+        <Text fontSize={19} color="light.lightBlack" fontFamily="heading">
           {BackupWallet.appGeneratePassTitle}
         </Text>
-        <Text fontSize={RFValue(13)} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.lightBlack" fontFamily="body">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
@@ -90,7 +89,7 @@ function AppGeneratePass(props) {
         )}
       </Box>
       <Box p={10}>
-        <Text fontSize={RFValue(13)} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.lightBlack" fontFamily="body">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
@@ -99,10 +98,10 @@ function AppGeneratePass(props) {
           <CopyIcon />
         </Box>
         <Box w="80%">
-          <Text fontSize={RFValue(12)} fontWeight={300}>
+          <Text fontSize={12} fontWeight={300}>
             Backing up drive
           </Text>
-          <Text fontSize={RFValue(12)}>Lorem ipsum dolor sit amet</Text>
+          <Text fontSize={12}>Lorem ipsum dolor sit amet</Text>
         </Box>
       </Box>
       <Box alignItems="center" flexDirection="row" w="95%" py={5}>
@@ -110,7 +109,7 @@ function AppGeneratePass(props) {
           onPress={() => props.closeBottomSheet()}
           style={{ width: '60%', paddingLeft: '15%' }}
         >
-          <Text fontSize={RFValue(14)} textAlign="center">
+          <Text fontSize={14} textAlign="center">
             {common.cancel}
           </Text>
         </TouchableOpacity>

@@ -15,7 +15,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -262,11 +261,11 @@ const styles = ScaledSheet.create({
     position: 'relative',
   },
   title: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: '0.24@s',
   },
   subtitle: {
-    fontSize: RFValue(10),
+    fontSize: 10,
     letterSpacing: '0.20@s',
   },
   textBox: {

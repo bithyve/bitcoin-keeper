@@ -4,7 +4,6 @@ import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';

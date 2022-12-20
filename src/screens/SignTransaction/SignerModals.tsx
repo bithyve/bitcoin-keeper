@@ -16,7 +16,6 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
@@ -46,7 +45,7 @@ function DeviceItem({ device, onSelectDevice }) {
     <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
       <Text
         color="light.textLight"
-        fontSize={RFValue(14)}
+        fontSize={14}
         fontWeight={200}
         fontFamily="heading"
         letterSpacing={1.12}

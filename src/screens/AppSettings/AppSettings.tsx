@@ -11,7 +11,6 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
@@ -370,12 +369,12 @@ const styles = StyleSheet.create({
   },
   appBackupTitle: {
     fontWeight: '400',
-    fontSize: RFValue(14),
+    fontSize: 14,
     letterSpacing: 1.12,
   },
   appBackupSubTitle: {
     fontWeight: '400',
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
   },
   appSettingTitleWrapper: {
@@ -386,12 +385,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   appSettingTitle: {
-    fontSize: RFValue(18),
+    fontSize: 18,
     fontWeight: '400',
     letterSpacing: 1,
   },
   appSettingSubTitle: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     fontWeight: '300',
     letterSpacing: 0.6,
   },
@@ -422,7 +421,7 @@ const styles = StyleSheet.create({
   },
   telTweetLinkTitle: {
     fontWeight: '400',
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 0.79,
   },
   telTweetLinkWrapper2: {

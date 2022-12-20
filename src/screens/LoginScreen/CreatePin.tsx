@@ -13,7 +13,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
@@ -246,14 +245,14 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     marginLeft: 18,
-    fontSize: RFValue(22),
+    fontSize: 22,
   },
   labelText: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     marginLeft: 18,
   },
   errorText: {
-    fontSize: RFValue(10),
+    fontSize: 10,
     fontWeight: '400',
     width: wp('68%'),
     textAlign: 'right',

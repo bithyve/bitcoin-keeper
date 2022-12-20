@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, Text } from 'native-base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 
 import Illustration from 'src/assets/images/illustration.svg';
@@ -10,7 +9,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 
 function ResetPassSuccess(props) {
   const { translations } = useContext(LocalizationContext);
-  const {login} = translations;
+  const { login } = translations;
   function onPressProceed() {}
 
   return (
@@ -30,16 +29,16 @@ function ResetPassSuccess(props) {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Text fontSize={RFValue(19)} color="light.lightBlack">
+      <Text fontSize={19} color="light.lightBlack">
         {login.resetSuccess}
       </Text>
-      <Text fontSize={RFValue(13)} color="light.textColor2">
+      <Text fontSize={13} color="light.textColor2">
         {login.ResetPassSubPara1}
       </Text>
       <Box alignItems="center" my={10}>
         <Illustration />
       </Box>
-      <Text fontSize={RFValue(13)} color="light.textColor2" my={5}>
+      <Text fontSize={13} color="light.textColor2" my={5}>
         {login.ResetPassSubPara2}
       </Text>
       <Box alignSelf="flex-end">

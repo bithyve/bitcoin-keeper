@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ImageBackground, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, HStack, Pressable, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { RFValue } from 'react-native-responsive-fontsize';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
 import NewWalletModal from 'src/components/NewWalletModal';
@@ -139,7 +138,7 @@ function LinkedWallets(props) {
           <Box style={styles.linkedWalletContent}>
             <Text
               color="light.white1"
-              fontSize={RFValue(22)}
+              fontSize={22}
               style={{
                 letterSpacing: 1.76,
               }}
@@ -578,12 +577,12 @@ const styles = StyleSheet.create({
   },
   vaultHeading: {
     letterSpacing: 0.8,
-    fontSize: RFValue(16),
+    fontSize: 16,
     fontWeight: 'bold',
   },
   vaultSubHeading: {
     letterSpacing: 0.9,
-    fontSize: RFValue(12),
+    fontSize: 12,
     fontWeight: 'bold',
     opacity: 0.8,
     paddingBottom: 2,
@@ -631,12 +630,12 @@ const styles = StyleSheet.create({
   },
   bottomCardTitle: {
     letterSpacing: 0.8,
-    fontSize: RFValue(16),
+    fontSize: 16,
     marginBottom: 3,
   },
   bottomCardSubtitle: {
     letterSpacing: 0.6,
-    fontSize: RFValue(12),
+    fontSize: 12,
     fontWeight: '300',
     marginTop: -3,
   },
@@ -644,7 +643,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(5),
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: RFValue(16),
+    fontSize: 16,
   },
   linkedWalletContent: {
     marginLeft: wp(18),

@@ -10,7 +10,6 @@ import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Keyboard } from 'react-native';
 import Note from 'src/components/Note/Note';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
@@ -86,7 +85,7 @@ const styles = ScaledSheet.create({
     color: '#073E39',
     opacity: 0.5,
     fontFamily: Fonts.RobotoCondensedBold,
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),
   },

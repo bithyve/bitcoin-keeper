@@ -1,10 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Box, Text, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -78,7 +77,7 @@ function BackupWallet() {
             color="light.lightBlack"
             fontFamily="body"
             fontWeight={200}
-            fontSize={RFValue(14)}
+            fontSize={14}
             letterSpacing={1.12}
           >
             {title}
@@ -88,7 +87,7 @@ function BackupWallet() {
               color="light.GreyText"
               fontFamily="body"
               fontWeight={200}
-              fontSize={RFValue(12)}
+              fontSize={12}
               letterSpacing={0.6}
             >
               {subTitle}

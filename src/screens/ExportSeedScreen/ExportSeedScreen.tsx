@@ -1,7 +1,6 @@
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
@@ -167,13 +166,13 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   seedTextStyle: {
-    fontSize: RFValue(19),
+    fontSize: 19,
     fontWeight: '500',
     letterSpacing: 1.64,
     marginRight: 5,
   },
   seedTextStyle01: {
-    fontSize: RFValue(19),
+    fontSize: 19,
     fontWeight: '400',
     letterSpacing: 1,
   },

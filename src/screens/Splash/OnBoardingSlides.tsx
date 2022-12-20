@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { Box, Text, StatusBar } from 'native-base';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 
 import openLink from 'src/utils/OpenLink';
@@ -30,19 +29,19 @@ const { width, height } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const {onboarding} = translations;
-  const {common} = translations;
+  const { onboarding } = translations;
+  const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [items] = useState([
     {
       id: '1',
       title: (
         <>
-          {`${onboarding.Comprehensive  } `}
+          {`${onboarding.Comprehensive} `}
           <Text fontStyle="italic" fontWeight={900}>
             {onboarding.security}
           </Text>
-          {` ${  onboarding.slide01Title}`}
+          {` ${onboarding.slide01Title}`}
         </>
       ),
       paragraph: onboarding.slide01Paragraph,
@@ -52,7 +51,7 @@ function OnBoardingSlides({ navigation }) {
       id: '2',
       title: (
         <>
-          {`${onboarding.slide02Title  } `}
+          {`${onboarding.slide02Title} `}
           <Text fontStyle="italic" fontWeight={900}>
             {onboarding.privacy}
           </Text>
@@ -96,7 +95,7 @@ function OnBoardingSlides({ navigation }) {
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
-          <StatusBar backgroundColor="#00836A" barStyle="light-content" />
+          <StatusBar backgroundColor="transparent" barStyle="light-content" />
           <Box justifyContent="center" mr={4} mt={10}>
             {currentPosition != 1 && (
               <TouchableOpacity
@@ -104,7 +103,7 @@ function OnBoardingSlides({ navigation }) {
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
                 <Text
-                  fontSize={RFValue(14)}
+                  fontSize={14}
                   color="light.white"
                   fontFamily="heading"
                   fontWeight={300}
@@ -164,7 +163,7 @@ function OnBoardingSlides({ navigation }) {
                     height: hp(40),
                   }}
                 >
-                  <Text color="light.borderColor2" fontSize={RFValue(14)} fontWeight={300}>
+                  <Text color="light.borderColor2" fontSize={14} fontWeight={300}>
                     {common.seeFAQs}
                   </Text>
                 </Box>

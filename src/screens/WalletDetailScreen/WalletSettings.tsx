@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Text, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // components and functions
@@ -253,7 +252,7 @@ function WalletSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box style={styles.note} backgroundColor={'light.ReceiveBackground'}>
+      <Box style={styles.note} backgroundColor="light.ReceiveBackground">
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -395,11 +394,11 @@ const styles = ScaledSheet.create({
     width: '100%',
   },
   optionTitle: {
-    fontSize: RFValue(14),
+    fontSize: 14,
     letterSpacing: 1.12,
   },
   optionSubtitle: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
   },
 });

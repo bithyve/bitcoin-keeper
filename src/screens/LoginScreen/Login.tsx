@@ -13,7 +13,6 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
@@ -236,7 +235,7 @@ function LoginScreen({ navigation, route }) {
             <Text
               ml={5}
               color="light.textLight"
-              fontSize={RFValue(22)}
+              fontSize={22}
               fontWeight="200"
               fontFamily="heading"
               style={{
@@ -248,7 +247,7 @@ function LoginScreen({ navigation, route }) {
             </Text>
             <Box>
               <Text
-                fontSize={RFValue(13)}
+                fontSize={13}
                 ml={5}
                 letterSpacing={0.65}
                 color="light.textColor"
@@ -258,7 +257,7 @@ function LoginScreen({ navigation, route }) {
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
-                {/* <Text fontSize={RFValue(13)} fontFamily={'body'}>
+                {/* <Text fontSize={(13)} fontFamily={'body'}>
                   {login.passcode}
                 </Text> */}
               </Text>
@@ -272,7 +271,7 @@ function LoginScreen({ navigation, route }) {
             {loginError && (
               <Text
                 color="light.error"
-                fontSize={RFValue(12)}
+                fontSize={12}
                 fontStyle="italic"
                 textAlign="right"
                 fontWeight={200}
@@ -291,7 +290,7 @@ function LoginScreen({ navigation, route }) {
                 disabled
                 trackColor={{ true: '#FFFA' }}
                 thumbColor="#358475"
-                onChange={() => { }}
+                onChange={() => {}}
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
@@ -321,7 +320,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text color="light.white" fontWeight="300" fontSize={RFValue(14)} fontFamily="body">
+              <Text color="light.white" fontWeight="300" fontSize={14} fontFamily="body">
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
@@ -332,7 +331,7 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-          // ClearIcon={<DeleteIcon />}
+            // ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
@@ -371,7 +370,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
         modalBackground={['#F7F2EC', '#F7F2EC']}
@@ -414,13 +413,13 @@ const styles = StyleSheet.create({
   },
   textStyles: {
     color: '#000000',
-    fontSize: RFValue(13),
+    fontSize: 13,
     textAlign: 'center',
     lineHeight: 18,
   },
   textFocused: {
     color: '#000000',
-    fontSize: RFValue(13),
+    fontSize: 13,
     textAlign: 'center',
     lineHeight: 18,
   },

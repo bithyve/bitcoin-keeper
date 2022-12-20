@@ -1,12 +1,9 @@
-import {
-  TextInput,
-} from 'react-native';
+import { TextInput } from 'react-native';
 // libraries
 import { Box, Text } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/svgs/Tapsigner_brown.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 // components
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -18,11 +15,9 @@ function AddDescription({ route }) {
   const navigation = useNavigation();
 
   return (
-    <Box
-      style={styles.Container}
-    >
+    <Box style={styles.Container}>
       <StatusBarComponent padding={50} />
-      <Box marginX={3} >
+      <Box marginX={3}>
         <Box width={wp(200)}>
           <HeaderTitle
             title="Add Description"
@@ -33,63 +28,38 @@ function AddDescription({ route }) {
           />
         </Box>
 
-        <Box
-          flexDirection="row"
-          alignItems="center"
-          marginTop={hp(91)}
-        >
+        <Box flexDirection="row" alignItems="center" marginTop={hp(91)}>
           <Tapsigner />
           <Box>
-            <Text
-              fontWeight={200}
-              fontSize={14}
-              letterSpacing={1.12}
-            >
+            <Text fontWeight={200} fontSize={14} letterSpacing={1.12}>
               TapSigner
             </Text>
-            <Text
-              fontWeight={200}
-              fontSize={10}
-              letterSpacing={1}
-              color="light.modalText"
-            >
+            <Text fontWeight={200} fontSize={10} letterSpacing={1} color="light.modalText">
               Added on 12 January 2022
             </Text>
           </Box>
         </Box>
 
-        <Box
-          marginTop={hp(20)}
-          width="100%"
-        >
-          <Text
-            textAlign="right"
-            fontWeight={200}
-            fontSize={10}
-            letterSpacing={1}
-          >
+        <Box marginTop={hp(20)} width="100%">
+          <Text textAlign="right" fontWeight={200} fontSize={10} letterSpacing={1}>
             2/10
           </Text>
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
             placeholderTextColor="#073E39"
-
           />
         </Box>
 
         <Box marginTop={hp(70)}>
           <Buttons
-            primaryText='Proceed'
-            primaryCallback={() => { }}
-            secondaryText='Skip'
-            secondaryCallback={() => { }}
+            primaryText="Proceed"
+            primaryCallback={() => {}}
+            secondaryText="Skip"
+            secondaryCallback={() => {}}
           />
         </Box>
       </Box>
-
-
-
     </Box>
   );
 }
@@ -112,11 +82,11 @@ const styles = ScaledSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: '0.24@s',
   },
   subtitle: {
-    fontSize: RFValue(10),
+    fontSize: 10,
     letterSpacing: '0.20@s',
   },
 
@@ -127,8 +97,5 @@ const styles = ScaledSheet.create({
     opacity: 0.5,
     padding: 15,
   },
-
-
-
 });
 export default AddDescription;
