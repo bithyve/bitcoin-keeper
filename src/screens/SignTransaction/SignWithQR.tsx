@@ -12,9 +12,9 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
 import { captureError } from 'src/core/services/sentry';
-import usePlan from 'src/hooks/usePlan';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+import useVault from 'src/hooks/useVault';
 import DisplayQR from '../QRScreens/DisplayQR';
 
 function SignWithQR() {
@@ -28,13 +28,13 @@ function SignWithQR() {
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
     (envelop) => signer.signerId === envelop.signerId
   )[0];
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  const { activeVault } = useVault();
+  const isSingleSig = activeVault.scheme.n === 1;
 
   const signTransaction = (signedSerializedPSBT) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
-      if (!isMultisig && signer.type === SignerType.SEEDSIGNER) {
+      if (isSingleSig && signer.type === SignerType.SEEDSIGNER) {
         const { signedPsbt } = updateInputsForSeedSigner({ serializedPSBT, signedSerializedPSBT });
         dispatch(
           updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })

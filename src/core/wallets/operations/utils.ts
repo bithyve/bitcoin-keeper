@@ -25,7 +25,7 @@ import {
   OutputUTXOs,
   Transaction,
   TransactionToAddressMapping,
-} from "../interfaces";
+} from '../interfaces';
 import config from '../../config';
 
 const ECPair = ECPairFactory(ecc);
@@ -57,7 +57,7 @@ export default class WalletUtilities {
 
   static getFingerprintFromNode = (node: bip32.BIP32Interface) => {
     let fingerprintHex = node.fingerprint.toString('hex');
-    while (fingerprintHex.length < 8) fingerprintHex = `0${  fingerprintHex}`;
+    while (fingerprintHex.length < 8) fingerprintHex = `0${fingerprintHex}`;
     return fingerprintHex.toUpperCase();
   };
 
@@ -90,7 +90,8 @@ export default class WalletUtilities {
     if (entity === EntityKind.VAULT) {
       const scriptNum = scriptType === BIP48ScriptTypes.NATIVE_SEGWIT ? 2 : 1;
       return `m/${DerivationPurpose.BIP48}'/${isTestnet}'/${accountNumber}'/${scriptNum}'`;
-    } return `m/${purpose}'/${isTestnet}'/${accountNumber}'`;
+    }
+    return `m/${purpose}'/${isTestnet}'/${accountNumber}'`;
   };
 
   static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
@@ -106,7 +107,8 @@ export default class WalletUtilities {
         pubkey: keyPair.publicKey,
         network,
       }).address;
-    } if (purpose === DerivationPurpose.BIP49) {
+    }
+    if (purpose === DerivationPurpose.BIP49) {
       return bitcoinJS.payments.p2sh({
         redeem: bitcoinJS.payments.p2wpkh({
           pubkey: keyPair.publicKey,
@@ -114,7 +116,8 @@ export default class WalletUtilities {
         }),
         network,
       }).address;
-    } if (purpose === DerivationPurpose.BIP44) {
+    }
+    if (purpose === DerivationPurpose.BIP44) {
       return bitcoinJS.payments.p2pkh({
         pubkey: keyPair.publicKey,
         network,
@@ -187,7 +190,7 @@ export default class WalletUtilities {
     const node = bip32.fromBase58(xpub, network);
     const chain = internal ? 1 : 0;
     const keyPair = node.derive(chain).derive(index);
-    const {publicKey} = keyPair;
+    const { publicKey } = keyPair;
     return { publicKey, subPath: [chain, index] };
   };
 
@@ -338,7 +341,7 @@ export default class WalletUtilities {
           };
       }
 
-    throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${  address}`);
+    throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${address}`);
   };
 
   static createMultiSig = (
@@ -434,7 +437,7 @@ export default class WalletUtilities {
       if (multiSig.address === address) return multiSig;
     }
 
-    throw new Error(`Could not find multisig for: ${  address}`);
+    throw new Error(`Could not find multisig for: ${address}`);
   };
 
   // static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
@@ -525,11 +528,10 @@ export default class WalletUtilities {
       return {
         paymentURI: bip21.encode(address, options),
       };
-    } 
-      return {
-        paymentURI: bip21.encode(address),
-      };
-    
+    }
+    return {
+      paymentURI: bip21.encode(address),
+    };
   };
 
   static decodePaymentURI = (
@@ -604,7 +606,7 @@ export default class WalletUtilities {
       signerPubkeyMap: Map<string, Buffer>;
     };
     if ((wallet as Vault).isMultiSig) {
-      const {xpubs} = (wallet as Vault).specs;
+      const { xpubs } = (wallet as Vault).specs;
       changeMultisig = WalletUtilities.createMultiSig(
         xpubs,
         (wallet as Vault).scheme.m,
@@ -619,27 +621,25 @@ export default class WalletUtilities {
         if ((wallet as Vault).isMultiSig) {
           output.address = changeMultisig.address;
           return { outputs, changeMultisig };
-        } 
-          let xpub = null;
-          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-          else xpub = (wallet as Wallet).specs.xpub;
+        }
+        let xpub = null;
+        if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+        else xpub = (wallet as Wallet).specs.xpub;
 
-          output.address = WalletUtilities.getAddressByIndex(
-            xpub,
-            true,
-            nextFreeChangeAddressIndex,
-            network
-          );
-          return { outputs, changeAddress: output.address };
-        
+        output.address = WalletUtilities.getAddressByIndex(
+          xpub,
+          true,
+          nextFreeChangeAddressIndex,
+          network
+        );
+        return { outputs, changeAddress: output.address };
       }
     }
     // when there's no change
     if ((wallet as Vault).isMultiSig) {
       return { outputs, changeMultisig };
-    } 
-      return { outputs, changeAddress };
-    
+    }
+    return { outputs, changeAddress };
   };
 
   static fetchBalanceTransactionsByWallets = async (
@@ -1216,10 +1216,19 @@ export default class WalletUtilities {
     indexBuf.writeUInt32BE(index);
     const chainCode = hdKey.getChainCode();
     const key = hdKey.getKey();
-    const derivationPath = `m/${  hdKey.getOrigin().getPath()}`;
+    const derivationPath = `m/${hdKey.getOrigin().getPath()}`;
     const xPubBuf = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
     const xPub = bs58check.encode(xPubBuf);
     const mfp = cryptoAccount.getMasterFingerprint().toString('hex');
     return { xPub, derivationPath, mfp };
+  };
+
+  static getSignerPurposeFromPath = (path: string) => {
+    const branches = path.split('/');
+    const purpose = branches.length > 1 ? branches[1].match(/(\d+)/) : null;
+    if (purpose) {
+      return purpose[0];
+    }
+    return null;
   };
 }
