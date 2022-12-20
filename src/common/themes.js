@@ -115,16 +115,6 @@ export const customTheme = extendTheme({
   config: {
     initialColorMode: 'light',
   },
-  components: {
-    Text: {
-      baseStyle: () => ({
-        _light: {
-          color: 'light.lightBlack',
-        },
-        _dark: { color: 'dark.black' },
-      }),
-    },
-  },
 });
 
 export default customTheme;
