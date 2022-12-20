@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as bitcoinJS from 'bitcoinjs-lib';
 
@@ -82,10 +83,6 @@ class Configuration {
       series: 50,
       upperBound: 1,
     },
-    [WalletType.MOBILE_KEY]: {
-      series: 70,
-      upperBound: 10,
-    },
   };
 
   public REQUEST_TIMEOUT: number = 15000;
@@ -124,24 +121,24 @@ class Configuration {
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {
     TESTNET: {
-      MULTIBALANCE: `${this.TESTNET_WRAPPER  }/balances`,
-      MULTIUTXO: `${this.TESTNET_WRAPPER  }/utxos`,
-      MULTITXN: `${this.TESTNET_WRAPPER  }/data`,
-      MULTIBALANCETXN: `${this.TESTNET_WRAPPER  }/baltxs`,
-      NEWMULTIUTXOTXN: `${this.TESTNET_WRAPPER  }/nutxotxs`,
-      TXN_FEE: `${this.TESTNET_WRAPPER  }/fee-estimates`,
-      TXNDETAILS: `${this.TESTNET_WRAPPER  }/tx`,
-      BROADCAST_TX: `${this.TESTNET_WRAPPER  }/tx`,
+      MULTIBALANCE: `${this.TESTNET_WRAPPER}/balances`,
+      MULTIUTXO: `${this.TESTNET_WRAPPER}/utxos`,
+      MULTITXN: `${this.TESTNET_WRAPPER}/data`,
+      MULTIBALANCETXN: `${this.TESTNET_WRAPPER}/baltxs`,
+      NEWMULTIUTXOTXN: `${this.TESTNET_WRAPPER}/nutxotxs`,
+      TXN_FEE: `${this.TESTNET_WRAPPER}/fee-estimates`,
+      TXNDETAILS: `${this.TESTNET_WRAPPER}/tx`,
+      BROADCAST_TX: `${this.TESTNET_WRAPPER}/tx`,
     },
     MAINNET: {
-      MULTIBALANCE: `${this.MAINNET_WRAPPER  }/balances`,
-      MULTIUTXO: `${this.MAINNET_WRAPPER  }/utxos`,
-      MULTITXN: `${this.MAINNET_WRAPPER  }/data`,
-      MULTIBALANCETXN: `${this.MAINNET_WRAPPER  }/baltxs`,
-      NEWMULTIUTXOTXN: `${this.MAINNET_WRAPPER  }/nutxotxs`,
-      TXN_FEE: `${this.MAINNET_WRAPPER  }/fee-estimates`,
-      TXNDETAILS: `${this.MAINNET_WRAPPER  }/tx`,
-      BROADCAST_TX: `${this.MAINNET_WRAPPER  }/tx`,
+      MULTIBALANCE: `${this.MAINNET_WRAPPER}/balances`,
+      MULTIUTXO: `${this.MAINNET_WRAPPER}/utxos`,
+      MULTITXN: `${this.MAINNET_WRAPPER}/data`,
+      MULTIBALANCETXN: `${this.MAINNET_WRAPPER}/baltxs`,
+      NEWMULTIUTXOTXN: `${this.MAINNET_WRAPPER}/nutxotxs`,
+      TXN_FEE: `${this.MAINNET_WRAPPER}/fee-estimates`,
+      TXNDETAILS: `${this.MAINNET_WRAPPER}/tx`,
+      BROADCAST_TX: `${this.MAINNET_WRAPPER}/tx`,
     },
   };
 
@@ -153,15 +150,15 @@ class Configuration {
     const personalNodeURL = personalNode.urlPath;
     if (personalNodeURL && personalNode.isConnectionActive) {
       const personalNodeEPs = {
-        MULTIBALANCE: `${personalNodeURL  }/balances`,
-        MULTIUTXO: `${personalNodeURL  }/utxos`,
-        MULTITXN: `${personalNodeURL  }/data`,
-        MULTIBALANCETXN: `${personalNodeURL  }/baltxs`,
-        MULTIUTXOTXN: `${personalNodeURL  }/utxotxs`,
-        NEWMULTIUTXOTXN: `${personalNodeURL  }/nutxotxs`,
-        TXN_FEE: `${personalNodeURL  }fee-estimates`,
-        TXNDETAILS: `${personalNodeURL  }/tx`,
-        BROADCAST_TX: `${personalNodeURL  }/tx`,
+        MULTIBALANCE: `${personalNodeURL}/balances`,
+        MULTIUTXO: `${personalNodeURL}/utxos`,
+        MULTITXN: `${personalNodeURL}/data`,
+        MULTIBALANCETXN: `${personalNodeURL}/baltxs`,
+        MULTIUTXOTXN: `${personalNodeURL}/utxotxs`,
+        NEWMULTIUTXOTXN: `${personalNodeURL}/nutxotxs`,
+        TXN_FEE: `${personalNodeURL}fee-estimates`,
+        TXNDETAILS: `${personalNodeURL}/tx`,
+        BROADCAST_TX: `${personalNodeURL}/tx`,
       };
 
       if (this.NETWORK === bitcoinJS.networks.bitcoin)
