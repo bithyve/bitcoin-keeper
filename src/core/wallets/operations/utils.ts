@@ -1,3 +1,9 @@
+/* eslint-disable no-return-assign */
+/* eslint-disable no-plusplus */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable camelcase */
+/* eslint-disable consistent-return */
+/* eslint-disable no-restricted-syntax */
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
@@ -742,7 +748,7 @@ export default class WalletUtilities {
         };
       }
 
-      let usedFallBack = false;
+      // const usedFallBack = false;
       try {
         if (network === bitcoinJS.networks.testnet) {
           res = await RestClient.post(
@@ -767,7 +773,7 @@ export default class WalletUtilities {
           throw new Error(err.message);
         }
         console.log('using Hexa node as fallback(fetch-balTx)');
-        usedFallBack = true;
+        // usedFallBack = true;
         if (network === bitcoinJS.networks.testnet) {
           res = await RestClient.post(
             config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
@@ -1101,7 +1107,7 @@ export default class WalletUtilities {
   };
 
   static broadcastTransaction = async (
-    txHex: string,
+    txHex,
     network: bitcoinJS.Network
   ): Promise<{
     txid: string;

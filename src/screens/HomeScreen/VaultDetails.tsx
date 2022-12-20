@@ -386,7 +386,8 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
 }
 
 function VaultDetails({ route, navigation }) {
-  const { vaultTransferSuccessful = false } = route.params || {};
+  const { vaultTransferSuccessful = false, autoRefresh } = route.params || {};
+
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -416,6 +417,10 @@ function VaultDetails({ route, navigation }) {
     }
     return VaultMigrationType.CHANGE;
   };
+
+  useEffect(() => {
+    if (autoRefresh) syncVault();
+  }, [autoRefresh]);
 
   const syncVault = () => {
     setPullRefresh(true);

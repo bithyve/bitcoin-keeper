@@ -1,3 +1,15 @@
+/* eslint-disable camelcase */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-dupe-else-if */
+/* eslint-disable no-empty */
+/* eslint-disable prefer-const */
+/* eslint-disable consistent-return */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-plusplus */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-restricted-syntax */
+
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
@@ -6,10 +18,12 @@ import coinselect from 'coinselect';
 import coinselectSplit from 'coinselect/split';
 import config from 'src/core/config';
 import { parseInt } from 'lodash';
+import ElectrumClient from 'src/core/services/electrum/client';
 import {
   ActiveAddressAssignee,
   ActiveAddresses,
   AverageTxFees,
+  AverageTxFeesByNetwork,
   Balances,
   InputUTXOs,
   SerializedPSBTEnvelop,
@@ -19,13 +33,14 @@ import {
   TransactionPrerequisiteElements,
   TransactionToAddressMapping,
   UTXO,
-} from "../interfaces";
+} from '../interfaces';
 import {
   BIP48ScriptTypes,
   DerivationPurpose,
   EntityKind,
   NetworkType,
   SignerType,
+  TransactionType,
   TxPriority,
   WalletType,
 } from '../enums';
@@ -45,7 +60,7 @@ export default class WalletOperations {
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as Vault).isMultiSig) {
-      const {xpubs} = (wallet as Vault).specs;
+      const { xpubs } = (wallet as Vault).specs;
       receivingAddress = WalletUtilities.createMultiSig(
         xpubs,
         (wallet as Vault).scheme.m,
@@ -207,7 +222,7 @@ export default class WalletOperations {
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
         let address: string;
         if ((wallet as Vault).isMultiSig) {
-          const {xpubs} = (wallet as Vault).specs;
+          const { xpubs } = (wallet as Vault).specs;
           address = WalletUtilities.createMultiSig(
             xpubs,
             (wallet as Vault).scheme.m,
@@ -238,7 +253,7 @@ export default class WalletOperations {
       for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
         let address: string;
         if ((wallet as Vault).isMultiSig) {
-          const {xpubs} = (wallet as Vault).specs;
+          const { xpubs } = (wallet as Vault).specs;
           address = WalletUtilities.createMultiSig(
             xpubs,
             (wallet as Vault).scheme.m,
@@ -329,13 +344,13 @@ export default class WalletOperations {
           confirmedUTXOs.push(utxo);
           balances.confirmed += utxo.value;
         } else if (internalAddresses[utxo.address] !== undefined) {
-            // defaulting utxo's on the change branch to confirmed
-            confirmedUTXOs.push(utxo);
-            balances.confirmed += utxo.value;
-          } else {
-            unconfirmedUTXOs.push(utxo);
-            balances.unconfirmed += utxo.value;
-          }
+          // defaulting utxo's on the change branch to confirmed
+          confirmedUTXOs.push(utxo);
+          balances.confirmed += utxo.value;
+        } else {
+          unconfirmedUTXOs.push(utxo);
+          balances.unconfirmed += utxo.value;
+        }
       }
 
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
@@ -366,6 +381,227 @@ export default class WalletOperations {
     };
   };
 
+  static fetchTransactions = async (
+    wallet: Wallet | Vault,
+    addresses: string[],
+    externalAddresses: { [address: string]: number },
+    internalAddresses: { [address: string]: number },
+    network: bitcoinJS.Network
+  ) => {
+    const { historyByAddress, txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(
+      addresses,
+      network
+    );
+
+    const transactions: Transaction[] = [];
+    const txs = await ElectrumClient.getTransactionsById(txids);
+
+    // saturate transaction:  inputs-params, type, amount
+    const inputTxIds = [];
+    for (const txid in txs) {
+      for (const vin of txs[txid].vin) inputTxIds.push(vin.txid);
+    }
+    const inputTxs = await ElectrumClient.getTransactionsById(inputTxIds);
+
+    let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
+    let lastUsedChangeAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
+
+    for (const txid in txs) {
+      const tx = txs[txid];
+      // popluate tx-inputs with addresses and values
+      const inputs = tx.vin;
+      for (let index = 0; index < tx.vin.length; index++) {
+        const input = inputs[index];
+
+        const inputTx = inputTxs[input.txid];
+        if (inputTx && inputTx.vout[input.vout]) {
+          const vout = inputTx.vout[input.vout];
+          input.addresses = vout.scriptPubKey.addresses;
+          input.value = vout.value;
+        }
+      }
+
+      // calculate cumulative amount and transaction type
+      const outputs = tx.vout;
+      let fee = 0; // delta b/w inputs and outputs
+      let amount = 0;
+      const senderAddresses = [];
+      const recipientAddresses = [];
+
+      for (const input of inputs) {
+        const inputAddress = input.addresses[0];
+        if (
+          externalAddresses[inputAddress] !== undefined ||
+          internalAddresses[inputAddress] !== undefined
+        )
+          amount -= input.value;
+
+        senderAddresses.push(inputAddress);
+        fee += input.value;
+      }
+
+      for (const output of outputs) {
+        const outputAddress = output.scriptPubKey.addresses[0];
+        if (
+          externalAddresses[outputAddress] !== undefined ||
+          internalAddresses[outputAddress] !== undefined
+        )
+          amount += output.value;
+
+        recipientAddresses.push(outputAddress);
+        fee -= output.value;
+      }
+
+      const address = txidToAddress[txid];
+
+      const transaction: Transaction = {
+        txid,
+        confirmations: tx.confirmations ? tx.confirmations : 0,
+        status: tx.confirmations ? 'Confirmed' : 'Unconfirmed',
+        fee: Math.floor(fee * 1e8),
+        date: tx.time ? new Date(tx.time * 1000).toUTCString() : new Date(Date.now()).toUTCString(),
+        transactionType: amount > 0 ? TransactionType.RECEIVED : TransactionType.SENT,
+        amount: Math.floor(Math.abs(amount) * 1e8),
+        walletType: wallet.type,
+        walletName: wallet.presentationData.name,
+        recipientAddresses,
+        senderAddresses,
+        address,
+        blockTime: tx.blocktime,
+      };
+      transactions.push(transaction);
+
+      // update the last used address/change-address index
+      if (externalAddresses[address] !== undefined) {
+        lastUsedAddressIndex = Math.max(externalAddresses[address], lastUsedAddressIndex);
+      } else if (internalAddresses[address] !== undefined) {
+        lastUsedChangeAddressIndex = Math.max(
+          internalAddresses[address],
+          lastUsedChangeAddressIndex
+        );
+      }
+    }
+
+    // sort transactions chronologically
+
+    transactions.sort((tx1, tx2) => (tx1.confirmations > tx2.confirmations ? 1 : -1));
+    return {
+      transactions,
+      lastUsedAddressIndex,
+      lastUsedChangeAddressIndex,
+    };
+  };
+
+  static syncWalletsViaElectrumClient = async (
+    wallets: (Wallet | Vault)[],
+    network: bitcoinJS.networks.Network
+  ): Promise<{
+    synchedWallets: (Wallet | Vault)[];
+  }> => {
+    for (const wallet of wallets) {
+      const hardGapLimit = 10; // hard refresh gap limit
+      const addresses = [];
+
+      // collect external(receive) chain addresses
+      const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
+      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
+        let address: string;
+        if ((wallet as Vault).isMultiSig) {
+          const { xpubs } = (wallet as Vault).specs;
+          address = WalletUtilities.createMultiSig(
+            xpubs,
+            (wallet as Vault).scheme.m,
+            network,
+            itr,
+            false
+          ).address;
+        } else {
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
+        }
+
+        externalAddresses[address] = itr;
+        addresses.push(address);
+      }
+
+      // collect internal(change) chain addresses
+      const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
+      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
+        let address: string;
+        if ((wallet as Vault).isMultiSig) {
+          const { xpubs } = (wallet as Vault).specs;
+          address = WalletUtilities.createMultiSig(
+            xpubs,
+            (wallet as Vault).scheme.m,
+            network,
+            itr,
+            true
+          ).address;
+        } else {
+          let xpub = null;
+          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+          else xpub = (wallet as Wallet).specs.xpub;
+
+          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
+        }
+
+        internalAddresses[address] = itr;
+        addresses.push(address);
+      }
+
+      // sync utxos & balances
+      const utxosByAddress = await ElectrumClient.syncUTXOByAddress(addresses, network);
+
+      const balances: Balances = {
+        confirmed: 0,
+        unconfirmed: 0,
+      };
+      const confirmedUTXOs: InputUTXOs[] = [];
+      const unconfirmedUTXOs: InputUTXOs[] = [];
+      for (const address in utxosByAddress) {
+        const utxos = utxosByAddress[address];
+        for (const utxo of utxos) {
+          if (utxo.height > 0) {
+            confirmedUTXOs.push(utxo);
+            balances.confirmed += utxo.value;
+          } else if (internalAddresses[utxo.address] !== undefined) {
+            // defaulting utxo's on the change branch to confirmed
+            confirmedUTXOs.push(utxo);
+            balances.confirmed += utxo.value;
+          } else {
+            unconfirmedUTXOs.push(utxo);
+            balances.unconfirmed += utxo.value;
+          }
+        }
+      }
+
+      // sync & populate transactions
+      const { transactions, lastUsedAddressIndex, lastUsedChangeAddressIndex } =
+        await WalletOperations.fetchTransactions(
+          wallet,
+          addresses,
+          externalAddresses,
+          internalAddresses,
+          network
+        );
+
+      // update wallet w/ latest utxos, balances and transactions
+      wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
+      wallet.specs.confirmedUTXOs = confirmedUTXOs;
+      wallet.specs.balances = balances;
+      wallet.specs.transactions = transactions;
+      wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
+      wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+    }
+
+    return {
+      synchedWallets: wallets,
+    };
+  };
+
   static updateActiveAddresses = (
     wallet: Wallet | Vault,
     consumedUTXOs: { [txid: string]: InputUTXOs },
@@ -384,10 +620,10 @@ export default class WalletOperations {
 
     const recipientInfo = {
       [txid]: recipients.map((recipient) => ({
-          id: recipient.id,
-          name: recipient.name,
-          amount: recipient.amount,
-        })),
+        id: recipient.id,
+        name: recipient.name,
+        amount: recipient.amount,
+      })),
     };
 
     for (const consumedUTXO of Object.values(consumedUTXOs)) {
@@ -503,6 +739,61 @@ export default class WalletOperations {
 
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
     WalletOperations.updateActiveAddresses(wallet, consumedUTXOs, txid, recipients);
+  };
+
+  static fetchFeeRatesByPriority = async () => {
+    // high fee: 30 minutes
+    const highFeeBlockEstimate = 3;
+    const high = {
+      feePerByte: Math.round(await ElectrumClient.estimateFee(highFeeBlockEstimate)),
+      estimatedBlocks: highFeeBlockEstimate,
+    }; // high: within 3 blocks
+
+    // medium fee: 2 hours
+    const mediumFeeBlockEstimate = 12;
+    const medium = {
+      feePerByte: Math.round(await ElectrumClient.estimateFee(mediumFeeBlockEstimate)),
+      estimatedBlocks: mediumFeeBlockEstimate,
+    }; // medium: within 12 blocks
+
+    // low fee: 6 hours
+    const lowFeeBlockEstimate = 36;
+    const low = {
+      feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
+      estimatedBlocks: lowFeeBlockEstimate,
+    }; // low: within 36 blocks
+
+    const feeRatesByPriority = { high, medium, low };
+    return feeRatesByPriority;
+  };
+
+  static calculateAverageTxFee = async () => {
+    const feeRatesByPriority = await WalletOperations.fetchFeeRatesByPriority();
+    const averageTxSize = 226; // the average Bitcoin transaction is about 226 bytes in size (1 Inp (148); 2 Out)
+    const averageTxFees: AverageTxFees = {
+      high: {
+        averageTxFee: Math.round(averageTxSize * feeRatesByPriority.high.feePerByte),
+        feePerByte: feeRatesByPriority.high.feePerByte,
+        estimatedBlocks: feeRatesByPriority.high.estimatedBlocks,
+      },
+      medium: {
+        averageTxFee: Math.round(averageTxSize * feeRatesByPriority.medium.feePerByte),
+        feePerByte: feeRatesByPriority.medium.feePerByte,
+        estimatedBlocks: feeRatesByPriority.medium.estimatedBlocks,
+      },
+      low: {
+        averageTxFee: Math.round(averageTxSize * feeRatesByPriority.low.feePerByte),
+        feePerByte: feeRatesByPriority.low.feePerByte,
+        estimatedBlocks: feeRatesByPriority.low.estimatedBlocks,
+      },
+    };
+
+    // TODO: configure to procure fee by network type
+    const averageTxFeeByNetwork: AverageTxFeesByNetwork = {
+      [NetworkType.TESTNET]: averageTxFees,
+      [NetworkType.MAINNET]: averageTxFees,
+    };
+    return averageTxFeeByNetwork;
   };
 
   static calculateSendMaxFee = (
@@ -640,21 +931,9 @@ export default class WalletOperations {
     customTxFeePerByte: number
   ): TransactionPrerequisiteElements => {
     const inputUTXOs = wallet.specs.confirmedUTXOs;
-    console.log({
-      inputUTXOs,
-      outputUTXOs,
-      customTxFeePerByte,
-    });
     const { inputs, outputs, fee } = coinselect(inputUTXOs, outputUTXOs, customTxFeePerByte);
-    console.log({
-      inputs,
-      outputs,
-      fee,
-    });
-    if (!inputs)
-      return {
-        fee,
-      };
+
+    if (!inputs) return { fee };
 
     return {
       inputs,
@@ -671,7 +950,7 @@ export default class WalletOperations {
     derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ) => {
-    const {isMultiSig} = wallet as Vault;
+    const { isMultiSig } = wallet as Vault;
     if (!isMultiSig) {
       const { publicKey, subPath } = WalletUtilities.addressToKey(input.address, wallet, true) as {
         publicKey: Buffer;
@@ -692,11 +971,11 @@ export default class WalletOperations {
       let masterFingerprint;
       if (wallet.entityKind === EntityKind.VAULT) {
         const signer = (wallet as Vault).signers[0];
-        const {derivationPath} = signer.xpubInfo;
-        path = `${derivationPath  }/${subPath.join('/')}`;
+        const { derivationPath } = signer.xpubInfo;
+        path = `${derivationPath}/${subPath.join('/')}`;
         masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
       } else {
-        path = `${(wallet as Wallet).derivationDetails.xDerivationPath  }/${subPath.join('/')}`;
+        path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
         masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
           (wallet as Wallet).derivationDetails.mnemonic
         );
@@ -742,7 +1021,7 @@ export default class WalletOperations {
       for (const signer of (wallet as Vault).signers) {
         const derivationPath = signer.xpubInfo?.derivationPath;
         const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
-        const path = `${derivationPath  }/${subPath.join('/')}`;
+        const path = `${derivationPath}/${subPath.join('/')}`;
         bip32Derivation.push({
           masterFingerprint,
           path,
@@ -796,9 +1075,9 @@ export default class WalletOperations {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
     for (const signer of wallet.signers) {
-      const {derivationPath} = signer.xpubInfo;
+      const { derivationPath } = signer.xpubInfo;
       const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
-      const path = `${derivationPath  }/${subPath.join('/')}`;
+      const path = `${derivationPath}/${subPath.join('/')}`;
       bip32Derivation.push({
         masterFingerprint,
         path,
@@ -819,7 +1098,8 @@ export default class WalletOperations {
     PSBT: bitcoinJS.Psbt;
   }> => {
     try {
-      let inputs; let outputs;
+      let inputs;
+      let outputs;
       if (txnPriority === TxPriority.CUSTOM && customTxPrerequisites) {
         inputs = customTxPrerequisites.inputs;
         outputs = customTxPrerequisites.outputs;
@@ -878,9 +1158,9 @@ export default class WalletOperations {
             subPath: number[];
           };
           const signer = (wallet as Vault).signers[0];
-          const {derivationPath} = signer.xpubInfo;
+          const { derivationPath } = signer.xpubInfo;
           const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
-          const path = `${derivationPath  }/${subPath.join('/')}`;
+          const path = `${derivationPath}/${subPath.join('/')}`;
           const bip32Derivation = [
             {
               masterFingerprint,
@@ -943,18 +1223,20 @@ export default class WalletOperations {
 
       let vin = 0;
       for (const input of inputs) {
-        let keyPair; let internal; let index;
+        let keyPair;
+        let internal;
+        let index;
         if (input.subPath) {
           const [, j, k] = input.subPath.split('/');
           internal = parseInt(j);
           index = parseInt(k);
         } else if (wallet.isMultiSig) {
-            const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-            [internal, index] = subPath;
-          } else {
-            const { subPath } = WalletUtilities.addressToKey(input.address, wallet, true);
-            [internal, index] = subPath;
-          }
+          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+          [internal, index] = subPath;
+        } else {
+          const { subPath } = WalletUtilities.addressToKey(input.address, wallet, true);
+          [internal, index] = subPath;
+        }
         const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
           xpriv,
           !!internal,
@@ -1038,23 +1320,8 @@ export default class WalletOperations {
         });
       }
       signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
-    } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
-      signingPayload.push({ payloadTarget: signer.type, inputs });
-    } else if (signer.type === SignerType.POLICY_SERVER) {
-      const childIndexArray = [];
-      for (const input of inputs) {
-        const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-        childIndexArray.push({
-          subPath,
-          inputIdentifier: {
-            txId: input.txId,
-            vout: input.vout,
-            value: input.value,
-          },
-        });
-      }
-      signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
     }
+
     if (signer.amfData && signer.amfData.xpub) {
       signingPayload.push({ payloadTarget: signer.type, inputs });
     }
@@ -1077,9 +1344,12 @@ export default class WalletOperations {
       address: string;
       amount: number;
     }[],
-    network
+    network: bitcoinJS.Network
   ) => {
-    const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+    // const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
+
+    const txid = await ElectrumClient.broadcast(txHex);
+
     if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
     if (txid.includes('sendrawtransaction RPC error')) {
       let err;
@@ -1142,9 +1412,8 @@ export default class WalletOperations {
       return {
         txPrerequisites,
       };
-    } 
-      throw new Error('Unable to create transaction: inputs failed at coinselect');
-    
+    }
+    throw new Error('Unable to create transaction: inputs failed at coinselect');
   };
 
   static transferST2 = async (
@@ -1179,7 +1448,7 @@ export default class WalletOperations {
     else inputs = txPrerequisites[txnPriority].inputs;
 
     if (wallet.entityKind === EntityKind.VAULT) {
-      const {signers} = wallet as Vault;
+      const { signers } = wallet as Vault;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
       let outgoing = 0;
       recipients.forEach((recipient) => {
@@ -1196,16 +1465,15 @@ export default class WalletOperations {
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
       return { serializedPSBTEnvelops };
-    } 
-      const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
-      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-      const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-      const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
-      return {
-        txid,
-      };
-    
+    }
+    const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+    const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
+    return {
+      txid,
+    };
   };
 
   static transferST3 = async (
@@ -1221,7 +1489,7 @@ export default class WalletOperations {
   ): Promise<{
     txid: string;
   }> => {
-    const {inputs} = txPrerequisites[txnPriority];
+    const { inputs } = txPrerequisites[txnPriority];
     let combinedPSBT: bitcoinJS.Psbt = null;
 
     if (!txHex) {

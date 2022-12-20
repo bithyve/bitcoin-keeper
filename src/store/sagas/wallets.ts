@@ -442,19 +442,17 @@ function* syncWalletsWorker({
     };
   };
 }) {
-  const { wallets, options } = payload;
+  const { wallets } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
-  const { synchedWallets, txsFound, activeAddressesWithNewTxsMap } = yield call(
-    WalletOperations.syncWallets,
+
+  const { synchedWallets } = yield call(
+    WalletOperations.syncWalletsViaElectrumClient,
     wallets,
-    network,
-    options.hardRefresh
+    network
   );
 
   return {
     synchedWallets,
-    txsFound,
-    activeAddressesWithNewTxsMap,
   };
 }
 
