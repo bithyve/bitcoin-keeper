@@ -88,7 +88,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               <AddIcon />
               <VStack marginX="4" maxW="64">
                 <Text
-                  color="light.lightBlack"
+                  color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
@@ -141,7 +141,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </Box>
           <VStack marginX="4" maxW="80%">
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={15}
               numberOfLines={2}
               alignItems="center"

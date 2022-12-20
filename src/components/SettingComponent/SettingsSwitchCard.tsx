@@ -15,7 +15,7 @@ function SettingsSwitchCard(props) {
     >
       <Box flex={1}>
         <Text
-          color="light.lightBlack"
+          color="light.primaryText"
           fontFamily="body"
           fontSize={14}
           fontWeight={200}

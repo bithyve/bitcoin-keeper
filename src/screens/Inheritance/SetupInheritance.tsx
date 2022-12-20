@@ -58,15 +58,15 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color="light.white1" numberOfLines={2} style={styles.modalTitle}>
+            <Text color="light.white" numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text color="light.white1" numberOfLines={2} style={styles.modalSubtitle}>
+            <Text color="light.white" numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text color="light.white1" style={styles.modalDesc}>
+        <Text color="light.white" style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -125,7 +125,7 @@ function SetupInheritance() {
         <Text color="light.textWallet" style={styles.title}>
           Inheritance Support
         </Text>
-        <Text color="light.lightBlack2" style={styles.subtitle}>
+        <Text color="light.secondaryText" style={styles.subtitle}>
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>

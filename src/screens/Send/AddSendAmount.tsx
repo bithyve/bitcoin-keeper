@@ -120,7 +120,7 @@ function AddSendAmount({ route }) {
         }}
       />
       <Box marginX={3}>
-        <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
+        <Box backgroundColor="light.primaryBackground" style={styles.inputWrapper}>
           <Box flexDirection="row" alignItems="center">
             <Box marginRight={2}>
               <BitcoinInput />
@@ -128,7 +128,7 @@ function AddSendAmount({ route }) {
             <Box
               marginLeft={2}
               width={0.5}
-              backgroundColor="light.borderSaperator"
+              backgroundColor="light.divider"
               opacity={0.3}
               height={7}
             />
@@ -200,7 +200,7 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '100%',
-    backgroundColor: Colors?.textInputBackground,
+    backgroundColor: Colors.Isabelline,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,

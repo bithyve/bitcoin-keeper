@@ -23,7 +23,7 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 function Card({ message, buttonText, buttonCallBack }) {
   return (
     <Box
-      backgroundColor="light.lightYellow"
+      backgroundColor="light.primaryBackground"
       width="100%"
       borderRadius={10}
       justifyContent="center"
@@ -38,7 +38,7 @@ function Card({ message, buttonText, buttonCallBack }) {
         }}
       >
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           fontWeight={200}
@@ -47,7 +47,7 @@ function Card({ message, buttonText, buttonCallBack }) {
           {message}
         </Text>
         <Pressable
-          bg="light.yellow1"
+          bg="light.accent"
           justifyContent="center"
           borderRadius={5}
           width={wp(60)}
@@ -130,7 +130,7 @@ function SignWithColdCard({ route }) {
         <VStack>
           <Box bg={`${colorMode}.offWhite`} p={2}>
             <Box opacity={1}>
-              <Text fontSize={14} fontFamily="body" color="light.lightBlack" fontWeight={200}>
+              <Text fontSize={14} fontFamily="body" color="light.primaryText" fontWeight={200}>
                 Note
               </Text>
             </Box>

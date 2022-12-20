@@ -39,7 +39,7 @@ function Option({ title, subTitle, onPress }: Props) {
   return (
     <Pressable style={styles.optionContainer} onPress={onPress}>
       <Box style={{ width: '96%' }}>
-        <Text color="light.lightBlack" style={styles.optionTitle}>
+        <Text color="light.primaryText" style={styles.optionTitle}>
           {title}
         </Text>
         <Text color="light.GreyText" style={styles.optionSubtitle}>
@@ -79,7 +79,7 @@ function WalletSettings({ route }) {
       <Box
         bg={{
           linearGradient: {
-            colors: ['light.lgStart', 'light.lgEnd'],
+            colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
             end: [1, 1],
           },
@@ -268,7 +268,6 @@ function WalletSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle={walletTranslation.confirmPassSubTitle}
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <SeedConfirmPasscode
@@ -287,7 +286,6 @@ function WalletSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <ShowXPub
@@ -307,7 +305,6 @@ function WalletSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <ShowXPub
@@ -327,7 +324,6 @@ function WalletSettings({ route }) {
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />

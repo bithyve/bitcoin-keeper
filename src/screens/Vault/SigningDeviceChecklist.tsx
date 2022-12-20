@@ -39,7 +39,7 @@ function SigningDeviceChecklist({ date }) {
             <Text color="light.GreyText" fontSize={10} fontWeight="300" ml={5} opacity={0.7}>
               {item.date}
             </Text>
-            <Box bg="light.lightYellow" p={5} borderRadius={10} my={2} ml={5}>
+            <Box bg="light.primaryBackground" p={5} borderRadius={10} my={2} ml={5}>
               <Text letterSpacing={0.96}>{item.title}</Text>
             </Box>
           </Box>

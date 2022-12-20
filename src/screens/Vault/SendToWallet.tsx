@@ -87,7 +87,7 @@ function SendToWallet({ navigation }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="light.lightBlack"
+          keyColor="light.primaryText"
           ClearIcon={<DeleteIcon />}
         />
       </Box>

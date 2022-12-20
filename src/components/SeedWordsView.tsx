@@ -38,7 +38,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletDescription}
-            color="light.lightBlack"
+            color="light.primaryText"
             fontFamily="body"
             fontWeight="100"
             fontSize={12}

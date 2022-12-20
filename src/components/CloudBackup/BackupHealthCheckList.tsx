@@ -85,7 +85,7 @@ function BackupHealthCheckList() {
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
               <Box
-                bg="light.lightYellow"
+                bg="light.primaryBackground"
                 p={5}
                 borderRadius={1}
                 my={2}

@@ -33,7 +33,7 @@ function SignerList({
                 width={30}
                 height={30}
                 borderRadius={30}
-                bg="#FAC48B"
+                bg="light.accent"
                 justifyContent="center"
                 alignItems="center"
                 marginX={1}

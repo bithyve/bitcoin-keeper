@@ -74,14 +74,14 @@ function HealthCheckModal(props) {
           <Box style={{ flexDirection: 'row', marginLeft: 10, alignSelf: 'flex-start' }}>
             <Box>{SignerIcon}</Box>
             <Box style={{ marginTop: 8, flexDirection: 'column' }}>
-              <Text color="light.lightBlack" fontSize={14}>
+              <Text color="light.primaryText" fontSize={14}>
                 {SignerName}
               </Text>
             </Box>
           </Box>
           <Input
             placeholderTextColor="grey"
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}

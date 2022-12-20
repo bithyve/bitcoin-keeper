@@ -74,7 +74,7 @@ function BackupWallet() {
       >
         <Box width="100%">
           <Text
-            color="light.lightBlack"
+            color="light.primaryText"
             fontFamily="body"
             fontWeight={200}
             fontSize={14}

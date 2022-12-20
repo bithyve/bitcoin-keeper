@@ -36,7 +36,7 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
       )}
       <Box w={Icon ? '80%' : '96%'}>
         <Text
-          color="light.lightBlack"
+          color="light.primaryText"
           fontFamily="body"
           fontWeight={200}
           fontSize={14}

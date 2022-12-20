@@ -112,7 +112,7 @@ function SetupSigningServer({ route }: { route }) {
             fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
-            color="light.modalText"
+            color="light.greenText"
             marginTop={2}
           >
             If you lose your authenticator app, use the other Signing Devices to reset the Signing
@@ -132,7 +132,7 @@ function SetupSigningServer({ route }: { route }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.lightBlack"
+          keyColor="light.primaryText"
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -246,7 +246,6 @@ function SetupSigningServer({ route }: { route }) {
         }}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signing server"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#041513"
         Content={otpContent}
       />

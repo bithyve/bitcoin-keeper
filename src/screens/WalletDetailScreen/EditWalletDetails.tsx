@@ -51,7 +51,7 @@ function EditWalletSettings({ route }) {
         <Input
           //   placeholder={walletText.WalletName}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
@@ -62,7 +62,7 @@ function EditWalletSettings({ route }) {
         <Input
           //   placeholder={walletText.SinglesigWallet}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}

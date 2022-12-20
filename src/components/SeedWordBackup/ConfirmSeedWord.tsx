@@ -74,10 +74,10 @@ function ConfirmSeedWord(props) {
   return (
     <Box bg="light.ReceiveBackground" p={10} borderRadius={10}>
       <Box>
-        <Text fontSize={19} color="light.lightBlack">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.confirmSeedWord}
         </Text>
-        <Text fontSize={13} color="light.lightBlack2" mb={10}>
+        <Text fontSize={13} color="light.secondaryText" mb={10}>
           Exactly as they were displayed
         </Text>
       </Box>
@@ -87,8 +87,8 @@ function ConfirmSeedWord(props) {
         </Text>
         <Input
           placeholder={`Enter ${getHint(index)} word`}
-          placeholderTextColor="light.lightBlack2"
-          backgroundColor="light.lightYellow"
+          placeholderTextColor="light.secondaryText"
+          backgroundColor="light.primaryBackground"
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"

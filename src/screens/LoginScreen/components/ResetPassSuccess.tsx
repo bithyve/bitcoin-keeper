@@ -29,7 +29,7 @@ function ResetPassSuccess(props) {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Text fontSize={19} color="light.lightBlack">
+      <Text fontSize={19} color="light.primaryText">
         {login.resetSuccess}
       </Text>
       <Text fontSize={13} color="light.textColor2">

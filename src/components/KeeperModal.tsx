@@ -127,9 +127,9 @@ function KeeperModal(props: ModalProps) {
             {((showButtons && learnMore) || !!buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box borderColor="light.yellow2" style={styles.learnMoreContainer}>
+                  <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
                     <Pressable onPress={learnMoreCallback}>
-                      <Text color="light.yellow2" style={styles.seeFAQs}>
+                      <Text color="light.lightAccent" style={styles.seeFAQs}>
                         See FAQs
                       </Text>
                     </Pressable>

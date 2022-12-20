@@ -36,7 +36,7 @@ function SettingUpTapsigner(props) {
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           m={5}
-          bg="light.yellow2"
+          bg="light.lightAccent"
           borderRadius={32}
           h={8}
           w={8}
@@ -44,16 +44,16 @@ function SettingUpTapsigner(props) {
           justifyContent="center"
           alignSelf="flex-end"
         >
-          <Text fontSize={18} color="light.white1">
+          <Text fontSize={18} color="light.white">
             X
           </Text>
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.lightBlack" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
           {tapsigner.SetupTitle}
         </Text>
-        <Text fontSize={13} color="light.lightBlack2" fontFamily="body">
+        <Text fontSize={13} color="light.secondaryText" fontFamily="body">
           {healthcheck.EnterCVV}
         </Text>
       </Box>
@@ -73,7 +73,7 @@ function SettingUpTapsigner(props) {
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="light.lightBlack"
+        keyColor="light.primaryText"
         ClearIcon={<DeleteIcon />}
       />
     </Box>

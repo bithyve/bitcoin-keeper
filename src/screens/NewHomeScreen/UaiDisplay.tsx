@@ -105,12 +105,8 @@ function UaiDisplay({ uaiStack }) {
   if (uaiStack.length > 0) {
     return (
       <>
-        <Pressable
-          backgroundColor="light.AddSignerCard"
-          onPress={pressHandler}
-          style={styles.container}
-        >
-          <Text noOfLines={2} color="light.white1" style={styles.uaiTitle}>
+        <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
+          <Text noOfLines={2} color="light.white" style={styles.uaiTitle}>
             {uai?.title}
           </Text>
           <NextIcon pressHandler={pressHandler} />
@@ -120,7 +116,6 @@ function UaiDisplay({ uaiStack }) {
           close={() => setShowModal(false)}
           title={uaiConfig?.modalDetails?.heading}
           subTitle={uaiConfig?.modalDetails?.subTitle}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
           buttonTextColor="#FAFAFA"

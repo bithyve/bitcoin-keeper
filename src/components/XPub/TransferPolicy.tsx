@@ -48,7 +48,7 @@ function TransferPolicy({ wallet, close }) {
           justifyContent="center"
           alignItems="center"
           borderRadius={5}
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           padding={3}
         >
           <View marginLeft={4}>
@@ -70,7 +70,7 @@ function TransferPolicy({ wallet, close }) {
       <Box py={5}>
         <Text
           fontSize={13}
-          color="light.modalText"
+          color="light.greenText"
           fontFamily="body"
           fontWeight={200}
           letterSpacing={0.65}

@@ -19,7 +19,7 @@ function TorConnectionContent() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontSize={13}
           fontFamily="body"
           fontWeight="200"
@@ -41,7 +41,7 @@ function TorContent() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color="light.white1"
+          color="light.white"
           fontSize={13}
           fontFamily="body"
           fontWeight="200"
@@ -52,7 +52,7 @@ function TorContent() {
           ut labore et dolore magna aliqua.
         </Text>
         <Text
-          color="light.white1"
+          color="light.white"
           fontSize={13}
           fontFamily="body"
           fontWeight="200"
@@ -76,7 +76,7 @@ function TorConnectionFailed() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontSize={13}
           fontFamily="body"
           fontWeight="200"
@@ -98,7 +98,7 @@ function TorEnabledContent() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontSize={13}
           fontFamily="body"
           fontWeight="200"
@@ -152,7 +152,6 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         close={close}
         title="Connecting to Tor"
         subTitle="Network calls and some functions may work slower when the Tor is enabled "
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#041513"
         subTitleColor="#5F6965"
         Content={TorConnectionContent}
@@ -163,7 +162,6 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         title="Connection Error"
         subTitle="This can be due to the network or other conditions "
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Try Again"
         buttonTextColor="#FAFAFA"
@@ -179,7 +177,6 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         title="Tor Enabled Successfully!"
         subTitle="The app may be slower than usual over Tor"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Close"
         buttonTextColor="#FAFAFA"

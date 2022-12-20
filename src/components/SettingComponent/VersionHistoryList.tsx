@@ -38,7 +38,7 @@ function VersionHistoryList() {
             >
               {item.date}
             </Text>
-            <Box bg="light.lightYellow" p={5} borderRadius={10} my={2} ml={5}>
+            <Box bg="light.primaryBackground" p={5} borderRadius={10} my={2} ml={5}>
               <Text
                 color="light.headerText"
                 fontWeight={200}

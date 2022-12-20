@@ -54,7 +54,7 @@ function ExportSeedScreen({ route, navigation }) {
         }}
       >
         <Box
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           opacity={showWordIndex === index ? 1 : 0.5}
           style={styles.seedCardWrapper}
         >
@@ -62,7 +62,7 @@ function ExportSeedScreen({ route, navigation }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text style={styles.seedTextStyle01} backgroundColor="green.700" color="light.seedText">
+          <Text style={styles.seedTextStyle01} backgroundColor="green.700" color="light.GreyText">
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>

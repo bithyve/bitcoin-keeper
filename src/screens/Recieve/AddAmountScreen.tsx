@@ -38,7 +38,7 @@ function AddAmountScreen({ route }: { route }) {
             justifyContent="center"
             alignItems="center"
             borderRadius={10}
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             marginY={2}
             padding={2}
           >

@@ -172,7 +172,7 @@ function CustomPriorityModal(props) {
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
-              keyColor="light.lightBlack"
+              keyColor="light.primaryText"
               ClearIcon={<DeleteIcon />}
             />
           </Box>

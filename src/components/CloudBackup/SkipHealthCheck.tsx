@@ -28,18 +28,18 @@ function SkipHealthCheck(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.lightBlack" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
           {BackupWallet.skipHealthCheckTitle}
         </Text>
-        <Text fontSize={13} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText" fontFamily="body">
           {BackupWallet.skipHealthCheckSubTitle}
         </Text>
       </Box>
       <Box p={10}>
-        <Text fontSize={13} color="light.lightBlack" fontFamily="body" mb={5} mt={10}>
+        <Text fontSize={13} color="light.primaryText" fontFamily="body" mb={5} mt={10}>
           {BackupWallet.skipHealthCheckPara01}
         </Text>
-        <Text fontSize={13} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText" fontFamily="body">
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>

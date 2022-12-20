@@ -258,7 +258,7 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '90%',
-    backgroundColor: Colors?.textInputBackground,
+    backgroundColor: Colors.Isabelline,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 15,

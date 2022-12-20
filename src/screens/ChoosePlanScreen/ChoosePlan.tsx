@@ -221,7 +221,7 @@ function ChoosePlan(props) {
               ? `You are currently a ${subscription.name.slice(0, -1)}`
               : `You are currently a ${subscription.name}`
           }
-          headerTitleColor="light.lightBlack"
+          headerTitleColor="light.primaryText"
         />
 
         <TierUpgradeModal
@@ -248,7 +248,7 @@ function ChoosePlan(props) {
 
             <Box ml={8}>
               <Box>
-                <Text fontSize={14} color="light.lightBlack" fontWeight={200} letterSpacing={1.12}>
+                <Text fontSize={14} color="light.primaryText" fontWeight={200} letterSpacing={1.12}>
                   {getBenifitsTitle(items[currentPosition].name)}:
                 </Text>
                 {/* <Text fontSize={(12)} color={'light.GreyText'} fontFamily={'body'}>

@@ -44,7 +44,7 @@ function PasswordModal(props) {
   };
 
   const { translations } = useContext(LocalizationContext);
-  const {seed} = translations;
+  const { seed } = translations;
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
 
@@ -189,7 +189,6 @@ function PasswordModal(props) {
           close={closeRecovery}
           title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="View Wallet"
           buttonTextColor="#FAFAFA"

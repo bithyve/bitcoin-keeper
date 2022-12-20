@@ -24,7 +24,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
   return (
     <Pressable
       onPress={onPress}
-      backgroundColor="light.lightYellow"
+      backgroundColor="light.primaryBackground"
       flexDirection="row"
       alignItems="center"
       width="90%"
@@ -34,7 +34,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
     >
       <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>
       <Box
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
@@ -43,7 +43,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
         }}
       >
         <Text
-          color="light.lightBlack"
+          color="light.primaryText"
           fontFamily="body"
           fontWeight={200}
           fontSize={14}
@@ -162,7 +162,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           }}
         />
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontWeight={200}
           fontSize={13}
           letterSpacing={0.65}
@@ -189,7 +189,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           >
             <Text
-              color="light.blackHeaderText"
+              color="light.textBlack"
               fontSize={18}
               fontFamily="heading"
               px="8"
@@ -225,7 +225,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           >
             <Text
-              color="light.blackHeaderText"
+              color="light.textBlack"
               fontSize={18}
               fontFamily="heading"
               px="8"
@@ -234,7 +234,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             >
               Existing Keeper App
             </Text>
-            <Text color="light.blackHeaderText" fontSize={12} fontFamily="body" px="8">
+            <Text color="light.textBlack" fontSize={12} fontFamily="body" px="8">
               If you previously had a Keeper wallet you can recover it
             </Text>
 
@@ -257,7 +257,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
         </Box>
       </ScrollView>
-      <Text px="10%" py="5%" color="light.lightBlack" fontSize={12}>
+      <Text px="10%" py="5%" color="light.primaryText" fontSize={12}>
         When you use signing devices to restore Keeper, only vault is restored and the app has new
         wallets
       </Text>
@@ -266,7 +266,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
         close={closeCloudModal}
         title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
         subTitle={seed.seedDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"
         buttonTextColor="#FAFAFA"
@@ -283,7 +282,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
         title="Confirm Password"
         subTitle={seed.seedDescription}
         dscription={seed.seedDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"
         buttonTextColor="#FAFAFA"

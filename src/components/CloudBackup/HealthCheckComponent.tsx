@@ -95,10 +95,10 @@ function HealthCheckComponent(props) {
   return (
     <Box bg="light.ReceiveBackground" style={styles.wrapper}>
       <Box>
-        <Text fontSize={19} color="light.lightBlack">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.healthCheck}
         </Text>
-        <Text fontSize={13} color="light.lightBlack2" mb={10}>
+        <Text fontSize={13} color="light.secondaryText" mb={10}>
           For the Recovery Phrase
         </Text>
       </Box>
@@ -110,8 +110,8 @@ function HealthCheckComponent(props) {
         </Text>
         <Input
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}
-          placeholderTextColor="light.lightBlack2"
-          backgroundColor="light.lightYellow"
+          placeholderTextColor="light.secondaryText"
+          backgroundColor="light.primaryBackground"
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
             type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)

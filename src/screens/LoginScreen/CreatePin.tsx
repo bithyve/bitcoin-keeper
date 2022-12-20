@@ -154,7 +154,7 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text style={styles.welcomeText} color="light.textLight" fontFamily="heading">
+              <Text style={styles.welcomeText} color="light.white" fontFamily="heading">
                 {login.welcome}
               </Text>
               <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
@@ -198,7 +198,7 @@ export default function CreatePin(props) {
                   )}
                 </Box>
                 <HStack justifyContent="space-between" paddingTop="7">
-                  <Text color="light.white1" style={styles.bitcoinTestnetText}>
+                  <Text color="light.white" style={styles.bitcoinTestnetText}>
                     Use bitcoin testnet
                   </Text>
                   <Switch
@@ -226,7 +226,7 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.lightBlack'}
+            // keyColor={'light.primaryText'}
             // ClearIcon={<DeleteIcon />}
           />
         </Box>

@@ -153,7 +153,7 @@ function OnBoardingSlides({ navigation }) {
             <Box w="70%">
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
-                  borderColor="light.borderColor2"
+                  borderColor="light.lightAccent"
                   borderWidth={0.7}
                   borderRadius={30}
                   w={120}
@@ -163,7 +163,7 @@ function OnBoardingSlides({ navigation }) {
                     height: hp(40),
                   }}
                 >
-                  <Text color="light.borderColor2" fontSize={14} fontWeight={300}>
+                  <Text color="light.lightAccent" fontSize={14} fontWeight={300}>
                     {common.seeFAQs}
                   </Text>
                 </Box>

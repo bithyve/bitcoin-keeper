@@ -34,7 +34,7 @@ function AddDescription({ route }) {
             <Text fontWeight={200} fontSize={14} letterSpacing={1.12}>
               TapSigner
             </Text>
-            <Text fontWeight={200} fontSize={10} letterSpacing={1} color="light.modalText">
+            <Text fontWeight={200} fontSize={10} letterSpacing={1} color="light.greenText">
               Added on 12 January 2022
             </Text>
           </Box>

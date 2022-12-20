@@ -214,7 +214,7 @@ function LoginScreen({ navigation, route }) {
           }}
         />
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontWeight={200}
           fontSize={13}
           letterSpacing={0.65}
@@ -234,7 +234,7 @@ function LoginScreen({ navigation, route }) {
           <Box>
             <Text
               ml={5}
-              color="light.textLight"
+              color="light.white"
               fontSize={22}
               fontWeight="200"
               fontFamily="heading"
@@ -282,7 +282,7 @@ function LoginScreen({ navigation, route }) {
               </Text>
             )}
             <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text color="light.white1" fontWeight="200" px="5" fontSize={13} letterSpacing={1}>
+              <Text color="light.white" fontWeight="200" px="5" fontSize={13} letterSpacing={1}>
                 Use bitcoin testnet
               </Text>
               <Switch
@@ -373,7 +373,6 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#000"
         subTitleColor="#5F6965"
         showCloseIcon={false}

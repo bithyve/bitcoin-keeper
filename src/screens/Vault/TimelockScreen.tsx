@@ -40,10 +40,10 @@ function TimelockScreen() {
                 borderWidth="0"
                 value={amount}
                 onFocus={() => Keyboard.dismiss()}
-                backgroundColor="light.lightYellow"
+                backgroundColor="light.primaryBackground"
               />
               <Text
-                color="light.time"
+                color="light.textColor2"
                 fontWeight={300}
                 letterSpacing={2.8}
                 fontSize={13}

@@ -42,11 +42,11 @@ function HeaderTitle({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
-                borderColor="light.brownborder"
-                backgroundColor="light.yellow2"
+                borderColor="light.learnMoreBorder"
+                backgroundColor="light.lightAccent"
                 style={styles.learnMoreContainer}
               >
-                <Text color="light.brownborder" fontWeight={200} style={styles.learnMoreText}>
+                <Text color="light.learnMoreBorder" fontWeight={200} style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>
@@ -72,7 +72,7 @@ function HeaderTitle({
             </Text>
           )}
           {subtitle && (
-            <Text style={styles.addWalletDescription} color="light.lightBlack">
+            <Text style={styles.addWalletDescription} color="light.primaryText">
               {subtitle}
             </Text>
           )}

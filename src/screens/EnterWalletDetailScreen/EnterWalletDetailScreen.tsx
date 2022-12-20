@@ -51,7 +51,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.WalletName}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
@@ -62,7 +62,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.SinglesigWallet}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
@@ -75,7 +75,7 @@ function EnterWalletDetailScreen({ route }) {
           <Input
             placeholder={wallet.TransferPolicy}
             placeholderTextColor="light.greenText"
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             value={transferPolicy}
             onChangeText={(value) => setTransferPolicy(value)}
             style={styles.inputField}

@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     borderWidth: 1,
-    borderColor: Colors.borderColor,
+    borderColor: Colors.Platinum,
     borderRadius: 10,
     margin: 15,
     position: 'absolute',
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
   },
   symbolText: {
     fontFamily: Fonts.FiraSansMedium,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: wp('13%'),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
     backgroundColor: '#FAF4ED',
   },
   codeText: {
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
   },
   flagStyle: {
     fontFamily: Fonts.FiraSansMedium,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: wp('13%'),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
   },
   countryCodeWrapper2: {
     fontFamily: Fonts.RobotoCondensedRegular,

@@ -31,7 +31,7 @@ function Buttons({
             style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
             bg={{
               linearGradient: {
-                colors: ['light.lgStart', 'light.lgEnd'],
+                colors: ['light.gradientStart', 'light.gradientEnd'],
                 start: [0, 0],
                 end: [1, 1],
               },
