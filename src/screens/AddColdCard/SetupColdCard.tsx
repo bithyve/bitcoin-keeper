@@ -13,10 +13,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
-import config from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
@@ -38,10 +36,7 @@ function SetupColdCard() {
   const addColdCard = async () => {
     try {
       const ccDetails = await withNfcModal(isMultisig ? getColdcardDetails : getCCGenericJSON);
-      let { xpub } = ccDetails;
-      const { derivationPath, xfp } = ccDetails;
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+      const { xpub, derivationPath, xfp } = ccDetails;
       const coldcard = generateSignerFromMetaData({
         xpub,
         derivationPath,
@@ -104,7 +99,6 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    padding: '5%',
   },
   buttonContainer: {
     bottom: 0,

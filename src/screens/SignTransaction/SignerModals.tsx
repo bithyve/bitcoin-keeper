@@ -1,5 +1,6 @@
-import { ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, DeleteIcon, Text } from 'native-base';
+import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { Box, Text } from 'native-base';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -24,12 +25,10 @@ import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useBLE from 'src/hooks/useLedger';
-import usePlan from 'src/hooks/usePlan';
+import useVault from 'src/hooks/useVault';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
-
-const { width } = Dimensions.get('screen');
 
 function DeviceItem({ device, onSelectDevice }) {
   const [pending, setPending] = useState(false);
@@ -251,19 +250,17 @@ function PasswordEnter({ signTransaction }) {
   const onPressNumber = (text) => {
     let tmpPasscode = password;
     if (password.length < 4) {
-      if (text != 'x') {
+      if (text !== 'x') {
         tmpPasscode += text;
         setPassword(tmpPasscode);
       }
     }
-    if (password && text == 'x') {
+    if (password && text === 'x') {
       setPassword(password.slice(0, -1));
     }
   };
 
-  const onDeletePressed = (text) => {
-    setPassword(password.slice(0, password.length - 1));
-  };
+  const onDeletePressed = () => setPassword(password.slice(0, password.length - 1));
 
   return (
     <Box width={hp(280)}>
@@ -282,7 +279,7 @@ function PasswordEnter({ signTransaction }) {
           width={wp(290)}
           color="light.modalText"
           marginTop={2}
-         />
+        />
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
             <CustomGreenButton
@@ -312,27 +309,23 @@ function OtpContent({ signTransaction }) {
   const onPressNumber = (text) => {
     let tmpPasscode = otp;
     if (otp.length < 6) {
-      if (text != 'x') {
+      if (text !== 'x') {
         tmpPasscode += text;
         setOtp(tmpPasscode);
       }
     }
-    if (otp && text == 'x') {
+    if (otp && text === 'x') {
       setOtp(otp.slice(0, -1));
     }
   };
-  const onDeletePressed = (text) => {
+  const onDeletePressed = () => {
     setOtp(otp.slice(0, otp.length - 1));
   };
+
   return (
     <Box width={hp(280)}>
       <Box>
-        <CVVInputsView
-          passCode={otp}
-          passcodeFlag={false}
-          backgroundColor
-          textColor
-        />
+        <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
         <Text
           fontSize={13}
           fontWeight={200}
@@ -393,8 +386,9 @@ function SignerModals({
   signers,
 }) {
   const navigation = useNavigation();
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  const {
+    activeVault: { isMultiSig: isMultisig },
+  } = useVault();
 
   const navigateToQrSigning = (signer) => {
     setPassportModal(false);
@@ -446,7 +440,6 @@ function SignerModals({
                 buttonCallback={navigateToSignWithColdCard}
               />
             );
-
           case SignerType.LEDGER:
             return (
               <KeeperModal
@@ -571,6 +564,8 @@ function SignerModals({
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
+          default:
+            return null;
         }
       })}
     </>
@@ -578,19 +573,3 @@ function SignerModals({
 }
 
 export default SignerModals;
-
-const styles = StyleSheet.create({
-  errorTitle: {
-    color: '#c00',
-    fontSize: 16,
-  },
-  input: {
-    paddingHorizontal: 20,
-    marginVertical: '3%',
-    width: width * 0.7,
-    height: 50,
-    borderRadius: 10,
-    backgroundColor: '#f0e7dd',
-    letterSpacing: 5,
-  },
-});

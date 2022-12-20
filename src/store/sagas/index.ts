@@ -50,7 +50,8 @@ import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
   corssTransferWatcher,
-  feeAndExchangeRatesWatcher,
+  fetchExchangeRatesWatcher,
+  fetchFeeRatesWatcher,
   sendPhaseOneWatcher,
   sendPhaseThreeWatcher,
   sendPhaseTwoWatcher,
@@ -94,7 +95,8 @@ const rootSaga = function* () {
     updateSignerDetails,
 
     // send and receive
-    feeAndExchangeRatesWatcher,
+    fetchExchangeRatesWatcher,
+    fetchFeeRatesWatcher,
     sendPhaseOneWatcher,
     sendPhaseTwoWatcher,
     sendPhaseThreeWatcher,

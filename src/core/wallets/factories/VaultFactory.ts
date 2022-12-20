@@ -7,14 +7,7 @@ import {
   generateEncryptionKey,
   hash256,
 } from 'src/core/services/operations/encryption';
-import {
-  EntityKind,
-  NetworkType,
-  SignerType,
-  VaultType,
-  VisibilityType,
-  WalletType,
-} from '../enums';
+import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -23,10 +16,8 @@ import {
   VaultSpecs,
 } from '../interfaces/vault';
 
-import BIP85 from '../operations/BIP85';
-import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
-import config from "../../config";
+import config from '../../config';
 
 const crypto = require('crypto');
 
@@ -113,17 +104,12 @@ export const generateMobileKey = async (
   primaryMnemonic: string,
   networkType: NetworkType
 ): Promise<{
-  bip85Config: BIP85Config;
   xpub: string;
   xpriv: string;
   derivationPath: string;
   masterFingerprint: string;
 }> => {
-  const DEFAULT_INSTNACE = 0;
-  const bip85Config = BIP85.generateBIP85Configuration(WalletType.MOBILE_KEY, DEFAULT_INSTNACE);
-  const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-  const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const seed = bip39.mnemonicToSeedSync(primaryMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
 
   const DEFAULT_CHILD_PATH = 0;
@@ -139,8 +125,8 @@ export const generateMobileKey = async (
     network,
     xDerivationPath
   );
+
   return {
-    bip85Config,
     xpub: extendedKeys.xpub,
     xpriv: extendedKeys.xpriv,
     derivationPath: xDerivationPath,
@@ -195,7 +181,11 @@ export const generateMockExtendedKey = (
   const seed = bip39.mnemonicToSeedSync(mockMnemonic);
   const masterFingerprint = WalletUtilities.getFingerprintFromSeed(seed);
   const randomWalletNumber = Math.floor(Math.random() * 10e5);
-  const xDerivationPath = WalletUtilities.getDerivationPath(entity, networkType, randomWalletNumber);
+  const xDerivationPath = WalletUtilities.getDerivationPath(
+    entity,
+    networkType,
+    randomWalletNumber
+  );
   const network = WalletUtilities.getNetworkByType(networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
     seed.toString('hex'),

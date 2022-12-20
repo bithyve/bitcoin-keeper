@@ -29,7 +29,8 @@ import {
   CalculateCustomFeeAction,
   CalculateSendMaxFeeAction,
   CrossTransferAction,
-  FETCH_FEE_AND_EXCHANGE_RATES,
+  FETCH_EXCHANGE_RATES,
+  FETCH_FEE_RATES,
   SEND_PHASE_ONE,
   SEND_PHASE_THREE,
   SEND_PHASE_TWO,
@@ -49,22 +50,31 @@ export function getNextFreeAddress(wallet: Wallet | Vault) {
   return receivingAddress;
 }
 
-function* feeAndExchangeRatesWorker() {
+function* fetchFeeRatesWorker() {
   try {
-    const { exchangeRates, averageTxFees } = yield call(Relay.fetchFeeAndExchangeRates);
+    const averageTxFeeByNetwork = yield call(WalletOperations.calculateAverageTxFee);
+    if (!averageTxFeeByNetwork) console.log('Failed to calculate fee rates');
+    else yield put(setAverageTxFee(averageTxFeeByNetwork));
+  } catch (err) {
+    console.log('Failed to calculate fee rates', { err });
+  }
+}
+
+export const fetchFeeRatesWatcher = createWatcher(fetchFeeRatesWorker, FETCH_FEE_RATES);
+
+function* fetchExchangeRatesWorker() {
+  try {
+    const { exchangeRates } = yield call(Relay.fetchFeeAndExchangeRates);
     if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
-
-    if (!averageTxFees) console.log('Failed to fetch fee rates');
-    else yield put(setAverageTxFee(averageTxFees));
   } catch (err) {
     console.log('Failed to fetch fee and exchange rates', { err });
   }
 }
 
-export const feeAndExchangeRatesWatcher = createWatcher(
-  feeAndExchangeRatesWorker,
-  FETCH_FEE_AND_EXCHANGE_RATES
+export const fetchExchangeRatesWatcher = createWatcher(
+  fetchExchangeRatesWorker,
+  FETCH_EXCHANGE_RATES
 );
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {

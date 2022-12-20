@@ -39,8 +39,8 @@ import { useDispatch } from 'react-redux';
 import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
-import CustomPriorityModal from './CustomPriorityModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -211,9 +211,9 @@ function SendConfirmation({ route }) {
   const viewDetails = () => {
     setVisibleModal(false);
     if (vaultTransfers.includes(transferType)) {
-      navigation.navigate('VaultDetails');
+      navigation.navigate('VaultDetails', { autoRefresh: true });
     }
-    navigation.navigate('WalletDetails');
+    navigation.navigate('WalletDetails', { autoRefresh: true });
   };
 
   useEffect(() => {
@@ -231,7 +231,7 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  const Card = ({ title, subTitle, isVault = false }) => {
+  function Card({ title, subTitle, isVault = false }) {
     return (
       <Box
         borderRadius={10}
@@ -264,19 +264,19 @@ function SendConfirmation({ route }) {
         </Box>
       </Box>
     );
-  };
+  }
 
   function SendingCard({ isSend }) {
     const getCardDetails = () => {
       switch (transferType) {
         case TransferType.VAULT_TO_VAULT:
           return isSend ? (
-            <Card title="Old Vault" subTitle={`Moving funds all funds`} isVault={true} />
+            <Card title="Old Vault" subTitle="Moving all funds" isVault />
           ) : (
             <Card
               title="New Vault"
               subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
-              isVault={true}
+              isVault
             />
           );
         case TransferType.VAULT_TO_WALLET:
@@ -284,7 +284,7 @@ function SendConfirmation({ route }) {
             <Card
               title="Vault"
               subTitle={`Available: ${sender.specs.balances.confirmed} sats`}
-              isVault={true}
+              isVault
             />
           ) : (
             <Card
@@ -294,7 +294,7 @@ function SendConfirmation({ route }) {
           );
         case TransferType.VAULT_TO_ADDRESS:
           return isSend ? (
-            <Card title="Vault" subTitle={getAmount(amount)} isVault={true} />
+            <Card title="Vault" subTitle={getAmount(amount)} isVault />
           ) : (
             <Card title={address} subTitle={getAmount(amount)} />
           );
@@ -319,7 +319,7 @@ function SendConfirmation({ route }) {
               )} sats`}
             />
           ) : (
-            <Card title="Vault" subTitle={'Transferings all avaiable funds'} isVault={true} />
+            <Card title="Vault" subTitle="Transferings all avaiable funds" isVault />
           );
         case TransferType.WALLET_TO_ADDRESS:
           return isSend ? (
@@ -594,12 +594,11 @@ function SendConfirmation({ route }) {
           {customFeeOptionTransfers.includes(transferType) ? <SendingPriority /> : <FeeInfo />}
         </Box>
       </Box>
-      <Box position="absolute" bottom={windowHeight * 0.14}>
+      <Box style={styles.noteBox}>
         {transferType == TransferType.VAULT_TO_VAULT ? (
           <Note
             title="Note"
             subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
-            width="70%"
           />
         ) : null}
       </Box>
@@ -667,5 +666,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
+  },
+  noteBox: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'flex-end',
+    marginBottom: hp(40),
   },
 });

@@ -5,7 +5,6 @@ import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
-import { Alert } from 'react-native';
 
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,16 +13,18 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function EditWalletSettings({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const walletText = translations.wallet;
-  const {common} = translations;
+  const { common } = translations;
 
-  const {wallet} = route.params;
+  const { wallet } = route.params;
+  const { showToast } = useToastMessage();
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
@@ -34,7 +35,7 @@ function EditWalletSettings({ route }) {
       description: walletDescription,
     };
     dispatch(updateWalletDetails(wallet, details));
-    Alert.alert('Wallet details updated');
+    showToast('Wallet details updated', <TickIcon />);
     navigtaion.goBack();
   };
 
@@ -47,7 +48,7 @@ function EditWalletSettings({ route }) {
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
       />
-      <View marginX={4} marginY={windowHeight / 12}>
+      <View style={styles.inputWrapper}>
         <Input
           //   placeholder={walletText.WalletName}
           placeholderTextColor="light.greenText"
@@ -70,7 +71,7 @@ function EditWalletSettings({ route }) {
           borderWidth="0"
           marginY={2}
         />
-        <View marginY={20}>
+        <View style={styles.buttonWrapper}>
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
@@ -109,6 +110,13 @@ const styles = ScaledSheet.create({
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: RFValue(13),
     letterSpacing: 0.96,
+  },
+  inputWrapper: {
+    marginHorizontal: 4,
+    marginVertical: windowHeight / 15,
+  },
+  buttonWrapper: {
+    marginVertical: 25,
   },
 });
 export default EditWalletSettings;

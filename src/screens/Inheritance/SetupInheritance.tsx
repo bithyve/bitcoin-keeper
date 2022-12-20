@@ -20,6 +20,7 @@ import Recovery from 'src/assets/images/svgs/recovery.svg';
 import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
 function SetupInheritance() {
   const navigtaion = useNavigation();
@@ -104,7 +105,10 @@ function SetupInheritance() {
       </LinearGradient>
     );
   }
-
+  const proceedCallback = () => {
+    dispatch(setInheritance(false));
+    showToast('Inheritance flow coming soon');
+  };
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -161,6 +165,7 @@ function SetupInheritance() {
         buttonText="Proceed"
         buttonTextColor="#073E39"
         buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore

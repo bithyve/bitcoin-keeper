@@ -20,7 +20,7 @@ function HexaToastMessages({
 }) {
   return (
     <Box bg={error ? 'error.500' : 'light.yellow1'} style={styles.toast}>
-      {Image && <Box marginLeft={5}>{Image}</Box>}
+      {Image && <Box>{Image}</Box>}
       <Text marginLeft={Image ? 3 : 0} color={error ? 'error.200' : null}>
         {title}
       </Text>
@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     alignItems: 'center',
+    paddingLeft: 15,
     height: 70,
     width: windowWidth * 0.8,
     fontSize: 13,

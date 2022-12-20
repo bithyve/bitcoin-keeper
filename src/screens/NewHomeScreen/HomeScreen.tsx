@@ -5,7 +5,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { RFValue } from 'react-native-responsive-fontsize';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
-import UaiDisplay from './UaiDisplay';
 import NewWalletModal from 'src/components/NewWalletModal';
 import { useAppSelector } from 'src/store/hooks';
 import useUaiStack from 'src/hooks/useUaiStack';
@@ -15,7 +14,6 @@ import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { identifyUser } from 'src/core/services/sentry';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { WalletMap } from '../Vault/WalletMap';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -34,6 +32,10 @@ import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
 import SettingIcon from 'src/assets/images/svgs/settings.svg';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
+import usePlan from 'src/hooks/usePlan';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { WalletMap } from '../Vault/WalletMap';
+import UaiDisplay from './UaiDisplay';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -63,23 +65,17 @@ function InheritanceComponent() {
           },
         }}
       >
-        <Box
-          style={styles.bottomCardContent}>
+        <Box style={styles.bottomCardContent}>
           <Inheritance />
           <Box
             style={{
-              marginLeft: wp(18)
-            }}>
-            <Text
-              color="light.white1"
-              style={styles.bottomCardTitle}
-            >
+              marginLeft: wp(18),
+            }}
+          >
+            <Text color="light.white1" style={styles.bottomCardTitle}>
               Inheritance
             </Text>
-            <Text
-              color="light.white1"
-              style={styles.bottomCardSubtitle}
-            >
+            <Text color="light.white1" style={styles.bottomCardSubtitle}>
               Upgrade to secure your vault
             </Text>
           </Box>
@@ -138,42 +134,40 @@ function LinkedWallets(props) {
         }}
         style={styles.bottomCard}
       >
-        <Box
-          style={styles.bottomCardContent}
-        >
+        <Box style={styles.bottomCardContent}>
           <LinkedWallet />
           <Box style={styles.linkedWalletContent}>
-            <Text color="light.white1"
+            <Text
+              color="light.white1"
               fontSize={RFValue(22)}
               style={{
                 letterSpacing: 1.76,
-              }}>
+              }}
+            >
               {wallets?.length}
             </Text>
-            <Text
-              color="light.white1"
-              style={styles.LinkedWalletText}
-            >
+            <Text color="light.white1" style={styles.LinkedWalletText}>
               Linked Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
-        <Pressable onPress={() => props.onAmountPress()}
+        <Pressable
+          onPress={() => props.onAmountPress()}
           style={{
-            marginRight: wp(15)
+            marginRight: wp(15),
           }}
         >
           {props.showHideAmounts ? (
             <Box
               style={{
                 flexDirection: 'row',
-                alignItems: 'center'
+                alignItems: 'center',
               }}
             >
               <Box
                 style={{
                   padding: 3,
-                  marginBottom: -3
+                  marginBottom: -3,
                 }}
               >
                 <BTC />
@@ -190,7 +184,7 @@ function LinkedWallets(props) {
                   color="light.white1"
                   style={{
                     letterSpacing: 0.6,
-                    fontSize: hp(12)
+                    fontSize: hp(12),
                   }}
                 >
                   {getUnit()}
@@ -200,9 +194,10 @@ function LinkedWallets(props) {
           ) : (
             <Box
               style={{
-                flexDirection: "row",
-                alignItems: "center"
-              }} >
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
               <BTC />
               &nbsp;
               <Hidden />
@@ -292,50 +287,34 @@ function VaultStatus(props) {
       <ImageBackground resizeMode="contain" source={VaultImage}>
         <TouchableOpacity onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
-            <Box
-              backgroundColor={getTorStatusColor}
-              style={styles.torContainer}
-            >
-              <Text
-                color="light.lightBlack"
-                style={styles.torText}
-              >
+            <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
+              <Text color="light.lightBlack" style={styles.torText}>
                 {getTorStatusText}
               </Text>
             </Box>
             <Box style={styles.vaultBody}>
-              <Text
-                color="light.white1"
-                style={styles.vaultHeading}
-              >
+              <Text color="light.white1" style={styles.vaultHeading}>
                 Your Vault
               </Text>
 
-              <Text
-                color="light.white1"
-                style={styles.vaultSubHeading}
-              >
+              <Text color="light.white1" style={styles.vaultSubHeading}>
                 {!signers.length
                   ? 'Add a signing device to upgrade '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
               </Text>
 
               {!signers.length ? (
-                <Box style={{
-                  marginTop: hp(11.5)
-                }}
+                <Box
+                  style={{
+                    marginTop: hp(11.5),
+                  }}
                 >
                   <Chain />
                 </Box>
               ) : (
-                <Box
-                  style={styles.vaultSignersContainer}
-                >
+                <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
-                    <Box
-                      bg="#FAC48B"
-                      style={styles.vaultSigner}
-                    >
+                    <Box bg="#FAC48B" style={styles.vaultSigner}>
                       {WalletMap(signer.type).Icon}
                     </Box>
                   ))}
@@ -343,32 +322,24 @@ function VaultStatus(props) {
               )}
             </Box>
 
-            <HStack
-              style={styles.vaultBalanceContainer}
-            >
+            <HStack style={styles.vaultBalanceContainer}>
               <BTC style={{ height: '20%' }} />
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
-                    <Text
-                      color="light.white1"
-                      fontSize={hp(30)}
-                      style={styles.vaultBalanceText}
-                    >
+                    <Text color="light.white1" fontSize={hp(30)} style={styles.vaultBalanceText}>
                       {getAmount(vaultBalance)}
                     </Text>
-                    <Text
-                      color="light.white1"
-                      style={styles.vaultBalanceUnit}
-                    >
+                    <Text color="light.white1" style={styles.vaultBalanceUnit}>
                       {getUnit()}
                     </Text>
                   </Box>
                 ) : (
                   <Box
                     style={{
-                      marginVertical: 15
-                    }}>
+                      marginVertical: 15,
+                    }}
+                  >
                     <Hidden />
                   </Box>
                 )}
@@ -379,9 +350,7 @@ function VaultStatus(props) {
               style={styles.balanceToggleContainer}
               onPress={() => props.onAmountPress()}
             >
-              <Text color="light.sendMax"
-                style={styles.balanceToggleText}
-              >
+              <Text color="light.sendMax" style={styles.balanceToggleText}>
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
@@ -395,17 +364,19 @@ function VaultStatus(props) {
 function VaultInfo() {
   const navigation = useNavigation();
   const { uaiStack } = useUaiStack();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const { plan } = usePlan();
 
   function getPlanIcon() {
-    if (subscription.name.toLowerCase().includes('diamond')) {
-      return <DiamondHandsFocused />;
+    switch (plan) {
+      case SubscriptionTier.L1.toUpperCase():
+        return <PlebFocused />;
+      case SubscriptionTier.L2.toUpperCase():
+        return <HodlerFocused />;
+      case SubscriptionTier.L3.toUpperCase():
+        return <DiamondHandsFocused />;
+      default:
+        return <PlebFocused />;
     }
-    if (subscription.name.toLowerCase().includes('hodler')) {
-      return <HodlerFocused />;
-    }
-    return <PlebFocused />;
   }
 
   return (
@@ -431,11 +402,8 @@ function VaultInfo() {
               borderColor="light.white1"
               style={styles.subscriptionTextContainer}
             >
-              <Text
-                color="light.white1"
-                style={styles.subscriptionText}
-              >
-                {subscription.name}
+              <Text color="light.white1" style={styles.subscriptionText}>
+                {plan}
               </Text>
             </Box>
           </Pressable>
@@ -482,10 +450,7 @@ function HomeScreen({ navigation }) {
   const [visibleModal, setVisibleModal] = useState(false);
 
   return (
-    <Box
-      backgroundColor="light.lightYellow"
-      style={styles.container}
-    >
+    <Box backgroundColor="light.lightYellow" style={styles.container}>
       <VaultInfo />
       <VaultStatus
         showHideAmounts={showHideAmounts}
@@ -501,7 +466,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
@@ -521,7 +486,7 @@ function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: "relative"
+    position: 'relative',
   },
   linearGradient: {
     justifyContent: 'space-between',
@@ -532,23 +497,23 @@ const styles = StyleSheet.create({
   },
   vaultInfoContainer: {
     alignItems: 'center',
-    paddingHorizontal: wp(30)
+    paddingHorizontal: wp(30),
   },
   vault: {
     width: wp(280),
-    height: hp(Platform.OS === 'android' ? 400 : 350),
+    height: hp(350),
     alignItems: 'center',
   },
   subscriptionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%'
+    width: '100%',
   },
   subscriptionIcon: {
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   subscriptionTextContainer: {
     borderWidth: 0.8,
@@ -556,22 +521,22 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 15,
     paddingHorizontal: 10,
     marginHorizontal: -8,
-    zIndex: -10
+    zIndex: -10,
   },
   subscriptionText: {
     fontSize: hp(14),
-    padding: 4
+    padding: 4,
   },
   rowCenter: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   bottomContainer: {
     position: 'absolute',
     bottom: 15,
     justifyContent: 'center',
-    width: '100%'
+    width: '100%',
   },
   bottomCard: {
     justifyContent: 'space-between',
@@ -591,7 +556,7 @@ const styles = StyleSheet.create({
   },
   vaultStatusContainder: {
     marginTop: -hp(100),
-    alignItems: 'center'
+    alignItems: 'center',
   },
   torContainer: {
     paddingHorizontal: 10,
@@ -603,9 +568,9 @@ const styles = StyleSheet.create({
   torText: {
     letterSpacing: 1,
     fontSize: 11,
-    textAlign: "center",
-    textTransform: "uppercase",
-    fontWeight: 'bold'
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
   },
   vaultBody: {
     marginTop: hp(windowHeight > 700 ? 60.5 : 25),
@@ -614,26 +579,26 @@ const styles = StyleSheet.create({
   vaultHeading: {
     letterSpacing: 0.8,
     fontSize: RFValue(16),
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   vaultSubHeading: {
     letterSpacing: 0.9,
     fontSize: RFValue(12),
     fontWeight: 'bold',
     opacity: 0.8,
-    paddingBottom: 2
+    paddingBottom: 2,
   },
   vaultSignersContainer: {
     marginTop: hp(10),
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   vaultSigner: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 2,
     width: 30,
     height: 30,
-    borderRadius: 30
+    borderRadius: 30,
   },
   vaultBalanceContainer: {
     alignItems: 'center',
@@ -641,51 +606,51 @@ const styles = StyleSheet.create({
   },
   vaultBalanceText: {
     letterSpacing: 0.8,
-    padding: 3
+    padding: 3,
   },
   vaultBalanceUnit: {
     fontSize: hp(12),
-    letterSpacing: 0.6
+    letterSpacing: 0.6,
   },
   balanceToggleContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 10,
     paddingHorizontal: 8,
   },
   balanceToggleText: {
     fontWeight: 'bold',
     fontSize: 11,
-    letterSpacing: 0.88
+    letterSpacing: 0.88,
   },
 
   bottomCardContent: {
     marginLeft: wp(9.75),
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   bottomCardTitle: {
     letterSpacing: 0.8,
     fontSize: RFValue(16),
-    marginBottom: 3
+    marginBottom: 3,
   },
   bottomCardSubtitle: {
     letterSpacing: 0.6,
     fontSize: RFValue(12),
     fontWeight: '300',
-    marginTop: -3
+    marginTop: -3,
   },
   LinkedWalletText: {
     marginLeft: wp(5),
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: RFValue(16)
+    fontSize: RFValue(16),
   },
   linkedWalletContent: {
     marginLeft: wp(18),
     flexDirection: 'row',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 
 export default HomeScreen;

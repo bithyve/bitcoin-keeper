@@ -9,16 +9,6 @@ export const Balances = {
   },
 };
 
-const UTXOStatus = {
-  type: '{}',
-  properties: {
-    confirmed: 'bool',
-    block_height: 'int?',
-    block_hash: 'string?',
-    block_time: 'int?',
-  },
-};
-
 export const BIP85ConfigSchema: ObjectSchema = {
   name: RealmSchema.BIP85Config,
   embedded: true,
@@ -47,7 +37,7 @@ export const UTXOSchema: ObjectSchema = {
     vout: 'int',
     value: 'int',
     address: 'string',
-    status: UTXOStatus,
+    height: 'int',
   },
 };
 

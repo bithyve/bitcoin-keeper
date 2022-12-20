@@ -109,7 +109,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallets }) {
         )}
       </Box>
       {/* keyboardview start */}
-      <Box style={{ width: 305 }}>
+      <Box style={{ width: 280 }}>
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
