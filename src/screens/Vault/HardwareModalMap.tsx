@@ -47,6 +47,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
+import HWError from 'src/hardware/HWErrorState';
+import { HWErrorType } from 'src/common/data/enums/Hardware';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -377,16 +379,19 @@ const setupPassport = (qrData, isMultisig) => {
   return passport;
 };
 
-const setupSeedSigner = (qrData) => {
-  const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-  const seedSigner: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.SEEDSIGNER,
-    storageType: SignerStorage.COLD,
-  });
-  return seedSigner;
+const setupSeedSigner = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSeedSignerDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const seedSigner: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.SEEDSIGNER,
+      storageType: SignerStorage.COLD,
+    });
+    return seedSigner;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const setupKeystone = (qrData) => {
@@ -554,7 +559,7 @@ function HardwareModalMap({ type, visible, close }) {
     );
   };
 
-  const onQRScan = (qrData) => {
+  const onQRScan = (qrData, resetQR) => {
     let hw: VaultSigner;
     try {
       switch (type as SignerType) {
@@ -562,7 +567,7 @@ function HardwareModalMap({ type, visible, close }) {
           hw = setupPassport(qrData, isMultisig);
           break;
         case SignerType.SEEDSIGNER:
-          hw = setupSeedSigner(qrData);
+          hw = setupSeedSigner(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
           hw = setupKeeperSigner(qrData);
@@ -580,9 +585,14 @@ function HardwareModalMap({ type, visible, close }) {
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
     } catch (error) {
-      captureError(error);
-      Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (error instanceof HWError) {
+        showToast(error.message, null, 3000, true);
+        resetQR();
+      } else {
+        captureError(error);
+        Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
     }
   };
 
