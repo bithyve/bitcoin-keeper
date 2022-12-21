@@ -18,6 +18,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import HWError from 'src/hardware/HWErrorState';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupColdCard() {
@@ -50,8 +51,8 @@ function SetupColdCard() {
         showToast(`Looks like you are scanning from the wrong section`, null, 3000, true);
       }
     } catch (error) {
-      if (error.toString().includes('IncorrectDevice')) {
-        showToast(`Please scan from a ColdCard`, null, 3000, true);
+      if (error instanceof HWError) {
+        showToast(error.message, null, 3000, true);
       } else {
         captureError(error);
       }

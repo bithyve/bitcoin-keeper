@@ -6,7 +6,9 @@ import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import { HWErrorType } from 'src/common/data/enums/Hardware';
 import { generateSignerFromMetaData, getWalletConfig } from '..';
+import HWError from '../HWErrorState';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const config = getWalletConfig({ vault });
@@ -36,7 +38,7 @@ export const getColdcardDetails = async () => {
     return { xpub, derivationPath: deriv, xfp: data.xfp, forMultiSig: false, forSingleSig: true };
   } catch (_) {
     console.log('Not exported for singlesig!');
-    throw new Error('IncorrectDevice: Please scan from the instructed secion of the coldcard');
+    throw new HWError(HWErrorType.INCORRECT_HW);
   }
 };
 
