@@ -1,11 +1,7 @@
 import { Alert, StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
-import {
-  getCCGenericJSON,
-  getColdcardDetails,
-  getMockColdcardDetails,
-} from 'src/hardware/coldcard';
+import { getColdcardDetails, getMockColdcardDetails } from 'src/hardware/coldcard';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -35,22 +31,30 @@ function SetupColdCard() {
 
   const addColdCard = async () => {
     try {
-      const ccDetails = await withNfcModal(isMultisig ? getColdcardDetails : getCCGenericJSON);
-      const { xpub, derivationPath, xfp } = ccDetails;
-      const coldcard = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.COLDCARD,
-        storageType: SignerStorage.COLD,
-      });
-      dispatch(addSigningDevice(coldcard));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(coldcard.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      const ccDetails = await withNfcModal(getColdcardDetails);
+      const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = ccDetails;
+      if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+        const coldcard = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp,
+          signerType: SignerType.COLDCARD,
+          storageType: SignerStorage.COLD,
+        });
+        dispatch(addSigningDevice(coldcard));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
+        const exsists = await checkSigningDevice(coldcard.signerId);
+        if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      } else {
+        showToast(`Looks like you are scanning from the wrong section`, null, 3000, true);
+      }
     } catch (error) {
-      captureError(error);
+      if (error.toString().includes('IncorrectDevice')) {
+        showToast(`Please scan from a ColdCard`, null, 3000, true);
+      } else {
+        captureError(error);
+      }
     }
   };
 

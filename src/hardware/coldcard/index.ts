@@ -14,24 +14,30 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   await NFC.send(NfcTech.Ndef, enc);
 };
 
-export const getCCGenericJSON = async () => {
-  const packet = await NFC.read(NfcTech.NfcV);
-  const data = packet[0].data.bip84;
-  const { deriv } = data;
-  let { xpub } = data;
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-  return { xpub, derivationPath: deriv, xfp: packet[0].data.xfp };
-};
-
 export const getColdcardDetails = async () => {
   const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-  let xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-  const derivationPath = data?.p2wsh_deriv ?? '';
-  const xfp = data?.xfp ?? '';
-  return { xpub, derivationPath, xfp };
+  try {
+    let xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+    const derivationPath = data?.p2wsh_deriv ?? '';
+    const xfp = data?.xfp ?? '';
+    return { xpub, derivationPath, xfp, forMultiSig: true, forSingleSig: false };
+  } catch (_) {
+    console.log('Not exported for multisig!');
+  }
+
+  try {
+    const { bip84 } = data;
+    const { deriv } = bip84;
+    let { xpub } = bip84;
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+    return { xpub, derivationPath: deriv, xfp: data.xfp, forMultiSig: false, forSingleSig: true };
+  } catch (_) {
+    console.log('Not exported for singlesig!');
+    throw new Error('IncorrectDevice: Please scan from the instructed secion of the coldcard');
+  }
 };
 
 export const getMockColdcardDetails = () => {
@@ -52,9 +58,9 @@ export const getMockColdcardDetails = () => {
       storageType: SignerStorage.COLD,
       isMock: true,
     });
-
     return cc;
   }
+  return null;
 };
 
 export const signWithColdCard = async (message) => {
