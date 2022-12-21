@@ -19,9 +19,9 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import WalletDetails from './WalletDetails';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import WalletDetails from './WalletDetails';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -94,7 +94,7 @@ function AddSendAmount({ route }) {
     },
     []
   );
-  console.log(windowHeight);
+
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -119,7 +119,7 @@ function AddSendAmount({ route }) {
         style={{
           marginVertical: hp(10),
         }}
-      ></Box>
+      />
       <Box marginX={3}>
         <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
           <Box flexDirection="row" alignItems="center">
@@ -188,7 +188,7 @@ function AddSendAmount({ route }) {
           clear={() => setAmount('')}
           color="#073E39"
           height={windowHeight > 670 ? 85 : 65}
-          darkDeleteIcon={true}
+          darkDeleteIcon
         />
       </Box>
       {/* )} */}
