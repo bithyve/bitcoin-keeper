@@ -25,18 +25,18 @@ export default class BIP85 {
     passphrase?: string
   ) => {
     const bip39Seed = await bip39.mnemonicToSeed(mnemonic, passphrase);
-    const xprv = await bip32.fromSeed(bip39Seed);
+    const xprv = bip32.fromSeed(bip39Seed);
     const child = xprv.derivePath(path);
     return BIP85.hmacsha512(child.privateKey);
   };
 
   public static entropyToBIP39 = (entropy: Buffer, words: number, language = 'english'): string => {
     const width = Math.floor(((words - 1) * 11) / 8 + 1);
-    return bip39.entropyToMnemonic(entropy.slice(0, width));
+    return bip39.entropyToMnemonic(entropy.subarray(0, width));
   };
 
   public static entropyToWif = (entropy: Buffer) => {
-    const privateKey = Buffer.from(entropy.slice(0, 32));
+    const privateKey = Buffer.from(entropy.subarray(0, 32));
     return wif.encode(128, privateKey, true);
   };
 
@@ -48,7 +48,7 @@ export default class BIP85 {
     const data = hash.digest();
     hash = crypto.createHash('sha256');
     hash.update(data);
-    return hash.digest().slice(0, 4);
+    return hash.digest().subarray(0, 4);
   };
 
   public static bip32XPRVToXPRV = (path: string, xprvString) => {
@@ -58,13 +58,9 @@ export default class BIP85 {
     const depth = Buffer.from('00', 'hex');
     const parentFingerprint = Buffer.from('00'.repeat(4), 'hex');
     const childNum = Buffer.from('00'.repeat(4), 'hex');
-    const chainCode = ent.slice(0, 32);
-    // const privateKey = Buffer.concat(
-    //   [Buffer.from("00", "hex"), Buffer.from(ent.slice(32, ent.length), "hex")],
-    //   ent.length + 1
-    // );
+    const chainCode = ent.subarray(0, 32);
     const privateKey = Buffer.concat(
-      [Buffer.from('00', 'hex'), ent.slice(32, ent.length)],
+      [Buffer.from('00', 'hex'), ent.subarray(32, ent.length)],
       ent.length + 1
     );
     const extendedKey = Buffer.concat(
@@ -77,9 +73,9 @@ export default class BIP85 {
     return bs58.encode(bytes);
   };
 
-  public static bip32XPRVToHex = async (path: string, width: number, xprvString: string) => {
-    const entropy = await BIP85.bip32XPRVToEntropy(path, xprvString);
-    return entropy.slice(0, width).toString('hex');
+  public static bip32XPRVToHex = (path: string, width: number, xprvString: string) => {
+    const entropy = BIP85.bip32XPRVToEntropy(path, xprvString);
+    return entropy.subarray(0, width).toString('hex');
   };
 
   private static languageIdxOf = (language: string) => {
@@ -99,25 +95,25 @@ export default class BIP85 {
   };
 
   public static applications = {
-    bip39: async (xprvString: string, language: string, words: number, index: number) => {
+    bip39: (xprvString: string, language: string, words: number, index: number) => {
       const languageIdx = BIP85.languageIdxOf(language);
       const path = `m/83696968'/39'/${languageIdx}'/${words}'/${index}'`;
-      const entropy = await BIP85.bip32XPRVToEntropy(path, xprvString);
-      const res = await BIP85.entropyToBIP39(entropy, words, language);
+      const entropy = BIP85.bip32XPRVToEntropy(path, xprvString);
+      const res = BIP85.entropyToBIP39(entropy, words, language);
       return res;
     },
     xprv: (xprvString: string, index: number) => {
       const path = `83696968'/32'/${index}'`;
       return BIP85.bip32XPRVToXPRV(path, xprvString);
     },
-    wif: async (xprvString: string, index: number) => {
+    wif: (xprvString: string, index: number) => {
       const path = `m/83696968'/2'/${index}'`;
-      const entropy = await BIP85.bip32XPRVToEntropy(path, xprvString);
+      const entropy = BIP85.bip32XPRVToEntropy(path, xprvString);
       return BIP85.entropyToWif(entropy);
     },
-    hex: async (xprvString: string, index: number, width: number) => {
+    hex: (xprvString: string, index: number, width: number) => {
       const path = `m/83696968'/128169'/${width}'/${index}'`;
-      const res = await BIP85.bip32XPRVToHex(path, width, xprvString);
+      const res = BIP85.bip32XPRVToHex(path, width, xprvString);
       return res;
     },
   };
