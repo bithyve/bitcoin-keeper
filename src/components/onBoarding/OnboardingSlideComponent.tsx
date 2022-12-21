@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/svgs/skip.svg';
@@ -13,7 +12,7 @@ function OnboardingSlideComponent(props) {
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
         <Text
-          fontSize={RFValue(18)}
+          fontSize={18}
           color="light.white"
           fontFamily="heading"
           textAlign="center"
@@ -26,7 +25,7 @@ function OnboardingSlideComponent(props) {
       <Box style={styles.illustartionWrapper}>{props.illustration}</Box>
       <Box style={styles.paragraphWrapper}>
         <Text
-          fontSize={RFValue(14)}
+          fontSize={14}
           color="light.white"
           fontFamily="body"
           textAlign="center"
@@ -44,7 +43,7 @@ function OnboardingSlideComponent(props) {
             style={styles.buttonWrapper}
           >
             <Text
-              fontSize={RFValue(14)}
+              fontSize={14}
               color="light.white"
               fontFamily="heading"
               textAlign="center"

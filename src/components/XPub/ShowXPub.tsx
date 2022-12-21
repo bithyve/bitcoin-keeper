@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, Text, Image } from 'native-base';
+import { Box, Text } from 'native-base';
 import { Clipboard, TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -12,7 +11,7 @@ import Note from '../Note/Note';
 
 function ShowXPub({
   data,
-  copy = () => { },
+  copy = () => {},
   subText,
   noteSubText,
   copyable = true,
@@ -32,7 +31,7 @@ function ShowXPub({
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
           <Box bg="light.QrCode" alignItems="center" justifyContent="center" p={1} w={hp(200)}>
-            <Text fontSize={RFValue(12)} color="light.recieverAddress" fontFamily="body">
+            <Text fontSize={12} color="light.recieverAddress" fontFamily="body">
               {subText}
             </Text>
           </Box>
@@ -49,7 +48,7 @@ function ShowXPub({
               marginBottom={hp(30)}
             >
               <Box py={2} alignItems="center">
-                <Text fontSize={RFValue(12)} fontFamily="body" noOfLines={1} px={3}>
+                <Text fontSize={12} fontFamily="body" noOfLines={1} px={3}>
                   {data}
                 </Text>
               </Box>

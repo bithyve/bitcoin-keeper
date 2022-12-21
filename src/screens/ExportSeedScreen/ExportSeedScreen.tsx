@@ -1,7 +1,6 @@
 import { Box, Text } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
@@ -55,7 +54,7 @@ function ExportSeedScreen({ route, navigation }) {
         }}
       >
         <Box
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           opacity={showWordIndex === index ? 1 : 0.5}
           style={styles.seedCardWrapper}
         >
@@ -63,7 +62,7 @@ function ExportSeedScreen({ route, navigation }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text style={styles.seedTextStyle01} backgroundColor="green.700" color="light.seedText">
+          <Text style={styles.seedTextStyle01} backgroundColor="green.700" color="light.GreyText">
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -167,13 +166,13 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   seedTextStyle: {
-    fontSize: RFValue(19),
+    fontSize: 19,
     fontWeight: '500',
     letterSpacing: 1.64,
     marginRight: 5,
   },
   seedTextStyle01: {
-    fontSize: RFValue(19),
+    fontSize: 19,
     fontWeight: '400',
     letterSpacing: 1,
   },

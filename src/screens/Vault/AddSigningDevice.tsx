@@ -88,7 +88,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               <AddIcon />
               <VStack marginX="4" maxW="64">
                 <Text
-                  color="light.lightBlack"
+                  color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
@@ -111,9 +111,10 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   }
   const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
   let shouldReconfigure = false;
-  if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
-    shouldReconfigure = true;
-  } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+  if (
+    (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
+    (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
+  ) {
     shouldReconfigure = true;
   }
   return (
@@ -140,7 +141,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </Box>
           <VStack marginX="4" maxW="80%">
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={15}
               numberOfLines={1}
               alignItems="center"
@@ -285,9 +286,10 @@ function AddSigningDevice() {
       if (signer.signerName.includes('*') && !signer.signerName.includes('**'))
         amfSigners.push(signer.type);
       const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
-      if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
-        misMatchedSigners.push(signer.xpubInfo.xfp);
-      } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+      if (
+        (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
+        (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
+      ) {
         misMatchedSigners.push(signer.xpubInfo.xfp);
       }
     }

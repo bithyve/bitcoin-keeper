@@ -10,7 +10,6 @@ import Edit from 'src/assets/images/svgs/edit.svg';
 import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
 import LinearGradient from 'react-native-linear-gradient';
 // libraries
-import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import Server from 'src/assets/images/svgs/server.svg';
 import Settings from 'src/assets/images/svgs/settings_brown.svg';
@@ -45,7 +44,7 @@ function SigningServer({ navigation }) {
           borderRadius: height,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: '#FAC48B',
+          backgroundColor: 'light.lightAccent',
         }}
       >
         <Icon />
@@ -55,12 +54,7 @@ function SigningServer({ navigation }) {
 
   function Description({ text }) {
     return (
-      <Text
-        color="light.inActiveMsg"
-        fontSize={RFValue(12)}
-        fontWeight="200"
-        letterSpacing={0.6}
-      >
+      <Text color="light.inActiveMsg" fontSize={12} fontWeight="200" letterSpacing={0.6}>
         {text}
       </Text>
     );
@@ -78,34 +72,21 @@ function SigningServer({ navigation }) {
         >
           <DotView height={2} width={2} color="#E3BE96" />
         </Box>
-        <Text
-          color="light.GreyText"
-          fontSize={RFValue(10)}
-          fontWeight="300"
-          ml={5}
-          opacity={0.7}
-        >
+        <Text color="light.GreyText" fontSize={10} fontWeight="300" ml={5} opacity={0.7}>
           15 March ’21
         </Text>
         <Box borderLeftColor="#E3BE96" borderLeftWidth={1} ml={wp(3.5)} position="relative">
           <Box
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             my={2}
             p={5}
             marginLeft={wp(15)}
             borderRadius={10}
           >
-            <Text
-              color="light.recieverAddress"
-              fontSize={RFValue(14)}
-              fontWeight={200}
-              letterSpacing={0.96}
-            >
+            <Text color="light.recieverAddress" fontSize={14} fontWeight={200} letterSpacing={0.96}>
               Health Check Skipped
             </Text>
-            <Description
-              text="Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et"
-            />
+            <Description text="Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et" />
           </Box>
         </Box>
       </Box>
@@ -136,14 +117,14 @@ function SigningServer({ navigation }) {
         <Box
           height={hp(20)}
           width={wp(70)}
-          borderColor="light.brownborder"
+          borderColor="light.learnMoreBorder"
           borderWidth={0.5}
           borderRadius={5}
-          backgroundColor="light.yellow2"
+          backgroundColor="light.lightAccent"
           justifyContent="center"
           alignItems="center"
         >
-          <Text color="light.brownborder" fontWeight={200} letterSpacing={0.6} fontSize={12}>
+          <Text color="light.learnMoreBorder" fontWeight={200} letterSpacing={0.6} fontSize={12}>
             Learn More
           </Text>
         </Box>
@@ -154,28 +135,13 @@ function SigningServer({ navigation }) {
           <GradientIcon Icon={Server} height={hp(50)} />
         </Box>
         <Box>
-          <Text
-            fontSize={RFValue(14)}
-            fontWeight="200"
-            letterSpacing={1.12}
-            color="light.lightBlack"
-          >
+          <Text fontSize={14} fontWeight="200" letterSpacing={1.12} color="light.primaryText">
             Signing Server
           </Text>
-          <Text
-            fontSize={RFValue(10)}
-            fontWeight="200"
-            letterSpacing={1}
-            color="light.modalText"
-          >
+          <Text fontSize={10} fontWeight="200" letterSpacing={1} color="light.greenText">
             Added on 12 January 2022
           </Text>
-          <Text
-            color="light.GreyText"
-            fontSize={RFValue(12)}
-            fontFamily="body"
-            letterSpacing={0.6}
-          >
+          <Text color="light.GreyText" fontSize={12} fontFamily="body" letterSpacing={0.6}>
             Lorem ipsum dolor sit amet
           </Text>
         </Box>
@@ -205,7 +171,7 @@ function SigningServer({ navigation }) {
             marginVertical: hp(20),
           }}
         >
-          <Text color="light.modalText" fontWeight={200} fontSize={13} letterSpacing={0.65}>
+          <Text color="light.greenText" fontWeight={200} fontSize={13} letterSpacing={0.65}>
             You will be reminded in 90 days for the health check
           </Text>
         </Box>
@@ -226,7 +192,7 @@ function SigningServer({ navigation }) {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Change} height={hp(38)} />
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
@@ -240,7 +206,7 @@ function SigningServer({ navigation }) {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Heathcheck} height={hp(38)} />
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
@@ -254,7 +220,7 @@ function SigningServer({ navigation }) {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Settings} height={hp(38)} />
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}

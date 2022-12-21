@@ -4,7 +4,6 @@ import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -65,14 +64,14 @@ function ChoosePlanCarousel(props) {
             <Text
               fontSize={13}
               fontWeight="300"
-              color="light.textLight"
+              color="light.white"
               mt={2}
               fontFamily="body"
               letterSpacing={0.48}
             >
               {item.name}
             </Text>
-            <Text fontSize={10} color="light.textLight" mb={2} fontWeight="200" letterSpacing={0.5}>
+            <Text fontSize={10} color="light.white" mb={2} fontWeight="200" letterSpacing={0.5}>
               {item.subTitle}
             </Text>
             {currentPosition == index && subscription.productId !== item.productId ? (

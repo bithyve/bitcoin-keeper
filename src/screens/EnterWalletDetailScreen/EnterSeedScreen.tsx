@@ -241,7 +241,7 @@ function EnterSeedScreen() {
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`Enter ${getPlaceholder(index)} phrase`}
-                    placeholderTextColor={'rgba(7,62,57,0.6)'}
+                    placeholderTextColor="rgba(7,62,57,0.6)"
                     value={item?.name}
                     textContentType="none"
                     returnKeyType="next"
@@ -287,7 +287,6 @@ function EnterSeedScreen() {
             close={closeInvalidSeedsModal}
             title={seed.InvalidSeeds}
             subTitle={seed.seedDescription}
-            modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
             buttonText="Retry"
             buttonTextColor="#FAFAFA"
@@ -300,7 +299,6 @@ function EnterSeedScreen() {
             close={closeRecovery}
             title={seed.walletRecoverySuccessful}
             subTitle={seed.seedDescription}
-            modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
             buttonText="View Wallet"
             buttonTextColor="#FAFAFA"

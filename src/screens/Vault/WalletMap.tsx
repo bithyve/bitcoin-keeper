@@ -38,9 +38,8 @@ import { Text } from 'native-base';
 const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
   if (isLight) {
     return LightComponent;
-  } 
-    return DarkComponent;
-  
+  }
+  return DarkComponent;
 };
 
 export const WalletMap = (type: SignerType, light = false) => {
@@ -61,7 +60,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.secondaryText">
             Another Keeper App
           </Text>
         ),
@@ -82,7 +81,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<MOBILEKEYLIGHT />, <MOBILEKEY />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.secondaryText">
             Mobile Key
           </Text>
         ),
@@ -98,7 +97,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SERVERLIGHT />, <SERVER />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.secondaryText">
             Signing Server
           </Text>
         ),
@@ -126,7 +125,7 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
-          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.lightBlack2">
+          <Text letterSpacing={1.5} fontWeight={200} fontSize={14} color="light.secondaryText">
             Soft Key
           </Text>
         ),

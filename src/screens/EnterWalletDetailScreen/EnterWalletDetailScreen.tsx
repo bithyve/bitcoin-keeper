@@ -2,7 +2,6 @@ import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Text } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
@@ -20,8 +19,8 @@ function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {wallet} = translations;
-  const {common} = translations;
+  const { wallet } = translations;
+  const { common } = translations;
 
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
@@ -52,7 +51,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.WalletName}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
@@ -63,7 +62,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.SinglesigWallet}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
@@ -76,7 +75,7 @@ function EnterWalletDetailScreen({ route }) {
           <Input
             placeholder={wallet.TransferPolicy}
             placeholderTextColor="light.greenText"
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             value={transferPolicy}
             onChangeText={(value) => setTransferPolicy(value)}
             style={styles.inputField}
@@ -107,13 +106,13 @@ const styles = ScaledSheet.create({
     padding: '20@s',
   },
   addWalletText: {
-    fontSize: RFValue(22),
+    fontSize: 22,
     lineHeight: '20@s',
     letterSpacing: '0.7@s',
     marginTop: hp(5),
   },
   addWalletDescription: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
   },
@@ -122,7 +121,7 @@ const styles = ScaledSheet.create({
     color: '#073E39',
     marginVertical: 10,
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 0.96,
   },
 });

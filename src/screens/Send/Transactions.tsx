@@ -36,51 +36,51 @@ function Transactions({ transactions, addTransaction = () => {} }) {
     const { address, amount } = item;
     return (
       <Box
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ marginRight: wp(10) }}
-          flexDirection="row"
-          backgroundColor="light.lightYellow"
-          width={wp(215)}
-          height={hp(54)}
-          borderRadius={10}
-        >
-          <Box flexDirection="row">
-            <TouchableOpacity style={styles.buttonBackground}>
-              <IconWallet />
-            </TouchableOpacity>
-            <Box marginLeft={wp(10)}>
-              <Text
-                fontFamily="body"
-                fontWeight="200"
-                fontSize={14}
-                mt="1"
-                numberOfLines={1}
-                letterSpacing={1.12}
-                color="light.sendCardHeading"
-                width={wp(100)}
-              >
-                {address}
-              </Text>
-              <Text
-                fontFamily="body"
-                fontWeight="200"
-                fontStyle="italic"
-                fontSize={10}
-                numberOfLines={1}
-              >
-                {amount}
-              </Text>
-            </Box>
-          </Box>
-          <TouchableOpacity
-            style={{
-              marginRight: wp(5),
-            }}
-          >
-            <Close />
+        justifyContent="space-between"
+        alignItems="center"
+        style={{ marginRight: wp(10) }}
+        flexDirection="row"
+        backgroundColor="light.primaryBackground"
+        width={wp(215)}
+        height={hp(54)}
+        borderRadius={10}
+      >
+        <Box flexDirection="row">
+          <TouchableOpacity style={styles.buttonBackground}>
+            <IconWallet />
           </TouchableOpacity>
+          <Box marginLeft={wp(10)}>
+            <Text
+              fontFamily="body"
+              fontWeight="200"
+              fontSize={14}
+              mt="1"
+              numberOfLines={1}
+              letterSpacing={1.12}
+              color="light.sendCardHeading"
+              width={wp(100)}
+            >
+              {address}
+            </Text>
+            <Text
+              fontFamily="body"
+              fontWeight="200"
+              fontStyle="italic"
+              fontSize={10}
+              numberOfLines={1}
+            >
+              {amount}
+            </Text>
+          </Box>
         </Box>
+        <TouchableOpacity
+          style={{
+            marginRight: wp(5),
+          }}
+        >
+          <Close />
+        </TouchableOpacity>
+      </Box>
     );
   };
   return (

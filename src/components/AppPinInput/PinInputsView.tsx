@@ -4,7 +4,6 @@ import { StyleSheet, View } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import DotView from 'src/components/DotView';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 export interface Props {
   passCode?: string;
@@ -32,38 +31,33 @@ function PinInputsView({
     }
   }, [passCode]);
 
-  const getBackgroundColor = () => backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
+  const getBackgroundColor = () =>
+    backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
 
-  const getTextColor = () => textColor ? 'light.textBlack' : 'light.white'
+  const getTextColor = () => (textColor ? 'light.textBlack' : 'light.white');
 
-  const getDotColor = () => textColor ? 'black' : 'white'
+  const getDotColor = () => (textColor ? 'black' : 'white');
 
   const getPin = (num: number) => {
     if (passCode.length == num && !hide) {
       return (
-        <Text
-          color={getTextColor()}
-          fontWeight="300"
-          fontSize={RFValue(20)}
-          fontFamily="body"
-        >
+        <Text color={getTextColor()} fontWeight="300" fontSize={20} fontFamily="body">
           {passCode[num - 1]}
         </Text>
-      )
-    } if (passCode.length >= num) {
-      return (
-        <DotView height={3} width={3} color={getDotColor()} />
-      )
-    } if (passCode.length == num - 1) {
+      );
+    }
+    if (passCode.length >= num) {
+      return <DotView height={3} width={3} color={getDotColor()} />;
+    }
+    if (passCode.length == num - 1) {
       return (
         <Text color={getTextColor()} style={styles.cursorText}>
           |
         </Text>
-      )
-    } 
-      return '';
-    
-  }
+      );
+    }
+    return '';
+  };
 
   return (
     <Box style={styles.container}>
@@ -74,9 +68,7 @@ function PinInputsView({
           borderColor,
         }}
       >
-        <Box>
-          {getPin(1)}
-        </Box>
+        <Box>{getPin(1)}</Box>
       </View>
       <View
         style={{
@@ -85,9 +77,7 @@ function PinInputsView({
           borderColor,
         }}
       >
-        <Box>
-          {getPin(2)}
-        </Box>
+        <Box>{getPin(2)}</Box>
       </View>
       <View
         style={{
@@ -96,9 +86,7 @@ function PinInputsView({
           borderColor,
         }}
       >
-        <Box>
-          {getPin(3)}
-        </Box>
+        <Box>{getPin(3)}</Box>
       </View>
       <View
         style={{
@@ -107,9 +95,7 @@ function PinInputsView({
           borderColor,
         }}
       >
-        <Box>
-          {getPin(4)}
-        </Box>
+        <Box>{getPin(4)}</Box>
       </View>
     </Box>
   );
@@ -121,7 +107,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(25),
     flexDirection: 'row',
     width: 'auto',
-    alignSelf: 'baseline'
+    alignSelf: 'baseline',
   },
   passcodeBox: {
     marginLeft: wp(15),
@@ -134,7 +120,7 @@ const styles = StyleSheet.create({
   },
   cursorText: {
     fontWeight: '600',
-    fontSize: RFValue(13),
+    fontSize: 13,
   },
 });
 export default PinInputsView;

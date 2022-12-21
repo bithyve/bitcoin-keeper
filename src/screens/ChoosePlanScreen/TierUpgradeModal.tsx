@@ -13,7 +13,7 @@ function Content({ isUpgrade }) {
       </Box>
       <Box marginTop={hp(40)}>
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontSize={11}
           fontFamily="body"
           fontWeight="200"
@@ -41,7 +41,6 @@ function TierUpgradeModal({ visible, close, onPress, isUpgrade, plan }) {
           : `You have successfully downgraded to ${plan}`
       }
       subTitleColor="#5F6965"
-      modalBackground={['#F7F2EC', '#F7F2EC']}
       buttonBackground={['#00836A', '#073E39']}
       buttonText={isUpgrade ? 'Add now' : 'Remove now'}
       buttonTextColor="#FAFAFA"

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'native-base';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -14,7 +13,7 @@ export interface Props {
   passcodeFlag?: boolean;
   backgroundColor?: boolean;
   textColor?: boolean;
-  length?: number
+  length?: number;
 }
 function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, length = 6 }: Props) {
   const [hide, setHide] = useState(false);
@@ -29,38 +28,29 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
     }
   }, [passCode]);
 
-  const getBackgroundColor = () => backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)'
+  const getBackgroundColor = () =>
+    backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
 
-  const getTextColor = () => textColor ? 'light.textBlack' : 'light.white'
+  const getTextColor = () => (textColor ? 'light.textBlack' : 'light.white');
 
-  const getDotColor = () => textColor ? 'black' : 'white'
+  const getDotColor = () => (textColor ? 'black' : 'white');
 
   const getPin = (num: number) => {
     if (passCode.length == num && !hide) {
       return (
-        <Text
-          color={getTextColor()}
-          fontWeight="300"
-          fontSize={RFValue(20)}
-          fontFamily="body"
-        >
+        <Text color={getTextColor()} fontWeight="300" fontSize={20} fontFamily="body">
           {passCode[num - 1]}
         </Text>
-      )
-    } if (passCode.length >= num) {
-      return (
-        <DotView height={3} width={3} color={getDotColor()} />
-      )
-    } if (passCode.length == num - 1) {
-      return (
-        <Text color={getTextColor()}>
-          |
-        </Text>
-      )
-    } 
-      return '';
-    
-  }
+      );
+    }
+    if (passCode.length >= num) {
+      return <DotView height={3} width={3} color={getDotColor()} />;
+    }
+    if (passCode.length == num - 1) {
+      return <Text color={getTextColor()}>|</Text>;
+    }
+    return '';
+  };
 
   return (
     <Box alignSelf="baseline">
@@ -74,9 +64,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
-          <Box>
-            {getPin(1)}
-          </Box>
+          <Box>{getPin(1)}</Box>
         </Box>
         <Box
           height={wp('9%')}
@@ -87,9 +75,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
-          <Box>
-            {getPin(2)}
-          </Box>
+          <Box>{getPin(2)}</Box>
         </Box>
         <Box
           height={wp('9%')}
@@ -100,9 +86,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
-          <Box>
-            {getPin(3)}
-          </Box>
+          <Box>{getPin(3)}</Box>
         </Box>
         <Box
           height={wp('9%')}
@@ -113,11 +97,9 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           justifyContent="center"
           backgroundColor={getBackgroundColor()}
         >
-          <Box>
-            {getPin(4)}
-          </Box>
+          <Box>{getPin(4)}</Box>
         </Box>
-        {length === 6 &&
+        {length === 6 && (
           <>
             <Box
               height={wp('9%')}
@@ -128,9 +110,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
               justifyContent="center"
               backgroundColor={getBackgroundColor()}
             >
-              <Box>
-                {getPin(5)}
-              </Box>
+              <Box>{getPin(5)}</Box>
             </Box>
             <Box
               height={wp('9%')}
@@ -141,12 +121,10 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
               justifyContent="center"
               backgroundColor={getBackgroundColor()}
             >
-              <Box>
-                {getPin(6)}
-              </Box>
+              <Box>{getPin(6)}</Box>
             </Box>
           </>
-        }
+        )}
       </Box>
     </Box>
   );

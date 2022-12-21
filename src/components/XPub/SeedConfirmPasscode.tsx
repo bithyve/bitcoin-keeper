@@ -3,7 +3,6 @@ import { Box } from 'native-base';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { increasePinFailAttempts } from 'src/store/reducers/storage';
 import { credsAuthenticated } from 'src/store/reducers/login';
@@ -90,12 +89,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallets }) {
     <Box borderRadius={10}>
       <Box>
         {/* pin input view */}
-        <PinInputsView
-          passCode={passcode}
-          passcodeFlag={passcodeFlag}
-          backgroundColor
-          textColor
-        />
+        <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
         {passcode.length == 4 && (
           <Buttons
@@ -113,7 +107,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallets }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="light.lightBlack"
+          keyColor="light.primaryText"
           ClearIcon={<DeleteIcon />}
         />
       </Box>

@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { FlatList, Box, Text, ScrollView } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import moment from 'moment';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -25,7 +24,7 @@ import Buttons from '../Buttons';
 
 function BackupHealthCheckList() {
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
+  const { common } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
   const { useQuery } = useContext(RealmWrapperContext);
@@ -77,7 +76,7 @@ function BackupHealthCheckList() {
               </Box>
               <Text
                 color="light.GreyText"
-                fontSize={RFValue(10)}
+                fontSize={10}
                 fontWeight="300"
                 ml={5}
                 opacity={0.7}
@@ -86,7 +85,7 @@ function BackupHealthCheckList() {
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
               <Box
-                bg="light.lightYellow"
+                bg="light.primaryBackground"
                 p={5}
                 borderRadius={1}
                 my={2}
@@ -98,7 +97,7 @@ function BackupHealthCheckList() {
               >
                 <Text
                   color="light.headerText"
-                  fontSize={RFValue(14)}
+                  fontSize={14}
                   fontFamily="heading"
                   fontWeight={200}
                   letterSpacing={1}
@@ -108,7 +107,7 @@ function BackupHealthCheckList() {
                 {item.subtitle !== '' && (
                   <Text
                     color="light.GreyText"
-                    fontSize={RFValue(12)}
+                    fontSize={12}
                     fontFamily="body"
                     fontWeight={200}
                     letterSpacing={0.6}
@@ -124,10 +123,7 @@ function BackupHealthCheckList() {
       </ScrollView>
 
       <Box alignItems="flex-start">
-        <Buttons
-          primaryText={common.confirm}
-          primaryCallback={onPressConfirm}
-        />
+        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
       </Box>
 
       <ModalWrapper
