@@ -32,9 +32,9 @@ function SetupSeedWordSigner({ route, navigation }) {
         }}
       >
         <Box
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           flexDirection="row"
-          justifyContent={'space-evenly'}
+          justifyContent="space-evenly"
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -56,7 +56,7 @@ function SetupSeedWordSigner({ route, navigation }) {
             fontWeight={200}
             backgroundColor="green.700"
             letterSpacing={1}
-            color="light.seedText"
+            color="light.GreyText"
           >
             {showWordIndex === index ? item : '******'}
           </Text>

@@ -11,7 +11,6 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/icons/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { RFValue } from 'react-native-responsive-fontsize';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
@@ -139,7 +138,7 @@ function AppSettings({ navigation }) {
         flexDirection="row"
         alignItems="center"
         onPress={onPress}
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         style={styles.appBackupWrapper}
       >
         {Icon && (
@@ -148,7 +147,7 @@ function AppSettings({ navigation }) {
             {backupMethod === null && (
               <Box
                 bg="light.indicator"
-                borderColor="light.white1"
+                borderColor="light.white"
                 style={styles.notificationIndicator}
               />
             )}
@@ -156,7 +155,7 @@ function AppSettings({ navigation }) {
           </Box>
         )}
         <Box style={{ marginLeft: wp(20) }}>
-          <Text color="light.lightBlack" fontFamily="body" style={styles.appBackupTitle}>
+          <Text color="light.primaryText" fontFamily="body" style={styles.appBackupTitle}>
             {title}
           </Text>
           <Text color="light.GreyText" fontFamily="body" style={styles.appBackupSubTitle}>
@@ -262,7 +261,7 @@ function AppSettings({ navigation }) {
         <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.ReceiveBackground">
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.lightYellow">
+              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
@@ -281,7 +280,7 @@ function AppSettings({ navigation }) {
               </Box>
             </Pressable>
             <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.lightYellow">
+              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
@@ -302,7 +301,7 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} bg="light.lightYellow">
+            <Box style={styles.bottomLinkWrapper} bg="light.primaryBackground">
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text
                   style={styles.bottomLinkText}
@@ -370,12 +369,12 @@ const styles = StyleSheet.create({
   },
   appBackupTitle: {
     fontWeight: '400',
-    fontSize: RFValue(14),
+    fontSize: 14,
     letterSpacing: 1.12,
   },
   appBackupSubTitle: {
     fontWeight: '400',
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
   },
   appSettingTitleWrapper: {
@@ -386,12 +385,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   appSettingTitle: {
-    fontSize: RFValue(18),
+    fontSize: 18,
     fontWeight: '400',
     letterSpacing: 1,
   },
   appSettingSubTitle: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     fontWeight: '300',
     letterSpacing: 0.6,
   },
@@ -422,7 +421,7 @@ const styles = StyleSheet.create({
   },
   telTweetLinkTitle: {
     fontWeight: '400',
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 0.79,
   },
   telTweetLinkWrapper2: {

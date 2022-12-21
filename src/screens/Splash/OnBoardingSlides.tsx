@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { Box, Text, StatusBar } from 'native-base';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 
 import openLink from 'src/utils/OpenLink';
@@ -103,7 +102,7 @@ function OnBoardingSlides({ navigation }) {
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
                 <Text
-                  fontSize={RFValue(14)}
+                  fontSize={14}
                   color="light.white"
                   fontFamily="heading"
                   fontWeight={300}
@@ -153,7 +152,7 @@ function OnBoardingSlides({ navigation }) {
             <Box w="70%">
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
-                  borderColor="light.borderColor2"
+                  borderColor="light.lightAccent"
                   borderWidth={0.7}
                   borderRadius={30}
                   w={120}
@@ -163,7 +162,7 @@ function OnBoardingSlides({ navigation }) {
                     height: hp(40),
                   }}
                 >
-                  <Text color="light.borderColor2" fontSize={RFValue(14)} fontWeight={300}>
+                  <Text color="light.lightAccent" fontSize={14} fontWeight={300}>
                     {common.seeFAQs}
                   </Text>
                 </Box>

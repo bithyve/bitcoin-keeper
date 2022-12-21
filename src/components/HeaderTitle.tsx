@@ -1,7 +1,6 @@
 import { Box, Text } from 'native-base';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
@@ -43,11 +42,11 @@ function HeaderTitle({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
-                borderColor="light.brownborder"
-                backgroundColor="light.yellow2"
+                borderColor="light.learnMoreBorder"
+                backgroundColor="light.lightAccent"
                 style={styles.learnMoreContainer}
               >
-                <Text color="light.brownborder" fontWeight={200} style={styles.learnMoreText}>
+                <Text color="light.learnMoreBorder" fontWeight={200} style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>
@@ -67,13 +66,13 @@ function HeaderTitle({
               numberOfLines={1}
               style={styles.addWalletText}
               color={headerTitleColor}
-              fontSize={RFValue(titleFontSize)}
+              fontSize={titleFontSize}
             >
               {title}
             </Text>
           )}
           {subtitle && (
-            <Text style={styles.addWalletDescription} color="light.lightBlack">
+            <Text style={styles.addWalletDescription} color="light.primaryText">
               {subtitle}
             </Text>
           )}
@@ -93,7 +92,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: '20@s',
   },
   addWalletDescription: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
     paddingHorizontal: '20@s',

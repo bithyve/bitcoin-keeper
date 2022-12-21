@@ -58,7 +58,7 @@ function VaultTransactions({ route }) {
             <Text fontWeight={200} fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
             </Text>
-            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color="light.modalText">
+            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color="light.greenText">
               {subtitle}
             </Text>
           </Box>

@@ -95,11 +95,11 @@ function ReceiveScreen({ route }: { route }) {
           navigtaion.navigate('AddAmount', { wallet });
         }}
       >
-        <Box style={styles.addAmountWrapper01} backgroundColor="light.lightYellow">
+        <Box style={styles.addAmountWrapper01} backgroundColor="light.primaryBackground">
           <Box flexDirection="row">
             <BtcGreen />
             <Box flexDirection="column" marginLeft={5}>
-              <Text color="light.lightBlack" fontFamily="body" style={styles.addAmountText}>
+              <Text color="light.primaryText" fontFamily="body" style={styles.addAmountText}>
                 {home.AddAmount}
               </Text>
               <Text color="light.GreyText" fontFamily="body" style={styles.addAmountSubTitleText}>

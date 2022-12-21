@@ -81,13 +81,14 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             alignItems: 'center',
             marginHorizontal: 10,
             marginBottom: hp(25),
-          }}>
+          }}
+        >
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
               <VStack marginX="4" maxW="64">
                 <Text
-                  color="light.lightBlack"
+                  color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
@@ -110,9 +111,10 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   }
   const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
   let shouldReconfigure = false;
-  if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
-    shouldReconfigure = true;
-  } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+  if (
+    (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
+    (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
+  ) {
     shouldReconfigure = true;
   }
   return (
@@ -121,7 +123,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
         flexDirection: 'row',
         alignItems: 'center',
         marginHorizontal: 10,
-        marginBottom: hp(windowHeight < 700 ? 5 : 25)
+        marginBottom: hp(windowHeight < 700 ? 5 : 25),
       }}
     >
       <HStack style={styles.signerItem}>
@@ -139,14 +141,16 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </Box>
           <VStack marginX="4" maxW="80%">
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={15}
-              numberOfLines={2}
+              numberOfLines={1}
               alignItems="center"
               fontWeight={200}
               letterSpacing={1.12}
+              maxWidth={width * 0.5}
             >
-              {`${signer.signerName} (${signer.xpubInfo.xfp})`}
+              {`${signer.signerName}`}
+              <Text fontSize={12}>{` (${signer.xpubInfo.xfp})`}</Text>
             </Text>
             <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
@@ -160,7 +164,6 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                   fontWeight={signer.signerDescription ? 200 : 300}
                   letterSpacing={0.6}
                   fontStyle={signer.signerDescription ? null : 'italic'}
-                  maxWidth={width * 0.6}
                 >
                   {signer.signerDescription ? signer.signerDescription : 'Add Description'}
                 </Text>
@@ -283,9 +286,10 @@ function AddSigningDevice() {
       if (signer.signerName.includes('*') && !signer.signerName.includes('**'))
         amfSigners.push(signer.type);
       const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
-      if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
-        misMatchedSigners.push(signer.xpubInfo.xfp);
-      } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+      if (
+        (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
+        (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
+      ) {
         misMatchedSigners.push(signer.xpubInfo.xfp);
       }
     }
@@ -319,7 +323,6 @@ function AddSigningDevice() {
         extraData={vaultSigners}
         data={signersState}
         keyExtractor={(item, index) => item?.signerId ?? index}
-        scrollEnabled={false}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
@@ -377,10 +380,9 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     width: windowWidth,
-    position: 'absolute',
     bottom: 20,
     right: 20,
-    paddingLeft: 40,
+    padding: 20,
   },
   noteContainer: {
     width: wp(330),

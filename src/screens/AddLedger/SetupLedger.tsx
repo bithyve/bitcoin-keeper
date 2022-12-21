@@ -173,7 +173,6 @@ function AddLedger() {
         close={close}
         title={ledger.ScanningBT}
         subTitle={ledger.KeepLedgerReady}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         textColor="#041513"
         Content={LedgerSetupContent}

@@ -3,7 +3,6 @@ import { Box, Text, ScrollView, StatusBar } from 'native-base';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import BackIcon from 'src/assets/icons/back.svg';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
@@ -48,7 +47,7 @@ const styles = StyleSheet.create({
   versionHistoryTitle: {
     fontWeight: '300',
     letterSpacing: 1,
-    fontSize: RFValue(16),
+    fontSize: 16,
     paddingLeft: 7,
   },
 });

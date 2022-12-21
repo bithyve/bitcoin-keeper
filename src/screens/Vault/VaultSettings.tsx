@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Box, Text, Pressable } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 
@@ -42,10 +41,10 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
       )}
       <Box w={Icon ? '80%' : '96%'}>
         <Text
-          color="light.lightBlack"
+          color="light.primaryText"
           fontFamily="body"
           fontWeight={200}
-          fontSize={RFValue(14)}
+          fontSize={14}
           letterSpacing={1.12}
         >
           {title}
@@ -54,7 +53,7 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
           color="light.GreyText"
           fontFamily="body"
           fontWeight={200}
-          fontSize={RFValue(12)}
+          fontSize={12}
           letterSpacing={0.6}
         >
           {subTitle}
@@ -106,20 +105,10 @@ function VaultSettings({ route }) {
           }}
         >
           <Box>
-            <Text
-              color="light.white"
-              letterSpacing={0.28}
-              fontSize={RFValue(14)}
-              fontWeight={200}
-            >
+            <Text color="light.white" letterSpacing={0.28} fontSize={14} fontWeight={200}>
               {vaultName}
             </Text>
-            <Text
-              color="light.white"
-              letterSpacing={0.24}
-              fontSize={RFValue(12)}
-              fontWeight={100}
-            >
+            <Text color="light.white" letterSpacing={0.24} fontSize={12} fontWeight={100}>
               {vaultDescription}
             </Text>
           </Box>
@@ -167,13 +156,13 @@ function VaultSettings({ route }) {
         <Option
           title="Generate Descriptors"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => { }}
+          onPress={() => {}}
           Icon={false}
         />
         <Option
           title="Consectetur"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => { }}
+          onPress={() => {}}
           Icon={false}
         />
         <Option
