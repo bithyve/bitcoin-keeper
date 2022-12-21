@@ -1,5 +1,7 @@
 import Colors from 'src/theme/Colors';
-import { extendTheme } from 'native-base';
+import {
+  extendTheme
+} from 'native-base';
 import Fonts from './Fonts';
 
 export const customTheme = extendTheme({
@@ -121,7 +123,9 @@ export const customTheme = extendTheme({
         _light: {
           color: 'light.lightBlack',
         },
-        _dark: { color: 'dark.black' },
+        _dark: {
+          color: 'dark.black'
+        },
       }),
     },
   },
