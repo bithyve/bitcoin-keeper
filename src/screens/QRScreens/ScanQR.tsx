@@ -60,7 +60,12 @@ function ScanQR() {
         subtitle={subtitle}
       />
       <Box style={styles.qrcontainer}>
-        <RNCamera style={styles.cameraView} captureAudio={false} onBarCodeRead={onBarCodeRead} />
+        <RNCamera
+          style={styles.cameraView}
+          captureAudio={false}
+          onBarCodeRead={onBarCodeRead}
+          useNativeZoom
+        />
       </Box>
       <HStack>
         {qrPercent !== 100 && <ActivityIndicator />}
