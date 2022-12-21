@@ -22,7 +22,6 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
@@ -393,16 +392,19 @@ const setupSeedSigner = (qrData, isMultisig) => {
   throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupKeystone = (qrData) => {
-  const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-  const keystone: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.KEYSTONE,
-    storageType: SignerStorage.COLD,
-  });
-  return keystone;
+const setupKeystone = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getKeystoneDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const keystone: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.KEYSTONE,
+      storageType: SignerStorage.COLD,
+    });
+    return keystone;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const setupJade = (qrData) => {
@@ -572,7 +574,7 @@ function HardwareModalMap({ type, visible, close }) {
           hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
-          hw = setupKeystone(qrData);
+          hw = setupKeystone(qrData, isMultisig);
           break;
         case SignerType.JADE:
           hw = setupJade(qrData);
