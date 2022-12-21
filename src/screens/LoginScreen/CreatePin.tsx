@@ -13,7 +13,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
@@ -155,7 +154,7 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text style={styles.welcomeText} color="light.textLight" fontFamily="heading">
+              <Text style={styles.welcomeText} color="light.white" fontFamily="heading">
                 {login.welcome}
               </Text>
               <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
@@ -199,7 +198,7 @@ export default function CreatePin(props) {
                   )}
                 </Box>
                 <HStack justifyContent="space-between" paddingTop="7">
-                  <Text color="light.white1" style={styles.bitcoinTestnetText}>
+                  <Text color="light.white" style={styles.bitcoinTestnetText}>
                     Use bitcoin testnet
                   </Text>
                   <Switch
@@ -227,7 +226,7 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.lightBlack'}
+            // keyColor={'light.primaryText'}
             // ClearIcon={<DeleteIcon />}
           />
         </Box>
@@ -246,14 +245,14 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     marginLeft: 18,
-    fontSize: RFValue(22),
+    fontSize: 22,
   },
   labelText: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     marginLeft: 18,
   },
   errorText: {
-    fontSize: RFValue(10),
+    fontSize: 10,
     fontWeight: '400',
     width: wp('68%'),
     textAlign: 'right',

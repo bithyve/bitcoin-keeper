@@ -58,7 +58,7 @@ function SetupSuccessfully() {
       </Box>
       <Box marginTop={hp(0)}>
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontSize={13}
           fontFamily="body"
           fontWeight="200"
@@ -74,16 +74,9 @@ function SetupSuccessfully() {
 
 export function BulletPoint({ text }) {
   return (
-    <Box
-      style={styles.bulletContainer}>
-      <Box
-        backgroundColor="light.modalText"
-        style={styles.bulletPoint}
-      />
-      <Text
-        color="light.modalText"
-        style={styles.bullerPointText}
-      >
+    <Box style={styles.bulletContainer}>
+      <Box backgroundColor="light.greenText" style={styles.bulletPoint} />
+      <Text color="light.greenText" style={styles.bullerPointText}>
         {text}
       </Text>
     </Box>
@@ -159,8 +152,9 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-    } > QR Code.\n`;
+  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > QR Code.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -195,8 +189,9 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-    } > Native Segwit > Keeper.\n`;
+  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > Native Segwit > Keeper.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -268,8 +263,9 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-    } and Native Segwit in the options section.\n`;
+  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+    isMultisig ? 'MultiSig' : 'SingleSig'
+  } and Native Segwit in the options section.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -623,7 +619,7 @@ function HardwareModalMap({ type, visible, close }) {
             fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
-            color="light.modalText"
+            color="light.greenText"
             marginTop={2}
           >
             The app will use the Mobile Key to sign on entering the correct Passcode
@@ -648,7 +644,7 @@ function HardwareModalMap({ type, visible, close }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.lightBlack"
+          keyColor="light.primaryText"
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -662,7 +658,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={tapsigner.SetupTitle}
         subTitle={tapsigner.SetupDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -675,7 +670,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={coldcard.SetupTitle}
         subTitle={coldcard.SetupDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -688,7 +682,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={ledger.SetupTitle}
         subTitle={ledger.SetupDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -701,7 +694,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up a Signing Server"
         subTitle="A Signing Server will hold one of the keys in the vault"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -714,7 +706,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Set up a Mobile Key"
         subTitle="This key available for signing transactions if you confirm your passcode or biometrics"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -732,7 +723,6 @@ function HardwareModalMap({ type, visible, close }) {
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#041513"
         Content={PasswordEnter}
       />
@@ -741,7 +731,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Keep your Soft Signer ready"
         subTitle="This is the twelve word Recovery Phrase you would have noted down when creating the vault"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -755,7 +744,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Signing Server Setup Successfully"
         subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="View Vault"
         buttonTextColor="#FAFAFA"
@@ -771,7 +759,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up Passport (Batch 2)"
         subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -785,7 +772,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up SeedSigner"
         subTitle="Keep your SeedSigner ready and powered before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -799,7 +785,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up Keystone"
         subTitle="Keep your Keystone ready before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -813,7 +798,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up Blockstream Jade"
         subTitle="Keep your Jade ready and unlocked before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -827,7 +811,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Keep your Device Ready"
         subTitle="Keep your Keeper Signing Device ready before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -842,19 +825,19 @@ const styles = StyleSheet.create({
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
   bulletPoint: {
     marginRight: wp(5),
     height: hp(5),
     width: hp(5),
     borderRadius: 10,
-    top: 12
+    top: 12,
   },
   bullerPointText: {
     letterSpacing: 1,
     padding: 3,
-    fontSize: 13
-  }
-})
+    fontSize: 13,
+  },
+});
 export default HardwareModalMap;

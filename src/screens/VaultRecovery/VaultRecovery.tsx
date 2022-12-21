@@ -32,7 +32,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
               <AddIcon />
               <VStack marginX="4" maxW="64">
                 <Text
-                  color="light.lightBlack"
+                  color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
@@ -71,7 +71,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
           </Box>
           <VStack marginX="4" maxW="80%">
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={15}
               numberOfLines={2}
               alignItems="center"
@@ -132,15 +132,17 @@ function VaultRecovery() {
   }, [appId]);
 
   function SuccessModalContent() {
-  return <View>
-      <Box alignSelf="center">
-        <SuccessSvg />
-      </Box>
-      <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
-        The BIP-85 wallets in the app are new as they can’t be recovered using this method
-      </Text>
-    </View>
-}
+    return (
+      <View>
+        <Box alignSelf="center">
+          <SuccessSvg />
+        </Box>
+        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+          The BIP-85 wallets in the app are new as they can’t be recovered using this method
+        </Text>
+      </View>
+    );
+  }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   const navigation = useNavigation();

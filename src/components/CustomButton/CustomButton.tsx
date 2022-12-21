@@ -1,7 +1,6 @@
 import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
-import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { Text } from 'native-base';
 
@@ -44,7 +43,7 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
         colors={['#00836A', '#FFFFFF']}
         style={styles.linearGradient}
       >
-        <Text color="#073E39" fontSize={RFValue(12)} fontWeight="300" fontFamily="body">
+        <Text color="#073E39" fontSize={12} fontWeight="300" fontFamily="body">
           {value}
         </Text>
       </LinearGradient>

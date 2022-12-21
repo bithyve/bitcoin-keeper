@@ -328,7 +328,7 @@ function SignersList() {
       <>
         <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
           <Box
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
@@ -371,7 +371,6 @@ function SignersList() {
           close={close}
           title="Verify TAPSIGNER"
           subTitle="Keep your TAPSIGNER ready"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Verify"
           buttonTextColor="#FAFAFA"
@@ -387,7 +386,6 @@ function SignersList() {
           close={close}
           title="Verify Coldcard"
           subTitle="Keep your Coldcard ready"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Proceed"
           buttonTextColor="#FAFAFA"
@@ -404,7 +402,6 @@ function SignersList() {
           title="Setting up Passport (Batch 2)"
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Continue"
           buttonTextColor="#FAFAFA"
@@ -418,7 +415,6 @@ function SignersList() {
           title="Setting up SeedSigner"
           subTitle="Keep your SeedSigner ready and powered before proceeding"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Continue"
           buttonTextColor="#FAFAFA"
@@ -432,7 +428,6 @@ function SignersList() {
           title="Setting up Keystone"
           subTitle="Keep your Keystone ready before proceeding"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Continue"
           buttonTextColor="#FAFAFA"
@@ -446,7 +441,6 @@ function SignersList() {
           title="Setting up Blockstream Jade"
           subTitle="Keep your Jade ready and unlocked before proceeding"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Continue"
           buttonTextColor="#FAFAFA"

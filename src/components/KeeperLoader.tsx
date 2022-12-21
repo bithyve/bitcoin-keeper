@@ -13,7 +13,7 @@ function KeeperLoader(props) {
     close,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     textColor = '#000',
-    subTitleColor = 'light.lightBlack2',
+    subTitleColor = 'light.secondaryText',
     loadingContent,
     Content = () => (
       <Box>
@@ -27,7 +27,7 @@ function KeeperLoader(props) {
           }}
         />
         <Text
-          color="light.modalText"
+          color="light.greenText"
           fontWeight={200}
           fontSize={13}
           letterSpacing={0.65}

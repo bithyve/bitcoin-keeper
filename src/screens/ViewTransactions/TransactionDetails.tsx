@@ -22,7 +22,7 @@ function TransactionDetails({ route }) {
   function InfoCard({ title, describtion, width = 320 }) {
     return (
       <Box
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         style={{
           height: hp(65),
           width: wp(width),

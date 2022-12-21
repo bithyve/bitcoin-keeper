@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Text, Pressable } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { updateUaiStack } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
-import { NextIcon } from './HomeScreen';
 import { StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
+import { NextIcon } from './HomeScreen';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState({});
@@ -106,12 +105,8 @@ function UaiDisplay({ uaiStack }) {
   if (uaiStack.length > 0) {
     return (
       <>
-        <Pressable
-          backgroundColor={'light.AddSignerCard'}
-          onPress={pressHandler}
-          style={styles.container}
-        >
-          <Text noOfLines={2} color="light.white1" style={styles.uaiTitle}>
+        <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
+          <Text noOfLines={2} color="light.white" style={styles.uaiTitle}>
             {uai?.title}
           </Text>
           <NextIcon pressHandler={pressHandler} />
@@ -121,7 +116,6 @@ function UaiDisplay({ uaiStack }) {
           close={() => setShowModal(false)}
           title={uaiConfig?.modalDetails?.heading}
           subTitle={uaiConfig?.modalDetails?.subTitle}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
           buttonTextColor="#FAFAFA"
@@ -149,7 +143,7 @@ const styles = StyleSheet.create({
   uaiTitle: {
     width: wp(170),
     letterSpacing: 0.6,
-    fontSize: RFValue(12),
+    fontSize: 12,
     lineHeight: 14,
   },
 });

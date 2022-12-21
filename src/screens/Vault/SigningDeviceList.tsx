@@ -12,7 +12,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -178,7 +177,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
         >
           <Box
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
@@ -210,7 +209,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
         fontWeight={200}
         letterSpacing={0.65}
         width={wp(260)}
-        color="light.modalText"
+        color="light.greenText"
         marginY={4}
       >
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
@@ -223,7 +222,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        headerTitleColor="light.headerTextTwo"
+        headerTitleColor="light.textBlack"
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
@@ -253,7 +252,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   />
                 );
               })}
-              <Text color="light.lightBlack" style={styles.contactUsText}>
+              <Text color="light.primaryText" style={styles.contactUsText}>
                 {vault.VaultInfo}{' '}
                 <Text fontStyle="italic" fontWeight="bold">
                   Contact Us
@@ -269,7 +268,6 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
           title="NFC Not supported"
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="  CTA  "
           buttonTextColor="#FAFAFA"
@@ -316,7 +314,7 @@ const styles = StyleSheet.create({
     height: windowHeight > 800 ? '90%' : '85%',
   },
   contactUsText: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
     fontWeight: '200',
     width: wp(300),

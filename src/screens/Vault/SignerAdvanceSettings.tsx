@@ -75,7 +75,7 @@ function SignerAdvanceSettings({ route }: any) {
         navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
         break;
       default:
-        showToast('Comming soon')
+        showToast('Comming soon');
         break;
     }
   };
@@ -126,10 +126,10 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={openDescriptionModal}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.lightBlack" fontSize={14} fontFamily="body" fontWeight="200">
+            <Text color="light.primaryText" fontSize={14} fontFamily="body" fontWeight="200">
               Edit Description
             </Text>
-            <Text color="light.lightBlack" fontSize={12} fontFamily="body" fontWeight="100">
+            <Text color="light.primaryText" fontSize={12} fontFamily="body" fontWeight="100">
               Short description to help you remember
             </Text>
           </VStack>
@@ -139,10 +139,10 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={registerSigner}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.lightBlack" fontSize={14} fontFamily="body" fontWeight="200">
+            <Text color="light.primaryText" fontSize={14} fontFamily="body" fontWeight="200">
               Manual Registration
             </Text>
-            <Text color="light.lightBlack" fontSize={12} fontFamily="body" fontWeight="100">
+            <Text color="light.primaryText" fontSize={12} fontFamily="body" fontWeight="100">
               {`Register your active vault with the ${signerName}.`}
             </Text>
           </VStack>
@@ -153,10 +153,10 @@ function SignerAdvanceSettings({ route }: any) {
         <TouchableOpacity onPress={changePolicy}>
           <HStack style={styles.item}>
             <VStack px={4} width="90%">
-              <Text color="light.lightBlack" fontSize={14} fontFamily="body" fontWeight="200">
+              <Text color="light.primaryText" fontSize={14} fontFamily="body" fontWeight="200">
                 Change Verification & Policy
               </Text>
-              <Text color="light.lightBlack" fontSize={12} fontFamily="body" fontWeight="100">
+              <Text color="light.primaryText" fontSize={12} fontFamily="body" fontWeight="100">
                 Restriction and threshold
               </Text>
             </VStack>
