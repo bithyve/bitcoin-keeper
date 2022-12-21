@@ -49,6 +49,7 @@ function SignerList({
                 fontWeight={200}
                 fontFamily="heading"
                 letterSpacing={1.12}
+                maxWidth={width * 0.6}
               >
                 {`${signer.signerName} (${signer.xpubInfo.xfp})`}
               </Text>

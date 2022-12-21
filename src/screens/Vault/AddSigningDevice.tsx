@@ -81,7 +81,8 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             alignItems: 'center',
             marginHorizontal: 10,
             marginBottom: hp(25),
-          }}>
+          }}
+        >
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
@@ -121,7 +122,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
         flexDirection: 'row',
         alignItems: 'center',
         marginHorizontal: 10,
-        marginBottom: hp(windowHeight < 700 ? 5 : 25)
+        marginBottom: hp(windowHeight < 700 ? 5 : 25),
       }}
     >
       <HStack style={styles.signerItem}>
@@ -141,12 +142,14 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             <Text
               color="light.lightBlack"
               fontSize={15}
-              numberOfLines={2}
+              numberOfLines={1}
               alignItems="center"
               fontWeight={200}
               letterSpacing={1.12}
+              maxWidth={width * 0.5}
             >
-              {`${signer.signerName} (${signer.xpubInfo.xfp})`}
+              {`${signer.signerName}`}
+              <Text fontSize={12}>{` (${signer.xpubInfo.xfp})`}</Text>
             </Text>
             <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
@@ -160,7 +163,6 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                   fontWeight={signer.signerDescription ? 200 : 300}
                   letterSpacing={0.6}
                   fontStyle={signer.signerDescription ? null : 'italic'}
-                  maxWidth={width * 0.6}
                 >
                   {signer.signerDescription ? signer.signerDescription : 'Add Description'}
                 </Text>
@@ -319,7 +321,6 @@ function AddSigningDevice() {
         extraData={vaultSigners}
         data={signersState}
         keyExtractor={(item, index) => item?.signerId ?? index}
-        scrollEnabled={false}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),
@@ -377,10 +378,9 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     width: windowWidth,
-    position: 'absolute',
     bottom: 20,
     right: 20,
-    paddingLeft: 40,
+    padding: 20,
   },
   noteContainer: {
     width: wp(330),
