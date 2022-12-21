@@ -1,14 +1,12 @@
+import React, { useContext, useState } from 'react';
 import * as bip39 from 'bip39';
-
 import { Alert, StyleSheet } from 'react-native';
 import { Box, Text, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -47,6 +45,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import * as SecureStore from '../../storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -74,16 +74,9 @@ function SetupSuccessfully() {
 
 export function BulletPoint({ text }) {
   return (
-    <Box
-      style={styles.bulletContainer}>
-      <Box
-        backgroundColor="light.modalText"
-        style={styles.bulletPoint}
-      />
-      <Text
-        color="light.modalText"
-        style={styles.bullerPointText}
-      >
+    <Box style={styles.bulletContainer}>
+      <Box backgroundColor="light.modalText" style={styles.bulletPoint} />
+      <Text color="light.modalText" style={styles.bullerPointText}>
         {text}
       </Text>
     </Box>
@@ -159,8 +152,9 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-    } > QR Code.\n`;
+  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > QR Code.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -195,8 +189,9 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-    } > Native Segwit > Keeper.\n`;
+  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > Native Segwit > Keeper.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -268,8 +263,9 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-    } and Native Segwit in the options section.\n`;
+  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+    isMultisig ? 'MultiSig' : 'SingleSig'
+  } and Native Segwit in the options section.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -496,6 +492,9 @@ function HardwareModalMap({ type, visible, close }) {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const appId = useAppSelector((state) => state.storage.appId);
+  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -588,6 +587,35 @@ function HardwareModalMap({ type, visible, close }) {
       captureError(error);
       Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    }
+  };
+
+  const biometricAuth = async () => {
+    if (loginMethod === LoginMethod.BIOMETRIC) {
+      try {
+        setTimeout(async () => {
+          const { success, signature } = await RNBiometrics.createSignature({
+            promptMessage: 'Authenticate',
+            payload: appId,
+            cancelButtonText: 'Use PIN',
+          });
+          if (success) {
+            const res = await SecureStore.verifyBiometricAuth(signature, appId);
+            if (res.success) {
+              const mobileKey = await setupMobileKey({ primaryMnemonic });
+              dispatch(addSigningDevice(mobileKey));
+              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+              showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
+            } else {
+              Alert.alert('Incorrect password. Try again!');
+            }
+          }
+        }, 200);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setPasswordModal(true);
     }
   };
 
@@ -721,7 +749,7 @@ function HardwareModalMap({ type, visible, close }) {
         buttonTextColor="#FAFAFA"
         buttonCallback={() => {
           close();
-          setPasswordModal(true);
+          biometricAuth();
         }}
         textColor="#041513"
         Content={SetUpMobileKey}
@@ -843,19 +871,19 @@ const styles = StyleSheet.create({
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
   bulletPoint: {
     marginRight: wp(5),
     height: hp(5),
     width: hp(5),
     borderRadius: 10,
-    top: 12
+    top: 12,
   },
   bullerPointText: {
     letterSpacing: 1,
     padding: 3,
-    fontSize: 13
-  }
-})
+    fontSize: 13,
+  },
+});
 export default HardwareModalMap;

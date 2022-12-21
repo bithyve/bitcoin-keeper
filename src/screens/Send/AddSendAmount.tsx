@@ -19,9 +19,9 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import WalletDetails from './WalletDetails';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import WalletDetails from './WalletDetails';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
