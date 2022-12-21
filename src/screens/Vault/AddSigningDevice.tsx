@@ -341,11 +341,10 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${
-                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(
-                ' and '
-              )}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+                } xPub\nPlease export ${misMatchedSigners.join(
+                  ' and '
+                )}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
@@ -357,6 +356,7 @@ function AddSigningDevice() {
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"
           secondaryCallback={navigation.goBack}
+          paddingHorizontal={wp(30)}
         />
       </Box>
     </ScreenWrapper>
@@ -378,9 +378,10 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     width: windowWidth,
-    bottom: 20,
+    bottom: 5,
     right: 20,
     padding: 20,
+    backgroundColor: '#F7F2EC',
   },
   noteContainer: {
     width: wp(330),
