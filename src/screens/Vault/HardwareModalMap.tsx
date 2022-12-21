@@ -407,16 +407,19 @@ const setupKeystone = (qrData, isMultisig) => {
   throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupJade = (qrData) => {
-  const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
-  const jade: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.JADE,
-    storageType: SignerStorage.COLD,
-  });
-  return jade;
+const setupJade = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getJadeDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const jade: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.JADE,
+      storageType: SignerStorage.COLD,
+    });
+    return jade;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const setupKeeperSigner = (qrData) => {
@@ -577,7 +580,7 @@ function HardwareModalMap({ type, visible, close }) {
           hw = setupKeystone(qrData, isMultisig);
           break;
         case SignerType.JADE:
-          hw = setupJade(qrData);
+          hw = setupJade(qrData, isMultisig);
           break;
         default:
           break;
