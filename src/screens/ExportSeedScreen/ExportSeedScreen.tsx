@@ -30,9 +30,6 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
 
-  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
-
-  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
   useEffect(() => {
     if (backupMethod !== null) {
