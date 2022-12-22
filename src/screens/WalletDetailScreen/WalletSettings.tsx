@@ -67,7 +67,7 @@ function WalletSettings({ route }) {
   const walletRoute: Wallet = route?.params?.wallet;
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-  const wallet = wallets.find((item) => item.id == walletRoute.id);
+  const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
@@ -274,7 +274,7 @@ function WalletSettings({ route }) {
               closeBottomSheet={() => {
                 setConfirmPassVisible(false);
               }}
-              wallets={wallets}
+              wallet={wallet}
               navigation={navigation}
             />
           )}
