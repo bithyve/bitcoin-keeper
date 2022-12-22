@@ -13,7 +13,7 @@ import moment from 'moment';
 import Text from 'src/components/KeeperText';
 
 function ListItem({ item, onPress }) {
-  const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
+  const IconName = Platform.OS === 'ios' ? <ICloud /> : <GoogleDrive />;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box flexDirection="row">

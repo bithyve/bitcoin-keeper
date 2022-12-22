@@ -49,7 +49,7 @@ function Buttons({
 
   return (
     <View style={styles.container}>
-      {secondaryText != '' && (
+      {secondaryText !== '' && (
         <TouchableOpacity
           style={[
             styles.cancelBtn,

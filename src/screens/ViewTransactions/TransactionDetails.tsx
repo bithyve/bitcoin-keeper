@@ -62,7 +62,7 @@ function TransactionDetails({ route }) {
           justifyContent="space-between"
         >
           <Box flexDirection="row">
-            {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSend />}
+            {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
             <Box
               style={{
                 marginLeft: wp(10),

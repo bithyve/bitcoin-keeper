@@ -586,12 +586,12 @@ function HardwareModalMap({ type, visible, close }) {
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpPasscode += text;
           setPassword(tmpPasscode);
         }
       }
-      if (password && text == 'x') {
+      if (password && text === 'x') {
         setPassword(password.slice(0, -1));
       }
     };

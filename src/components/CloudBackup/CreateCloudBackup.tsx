@@ -76,7 +76,7 @@ function CreateCloudBackup(props) {
           return (
             <Box
               key={index}
-              style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+              style={currentPosition===index ? styles.selectedDot : styles.unSelectedDot}
             />
           );
         })}

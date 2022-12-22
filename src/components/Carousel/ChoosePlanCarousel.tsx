@@ -40,7 +40,7 @@ function ChoosePlanCarousel(props) {
         <Box
           bg={{
             linearGradient: {
-              colors: currentPosition == index ? ['#00836A', '#073E39'] : ['#848484', '#848484'],
+              colors: currentPosition === index ? ['#00836A', '#073E39'] : ['#848484', '#848484'],
               start: [0, 0],
               end: [1, 1],
             },
@@ -48,8 +48,8 @@ function ChoosePlanCarousel(props) {
           style={[
             styles.wrapperView,
             {
-              width: wp(currentPosition == index ? 115 : 100),
-              height: hp(currentPosition == index ? 260 : 200),
+              width: wp(currentPosition === index ? 115 : 100),
+              height: hp(currentPosition === index ? 260 : 200),
             },
           ]}
         >
@@ -61,7 +61,7 @@ function ChoosePlanCarousel(props) {
                 </Text>
               </Box>
             )}
-            <Box my={15}>{currentPosition == index ? item.iconFocused : item.icon}</Box>
+            <Box my={15}>{currentPosition === index ? item.iconFocused : item.icon}</Box>
             <Text
               fontSize={13}
               bold
@@ -75,7 +75,7 @@ function ChoosePlanCarousel(props) {
             <Text fontSize={10} color="light.white" mb={2} letterSpacing={0.5}>
               {item.subTitle}
             </Text>
-            {currentPosition == index && subscription.productId !== item.productId ? (
+            {currentPosition === index && subscription.productId !== item.productId ? (
               <Box
                 style={{
                   marginTop: hp(30),

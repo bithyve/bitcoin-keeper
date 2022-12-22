@@ -35,32 +35,32 @@ export default function ResetPin(props) {
     let tmpConfirmPasscode = confirmPasscode;
     if (passcodeFlag) {
       if (passcode.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpPasscode += text;
           setPasscode(tmpPasscode);
         }
-      } else if (passcode.length == 4 && passcodeFlag) {
+      } else if (passcode.length === 4 && passcodeFlag) {
         setPasscodeFlag(false);
         setConfirmPasscodeFlag(1);
         setPasscode(passcode);
       }
-      if (passcode && text == 'x') {
+      if (passcode && text === 'x') {
         const passcodeTemp = passcode.slice(0, -1);
         setPasscode(passcodeTemp);
-        if (passcodeTemp.length == 0) {
+        if (passcodeTemp.length === 0) {
           setConfirmPasscodeFlag(0);
         }
       }
     } else if (confirmPasscodeFlag) {
       if (confirmPasscode.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpConfirmPasscode += text;
           setConfirmPasscode(tmpConfirmPasscode);
         }
       }
-      if (confirmPasscode && text == 'x') {
+      if (confirmPasscode && text === 'x') {
         setConfirmPasscode(confirmPasscode.slice(0, -1));
-      } else if (!confirmPasscode && text == 'x') {
+      } else if (!confirmPasscode && text === 'x') {
         setPasscodeFlag(true);
         setConfirmPasscodeFlag(0);
         setConfirmPasscode(confirmPasscode);
@@ -77,17 +77,17 @@ export default function ResetPin(props) {
   };
 
   useEffect(() => {
-    if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length == 4) {
+    if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length === 4) {
       setPasscodeFlag(false);
       setConfirmPasscodeFlag(2);
-    } else if (passcode.length == 4 && confirmPasscodeFlag != 2) {
+    } else if (passcode.length === 4 && confirmPasscodeFlag !== 2) {
       setPasscodeFlag(false);
       setConfirmPasscodeFlag(1);
     } else if (
       !confirmPasscode &&
       passcode.length > 0 &&
       passcode.length <= 4 &&
-      confirmPasscodeFlag == 2
+      confirmPasscodeFlag === 2
     ) {
       setPasscodeFlag(true);
       setConfirmPasscodeFlag(0);
@@ -98,7 +98,7 @@ export default function ResetPin(props) {
   }, [passcode, confirmPasscode]);
 
   useEffect(() => {
-    if (credsChanged == 'changed') {
+    if (credsChanged === 'changed') {
       setIsDisabled(false);
       if (oldPasscode === '') {
         if (props.route.params.onPinChange) {
@@ -116,7 +116,7 @@ export default function ResetPin(props) {
   }, [isPinChangedFailed]);
 
   useEffect(() => {
-    if (passcode == confirmPasscode) {
+    if (passcode === confirmPasscode) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);
@@ -151,19 +151,19 @@ export default function ResetPin(props) {
                 {/* pin input view */}
                 {/* <PinInputsView
                   passCode={confirmPasscode}
-                  passcodeFlag={confirmPasscodeFlag !== 0 && confirmPasscodeFlag == 2}
+                  passcodeFlag={confirmPasscodeFlag !== 0 && confirmPasscodeFlag===2}
                 /> */}
                 <PinInputsView
                   passCode={confirmPasscode}
-                  passcodeFlag={!(confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2)}
+                  passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
                   borderColor={
-                    passcode !== confirmPasscode && confirmPasscode.length == 4
+                    passcode !== confirmPasscode && confirmPasscode.length === 4
                       ? '#FF8F79'
                       : 'transparent'
                   }
                 />
                 {/*  */}
-                {passcode != confirmPasscode && confirmPasscode.length == 4 && (
+                {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
                   <Text color="light.error" style={styles.errorText}>
                     {login.MismatchPasscode}
                   </Text>

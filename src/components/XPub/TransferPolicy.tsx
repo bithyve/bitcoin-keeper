@@ -21,7 +21,7 @@ function TransferPolicy({ wallet, close }) {
 
   const onPressNumber = (digit) => {
     let temp = policyText;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setPolicyText(temp);
     }

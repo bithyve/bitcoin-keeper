@@ -42,11 +42,11 @@ function TapSignerRecovery() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       setCvc(cvc.slice(0, -1));
     }
   };

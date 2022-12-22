@@ -133,12 +133,12 @@ function LoginScreen({ navigation, route }) {
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
-      if (text != 'x') {
+      if (text !== 'x') {
         tmpPasscode += text;
         setPasscode(tmpPasscode);
       }
     }
-    if (passcode && text == 'x') {
+    if (passcode && text === 'x') {
       setPasscode(passcode.slice(0, -1));
       setLoginError(false);
     }
@@ -185,7 +185,7 @@ function LoginScreen({ navigation, route }) {
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
-      if (!existingFCMToken || existingFCMToken != token) dispatch(updateFCMTokens([token]));
+      if (!existingFCMToken || existingFCMToken !== token) dispatch(updateFCMTokens([token]));
     } catch (error) {
       console.log(error);
     }
@@ -286,7 +286,7 @@ function LoginScreen({ navigation, route }) {
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
-              {passcode.length == 4 && (
+              {passcode.length === 4 && (
                 <Box>
                   <CustomButton
                     onPress={() => {

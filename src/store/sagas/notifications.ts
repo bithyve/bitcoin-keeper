@@ -65,7 +65,7 @@ export function* getMessageWorker() {
   if (!storedMessages) return;
   const newMessageArray = storedMessages.concat(
     messages.filter(
-      ({ notificationId }) => !storedMessages.find((f) => f.notificationId == notificationId)
+      ({ notificationId }) => !storedMessages.find((f) => f.notificationId === notificationId)
     )
   );
 

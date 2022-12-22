@@ -32,7 +32,7 @@ function TransactionElement({
     <TouchableOpacity onPress={onPress}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
-          {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSent />}
+          {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
           <Box style={styles.transactionContainer}>
             <Text
               color={`${colorMode}.GreyText`}

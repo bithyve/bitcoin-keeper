@@ -88,7 +88,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         {/* pin input view */}
         <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
-        {passcode.length == 4 && (
+        {passcode.length === 4 && (
           <Buttons
             primaryCallback={() => {
               setLoginError(false);

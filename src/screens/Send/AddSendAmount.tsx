@@ -98,7 +98,7 @@ function AddSendAmount({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         title={
-          transferType == TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
+          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
         }
         // subtitle={`Sending to ${address}`}
       />

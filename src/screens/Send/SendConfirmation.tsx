@@ -406,7 +406,7 @@ function SendConfirmation({ route }) {
               <Box style={styles.priorityBox}>
                 <RadioButton
                   size={20}
-                  isChecked={transactionPriority == priority}
+                  isChecked={transactionPriority === priority}
                   borderColor="#E3E3E3"
                   onpress={() => {
                     setTransactionPriority(priority);
@@ -460,7 +460,7 @@ function SendConfirmation({ route }) {
                   setTransactionPriority(TxPriority.CUSTOM)
                   //  onTransactionPriorityChanged( priority )
                 }}
-                isChecked={transactionPriority == TxPriority.CUSTOM} />
+                isChecked={transactionPriority===TxPriority.CUSTOM} />
 
               <Text
                 style={{
@@ -585,7 +585,7 @@ function SendConfirmation({ route }) {
         </Box>
       </Box>
       <Box style={styles.noteBox}>
-        {transferType == TransferType.VAULT_TO_VAULT ? (
+        {transferType === TransferType.VAULT_TO_VAULT ? (
           <Note
             title="Note"
             subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"

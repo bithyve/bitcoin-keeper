@@ -32,10 +32,10 @@ function CustomPriorityModal(props) {
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
-    if (text != 'x') {
+    if (text !== 'x') {
       currentFee += text;
       updateFeeAndBlock(currentFee);
-    } else if (currentFee && text == 'x') {
+    } else if (currentFee && text === 'x') {
       updateFeeAndBlock(currentFee.slice(0, -1));
     }
   };

@@ -35,7 +35,7 @@ function OnboardingSlideComponent(props) {
           {props.paragraph}
         </Text>
       </Box>
-      {props.currentPosition == 5 && (
+      {props.currentPosition === 5 && (
         <Box justifyContent="center" mt={15}>
           <TouchableOpacity
             onPress={() => props.navigation.replace('NewKeeperApp')}

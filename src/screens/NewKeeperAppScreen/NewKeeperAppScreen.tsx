@@ -248,7 +248,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <CloudRecoveryModal
         visible={cloudModal}
         close={closeCloudModal}
-        title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
+        title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
         subTitle={seed.seedDescription}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"

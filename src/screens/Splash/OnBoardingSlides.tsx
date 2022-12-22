@@ -98,7 +98,7 @@ function OnBoardingSlides({ navigation }) {
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
           <StatusBar backgroundColor="transparent" barStyle="light-content" />
           <Box justifyContent="center" mr={4} mt={10}>
-            {currentPosition != 1 && (
+            {currentPosition !== 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
@@ -177,7 +177,7 @@ function OnBoardingSlides({ navigation }) {
                   return (
                     <Box
                       key={index}
-                      style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                      style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                     />
                   );
                 })

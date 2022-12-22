@@ -63,7 +63,7 @@ function SettingUpTapsigner(props) {
         <CVVInputsView passCode={inputText} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
         <Box mt={10} alignSelf="flex-end" mr={10}>
-          {inputText.length == 6 && (
+          {inputText.length === 6 && (
             <Box>
               <CustomGreenButton onPress={onPress} value={common.proceed} />
             </Box>

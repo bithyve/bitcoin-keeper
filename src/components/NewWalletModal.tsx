@@ -77,7 +77,7 @@ function NewWalletModal(props) {
   };
 
   function RecoverWalletScreen() {
-    const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
+    const IconName = Platform.OS === 'ios' ? <ICloud /> : <GoogleDrive />;
 
     return (
       <View>
@@ -243,7 +243,7 @@ function NewWalletModal(props) {
         <KeeperModal
           visible={modalVisible}
           close={close}
-          title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
+          title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
           subTitle={seed.seedDescription}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Next"

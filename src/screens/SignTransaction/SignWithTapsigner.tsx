@@ -27,12 +27,12 @@ function SignWithTapsigner() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
       textRef.current = temp;
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       const temp = cvc.slice(0, -1);
       setCvc(temp);
       textRef.current = temp;

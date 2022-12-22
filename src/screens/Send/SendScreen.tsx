@@ -104,12 +104,12 @@ function SendScreen({ route }) {
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
           : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(
               address,
               TransferType.VAULT_TO_ADDRESS,
