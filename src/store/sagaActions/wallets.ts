@@ -2,7 +2,7 @@ import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { SignerException, SignerPolicy, SignerRestriction } from 'src/core/services/interfaces';
-import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
+import { NewWalletDetails, NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -166,12 +166,12 @@ export const refreshWallets = (
   },
 });
 
-export const addNewWallets = (payload: newWalletInfo[]) => ({
+export const addNewWallets = (payload: NewWalletInfo[]) => ({
   type: ADD_NEW_WALLETS,
   payload,
 });
 
-export const importNewWallet = (mnemonic: string, walletDetails?: newWalletDetails) => ({
+export const importNewWallet = (mnemonic: string, walletDetails?: NewWalletDetails) => ({
   type: IMPORT_NEW_WALLET,
   payload: {
     mnemonic,
