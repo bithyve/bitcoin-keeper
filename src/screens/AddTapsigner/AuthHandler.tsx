@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -21,23 +22,11 @@ function AuthHandler({ status, fixAuthDelay }) {
       >
         {text}
       </Text>
-      <Text
-        fontSize={12}
-        fontFamily="body"
-        fontWeight="200"
-        letterSpacing={1}
-        textAlign="center"
-      >
+      <Text fontSize={12} fontFamily="body" fontWeight="200" letterSpacing={1} textAlign="center">
         Hold the card for about 15 seconds to unlock it.
       </Text>
       <TouchableOpacity onPress={fixAuthDelay}>
-        <Text
-          fontSize={16}
-          fontFamily="body"
-          fontWeight="300"
-          letterSpacing={1}
-          textAlign="center"
-        >
+        <Text fontSize={16} fontFamily="body" fontWeight="300" letterSpacing={1} textAlign="center">
           Unlock
         </Text>
       </TouchableOpacity>

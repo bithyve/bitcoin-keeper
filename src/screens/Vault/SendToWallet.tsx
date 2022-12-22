@@ -1,5 +1,6 @@
 import { StyleSheet, StatusBar } from 'react-native';
-import { Box, Input, InputGroup, Pressable, Stack, Text, Icon } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input, InputGroup, Pressable, Stack, Icon } from 'native-base';
 import BackIcon from 'src/assets/icons/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import React from 'react';

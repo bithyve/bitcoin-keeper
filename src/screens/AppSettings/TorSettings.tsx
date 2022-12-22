@@ -1,4 +1,5 @@
-import { Box, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';

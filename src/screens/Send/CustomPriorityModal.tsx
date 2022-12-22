@@ -1,4 +1,5 @@
-import { Box, Modal, Text, Input, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';

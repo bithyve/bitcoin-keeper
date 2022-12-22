@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { Alert, NativeModules, StyleSheet } from 'react-native';
-import { Box, Pressable, ScrollView, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import BackupIcon from 'src/assets/images/svgs/backup.svg';

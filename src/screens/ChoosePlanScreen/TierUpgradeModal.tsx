@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';

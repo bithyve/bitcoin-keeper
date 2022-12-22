@@ -1,4 +1,5 @@
-import { Box, Input, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import { Keyboard, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import {
@@ -106,7 +107,7 @@ function ChoosePolicyNew({ navigation, route }) {
               onFocus={() => Keyboard.dismiss()}
               selection={{
                 start: 0,
-                end: 0
+                end: 0,
               }}
             />
           </Box>
@@ -157,7 +158,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color="#073E39"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { Pressable, FlatList, Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Pressable, FlatList, Box } from 'native-base';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
-import { Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+
 import LinearGradient from 'react-native-linear-gradient';
 
 export interface Props {

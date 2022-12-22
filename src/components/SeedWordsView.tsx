@@ -1,10 +1,11 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;

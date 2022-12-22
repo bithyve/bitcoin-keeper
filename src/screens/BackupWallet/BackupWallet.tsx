@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';

@@ -1,4 +1,4 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -7,6 +7,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import Text from 'src/components/KeeperText';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 
 function ChoosePlanCarousel(props) {

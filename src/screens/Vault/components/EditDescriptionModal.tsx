@@ -1,6 +1,7 @@
 import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
-import { Box, HStack, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack } from 'native-base';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 

@@ -1,4 +1,5 @@
-import { Box, HStack, Image, Switch, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Image, Switch } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';

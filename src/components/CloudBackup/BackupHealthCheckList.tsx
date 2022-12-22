@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, Text, ScrollView } from 'native-base';
+import { FlatList, Box, ScrollView } from 'native-base';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';

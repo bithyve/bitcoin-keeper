@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CheckIcon from 'src/assets/images/checked.svg';

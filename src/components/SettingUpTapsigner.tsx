@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import Text from 'src/components/KeeperText';
 import KeyPadView from './AppNumPad/KeyPadView';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
 import CVVInputsView from './HealthCheck/CVVInputsView';

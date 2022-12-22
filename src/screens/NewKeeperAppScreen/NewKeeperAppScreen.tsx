@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform } from 'react-native';
-import { Box, Image, Pressable, ScrollView, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';

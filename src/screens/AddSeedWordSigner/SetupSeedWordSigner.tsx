@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 

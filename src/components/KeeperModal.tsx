@@ -1,4 +1,4 @@
-import { Box, Modal, Pressable, Text } from 'native-base';
+import { Box, Modal, Pressable } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
+import Text from 'src/components/KeeperText';
 
 type ModalProps = {
   visible: boolean;

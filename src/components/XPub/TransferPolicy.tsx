@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { Alert } from 'react-native';
 
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
@@ -10,6 +10,7 @@ import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { WalletSpecs } from 'src/core/wallets/interfaces/wallet';
+import Text from 'src/components/KeeperText';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
 

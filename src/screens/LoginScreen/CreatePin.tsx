@@ -1,4 +1,5 @@
-import { Box, HStack, Switch, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Switch } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {

@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-import { Box, ScrollView, Text, View } from 'native-base';
+import { Box, ScrollView, View } from 'native-base';
 import {
   FlatList,
   Keyboard,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';

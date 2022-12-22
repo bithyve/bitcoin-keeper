@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input, View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ScaledSheet } from 'react-native-size-matters';
 

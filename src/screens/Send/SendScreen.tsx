@@ -10,9 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';

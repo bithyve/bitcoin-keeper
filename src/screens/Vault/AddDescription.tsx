@@ -1,6 +1,7 @@
 import { TextInput } from 'react-native';
 // libraries
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/svgs/Tapsigner_brown.svg';

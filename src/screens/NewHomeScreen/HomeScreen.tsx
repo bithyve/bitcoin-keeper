@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';

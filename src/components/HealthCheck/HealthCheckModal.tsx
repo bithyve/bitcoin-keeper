@@ -1,4 +1,5 @@
-import { Box, Modal, Text, Input } from 'native-base';
+import { Box, Modal, Input } from 'native-base';
+import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';

@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 

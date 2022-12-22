@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { FlatList, Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { FlatList, Box } from 'native-base';
 
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';

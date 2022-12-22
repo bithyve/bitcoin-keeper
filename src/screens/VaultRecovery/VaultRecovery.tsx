@@ -1,4 +1,5 @@
-import { Box, HStack, Pressable, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';

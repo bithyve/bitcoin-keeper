@@ -1,7 +1,8 @@
-import { Box, ScrollView, Text, View } from 'native-base';
+import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import HeaderTitle from 'src/components/HeaderTitle';

@@ -1,4 +1,5 @@
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,

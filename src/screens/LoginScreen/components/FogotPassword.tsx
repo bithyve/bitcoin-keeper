@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { Box, Text, Input } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';

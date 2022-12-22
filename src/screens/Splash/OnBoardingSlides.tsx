@@ -7,7 +7,8 @@ import {
   Dimensions,
   ImageBackground,
 } from 'react-native';
-import { Box, Text, StatusBar } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, StatusBar } from 'native-base';
 
 import LinearGradient from 'react-native-linear-gradient';
 

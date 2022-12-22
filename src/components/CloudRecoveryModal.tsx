@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Modal, Text } from 'native-base';
+import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,6 +10,7 @@ import Colors from 'src/theme/Colors';
 import GoogleDrive from 'src/assets/images/drive.svg';
 import ICloud from 'src/assets/images/icloud.svg';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 function ListItem({ item, onPress }) {
   const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;

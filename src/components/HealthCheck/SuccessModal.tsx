@@ -1,4 +1,5 @@
-import { Modal, Text, View, Box } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Modal, View, Box } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
@@ -68,24 +69,14 @@ function SuccessModal(props) {
               >
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily="body"
-                fontWeight="100"
-                color={textColor}
-              >
+              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
             <Modal.Body>
               <Content />
             </Modal.Body>
-            <Box
-              alignItems="center"
-              alignSelf="flex-end"
-              bg="transparent"
-              flexDirection="row"
-            >
+            <Box alignItems="center" alignSelf="flex-end" bg="transparent" flexDirection="row">
               <TouchableOpacity onPress={cancelButtonPressed}>
                 <Text
                   fontSize={13}

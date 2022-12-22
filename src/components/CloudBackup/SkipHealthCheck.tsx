@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Text from 'src/components/KeeperText';
 import Buttons from '../Buttons';
 
 function SkipHealthCheck(props) {

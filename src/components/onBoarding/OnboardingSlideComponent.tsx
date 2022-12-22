@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/svgs/skip.svg';

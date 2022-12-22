@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import React, { useState } from 'react';
 
 import DotView from 'src/components/DotView';

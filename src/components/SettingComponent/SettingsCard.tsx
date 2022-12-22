@@ -1,4 +1,5 @@
-import { Box, Pressable, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 
 import LinkIcon from 'src/assets/icons/link.svg';
 import React from 'react';

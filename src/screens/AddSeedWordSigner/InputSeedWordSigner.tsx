@@ -1,4 +1,5 @@
-import { Box, Text, View, ScrollView } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, View, ScrollView } from 'native-base';
 import React, { useContext, useState } from 'react';
 import {
   Platform,

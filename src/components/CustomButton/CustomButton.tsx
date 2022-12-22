@@ -2,7 +2,7 @@ import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native'
 
 import LinearGradient from 'react-native-linear-gradient';
 import React from 'react';
-import { Text } from 'native-base';
+import Text from 'src/components/KeeperText';
 
 export interface Props {
   value: string;

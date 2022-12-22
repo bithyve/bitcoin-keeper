@@ -1,9 +1,10 @@
 import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
-import { Box, DeleteIcon, Text, View } from 'native-base';
+import { Box, DeleteIcon, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';

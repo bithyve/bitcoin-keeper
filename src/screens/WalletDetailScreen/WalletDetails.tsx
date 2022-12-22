@@ -7,10 +7,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, Pressable, Text, View } from 'native-base';
+import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 // icons and images
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';

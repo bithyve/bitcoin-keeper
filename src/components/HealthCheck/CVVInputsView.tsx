@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
 
 import {
   widthPercentageToDP as wp,

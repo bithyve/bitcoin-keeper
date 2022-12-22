@@ -1,4 +1,4 @@
-import { Box, Modal, Text, Input } from 'native-base';
+import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -9,6 +9,7 @@ import BTC from 'src/assets/images/btc_white.svg';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { setInvalidPassword } from 'src/store/reducers/bhr';
+import Text from 'src/components/KeeperText';
 import KeeperModal from './KeeperModal';
 
 function PasswordModal(props) {

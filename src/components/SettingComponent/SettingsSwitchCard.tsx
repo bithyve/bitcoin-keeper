@@ -1,4 +1,5 @@
-import { Box, Text, Pressable } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 
 import React from 'react';
 import Switch from '../../components/Switch/Switch';

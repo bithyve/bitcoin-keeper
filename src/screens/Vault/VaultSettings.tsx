@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 

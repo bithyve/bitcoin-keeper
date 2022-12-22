@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { ScaledSheet } from 'react-native-size-matters';

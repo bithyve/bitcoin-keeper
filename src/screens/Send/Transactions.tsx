@@ -1,5 +1,5 @@
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
@@ -10,6 +10,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => {} }) {
   const navigation = useNavigation();

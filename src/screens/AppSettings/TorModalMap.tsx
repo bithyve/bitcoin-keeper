@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 
 // components and functions
 import KeeperModal from 'src/components/KeeperModal';

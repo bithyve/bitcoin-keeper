@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text, ScrollView, StatusBar } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, ScrollView, StatusBar } from 'native-base';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';

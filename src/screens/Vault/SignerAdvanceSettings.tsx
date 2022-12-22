@@ -1,4 +1,5 @@
-import { Box, HStack, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -18,9 +19,9 @@ import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
-import useToastMessage from 'src/hooks/useToastMessage';
 
 const { width } = Dimensions.get('screen');
 

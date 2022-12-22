@@ -1,5 +1,6 @@
 import { Dimensions, Pressable } from 'react-native';
-import { Box, FlatList, HStack, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, FlatList, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';

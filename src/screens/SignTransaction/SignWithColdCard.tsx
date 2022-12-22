@@ -1,4 +1,5 @@
-import { Box, HStack, Pressable, Text, VStack, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';

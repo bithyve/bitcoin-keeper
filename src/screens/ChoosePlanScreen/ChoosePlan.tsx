@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform, ScrollView } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import RNIap, {
   Subscription,
   getSubscriptions,

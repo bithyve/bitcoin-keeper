@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity, Clipboard } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import { generateKey } from 'src/core/services/operations/encryption';
+import Text from 'src/components/KeeperText';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
 function AppGeneratePass(props) {

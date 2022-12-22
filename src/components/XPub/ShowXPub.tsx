@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { Clipboard, TouchableOpacity } from 'react-native';
 
 import { LocalizationContext } from 'src/common/content/LocContext';

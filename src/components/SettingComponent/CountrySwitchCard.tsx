@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, useColorMode } from 'native-base';
 
 function CountrySwitchCard(props) {
   const { colorMode } = useColorMode();

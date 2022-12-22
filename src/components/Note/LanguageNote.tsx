@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 

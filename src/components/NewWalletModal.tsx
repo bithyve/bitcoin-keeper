@@ -1,4 +1,4 @@
-import { Box, Modal, Text } from 'native-base';
+import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import GoogleDrive from 'src/assets/images/drive.svg';
 import ICloud from 'src/assets/images/icloud.svg';
+import Text from 'src/components/KeeperText';
 import KeeperModal from './KeeperModal';
 import CheckBox from './Checkbox';
 
