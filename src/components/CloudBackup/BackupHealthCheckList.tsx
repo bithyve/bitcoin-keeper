@@ -78,7 +78,7 @@ function BackupHealthCheckList() {
               <Text
                 color="light.GreyText"
                 fontSize={10}
-                fontWeight="300"
+                bold
                 ml={5}
                 opacity={0.7}
                 letterSpacing={0.6}

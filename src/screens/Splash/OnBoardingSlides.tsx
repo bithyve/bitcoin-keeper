@@ -193,7 +193,7 @@ function OnBoardingSlides({ navigation }) {
                       <Text
                         fontSize={13}
                         fontFamily="body"
-                        fontWeight="300"
+                        bold
                         letterSpacing={1}
                         color="light.greenText"
                       >

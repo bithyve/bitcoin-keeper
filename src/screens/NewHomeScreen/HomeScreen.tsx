@@ -287,16 +287,16 @@ function VaultStatus(props) {
         <TouchableOpacity onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
             <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
-              <Text color="light.primaryText" style={styles.torText}>
+              <Text color="light.primaryText" style={styles.torText} bold>
                 {getTorStatusText}
               </Text>
             </Box>
             <Box style={styles.vaultBody}>
-              <Text color="light.white" style={styles.vaultHeading}>
+              <Text color="light.white" style={styles.vaultHeading} bold>
                 Your Vault
               </Text>
 
-              <Text color="light.white" style={styles.vaultSubHeading}>
+              <Text color="light.white" style={styles.vaultSubHeading} bold>
                 {!signers.length
                   ? 'Add a signing device to upgrade '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
@@ -349,7 +349,7 @@ function VaultStatus(props) {
               style={styles.balanceToggleContainer}
               onPress={() => props.onAmountPress()}
             >
-              <Text color="light.sendMax" style={styles.balanceToggleText}>
+              <Text color="light.sendMax" style={styles.balanceToggleText} bold>
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
@@ -569,7 +569,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textAlign: 'center',
     textTransform: 'uppercase',
-    fontWeight: 'bold',
   },
   vaultBody: {
     marginTop: hp(windowHeight > 700 ? 60.5 : 25),
@@ -578,12 +577,10 @@ const styles = StyleSheet.create({
   vaultHeading: {
     letterSpacing: 0.8,
     fontSize: 16,
-    fontWeight: 'bold',
   },
   vaultSubHeading: {
     letterSpacing: 0.9,
     fontSize: 12,
-    fontWeight: 'bold',
     opacity: 0.8,
     paddingBottom: 2,
   },
@@ -618,7 +615,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   balanceToggleText: {
-    fontWeight: 'bold',
     fontSize: 11,
     letterSpacing: 0.88,
   },

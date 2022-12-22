@@ -216,7 +216,7 @@ function NewWalletModal(props) {
                 <Text
                   fontSize={13}
                   fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   marginTop={2}
                   color={buttonCancelColor}
@@ -235,7 +235,7 @@ function NewWalletModal(props) {
                   <Text
                     fontSize={13}
                     fontFamily="body"
-                    fontWeight="300"
+                    bold
                     letterSpacing={1}
                     color={buttonTextColor}
                   >

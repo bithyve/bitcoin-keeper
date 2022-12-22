@@ -63,7 +63,7 @@ function PasswordModal(props) {
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={{ marginTop: 10, flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Text fontSize={16} fontWeight="bold" fontFamily="body" color={buttonTextColor}>
+              <Text fontSize={16} bold fontFamily="body" color={buttonTextColor}>
                 Blue Wallet
               </Text>
               <Text fontSize={14} fontFamily="body" color={buttonTextColor}>
@@ -175,7 +175,7 @@ function PasswordModal(props) {
                 <Text
                   fontSize={13}
                   fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   color={buttonTextColor}
                 >

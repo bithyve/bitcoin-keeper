@@ -269,11 +269,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Available to spend
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
+                  <Text bold>
                     {' '}
                     {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
                   </Text>
@@ -301,13 +297,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Transfer Policy is set at{'  '}
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    ฿ {wallets[walletIndex].specs.transferPolicy}sats
-                  </Text>
+                  <Text bold>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
                 </Text>
               </Box>
             </Pressable>
@@ -507,12 +497,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: wp(2),
-  },
-  viewAllText: {
-    letterSpacing: 0.6,
-    marginRight: 5,
-    fontSize: 11,
-    fontWeight: 'bold',
   },
   transactionsListContainer: {
     marginTop: hp(10),

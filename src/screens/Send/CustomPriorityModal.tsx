@@ -139,7 +139,7 @@ function CustomPriorityModal(props) {
                   mr={windowWidth * 0.07}
                   color="#073E39"
                   fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1.6}
                 >
                   Start Over
@@ -159,7 +159,7 @@ function CustomPriorityModal(props) {
                   <Text
                     fontSize={13}
                     fontFamily="body"
-                    fontWeight="300"
+                    bold
                     letterSpacing={1.6}
                     color={buttonTextColor}
                     mx={windowWidth * 0.04}

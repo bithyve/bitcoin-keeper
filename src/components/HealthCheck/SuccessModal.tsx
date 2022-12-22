@@ -81,7 +81,7 @@ function SuccessModal(props) {
                 <Text
                   fontSize={13}
                   fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   color={cancelButtonColor}
                   mr={wp(18)}
@@ -99,7 +99,7 @@ function SuccessModal(props) {
                   <Text
                     fontSize={13}
                     fontFamily="body"
-                    fontWeight="300"
+                    bold
                     letterSpacing={1}
                     color={buttonTextColor}
                   >

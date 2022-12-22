@@ -138,7 +138,7 @@ function SignWithColdCard({ route }) {
                   showMk4Helper(true);
                 }}
               >
-                <Text fontSize={14} fontFamily="body" fontWeight="300">
+                <Text fontSize={14} fontFamily="body" bold>
                   {' Need Help?'}
                 </Text>
               </TouchableOpacity>

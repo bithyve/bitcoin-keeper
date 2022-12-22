@@ -313,7 +313,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text color="light.white" fontWeight="300" fontSize={14} fontFamily="body">
+              <Text color="light.white" bold fontSize={14} fontFamily="body">
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>

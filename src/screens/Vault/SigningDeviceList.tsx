@@ -246,7 +246,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
               })}
               <Text color="light.primaryText" style={styles.contactUsText}>
                 {vault.VaultInfo}{' '}
-                <Text fontStyle="italic" fontWeight="bold">
+                <Text fontStyle="italic" bold>
                   Contact Us
                 </Text>
               </Text>

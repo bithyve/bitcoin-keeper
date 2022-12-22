@@ -514,14 +514,7 @@ function SendConfirmation({ route }) {
             px="2"
             py="2"
           >
-            <Text
-              fontStyle="italic"
-              color="#00715B"
-              fontSize={12}
-              fontFamily="body"
-              fontWeight="300"
-              p={2}
-            >
+            <Text fontStyle="italic" color="#00715B" fontSize={12} fontFamily="body" bold p={2}>
               Custom Priority
             </Text>
             <ArrowIcon />

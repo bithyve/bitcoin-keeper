@@ -229,7 +229,7 @@ function EnterSeedScreen() {
               }}
               renderItem={({ item, index }) => (
                 <View style={styles.inputListWrapper}>
-                  <Text style={styles.indexText} fontWeight="300">
+                  <Text style={styles.indexText} bold>
                     {getFormattedNumber(index)}
                   </Text>
                   <TextInput
@@ -342,12 +342,6 @@ const styles = ScaledSheet.create({
   inputcontainer: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
   },
   ctabutton: {
     paddingVertical: 10,

@@ -16,7 +16,7 @@ function AuthHandler({ status, fixAuthDelay }) {
         color="error.500"
         fontSize={16}
         fontFamily="body"
-        fontWeight="300"
+        bold
         letterSpacing={1}
         textAlign="center"
       >
@@ -26,7 +26,7 @@ function AuthHandler({ status, fixAuthDelay }) {
         Hold the card for about 15 seconds to unlock it.
       </Text>
       <TouchableOpacity onPress={fixAuthDelay}>
-        <Text fontSize={16} fontFamily="body" fontWeight="300" letterSpacing={1} textAlign="center">
+        <Text fontSize={16} fontFamily="body" bold letterSpacing={1} textAlign="center">
           Unlock
         </Text>
       </TouchableOpacity>

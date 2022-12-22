@@ -216,9 +216,9 @@ function InputSeedWordSigner({ route }) {
                       width: 22,
                       fontSize: 16,
                       color: '#00836A',
-                      fontWeight: 'bold',
                       marginTop: 8,
                     }}
+                    bold
                   >
                     {getFormattedNumber(index)}
                   </Text>
@@ -273,7 +273,7 @@ function InputSeedWordSigner({ route }) {
                 <Text
                   fontSize={13}
                   fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   marginTop={2}
                   //   color={buttonCancelColor}
@@ -289,13 +289,7 @@ function InputSeedWordSigner({ route }) {
                   colors={['#00836A', '#073E39']}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
-                    letterSpacing={1}
-                    color="white"
-                  >
+                  <Text fontSize={13} fontFamily="body" bold letterSpacing={1} color="white">
                     {common.next}
                   </Text>
                 </LinearGradient>
@@ -361,12 +355,6 @@ const styles = ScaledSheet.create({
   inputcontainer: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
   },
   ctabutton: {
     paddingVertical: 10,

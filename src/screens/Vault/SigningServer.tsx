@@ -73,7 +73,7 @@ function SigningServer({ navigation }) {
         >
           <DotView height={2} width={2} color="#E3BE96" />
         </Box>
-        <Text color="light.GreyText" fontSize={10} fontWeight="300" ml={5} opacity={0.7}>
+        <Text color="light.GreyText" fontSize={10} bold ml={5} opacity={0.7}>
           15 March ’21
         </Text>
         <Box borderLeftColor="#E3BE96" borderLeftWidth={1} ml={wp(3.5)} position="relative">

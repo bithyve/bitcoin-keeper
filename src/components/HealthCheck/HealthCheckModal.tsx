@@ -105,7 +105,7 @@ function HealthCheckModal(props) {
                 <Text
                   fontSize={13}
                   fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   color={buttonTextColor}
                 >
