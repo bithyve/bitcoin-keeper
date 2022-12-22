@@ -23,7 +23,6 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
@@ -41,15 +40,15 @@ import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware'
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
-import { getPassportDetails, getPassportDetailsForWatchOnly } from 'src/hardware/passport';
+import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
-
-const RNBiometrics = new ReactNativeBiometrics();
+import HWError from 'src/hardware/HWErrorState';
+import { HWErrorType } from 'src/common/data/enums/Hardware';
 
 function SetupSuccessfully() {
   return (
@@ -346,53 +345,63 @@ function SetupSeedWords() {
 }
 
 const setupPassport = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp } = isMultisig
-    ? getPassportDetails(qrData)
-    : getPassportDetailsForWatchOnly(qrData);
-  const passport: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.PASSPORT,
-    storageType: SignerStorage.COLD,
-  });
-  return passport;
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const passport: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.PASSPORT,
+      storageType: SignerStorage.COLD,
+    });
+    return passport;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupSeedSigner = (qrData) => {
-  const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-  const seedSigner: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.SEEDSIGNER,
-    storageType: SignerStorage.COLD,
-  });
-  return seedSigner;
+const setupSeedSigner = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSeedSignerDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const seedSigner: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.SEEDSIGNER,
+      storageType: SignerStorage.COLD,
+    });
+    return seedSigner;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupKeystone = (qrData) => {
-  const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-  const keystone: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.KEYSTONE,
-    storageType: SignerStorage.COLD,
-  });
-  return keystone;
+const setupKeystone = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getKeystoneDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const keystone: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.KEYSTONE,
+      storageType: SignerStorage.COLD,
+    });
+    return keystone;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupJade = (qrData) => {
-  const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
-  const jade: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.JADE,
-    storageType: SignerStorage.COLD,
-  });
-  return jade;
+const setupJade = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getJadeDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const jade: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.JADE,
+      storageType: SignerStorage.COLD,
+    });
+    return jade;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const setupKeeperSigner = (qrData) => {
@@ -536,7 +545,7 @@ function HardwareModalMap({ type, visible, close }) {
     );
   };
 
-  const onQRScan = (qrData) => {
+  const onQRScan = (qrData, resetQR) => {
     let hw: VaultSigner;
     try {
       switch (type as SignerType) {
@@ -544,16 +553,16 @@ function HardwareModalMap({ type, visible, close }) {
           hw = setupPassport(qrData, isMultisig);
           break;
         case SignerType.SEEDSIGNER:
-          hw = setupSeedSigner(qrData);
+          hw = setupSeedSigner(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
           hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
-          hw = setupKeystone(qrData);
+          hw = setupKeystone(qrData, isMultisig);
           break;
         case SignerType.JADE:
-          hw = setupJade(qrData);
+          hw = setupJade(qrData, isMultisig);
           break;
         default:
           break;
@@ -562,9 +571,14 @@ function HardwareModalMap({ type, visible, close }) {
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
     } catch (error) {
-      captureError(error);
-      Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (error instanceof HWError) {
+        showToast(error.message, null, 3000, true);
+        resetQR();
+      } else {
+        captureError(error);
+        Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
     }
   };
 

@@ -13,7 +13,7 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from '../Buttons';
 
-function SeedConfirmPasscode({ navigation, closeBottomSheet, wallets }) {
+function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   const relogin = false;
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -25,20 +25,17 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallets }) {
   const [loginError, setLoginError] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [errMessage, setErrMessage] = useState('');
-  const [walletIndex, setWalletIndex] = useState<number>(0);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
-
-  const currentWallet = wallets[walletIndex];
 
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
-      if (text != 'x') {
+      if (text !== 'x') {
         tmpPasscode += text;
         setPasscode(tmpPasscode);
       }
     }
-    if (passcode && text == 'x') {
+    if (passcode && text === 'x') {
       setPasscode(passcode.slice(0, -1));
       setLoginError(false);
     }
@@ -72,7 +69,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallets }) {
         navigation.goBack();
       } else {
         navigation.navigate('ExportSeed', {
-          seed: currentWallet?.derivationDetails?.mnemonic,
+          seed: wallet?.derivationDetails?.mnemonic,
           next: false,
         });
         closeBottomSheet();

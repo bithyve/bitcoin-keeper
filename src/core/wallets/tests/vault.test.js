@@ -54,7 +54,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
     };
   });
 
-  test('vault factory: creating a 1-of-1 vault(mobile-key)', async () => {
+  test('vault factory: creating a 1-of-1 vault(mobile-key)', () => {
     const scheme = { m: 1, n: 1 };
     const vaultType = VaultType.DEFAULT;
     const vaultSigners = [mobileKey];
@@ -63,7 +63,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
       description: 'Secure your sats',
     };
 
-    vault = await generateVault({
+    vault = generateVault({
       type: vaultType,
       vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
@@ -255,7 +255,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     };
   });
 
-  test('vault factory: creating a 2-of-3 vault', async () => {
+  test('vault factory: creating a 2-of-3 vault', () => {
     const scheme = { m: 2, n: 3 };
     const vaultType = VaultType.DEFAULT;
     const vaultSigners = [mobileKey, signingServer, softSigner];
@@ -264,7 +264,7 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       description: 'Secure your sats',
     };
 
-    vault = await generateVault({
+    vault = generateVault({
       type: vaultType,
       vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,

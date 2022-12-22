@@ -23,9 +23,17 @@ function ScanQR() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
 
+  // eslint-disable-next-line no-promise-executor-return
+  const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const resetQR = async () => {
+    await sleep(3000);
+    setData(0);
+    setQrPercent(0);
+  };
+
   useEffect(() => {
     if (qrData) {
-      onQrScan(qrData);
+      onQrScan(qrData, resetQR);
     }
     return () => {
       decoder = new URRegistryDecoder();
@@ -53,7 +61,12 @@ function ScanQR() {
         subtitle={subtitle}
       />
       <Box style={styles.qrcontainer}>
-        <RNCamera style={styles.cameraView} captureAudio={false} onBarCodeRead={onBarCodeRead} />
+        <RNCamera
+          style={styles.cameraView}
+          captureAudio={false}
+          onBarCodeRead={onBarCodeRead}
+          useNativeZoom
+        />
       </Box>
       <HStack>
         {qrPercent !== 100 && <ActivityIndicator />}
@@ -84,9 +97,9 @@ const styles = StyleSheet.create({
     width: width * 0.9,
   },
   noteWrapper: {
-    width: '85%',
-    bottom: 5,
+    width: '100%',
+    bottom: 0,
     position: 'absolute',
-    marginHorizontal: 20,
+    padding: 20,
   },
 });

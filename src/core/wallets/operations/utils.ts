@@ -420,111 +420,19 @@ export default class WalletUtilities {
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(
-        xpubs,
-        (wallet as Vault).scheme.m,
-        network,
-        itr,
-        false
-      );
+      const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, false);
 
       if (multiSig.address === address) return multiSig;
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(
-        xpubs,
-        (wallet as Vault).scheme.m,
-        network,
-        itr,
-        true
-      );
+      const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, true);
       if (multiSig.address === address) return multiSig;
     }
 
     throw new Error(`Could not find multisig for: ${address}`);
   };
-
-  // static signingEssentialsForMultiSig = (wallet: MultiSigWallet, address: string) => {
-  //   const { networkType } = wallet;
-  //   const network = WalletUtilities.getNetworkByType(networkType);
-
-  //   const closingExtIndex = wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT;
-  //   for (let itr = 0; itr <= closingExtIndex; itr++) {
-  //     const multiSig = WalletUtilities.createMultiSig(
-  //       {
-  //         primary: wallet.specs.xpub,
-  //         secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-  //         bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-  //       },
-  //       2,
-  //       network,
-  //       itr,
-  //       false
-  //     );
-  //     if (multiSig.address === address) {
-  //       return {
-  //         multiSig,
-  //         primaryPriv: WalletUtilities.generateChildFromExtendedKey(
-  //           wallet.specs.xpriv,
-  //           network,
-  //           itr,
-  //           false
-  //         ),
-  //         secondaryPriv: wallet.specs.xprivs.secondary
-  //           ? WalletUtilities.generateChildFromExtendedKey(
-  //               wallet.specs.xprivs.secondary,
-  //               network,
-  //               itr,
-  //               false,
-  //               true
-  //             )
-  //           : null,
-  //         childIndex: itr,
-  //       };
-  //     }
-  //   }
-
-  //   const closingIntIndex = wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT;
-  //   for (let itr = 0; itr <= closingIntIndex; itr++) {
-  //     const multiSig = WalletUtilities.createMultiSig(
-  //       {
-  //         primary: wallet.specs.xpub,
-  //         secondary: (wallet as MultiSigWallet).specs.xpubs.secondary,
-  //         bithyve: (wallet as MultiSigWallet).specs.xpubs.bithyve,
-  //       },
-  //       2,
-  //       network,
-  //       itr,
-  //       true
-  //     );
-  //     if (multiSig.address === address) {
-  //       return {
-  //         multiSig,
-  //         primaryPriv: WalletUtilities.generateChildFromExtendedKey(
-  //           wallet.specs.xpriv,
-  //           network,
-  //           itr,
-  //           true
-  //         ),
-  //         secondaryPriv: wallet.specs.xprivs.secondary
-  //           ? WalletUtilities.generateChildFromExtendedKey(
-  //               wallet.specs.xprivs.secondary,
-  //               network,
-  //               itr,
-  //               true,
-  //               true
-  //             )
-  //           : null,
-  //         childIndex: itr,
-  //         internal: true,
-  //       };
-  //     }
-  //   }
-
-  //   throw new Error('Could not find signing essentials for ' + address);
-  // };
 
   static generatePaymentURI = (
     address: string,
@@ -748,7 +656,6 @@ export default class WalletUtilities {
         };
       }
 
-      // const usedFallBack = false;
       try {
         if (network === bitcoinJS.networks.testnet) {
           res = await RestClient.post(
@@ -769,11 +676,10 @@ export default class WalletUtilities {
           throw new Error(err.message); // not using own-node
 
         if (!config.USE_ESPLORA_FALLBACK) {
-          // Toast( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
           throw new Error(err.message);
         }
         console.log('using Hexa node as fallback(fetch-balTx)');
-        // usedFallBack = true;
+
         if (network === bitcoinJS.networks.testnet) {
           res = await RestClient.post(
             config.BITHYVE_ESPLORA_API_ENDPOINTS.TESTNET.NEWMULTIUTXOTXN,
@@ -845,45 +751,6 @@ export default class WalletUtilities {
                   addresses: [addressInfo.Address],
                 });
 
-                // if (tx.transactionType === 'Self') {
-                //   const outgoingTx: Transaction = {
-                //     txid: tx.txid,
-                //     confirmations: tx.NumberofConfirmations,
-                //     status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                //     fee: tx.fee,
-                //     date: tx.Status.block_time
-                //       ? new Date(tx.Status.block_time * 1000).toUTCString()
-                //       : new Date(Date.now()).toUTCString(),
-                //     transactionType: TransactionType.SENT,
-                //     amount: tx.SentAmount,
-                //     walletType: walletType,
-                //     recipientAddresses: tx.RecipientAddresses,
-                //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
-                //     address: addressInfo.Address,
-                //     isNew: true,
-                //     notes: transactionNote[tx.txid],
-                //   };
-
-                //   const incomingTx: Transaction = {
-                //     txid: tx.txid,
-                //     confirmations: tx.NumberofConfirmations,
-                //     status: tx.Status.confirmed ? 'Confirmed' : 'Unconfirmed',
-                //     fee: tx.fee,
-                //     date: tx.Status.block_time
-                //       ? new Date(tx.Status.block_time * 1000).toUTCString()
-                //       : new Date(Date.now()).toUTCString(),
-                //     transactionType: TransactionType.RECEIVED,
-                //     amount: tx.ReceivedAmount,
-                //     walletType: walletType,
-                //     senderAddresses: tx.SenderAddresses,
-                //     blockTime: tx.Status.block_time ? tx.Status.block_time : Date.now(),
-                //     isNew: true,
-                //     notes: transactionNote[tx.txid],
-                //   };
-
-                //   newTxs.push(...[outgoingTx, incomingTx]);
-                // } else {}
-
                 const transaction: Transaction = {
                   txid: tx.txid,
                   confirmations: tx.NumberofConfirmations,
@@ -906,7 +773,7 @@ export default class WalletUtilities {
 
                 newTxs.push(transaction);
               } else {
-                // TODO: resolve the quadratic complexity(introduced due to data storage restrictions by Realm)
+                // Resolve the quadratic complexity(introduced due to data storage restrictions by Realm)
                 for (const map of transactionMapping) {
                   if (map.txid === tx.txId) {
                     if (!map.addresses.includes(addressInfo.Address))
@@ -943,60 +810,11 @@ export default class WalletUtilities {
           internal: {},
         };
 
-        // receiver and sender's info mapping(from active address list) halted; not compatible w/ realm
-        // newTxs.forEach((tx) => {
-        //   let addresses: Set<string>;
-
-        //   // TODO: find a better way to reduce complexity(currently: quadratic)
-        //   for (const map of transactionMapping) {
-        //     if (map.txid === tx.txid) {
-        //       addresses = map.addresses;
-        //       break;
-        //     }
-        //   }
-
-        //   addresses.forEach((address) => {
-        //     if (activeAddresses.external[address]) {
-        //       activeAddressesWithNewTxs.external[address] = activeAddresses.external[address];
-        //       if (tx.transactionType === TransactionType.RECEIVED) {
-        //         tx.sender = idx(
-        //           activeAddresses.external[address],
-        //           (_) => _.assignee.senderInfo.name
-        //         );
-        //         (tx as any).senderId = idx(
-        //           activeAddresses.external[address],
-        //           (_) => _.assignee.senderInfo.id
-        //         );
-        //       } else if (tx.transactionType === TransactionType.SENT) {
-        //         const recipientInfo = idx(
-        //           activeAddresses.external[address],
-        //           (_) => _.assignee.recipientInfo
-        //         );
-        //         if (recipientInfo) tx.receivers = recipientInfo[tx.txid];
-        //       }
-        //     } else if (activeAddresses.internal[address]) {
-        //       activeAddressesWithNewTxs.internal[address] = activeAddresses.internal[address];
-        //       if (tx.transactionType === TransactionType.RECEIVED)
-        //         tx.sender = idx(
-        //           activeAddresses.internal[address],
-        //           (_) => _.assignee.senderInfo.name
-        //         );
-        //       else if (tx.transactionType === TransactionType.SENT) {
-        //         const recipientInfo = idx(
-        //           activeAddresses.internal[address],
-        //           (_) => _.assignee.recipientInfo
-        //         );
-        //         if (recipientInfo) tx.receivers = recipientInfo[tx.txid];
-        //       }
-        //     }
-        //   });
-        // });
-
         // pop addresses from the activeAddresses if tx-conf > 6
         txsToUpdate.forEach((tx) => {
           if (tx.confirmations > 6) {
             let addresses;
-            // TODO: find a better way to reduce complexity(currently: quadratic)
+            // find a better way to reduce complexity(currently: quadratic)
             for (const map of transactionMapping) {
               if (map.txid === tx.txid) {
                 addresses = map.addresses;
@@ -1029,14 +847,10 @@ export default class WalletUtilities {
         };
       }
 
-      // if (usedFallBack) Toast( 'We could not connect to your own node.\nRefreshed using the BitHyve node....' )
       return {
         synchedWallets,
       };
     } catch (err) {
-      console.log({
-        err,
-      });
       throw new Error('Fetching balance-txn by addresses failed');
     }
   };
@@ -1161,7 +975,7 @@ export default class WalletUtilities {
               }
             );
           }
-          // Toast( 'We could not connect to your own node.\nSent using the BitHyve node....' )
+
           return {
             txid: res.data || res.json,
           };
@@ -1169,7 +983,6 @@ export default class WalletUtilities {
           throw new Error('Transaction broadcasting failed');
         }
       } else {
-        // Toast( 'We could not connect to your node.\nTry connecting to the BitHyve node- Go to settings ....' )
         throw new Error('Transaction broadcasting failed');
       }
     }

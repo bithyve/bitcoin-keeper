@@ -25,11 +25,9 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getPlaceholder } from 'src/common/utilities';
 
-function InputSeedWordSigner({ route }) {
+function InputSeedWordSigner({ route }: { route: any }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
@@ -102,28 +100,12 @@ function InputSeedWordSigner({ route }) {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
-  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
   const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
 
-  const openLoaderModal = () => setCreateCloudBackupModal(true);
-  const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
     setWalletRecoverySuccessModal(false);
-  };
-
-  const { showToast } = useToastMessage();
-
-  const isSeedFilled = () => {
-    for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
-        showToast('Enter correct seedwords', <TickIcon />);
-        return true;
-      }
-    }
-    return true;
   };
 
   const getSeedWord = () => {
@@ -225,7 +207,7 @@ function InputSeedWordSigner({ route }) {
                   <TextInput
                     style={[
                       styles.input,
-                      item.invalid == true
+                      item.invalid
                         ? {
                             borderColor: '#F58E6F',
                           }

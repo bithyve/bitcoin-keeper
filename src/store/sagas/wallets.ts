@@ -1,3 +1,6 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-case-declarations */
 import {
   EntityKind,
   VaultMigrationType,
@@ -36,6 +39,7 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { RootState } from '../store';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
 import {
@@ -68,16 +72,15 @@ import {
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
 import { addToUaiStack, uaiActionedEntity } from '../sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
-export interface newWalletDetails {
+export interface NewWalletDetails {
   name?: string;
   description?: string;
   transferPolicy?: number;
 }
-export interface newWalletInfo {
+export interface NewWalletInfo {
   walletType: WalletType;
-  walletDetails?: newWalletDetails;
+  walletDetails?: NewWalletDetails;
   importDetails?: {
     primaryMnemonic?: string;
     xpub?: string;
@@ -86,7 +89,7 @@ export interface newWalletInfo {
 
 function* addNewWallet(
   walletType: WalletType,
-  walletDetails: newWalletDetails,
+  walletDetails: NewWalletDetails,
   app: KeeperApp,
   walletShell: WalletShell,
   importDetails?: { primaryMnemonic?: string; xpub?: string }
@@ -99,7 +102,7 @@ function* addNewWallet(
     case WalletType.CHECKING:
       const checkingWallet: Wallet = yield call(generateWallet, {
         type: WalletType.CHECKING,
-        instanceNum: walletInstances[WalletType.CHECKING] | 0,
+        instanceNum: walletInstances[WalletType.CHECKING] || 0,
         walletShellId: walletShell.id,
         walletName: walletName || 'Checking Wallet',
         walletDescription: walletDescription || 'Bitcoin Wallet',
@@ -112,7 +115,7 @@ function* addNewWallet(
     case WalletType.LIGHTNING:
       const lnWallet: Wallet = yield call(generateWallet, {
         type: walletType,
-        instanceNum: walletInstances[walletType] | 0,
+        instanceNum: walletInstances[walletType] || 0,
         walletShellId: walletShell.id,
         walletName: walletName || 'Lightning Wallet',
         walletDescription: walletDescription || '',
@@ -147,10 +150,13 @@ function* addNewWallet(
         transferPolicy,
       });
       return readOnlyWallet;
+
+    default:
+      throw new Error(`Unsupported wallet-type ${walletType}`);
   }
 }
 
-export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newWalletInfo[] }) {
+export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewWalletInfo[] }) {
   const wallets: Wallet[] = [];
   const walletIds = [];
 
@@ -195,21 +201,22 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: newW
 
 export const addNewWalletsWatcher = createWatcher(addNewWalletsWorker, ADD_NEW_WALLETS);
 
-export type newVaultDetails = newWalletDetails;
-export interface newVaultInfo {
+export type NewVaultDetails = NewWalletDetails;
+export interface NewVaultInfo {
   vaultType: VaultType;
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
-  vaultDetails?: newVaultDetails;
+  vaultDetails?: NewVaultDetails;
 }
 
 function* addNewVaultWorker({
   payload,
 }: {
-  payload: { newVaultInfo?: newVaultInfo; vault?: Vault };
+  payload: { newVaultInfo?: NewVaultInfo; vault?: Vault };
 }) {
   try {
-    let { newVaultInfo, vault } = payload;
+    const { newVaultInfo } = payload;
+    let { vault } = payload;
     let vaultShell: VaultShell;
     let newVaultShell: boolean = false;
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -219,6 +226,7 @@ function* addNewVaultWorker({
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
     );
+
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
@@ -294,7 +302,7 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: newVaultInfo; migrationType: VaultMigrationType };
+  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType };
 }) {
   try {
     const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
@@ -373,12 +381,11 @@ export function* importNewWalletWorker({
 }: {
   payload: {
     mnemonic: string;
-    walletDetails?: newWalletDetails;
+    walletDetails?: NewWalletDetails;
   };
 }) {
   const wallets: Wallet[] = [];
-  const walletIds = [];
-  const newWalletInfo: newWalletInfo[] = [
+  const newWalletInfo: NewWalletInfo[] = [
     {
       walletType: WalletType.IMPORTED,
       walletDetails: payload.walletDetails,
@@ -405,7 +412,6 @@ export function* importNewWalletWorker({
       walletShell,
       importDetails
     );
-    walletIds.push(wallet.id);
     wallets.push(wallet);
   }
 
@@ -512,7 +518,7 @@ function* refreshWalletsWorker({
     );
 
     for (const wallet of wallets) {
-      const uai = UAIcollection.find((uai) => uai.entityId === wallet.id);
+      const uai: any = UAIcollection.find((uai: any) => uai.entityId === wallet.id);
 
       if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
         if (uai) {
@@ -531,9 +537,7 @@ function* refreshWalletsWorker({
             )
           );
         }
-      } else {
-        if (uai) yield put(uaiActionedEntity(uai.entityId, true));
-      }
+      } else if (uai) yield put(uaiActionedEntity(uai.entityId, true));
     }
 
     yield put(setNetBalance(netBalance));
@@ -557,6 +561,7 @@ function* autoWalletsSyncWorker({
   const walletsToSync: (Wallet | Vault)[] = [];
   for (const wallet of [...wallets, ...vault]) {
     if (syncAll || wallet.presentationData.visibility === VisibilityType.DEFAULT) {
+      // eslint-disable-next-line no-continue
       if (!wallet.isUsable) continue;
       walletsToSync.push(getJSONFromRealmObject(wallet));
     }
@@ -690,11 +695,9 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
     throw new Error('Failed to update the policy');
   }
 
-  // TODO: generalise it for multiple vaults as the feature gets introduced
   const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
   const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
-  for (let i = 0; i < signers.length; i++) {
-    const current = signers[i];
+  for (const current of signers) {
     if (current.signerId === signer.signerId) {
       current.signerPolicy = {
         ...current.signerPolicy,

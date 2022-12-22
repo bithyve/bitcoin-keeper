@@ -41,8 +41,7 @@ function AddSendAmount({ route }) {
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
-  const [recipientCount, setReicipientCount] = useState(1);
-
+  const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 

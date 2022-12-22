@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Box } from 'native-base';
-import { TouchableOpacity, Clipboard } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
@@ -8,7 +9,7 @@ import { generateKey } from 'src/core/services/operations/encryption';
 import Text from 'src/components/KeeperText';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
-function AppGeneratePass(props) {
+function AppGeneratePass(props: any) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const [agsp] = useState(
@@ -19,9 +20,10 @@ function AppGeneratePass(props) {
   const [copied, setCopied] = useState(false);
 
   const { common } = translations;
+  const { closeBottomSheet, confirmBtnPress } = props;
   return (
     <Box bg="#F7F2EC" borderRadius={10}>
-      <TouchableOpacity onPress={() => props.closeBottomSheet()}>
+      <TouchableOpacity onPress={() => closeBottomSheet()}>
         <Box
           m={5}
           bg="#E3BE96"
@@ -107,7 +109,7 @@ function AppGeneratePass(props) {
       </Box>
       <Box alignItems="center" flexDirection="row" w="95%" py={5}>
         <TouchableOpacity
-          onPress={() => props.closeBottomSheet()}
+          onPress={() => closeBottomSheet()}
           style={{ width: '60%', paddingLeft: '15%' }}
         >
           <Text fontSize={14} textAlign="center">
@@ -117,7 +119,7 @@ function AppGeneratePass(props) {
         <Box w="40%">
           <CustomGreenButton
             onPress={() => {
-              props.confirmBtnPress(agsp);
+              confirmBtnPress(agsp);
             }}
             value={common.next}
           />

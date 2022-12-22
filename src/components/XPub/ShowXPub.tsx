@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
-import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
-import { Clipboard, TouchableOpacity } from 'react-native';
+import Text from 'src/components/KeeperText';
+import { TouchableOpacity } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -21,7 +22,7 @@ function ShowXPub({
   copy: Function;
   subText: string;
   noteSubText: string;
-  copyable?: boolean;
+  copyable: boolean;
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;

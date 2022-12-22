@@ -1,6 +1,6 @@
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
-import { SignerType } from 'src/core/wallets/enums';
+import { DerivationPurpose, SignerType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 
@@ -78,11 +78,11 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
   }
   if (isMock) {
     return `${name}**`;
-  } if (isAmf) {
+  }
+  if (isAmf) {
     return `${name}*`;
   }
   return name;
-
 };
 
 export const getWalletConfig = ({ vault }: { vault: Vault }) => {
@@ -96,4 +96,17 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
     line += `${signer.xpubInfo.xfp}: ${signer.xpub}\n\n`;
   });
   return line;
+};
+
+const PATH_INSENSITIVE_SIGNERS = [SignerType.TAPSIGNER];
+
+export const getSignerSigTypeInfo = (signer: VaultSigner) => {
+  const purpose = WalletUtilities.getSignerPurposeFromPath(signer.xpubInfo.derivationPath);
+  if (PATH_INSENSITIVE_SIGNERS.includes(signer.type) || signer.isMock) {
+    return { isSingleSig: true, isMultiSig: true, purpose };
+  }
+  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
+    return { isSingleSig: false, isMultiSig: true, purpose };
+  }
+  return { isSingleSig: true, isMultiSig: false, purpose };
 };

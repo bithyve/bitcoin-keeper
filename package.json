@@ -20,6 +20,7 @@
   "dependencies": {
     "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
     "@ngraveio/bc-ur": "^1.1.6",
+    "@react-native-community/clipboard": "^1.5.1",
     "@react-native-firebase/app": "^14.11.1",
     "@react-native-firebase/messaging": "^14.11.1",
     "@react-navigation/native": "^6.0.8",
