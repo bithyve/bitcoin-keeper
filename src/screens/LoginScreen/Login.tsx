@@ -263,9 +263,9 @@ function LoginScreen({ navigation, route }) {
 
             {loginError && (
               <Text
+                style={styles.errorMessage}
                 color="light.error"
                 fontSize={12}
-                fontStyle="italic"
                 textAlign="right"
                 letterSpacing={0.65}
                 mr={12}
@@ -417,6 +417,9 @@ const styles = StyleSheet.create({
   linearGradient: {
     flex: 1,
     padding: 10,
+  },
+  errorMessage: {
+    fontStyle: 'italic',
   },
 });
 

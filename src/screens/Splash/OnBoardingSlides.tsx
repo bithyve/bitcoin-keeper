@@ -26,7 +26,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -39,9 +39,7 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.Comprehensive} `}
-          <Text fontStyle="italic" fontWeight={900}>
-            {onboarding.security}
-          </Text>
+          <Text style={styles.info}>{onboarding.security}</Text>
           {` ${onboarding.slide01Title}`}
         </>
       ),
@@ -53,9 +51,7 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.slide02Title} `}
-          <Text fontStyle="italic" fontWeight={900}>
-            {onboarding.privacy}
-          </Text>
+          <Text style={styles.info}>{onboarding.privacy}</Text>
         </>
       ),
       paragraph: onboarding.slide02Paragraph,
@@ -234,5 +230,9 @@ const styles = StyleSheet.create({
     height: hp(45),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  info: {
+    fontStyle: 'italic',
+    fontWeight: '900',
   },
 });

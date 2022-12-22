@@ -193,7 +193,7 @@ export default function CreatePin(props) {
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color="light.error" fontStyle="italic" style={styles.errorText}>
+                    <Text color="light.error" style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
@@ -257,6 +257,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     width: wp('68%'),
     textAlign: 'right',
+    fontStyle: 'italic',
   },
   bitcoinTestnetText: {
     fontWeight: '400',

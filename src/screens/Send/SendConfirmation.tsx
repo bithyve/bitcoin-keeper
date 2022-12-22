@@ -514,7 +514,14 @@ function SendConfirmation({ route }) {
             px="2"
             py="2"
           >
-            <Text fontStyle="italic" color="#00715B" fontSize={12} fontFamily="body" bold p={2}>
+            <Text
+              style={styles.customPriority}
+              color="#00715B"
+              fontSize={12}
+              fontFamily="body"
+              bold
+              p={2}
+            >
               Custom Priority
             </Text>
             <ArrowIcon />
@@ -662,5 +669,8 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     marginBottom: hp(40),
+  },
+  customPriority: {
+    fontStyle: 'italic',
   },
 });

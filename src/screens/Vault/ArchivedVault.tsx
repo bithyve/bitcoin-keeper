@@ -13,6 +13,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import BTC from 'src/assets/images/svgs/btc_black.svg';
 import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
+import { StyleSheet } from 'react-native';
 
 function ArchivedVault() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -77,11 +78,11 @@ function ArchivedVault() {
               Archived On
             </Text>
             <Text
+              style={styles.date}
               color="light.textBlack"
               fontSize={12}
               fontWeight={300}
               letterSpacing={0.02}
-              fontStyle="italic"
             >
               {` ${'12 December, 2021'}`}
             </Text>
@@ -121,5 +122,11 @@ function ArchivedVault() {
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  date: {
+    fontStyle: 'italic',
+  },
+});
 
 export default ArchivedVault;

@@ -246,7 +246,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
               })}
               <Text color="light.primaryText" style={styles.contactUsText}>
                 {vault.VaultInfo}{' '}
-                <Text fontStyle="italic" bold>
+                <Text style={styles.italics} bold>
                   Contact Us
                 </Text>
               </Text>
@@ -338,6 +338,9 @@ const styles = StyleSheet.create({
     opacity: 0.1,
     width: windowWidth * 0.8,
     height: 0.5,
+  },
+  italics: {
+    fontStyle: 'italic',
   },
 });
 export default SigningDeviceList;

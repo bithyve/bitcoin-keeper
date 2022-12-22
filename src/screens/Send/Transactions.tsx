@@ -62,7 +62,7 @@ function Transactions({ transactions, addTransaction = () => {} }) {
             >
               {address}
             </Text>
-            <Text fontFamily="body" fontStyle="italic" fontSize={10} numberOfLines={1}>
+            <Text fontFamily="body" fontSize={10} numberOfLines={1} style={styles.amount}>
               {amount}
             </Text>
           </Box>
@@ -106,6 +106,9 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: wp(10),
+  },
+  amount: {
+    fontStyle: 'italic',
   },
 });
 export default Transactions;
