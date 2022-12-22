@@ -156,24 +156,12 @@ function VaultInfo({ vault }: { vault: Vault }) {
         </HStack>
       </HStack>
       <HStack justifyContent="space-between" paddingBottom={10} paddingTop={6}>
-        <Text
-          color="light.white"
-          marginLeft={wp(3)}
-          fontSize={10}
-          fontWeight={300}
-          letterSpacing={1.28}
-        >
+        <Text color="light.white" marginLeft={wp(3)} fontSize={10} bold letterSpacing={1.28}>
           Available to spend
         </Text>
         <HStack alignItems="center">
           <BTC />
-          <Text
-            color="light.white"
-            marginLeft={wp(3)}
-            fontSize={14}
-            fontWeight={300}
-            letterSpacing={1.28}
-          >
+          <Text color="light.white" marginLeft={wp(3)} fontSize={14} bold letterSpacing={1.28}>
             {confirmed}
           </Text>
         </HStack>
@@ -220,7 +208,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
                   color="light.primaryGreen"
                   marginRight={1}
                   fontSize={11}
-                  fontWeight={300}
+                  bold
                   letterSpacing={0.6}
                 >
                   View All
@@ -275,13 +263,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text
-                color="light.white"
-                fontSize={11}
-                fontWeight={300}
-                letterSpacing={0.6}
-                textAlign="center"
-              >
+              <Text color="light.white" fontSize={11} bold letterSpacing={0.6} textAlign="center">
                 Add signing device to upgrade
               </Text>
             </VStack>

@@ -40,13 +40,7 @@ function OnboardingSlideComponent(props) {
             onPress={() => props.navigation.replace('NewKeeperApp')}
             style={styles.buttonWrapper}
           >
-            <Text
-              fontSize={14}
-              color="light.white"
-              fontFamily="heading"
-              textAlign="center"
-              fontWeight={300}
-            >
+            <Text fontSize={14} color="light.white" fontFamily="heading" textAlign="center" bold>
               Start App&nbsp;&nbsp;
             </Text>
             <Skip />

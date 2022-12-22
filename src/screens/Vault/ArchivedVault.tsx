@@ -44,7 +44,7 @@ function ArchivedVault() {
               marginBottom: hp(10),
             }}
           >
-            <Text color="light.headerText" fontSize={16} fontWeight={300}>
+            <Text color="light.headerText" fontSize={16} bold>
               {vaultItem?.specs?.transactions?.length}
             </Text>
             <Text color="light.textBlack" fontSize={12} marginLeft={1} letterSpacing={0.72}>
@@ -81,7 +81,7 @@ function ArchivedVault() {
               style={styles.date}
               color="light.textBlack"
               fontSize={12}
-              fontWeight={300}
+              bold
               letterSpacing={0.02}
             >
               {` ${'12 December, 2021'}`}

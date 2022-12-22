@@ -177,7 +177,7 @@ function SetupSigningServer({ route }: { route }) {
               <Text
                 textAlign="center"
                 color="light.recieverAddress"
-                fontWeight={300}
+                bold
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"

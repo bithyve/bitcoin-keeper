@@ -57,7 +57,7 @@ function TransferPolicy({ wallet, close }) {
           </View>
           <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
-            fontWeight={300}
+            bold
             fontSize={15}
             color="light.greenText"
             marginLeft={3}

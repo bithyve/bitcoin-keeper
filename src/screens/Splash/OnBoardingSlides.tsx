@@ -103,7 +103,7 @@ function OnBoardingSlides({ navigation }) {
                   fontSize={14}
                   color="light.white"
                   fontFamily="heading"
-                  fontWeight={300}
+                  bold
                   textAlign="right"
                   opacity={0.7}
                 >
@@ -160,7 +160,7 @@ function OnBoardingSlides({ navigation }) {
                     height: hp(40),
                   }}
                 >
-                  <Text color="light.lightAccent" fontSize={14} fontWeight={300}>
+                  <Text color="light.lightAccent" fontSize={14} bold>
                     {common.seeFAQs}
                   </Text>
                 </Box>

@@ -140,7 +140,7 @@ function AddSendAmount({ route }) {
               width="70%"
               fontSize={12}
               letterSpacing={1.04}
-              fontWeight={300}
+              bold
               borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}

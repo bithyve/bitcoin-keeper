@@ -45,7 +45,7 @@ function TimelockScreen() {
               />
               <Text
                 color="light.textColor2"
-                fontWeight={300}
+                bold
                 letterSpacing={2.8}
                 fontSize={13}
                 marginTop={hp(40)}

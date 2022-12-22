@@ -44,7 +44,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         >
           <Text
             fontSize={20}
-            fontWeight={300}
+            bold
             letterSpacing={1.64}
             // marginRight={3}
             color="light.greenText2"

@@ -56,7 +56,7 @@ function ChoosePlanCarousel(props) {
           <Box py={5} alignItems="center" justifyContent="center">
             {subscription.productId === item.productId && (
               <Box bg="light.white" borderRadius={10} px={2}>
-                <Text fontSize={8} letterSpacing={0.64} fontWeight={300}>
+                <Text fontSize={8} letterSpacing={0.64} bold>
                   Current
                 </Text>
               </Box>

@@ -101,7 +101,7 @@ function AppGeneratePass(props: any) {
           <CopyIcon />
         </Box>
         <Box w="80%">
-          <Text fontSize={12} fontWeight={300}>
+          <Text fontSize={12} bold>
             Backing up drive
           </Text>
           <Text fontSize={12}>Lorem ipsum dolor sit amet</Text>
