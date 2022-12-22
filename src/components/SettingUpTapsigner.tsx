@@ -51,7 +51,7 @@ function SettingUpTapsigner(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {tapsigner.SetupTitle}
         </Text>
         <Text fontSize={13} color="light.secondaryText">

@@ -44,7 +44,7 @@ function DeviceItem({ device, onSelectDevice }) {
   };
   return (
     <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
-      <Text color="light.white" fontSize={14} fontFamily="heading" letterSpacing={1.12}>
+      <Text color="light.white" fontSize={14} letterSpacing={1.12}>
         {device.name}
       </Text>
       {pending ? <ActivityIndicator /> : null}

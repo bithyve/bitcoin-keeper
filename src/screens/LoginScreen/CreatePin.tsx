@@ -155,7 +155,7 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text style={styles.welcomeText} color="light.white" fontFamily="heading">
+              <Text style={styles.welcomeText} color="light.white">
                 {login.welcome}
               </Text>
               <Text color="light.textColor" style={styles.labelText}>

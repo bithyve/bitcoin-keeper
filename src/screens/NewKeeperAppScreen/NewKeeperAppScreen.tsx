@@ -169,13 +169,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               marginBottom: hp(10),
             }}
           >
-            <Text
-              color="light.textBlack"
-              fontSize={18}
-              fontFamily="heading"
-              px="8"
-              letterSpacing={0.9}
-            >
+            <Text color="light.textBlack" fontSize={18} px="8" letterSpacing={0.9}>
               New Keeper App
             </Text>
             <Text color="light.GreyText" fontSize={12} px="8" letterSpacing={0.6}>
@@ -197,13 +191,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               marginTop: hp(70),
             }}
           >
-            <Text
-              color="light.textBlack"
-              fontSize={18}
-              fontFamily="heading"
-              px="8"
-              letterSpacing={0.9}
-            >
+            <Text color="light.textBlack" fontSize={18} px="8" letterSpacing={0.9}>
               Existing Keeper App
             </Text>
             <Text color="light.textBlack" fontSize={12} px="8">

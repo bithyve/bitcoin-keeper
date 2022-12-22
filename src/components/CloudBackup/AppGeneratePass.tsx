@@ -40,7 +40,7 @@ function AppGeneratePass(props: any) {
         </Box>
       </TouchableOpacity>
       <Box px={10} py={5}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.appGeneratePassTitle}
         </Text>
         <Text fontSize={13} color="light.primaryText">

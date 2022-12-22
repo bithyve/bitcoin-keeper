@@ -19,7 +19,7 @@ function AppVersionHistory({ navigation }) {
       </Box>
 
       <Box style={styles.versionHistoryTitleWrapper}>
-        <Text color="light.headerText" fontFamily="heading" style={styles.versionHistoryTitle}>
+        <Text color="light.headerText" style={styles.versionHistoryTitle}>
           Version History
         </Text>
       </Box>

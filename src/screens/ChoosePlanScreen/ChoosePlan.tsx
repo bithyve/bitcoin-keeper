@@ -252,7 +252,7 @@ function ChoosePlan(props) {
                 <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
                   {getBenifitsTitle(items[currentPosition].name)}:
                 </Text>
-                {/* <Text fontSize={(12)} color={'light.GreyText'} fontFamily={'body'}>
+                {/* <Text fontSize={(12)} color={'light.GreyText'} >
             {items[currentPosition].subTitle}
           </Text> */}
               </Box>

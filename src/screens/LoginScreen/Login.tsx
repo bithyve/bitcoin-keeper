@@ -231,7 +231,6 @@ function LoginScreen({ navigation, route }) {
               ml={5}
               color="light.white"
               fontSize={22}
-              fontFamily="heading"
               style={{
                 marginTop: heightPercentageToDP('10%'),
               }}
@@ -244,7 +243,7 @@ function LoginScreen({ navigation, route }) {
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
-                {/* <Text fontSize={(13)} fontFamily={'body'}>
+                {/* <Text fontSize={(13)} >
                   {login.passcode}
                 </Text> */}
               </Text>

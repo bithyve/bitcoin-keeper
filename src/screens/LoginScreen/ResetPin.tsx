@@ -132,7 +132,7 @@ export default function ResetPin(props) {
         <Box style={styles.wrapper}>
           <Box>
             <Box>
-              <Text style={styles.titleText} color="light.white" fontFamily="heading">
+              <Text style={styles.titleText} color="light.white">
                 {login.ResetPasscode}
               </Text>
               <Text style={styles.labelText} color="light.white">

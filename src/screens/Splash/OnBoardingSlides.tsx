@@ -99,14 +99,7 @@ function OnBoardingSlides({ navigation }) {
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
-                <Text
-                  fontSize={14}
-                  color="light.white"
-                  fontFamily="heading"
-                  bold
-                  textAlign="right"
-                  opacity={0.7}
-                >
+                <Text fontSize={14} color="light.white" bold textAlign="right" opacity={0.7}>
                   Skip&nbsp;&nbsp;
                 </Text>
                 <Skip />

@@ -31,7 +31,7 @@ function BackupSuccessful(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {props.title}
         </Text>
         <Text fontSize={13} color="light.primaryText">
