@@ -12,21 +12,14 @@ function AuthHandler({ status, fixAuthDelay }) {
 
   return (
     <Box p={2}>
-      <Text
-        color="error.500"
-        fontSize={16}
-        fontFamily="body"
-        bold
-        letterSpacing={1}
-        textAlign="center"
-      >
+      <Text color="error.500" fontSize={16} bold letterSpacing={1} textAlign="center">
         {text}
       </Text>
-      <Text fontSize={12} fontFamily="body" letterSpacing={1} textAlign="center">
+      <Text fontSize={12} letterSpacing={1} textAlign="center">
         Hold the card for about 15 seconds to unlock it.
       </Text>
       <TouchableOpacity onPress={fixAuthDelay}>
-        <Text fontSize={16} fontFamily="body" bold letterSpacing={1} textAlign="center">
+        <Text fontSize={16} bold letterSpacing={1} textAlign="center">
           Unlock
         </Text>
       </TouchableOpacity>

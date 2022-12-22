@@ -32,15 +32,15 @@ function SkipHealthCheck(props) {
         <Text fontSize={19} color="light.primaryText" fontFamily="heading">
           {BackupWallet.skipHealthCheckTitle}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.skipHealthCheckSubTitle}
         </Text>
       </Box>
       <Box p={10}>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body" mb={5} mt={10}>
+        <Text fontSize={13} color="light.primaryText" mb={5} mt={10}>
           {BackupWallet.skipHealthCheckPara01}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>

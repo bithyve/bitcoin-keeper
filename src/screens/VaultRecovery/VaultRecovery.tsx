@@ -136,7 +136,7 @@ function VaultRecovery() {
         <Box alignSelf="center">
           <SuccessSvg />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           The BIP-85 wallets in the app are new as they can’t be recovered using this method
         </Text>
       </View>

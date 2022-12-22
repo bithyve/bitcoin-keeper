@@ -60,10 +60,10 @@ function SuccessModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={1}>
+              <Text style={styles.title} color={textColor} paddingBottom={1}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -72,14 +72,7 @@ function SuccessModal(props) {
             </Modal.Body>
             <Box alignItems="center" alignSelf="flex-end" bg="transparent" flexDirection="row">
               <TouchableOpacity onPress={cancelButtonPressed}>
-                <Text
-                  fontSize={13}
-                  fontFamily="body"
-                  bold
-                  letterSpacing={1}
-                  color={cancelButtonColor}
-                  mr={wp(18)}
-                >
+                <Text fontSize={13} bold letterSpacing={1} color={cancelButtonColor} mr={wp(18)}>
                   {cancelButtonText}
                 </Text>
               </TouchableOpacity>
@@ -90,13 +83,7 @@ function SuccessModal(props) {
                   colors={buttonBackground}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    bold
-                    letterSpacing={1}
-                    color={buttonTextColor}
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>
                 </LinearGradient>

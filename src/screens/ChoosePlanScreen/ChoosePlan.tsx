@@ -259,14 +259,7 @@ function ChoosePlan(props) {
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
                   <Box flexDirection="row" alignItems="center">
-                    <Text
-                      fontSize={13}
-                      color="light.GreyText"
-                      mb={2}
-                      ml={3}
-                      fontFamily="body"
-                      letterSpacing={0.65}
-                    >
+                    <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
                       {`• ${i}`}
                     </Text>
                   </Box>

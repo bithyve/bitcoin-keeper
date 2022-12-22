@@ -27,7 +27,6 @@ function OnboardingSlideComponent(props) {
         <Text
           fontSize={14}
           color="light.white"
-          fontFamily="body"
           textAlign="center"
           letterSpacing={1.4}
           maxWidth={hp(315)}

@@ -125,20 +125,18 @@ function SignWithColdCard({ route }) {
         <VStack>
           <Box bg={`${colorMode}.offWhite`} p={2}>
             <Box opacity={1}>
-              <Text fontSize={14} fontFamily="body" color="light.primaryText">
+              <Text fontSize={14} color="light.primaryText">
                 Note
               </Text>
             </Box>
             <HStack alignItems="center">
-              <Text fontSize={13} fontFamily="body">
-                Coldcard is showing an error?
-              </Text>
+              <Text fontSize={13}>Coldcard is showing an error?</Text>
               <TouchableOpacity
                 onPress={() => {
                   showMk4Helper(true);
                 }}
               >
-                <Text fontSize={14} fontFamily="body" bold>
+                <Text fontSize={14} bold>
                   {' Need Help?'}
                 </Text>
               </TouchableOpacity>
@@ -162,12 +160,8 @@ function SignWithColdCard({ route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14} fontFamily="body">
-                  Manually Register Mk4
-                </Text>
-                <Text fontSize={12} fontFamily="body">
-                  Please resigister the Vault if not already registered
-                </Text>
+                <Text fontSize={14}>Manually Register Mk4</Text>
+                <Text fontSize={12}>Please resigister the Vault if not already registered</Text>
               </VStack>
               <Arrow />
             </TouchableOpacity>
@@ -180,10 +174,8 @@ function SignWithColdCard({ route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14} fontFamily="body">
-                  Learn more about Mk4
-                </Text>
-                <Text fontSize={12} fontFamily="body">
+                <Text fontSize={14}>Learn more about Mk4</Text>
+                <Text fontSize={12}>
                   Here you will find all of our User Documentation for the COLDCARD.
                 </Text>
               </VStack>

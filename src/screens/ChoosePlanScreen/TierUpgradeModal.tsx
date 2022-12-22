@@ -13,7 +13,7 @@ function Content({ isUpgrade }) {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text color="light.greenText" fontSize={11} fontFamily="body" p={1} letterSpacing={0.65}>
+        <Text color="light.greenText" fontSize={11} p={1} letterSpacing={0.65}>
           {isUpgrade
             ? `To use the vault, add signing devices`
             : 'To use the vault, remove signing devices'}

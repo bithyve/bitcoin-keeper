@@ -240,13 +240,7 @@ function LoginScreen({ navigation, route }) {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text
-                fontSize={13}
-                ml={5}
-                letterSpacing={0.65}
-                color="light.textColor"
-                fontFamily="body"
-              >
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.textColor">
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
@@ -312,7 +306,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text color="light.white" bold fontSize={14} fontFamily="body">
+              <Text color="light.white" bold fontSize={14}>
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>

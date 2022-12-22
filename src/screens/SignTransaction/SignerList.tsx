@@ -52,13 +52,7 @@ function SignerList({
               >
                 {`${signer.signerName} (${signer.xpubInfo.xfp})`}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontSize={12}
-                marginRight={10}
-                fontFamily="body"
-                letterSpacing={0.6}
-              >
+              <Text color="light.GreyText" fontSize={12} marginRight={10} letterSpacing={0.6}>
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
               </Text>
               {!!signer.signerDescription && (

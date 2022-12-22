@@ -8,12 +8,12 @@ function LanguageNote(props) {
   return (
     <Box bg="light.primaryBackground" mx={5} p={3} height={hp(82)} justifyContent="center">
       <Box opacity={1}>
-        <Text fontSize={14} fontFamily="body" color="light.primaryText" letterSpacing={1.12}>
+        <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
           {props.title}
         </Text>
       </Box>
       <Box flexDirection="row">
-        <Text fontSize={12} width={80} fontFamily="body" color="light.GreyText" letterSpacing={0.6}>
+        <Text fontSize={12} width={80} color="light.GreyText" letterSpacing={0.6}>
           {props.subtitle}
         </Text>
         <ArrowIcon marginTop={5} />

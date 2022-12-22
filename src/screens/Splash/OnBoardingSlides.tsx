@@ -186,13 +186,7 @@ function OnBoardingSlides({ navigation }) {
                       colors={['#FFFFFF', '#80A8A1']}
                       style={styles.cta}
                     >
-                      <Text
-                        fontSize={13}
-                        fontFamily="body"
-                        bold
-                        letterSpacing={1}
-                        color="light.greenText"
-                      >
+                      <Text fontSize={13} bold letterSpacing={1} color="light.greenText">
                         Start App
                       </Text>
                     </LinearGradient>

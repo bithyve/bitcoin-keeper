@@ -135,7 +135,7 @@ export default function ResetPin(props) {
               <Text style={styles.titleText} color="light.white" fontFamily="heading">
                 {login.ResetPasscode}
               </Text>
-              <Text style={styles.labelText} color="light.white" fontFamily="body">
+              <Text style={styles.labelText} color="light.white">
                 {login.Createpasscode}
               </Text>
 
@@ -144,7 +144,7 @@ export default function ResetPin(props) {
               {/*  */}
             </Box>
             <Box>
-              <Text style={styles.labelText} color="light.white" fontFamily="body">
+              <Text style={styles.labelText} color="light.white">
                 {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>

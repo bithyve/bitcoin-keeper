@@ -15,10 +15,10 @@ function SettingsSwitchCard(props) {
       {...props}
     >
       <Box flex={1}>
-        <Text color="light.primaryText" fontFamily="body" fontSize={14} letterSpacing={1.04}>
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.04}>
           {props.title}
         </Text>
-        <Text color="light.GreyText" fontFamily="body" letterSpacing={0.36} fontSize={12}>
+        <Text color="light.GreyText" letterSpacing={0.36} fontSize={12}>
           {props.description}
         </Text>
       </Box>

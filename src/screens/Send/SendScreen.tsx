@@ -144,7 +144,7 @@ function SendScreen({ route }) {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontFamily="body" fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
+          <Text fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
@@ -189,7 +189,7 @@ function SendScreen({ route }) {
 
             {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
+              <Text marginX={5} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>

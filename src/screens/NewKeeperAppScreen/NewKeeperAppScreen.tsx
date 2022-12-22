@@ -43,22 +43,10 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
           width: '80%',
         }}
       >
-        <Text
-          color="light.primaryText"
-          fontFamily="body"
-          fontSize={14}
-          letterSpacing={1.12}
-          width="90%"
-        >
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12} width="90%">
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontSize={12}
-          letterSpacing={0.6}
-          width="80%"
-        >
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6} width="80%">
           {subTitle}
         </Text>
       </Box>
@@ -190,7 +178,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             >
               New Keeper App
             </Text>
-            <Text color="light.GreyText" fontSize={12} fontFamily="body" px="8" letterSpacing={0.6}>
+            <Text color="light.GreyText" fontSize={12} px="8" letterSpacing={0.6}>
               Use this option if you want to create a new Keeper app
             </Text>
           </Box>
@@ -218,7 +206,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             >
               Existing Keeper App
             </Text>
-            <Text color="light.textBlack" fontSize={12} fontFamily="body" px="8">
+            <Text color="light.textBlack" fontSize={12} px="8">
               If you previously had a Keeper wallet you can recover it
             </Text>
 

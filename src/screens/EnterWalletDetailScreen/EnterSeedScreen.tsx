@@ -175,7 +175,7 @@ function EnterSeedScreen() {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body">
+        <Text color="#073B36" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -188,7 +188,7 @@ function EnterSeedScreen() {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           Make sure the words are entered in the correct sequence
         </Text>
       </View>

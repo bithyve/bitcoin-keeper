@@ -12,16 +12,10 @@ type Props = {
 function InfoBox({ title, desciption, width = 285 }: Props) {
   return (
     <Box flexDirection="column" marginLeft={5}>
-      <Text color="light.primaryText" fontFamily="body" fontSize={14} letterSpacing={1.12}>
+      <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
         {title}
       </Text>
-      <Text
-        width={wp(width)}
-        color="light.GreyText"
-        fontFamily="body"
-        fontSize={12}
-        letterSpacing={0.6}
-      >
+      <Text width={wp(width)} color="light.GreyText" fontSize={12} letterSpacing={0.6}>
         {desciption}
       </Text>
     </Box>

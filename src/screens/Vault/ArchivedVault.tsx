@@ -44,7 +44,7 @@ function ArchivedVault() {
               marginBottom: hp(10),
             }}
           >
-            <Text color="light.headerText" fontSize={16} fontWeight={300} fontFamily="body">
+            <Text color="light.headerText" fontSize={16} fontWeight={300}>
               {vaultItem?.specs?.transactions?.length}
             </Text>
             <Text color="light.textBlack" fontSize={12} marginLeft={1} letterSpacing={0.72}>

@@ -158,7 +158,7 @@ export default function CreatePin(props) {
               <Text style={styles.welcomeText} color="light.white" fontFamily="heading">
                 {login.welcome}
               </Text>
-              <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
+              <Text color="light.textColor" style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -177,7 +177,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
+                <Text color="light.textColor" style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>

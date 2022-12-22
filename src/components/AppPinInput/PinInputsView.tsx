@@ -42,7 +42,7 @@ function PinInputsView({
   const getPin = (num: number) => {
     if (passCode.length === num && !hide) {
       return (
-        <Text color={getTextColor()} bold fontSize={20} fontFamily="body">
+        <Text color={getTextColor()} bold fontSize={20}>
           {passCode[num - 1]}
         </Text>
       );

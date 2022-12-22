@@ -48,10 +48,10 @@ function TorSettings() {
     <ScreenWrapper>
       <HeaderTitle title="Tos Settings" subtitle="Tor deamon" />
       <Box paddingY="10">
-        <Text color="light.GreyText" fontSize={12} fontFamily="body" pl={10}>
+        <Text color="light.GreyText" fontSize={12} pl={10}>
           {`Status: ${torStatus}`}
         </Text>
-        <Text color="light.GreyText" fontSize={11} fontFamily="body" pl={10}>
+        <Text color="light.GreyText" fontSize={11} pl={10}>
           {message}
         </Text>
         <SettingsSwitchCard

@@ -142,7 +142,7 @@ function SigningServer({ navigation }) {
           <Text fontSize={10} letterSpacing={1} color="light.greenText">
             Added on 12 January 2022
           </Text>
-          <Text color="light.GreyText" fontSize={12} fontFamily="body" letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             Lorem ipsum dolor sit amet
           </Text>
         </Box>

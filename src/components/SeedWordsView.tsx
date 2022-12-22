@@ -24,13 +24,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
       )}
       <Box>
         {title && (
-          <Text
-            numberOfLines={1}
-            style={styles.addWalletText}
-            color="#00715B"
-            fontFamily="body"
-            fontSize={19}
-          >
+          <Text numberOfLines={1} style={styles.addWalletText} color="#00715B" fontSize={19}>
             {title}
           </Text>
         )}
@@ -39,7 +33,6 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
             numberOfLines={1}
             style={styles.addWalletDescription}
             color="light.primaryText"
-            fontFamily="body"
             fontWeight="100"
             fontSize={12}
           >

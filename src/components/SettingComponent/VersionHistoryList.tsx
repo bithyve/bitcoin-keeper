@@ -43,10 +43,10 @@ function VersionHistoryList() {
               <Text color="light.headerText" letterSpacing={1} fontSize={14} fontFamily="heading">
                 {item.title}
               </Text>
-              <Text color="light.GreyText" letterSpacing={1} fontSize={12} fontFamily="body">
+              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
                 {item.version}
               </Text>
-              <Text color="light.GreyText" letterSpacing={1} fontSize={12} fontFamily="body">
+              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
                 {item.releaseNote}
               </Text>
             </Box>

@@ -419,18 +419,11 @@ function VaultDetails({ route, navigation }) {
         <Box alignSelf="center">
           <VaultSetupIcon />
         </Box>
-        <Text
-          marginTop={hp(20)}
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontFamily="body"
-          p={1}
-        >
+        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} p={1}>
           Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
           select
         </Text>
-        <Text color="white" fontSize={13} letterSpacing={0.65} fontFamily="body" p={1}>
+        <Text color="white" fontSize={13} letterSpacing={0.65} p={1}>
           There are also some additional options if you do not have hardware signing devices
         </Text>
       </View>

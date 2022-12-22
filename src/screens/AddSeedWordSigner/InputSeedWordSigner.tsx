@@ -128,7 +128,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body">
+        <Text color="#073B36" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -141,7 +141,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
           ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
@@ -254,7 +254,6 @@ function InputSeedWordSigner({ route }: { route: any }) {
               <TouchableOpacity>
                 <Text
                   fontSize={13}
-                  fontFamily="body"
                   bold
                   letterSpacing={1}
                   marginTop={2}
@@ -271,7 +270,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
                   colors={['#00836A', '#073E39']}
                   style={styles.cta}
                 >
-                  <Text fontSize={13} fontFamily="body" bold letterSpacing={1} color="white">
+                  <Text fontSize={13} bold letterSpacing={1} color="white">
                     {common.next}
                   </Text>
                 </LinearGradient>

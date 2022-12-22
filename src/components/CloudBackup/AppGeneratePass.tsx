@@ -43,7 +43,7 @@ function AppGeneratePass(props: any) {
         <Text fontSize={19} color="light.primaryText" fontFamily="heading">
           {BackupWallet.appGeneratePassTitle}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
@@ -92,7 +92,7 @@ function AppGeneratePass(props: any) {
         )}
       </Box>
       <Box p={10}>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>

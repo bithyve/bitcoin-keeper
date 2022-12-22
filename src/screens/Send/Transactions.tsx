@@ -52,7 +52,6 @@ function Transactions({ transactions, addTransaction = () => {} }) {
           </TouchableOpacity>
           <Box marginLeft={wp(10)}>
             <Text
-              fontFamily="body"
               fontSize={14}
               mt="1"
               numberOfLines={1}
@@ -62,7 +61,7 @@ function Transactions({ transactions, addTransaction = () => {} }) {
             >
               {address}
             </Text>
-            <Text fontFamily="body" fontSize={10} numberOfLines={1} style={styles.amount}>
+            <Text fontSize={10} numberOfLines={1} style={styles.amount}>
               {amount}
             </Text>
           </Box>

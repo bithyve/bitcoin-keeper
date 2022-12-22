@@ -139,7 +139,7 @@ function SendConfirmation({ route }) {
         <Box alignSelf="center">
           <SuccessIcon />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           You can view the confirmation status of the transaction on any block explorer or when the
           vault transaction list is refreshed
         </Text>
@@ -514,14 +514,7 @@ function SendConfirmation({ route }) {
             px="2"
             py="2"
           >
-            <Text
-              style={styles.customPriority}
-              color="#00715B"
-              fontSize={12}
-              fontFamily="body"
-              bold
-              p={2}
-            >
+            <Text style={styles.customPriority} color="#00715B" fontSize={12} bold p={2}>
               Custom Priority
             </Text>
             <ArrowIcon />

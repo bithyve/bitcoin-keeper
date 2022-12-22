@@ -100,7 +100,7 @@ function BackupHealthCheckList() {
                   {strings[item.title]}
                 </Text>
                 {item.subtitle !== '' && (
-                  <Text color="light.GreyText" fontSize={12} fontFamily="body" letterSpacing={0.6}>
+                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
                     {item.subtitle}
                   </Text>
                 )}

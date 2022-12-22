@@ -62,14 +62,7 @@ function ChoosePlanCarousel(props) {
               </Box>
             )}
             <Box my={15}>{currentPosition === index ? item.iconFocused : item.icon}</Box>
-            <Text
-              fontSize={13}
-              bold
-              color="light.white"
-              mt={2}
-              fontFamily="body"
-              letterSpacing={0.48}
-            >
+            <Text fontSize={13} bold color="light.white" mt={2} letterSpacing={0.48}>
               {item.name}
             </Text>
             <Text fontSize={10} color="light.white" mb={2} letterSpacing={0.5}>

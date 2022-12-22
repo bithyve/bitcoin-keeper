@@ -107,7 +107,7 @@ function NewWalletModal(props) {
             </View>
           </Box>
         </View>
-        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -139,15 +139,15 @@ function NewWalletModal(props) {
             backgroundColor="transparent"
             width="90%"
           >
-            <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={1}>
+            <Text style={styles.title} color={textColor} paddingBottom={1}>
               {title}
             </Text>
           </Modal.Header>
           <Modal.Body>
-            <Text style={styles.subTitle} fontFamily="body" color={textColor}>
+            <Text style={styles.subTitle} color={textColor}>
               {createTitle}
             </Text>
-            <Text style={styles.subTitle2} fontFamily="body" color={textColor}>
+            <Text style={styles.subTitle2} color={textColor}>
               {createSubTitle}
             </Text>
           </Modal.Body>
@@ -164,10 +164,10 @@ function NewWalletModal(props) {
             />
           </Modal.Body>
           <Modal.Body>
-            <Text style={styles.subTitle} fontFamily="body" color={textColor}>
+            <Text style={styles.subTitle} color={textColor}>
               {existingButtonTitle}
             </Text>
-            <Text style={styles.subTitle2} fontFamily="body" color={textColor}>
+            <Text style={styles.subTitle2} color={textColor}>
               {existingButtonSubTitle}
             </Text>
           </Modal.Body>
@@ -196,7 +196,7 @@ function NewWalletModal(props) {
             />
           </Modal.Body>
           <Modal.Body>
-            <Text style={styles.subTitle2} fontFamily="body" color={textColor}>
+            <Text style={styles.subTitle2} color={textColor}>
               {mainDesc}
             </Text>
           </Modal.Body>
@@ -209,7 +209,6 @@ function NewWalletModal(props) {
               <TouchableOpacity onPress={buttonCallback}>
                 <Text
                   fontSize={13}
-                  fontFamily="body"
                   bold
                   letterSpacing={1}
                   marginTop={2}
@@ -226,13 +225,7 @@ function NewWalletModal(props) {
                   colors={buttonBackground}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    bold
-                    letterSpacing={1}
-                    color={buttonTextColor}
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>
                 </LinearGradient>

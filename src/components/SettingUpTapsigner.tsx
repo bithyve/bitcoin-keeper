@@ -54,7 +54,7 @@ function SettingUpTapsigner(props) {
         <Text fontSize={19} color="light.primaryText" fontFamily="heading">
           {tapsigner.SetupTitle}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" fontFamily="body">
+        <Text fontSize={13} color="light.secondaryText">
           {healthcheck.EnterCVV}
         </Text>
       </Box>

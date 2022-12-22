@@ -32,10 +32,10 @@ function TapsignerSetupContent() {
     <View>
       <TapsignerSetupImage />
       <Box marginTop="4">
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100" p={1}>
+        <Text color="#073B36" fontSize={13} fontWeight="100" p={1}>
           {`\u2022 You will need the Pin/CVC at the back of TAPSIGNER`}
         </Text>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100" p={1}>
+        <Text color="#073B36" fontSize={13} fontWeight="100" p={1}>
           {'\u2022 Make sure that TAPSIGNER is not used as a Signer on other apps'}
         </Text>
       </Box>
@@ -52,14 +52,14 @@ function ColdCardSetupContent() {
       <Box marginTop="4" alignItems="flex-start">
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
           <Box mb={hp(19)} mx={wp(10)} flexDirection="row">
-            <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100" ml={3}>
+            <Text color="#073B36" fontSize={13} fontWeight="100" ml={3}>
               {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
             </Text>
           </Box>
         </Box>
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
           <Box mb={hp(19)} mx={wp(10)} flexDirection="row">
-            <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100" ml={3}>
+            <Text color="#073B36" fontSize={13} fontWeight="100" ml={3}>
               {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
             </Text>
           </Box>

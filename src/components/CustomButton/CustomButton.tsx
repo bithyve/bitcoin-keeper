@@ -43,7 +43,7 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
         colors={['#00836A', '#FFFFFF']}
         style={styles.linearGradient}
       >
-        <Text color="#073E39" fontSize={12} bold fontFamily="body">
+        <Text color="#073E39" fontSize={12} bold>
           {value}
         </Text>
       </LinearGradient>

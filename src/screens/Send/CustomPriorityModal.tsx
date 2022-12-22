@@ -95,10 +95,10 @@ function CustomPriorityModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={2}>
+              <Text style={styles.title} color={textColor} paddingBottom={2}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -112,7 +112,7 @@ function CustomPriorityModal(props) {
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text fontFamily="body" color="#073B36" mx={windowWidth * 0.038}>
+              <Text color="#073B36" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
@@ -129,13 +129,7 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text
-                  mr={windowWidth * 0.07}
-                  color="#073E39"
-                  fontFamily="body"
-                  bold
-                  letterSpacing={1.6}
-                >
+                <Text mr={windowWidth * 0.07} color="#073E39" bold letterSpacing={1.6}>
                   Start Over
                 </Text>
               </TouchableOpacity>
@@ -152,7 +146,6 @@ function CustomPriorityModal(props) {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily="body"
                     bold
                     letterSpacing={1.6}
                     color={buttonTextColor}
