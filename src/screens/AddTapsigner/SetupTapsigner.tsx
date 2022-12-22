@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, TextInput } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, Text } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
@@ -88,7 +88,7 @@ function SetupTapsigner() {
       } else {
         message = err.toString();
       }
-      NFC.showiOSMessage(message);
+      if (Platform.OS === 'ios') NFC.showiOSMessage(message);
       showToast(message, null, 2000, true);
       closeNfc();
       card.endNfcSession();
