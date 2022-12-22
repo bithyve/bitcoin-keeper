@@ -1,5 +1,8 @@
-import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
-import { Box, DeleteIcon, Text, View } from 'native-base';
+import { ActivityIndicator, TouchableOpacity } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import { Box, Text, View } from 'native-base';
+import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
