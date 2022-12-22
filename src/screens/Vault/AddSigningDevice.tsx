@@ -3,7 +3,7 @@ import { Box, FlatList, HStack, Text, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { DerivationPurpose, SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -29,7 +29,7 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { getSignerSigTypeInfo } from 'src/hardware';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
@@ -109,7 +109,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
       </Pressable>
     );
   }
-  const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
+  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
   let shouldReconfigure = false;
   if (
     (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
@@ -214,21 +214,8 @@ const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
   );
 };
 
-const PATH_INSENSITIVE_SIGNERS = [SignerType.TAPSIGNER];
-
 const signerLimitMatchesSubscriptionScheme = ({ vaultSigners, currentSignerLimit }) =>
   vaultSigners && vaultSigners.length !== currentSignerLimit;
-
-const getSignerInfoFromPath = (signer: VaultSigner) => {
-  const purpose = WalletUtilities.getSignerPurposeFromPath(signer.xpubInfo.derivationPath);
-  if (PATH_INSENSITIVE_SIGNERS.includes(signer.type) || signer.isMock) {
-    return { isSingleSig: true, isMultiSig: true, purpose };
-  }
-  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
-    return { isSingleSig: false, isMultiSig: true, purpose };
-  }
-  return { isSingleSig: true, isMultiSig: false, purpose };
-};
 
 function AddSigningDevice() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -285,7 +272,7 @@ function AddSigningDevice() {
     if (signer) {
       if (signer.signerName.includes('*') && !signer.signerName.includes('**'))
         amfSigners.push(signer.type);
-      const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
+      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
       if (
         (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
         (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
