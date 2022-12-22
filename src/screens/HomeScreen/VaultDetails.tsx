@@ -9,10 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-// components, hooks and functions
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
-// asserts
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
@@ -319,7 +317,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', bottom: '80%', zIndex: 1 }}
+      style={{ position: 'absolute', top: `${70 - Signers.length}%`, zIndex: 2 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -479,9 +477,12 @@ function VaultDetails({ route, navigation }) {
       start={{ x: -0.5, y: 1 }}
       end={{ x: 1, y: 1 }}
     >
-      <VStack mx="8%">
-        <Header />
-        <VaultInfo vault={vault} />
+      <VStack>
+        <VStack mx="8%">
+          <Header />
+          <VaultInfo vault={vault} />
+        </VStack>
+        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
       <VStack
         backgroundColor="light.primaryBackground"
@@ -490,7 +491,6 @@ function VaultDetails({ route, navigation }) {
         flex={1}
         justifyContent="space-between"
       >
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
         <TransactionList
           transactions={transactions}
           pullDownRefresh={syncVault}
