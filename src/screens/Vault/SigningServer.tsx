@@ -55,7 +55,7 @@ function SigningServer({ navigation }) {
 
   function Description({ text }) {
     return (
-      <Text color="light.inActiveMsg" fontSize={12} fontWeight="200" letterSpacing={0.6}>
+      <Text color="light.inActiveMsg" fontSize={12} letterSpacing={0.6}>
         {text}
       </Text>
     );
@@ -136,10 +136,10 @@ function SigningServer({ navigation }) {
           <GradientIcon Icon={Server} height={hp(50)} />
         </Box>
         <Box>
-          <Text fontSize={14} fontWeight="200" letterSpacing={1.12} color="light.primaryText">
+          <Text fontSize={14} letterSpacing={1.12} color="light.primaryText">
             Signing Server
           </Text>
-          <Text fontSize={10} fontWeight="200" letterSpacing={1} color="light.greenText">
+          <Text fontSize={10} letterSpacing={1} color="light.greenText">
             Added on 12 January 2022
           </Text>
           <Text color="light.GreyText" fontSize={12} fontFamily="body" letterSpacing={0.6}>

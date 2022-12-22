@@ -29,7 +29,6 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
             style={styles.addWalletText}
             color="#00715B"
             fontFamily="body"
-            fontWeight="200"
             fontSize={19}
           >
             {title}

@@ -438,7 +438,7 @@ function TransVaultSuccessfulContent() {
       <Box alignSelf="center">
         <VaultIcon />
       </Box>
-      <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+      <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
         The transaction should be visible in the vault in some time.
       </Text>
     </Box>

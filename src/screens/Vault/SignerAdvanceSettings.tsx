@@ -110,7 +110,7 @@ function SignerAdvanceSettings({ route }: any) {
         <HStack alignItems="center">
           <Box style={styles.circle}>{WalletMap(signer.type, true).Icon}</Box>
           <VStack justifyContent="center" px={4}>
-            <Text color="white" fontSize={14} fontFamily="body" fontWeight="200">
+            <Text color="white" fontSize={14} fontFamily="body">
               {signerName}
             </Text>
             <Text color="white" fontSize={10} fontFamily="body" fontWeight="100">
@@ -127,7 +127,7 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={openDescriptionModal}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.primaryText" fontSize={14} fontFamily="body" fontWeight="200">
+            <Text color="light.primaryText" fontSize={14} fontFamily="body">
               Edit Description
             </Text>
             <Text color="light.primaryText" fontSize={12} fontFamily="body" fontWeight="100">
@@ -140,7 +140,7 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={registerSigner}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.primaryText" fontSize={14} fontFamily="body" fontWeight="200">
+            <Text color="light.primaryText" fontSize={14} fontFamily="body">
               Manual Registration
             </Text>
             <Text color="light.primaryText" fontSize={12} fontFamily="body" fontWeight="100">
@@ -154,7 +154,7 @@ function SignerAdvanceSettings({ route }: any) {
         <TouchableOpacity onPress={changePolicy}>
           <HStack style={styles.item}>
             <VStack px={4} width="90%">
-              <Text color="light.primaryText" fontSize={14} fontFamily="body" fontWeight="200">
+              <Text color="light.primaryText" fontSize={14} fontFamily="body">
                 Change Verification & Policy
               </Text>
               <Text color="light.primaryText" fontSize={12} fontFamily="body" fontWeight="100">

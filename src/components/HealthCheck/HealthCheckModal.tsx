@@ -59,13 +59,7 @@ function HealthCheckModal(props) {
             backgroundColor="transparent"
             width="90%"
           >
-            <Text
-              style={styles.title}
-              fontFamily="body"
-              fontWeight="200"
-              color={textColor}
-              paddingBottom={1}
-            >
+            <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={1}>
               {title}
             </Text>
             <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>

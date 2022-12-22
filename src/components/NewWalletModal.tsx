@@ -107,7 +107,7 @@ function NewWalletModal(props) {
             </View>
           </Box>
         </View>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -139,21 +139,15 @@ function NewWalletModal(props) {
             backgroundColor="transparent"
             width="90%"
           >
-            <Text
-              style={styles.title}
-              fontFamily="body"
-              fontWeight="200"
-              color={textColor}
-              paddingBottom={1}
-            >
+            <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={1}>
               {title}
             </Text>
           </Modal.Header>
           <Modal.Body>
-            <Text style={styles.subTitle} fontFamily="body" fontWeight="200" color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" color={textColor}>
               {createTitle}
             </Text>
-            <Text style={styles.subTitle2} fontFamily="body" fontWeight="200" color={textColor}>
+            <Text style={styles.subTitle2} fontFamily="body" color={textColor}>
               {createSubTitle}
             </Text>
           </Modal.Body>
@@ -170,10 +164,10 @@ function NewWalletModal(props) {
             />
           </Modal.Body>
           <Modal.Body>
-            <Text style={styles.subTitle} fontFamily="body" fontWeight="200" color={textColor}>
+            <Text style={styles.subTitle} fontFamily="body" color={textColor}>
               {existingButtonTitle}
             </Text>
-            <Text style={styles.subTitle2} fontFamily="body" fontWeight="200" color={textColor}>
+            <Text style={styles.subTitle2} fontFamily="body" color={textColor}>
               {existingButtonSubTitle}
             </Text>
           </Modal.Body>
@@ -202,7 +196,7 @@ function NewWalletModal(props) {
             />
           </Modal.Body>
           <Modal.Body>
-            <Text style={styles.subTitle2} fontFamily="body" fontWeight="200" color={textColor}>
+            <Text style={styles.subTitle2} fontFamily="body" color={textColor}>
               {mainDesc}
             </Text>
           </Modal.Body>

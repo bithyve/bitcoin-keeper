@@ -58,14 +58,7 @@ function SetupSuccessfully() {
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(0)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} fontFamily="body" p={1} letterSpacing={0.65}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
         </Text>
       </Box>

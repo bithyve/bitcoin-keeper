@@ -5,13 +5,7 @@ import { Box } from 'native-base';
 function Heading({ title, subTitle, alignItems = 'flex-start' }) {
   return (
     <Box marginY={4} alignItems={alignItems}>
-      <Text
-        color="light.primaryText"
-        fontSize={22}
-        fontFamily="body"
-        fontWeight="200"
-        letterSpacing={1.1}
-      >
+      <Text color="light.primaryText" fontSize={22} fontFamily="body" letterSpacing={1.1}>
         {title}
       </Text>
       <Text

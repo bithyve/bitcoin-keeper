@@ -231,7 +231,6 @@ function LoginScreen({ navigation, route }) {
               ml={5}
               color="light.white"
               fontSize={22}
-              fontWeight="200"
               fontFamily="heading"
               style={{
                 marginTop: heightPercentageToDP('10%'),
@@ -275,7 +274,7 @@ function LoginScreen({ navigation, route }) {
               </Text>
             )}
             <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text color="light.white" fontWeight="200" px="5" fontSize={13} letterSpacing={1}>
+              <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
                 Use bitcoin testnet
               </Text>
               <Switch

@@ -72,7 +72,7 @@ function ChoosePlanCarousel(props) {
             >
               {item.name}
             </Text>
-            <Text fontSize={10} color="light.white" mb={2} fontWeight="200" letterSpacing={0.5}>
+            <Text fontSize={10} color="light.white" mb={2} letterSpacing={0.5}>
               {item.subTitle}
             </Text>
             {currentPosition == index && subscription.productId !== item.productId ? (

@@ -86,7 +86,7 @@ function PasswordModal(props) {
             </View>
           </View>
         </LinearGradient>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="#073B36" fontSize={13} fontFamily="body" p={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -119,13 +119,7 @@ function PasswordModal(props) {
             backgroundColor="transparent"
             width="90%"
           >
-            <Text
-              style={styles.title}
-              fontFamily="body"
-              fontWeight="200"
-              color={textColor}
-              paddingBottom={1}
-            >
+            <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={1}>
               {title}
             </Text>
             <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>

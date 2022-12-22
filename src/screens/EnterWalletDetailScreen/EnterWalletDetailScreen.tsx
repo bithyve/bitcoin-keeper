@@ -72,7 +72,7 @@ function EnterWalletDetailScreen({ route }) {
           marginY={2}
         />
         <Box marginTop={10}>
-          <Text fontWeight="200">Transfer Policy</Text>
+          <Text>Transfer Policy</Text>
           <Input
             placeholder={wallet.TransferPolicy}
             placeholderTextColor="light.greenText"

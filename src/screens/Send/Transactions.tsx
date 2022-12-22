@@ -53,7 +53,6 @@ function Transactions({ transactions, addTransaction = () => {} }) {
           <Box marginLeft={wp(10)}>
             <Text
               fontFamily="body"
-              fontWeight="200"
               fontSize={14}
               mt="1"
               numberOfLines={1}
@@ -63,13 +62,7 @@ function Transactions({ transactions, addTransaction = () => {} }) {
             >
               {address}
             </Text>
-            <Text
-              fontFamily="body"
-              fontWeight="200"
-              fontStyle="italic"
-              fontSize={10}
-              numberOfLines={1}
-            >
+            <Text fontFamily="body" fontStyle="italic" fontSize={10} numberOfLines={1}>
               {amount}
             </Text>
           </Box>

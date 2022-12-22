@@ -172,10 +172,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <TapsignerSetupImage />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2}>
           You will need the Pin/ CVC at the back of the card
         </Text>
       </View>
@@ -186,10 +186,10 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <TapsignerSetupImage /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2} />
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2} />
       </View>
     );
   }
@@ -198,11 +198,11 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <SuccessIcon /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2}>
           You can choose to manually confirm the health of the signing device if you are sure that
           they are secure and accessible.
         </Text>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -216,7 +216,7 @@ function SigningDeviceDetails({ route }) {
           {' '}
           <Illustration />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} fontFamily="body" p={2}>
           You will be reminded in 90 days for the health check
         </Text>
       </View>

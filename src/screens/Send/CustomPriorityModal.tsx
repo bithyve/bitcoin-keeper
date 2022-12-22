@@ -95,13 +95,7 @@ function CustomPriorityModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text
-                style={styles.title}
-                fontFamily="body"
-                fontWeight="200"
-                color={textColor}
-                paddingBottom={2}
-              >
+              <Text style={styles.title} fontFamily="body" color={textColor} paddingBottom={2}>
                 {title}
               </Text>
               <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
@@ -118,7 +112,7 @@ function CustomPriorityModal(props) {
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text fontFamily="body" fontWeight="200" color="#073B36" mx={windowWidth * 0.038}>
+              <Text fontFamily="body" color="#073B36" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
