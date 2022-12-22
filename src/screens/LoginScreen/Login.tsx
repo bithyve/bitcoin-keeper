@@ -214,13 +214,7 @@ function LoginScreen({ navigation, route }) {
             alignSelf: 'center',
           }}
         />
-        <Text
-          color="light.greenText"
-          fontWeight={200}
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(260)}
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
           This feature is *only* for the testnet version of the app. The developers will get your
           message along with other information from the app.
         </Text>
@@ -253,7 +247,6 @@ function LoginScreen({ navigation, route }) {
                 letterSpacing={0.65}
                 color="light.textColor"
                 fontFamily="body"
-                fontWeight={200}
               >
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
@@ -275,7 +268,6 @@ function LoginScreen({ navigation, route }) {
                 fontSize={12}
                 fontStyle="italic"
                 textAlign="right"
-                fontWeight={200}
                 letterSpacing={0.65}
                 mr={12}
               >

@@ -74,23 +74,11 @@ function BackupWallet() {
         onPress={onPress}
       >
         <Box width="100%">
-          <Text
-            color="light.primaryText"
-            fontFamily="body"
-            fontWeight={200}
-            fontSize={14}
-            letterSpacing={1.12}
-          >
+          <Text color="light.primaryText" fontFamily="body" fontSize={14} letterSpacing={1.12}>
             {title}
           </Text>
           {subTitle ? (
-            <Text
-              color="light.GreyText"
-              fontFamily="body"
-              fontWeight={200}
-              fontSize={12}
-              letterSpacing={0.6}
-            >
+            <Text color="light.GreyText" fontFamily="body" fontSize={12} letterSpacing={0.6}>
               {subTitle}
             </Text>
           ) : null}

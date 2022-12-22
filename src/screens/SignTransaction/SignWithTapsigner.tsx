@@ -89,7 +89,6 @@ function SignWithTapsigner() {
           />
           <Text
             padding={5}
-            fontWeight={200}
             width={wp(250)}
             fontSize={13}
             letterSpacing={0.65}

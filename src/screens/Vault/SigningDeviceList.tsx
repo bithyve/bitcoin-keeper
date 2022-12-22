@@ -203,14 +203,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
       <Box justifyContent="center" alignItems="center">
         <Alert />
       </Box>
-      <Text
-        fontSize={13}
-        fontWeight={200}
-        letterSpacing={0.65}
-        width={wp(260)}
-        color="light.greenText"
-        marginY={4}
-      >
+      <Text fontSize={13} letterSpacing={0.65} width={wp(260)} color="light.greenText" marginY={4}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
       </Text>
     </Box>

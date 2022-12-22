@@ -46,7 +46,6 @@ function SignerList({
               <Text
                 color="light.textBlack"
                 fontSize={14}
-                fontWeight={200}
                 fontFamily="heading"
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
@@ -67,7 +66,6 @@ function SignerList({
                   noOfLines={1}
                   color="#6A7772"
                   fontSize={12}
-                  fontWeight={200}
                   letterSpacing={0.6}
                   fontStyle={null}
                   maxWidth={width * 0.6}

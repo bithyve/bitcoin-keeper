@@ -249,7 +249,7 @@ function ChoosePlan(props) {
 
             <Box ml={8}>
               <Box>
-                <Text fontSize={14} color="light.primaryText" fontWeight={200} letterSpacing={1.12}>
+                <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
                   {getBenifitsTitle(items[currentPosition].name)}:
                 </Text>
                 {/* <Text fontSize={(12)} color={'light.GreyText'} fontFamily={'body'}>
@@ -265,7 +265,6 @@ function ChoosePlan(props) {
                       mb={2}
                       ml={3}
                       fontFamily="body"
-                      fontWeight={200}
                       letterSpacing={0.65}
                     >
                       {`• ${i}`}

@@ -84,10 +84,10 @@ function ChoosePolicyNew({ navigation, route }) {
     return (
       <Box flexDirection="row" alignItems="center" marginTop={hp(40)}>
         <Box width={wp(175)}>
-          <Text fontWeight={200} fontSize={13} letterSpacing={0.96}>
+          <Text fontSize={13} letterSpacing={0.96}>
             {title}
           </Text>
-          <Text color="light.GreyText" fontWeight={200} fontSize={10} letterSpacing={0.5}>
+          <Text color="light.GreyText" fontSize={10} letterSpacing={0.5}>
             {subTitle}
           </Text>
         </Box>

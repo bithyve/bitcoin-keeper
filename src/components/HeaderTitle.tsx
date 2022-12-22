@@ -47,7 +47,7 @@ function HeaderTitle({
                 backgroundColor="light.lightAccent"
                 style={styles.learnMoreContainer}
               >
-                <Text color="light.learnMoreBorder" fontWeight={200} style={styles.learnMoreText}>
+                <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>

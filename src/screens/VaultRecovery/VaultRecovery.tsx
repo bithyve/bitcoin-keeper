@@ -38,11 +38,10 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
                   numberOfLines={2}
                   alignItems="center"
                   letterSpacing={1.12}
-                  fontWeight={200}
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text color="light.GreyText" fontSize={13} fontWeight={200} letterSpacing={0.6}>
+                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                   Lorem ipsum dolor sit amet, consectetur
                 </Text>
               </VStack>
@@ -77,14 +76,13 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
               numberOfLines={2}
               alignItems="center"
               letterSpacing={1.12}
-              fontWeight={200}
             >
               {signer.type}
             </Text>
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text color="light.GreyText" fontWeight={200} fontSize={12} letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             Remove
           </Text>
         </Pressable>
@@ -172,7 +170,7 @@ function VaultRecovery() {
                 <AddSignerIcon />
               </Box>
             </TouchableOpacity>
-            <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
+            <Text style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
               You can use any one of the signing devices to start with
             </Text>
           </Box>

@@ -32,17 +32,17 @@ function AddDescription({ route }) {
         <Box flexDirection="row" alignItems="center" marginTop={hp(91)}>
           <Tapsigner />
           <Box>
-            <Text fontWeight={200} fontSize={14} letterSpacing={1.12}>
+            <Text fontSize={14} letterSpacing={1.12}>
               TapSigner
             </Text>
-            <Text fontWeight={200} fontSize={10} letterSpacing={1} color="light.greenText">
+            <Text fontSize={10} letterSpacing={1} color="light.greenText">
               Added on 12 January 2022
             </Text>
           </Box>
         </Box>
 
         <Box marginTop={hp(20)} width="100%">
-          <Text textAlign="right" fontWeight={200} fontSize={10} letterSpacing={1}>
+          <Text textAlign="right" fontSize={10} letterSpacing={1}>
             2/10
           </Text>
           <TextInput

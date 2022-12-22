@@ -84,7 +84,7 @@ function SigningServer({ navigation }) {
             marginLeft={wp(15)}
             borderRadius={10}
           >
-            <Text color="light.recieverAddress" fontSize={14} fontWeight={200} letterSpacing={0.96}>
+            <Text color="light.recieverAddress" fontSize={14} letterSpacing={0.96}>
               Health Check Skipped
             </Text>
             <Description text="Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et" />
@@ -125,7 +125,7 @@ function SigningServer({ navigation }) {
           justifyContent="center"
           alignItems="center"
         >
-          <Text color="light.learnMoreBorder" fontWeight={200} letterSpacing={0.6} fontSize={12}>
+          <Text color="light.learnMoreBorder" letterSpacing={0.6} fontSize={12}>
             Learn More
           </Text>
         </Box>
@@ -172,7 +172,7 @@ function SigningServer({ navigation }) {
             marginVertical: hp(20),
           }}
         >
-          <Text color="light.greenText" fontWeight={200} fontSize={13} letterSpacing={0.65}>
+          <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
             You will be reminded in 90 days for the health check
           </Text>
         </Box>

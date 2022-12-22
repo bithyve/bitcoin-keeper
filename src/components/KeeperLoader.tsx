@@ -29,7 +29,6 @@ function KeeperLoader(props) {
         />
         <Text
           color="light.greenText"
-          fontWeight={200}
           fontSize={13}
           letterSpacing={0.65}
           marginTop={hp(60)}

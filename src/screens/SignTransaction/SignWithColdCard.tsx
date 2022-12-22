@@ -38,13 +38,7 @@ function Card({ message, buttonText, buttonCallBack }) {
           justifyContent: 'space-between',
         }}
       >
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontWeight={200}
-          width="70%"
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width="70%">
           {message}
         </Text>
         <Pressable
@@ -56,7 +50,7 @@ function Card({ message, buttonText, buttonCallBack }) {
           alignItems="center"
           onPress={buttonCallBack}
         >
-          <Text fontSize={12} letterSpacing={0.65} fontWeight={200}>
+          <Text fontSize={12} letterSpacing={0.65}>
             {buttonText}
           </Text>
         </Pressable>
@@ -131,7 +125,7 @@ function SignWithColdCard({ route }) {
         <VStack>
           <Box bg={`${colorMode}.offWhite`} p={2}>
             <Box opacity={1}>
-              <Text fontSize={14} fontFamily="body" color="light.primaryText" fontWeight={200}>
+              <Text fontSize={14} fontFamily="body" color="light.primaryText">
                 Note
               </Text>
             </Box>

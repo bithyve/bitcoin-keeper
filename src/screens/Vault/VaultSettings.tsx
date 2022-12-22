@@ -41,22 +41,10 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
-        <Text
-          color="light.primaryText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={14}
-          letterSpacing={1.12}
-        >
+        <Text color="light.primaryText" fontFamily="body" fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={12}
-          letterSpacing={0.6}
-        >
+        <Text color="light.GreyText" fontFamily="body" fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -106,14 +94,14 @@ function VaultSettings({ route }) {
           }}
         >
           <Box>
-            <Text color="light.white" letterSpacing={0.28} fontSize={14} fontWeight={200}>
+            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
               {vaultName}
             </Text>
             <Text color="light.white" letterSpacing={0.24} fontSize={12} fontWeight={100}>
               {vaultDescription}
             </Text>
           </Box>
-          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
             {vaultBalance}sats
           </Text>
         </Box>

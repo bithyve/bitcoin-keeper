@@ -40,31 +40,13 @@ function VersionHistoryList() {
               {item.date}
             </Text>
             <Box bg="light.primaryBackground" p={5} borderRadius={10} my={2} ml={5}>
-              <Text
-                color="light.headerText"
-                fontWeight={200}
-                letterSpacing={1}
-                fontSize={14}
-                fontFamily="heading"
-              >
+              <Text color="light.headerText" letterSpacing={1} fontSize={14} fontFamily="heading">
                 {item.title}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontWeight={200}
-                letterSpacing={1}
-                fontSize={12}
-                fontFamily="body"
-              >
+              <Text color="light.GreyText" letterSpacing={1} fontSize={12} fontFamily="body">
                 {item.version}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontWeight={200}
-                letterSpacing={1}
-                fontSize={12}
-                fontFamily="body"
-              >
+              <Text color="light.GreyText" letterSpacing={1} fontSize={12} fontFamily="body">
                 {item.releaseNote}
               </Text>
             </Box>

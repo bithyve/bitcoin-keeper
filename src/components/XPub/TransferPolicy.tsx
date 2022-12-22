@@ -69,13 +69,7 @@ function TransferPolicy({ wallet, close }) {
         </View>
       </Box>
       <Box py={5}>
-        <Text
-          fontSize={13}
-          color="light.greenText"
-          fontFamily="body"
-          fontWeight={200}
-          letterSpacing={0.65}
-        >
+        <Text fontSize={13} color="light.greenText" fontFamily="body" letterSpacing={0.65}>
           This will only trigger a transfer request which you need to approve before the transfer is
           done
         </Text>

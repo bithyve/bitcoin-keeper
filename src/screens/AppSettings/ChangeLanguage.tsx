@@ -190,7 +190,7 @@ function ChangeLanguage() {
         </View>
         <View style={styles.emptyView} />
         <View style={styles.textValueWrapper}>
-          <Text style={styles.textValue} fontWeight={200} color="light.GreyText">
+          <Text style={styles.textValue} color="light.GreyText">
             {value}
           </Text>
         </View>
@@ -235,10 +235,10 @@ function ChangeLanguage() {
           py={3}
         > */}
         <Box w="60%" marginLeft="10%">
-          <Text fontSize={16} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>
+          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={12} fontWeight={200} letterSpacing={0.6} style={styles.subText}>
+          <Text fontSize={12} letterSpacing={0.6} style={styles.subText}>
             {settings.biometricsDesc}
           </Text>
         </Box>

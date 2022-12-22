@@ -140,35 +140,17 @@ function VaultInfo({ vault }: { vault: Vault }) {
             <VaultIcon />
           </Box>
           <VStack>
-            <Text
-              color="light.white"
-              marginLeft={wp(3)}
-              fontSize={16}
-              fontWeight={200}
-              letterSpacing={1.28}
-            >
+            <Text color="light.white" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
               {name}
             </Text>
-            <Text
-              color="light.white"
-              marginLeft={wp(3)}
-              fontSize={12}
-              fontWeight={200}
-              letterSpacing={1.28}
-            >
+            <Text color="light.white" marginLeft={wp(3)} fontSize={12} letterSpacing={1.28}>
               {description}
             </Text>
           </VStack>
         </HStack>
         <HStack alignItems="center">
           <BTC />
-          <Text
-            color="light.white"
-            marginLeft={wp(3)}
-            fontSize={30}
-            fontWeight={200}
-            letterSpacing={1.28}
-          >
+          <Text color="light.white" marginLeft={wp(3)} fontSize={30} letterSpacing={1.28}>
             {getAmount(confirmed + unconfirmed)}
           </Text>
         </HStack>
@@ -219,13 +201,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
         <HStack justifyContent="space-between">
-          <Text
-            color="light.textBlack"
-            marginLeft={wp(3)}
-            fontSize={16}
-            fontWeight={200}
-            letterSpacing={1.28}
-          >
+          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           <TouchableOpacity>
@@ -352,7 +328,6 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <Text
                 color="light.textBlack"
                 fontSize={11}
-                fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
                 noOfLines={1}
@@ -366,7 +341,6 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <Text
                 color="light.textBlack"
                 fontSize={8}
-                fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
                 numberOfLines={2}
@@ -518,13 +492,7 @@ function VaultDetails({ route, navigation }) {
         Content={() => (
           <View>
             <Success />
-            <Text
-              fontWeight={200}
-              fontSize={13}
-              letterSpacing={0.65}
-              color="light.greenText"
-              marginTop={3}
-            >
+            <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
               For sending out of the vault you will need the signing devices. This means no one can
               steal your bitcoin in the vault unless they also have the signing devices
             </Text>

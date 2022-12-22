@@ -255,7 +255,6 @@ function SendConfirmation({ route }) {
             color="light.sendCardHeading"
             fontSize={14}
             letterSpacing={1.12}
-            fontWeight={200}
             noOfLines={1}
             maxWidth={200}
           >
@@ -339,7 +338,6 @@ function SendConfirmation({ route }) {
           color="light.primaryText"
           fontSize={14}
           letterSpacing={1.12}
-          fontWeight={200}
           marginY={windowHeight * 0.011}
         >
           {isSend ? 'Sending From' : 'Sending To'}
@@ -352,10 +350,10 @@ function SendConfirmation({ route }) {
   function Transaction() {
     return (
       <Box flexDirection="row" justifyContent="space-between" marginY={3}>
-        <Text color="light.primaryText" fontSize={14} fontWeight={200} letterSpacing={1.12}>
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        <Text color="light.GreyText" fontSize={14} fontWeight={200} letterSpacing={0.28}>
+        <Text color="light.GreyText" fontSize={14} letterSpacing={0.28}>
           {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
         </Text>
       </Box>
@@ -560,7 +558,6 @@ function SendConfirmation({ route }) {
             color="light.primaryText"
             fontSize={14}
             letterSpacing={1.12}
-            fontWeight={200}
             marginTop={windowHeight * 0.011}
           >
             Fees
@@ -573,7 +570,6 @@ function SendConfirmation({ route }) {
           color="light.primaryText"
           fontSize={14}
           letterSpacing={1.12}
-          fontWeight={200}
           marginTop={windowHeight * 0.011}
         >
           <BTC />

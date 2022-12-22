@@ -97,7 +97,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                 >
                   {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
-                <Text fontWeight={200} color="light.GreyText" fontSize={13} letterSpacing={0.6}>
+                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                   Select signing device
                 </Text>
               </VStack>
@@ -146,14 +146,13 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               fontSize={15}
               numberOfLines={1}
               alignItems="center"
-              fontWeight={200}
               letterSpacing={1.12}
               maxWidth={width * 0.5}
             >
               {`${signer.signerName}`}
               <Text fontSize={12}>{` (${signer.xpubInfo.xfp})`}</Text>
             </Text>
-            <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
+            <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
@@ -173,7 +172,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text fontWeight={200} color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>

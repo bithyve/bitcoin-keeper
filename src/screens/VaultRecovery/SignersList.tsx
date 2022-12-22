@@ -79,7 +79,6 @@ function PassportSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -90,7 +89,6 @@ function PassportSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -113,7 +111,6 @@ function SeedSignerSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -124,7 +121,6 @@ function SeedSignerSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -147,7 +143,6 @@ function KeystoneSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -158,7 +153,6 @@ function KeystoneSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -181,7 +175,6 @@ function JadeSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -192,7 +185,6 @@ function JadeSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),

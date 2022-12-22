@@ -73,15 +73,13 @@ function FogotPassword(props) {
           <Close />
         </Box>
       </TouchableOpacity>
-      <Text fontWeight={200} fontSize={19} letterSpacing={1}>
+      <Text fontSize={19} letterSpacing={1}>
         {login.ForgotPasscode}
       </Text>
-      <Text fontWeight={200} fontSize={12}>
-        {login.forgotPasscodeDesc}
-      </Text>
+      <Text fontSize={12}>{login.forgotPasscodeDesc}</Text>
       {props.type === 'seed' ? (
         <Box>
-          <Text fontWeight={200} fontSize={13} mt={10}>
+          <Text fontSize={13} mt={10}>
             Enter the
             <Text fontWeight={500} fontSize={13}>
               {` ${getSeedIndexText(resetCred.index + 1)} `}
@@ -113,7 +111,7 @@ function FogotPassword(props) {
           />
 
           {invalid && (
-            <Text fontWeight={200} color="#FF0000" m={2}>
+            <Text color="#FF0000" m={2}>
               {login.Invalidword}
             </Text>
           )}

@@ -46,13 +46,7 @@ function ArchivedVault() {
             <Text color="light.headerText" fontSize={16} fontWeight={300} fontFamily="body">
               {vaultItem?.specs?.transactions?.length}
             </Text>
-            <Text
-              color="light.textBlack"
-              fontSize={12}
-              fontWeight={200}
-              marginLeft={1}
-              letterSpacing={0.72}
-            >
+            <Text color="light.textBlack" fontSize={12} marginLeft={1} letterSpacing={0.72}>
               Transactions
             </Text>
           </Box>
@@ -68,7 +62,6 @@ function ArchivedVault() {
             <Text
               color="light.textBlack"
               fontSize={24}
-              fontWeight={200}
               letterSpacing={1.12}
               style={{
                 marginLeft: wp(4),

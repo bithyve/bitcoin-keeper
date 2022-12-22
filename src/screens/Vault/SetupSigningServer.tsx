@@ -110,7 +110,6 @@ function SetupSigningServer({ route }: { route }) {
           <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           <Text
             fontSize={13}
-            fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
             color="light.greenText"

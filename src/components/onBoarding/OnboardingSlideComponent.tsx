@@ -17,7 +17,6 @@ function OnboardingSlideComponent(props) {
           color="light.white"
           fontFamily="heading"
           textAlign="center"
-          fontWeight={200}
           letterSpacing={1.8}
         >
           {props.title}
@@ -30,7 +29,6 @@ function OnboardingSlideComponent(props) {
           color="light.white"
           fontFamily="body"
           textAlign="center"
-          fontWeight={200}
           letterSpacing={1.4}
           maxWidth={hp(315)}
         >

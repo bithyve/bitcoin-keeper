@@ -46,7 +46,6 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
         <Text
           color="light.primaryText"
           fontFamily="body"
-          fontWeight={200}
           fontSize={14}
           letterSpacing={1.12}
           width="90%"
@@ -56,7 +55,6 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
         <Text
           color="light.GreyText"
           fontFamily="body"
-          fontWeight={200}
           fontSize={12}
           letterSpacing={0.6}
           width="80%"
@@ -162,13 +160,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             alignSelf: 'center',
           }}
         />
-        <Text
-          color="light.greenText"
-          fontWeight={200}
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(240)}
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
           This feature is *only* for the testnet version of the app. The developers will get your
           message along with other information from the app.
         </Text>
@@ -194,19 +186,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
               fontSize={18}
               fontFamily="heading"
               px="8"
-              fontWeight={200}
               letterSpacing={0.9}
             >
               New Keeper App
             </Text>
-            <Text
-              fontWeight={200}
-              color="light.GreyText"
-              fontSize={12}
-              fontFamily="body"
-              px="8"
-              letterSpacing={0.6}
-            >
+            <Text color="light.GreyText" fontSize={12} fontFamily="body" px="8" letterSpacing={0.6}>
               Use this option if you want to create a new Keeper app
             </Text>
           </Box>
@@ -230,7 +214,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
               fontSize={18}
               fontFamily="heading"
               px="8"
-              fontWeight={200}
               letterSpacing={0.9}
             >
               Existing Keeper App

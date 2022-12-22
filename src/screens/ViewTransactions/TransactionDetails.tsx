@@ -34,24 +34,10 @@ function TransactionDetails({ route }) {
           padding: 3,
         }}
       >
-        <Text
-          fontWeight={200}
-          fontSize={14}
-          letterSpacing={1.12}
-          color="light.headerText"
-          width="90%"
-          noOfLines={1}
-        >
+        <Text fontSize={14} letterSpacing={1.12} color="light.headerText" width="90%" noOfLines={1}>
           {title}
         </Text>
-        <Text
-          fontWeight={200}
-          fontSize={12}
-          letterSpacing={2.4}
-          color="light.GreyText"
-          width="90%"
-          noOfLines={1}
-        >
+        <Text fontSize={12} letterSpacing={2.4} color="light.GreyText" width="90%" noOfLines={1}>
           {describtion}
         </Text>
       </Box>
@@ -84,7 +70,6 @@ function TransactionDetails({ route }) {
               }}
             >
               <Text
-                fontWeight={200}
                 fontSize={14}
                 letterSpacing={0.7}
                 color="light.headerText"
@@ -93,15 +78,15 @@ function TransactionDetails({ route }) {
               >
                 {transaction.address}
               </Text>
-              <Text fontWeight={200} fontSize={10} letterSpacing={0.5} color="light.dateText">
+              <Text fontSize={10} letterSpacing={0.5} color="light.dateText">
                 {transaction.date}
               </Text>
             </Box>
           </Box>
           <Box>
-            <Text fontWeight={200} fontSize={19} letterSpacing={0.95}>
+            <Text fontSize={19} letterSpacing={0.95}>
               {`${getAmount(transaction.amount)} `}
-              <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+              <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)}>
                 {getUnit()}
               </Text>
             </Text>

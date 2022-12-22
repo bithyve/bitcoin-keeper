@@ -107,7 +107,6 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -118,7 +117,6 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -165,7 +163,6 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -176,7 +173,6 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -202,7 +198,6 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -213,7 +208,6 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -239,7 +233,6 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -250,7 +243,6 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -276,7 +268,6 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -287,7 +278,6 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -310,7 +300,6 @@ function KeeperSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -321,7 +310,6 @@ function KeeperSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -617,7 +605,6 @@ function HardwareModalMap({ type, visible, close }) {
           />
           <Text
             fontSize={13}
-            fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
             color="light.greenText"
