@@ -8,9 +8,15 @@ import {
   Platform,
   TextInput,
   TouchableWithoutFeedback,
+  Animated,
+  Dimensions,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import PagerView, {
+  PagerViewOnPageScrollEventData,
+  PagerViewOnPageSelectedEventData,
+} from 'react-native-pager-view';
 
 import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
@@ -31,11 +37,27 @@ import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/common/utilities';
 
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
+
 function EnterSeedScreen() {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
   const { common } = translations;
+
+  const width = Dimensions.get('window').width;
+  const ref = React.useRef<PagerView>(null);
+  const scrollOffsetAnimatedValue = React.useRef(new Animated.Value(0)).current;
+  const positionAnimatedValue = React.useRef(new Animated.Value(0)).current;
+  const onPageSelectedPosition = useRef(new Animated.Value(0)).current;
+  const [currentPosition, setCurrentPosition] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [partialSeedData, setPartialSeedData] = useState([]);
+  const inputRange = [0, partialSeedData.length];
+  const scrollX = Animated.add(scrollOffsetAnimatedValue, positionAnimatedValue).interpolate({
+    inputRange,
+    outputRange: [0, partialSeedData.length * width],
+  });
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -145,6 +167,10 @@ function EnterSeedScreen() {
     }
   }, [appRecreated]);
 
+  useEffect(() => {
+    setPartialSeedDataFun(seedData);
+  }, []);
+
   const isSeedFilled = () => {
     for (let i = 0; i < 12; i++) {
       if (seedData[i].invalid) {
@@ -162,11 +188,56 @@ function EnterSeedScreen() {
     }
     return seedWord.trim();
   };
+  const onNextClick = () => {
+    const nextPosition = currentPosition + 1;
+    setCurrentPosition(nextPosition);
+    ref.current?.setPage(nextPosition);
+  };
 
+  const onPageScroll = useMemo(
+    () =>
+      Animated.event<PagerViewOnPageScrollEventData>(
+        [
+          {
+            nativeEvent: {
+              offset: scrollOffsetAnimatedValue,
+              position: positionAnimatedValue,
+            },
+          },
+        ],
+        {
+          useNativeDriver: false,
+        }
+      ),
+    []
+  );
+  const onPageSelected = useMemo(
+    () =>
+      Animated.event<PagerViewOnPageSelectedEventData>(
+        [
+          {
+            nativeEvent: {
+              position: onPageSelectedPosition,
+            },
+          },
+        ],
+        {
+          listener: ({ nativeEvent: { position } }) => {
+            setCurrentPosition(position);
+          },
+          useNativeDriver: true,
+        }
+      ),
+    []
+  );
   const onPressNext = async () => {
-    if (isSeedFilled()) {
-      const seedWord = getSeedWord();
-      dispatch(getAppImage(seedWord));
+    if (currentPosition == 0) {
+      onNextClick();
+    } else {
+      if (isSeedFilled()) {
+        const seedWord = getSeedWord();
+        dispatch(getAppImage(seedWord));
+      }
     }
   };
 
@@ -199,6 +270,44 @@ function EnterSeedScreen() {
     return number + 1;
   };
 
+  const setPartialSeedDataFun = (testingData) => {
+    const tempData = [];
+    let innerTempData = [];
+    let initPosition = 0;
+    let lastPosition = 6;
+    const totalLength = testingData.length;
+    testingData.map((item, index) => {
+      if (index != 0 && index % 6 == 0) {
+        initPosition = initPosition + 6;
+        lastPosition = lastPosition + 6 > totalLength ? totalLength : lastPosition;
+        tempData.push(innerTempData);
+        innerTempData = [];
+      }
+      innerTempData.push(item);
+    });
+    if (innerTempData.length > 0) {
+      tempData.push(innerTempData);
+    }
+    setPartialSeedData(tempData);
+    setTotal(totalLength);
+  };
+
+  const getIndex = (index, seedIndex) => {
+    let newIndex = index + seedIndex * 6;
+    let isAdd = false;
+    if (index % 2 == 0) isAdd = true;
+
+    let tempNumber = 0;
+    if (index == 0 || index == 5) tempNumber = 0;
+    else if (index == 1 || index == 4) tempNumber = 2;
+    else tempNumber = 1;
+
+    if (isAdd) newIndex -= tempNumber;
+    else newIndex += tempNumber;
+
+    return newIndex;
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -207,112 +316,140 @@ function EnterSeedScreen() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
-          <StatusBarComponent />
-          <Box marginX={10}>
-            <SeedWordsView
-              title={seed?.enterRecoveryPhrase}
-              subtitle={seed.recoverWallet}
-              onPressHandler={() => navigation.navigate('NewKeeperApp')}
-            />
-          </Box>
-          <View>
-            <FlatList
-              keyExtractor={(item, index) => index.toString()}
-              data={seedData}
-              extraData={seedData}
-              showsVerticalScrollIndicator={false}
-              numColumns={2}
-              contentContainerStyle={{
-                marginHorizontal: 15,
+        <StatusBarComponent />
+        <Box marginX={10} marginTop={windowHeight > 800 ? 20 : 5}>
+          <SeedWordsView
+            title={seed?.enterRecoveryPhrase}
+            subtitle={seed.recoverWallet}
+            onPressHandler={() => navigation.navigate('NewKeeperApp')}
+          />
+        </Box>
+        <View style={{ height: '50%' }}>
+          {partialSeedData &&
+          partialSeedData.length > 0 &&
+          partialSeedData[currentPosition] != undefined &&
+          partialSeedData[currentPosition] ? (
+            <AnimatedPagerView
+              initialPage={0}
+              ref={ref}
+              style={{
+                flex: 1,
               }}
-              renderItem={({ item, index }) => (
-                <View style={styles.inputListWrapper}>
-                  <Text style={styles.indexText} fontWeight="300">
-                    {getFormattedNumber(index)}
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      item.invalid
-                        ? {
-                            borderColor: '#F58E6F',
+              onPageScroll={onPageScroll}
+              onPageSelected={onPageSelected}
+            >
+              {partialSeedData.map((seedData, seedIndex) => (
+                <View
+                  key={seedIndex}
+                  style={{
+                    flex: 2,
+                    marginTop: 10,
+                  }}
+                >
+                  <FlatList
+                    scrollEnabled={true}
+                    keyExtractor={(item, index) => index.toString()}
+                    data={seedData}
+                    extraData={seedData}
+                    showsVerticalScrollIndicator={false}
+                    numColumns={2}
+                    contentContainerStyle={{
+                      marginHorizontal: 15,
+                    }}
+                    renderItem={({ item, index }) => (
+                      <View style={styles.inputListWrapper}>
+                        <Text style={styles.indexText} fontWeight="300">
+                          {getFormattedNumber(getIndex(index, seedIndex))}
+                        </Text>
+                        <TextInput
+                          style={[
+                            styles.input,
+                            item.invalid
+                              ? {
+                                  borderColor: '#F58E6F',
+                                }
+                              : { borderColor: '#FDF7F0' },
+                          ]}
+                          placeholder={`Enter ${getPlaceholder(getIndex(index, seedIndex))} phrase`}
+                          placeholderTextColor={'rgba(7,62,57,0.6)'}
+                          value={item?.name}
+                          textContentType="none"
+                          returnKeyType="next"
+                          autoCorrect={false}
+                          autoCapitalize="none"
+                          keyboardType={
+                            Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'
                           }
-                        : { borderColor: '#FDF7F0' },
-                    ]}
-                    placeholder={`Enter ${getPlaceholder(index)} phrase`}
-                    placeholderTextColor="rgba(7,62,57,0.6)"
-                    value={item?.name}
-                    textContentType="none"
-                    returnKeyType="next"
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
-                    onChangeText={(text) => {
-                      const data = [...seedData];
-                      data[index].name = text.trim();
-                      setSeedData(data);
-                    }}
-                    onBlur={() => {
-                      if (!bip39.wordlists.english.includes(seedData[index].name)) {
-                        const data = [...seedData];
-                        data[index].invalid = true;
-                        setSeedData(data);
-                      }
-                    }}
-                    onFocus={() => {
-                      const data = [...seedData];
-                      data[index].invalid = false;
-                      setSeedData(data);
-                    }}
+                          onChangeText={(text) => {
+                            const data = [...seedData];
+                            data[index].name = text.trim();
+                            setSeedData(data);
+                          }}
+                          onBlur={() => {
+                            if (!bip39.wordlists.english.includes(seedData[index].name)) {
+                              const data = [...seedData];
+                              data[index].invalid = true;
+                              setSeedData(data);
+                            }
+                          }}
+                          onFocus={() => {
+                            const data = [...seedData];
+                            data[index].invalid = false;
+                            setSeedData(data);
+                          }}
+                        />
+                      </View>
+                    )}
                   />
                 </View>
-              )}
-            />
-          </View>
-          <Text style={styles.seedDescText}>{seed.seedDescription}</Text>
-          <View style={styles.bottomBtnsWrapper}>
-            <Box style={styles.bottomBtnsWrapper02}>
-              <View style={styles.dot} />
-              <View style={styles.dash} />
-            </Box>
-            <Buttons
-              primaryCallback={onPressNext}
-              primaryText="Next"
-              primaryLoading={recoveryLoading}
-            />
-          </View>
-          <KeeperModal
-            visible={invalidSeedsModal}
-            close={closeInvalidSeedsModal}
-            title={seed.InvalidSeeds}
-            subTitle={seed.seedDescription}
-            buttonBackground={['#00836A', '#073E39']}
-            buttonText="Retry"
-            buttonTextColor="#FAFAFA"
-            buttonCallback={closeInvalidSeedsModal}
-            textColor="#041513"
-            Content={InValidSeedsScreen}
+              ))}
+            </AnimatedPagerView>
+          ) : (
+            <View style={{ flex: 2 }} />
+          )}
+        </View>
+        <Text style={styles.seedDescText}>{seed.seedDescription}</Text>
+        <View style={styles.bottomBtnsWrapper}>
+          <Box style={styles.bottomBtnsWrapper02}>
+            <View style={styles.dot} />
+            <View style={styles.dash} />
+          </Box>
+          <Buttons
+            primaryCallback={onPressNext}
+            primaryText="Next"
+            primaryLoading={recoveryLoading}
           />
-          <KeeperModal
-            visible={walletRecoverySuccessModal}
-            close={closeRecovery}
-            title={seed.walletRecoverySuccessful}
-            subTitle={seed.seedDescription}
-            buttonBackground={['#00836A', '#073E39']}
-            buttonText="View Wallet"
-            buttonTextColor="#FAFAFA"
-            buttonCallback={closeWalletSuccessModal}
-            textColor="#041513"
-            Content={RecoverWalletScreen}
-          />
-          {/* <ModalWrapper
+        </View>
+        <KeeperModal
+          visible={invalidSeedsModal}
+          close={closeInvalidSeedsModal}
+          title={seed.InvalidSeeds}
+          subTitle={seed.seedDescription}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText="Retry"
+          buttonTextColor="#FAFAFA"
+          buttonCallback={closeInvalidSeedsModal}
+          textColor="#041513"
+          Content={InValidSeedsScreen}
+        />
+        <KeeperModal
+          visible={walletRecoverySuccessModal}
+          close={closeRecovery}
+          title={seed.walletRecoverySuccessful}
+          subTitle={seed.seedDescription}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText="View Wallet"
+          buttonTextColor="#FAFAFA"
+          buttonCallback={closeWalletSuccessModal}
+          textColor="#041513"
+          Content={RecoverWalletScreen}
+        />
+        {/* <ModalWrapper
             visible={createCloudBackupModal}
             onSwipeComplete={() => setCreateCloudBackupModal(false)}
           >
             <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
           </ModalWrapper> */}
-        </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
