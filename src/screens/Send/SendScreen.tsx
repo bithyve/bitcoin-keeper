@@ -47,7 +47,6 @@ function SendScreen({ route }) {
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
@@ -127,7 +126,7 @@ function SendScreen({ route }) {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      if (sender.entityKind == 'VAULT') {
+      if (sender.entityKind === 'VAULT') {
         navigateToNext(getNextFreeAddress(item), TransferType.VAULT_TO_WALLET, null, item);
       } else {
         navigateToNext(getNextFreeAddress(item), TransferType.WALLET_TO_WALLET, null, item);

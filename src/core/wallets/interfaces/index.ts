@@ -132,19 +132,6 @@ export interface Transaction {
 
 export type TransactionDetails = Transaction;
 
-// export interface TransactionMetaData {
-//   receivers: { name: string; amount: number }[];
-//   sender: string;
-//   txid: string;
-//   notes: string;
-//   tags: string[];
-//   amount: number;
-//   walletType: string;
-//   address: string;
-//   isNew: boolean;
-//   type: string;
-// }
-
 export interface Balances {
   confirmed: number;
   unconfirmed: number;
@@ -202,7 +189,6 @@ export interface NodeConnect {
 }
 
 export interface TwoFADetails {
-  // TODO: modify to signing server payload(generic)
   signingServerXpub?: string;
   derivationPath?: string;
   masterFingerprint?: string;
