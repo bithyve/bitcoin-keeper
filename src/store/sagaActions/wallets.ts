@@ -123,16 +123,6 @@ export const updateSignerPolicy = (
   },
 });
 
-// export const generateSecondaryXpriv = (wallet, secondaryMnemonic: string) => {
-//   return {
-//     type: GENERATE_SECONDARY_XPRIV,
-//     payload: {
-//       wallet,
-//       secondaryMnemonic,
-//     },
-//   };
-// };
-
 export const resetTwoFA = (secondaryMnemonic) => ({
   type: RESET_TWO_FA,
   payload: {

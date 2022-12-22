@@ -86,9 +86,9 @@ function SetupSigningServer({ route }: { route }) {
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 
-  const otpContent = useCallback(() => {
-    const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState('');
 
+  const otpContent = useCallback(() => {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
       if (otp.length < 6) {
@@ -140,7 +140,7 @@ function SetupSigningServer({ route }: { route }) {
         />
       </Box>
     );
-  }, []);
+  }, [otp]);
 
   return (
     <View style={styles.Container} background="light.ReceiveBackground">
