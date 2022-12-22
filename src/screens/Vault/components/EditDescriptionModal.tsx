@@ -1,7 +1,7 @@
 import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
 import { Box, HStack, Text, VStack } from 'native-base';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import moment from 'moment';
@@ -15,7 +15,7 @@ function SignerData({ signer }: { signer: VaultSigner }) {
     <HStack>
       <Box style={styles.icon}>{WalletMap(signer.type, true).Icon}</Box>
       <VStack marginX="4" maxW="80%">
-        <Text style={styles.name} color="light.lightBlack" numberOfLines={2}>
+        <Text style={styles.name} color="light.primaryText" numberOfLines={2}>
           {signer.signerName}
         </Text>
         <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
@@ -27,13 +27,13 @@ function SignerData({ signer }: { signer: VaultSigner }) {
 }
 
 function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
-  const updateDescription = (text) => {
+  const updateDescription = useCallback((text) => {
     descRef.current = text;
-  };
+  }, []);
   const inputRef = useRef<TextInput>();
   useEffect(() => {
     setTimeout(() => {
-      inputRef.current.focus();
+      if (inputRef.current) inputRef.current.focus();
     }, 100);
   }, []);
   return (

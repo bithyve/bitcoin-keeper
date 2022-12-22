@@ -21,7 +21,6 @@ import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -235,11 +234,11 @@ const styles = ScaledSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: '0.24@s',
   },
   subtitle: {
-    fontSize: RFValue(10),
+    fontSize: 10,
     letterSpacing: '0.20@s',
   },
   qrContainer: {
@@ -259,7 +258,7 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '90%',
-    backgroundColor: Colors?.textInputBackground,
+    backgroundColor: Colors.Isabelline,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 15,

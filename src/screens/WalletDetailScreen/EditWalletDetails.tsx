@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Input, View } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
@@ -52,7 +51,7 @@ function EditWalletSettings({ route }) {
         <Input
           //   placeholder={walletText.WalletName}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
@@ -63,7 +62,7 @@ function EditWalletSettings({ route }) {
         <Input
           //   placeholder={walletText.SinglesigWallet}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
@@ -93,13 +92,13 @@ const styles = ScaledSheet.create({
     padding: '20@s',
   },
   addWalletText: {
-    fontSize: RFValue(22),
+    fontSize: 22,
     lineHeight: '20@s',
     letterSpacing: '0.7@s',
     marginTop: hp(5),
   },
   addWalletDescription: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
   },
@@ -108,7 +107,7 @@ const styles = ScaledSheet.create({
     color: '#073E39',
     marginVertical: 10,
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 0.96,
   },
   inputWrapper: {

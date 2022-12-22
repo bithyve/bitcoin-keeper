@@ -41,7 +41,7 @@ function NewWalletModal(props) {
   const navigation = useNavigation();
 
   const { translations } = useContext(LocalizationContext);
-  const {seed} = translations;
+  const { seed } = translations;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
@@ -250,7 +250,6 @@ function NewWalletModal(props) {
           close={close}
           title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
           subTitle={seed.seedDescription}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText="Next"
           buttonTextColor="#FAFAFA"
@@ -264,7 +263,6 @@ function NewWalletModal(props) {
           title={'Confirm Password'}
           subTitle={seed.seedDescription}
           dscription={seed.seedDescription}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonText={'Next'}
           buttonTextColor={'#FAFAFA'}

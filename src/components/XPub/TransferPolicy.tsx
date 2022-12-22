@@ -2,9 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Box, Text, View } from 'native-base';
 import { Alert } from 'react-native';
 
-import { useAppDispatch } from 'src/store/hooks';
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp } from 'src/common/data/responsiveness/responsive';
@@ -17,7 +15,7 @@ import Buttons from '../Buttons';
 
 function TransferPolicy({ wallet, close }) {
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
+  const { common } = translations;
   const [policyText, setPolicyText] = useState('');
 
   const onPressNumber = (digit) => {
@@ -50,7 +48,7 @@ function TransferPolicy({ wallet, close }) {
           justifyContent="center"
           alignItems="center"
           borderRadius={5}
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           padding={3}
         >
           <View marginLeft={4}>
@@ -71,13 +69,14 @@ function TransferPolicy({ wallet, close }) {
       </Box>
       <Box py={5}>
         <Text
-          fontSize={RFValue(13)}
-          color="light.modalText"
+          fontSize={13}
+          color="light.greenText"
           fontFamily="body"
           fontWeight={200}
           letterSpacing={0.65}
         >
-          This will only trigger a transfer request which you need to approve before the transfer is done
+          This will only trigger a transfer request which you need to approve before the transfer is
+          done
         </Text>
       </Box>
 

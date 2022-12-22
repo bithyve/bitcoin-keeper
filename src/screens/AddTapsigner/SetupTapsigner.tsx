@@ -133,16 +133,16 @@ function SetupTapsigner() {
               width={wp(250)}
               fontSize={13}
               letterSpacing={0.65}
-              color="light.modalText"
+              color="light.greenText"
             >
               You will be scanning the TAPSIGNER after this step
             </Text>
             <Box
               style={{
                 flex: 1,
-                justifyContent: "flex-end",
-                flexDirection: "row",
-                marginRight: wp(15)
+                justifyContent: 'flex-end',
+                flexDirection: 'row',
+                marginRight: wp(15),
               }}
             >
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />

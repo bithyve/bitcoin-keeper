@@ -65,7 +65,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Send />
-          <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Send
           </Text>
         </TouchableOpacity>
@@ -76,7 +76,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Recieve />
-          <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Receive
           </Text>
         </TouchableOpacity>
@@ -87,7 +87,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Buy />
-          <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Buy
           </Text>
         </TouchableOpacity>
@@ -98,7 +98,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <IconSettings />
-          <Text color="light.lightBlack" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
             Settings
           </Text>
         </TouchableOpacity>
@@ -118,7 +118,7 @@ function Header() {
         <BackIcon />
       </TouchableOpacity>
       <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-        <Text color="light.white1" fontSize={12} letterSpacing={0.84} fontWeight={100}>
+        <Text color="light.white" fontSize={12} letterSpacing={0.84} fontWeight={100}>
           Know More
         </Text>
       </TouchableOpacity>
@@ -142,7 +142,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
           </Box>
           <VStack>
             <Text
-              color="light.white1"
+              color="light.white"
               marginLeft={wp(3)}
               fontSize={16}
               fontWeight={200}
@@ -151,7 +151,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
               {name}
             </Text>
             <Text
-              color="light.white1"
+              color="light.white"
               marginLeft={wp(3)}
               fontSize={12}
               fontWeight={200}
@@ -164,7 +164,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <HStack alignItems="center">
           <BTC />
           <Text
-            color="light.white1"
+            color="light.white"
             marginLeft={wp(3)}
             fontSize={30}
             fontWeight={200}
@@ -176,7 +176,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       </HStack>
       <HStack justifyContent="space-between" paddingBottom={10} paddingTop={6}>
         <Text
-          color="light.white1"
+          color="light.white"
           marginLeft={wp(3)}
           fontSize={10}
           fontWeight={300}
@@ -187,7 +187,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
         <HStack alignItems="center">
           <BTC />
           <Text
-            color="light.white1"
+            color="light.white"
             marginLeft={wp(3)}
             fontSize={14}
             fontWeight={300}
@@ -242,7 +242,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
                 }}
               >
                 <Text
-                  color="light.light"
+                  color="light.primaryGreen"
                   marginRight={1}
                   fontSize={11}
                   fontWeight={300}
@@ -484,7 +484,7 @@ function VaultDetails({ route, navigation }) {
         <VaultInfo vault={vault} />
       </VStack>
       <VStack
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         px={wp(28)}
         borderTopLeftRadius={20}
         flex={1}
@@ -511,7 +511,7 @@ function VaultDetails({ route, navigation }) {
         title="New Vault Created"
         subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText="View Vault"
-        subTitleColor="light.lightBlack2"
+        subTitleColor="light.secondaryText"
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={() => (
@@ -521,7 +521,7 @@ function VaultDetails({ route, navigation }) {
               fontWeight={200}
               fontSize={13}
               letterSpacing={0.65}
-              color="light.modalText"
+              color="light.greenText"
               marginTop={3}
             >
               For sending out of the vault you will need the signing devices. This means no one can

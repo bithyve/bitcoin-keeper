@@ -305,7 +305,6 @@ function InputSeedWordSigner({ route }) {
               close={closeInvalidSeedsModal}
               title={seed.InvalidSeeds}
               subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
               buttonText="Retry"
               buttonTextColor="#FAFAFA"
@@ -318,7 +317,6 @@ function InputSeedWordSigner({ route }) {
               close={closeRecovery}
               title={seed.walletRecoverySuccessful}
               subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
               buttonText="View Wallet"
               buttonTextColor="#FAFAFA"

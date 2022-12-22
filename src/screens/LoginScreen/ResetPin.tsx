@@ -5,11 +5,9 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -203,14 +201,14 @@ const styles = StyleSheet.create({
   titleText: {
     marginLeft: 18,
     marginTop: hp(4),
-    fontSize: RFValue(20),
+    fontSize: 20,
   },
   labelText: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     marginLeft: 20,
   },
   errorText: {
-    fontSize: RFValue(13),
+    fontSize: 13,
     fontWeight: '400',
     width: wp('68%'),
     textAlign: 'right',

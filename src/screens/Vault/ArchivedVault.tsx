@@ -22,7 +22,7 @@ function ArchivedVault() {
   function VaultItem({ vaultItem, index }: { vaultItem: Vault; index: number }) {
     return (
       <Pressable
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         height={hp(135)}
         width={wp(300)}
         flexDirection="row"

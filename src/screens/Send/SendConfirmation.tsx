@@ -235,12 +235,12 @@ function SendConfirmation({ route }) {
     return (
       <Box
         borderRadius={10}
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         flexDirection="row"
         padding={windowHeight * 0.019}
       >
         <Box
-          backgroundColor="light.yellow1"
+          backgroundColor="light.accent"
           height={10}
           width={10}
           borderRadius={20}
@@ -335,7 +335,7 @@ function SendConfirmation({ route }) {
     return (
       <Box marginY={windowHeight * 0.01}>
         <Text
-          color="light.lightBlack"
+          color="light.primaryText"
           fontSize={14}
           letterSpacing={1.12}
           fontWeight={200}
@@ -351,10 +351,10 @@ function SendConfirmation({ route }) {
   function Transaction() {
     return (
       <Box flexDirection="row" justifyContent="space-between" marginY={3}>
-        <Text color="light.lightBlack" fontSize={14} fontWeight={200} letterSpacing={1.12}>
+        <Text color="light.primaryText" fontSize={14} fontWeight={200} letterSpacing={1.12}>
           Transaction Priority
         </Text>
-        <Text color="light.seedText" fontSize={14} fontWeight={200} letterSpacing={0.28}>
+        <Text color="light.GreyText" fontSize={14} fontWeight={200} letterSpacing={0.28}>
           {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
         </Text>
       </Box>
@@ -556,7 +556,7 @@ function SendConfirmation({ route }) {
       <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
         <VStack>
           <Text
-            color="light.lightBlack"
+            color="light.primaryText"
             fontSize={14}
             letterSpacing={1.12}
             fontWeight={200}
@@ -564,12 +564,12 @@ function SendConfirmation({ route }) {
           >
             Fees
           </Text>
-          <Text color="light.lightBlack" fontSize={12} letterSpacing={1.12} fontWeight={100}>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} fontWeight={100}>
             ~ 10 - 30 mins
           </Text>
         </VStack>
         <Text
-          color="light.lightBlack"
+          color="light.primaryText"
           fontSize={14}
           letterSpacing={1.12}
           fontWeight={200}

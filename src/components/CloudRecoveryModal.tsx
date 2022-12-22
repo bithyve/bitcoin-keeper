@@ -78,7 +78,7 @@ function CloudRecoveryModal(props) {
         {downloadingBackup ? (
           <ActivityIndicator
             size="large"
-            color={Colors.primary}
+            color={Colors.RichGreen}
             style={{ height: '70%', alignSelf: 'center' }}
           />
         ) : (
@@ -106,12 +106,7 @@ function CloudRecoveryModal(props) {
               >
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily="body"
-                fontWeight="100"
-                color={textColor}
-              >
+              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>

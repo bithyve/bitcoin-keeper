@@ -1,7 +1,6 @@
 import { Box, Text } from 'native-base';
 
 import BackButton from 'src/assets/images/svgs/back.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
@@ -39,7 +38,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletDescription}
-            color="light.lightBlack"
+            color="light.primaryText"
             fontFamily="body"
             fontWeight="100"
             fontSize={12}
@@ -57,14 +56,14 @@ const styles = ScaledSheet.create({
     backgroundColor: 'transparent',
   },
   addWalletText: {
-    fontSize: RFValue(16),
+    fontSize: 16,
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
     paddingHorizontal: '10@s',
     paddingTop: '15@s',
   },
   addWalletDescription: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
     paddingHorizontal: '10@s',
