@@ -198,7 +198,6 @@ function EnterSeedScreen() {
     if (number < 9) return `0${number + 1}`;
     return number + 1;
   };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -207,7 +206,7 @@ function EnterSeedScreen() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
+        <ScrollView marginTop={windowHeight > 715 ? 20 : 5}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
