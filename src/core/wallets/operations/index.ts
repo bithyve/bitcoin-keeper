@@ -403,7 +403,7 @@ export default class WalletOperations {
     const inputTxs = await ElectrumClient.getTransactionsById(inputTxIds);
 
     let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
-    let lastUsedChangeAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
+    let lastUsedChangeAddressIndex = wallet.specs.nextFreeChangeAddressIndex - 1;
 
     for (const txid in txs) {
       const tx = txs[txid];
