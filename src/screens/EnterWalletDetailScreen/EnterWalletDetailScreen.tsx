@@ -7,13 +7,13 @@ import { ScaledSheet } from 'react-native-size-matters';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import { WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import BitcoinGreyIcon from 'src/assets/images/svgs/btc_grey.svg';
 
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
@@ -21,10 +21,9 @@ function EnterWalletDetailScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
   const { common } = translations;
-
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
-  const [transferPolicy, setTransferPolicy] = useState('5000');
+  const [transferPolicy, setTransferPolicy] = useState('1000000');
   const createNewWallet = useCallback(() => {
     const newWallet: NewWalletInfo = {
       walletType: WalletType.CHECKING,
@@ -38,53 +37,74 @@ function EnterWalletDetailScreen({ route }) {
     navigtaion.goBack();
   }, [walletName, walletDescription, transferPolicy]);
 
+  const formatNumber = (value) => {
+    return value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
   return (
     <View style={styles.Container} background="light.ReceiveBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={wallet.AddNewWallet}
-        subtitle={wallet.Setupawalletforyoubitcoin}
+        subtitle={wallet.AddNewWalletDescription}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
       />
-      <View marginX={4} marginY={windowHeight / 12}>
+      <View marginX={4} marginY={4}>
         <Input
-          placeholder={wallet.WalletName}
-          placeholderTextColor="light.greenText"
-          backgroundColor="light.primaryBackground"
+          placeholder={wallet.WalletNamePlaceHolder}
+          placeholderTextColor="light.GreyText"
+          backgroundColor="#fdf7f1"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
           borderRadius={10}
+          height={12}
+          autoCorrect={false}
           marginY={2}
-          borderWidth="0"
+          borderWidth="1"
         />
         <Input
-          placeholder={wallet.SinglesigWallet}
-          placeholderTextColor="light.greenText"
-          backgroundColor="light.primaryBackground"
+          placeholder={wallet.WalletDescriptionPlaceholder}
+          placeholderTextColor="light.GreyText"
+          backgroundColor="#fdf7f1"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
           borderRadius={10}
-          borderWidth="0"
+          height={12}
+          autoCorrect={false}
+          borderWidth="1"
           marginY={2}
         />
-        <Box marginTop={10}>
-          <Text fontWeight="200">Transfer Policy</Text>
-          <Input
-            placeholder={wallet.TransferPolicy}
-            placeholderTextColor="light.greenText"
-            backgroundColor="light.primaryBackground"
-            value={transferPolicy}
-            onChangeText={(value) => setTransferPolicy(value)}
-            style={styles.inputField}
-            borderRadius={10}
-            borderWidth="0"
-            marginY={2}
-          />
+        <Box marginTop={5}>
+          <Text color={'light.GreyText'}
+            style={styles.autoTransferText}>{wallet.AutoTransferInitiated}</Text>
+          <Box style={styles.transferPolicyTextArea}>
+            <Box style={styles.bitcoinLogo}>
+              <BitcoinGreyIcon height="15" width="15" />
+            </Box>
+            <Text
+              style={[styles.splitter]}>|</Text>
+            <Input
+              placeholderTextColor="light.GreyText"
+              value={formatNumber(transferPolicy)}
+              onChangeText={(value) => setTransferPolicy(formatNumber(value))}
+              autoCorrect={false}
+              fontSize={22}
+              fontWeight="700"
+              keyboardType='numeric'
+              borderWidth="0"
+            />
+            <Box style={styles.sats}>
+              <Text fontWeight='bold'>{common.sats}</Text>
+            </Box>
+          </Box>
+          <Text
+            color={'light.GreyText'}
+            style={styles.autoTransferTextDesc}>{wallet.AutoTransferInitiatedDesc}</Text>
         </Box>
-        <View marginY={20}>
+        <View marginY={5}>
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
@@ -105,6 +125,13 @@ const styles = ScaledSheet.create({
     flex: 1,
     padding: '20@s',
   },
+  autoTransferText: {
+    fontSize: 15,
+  },
+  autoTransferTextDesc: {
+    fontSize: 12,
+    paddingTop: 10
+  },
   addWalletText: {
     fontSize: 22,
     lineHeight: '20@s',
@@ -117,12 +144,35 @@ const styles = ScaledSheet.create({
     letterSpacing: '0.5@s',
   },
   inputField: {
-    padding: 30,
     color: '#073E39',
     marginVertical: 10,
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     letterSpacing: 0.96,
   },
+  transferPolicyTextArea: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderRadius: 10,
+    marginTop: 10,
+    backgroundColor: "#fdf7f1",
+    borderColor: '#f4eee9'
+  },
+  splitter: {
+    fontSize: 30,
+    color: '#eeefed',
+    paddingTop: 18,
+    paddingRight: 5,
+  },
+  bitcoinLogo: {
+    paddingTop: 15,
+    paddingLeft: 10,
+    paddingRight: 5,
+    paddingBottom: 15,
+  },
+  sats: {
+    paddingTop: 14,
+    paddingRight: 5,
+  }
 });
 export default EnterWalletDetailScreen;

@@ -65,7 +65,8 @@
     "ViewSeed": "View Seed",
     "EditDetails": "Edit Details",
     "next": "Next",
-    "needHelp": "Need Help?"
+    "needHelp": "Need Help?",
+    "sats": "sats"
   },
   "noInternet": {
     "no": "No Internet",
@@ -270,6 +271,11 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
+    "AddNewWalletDescription":"Name and description for the wallet",
+    "WalletNamePlaceHolder": "Maldives Funds",
+    "WalletDescriptionPlaceholder":"Single-sig",
+    "AutoTransferInitiated": "Auto transfer initiated at (optional)",
+    "AutoTransferInitiatedDesc": "When the wallet balance crosses the amount specified here, a transaction for transferring sats from the wallet to the Vault is initiated for user approval",
     "WalletDetails": "Wallet Details",
     "EditWalletDeatils": "Edit wallet name and description",
     "TransferSuccessful": "Transfer Successful!",
