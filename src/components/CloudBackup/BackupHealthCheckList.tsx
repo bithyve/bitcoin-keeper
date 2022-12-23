@@ -21,10 +21,13 @@ import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 import DotView from '../DotView';
 import Buttons from '../Buttons';
+import { useNavigation } from '@react-navigation/native';
 
 function BackupHealthCheckList() {
+  const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
   const { useQuery } = useContext(RealmWrapperContext);
@@ -163,6 +166,12 @@ function BackupHealthCheckList() {
         <BackupSuccessful
           closeBottomSheet={() => {
             setHealthCheckModal(false);
+          }}
+          title={BackupWallet.backupSuccessTitle}
+          subTitle={BackupWallet.backupSuccessSubTitle}
+          paragraph={BackupWallet.backupSuccessParagraph}
+          confirmBtnPress={() => {
+            navigtaion.navigate('NewHome');
           }}
         />
       </ModalWrapper>
