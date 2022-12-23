@@ -86,6 +86,8 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     // connect electrum-client
+    const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+    ElectrumClient.setActivePeer(privateNodes);
     yield call(ElectrumClient.connect);
 
     // fetch fee and exchange rates
@@ -140,6 +142,10 @@ function* credentialsAuthWorker({ payload }) {
   }
   yield put(credsAuthenticated(true));
   yield put(setKey(key));
+  
+  // connect electrum-client
+  const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+  ElectrumClient.setActivePeer(privateNodes);
   yield call(ElectrumClient.connect);
 
   if (!payload.reLogin) {

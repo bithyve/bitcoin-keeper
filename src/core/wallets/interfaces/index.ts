@@ -247,5 +247,6 @@ export interface NodeDetail {
   port: string;
   isConnected: boolean;
   useKeeperNode: boolean;
+  useSSL: boolean;
 }
 

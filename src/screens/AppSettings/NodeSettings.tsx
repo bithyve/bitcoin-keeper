@@ -1,10 +1,10 @@
 import { Box } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, FlatList } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, Text, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setConnectToMyNode, setNodeDetails } from 'src/store/reducers/settings';
@@ -13,25 +13,26 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Switch from 'src/components/Switch/Switch';
-import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
+import AddIcon from 'src/assets/images/svgs/icon_add_new.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import AddNode from './AddNodeModal';
-
+import ElectrumClient from 'src/core/services/electrum/client';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function NodeSettings() {
     const dispatch = useAppDispatch();
     const { translations } = useContext(LocalizationContext);
     const { common } = translations;
     const { settings } = translations;
+    const { showToast } = useToastMessage();
+
     const { connectToMyNodeEnabled, nodeDetails } = useAppSelector((state) => state.settings);
     const [nodeList, setNodeList] = useState(nodeDetails || []);
     const [ConnectToNode, setConnectToNode] = useState(connectToMyNodeEnabled);
     const [visible, setVisible] = useState(false);
     const [selectedNodeItem, setSelectedNodeItem] = useState(null);
-
-    useEffect(() => {
-        setNodeList(nodeList);
-    }, []);
+    const [loading, setLoading] = useState(false);
 
     const openAddNodeModal = () => {
         setVisible(true);
@@ -39,29 +40,30 @@ function NodeSettings() {
 
     const closeAddNodeModal = () => {
         if (nodeList.length == 0 || nodeList.filter(item => item.isConnected == true).length == 0) {
-            setConnectToNode(false);
-            dispatch(setConnectToMyNode(false));
+            onChangeConnectToMyNode(false);
         }
         setVisible(false);
     };
 
-    const onSave = async (nodeDetail: NodeDetail) => {
+    const onSaveCallback = async (nodeDetail: NodeDetail) => {
         if (nodeDetail.host == null || nodeDetail.host.length == 0 || nodeDetail.port == null || nodeDetail.port.length == 0)
             return;
 
+        closeAddNodeModal();
         let nodes = [...nodeList];
-
-        if (nodeDetail.id == null) {
-            nodeDetail.id = nodeList.length + 1;
-            nodes.push(nodeDetail);
+        const node = { ...nodeDetail };
+        if (node.id == null) {
+            node.id = nodeList.length + 1;
+            nodes.push(node);
         }
         else {
-            const index = nodes.findIndex(item => item.id == nodeDetail.id);
-            nodes[index] = nodeDetail;
+            const index = nodes.findIndex(item => item.id == node.id);
+            node.isConnected = false;
+            nodes[index] = node;
         }
         setNodeList(nodes);
         dispatch(setNodeDetails(nodes));
-        closeAddNodeModal();
+        setSelectedNodeItem(node);
     }
 
     const onAdd = () => {
@@ -74,27 +76,93 @@ function NodeSettings() {
         openAddNodeModal();
     }
 
-    const onConnectToNode = async (selectedItem: NodeDetail) => {
-        // TODO: Connect the node to electrum client logic goes here
+    const onConnectNode = async (selectedItem) => {
+        setLoading(true);
+        setSelectedNodeItem(selectedItem);
+        let node = { ...selectedItem };
+
+        const isValidNode = await ElectrumClient.testConnection(node.host, node.port, node.port);
+        console.log('Is Valid node ' + isValidNode);
+
+        let isElectrumClientConnected = false;
+        let activePeer = null;
+
+        if (isValidNode) {
+            node.isConnected = true;
+            ElectrumClient.setActivePeer(nodeList, node);
+            await ElectrumClient.connect();
+            isElectrumClientConnected = await ElectrumClient.ping();
+        }
+        else {
+            ElectrumClient.setActivePeer([]);
+            await ElectrumClient.connect();
+        }
+
+        activePeer = ElectrumClient.getActivePeer();
+        console.log(activePeer);
+        if (isElectrumClientConnected && node.host === activePeer?.host && (node.port === activePeer?.ssl || node.port === activePeer?.tcp)) {
+            showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
+            setConnectToNode(true);
+            dispatch(setConnectToMyNode(true));
+            node.isConnected = true;
+            updateNode(node);
+        }
+        else {
+            showToast(`${settings.nodeConnectionFailure}`, null, 1000, true);
+            setConnectToNode(false);
+            dispatch(setConnectToMyNode(false));
+            node.isConnected = false;
+            updateNode(node);
+        }
+        setLoading(false);
     }
 
-    const onHandleNodeItemSelection = (selectedItem: NodeDetail) => {
+    const updateNode = (selectedItem) => {
+        let nodes = [...nodeList];
+        const updatedNodes = nodes.map((item) => {
+            let node = { ...item };
+            node.isConnected = item.id === selectedItem?.id ? selectedItem.isConnected : false;
+            return node;
+        });
+
+        setNodeList(updatedNodes);
+        dispatch(setNodeDetails(updatedNodes));
+    }
+
+    const onSelectedNodeitem = (selectedItem: NodeDetail) => {
         setSelectedNodeItem(selectedItem);
     }
 
-    const onChangeConnectToMyNode = (value: boolean) => {
+    const onChangeConnectToMyNode = async (value: boolean) => {
         setConnectToNode(value);
         dispatch(setConnectToMyNode(value));
-        if (value)
+        if (value) {
             openAddNodeModal();
+        }
+        else {
+            setLoading(true);
+            updateNode(null);
+            ElectrumClient.setActivePeer([]);
+            await ElectrumClient.connect();
+            setLoading(false);
+        }
     }
 
-    const paramsToPass: NodeDetail = {
+    const onNodeConnectionStatus = (node) => {
+        const activePeer = ElectrumClient.getActivePeer();
+        if (activePeer?.host === node.host && (activePeer?.ssl === node.port || activePeer?.tcp === node.port)) {
+            return true;
+        }
+        return false;
+    }
+
+    const modalParams: NodeDetail = {
         id: selectedNodeItem?.id || null,
         host: selectedNodeItem?.host || '',
         port: selectedNodeItem?.port || '',
         useKeeperNode: selectedNodeItem?.useKeeperNode || false,
         isConnected: selectedNodeItem?.isConnected || false,
+        useSSL: selectedNodeItem?.useSSL || false
     }
 
     return (
@@ -119,42 +187,46 @@ function NodeSettings() {
             <Box style={styles.nodeListHeader}>
                 <Text style={styles.nodeListTitle}>{settings.nodesUsedPreviously}</Text>
             </Box>
-            <Box style={styles.nodesListWrapper}>
-                <FlatList
-                    data={nodeList}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            onPress={() => onHandleNodeItemSelection(item)}
-                            style={item.id === selectedNodeItem?.id ? [styles.selectedItem, { borderColor: '#017963' }] : null} >
-                            <Box backgroundColor="light.lightYellow" style={styles.nodeList}>
-                                <Box style={styles.nodeDetail}>
-                                    <Text style={[styles.nodeTextHeader, { color: '#4F5955' }]}>{settings.host}</Text>
-                                    <Text style={styles.nodeTextValue}>{item.host}</Text>
-                                    <Text style={[styles.nodeTextHeader, { color: '#4F5955' }]}>{settings.portNumber}</Text>
-                                    <Text style={styles.nodeTextValue}>{item.port}</Text>
-                                </Box>
-                                <TouchableOpacity onPress={() => onEdit(item)}>
-                                    <Text style={[styles.editText, { color: '#017963' }]}>{common.edit}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={onConnectToNode}>
-                                    <Box borderColor="light.brownborder"
-                                        backgroundColor="light.yellow2"
-                                        style={styles.connectButton}>
-                                        <Text>{common.connect}</Text>
+            {nodeList.length > 0 &&
+                <Box style={[styles.nodesListWrapper, { maxHeight: windowHeight > 750 ? 230 : 135 }]}>
+                    <FlatList
+                        data={nodeList}
+                        showsVerticalScrollIndicator={false}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                onPress={() => onSelectedNodeitem(item)}
+                                style={item.id === selectedNodeItem?.id ? [styles.selectedItem, { borderColor: '#017963' }] : null} >
+                                <Box backgroundColor="light.lightYellow" style={styles.nodeList}>
+                                    <Box style={styles.nodeDetail}>
+                                        <Text style={[styles.nodeTextHeader, { color: '#4F5955' }]}>{settings.host}</Text>
+                                        <Text style={styles.nodeTextValue}>{item.host}</Text>
+                                        <Text style={[styles.nodeTextHeader, { color: '#4F5955' }]}>{settings.portNumber}</Text>
+                                        <Text style={styles.nodeTextValue}>{item.port}</Text>
                                     </Box>
-                                </TouchableOpacity>
-                            </Box>
-                        </TouchableOpacity>
-                    )}
-                />
-            </Box>
+                                    <TouchableOpacity onPress={() => onEdit(item)}>
+                                        <Text style={[styles.editText, { color: '#017963' }]}>{common.edit}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => onConnectNode(item)}>
+                                        <Box borderColor="light.brownborder"
+                                            backgroundColor={onNodeConnectionStatus(item) ? '#017963' : 'light.yellow2'}
+                                            style={styles.connectButton}>
+                                            <Text>{onNodeConnectionStatus(item) ? common.connected : common.connect}</Text>
+                                        </Box>
+                                    </TouchableOpacity>
+                                </Box>
+                            </TouchableOpacity>
+                        )}
+                    />
+                </Box>
+            }
+
             <TouchableOpacity onPress={onAdd}>
                 <Box backgroundColor="light.lightYellow" style={styles.addNewNode}>
                     <AddIcon />
                     <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
                 </Box>
             </TouchableOpacity>
+
             <Box style={styles.note} backgroundColor={'light.ReceiveBackground'}>
                 <Note
                     title={common.note}
@@ -174,8 +246,18 @@ function NodeSettings() {
                 buttonCallback={closeAddNodeModal}
                 textColor="#041513"
                 closeOnOverlayClick={false}
-                Content={() => AddNode(paramsToPass, onSave)}
+                Content={() => AddNode(modalParams, onSaveCallback)}
             />
+            <Modal
+                animationType="none"
+                transparent={true}
+                visible={loading}
+                onRequestClose={() => { }}
+            >
+                <View style={styles.activityIndicator}>
+                    <ActivityIndicator color='#017963' size="large" />
+                </View>
+            </Modal>
         </ScreenWrapper >
     );
 }
@@ -215,21 +297,20 @@ const styles = StyleSheet.create({
     note: {
         position: 'absolute',
         bottom: hp(35),
-        marginLeft: 26,
+        marginLeft: 22.3,
         width: '100%',
         paddingTop: hp(10),
     },
     splitter: {
         marginTop: 35,
         marginBottom: 25,
-        borderBottomWidth: 0.2,
+        borderBottomWidth: 0.3,
     },
     nodesListWrapper: {
         marginBottom: 4,
         flexDirection: 'row',
         width: '100%',
-        alignItems: 'center',
-        maxHeight: 250
+        alignItems: 'center'
     },
     nodeListTitle: {
         fontSize: RFValue(16),
@@ -242,6 +323,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingRight: 40
     },
     nodeDetail: {
         width: '50%',
@@ -253,7 +336,7 @@ const styles = StyleSheet.create({
         marginBottom: 4,
         alignItems: 'center',
         borderRadius: 5,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     selectedItem: {
         borderWidth: 1,
@@ -268,10 +351,12 @@ const styles = StyleSheet.create({
         fontSize: RFValue(11),
         letterSpacing: 0.6,
         padding: 5,
-        paddingLeft: 10,
-        paddingRight: 10,
         borderRadius: 5,
-        marginRight: 25
+        marginRight: 25,
+        width: 90,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center'
     },
     nodeTextHeader: {
         marginHorizontal: 20,
@@ -287,10 +372,15 @@ const styles = StyleSheet.create({
         paddingTop: 2,
         paddingBottom: 5
     },
+    activityIndicator: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     addNewNode: {
         marginTop: 10,
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: 25,
+        paddingBottom: 25,
         borderRadius: 5,
         alignItems: 'center',
         flexDirection: 'row',

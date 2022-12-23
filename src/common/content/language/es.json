@@ -67,7 +67,8 @@
     "next": "Next",
     "needHelp": "Need Help?",
     "edit":"Edit",
-    "connect":"Connect"
+    "connect":"Connect",
+    "connected":"Connected"
   },
   "noInternet": {
     "no": "No Internet",
@@ -433,7 +434,10 @@
     "nodeDetailsSubtitle":"Add your own node for enhanced privacy",
     "useKeeperNode":"Use Keeper node as fallback",
     "portNumberPlaceholder":"Port Number (eg: 8080)",
-    "host": "Host"
+    "host": "Host",
+    "useSSL": "Use SSL",
+    "nodeConnectionSuccess":"Node connected successfully",
+    "nodeConnectionFailure":"Node connection failed"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
