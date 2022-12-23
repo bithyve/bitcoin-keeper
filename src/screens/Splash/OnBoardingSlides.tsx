@@ -7,7 +7,7 @@ import {
   Dimensions,
   ImageBackground,
 } from 'react-native';
-import { Box, Text, StatusBar } from 'native-base';
+import { Box, Text } from 'native-base';
 
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -15,10 +15,10 @@ import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration_1 from 'src/assets/images/svgs/illustration_1.svg';
 import Illustration_2 from 'src/assets/images/svgs/illustration_2.svg';
-import Illustration_3 from 'src/assets/images/svgs/illustration_3.svg';
-import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
-import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
-import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
+// import Illustration_3 from 'src/assets/images/svgs/illustration_3.svg';
+// import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
+// import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
+// import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
 import Skip from 'src/assets/images/svgs/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
@@ -95,7 +95,6 @@ function OnBoardingSlides({ navigation }) {
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
-          <StatusBar backgroundColor="transparent" barStyle="light-content" />
           <Box justifyContent="center" mr={4} mt={10}>
             {currentPosition != 1 && (
               <TouchableOpacity
