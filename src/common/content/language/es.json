@@ -435,7 +435,7 @@
     "useKeeperNode":"Use Keeper node as fallback",
     "portNumberPlaceholder":"Port Number (eg: 8080)",
     "host": "Host",
-    "useSSL": "Use SSL",
+    "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess":"Node connected successfully",
     "nodeConnectionFailure":"Node connection failed"
   },

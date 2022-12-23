@@ -2,7 +2,6 @@ import { Box, Input, Text } from 'native-base';
 import { View, StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import CheckBox from 'src/components/Checkbox';
@@ -41,31 +40,47 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
     return (
         <View style={styles.container}>
             <Box style={styles.box}>
-                <Box style={!isHostValid ? [styles.error, { borderColor: '#ff0033' }] : null}>
-                    <Input placeholderTextColor="grey"
-                        backgroundColor="light.lightYellow"
-                        placeholder={settings.host}
-                        borderRadius={5}
-                        height="12"
-                        value={host}
-                        autoCorrect={false}
-                        autoComplete="off"
-                        keyboardType="name-phone-pad"
-                        onChangeText={(text) => {
-                            setIsHostValid(text == null || text.length == 0 ? false : true);
-                            setHost(text);
-                        }}
-                    />
+                <Box style={styles.useSSL}>
+                    <Text style={styles.useSSLText}>{settings.useSSL}</Text>
+                    <Switch value={useSSL} onValueChange={(value) => setUseSSL(value)} />
                 </Box>
-                <Box style={styles.spacer} />
-                <Box style={[styles.port, !isPortValid ? [styles.error, { borderColor: '#ff0033' }] : null]}>
-                    <Box w="55%">
+                <Box style={styles.checkboxArea}>
+                    <Text style={styles.useKeeperNodeText}>{settings.useKeeperNode}</Text>
+                    <Box style={styles.checkbox}>
+                        <CheckBox
+                            onPress={() => {
+                                setuseKeeperNode(!useKeeperNode);
+                            }}
+                            isChecked={useKeeperNode}
+                        />
+                    </Box>
+                </Box>
+                <Box style={styles.inputArea}>
+                    <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: '#ff0033' }] : null}>
+                        <Input placeholderTextColor="grey"
+                            backgroundColor="light.lightYellow"
+                            placeholder={settings.host}
+                            borderRadius={10}
+                            height="12"
+                            value={host}
+                            autoCorrect={false}
+                            autoComplete="off"
+                            keyboardType="name-phone-pad"
+                            onChangeText={(text) => {
+                                setIsHostValid(text == null || text.length == 0 ? false : true);
+                                setHost(text);
+                            }}
+                        />
+                    </Box>
+                    <Box style={styles.spacer} />
+                    <Box style={[styles.port, !isPortValid ? [styles.error, { borderColor: '#ff0033' }] : null]}>
                         <Input placeholderTextColor="grey"
                             backgroundColor="light.lightYellow"
                             placeholder={settings.portNumberPlaceholder}
                             keyboardType="number-pad"
-                            borderRadius={5}
+                            borderRadius={10}
                             height="12"
+                            width='50%'
                             value={port}
                             autoCorrect={false}
                             autoComplete="off"
@@ -75,19 +90,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
                             }}
                         />
                     </Box>
-                    <Box style={styles.useSSL}>
-                        <Text style={styles.useSSLText}>{settings.useSSL}</Text>
-                        <Switch value={useSSL} onValueChange={(value) => setUseSSL(value)} />
-                    </Box>
-                </Box>
-                <Box style={styles.checkbox}>
-                    <CheckBox
-                        onPress={() => {
-                            setuseKeeperNode(!useKeeperNode);
-                        }}
-                        title={settings.useKeeperNode}
-                        isChecked={useKeeperNode}
-                    />
                 </Box>
                 <Box style={styles.saveButton}>
                     <Buttons
@@ -111,26 +113,25 @@ const styles = StyleSheet.create({
         width: '100%'
     },
     spacer: {
-        marginTop: 10
+        marginLeft: 2,
+        marginRight: 2
+    },
+    checkboxArea: {
+        paddingTop: 25,
+        marginBottom: 25,
+        paddingLeft: 10,
+        flexDirection: 'row',
     },
     checkbox: {
-        paddingTop: 15,
-        marginBottom: 25
+        marginLeft: 80,
+        justifyContent: 'center',
+    },
+    inputArea: {
+        paddingTop: 5,
+        flexDirection: 'row',
     },
     saveButton: {
         alignSelf: 'flex-end'
-    },
-    cta: {
-        borderRadius: 10,
-        width: wp(110),
-        height: hp(45),
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    ctaText: {
-        fontSize: 13,
-        fontWeight: 'bold',
-        letterSpacing: 1,
     },
     error: {
         borderWidth: 2,
@@ -138,13 +139,19 @@ const styles = StyleSheet.create({
     },
     port: {
         flexDirection: 'row',
+        width: '100%'
     },
     useSSL: {
         flexDirection: 'row',
-        paddingLeft: 15,
-        paddingTop: 5
+        justifyContent: 'space-between',
+        paddingLeft: 10,
+        paddingTop: 5,
     },
     useSSLText: {
+        paddingTop: 7,
+        paddingRight: 10
+    },
+    useKeeperNodeText: {
         paddingTop: 7,
         paddingRight: 10
     }
