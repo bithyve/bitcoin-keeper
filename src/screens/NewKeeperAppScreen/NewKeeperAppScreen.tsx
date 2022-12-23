@@ -44,7 +44,6 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
       >
         <Text
           color="light.primaryText"
-          fontFamily="body"
           fontWeight={200}
           fontSize={14}
           letterSpacing={1.12}
@@ -52,14 +51,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
         >
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={12}
-          letterSpacing={0.6}
-          width="80%"
-        >
+        <Text color="light.GreyText" fontWeight={200} fontSize={12} letterSpacing={0.6} width="80%">
           {subTitle}
         </Text>
       </Box>
@@ -180,10 +172,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <ScrollView style={styles.wrapper}>
         <Box>
           <Box style={styles.titleWrapper}>
-            <Text color="light.textBlack" fontFamily="heading" style={styles.titleText}>
+            <Text color="light.textBlack" style={styles.titleText}>
               New Keeper App
             </Text>
-            <Text color="light.GreyText" fontFamily="body" style={styles.subTitleText}>
+            <Text color="light.GreyText" style={styles.subTitleText}>
               Use this option if you want to create a new Keeper app
             </Text>
           </Box>
@@ -198,10 +190,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
           />
 
           <Box style={styles.titleWrapper02}>
-            <Text color="light.textBlack" fontFamily="heading" style={styles.titleText}>
+            <Text color="light.textBlack" style={styles.titleText}>
               Existing Keeper App
             </Text>
-            <Text color="light.textBlack" fontFamily="body" style={styles.subTitleText}>
+            <Text color="light.textBlack" style={styles.subTitleText}>
               If you previously had a Keeper wallet you can recover it
             </Text>
 

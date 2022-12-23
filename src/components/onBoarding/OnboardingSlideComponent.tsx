@@ -14,7 +14,6 @@ function OnboardingSlideComponent(props) {
         <Text
           fontSize={18}
           color="light.white"
-          fontFamily="heading"
           textAlign="center"
           fontWeight={200}
           letterSpacing={1.8}
@@ -27,7 +26,6 @@ function OnboardingSlideComponent(props) {
         <Text
           fontSize={14}
           color="light.white"
-          fontFamily="body"
           textAlign="center"
           fontWeight={200}
           letterSpacing={1.4}

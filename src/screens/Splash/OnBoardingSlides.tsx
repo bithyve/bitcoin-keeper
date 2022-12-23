@@ -76,7 +76,6 @@ function OnBoardingSlides({ navigation }) {
                 <Text
                   fontSize={14}
                   color="light.white"
-                  fontFamily="heading"
                   fontWeight={300}
                   textAlign="right"
                   opacity={0.7}
@@ -162,7 +161,6 @@ function OnBoardingSlides({ navigation }) {
                     >
                       <Text
                         fontSize={13}
-                        fontFamily="body"
                         fontWeight="300"
                         letterSpacing={1}
                         color="light.greenText"

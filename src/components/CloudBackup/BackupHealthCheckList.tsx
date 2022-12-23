@@ -98,23 +98,11 @@ function BackupHealthCheckList() {
                 ml={wp(3.5)}
                 position="relative"
               >
-                <Text
-                  color="light.headerText"
-                  fontSize={14}
-                  fontFamily="heading"
-                  fontWeight={200}
-                  letterSpacing={1}
-                >
+                <Text color="light.headerText" fontSize={14} fontWeight={200} letterSpacing={1}>
                   {strings[item.title]}
                 </Text>
                 {item.subtitle !== '' && (
-                  <Text
-                    color="light.GreyText"
-                    fontSize={12}
-                    fontFamily="body"
-                    fontWeight={200}
-                    letterSpacing={0.6}
-                  >
+                  <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
                     {item.subtitle}
                   </Text>
                 )}
