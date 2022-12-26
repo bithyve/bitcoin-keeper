@@ -22,11 +22,11 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
   const [isPortValid, setIsPortValid] = useState(true);
 
   const onValidateAndSave = () => {
-    if (host == null || host.length == 0) {
+    if (host === null || host.length === 0) {
       setIsHostValid(false);
     }
 
-    if (port == null || port.length == 0) {
+    if (port === null || port.length === 0) {
       setIsPortValid(false);
     }
 
@@ -74,7 +74,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               autoComplete="off"
               keyboardType="name-phone-pad"
               onChangeText={(text) => {
-                setIsHostValid(!(text == null || text.length == 0));
+                setIsHostValid(!(text === null || text.length === 0));
                 setHost(text);
               }}
             />
@@ -95,7 +95,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               autoCorrect={false}
               autoComplete="off"
               onChangeText={(text) => {
-                setIsPortValid(!(text == null || text.length == 0));
+                setIsPortValid(!(text === null || text.length === 0));
                 setPort(text);
               }}
             />
