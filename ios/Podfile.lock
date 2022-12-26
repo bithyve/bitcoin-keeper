@@ -350,8 +350,6 @@ PODS:
   - react-native-ble-plx (2.0.3):
     - MultiplatformBleAdapter (= 0.1.9)
     - React-Core
-  - react-native-blob-util (0.16.2):
-    - React-Core
   - react-native-camera (4.2.1):
     - React-Core
     - react-native-camera/RCT (= 4.2.1)
@@ -372,8 +370,6 @@ PODS:
     - MMKV (>= 1.2.13)
     - React-Core
   - react-native-nfc-manager (3.13.5):
-    - React-Core
-  - react-native-pdf (6.6.2):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -460,6 +456,8 @@ PODS:
     - React-perflogger (= 0.68.2)
   - RealmJS (10.20.0-beta.5):
     - React
+  - RNCClipboard (1.5.1):
+    - React-Core
   - RNDeviceInfo (10.0.2):
     - React-Core
   - RNFBApp (14.11.1):
@@ -469,8 +467,6 @@ PODS:
     - Firebase/Messaging (= 8.15.0)
     - React-Core
     - RNFBApp
-  - RNFileViewer (2.1.5):
-    - React-Core
   - RNGestureHandler (2.5.0):
     - React-Core
   - RNIap (9.0.1):
@@ -573,14 +569,12 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
-  - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
-  - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
@@ -599,10 +593,10 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RealmJS (from `../node_modules/realm`)
+  - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
-  - RNFileViewer (from `../node_modules/react-native-file-viewer`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNIap (from `../node_modules/react-native-iap`)
   - RNInstabug (from `../node_modules/instabug-reactnative`)
@@ -691,8 +685,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-biometrics"
   react-native-ble-plx:
     :path: "../node_modules/react-native-ble-plx"
-  react-native-blob-util:
-    :path: "../node_modules/react-native-blob-util"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
   react-native-config:
@@ -705,8 +697,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-mmkv"
   react-native-nfc-manager:
     :path: "../node_modules/react-native-nfc-manager"
-  react-native-pdf:
-    :path: "../node_modules/react-native-pdf"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -743,14 +733,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RealmJS:
     :path: "../node_modules/realm"
+  RNCClipboard:
+    :path: "../node_modules/@react-native-community/clipboard"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
-  RNFileViewer:
-    :path: "../node_modules/react-native-file-viewer"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNIap:
@@ -822,14 +812,12 @@ SPEC CHECKSUMS:
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
   react-native-biometrics: 3b95f2eb074d537d3a8b05d853c17778f6685c4a
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
-  react-native-blob-util: c3b0faecd2919db568e9d552084396f3e50b57c7
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-config: 7cd105e71d903104e8919261480858940a6b9c0e
   react-native-flipper: 1b78844db5b0de19bd64847c3b88cafc6cc119ba
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b
   react-native-nfc-manager: 42ebc22a04f32c0c2bc63a016ab30fa6486de450
-  react-native-pdf: 33c622cbdf776a649929e8b9d1ce2d313347c4fa
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 6c12e3859b6f27b25de4fee8201cfb858432d8de
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
@@ -848,10 +836,10 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: b960b687d2dfef0d3761fbb187e01812ebab8b23
   ReactCommon: 095366164a276d91ea704ce53cb03825c487a3f2
   RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
+  RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNDeviceInfo: 0a7c1d2532aa7691f9b9925a27e43af006db4dae
   RNFBApp: 9646e09d041ea159b84584865212e4cf33acd179
   RNFBMessaging: 3e2682ea5e15fe86da24d16d16019395a881f33c
-  RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
   RNIap: 73f0114671e9a3879bde4b9b3914359e96ba1493
   RNInstabug: 7c6c25176a8fca8f6269031c9ef93629d6cc1804

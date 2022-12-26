@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useContext, useEffect, useState } from 'react';
@@ -116,7 +117,7 @@ function AddLedger() {
             </Box>
           )}
           <Box marginTop="4">
-            <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100" p={1}>
+            <Text color="#073B36" fontSize={13} fontWeight="100" p={1}>
               Please open on the BTC app before connecting to the deivce
             </Text>
           </Box>

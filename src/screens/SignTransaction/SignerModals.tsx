@@ -1,5 +1,6 @@
 import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
@@ -43,13 +44,7 @@ function DeviceItem({ device, onSelectDevice }) {
   };
   return (
     <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
-      <Text
-        color="light.white"
-        fontSize={14}
-        fontWeight={200}
-        fontFamily="heading"
-        letterSpacing={1.12}
-      >
+      <Text color="light.white" fontSize={14} letterSpacing={1.12}>
         {device.name}
       </Text>
       {pending ? <ActivityIndicator /> : null}
@@ -273,7 +268,6 @@ function PasswordEnter({ signTransaction }) {
         />
         <Text
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           width={wp(290)}
           color="light.greenText"
@@ -327,7 +321,6 @@ function OtpContent({ signTransaction }) {
         <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
         <Text
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           width={wp(290)}
           color="light.greenText"

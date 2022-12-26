@@ -1,4 +1,5 @@
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -9,10 +10,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-// components, hooks and functions
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
-// asserts
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
@@ -141,58 +140,28 @@ function VaultInfo({ vault }: { vault: Vault }) {
             <VaultIcon />
           </Box>
           <VStack>
-            <Text
-              color="light.white"
-              marginLeft={wp(3)}
-              fontSize={16}
-              fontWeight={200}
-              letterSpacing={1.28}
-            >
+            <Text color="light.white" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
               {name}
             </Text>
-            <Text
-              color="light.white"
-              marginLeft={wp(3)}
-              fontSize={12}
-              fontWeight={200}
-              letterSpacing={1.28}
-            >
+            <Text color="light.white" marginLeft={wp(3)} fontSize={12} letterSpacing={1.28}>
               {description}
             </Text>
           </VStack>
         </HStack>
         <HStack alignItems="center">
           <BTC />
-          <Text
-            color="light.white"
-            marginLeft={wp(3)}
-            fontSize={30}
-            fontWeight={200}
-            letterSpacing={1.28}
-          >
+          <Text color="light.white" marginLeft={wp(3)} fontSize={30} letterSpacing={1.28}>
             {getAmount(confirmed + unconfirmed)}
           </Text>
         </HStack>
       </HStack>
       <HStack justifyContent="space-between" paddingBottom={10} paddingTop={6}>
-        <Text
-          color="light.white"
-          marginLeft={wp(3)}
-          fontSize={10}
-          fontWeight={300}
-          letterSpacing={1.28}
-        >
+        <Text color="light.white" marginLeft={wp(3)} fontSize={10} bold letterSpacing={1.28}>
           Available to spend
         </Text>
         <HStack alignItems="center">
           <BTC />
-          <Text
-            color="light.white"
-            marginLeft={wp(3)}
-            fontSize={14}
-            fontWeight={300}
-            letterSpacing={1.28}
-          >
+          <Text color="light.white" marginLeft={wp(3)} fontSize={14} bold letterSpacing={1.28}>
             {confirmed}
           </Text>
         </HStack>
@@ -220,13 +189,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
         <HStack justifyContent="space-between">
-          <Text
-            color="light.textBlack"
-            marginLeft={wp(3)}
-            fontSize={16}
-            fontWeight={200}
-            letterSpacing={1.28}
-          >
+          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           <TouchableOpacity>
@@ -245,7 +208,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
                   color="light.primaryGreen"
                   marginRight={1}
                   fontSize={11}
-                  fontWeight={300}
+                  bold
                   letterSpacing={0.6}
                 >
                   View All
@@ -300,13 +263,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text
-                color="light.white"
-                fontSize={11}
-                fontWeight={300}
-                letterSpacing={0.6}
-                textAlign="center"
-              >
+              <Text color="light.white" fontSize={11} bold letterSpacing={0.6} textAlign="center">
                 Add signing device to upgrade
               </Text>
             </VStack>
@@ -319,7 +276,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', bottom: '80%', zIndex: 1 }}
+      style={{ position: 'absolute', top: `${70 - Signers.length}%`, zIndex: 2 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -353,7 +310,6 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <Text
                 color="light.textBlack"
                 fontSize={11}
-                fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
                 noOfLines={1}
@@ -367,7 +323,6 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <Text
                 color="light.textBlack"
                 fontSize={8}
-                fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
                 numberOfLines={2}
@@ -446,26 +401,11 @@ function VaultDetails({ route, navigation }) {
         <Box alignSelf="center">
           <VaultSetupIcon />
         </Box>
-        <Text
-          marginTop={hp(20)}
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-        >
+        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} p={1}>
           Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
           select
         </Text>
-        <Text
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-        >
+        <Text color="white" fontSize={13} letterSpacing={0.65} p={1}>
           There are also some additional options if you do not have hardware signing devices
         </Text>
       </View>
@@ -479,9 +419,12 @@ function VaultDetails({ route, navigation }) {
       start={{ x: -0.5, y: 1 }}
       end={{ x: 1, y: 1 }}
     >
-      <VStack mx="8%">
-        <Header />
-        <VaultInfo vault={vault} />
+      <VStack>
+        <VStack mx="8%">
+          <Header />
+          <VaultInfo vault={vault} />
+        </VStack>
+        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
       <VStack
         backgroundColor="light.primaryBackground"
@@ -490,7 +433,6 @@ function VaultDetails({ route, navigation }) {
         flex={1}
         justifyContent="space-between"
       >
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
         <TransactionList
           transactions={transactions}
           pullDownRefresh={syncVault}
@@ -517,13 +459,7 @@ function VaultDetails({ route, navigation }) {
         Content={() => (
           <View>
             <Success />
-            <Text
-              fontWeight={200}
-              fontSize={13}
-              letterSpacing={0.65}
-              color="light.greenText"
-              marginTop={3}
-            >
+            <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
               For sending out of the vault you will need the signing devices. This means no one can
               steal your bitcoin in the vault unless they also have the signing devices
             </Text>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Modal, Text } from 'native-base';
+import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,9 +10,10 @@ import Colors from 'src/theme/Colors';
 import GoogleDrive from 'src/assets/images/drive.svg';
 import ICloud from 'src/assets/images/icloud.svg';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 function ListItem({ item, onPress }) {
-  const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
+  const IconName = Platform.OS === 'ios' ? <ICloud /> : <GoogleDrive />;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box flexDirection="row">
@@ -97,16 +98,10 @@ function CloudRecoveryModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text
-                style={styles.title}
-                fontFamily="body"
-                fontWeight="200"
-                color={textColor}
-                paddingBottom={1}
-              >
+              <Text style={styles.title} color={textColor} paddingBottom={1}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -131,13 +126,7 @@ function CloudRecoveryModal(props) {
                   colors={buttonBackground}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
-                    letterSpacing={1}
-                    color={buttonTextColor}
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>
                 </LinearGradient>

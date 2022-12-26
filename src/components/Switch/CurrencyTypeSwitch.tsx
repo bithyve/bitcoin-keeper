@@ -27,7 +27,7 @@ function CurrencyTypeSwitch() {
   const dispatch = useAppDispatch();
 
   const changeType = () => {
-    if (currencyKind == CurrencyKind.BITCOIN) {
+    if (currencyKind === CurrencyKind.BITCOIN) {
       dispatch(setCurrencyKind(CurrencyKind.FIAT));
     } else {
       dispatch(setCurrencyKind(CurrencyKind.BITCOIN));

@@ -7,10 +7,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, Pressable, Text, View } from 'native-base';
+import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 // icons and images
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
@@ -268,11 +269,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Available to spend
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
+                  <Text bold>
                     {' '}
                     {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
                   </Text>
@@ -300,13 +297,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Transfer Policy is set at{'  '}
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    ฿ {wallets[walletIndex].specs.transferPolicy}sats
-                  </Text>
+                  <Text bold>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
                 </Text>
               </Box>
             </Pressable>
@@ -506,12 +497,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: wp(2),
-  },
-  viewAllText: {
-    letterSpacing: 0.6,
-    marginRight: 5,
-    fontSize: 11,
-    fontWeight: 'bold',
   },
   transactionsListContainer: {
     marginTop: hp(10),

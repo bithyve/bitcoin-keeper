@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, Text, ScrollView } from 'native-base';
+import { FlatList, Box, ScrollView } from 'native-base';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -80,7 +81,7 @@ function BackupHealthCheckList() {
               <Text
                 color="light.GreyText"
                 fontSize={10}
-                fontWeight="300"
+                bold
                 ml={5}
                 opacity={0.7}
                 letterSpacing={0.6}
@@ -98,11 +99,11 @@ function BackupHealthCheckList() {
                 ml={wp(3.5)}
                 position="relative"
               >
-                <Text color="light.headerText" fontSize={14} fontWeight={200} letterSpacing={1}>
+                <Text color="light.headerText" fontSize={14} letterSpacing={1}>
                   {strings[item.title]}
                 </Text>
                 {item.subtitle !== '' && (
-                  <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
+                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
                     {item.subtitle}
                   </Text>
                 )}

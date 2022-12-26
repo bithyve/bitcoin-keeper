@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import Text from 'src/components/KeeperText';
 import KeyPadView from './AppNumPad/KeyPadView';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
 import CVVInputsView from './HealthCheck/CVVInputsView';
@@ -50,10 +51,10 @@ function SettingUpTapsigner(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {tapsigner.SetupTitle}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" fontFamily="body">
+        <Text fontSize={13} color="light.secondaryText">
           {healthcheck.EnterCVV}
         </Text>
       </Box>
@@ -62,7 +63,7 @@ function SettingUpTapsigner(props) {
         <CVVInputsView passCode={inputText} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
         <Box mt={10} alignSelf="flex-end" mr={10}>
-          {inputText.length == 6 && (
+          {inputText.length === 6 && (
             <Box>
               <CustomGreenButton onPress={onPress} value={common.proceed} />
             </Box>

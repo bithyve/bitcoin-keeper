@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { Text, Pressable } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Pressable } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { updateUaiStack } from 'src/store/sagaActions/uai';

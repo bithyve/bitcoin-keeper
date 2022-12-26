@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -54,7 +55,7 @@ function SigningServer({ navigation }) {
 
   function Description({ text }) {
     return (
-      <Text color="light.inActiveMsg" fontSize={12} fontWeight="200" letterSpacing={0.6}>
+      <Text color="light.inActiveMsg" fontSize={12} letterSpacing={0.6}>
         {text}
       </Text>
     );
@@ -72,7 +73,7 @@ function SigningServer({ navigation }) {
         >
           <DotView height={2} width={2} color="#E3BE96" />
         </Box>
-        <Text color="light.GreyText" fontSize={10} fontWeight="300" ml={5} opacity={0.7}>
+        <Text color="light.GreyText" fontSize={10} bold ml={5} opacity={0.7}>
           15 March ’21
         </Text>
         <Box borderLeftColor="#E3BE96" borderLeftWidth={1} ml={wp(3.5)} position="relative">
@@ -83,7 +84,7 @@ function SigningServer({ navigation }) {
             marginLeft={wp(15)}
             borderRadius={10}
           >
-            <Text color="light.recieverAddress" fontSize={14} fontWeight={200} letterSpacing={0.96}>
+            <Text color="light.recieverAddress" fontSize={14} letterSpacing={0.96}>
               Health Check Skipped
             </Text>
             <Description text="Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et" />
@@ -124,7 +125,7 @@ function SigningServer({ navigation }) {
           justifyContent="center"
           alignItems="center"
         >
-          <Text color="light.learnMoreBorder" fontWeight={200} letterSpacing={0.6} fontSize={12}>
+          <Text color="light.learnMoreBorder" letterSpacing={0.6} fontSize={12}>
             Learn More
           </Text>
         </Box>
@@ -135,13 +136,13 @@ function SigningServer({ navigation }) {
           <GradientIcon Icon={Server} height={hp(50)} />
         </Box>
         <Box>
-          <Text fontSize={14} fontWeight="200" letterSpacing={1.12} color="light.primaryText">
+          <Text fontSize={14} letterSpacing={1.12} color="light.primaryText">
             Signing Server
           </Text>
-          <Text fontSize={10} fontWeight="200" letterSpacing={1} color="light.greenText">
+          <Text fontSize={10} letterSpacing={1} color="light.greenText">
             Added on 12 January 2022
           </Text>
-          <Text color="light.GreyText" fontSize={12} fontFamily="body" letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             Lorem ipsum dolor sit amet
           </Text>
         </Box>
@@ -171,7 +172,7 @@ function SigningServer({ navigation }) {
             marginVertical: hp(20),
           }}
         >
-          <Text color="light.greenText" fontWeight={200} fontSize={13} letterSpacing={0.65}>
+          <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
             You will be reminded in 90 days for the health check
           </Text>
         </Box>

@@ -1,7 +1,8 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import DotView from 'src/components/DotView';
 
@@ -22,7 +23,7 @@ function PinInputsView({
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
-    if (passCode.length == 4) {
+    if (passCode.length === 4) {
       setTimeout(() => {
         setHide(true);
       }, 2000);
@@ -39,9 +40,9 @@ function PinInputsView({
   const getDotColor = () => (textColor ? 'black' : 'white');
 
   const getPin = (num: number) => {
-    if (passCode.length == num && !hide) {
+    if (passCode.length === num && !hide) {
       return (
-        <Text color={getTextColor()} fontWeight="300" fontSize={20} fontFamily="body">
+        <Text color={getTextColor()} bold fontSize={20}>
           {passCode[num - 1]}
         </Text>
       );
@@ -49,7 +50,7 @@ function PinInputsView({
     if (passCode.length >= num) {
       return <DotView height={3} width={3} color={getDotColor()} />;
     }
-    if (passCode.length == num - 1) {
+    if (passCode.length === num - 1) {
       return (
         <Text color={getTextColor()} style={styles.cursorText}>
           |

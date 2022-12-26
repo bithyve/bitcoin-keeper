@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
@@ -12,14 +13,7 @@ function Content({ isUpgrade }) {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={11}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={11} p={1} letterSpacing={0.65}>
           {isUpgrade
             ? `To use the vault, add signing devices`
             : 'To use the vault, remove signing devices'}

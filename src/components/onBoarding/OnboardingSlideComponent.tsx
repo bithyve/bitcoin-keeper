@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/svgs/skip.svg';
@@ -27,26 +28,19 @@ function OnboardingSlideComponent(props) {
           fontSize={14}
           color="light.white"
           textAlign="center"
-          fontWeight={200}
           letterSpacing={1.4}
           maxWidth={hp(315)}
         >
           {props.paragraph}
         </Text>
       </Box>
-      {props.currentPosition == 5 && (
+      {props.currentPosition === 5 && (
         <Box justifyContent="center" mt={15}>
           <TouchableOpacity
             onPress={() => props.navigation.replace('NewKeeperApp')}
             style={styles.buttonWrapper}
           >
-            <Text
-              fontSize={14}
-              color="light.white"
-              fontFamily="heading"
-              textAlign="center"
-              fontWeight={300}
-            >
+            <Text fontSize={14} color="light.white" textAlign="center" bold>
               Start App&nbsp;&nbsp;
             </Text>
             <Skip />

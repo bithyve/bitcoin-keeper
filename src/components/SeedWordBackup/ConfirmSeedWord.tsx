@@ -1,4 +1,5 @@
-import { Box, Input, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/common/content/LocContext';

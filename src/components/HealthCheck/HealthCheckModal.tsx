@@ -1,4 +1,5 @@
-import { Box, Modal, Text, Input } from 'native-base';
+import { Box, Modal, Input } from 'native-base';
+import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -58,16 +59,10 @@ function HealthCheckModal(props) {
             backgroundColor="transparent"
             width="90%"
           >
-            <Text
-              style={styles.title}
-              fontFamily="body"
-              fontWeight="200"
-              color={textColor}
-              paddingBottom={1}
-            >
+            <Text style={styles.title} color={textColor} paddingBottom={1}>
               {title}
             </Text>
-            <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+            <Text style={styles.subTitle} fontWeight="100" color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
@@ -101,13 +96,7 @@ function HealthCheckModal(props) {
                 colors={buttonBackground}
                 style={styles.cta}
               >
-                <Text
-                  fontSize={13}
-                  fontFamily="body"
-                  fontWeight="300"
-                  letterSpacing={1}
-                  color={buttonTextColor}
-                >
+                <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>
               </LinearGradient>

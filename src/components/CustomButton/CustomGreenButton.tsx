@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
-import { Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+
 import LinearGradient from 'react-native-linear-gradient';
 
 export interface Props {
@@ -36,7 +37,7 @@ function CustomGreenButton(props: Props) {
         colors={['#073E39', '#00836A']}
         style={styles.linearGradient}
       >
-        <Text color="#FAFAFA" fontSize={13} fontWeight="300" letterSpacing={0.78} fontFamily="body">
+        <Text color="#FAFAFA" fontSize={13} bold letterSpacing={0.78}>
           {props.value}
         </Text>
       </LinearGradient>

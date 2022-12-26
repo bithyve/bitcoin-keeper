@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
 import { generateKey } from 'src/core/services/operations/encryption';
+import Text from 'src/components/KeeperText';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
 function AppGeneratePass(props: any) {
@@ -39,10 +40,10 @@ function AppGeneratePass(props: any) {
         </Box>
       </TouchableOpacity>
       <Box px={10} py={5}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.appGeneratePassTitle}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
@@ -65,7 +66,7 @@ function AppGeneratePass(props: any) {
             justifyContent="space-between"
             backgroundColor="light.textInputBackground"
           >
-            <Text width="80%" marginLeft={4} noOfLines={1} fontSize={18} fontWeight={200}>
+            <Text width="80%" marginLeft={4} noOfLines={1} fontSize={18}>
               {agsp}
             </Text>
             <Box
@@ -91,7 +92,7 @@ function AppGeneratePass(props: any) {
         )}
       </Box>
       <Box p={10}>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
@@ -100,7 +101,7 @@ function AppGeneratePass(props: any) {
           <CopyIcon />
         </Box>
         <Box w="80%">
-          <Text fontSize={12} fontWeight={300}>
+          <Text fontSize={12} bold>
             Backing up drive
           </Text>
           <Text fontSize={12}>Lorem ipsum dolor sit amet</Text>
