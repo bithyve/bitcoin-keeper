@@ -56,7 +56,7 @@ function SignerList({
               </Text>
               {!!signer.signerDescription && (
                 <Text
-                  noOfLines={1}
+                  numberOfLines={1}
                   color="#6A7772"
                   fontSize={12}
                   letterSpacing={0.6}

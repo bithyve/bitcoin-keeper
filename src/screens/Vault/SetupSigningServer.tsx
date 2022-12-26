@@ -181,7 +181,7 @@ function SetupSigningServer({ route }: { route }) {
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"
-                noOfLines={1}
+                numberOfLines={1}
               >
                 2FA Signing Server
               </Text>
@@ -196,7 +196,7 @@ function SetupSigningServer({ route }: { route }) {
                 borderBottomLeftRadius={10}
                 borderTopLeftRadius={10}
               >
-                <Text width="80%" marginLeft={4} noOfLines={1}>
+                <Text width="80%" marginLeft={4} numberOfLines={1}>
                   {twoFAKey}
                 </Text>
                 <TouchableOpacity

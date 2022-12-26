@@ -97,7 +97,7 @@ function VaultSettings({ route }) {
             <Text color="light.white" letterSpacing={0.28} fontSize={14}>
               {vaultName}
             </Text>
-            <Text color="light.white" letterSpacing={0.24} fontSize={12} fontWeight={100}>
+            <Text color="light.white" letterSpacing={0.24} fontSize={12} light>
               {vaultDescription}
             </Text>
           </Box>

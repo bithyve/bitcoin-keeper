@@ -50,7 +50,7 @@ function ShowXPub({
               marginBottom={hp(30)}
             >
               <Box py={2} alignItems="center">
-                <Text fontSize={12} noOfLines={1} px={3}>
+                <Text fontSize={12} numberOfLines={1} px={3}>
                   {data}
                 </Text>
               </Box>

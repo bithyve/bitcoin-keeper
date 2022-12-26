@@ -113,11 +113,11 @@ function SignerAdvanceSettings({ route }: any) {
             <Text color="white" fontSize={14}>
               {signerName}
             </Text>
-            <Text color="white" fontSize={10} fontWeight="100">
+            <Text color="white" fontSize={10} light>
               {moment(signer.addedOn).calendar().toLowerCase()}
             </Text>
             {signer.signerDescription ? (
-              <Text color="white" fontSize={12} fontWeight="100">
+              <Text color="white" fontSize={12} light>
                 {signer.signerDescription}
               </Text>
             ) : null}
@@ -130,7 +130,7 @@ function SignerAdvanceSettings({ route }: any) {
             <Text color="light.primaryText" fontSize={14}>
               Edit Description
             </Text>
-            <Text color="light.primaryText" fontSize={12} fontWeight="100">
+            <Text color="light.primaryText" fontSize={12} light>
               Short description to help you remember
             </Text>
           </VStack>
@@ -143,7 +143,7 @@ function SignerAdvanceSettings({ route }: any) {
             <Text color="light.primaryText" fontSize={14}>
               Manual Registration
             </Text>
-            <Text color="light.primaryText" fontSize={12} fontWeight="100">
+            <Text color="light.primaryText" fontSize={12} light>
               {`Register your active vault with the ${signerName}.`}
             </Text>
           </VStack>
@@ -157,7 +157,7 @@ function SignerAdvanceSettings({ route }: any) {
               <Text color="light.primaryText" fontSize={14}>
                 Change Verification & Policy
               </Text>
-              <Text color="light.primaryText" fontSize={12} fontWeight="100">
+              <Text color="light.primaryText" fontSize={12} light>
                 Restriction and threshold
               </Text>
             </VStack>

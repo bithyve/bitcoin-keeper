@@ -66,7 +66,7 @@ function AppGeneratePass(props: any) {
             justifyContent="space-between"
             backgroundColor="light.textInputBackground"
           >
-            <Text width="80%" marginLeft={4} noOfLines={1} fontSize={18}>
+            <Text width="80%" marginLeft={4} numberOfLines={1} fontSize={18}>
               {agsp}
             </Text>
             <Box

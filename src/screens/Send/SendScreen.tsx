@@ -144,7 +144,7 @@ function SendScreen({ route }) {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
+          <Text light fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>

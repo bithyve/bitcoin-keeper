@@ -107,7 +107,7 @@ function UaiDisplay({ uaiStack }) {
     return (
       <>
         <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
-          <Text noOfLines={2} color="light.white" style={styles.uaiTitle}>
+          <Text numberOfLines={2} color="light.white" style={styles.uaiTitle}>
             {uai?.title}
           </Text>
           <NextIcon pressHandler={pressHandler} />

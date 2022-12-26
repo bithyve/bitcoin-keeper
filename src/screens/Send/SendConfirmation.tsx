@@ -255,7 +255,7 @@ function SendConfirmation({ route }) {
             color="light.sendCardHeading"
             fontSize={14}
             letterSpacing={1.12}
-            noOfLines={1}
+            numberOfLines={1}
             maxWidth={200}
           >
             {title}
@@ -555,7 +555,7 @@ function SendConfirmation({ route }) {
           >
             Fees
           </Text>
-          <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} fontWeight={100}>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} light>
             ~ 10 - 30 mins
           </Text>
         </VStack>

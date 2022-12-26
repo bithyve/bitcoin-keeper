@@ -128,12 +128,12 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4" flex={1} alignItems="center" justifyContent="center">
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontWeight="100">
+          <Text color="#073B36" fontSize={13} light>
             {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontWeight="100">
+          <Text color="#073B36" fontSize={13} light>
             {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
           </Text>
         </Box>

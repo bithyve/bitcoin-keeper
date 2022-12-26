@@ -117,7 +117,7 @@ function AddLedger() {
             </Box>
           )}
           <Box marginTop="4">
-            <Text color="#073B36" fontSize={13} fontWeight="100" p={1}>
+            <Text color="#073B36" fontSize={13} light p={1}>
               Please open on the BTC app before connecting to the deivce
             </Text>
           </Box>

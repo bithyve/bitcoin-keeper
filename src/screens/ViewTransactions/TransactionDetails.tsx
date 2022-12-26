@@ -34,10 +34,22 @@ function TransactionDetails({ route }) {
           padding: 3,
         }}
       >
-        <Text fontSize={14} letterSpacing={1.12} color="light.headerText" width="90%" noOfLines={1}>
+        <Text
+          fontSize={14}
+          letterSpacing={1.12}
+          color="light.headerText"
+          width="90%"
+          numberOfLines={1}
+        >
           {title}
         </Text>
-        <Text fontSize={12} letterSpacing={2.4} color="light.GreyText" width="90%" noOfLines={1}>
+        <Text
+          fontSize={12}
+          letterSpacing={2.4}
+          color="light.GreyText"
+          width="90%"
+          numberOfLines={1}
+        >
           {describtion}
         </Text>
       </Box>
@@ -73,7 +85,7 @@ function TransactionDetails({ route }) {
                 fontSize={14}
                 letterSpacing={0.7}
                 color="light.headerText"
-                noOfLines={1}
+                numberOfLines={1}
                 width={wp(120)}
               >
                 {transaction.address}

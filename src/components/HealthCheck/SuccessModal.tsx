@@ -63,7 +63,7 @@ function SuccessModal(props) {
               <Text style={styles.title} color={textColor} paddingBottom={1}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} light color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>

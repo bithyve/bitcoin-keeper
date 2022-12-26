@@ -117,7 +117,7 @@ function Header() {
         <BackIcon />
       </TouchableOpacity>
       <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-        <Text color="light.white" fontSize={12} letterSpacing={0.84} fontWeight={100}>
+        <Text color="light.white" fontSize={12} letterSpacing={0.84} light>
           Know More
         </Text>
       </TouchableOpacity>
@@ -312,7 +312,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 fontSize={11}
                 letterSpacing={0.6}
                 textAlign="center"
-                noOfLines={1}
+                numberOfLines={1}
               >
                 {getSignerNameFromType(
                   signer.type,

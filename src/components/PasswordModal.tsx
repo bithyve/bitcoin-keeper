@@ -116,7 +116,7 @@ function PasswordModal(props) {
             <Text style={styles.title} color={textColor} paddingBottom={1}>
               {title}
             </Text>
-            <Text style={styles.subTitle} fontWeight="100" color={textColor}>
+            <Text style={styles.subTitle} light color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
@@ -140,7 +140,7 @@ function PasswordModal(props) {
               Invalid password
             </Text>
           )}
-          <Text style={styles.subTitle} width="90%" fontWeight="100" color={textColor}>
+          <Text style={styles.subTitle} width="90%" light color={textColor}>
             Hint: {backup ? backup.hint : ''}
           </Text>
           <Box alignSelf="flex-end" flexDirection="row" bg="transparent">

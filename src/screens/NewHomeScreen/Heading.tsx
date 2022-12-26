@@ -8,7 +8,7 @@ function Heading({ title, subTitle, alignItems = 'flex-start' }) {
       <Text color="light.primaryText" fontSize={22} letterSpacing={1.1}>
         {title}
       </Text>
-      <Text color="light.primaryText" fontSize={13} fontWeight="100" letterSpacing={0.65}>
+      <Text color="light.primaryText" fontSize={13} light letterSpacing={0.65}>
         {subTitle}
       </Text>
     </Box>

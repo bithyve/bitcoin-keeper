@@ -362,7 +362,7 @@ function WalletDetails({ route }) {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color="light.primaryText" noOfLines={2} style={styles.addNewWalletText}>
+          <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
             Add a new wallet or import one
           </Text>
         </Box>

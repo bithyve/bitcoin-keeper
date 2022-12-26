@@ -33,7 +33,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
             numberOfLines={1}
             style={styles.addWalletDescription}
             color="light.primaryText"
-            fontWeight="100"
+            light
             fontSize={12}
           >
             {subtitle}

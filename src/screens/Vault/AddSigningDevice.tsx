@@ -158,10 +158,10 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             <Pressable onPress={openDescriptionModal}>
               <Box style={styles.descriptionBox}>
                 <Text
-                  noOfLines={1}
+                  numberOfLines={1}
                   color={signer.signerDescription ? '#6A7772' : '#387F6A'}
                   fontSize={12}
-                  fontWeight={signer.signerDescription ? 200 : 300}
+                  bold={!signer.signerDescription}
                   letterSpacing={0.6}
                   fontStyle={signer.signerDescription ? null : 'italic'}
                 >
