@@ -3,7 +3,7 @@ import { Box, Input, Pressable } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -99,7 +99,6 @@ function AddSendAmount({ route }) {
         title={
           transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
         }
-      // subtitle={`Sending to ${address}`}
       />
       <Box
         style={{
@@ -139,7 +138,6 @@ function AddSendAmount({ route }) {
               width="70%"
               fontSize={12}
               letterSpacing={1.04}
-              bold
               borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}
@@ -172,42 +170,13 @@ function AddSendAmount({ route }) {
               secondaryCallback={() => {
                 navigation.goBack();
               }}
-              style={styles.sendMaxWrapper}
-            >
-              <Text color="light.sendMax" style={styles.sendMaxText}>
-                Send Max
-              </Text>
-            </Pressable>
+              primaryText="Send"
+              primaryDisable={Boolean(!amount)}
+              primaryCallback={executeSendPhaseOne}
+            />
           </Box>
-
-          <Box style={styles.addNoteWrapper}>
-            <TextInput placeholder="Add a note" style={styles.textInput} />
-          </Box>
-          <Box style={styles.ctaBtnWrapper}>
-            <Box ml={windowWidth * -0.09}>
-              <Buttons
-                secondaryText="Cancel"
-                secondaryCallback={() => {
-                  navigation.goBack();
-                }}
-                primaryText="Send"
-                primaryDisable={Boolean(!amount)}
-                primaryCallback={executeSendPhaseOne}
-              />
-            </Box>
-          </Box>
-        </Box>
-        <Box style={styles.appNumPadWrapper}>
-          <AppNumPad
-            setValue={setAmount}
-            clear={() => setAmount('')}
-            color="#073E39"
-            height={65}
-            darkDeleteIcon={true}
-          />
         </Box>
       </Box>
-      {/* {!isKeyboardVisible && ( */}
       <Box style={styles.appNumPadWrapper}>
         <AppNumPad
           setValue={setAmount}
@@ -217,7 +186,6 @@ function AddSendAmount({ route }) {
           darkDeleteIcon
         />
       </Box>
-      {/* )} */}
     </ScreenWrapper>
   );
 }
@@ -277,7 +245,7 @@ const styles = ScaledSheet.create({
   },
   appNumPadWrapper: {
     width: '110%',
-    marginLeft: '-5%'
+    marginLeft: '-5%',
   },
 });
 export default AddSendAmount;
