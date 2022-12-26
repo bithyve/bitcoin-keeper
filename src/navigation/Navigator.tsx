@@ -66,13 +66,14 @@ import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
+import Colors from 'src/theme/Colors';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#F7F2EC',
+    background: Colors.Isabelline,
   },
 };
 
@@ -199,7 +200,6 @@ function Navigator() {
         close={() => {}}
         title="please wait"
         subTitle="loading"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#000"
       />
     </NavigationContainer>

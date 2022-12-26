@@ -7,7 +7,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { updateIntrimVault } from 'src/store/reducers/vaults';
 import { TransferType } from 'src/common/data/enums/TransferType';
 
-import { newVaultInfo } from 'src/store/sagas/wallets';
+import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/core/services/sentry';
 import usePlan from 'src/hooks/usePlan';
@@ -115,7 +115,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
 
   const createVault = useCallback((signers: VaultSigner[], scheme: VaultScheme) => {
     try {
-      const newVaultDetails: newVaultInfo = {
+      const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: scheme,
         vaultSigners: signers,
@@ -124,8 +124,8 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
           description: 'Secure your sats',
         },
       };
-      dispatch(addNewVault({ newVaultInfo: newVaultDetails }));
-      return newVaultDetails;
+      dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+      return vaultInfo;
     } catch (err) {
       captureError(err);
       return false;
@@ -134,7 +134,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
 
   const initiateNewVault = () => {
     if (activeVault) {
-      const newVaultDetails: newVaultInfo = {
+      const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: subscriptionScheme,
         vaultSigners: signersState,
@@ -143,7 +143,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
           description: 'Secure your sats',
         },
       };
-      dispatch(migrateVault(newVaultDetails, planStatus));
+      dispatch(migrateVault(vaultInfo, planStatus));
     } else {
       const freshVault = createVault(signersState, subscriptionScheme);
       if (freshVault && !activeVault) {

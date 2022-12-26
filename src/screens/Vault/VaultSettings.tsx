@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, Text, Pressable } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 
@@ -41,22 +41,10 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
-        <Text
-          color="light.lightBlack"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={RFValue(14)}
-          letterSpacing={1.12}
-        >
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-        >
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -106,24 +94,14 @@ function VaultSettings({ route }) {
           }}
         >
           <Box>
-            <Text
-              color="light.white"
-              letterSpacing={0.28}
-              fontSize={RFValue(14)}
-              fontWeight={200}
-            >
+            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
               {vaultName}
             </Text>
-            <Text
-              color="light.white"
-              letterSpacing={0.24}
-              fontSize={RFValue(12)}
-              fontWeight={100}
-            >
+            <Text color="light.white" letterSpacing={0.24} fontSize={12} fontWeight={100}>
               {vaultDescription}
             </Text>
           </Box>
-          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
             {vaultBalance}sats
           </Text>
         </Box>
@@ -167,13 +145,13 @@ function VaultSettings({ route }) {
         <Option
           title="Generate Descriptors"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => { }}
+          onPress={() => {}}
           Icon={false}
         />
         <Option
           title="Consectetur"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => { }}
+          onPress={() => {}}
           Icon={false}
         />
         <Option

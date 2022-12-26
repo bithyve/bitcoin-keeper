@@ -1,8 +1,8 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input, View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
@@ -10,7 +10,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
-import { newWalletInfo } from 'src/store/sagas/wallets';
+import { NewWalletInfo } from 'src/store/sagas/wallets';
 import { WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
@@ -20,14 +20,14 @@ function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const {wallet} = translations;
-  const {common} = translations;
+  const { wallet } = translations;
+  const { common } = translations;
 
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
   const [transferPolicy, setTransferPolicy] = useState('5000');
   const createNewWallet = useCallback(() => {
-    const newWallet: newWalletInfo = {
+    const newWallet: NewWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: walletName,
@@ -52,7 +52,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.WalletName}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
@@ -63,7 +63,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.SinglesigWallet}
           placeholderTextColor="light.greenText"
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
@@ -72,11 +72,11 @@ function EnterWalletDetailScreen({ route }) {
           marginY={2}
         />
         <Box marginTop={10}>
-          <Text fontWeight="200">Transfer Policy</Text>
+          <Text>Transfer Policy</Text>
           <Input
             placeholder={wallet.TransferPolicy}
             placeholderTextColor="light.greenText"
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             value={transferPolicy}
             onChangeText={(value) => setTransferPolicy(value)}
             style={styles.inputField}
@@ -107,13 +107,13 @@ const styles = ScaledSheet.create({
     padding: '20@s',
   },
   addWalletText: {
-    fontSize: RFValue(22),
+    fontSize: 22,
     lineHeight: '20@s',
     letterSpacing: '0.7@s',
     marginTop: hp(5),
   },
   addWalletDescription: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
   },
@@ -122,7 +122,7 @@ const styles = ScaledSheet.create({
     color: '#073E39',
     marginVertical: 10,
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 0.96,
   },
 });

@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ImageBackground, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, Text } from 'native-base';
+import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { RFValue } from 'react-native-responsive-fontsize';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
 import NewWalletModal from 'src/components/NewWalletModal';
@@ -59,7 +59,7 @@ function InheritanceComponent() {
         style={styles.bottomCard}
         bg={{
           linearGradient: {
-            colors: ['light.lgStart', 'light.lgEnd'],
+            colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
             end: [1, 1],
           },
@@ -72,10 +72,10 @@ function InheritanceComponent() {
               marginLeft: wp(18),
             }}
           >
-            <Text color="light.white1" style={styles.bottomCardTitle}>
+            <Text color="light.white" style={styles.bottomCardTitle}>
               Inheritance
             </Text>
-            <Text color="light.white1" style={styles.bottomCardSubtitle}>
+            <Text color="light.white" style={styles.bottomCardSubtitle}>
               Upgrade to secure your vault
             </Text>
           </Box>
@@ -96,7 +96,6 @@ function InheritanceComponent() {
           cloudButton={wallet.FromCloud}
           cloudButtonDesc={wallet.WalletDesc}
           mainDesc={wallet.XPubSubTitle}
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           buttonBackground={['#00836A', '#073E39']}
           buttonCancel="Cancel"
           buttonText="Next"
@@ -127,7 +126,7 @@ function LinkedWallets(props) {
       <Box
         bg={{
           linearGradient: {
-            colors: ['light.lgStart', 'light.lgEnd'],
+            colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
             end: [1, 1],
           },
@@ -138,15 +137,15 @@ function LinkedWallets(props) {
           <LinkedWallet />
           <Box style={styles.linkedWalletContent}>
             <Text
-              color="light.white1"
-              fontSize={RFValue(22)}
+              color="light.white"
+              fontSize={22}
               style={{
                 letterSpacing: 1.76,
               }}
             >
               {wallets?.length}
             </Text>
-            <Text color="light.white1" style={styles.LinkedWalletText}>
+            <Text color="light.white" style={styles.LinkedWalletText}>
               Linked Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
@@ -173,7 +172,7 @@ function LinkedWallets(props) {
                 <BTC />
               </Box>
               <Text
-                color="light.white1"
+                color="light.white"
                 fontSize={hp(30)}
                 style={{
                   letterSpacing: 0.6,
@@ -181,7 +180,7 @@ function LinkedWallets(props) {
               >
                 {getAmount(netBalance)}
                 <Text
-                  color="light.white1"
+                  color="light.white"
                   style={{
                     letterSpacing: 0.6,
                     fontSize: hp(12),
@@ -270,15 +269,15 @@ function VaultStatus(props) {
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return '#fac48b';
+        return 'light.lightAccent';
       case TorStatus.CONNECTING:
-        return '#fac48b';
+        return 'light.lightAccent';
       case TorStatus.CONNECTED:
         return '#c6ecae';
       case TorStatus.ERROR:
         return 'red.400';
       default:
-        return '#fac48b';
+        return 'light.lightAccent';
     }
   }, [torStatus]);
 
@@ -288,16 +287,16 @@ function VaultStatus(props) {
         <TouchableOpacity onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
             <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
-              <Text color="light.lightBlack" style={styles.torText}>
+              <Text color="light.primaryText" style={styles.torText} bold>
                 {getTorStatusText}
               </Text>
             </Box>
             <Box style={styles.vaultBody}>
-              <Text color="light.white1" style={styles.vaultHeading}>
+              <Text color="light.white" style={styles.vaultHeading} bold>
                 Your Vault
               </Text>
 
-              <Text color="light.white1" style={styles.vaultSubHeading}>
+              <Text color="light.white" style={styles.vaultSubHeading} bold>
                 {!signers.length
                   ? 'Add a signing device to upgrade '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
@@ -314,7 +313,7 @@ function VaultStatus(props) {
               ) : (
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
-                    <Box bg="#FAC48B" style={styles.vaultSigner}>
+                    <Box bg="light.lightAccent" style={styles.vaultSigner}>
                       {WalletMap(signer.type).Icon}
                     </Box>
                   ))}
@@ -327,10 +326,10 @@ function VaultStatus(props) {
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
-                    <Text color="light.white1" fontSize={hp(30)} style={styles.vaultBalanceText}>
+                    <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
                       {getAmount(vaultBalance)}
                     </Text>
-                    <Text color="light.white1" style={styles.vaultBalanceUnit}>
+                    <Text color="light.white" style={styles.vaultBalanceUnit}>
                       {getUnit()}
                     </Text>
                   </Box>
@@ -346,11 +345,11 @@ function VaultStatus(props) {
               </Pressable>
             </HStack>
             <Pressable
-              backgroundColor="light.yellow1"
+              backgroundColor="light.accent"
               style={styles.balanceToggleContainer}
               onPress={() => props.onAmountPress()}
             >
-              <Text color="light.sendMax" style={styles.balanceToggleText}>
+              <Text color="light.sendMax" style={styles.balanceToggleText} bold>
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
@@ -383,7 +382,7 @@ function VaultInfo() {
     <Box
       bg={{
         linearGradient: {
-          colors: ['light.lgStart', 'light.lgEnd'],
+          colors: ['light.gradientStart', 'light.gradientEnd'],
           start: [0, 0],
           end: [1, 1],
         },
@@ -399,10 +398,10 @@ function VaultInfo() {
             {getPlanIcon()}
             <Box
               backgroundColor="#015A53"
-              borderColor="light.white1"
+              borderColor="light.white"
               style={styles.subscriptionTextContainer}
             >
-              <Text color="light.white1" style={styles.subscriptionText}>
+              <Text color="light.white" style={styles.subscriptionText}>
                 {plan}
               </Text>
             </Box>
@@ -421,7 +420,7 @@ export function NextIcon({ pressHandler }) {
   return (
     <Pressable onPress={pressHandler}>
       <Box
-        backgroundColor="light.yellow1"
+        backgroundColor="light.accent"
         height={hp(37.352)}
         width={hp(37.352)}
         borderRadius={20}
@@ -439,7 +438,7 @@ function TransVaultSuccessfulContent() {
       <Box alignSelf="center">
         <VaultIcon />
       </Box>
-      <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+      <Text color="#073B36" fontSize={13} p={2}>
         The transaction should be visible in the vault in some time.
       </Text>
     </Box>
@@ -450,7 +449,7 @@ function HomeScreen({ navigation }) {
   const [visibleModal, setVisibleModal] = useState(false);
 
   return (
-    <Box backgroundColor="light.lightYellow" style={styles.container}>
+    <Box style={styles.container}>
       <VaultInfo />
       <VaultStatus
         showHideAmounts={showHideAmounts}
@@ -570,7 +569,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textAlign: 'center',
     textTransform: 'uppercase',
-    fontWeight: 'bold',
   },
   vaultBody: {
     marginTop: hp(windowHeight > 700 ? 60.5 : 25),
@@ -578,13 +576,11 @@ const styles = StyleSheet.create({
   },
   vaultHeading: {
     letterSpacing: 0.8,
-    fontSize: RFValue(16),
-    fontWeight: 'bold',
+    fontSize: 16,
   },
   vaultSubHeading: {
     letterSpacing: 0.9,
-    fontSize: RFValue(12),
-    fontWeight: 'bold',
+    fontSize: 12,
     opacity: 0.8,
     paddingBottom: 2,
   },
@@ -619,7 +615,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   balanceToggleText: {
-    fontWeight: 'bold',
     fontSize: 11,
     letterSpacing: 0.88,
   },
@@ -631,12 +626,12 @@ const styles = StyleSheet.create({
   },
   bottomCardTitle: {
     letterSpacing: 0.8,
-    fontSize: RFValue(16),
+    fontSize: 16,
     marginBottom: 3,
   },
   bottomCardSubtitle: {
     letterSpacing: 0.6,
-    fontSize: RFValue(12),
+    fontSize: 12,
     fontWeight: '300',
     marginTop: -3,
   },
@@ -644,7 +639,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(5),
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: RFValue(16),
+    fontSize: 16,
   },
   linkedWalletContent: {
     marginLeft: wp(18),

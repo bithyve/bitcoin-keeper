@@ -8,7 +8,6 @@ import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Keyboard } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -39,7 +38,7 @@ function AddAmountScreen({ route }: { route }) {
             justifyContent="center"
             alignItems="center"
             borderRadius={10}
-            backgroundColor="light.lightYellow"
+            backgroundColor="light.primaryBackground"
             marginY={2}
             padding={2}
           >
@@ -87,7 +86,6 @@ const styles = ScaledSheet.create({
     color: '#073E39',
     opacity: 0.5,
     fontFamily: Fonts.RobotoCondensedBold,
-    fontSize: RFValue(10),
     letterSpacing: 1.04,
   },
 });

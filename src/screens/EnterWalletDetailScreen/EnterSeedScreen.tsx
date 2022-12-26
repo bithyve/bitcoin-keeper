@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-import { Box, ScrollView, Text, View } from 'native-base';
+import { Box, ScrollView, View } from 'native-base';
 import {
   FlatList,
   Keyboard,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
@@ -174,7 +175,7 @@ function EnterSeedScreen() {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+        <Text color="#073B36" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -187,7 +188,7 @@ function EnterSeedScreen() {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           Make sure the words are entered in the correct sequence
         </Text>
       </View>
@@ -198,7 +199,6 @@ function EnterSeedScreen() {
     if (number < 9) return `0${number + 1}`;
     return number + 1;
   };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -207,7 +207,7 @@ function EnterSeedScreen() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
+        <ScrollView marginTop={windowHeight > 715 ? 20 : 5}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
@@ -228,7 +228,7 @@ function EnterSeedScreen() {
               }}
               renderItem={({ item, index }) => (
                 <View style={styles.inputListWrapper}>
-                  <Text style={styles.indexText} fontWeight="300">
+                  <Text style={styles.indexText} bold>
                     {getFormattedNumber(index)}
                   </Text>
                   <TextInput
@@ -241,7 +241,7 @@ function EnterSeedScreen() {
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`Enter ${getPlaceholder(index)} phrase`}
-                    placeholderTextColor={'rgba(7,62,57,0.6)'}
+                    placeholderTextColor="rgba(7,62,57,0.6)"
                     value={item?.name}
                     textContentType="none"
                     returnKeyType="next"
@@ -287,7 +287,6 @@ function EnterSeedScreen() {
             close={closeInvalidSeedsModal}
             title={seed.InvalidSeeds}
             subTitle={seed.seedDescription}
-            modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
             buttonText="Retry"
             buttonTextColor="#FAFAFA"
@@ -300,7 +299,6 @@ function EnterSeedScreen() {
             close={closeRecovery}
             title={seed.walletRecoverySuccessful}
             subTitle={seed.seedDescription}
-            modalBackground={['#F7F2EC', '#F7F2EC']}
             buttonBackground={['#00836A', '#073E39']}
             buttonText="View Wallet"
             buttonTextColor="#FAFAFA"
@@ -343,12 +341,6 @@ const styles = ScaledSheet.create({
   inputcontainer: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
   },
   ctabutton: {
     paddingVertical: 10,

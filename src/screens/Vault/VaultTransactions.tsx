@@ -1,5 +1,6 @@
 // libraries
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -55,10 +56,10 @@ function VaultTransactions({ route }) {
         <Box flexDirection="row" alignItems="center">
           <VaultIcon />
           <Box>
-            <Text fontWeight={200} fontSize={16} letterSpacing={0.8} color="light.headerText">
+            <Text fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
             </Text>
-            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color="light.modalText">
+            <Text fontSize={12} letterSpacing={0.6} color="light.greenText">
               {subtitle}
             </Text>
           </Box>

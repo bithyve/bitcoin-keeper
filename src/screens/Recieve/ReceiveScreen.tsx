@@ -1,5 +1,8 @@
-import { Box, Text } from 'native-base';
-import { Clipboard, StyleSheet, TouchableOpacity } from 'react-native';
+import Text from 'src/components/KeeperText';
+
+import { Box } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import React, { useContext, useEffect, useState } from 'react';
 
 import QRCode from 'react-native-qrcode-svg';
@@ -63,7 +66,7 @@ function ReceiveScreen({ route }: { route }) {
           size={hp(200)}
         />
         <Box background="light.QrCode" style={styles.receiveAddressWrapper}>
-          <Text style={styles.receiveAddressText} color="light.recieverAddress" fontFamily="body">
+          <Text style={styles.receiveAddressText} color="light.recieverAddress">
             Receive Address
           </Text>
         </Box>
@@ -95,14 +98,14 @@ function ReceiveScreen({ route }: { route }) {
           navigtaion.navigate('AddAmount', { wallet });
         }}
       >
-        <Box style={styles.addAmountWrapper01} backgroundColor="light.lightYellow">
+        <Box style={styles.addAmountWrapper01} backgroundColor="light.primaryBackground">
           <Box flexDirection="row">
             <BtcGreen />
             <Box flexDirection="column" marginLeft={5}>
-              <Text color="light.lightBlack" fontFamily="body" style={styles.addAmountText}>
+              <Text color="light.primaryText" style={styles.addAmountText}>
                 {home.AddAmount}
               </Text>
-              <Text color="light.GreyText" fontFamily="body" style={styles.addAmountSubTitleText}>
+              <Text color="light.GreyText" style={styles.addAmountSubTitleText}>
                 Add a specific invoice amount
               </Text>
             </Box>

@@ -14,7 +14,8 @@ export const RECIPIENT_REMOVED_FROM_SENDING = 'RECIPIENT_REMOVED_FROM_SENDING';
 export const RECIPIENT_SELECTED_FOR_AMOUNT_SETTING = 'RECIPIENT_SELECTED_FOR_AMOUNT_SETTING';
 export const AMOUNT_FOR_RECIPIENT_UPDATED = 'AMOUNT_FOR_RECIPIENT_UPDATED';
 export const SET_BALANCE_FOR_SENDING_RECIPIENT = 'SET_BALANCE_FOR_SENDING_RECIPIENT';
-export const FETCH_FEE_AND_EXCHANGE_RATES = 'FETCH_FEE_AND_EXCHANGE_RATES';
+export const FETCH_EXCHANGE_RATES = 'FETCH_EXCHANGE_RATES';
+export const FETCH_FEE_RATES = 'FETCH_FEE_RATES';
 export const AVERAGE_TX_FEE = 'AVERAGE_TX_FEE';
 export const EXCHANGE_RATE_CALCULATED = 'EXCHANGE_RATE_CALCULATED';
 export const SEND_PHASE_ONE = 'SEND_PHASE_ONE';
@@ -104,8 +105,12 @@ export const amountForRecipientUpdated = (payload: {
   payload,
 });
 
-export const fetchFeeAndExchangeRates = () => ({
-  type: FETCH_FEE_AND_EXCHANGE_RATES,
+export const fetchExchangeRates = () => ({
+  type: FETCH_EXCHANGE_RATES,
+});
+
+export const fetchFeeRates = () => ({
+  type: FETCH_FEE_RATES,
 });
 
 export interface SendPhaseOneAction extends Action {

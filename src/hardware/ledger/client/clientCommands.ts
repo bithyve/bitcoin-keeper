@@ -24,10 +24,7 @@ export class YieldCommand extends ClientCommand {
 
   readonly code = ClientCommandCode.YIELD;
 
-  constructor(
-    results: Buffer[],
-    private readonly progressCallback?: () => void
-  ) {
+  constructor(results: Buffer[], private readonly progressCallback?: () => void) {
     super();
     this.results = results;
   }
@@ -57,11 +54,11 @@ export class GetPreimageCommand extends ClientCommand {
     const req = Buffer.from(request.subarray(1));
 
     // we expect no more data to read
-    if (req.length != 1 + 32) {
+    if (req.length !== 1 + 32) {
       throw new Error('Invalid request, unexpected trailing data');
     }
 
-    if (req[0] != 0) {
+    if (req[0] !== 0) {
       throw new Error('Unsupported request, the first byte should be 0');
     }
 
@@ -73,7 +70,7 @@ export class GetPreimageCommand extends ClientCommand {
     const req_hash_hex = hash.toString('hex');
 
     const known_preimage = this.known_preimages.get(req_hash_hex);
-    if (known_preimage != undefined) {
+    if (known_preimage !== undefined) {
       const preimage_len_varint = createVarint(known_preimage.length);
 
       // We can send at most 255 - len(preimage_len_out) - 1 bytes in a single message;
@@ -128,9 +125,7 @@ export class GetMerkleLeafProofCommand extends ClientCommand {
       tree_size = sanitizeBigintToNumber(reqBuf.readVarInt());
       leaf_index = sanitizeBigintToNumber(reqBuf.readVarInt());
     } catch (e) {
-      throw new Error(
-        "Invalid request, couldn't parse tree_size or leaf_index"
-      );
+      throw new Error("Invalid request, couldn't parse tree_size or leaf_index");
     }
 
     const mt = this.known_trees.get(hash_hex);
@@ -138,22 +133,17 @@ export class GetMerkleLeafProofCommand extends ClientCommand {
       throw Error(`Requested Merkle leaf proof for unknown tree: ${hash_hex}`);
     }
 
-    if (leaf_index >= tree_size || mt.size() != tree_size) {
+    if (leaf_index >= tree_size || mt.size() !== tree_size) {
       throw Error('Invalid index or tree size.');
     }
 
-    if (this.queue.length != 0) {
-      throw Error(
-        'This command should not execute when the queue is not empty.'
-      );
+    if (this.queue.length !== 0) {
+      throw Error('This command should not execute when the queue is not empty.');
     }
 
     const proof = mt.getProof(leaf_index);
 
-    const n_response_elements = Math.min(
-      Math.floor((255 - 32 - 1 - 1) / 32),
-      proof.length
-    );
+    const n_response_elements = Math.min(Math.floor((255 - 32 - 1 - 1) / 32), proof.length);
     const n_leftover_elements = proof.length - n_response_elements;
 
     // Add to the queue any proof elements that do not fit the response
@@ -183,7 +173,7 @@ export class GetMerkleLeafIndexCommand extends ClientCommand {
   execute(request: Buffer): Buffer {
     const req = Buffer.from(request.subarray(1));
 
-    if (req.length != 32 + 32) {
+    if (req.length !== 32 + 32) {
       throw new Error('Invalid request, unexpected trailing data');
     }
 
@@ -203,15 +193,13 @@ export class GetMerkleLeafIndexCommand extends ClientCommand {
 
     const mt = this.known_trees.get(root_hash_hex);
     if (!mt) {
-      throw Error(
-        `Requested Merkle leaf index for unknown root: ${root_hash_hex}`
-      );
+      throw Error(`Requested Merkle leaf index for unknown root: ${root_hash_hex}`);
     }
 
     let leaf_index = 0;
     let found = 0;
     for (let i = 0; i < mt.size(); i++) {
-      if (mt.getLeafHash(i).toString('hex') == leef_hash_hex) {
+      if (mt.getLeafHash(i).toString('hex') === leef_hash_hex) {
         found = 1;
         leaf_index = i;
         break;
@@ -232,7 +220,7 @@ export class GetMoreElementsCommand extends ClientCommand {
   }
 
   execute(request: Buffer): Buffer {
-    if (request.length != 1) {
+    if (request.length !== 1) {
       throw new Error('Invalid request, unexpected trailing data');
     }
 
@@ -242,7 +230,7 @@ export class GetMoreElementsCommand extends ClientCommand {
 
     // all elements should have the same length
     const element_len = this.queue[0].length;
-    if (this.queue.some((el) => el.length != element_len)) {
+    if (this.queue.some((el) => el.length !== element_len)) {
       throw new Error(
         'The queue contains elements with different byte length, which is not expected'
       );
@@ -327,14 +315,12 @@ export class ClientCommandInterpreter {
 
   addKnownWalletPolicy(wp: WalletPolicy): void {
     this.addKnownPreimage(wp.serialize());
-    this.addKnownList(
-      wp.keys.map((k) => Buffer.from(k, 'ascii'))
-    );
+    this.addKnownList(wp.keys.map((k) => Buffer.from(k, 'ascii')));
     this.addKnownPreimage(Buffer.from(wp.descriptorTemplate));
   }
 
   execute(request: Buffer): Buffer {
-    if (request.length == 0) {
+    if (request.length === 0) {
       throw new Error('Unexpected empty command');
     }
 

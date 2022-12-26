@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Modal, Text } from 'native-base';
+import { Box, Modal } from 'native-base';
 import { Image, Platform, StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function KeeperLoader(props) {
   const {
@@ -13,7 +14,7 @@ function KeeperLoader(props) {
     close,
     modalBackground = ['#F7F2EC', '#F7F2EC'],
     textColor = '#000',
-    subTitleColor = 'light.lightBlack2',
+    subTitleColor = 'light.secondaryText',
     loadingContent,
     Content = () => (
       <Box>
@@ -27,8 +28,7 @@ function KeeperLoader(props) {
           }}
         />
         <Text
-          color="light.modalText"
-          fontWeight={200}
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           marginTop={hp(60)}

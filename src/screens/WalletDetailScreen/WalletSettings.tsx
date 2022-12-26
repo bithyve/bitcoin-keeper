@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Text, Pressable, ScrollView } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // components and functions
@@ -40,7 +40,7 @@ function Option({ title, subTitle, onPress }: Props) {
   return (
     <Pressable style={styles.optionContainer} onPress={onPress}>
       <Box style={{ width: '96%' }}>
-        <Text color="light.lightBlack" style={styles.optionTitle}>
+        <Text color="light.primaryText" style={styles.optionTitle}>
           {title}
         </Text>
         <Text color="light.GreyText" style={styles.optionSubtitle}>
@@ -68,7 +68,7 @@ function WalletSettings({ route }) {
   const walletRoute: Wallet = route?.params?.wallet;
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-  const wallet = wallets.find((item) => item.id == walletRoute.id);
+  const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
@@ -80,7 +80,7 @@ function WalletSettings({ route }) {
       <Box
         bg={{
           linearGradient: {
-            colors: ['light.lgStart', 'light.lgEnd'],
+            colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
             end: [1, 1],
           },
@@ -253,7 +253,7 @@ function WalletSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box style={styles.note} backgroundColor={'light.ReceiveBackground'}>
+      <Box style={styles.note} backgroundColor="light.ReceiveBackground">
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -269,14 +269,13 @@ function WalletSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle={walletTranslation.confirmPassSubTitle}
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <SeedConfirmPasscode
               closeBottomSheet={() => {
                 setConfirmPassVisible(false);
               }}
-              wallets={wallets}
+              wallet={wallet}
               navigation={navigation}
             />
           )}
@@ -288,7 +287,6 @@ function WalletSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <ShowXPub
@@ -308,7 +306,6 @@ function WalletSettings({ route }) {
           subTitleWidth={wp(240)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <ShowXPub
@@ -328,7 +325,6 @@ function WalletSettings({ route }) {
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
           textColor="#041513"
           Content={() => (
             <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />
@@ -395,11 +391,11 @@ const styles = ScaledSheet.create({
     width: '100%',
   },
   optionTitle: {
-    fontSize: RFValue(14),
+    fontSize: 14,
     letterSpacing: 1.12,
   },
   optionSubtitle: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
   },
 });

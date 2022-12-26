@@ -10,9 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
@@ -21,7 +22,6 @@ import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RNCamera } from 'react-native-camera';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -48,7 +48,6 @@ function SendScreen({ route }) {
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
@@ -105,12 +104,12 @@ function SendScreen({ route }) {
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
           : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(
               address,
               TransferType.VAULT_TO_ADDRESS,
@@ -128,7 +127,7 @@ function SendScreen({ route }) {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      if (sender.entityKind == 'VAULT') {
+      if (sender.entityKind === 'VAULT') {
         navigateToNext(getNextFreeAddress(item), TransferType.VAULT_TO_WALLET, null, item);
       } else {
         navigateToNext(getNextFreeAddress(item), TransferType.WALLET_TO_WALLET, null, item);
@@ -145,7 +144,7 @@ function SendScreen({ route }) {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontFamily="body" fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
+          <Text fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
@@ -190,7 +189,7 @@ function SendScreen({ route }) {
 
             {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
+              <Text marginX={5} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>
@@ -235,11 +234,11 @@ const styles = ScaledSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: '0.24@s',
   },
   subtitle: {
-    fontSize: RFValue(10),
+    fontSize: 10,
     letterSpacing: '0.20@s',
   },
   qrContainer: {
@@ -259,7 +258,7 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '90%',
-    backgroundColor: Colors?.textInputBackground,
+    backgroundColor: Colors.Isabelline,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 15,

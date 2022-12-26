@@ -1,5 +1,6 @@
 import { Alert, Platform, TouchableOpacity } from 'react-native';
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 
@@ -173,10 +174,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <TapsignerSetupImage />
         </Box>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} p={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} p={2}>
           You will need the Pin/ CVC at the back of the card
         </Text>
       </View>
@@ -187,10 +188,10 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <TapsignerSetupImage /> */}</Box>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} p={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2} />
+        <Text color="light.secondaryText" fontSize={13} p={2} />
       </View>
     );
   }
@@ -199,11 +200,11 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <SuccessIcon /> */}</Box>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} p={2}>
           You can choose to manually confirm the health of the signing device if you are sure that
           they are secure and accessible.
         </Text>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} p={2}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -217,7 +218,7 @@ function SigningDeviceDetails({ route }) {
           {' '}
           <Illustration />
         </Box>
-        <Text color="light.lightBlack2" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} p={2}>
           You will be reminded in 90 days for the health check
         </Text>
       </View>
@@ -248,7 +249,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            bg="#FAC48B"
+            bg="light.lightAccent"
             justifyContent="center"
             alignItems="center"
           >
@@ -298,7 +299,7 @@ function SigningDeviceDetails({ route }) {
                 signer.amfData && signer.amfData.xpub
               )}
             </Text>
-            <Text fontSize={13} color="light.modalText">{`Added on ${moment(signer.addedOn)
+            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               .toLowerCase()}`}</Text>
           </Box>
@@ -320,7 +321,7 @@ function SigningDeviceDetails({ route }) {
         height={hp(188)}
         backgroundColor="light.ReceiveBackground"
       >
-        <Text fontSize={13} color="light.modalText" letterSpacing={0.65}>
+        <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
         </Text>
         <Box

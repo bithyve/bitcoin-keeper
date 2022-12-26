@@ -2,7 +2,7 @@ import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { SignerException, SignerPolicy, SignerRestriction } from 'src/core/services/interfaces';
-import { newWalletDetails, newWalletInfo } from '../sagas/wallets';
+import { NewWalletDetails, NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
 export const SYNC_WALLETS = 'SYNC_WALLETS';
@@ -123,16 +123,6 @@ export const updateSignerPolicy = (
   },
 });
 
-// export const generateSecondaryXpriv = (wallet, secondaryMnemonic: string) => {
-//   return {
-//     type: GENERATE_SECONDARY_XPRIV,
-//     payload: {
-//       wallet,
-//       secondaryMnemonic,
-//     },
-//   };
-// };
-
 export const resetTwoFA = (secondaryMnemonic) => ({
   type: RESET_TWO_FA,
   payload: {
@@ -176,12 +166,12 @@ export const refreshWallets = (
   },
 });
 
-export const addNewWallets = (payload: newWalletInfo[]) => ({
+export const addNewWallets = (payload: NewWalletInfo[]) => ({
   type: ADD_NEW_WALLETS,
   payload,
 });
 
-export const importNewWallet = (mnemonic: string, walletDetails?: newWalletDetails) => ({
+export const importNewWallet = (mnemonic: string, walletDetails?: NewWalletDetails) => ({
   type: IMPORT_NEW_WALLET,
   payload: {
     mnemonic,

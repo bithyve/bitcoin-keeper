@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   Alert,
   FlatList,
@@ -6,10 +7,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, Pressable, Text, View } from 'native-base';
-import React, { useContext, useRef, useState } from 'react';
+import { Box, Pressable, View } from 'native-base';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 // icons and images
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
@@ -25,7 +27,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'react-native-linear-gradient';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -47,7 +48,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
 import { TransferType } from 'src/common/data/enums/TransferType';
 
-function WalletDetails() {
+function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -67,6 +68,11 @@ function WalletDetails() {
   const [pullRefresh, setPullRefresh] = useState(false);
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
+  const { autoRefresh } = route?.params || {};
+
+  useEffect(() => {
+    if (autoRefresh) pullDownRefresh();
+  }, [autoRefresh]);
 
   const _onSnapToItem = (index: number) => {
     setWalletIndex(index);
@@ -140,7 +146,7 @@ function WalletDetails() {
                   }}
                 >
                   {getAmount(walletBalance)}
-                  <Text color="light.sats" style={styles.balanceUnit}>
+                  <Text color="light.textColor" style={styles.balanceUnit}>
                     {getUnit()}
                   </Text>
                 </Text>
@@ -206,7 +212,7 @@ function WalletDetails() {
     );
   }
   return (
-    <Box backgroundColor="light.lightYellow" style={styles.container}>
+    <Box style={styles.container}>
       <StatusBarComponent padding={50} />
       <Pressable onPress={() => navigation.goBack()} style={styles.backIcon}>
         <BackIcon />
@@ -223,7 +229,7 @@ function WalletDetails() {
           </Box>
           <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
             {getAmount(netBalance)}
-            <Text color="light.satsDark" style={styles.balanceUnit}>
+            <Text color="light.textColorDark" style={styles.balanceUnit}>
               {getUnit()}
             </Text>
           </Text>
@@ -249,25 +255,21 @@ function WalletDetails() {
         <>
           {/* {Transfer pollicy} */}
           <Box style={styles.transferPolicyContainer}>
-            <Box backgroundColor="light.transactionPolicyCard" style={styles.transferPolicyCard}>
+            <Box backgroundColor="light.accent" style={styles.transferPolicyCard}>
               <Box
                 style={{
                   paddingLeft: wp(10),
                 }}
               >
                 <Text
-                  color="light.brownborder"
-                  fontSize={RFValue(12)}
+                  color="light.learnMoreBorder"
+                  fontSize={12}
                   style={{
                     letterSpacing: 0.6,
                   }}
                 >
                   Available to spend
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
+                  <Text bold>
                     {' '}
                     {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
                   </Text>
@@ -275,7 +277,7 @@ function WalletDetails() {
               </Box>
             </Box>
             <Pressable
-              backgroundColor="light.transactionPolicyCard"
+              backgroundColor="light.accent"
               style={styles.transferPolicyCard}
               onPress={() => {
                 if (vaultExsist) {
@@ -288,20 +290,14 @@ function WalletDetails() {
             >
               <Box style={{ paddingLeft: wp(10) }}>
                 <Text
-                  color="light.brownborder"
-                  fontSize={RFValue(12)}
+                  color="light.learnMoreBorder"
+                  fontSize={12}
                   style={{
                     letterSpacing: 0.6,
                   }}
                 >
                   Transfer Policy is set at{'  '}
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    ฿ {wallets[walletIndex].specs.transferPolicy}sats
-                  </Text>
+                  <Text bold>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
                 </Text>
               </Box>
             </Pressable>
@@ -311,13 +307,6 @@ function WalletDetails() {
             <Text color="light.textBlack" style={styles.transactionText}>
               Transactions
             </Text>
-            {/* Screen not implemented yet  */}
-            {/* <Box style={styles.viewAllContainer}>
-              <Text color="light.light" style={styles.viewAllText}>
-                View All
-              </Text>
-              <IconArrowBlack />
-            </Box> */}
           </Box>
 
           <Box style={styles.transactionsListContainer}>
@@ -331,7 +320,7 @@ function WalletDetails() {
               showsVerticalScrollIndicator={false}
             />
           </Box>
-          <Box backgroundColor="light.lightYellow" style={styles.footerContainer}>
+          <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
               <TouchableOpacity
@@ -341,7 +330,7 @@ function WalletDetails() {
                 }}
               >
                 <Send />
-                <Text color="light.lightBlack" style={styles.footerItemText}>
+                <Text color="light.primaryText" style={styles.footerItemText}>
                   Send
                 </Text>
               </TouchableOpacity>
@@ -352,7 +341,7 @@ function WalletDetails() {
                 }}
               >
                 <Recieve />
-                <Text color="light.lightBlack" style={styles.footerItemText}>
+                <Text color="light.primaryText" style={styles.footerItemText}>
                   Receive
                 </Text>
               </TouchableOpacity>
@@ -363,7 +352,7 @@ function WalletDetails() {
                 }}
               >
                 <IconSettings />
-                <Text color="light.lightBlack" style={styles.footerItemText}>
+                <Text color="light.primaryText" style={styles.footerItemText}>
                   Settings
                 </Text>
               </TouchableOpacity>
@@ -373,7 +362,7 @@ function WalletDetails() {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color="light.lightBlack" noOfLines={2} style={styles.addNewWalletText}>
+          <Text color="light.primaryText" noOfLines={2} style={styles.addNewWalletText}>
             Add a new wallet or import one
           </Text>
         </Box>
@@ -433,7 +422,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     letterSpacing: 0.96,
-    fontSize: RFValue(16),
+    fontSize: 16,
     marginTop: hp(10),
   },
   headerContainer: {
@@ -477,11 +466,11 @@ const styles = StyleSheet.create({
   },
   walletName: {
     letterSpacing: 0.24,
-    fontSize: RFValue(12),
+    fontSize: 12,
   },
   walletDescription: {
     letterSpacing: 0.2,
-    fontSize: RFValue(10),
+    fontSize: 10,
     fontWeight: '400',
     marginTop: hp(16),
   },
@@ -508,12 +497,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: wp(2),
-  },
-  viewAllText: {
-    letterSpacing: 0.6,
-    marginRight: 5,
-    fontSize: 11,
-    fontWeight: 'bold',
   },
   transactionsListContainer: {
     marginTop: hp(10),

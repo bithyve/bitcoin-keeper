@@ -1,4 +1,5 @@
-import { Box, Text, View, ScrollView } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, View, ScrollView } from 'native-base';
 import React, { useContext, useState } from 'react';
 import {
   Platform,
@@ -24,11 +25,9 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
-import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import { getPlaceholder } from 'src/common/utilities';
 
-function InputSeedWordSigner({ route }) {
+function InputSeedWordSigner({ route }: { route: any }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
@@ -101,28 +100,12 @@ function InputSeedWordSigner({ route }) {
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
-  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
   const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
 
-  const openLoaderModal = () => setCreateCloudBackupModal(true);
-  const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const walletRecoverySuccess = () => setWalletRecoverySuccessModal(true);
   const closeRecovery = () => setWalletRecoverySuccessModal(false);
 
   const closeWalletSuccessModal = () => {
     setWalletRecoverySuccessModal(false);
-  };
-
-  const { showToast } = useToastMessage();
-
-  const isSeedFilled = () => {
-    for (let i = 0; i < 12; i++) {
-      if (seedData[i].invalid === true) {
-        showToast('Enter correct seedwords', <TickIcon />);
-        return true;
-      }
-    }
-    return true;
   };
 
   const getSeedWord = () => {
@@ -145,7 +128,7 @@ function InputSeedWordSigner({ route }) {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+        <Text color="#073B36" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -158,7 +141,7 @@ function InputSeedWordSigner({ route }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
           ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
@@ -215,16 +198,16 @@ function InputSeedWordSigner({ route }) {
                       width: 22,
                       fontSize: 16,
                       color: '#00836A',
-                      fontWeight: 'bold',
                       marginTop: 8,
                     }}
+                    bold
                   >
                     {getFormattedNumber(index)}
                   </Text>
                   <TextInput
                     style={[
                       styles.input,
-                      item.invalid == true
+                      item.invalid
                         ? {
                             borderColor: '#F58E6F',
                           }
@@ -271,8 +254,7 @@ function InputSeedWordSigner({ route }) {
               <TouchableOpacity>
                 <Text
                   fontSize={13}
-                  fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   marginTop={2}
                   //   color={buttonCancelColor}
@@ -288,13 +270,7 @@ function InputSeedWordSigner({ route }) {
                   colors={['#00836A', '#073E39']}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
-                    letterSpacing={1}
-                    color="white"
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color="white">
                     {common.next}
                   </Text>
                 </LinearGradient>
@@ -305,7 +281,6 @@ function InputSeedWordSigner({ route }) {
               close={closeInvalidSeedsModal}
               title={seed.InvalidSeeds}
               subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
               buttonText="Retry"
               buttonTextColor="#FAFAFA"
@@ -318,7 +293,6 @@ function InputSeedWordSigner({ route }) {
               close={closeRecovery}
               title={seed.walletRecoverySuccessful}
               subTitle={seed.seedDescription}
-              modalBackground={['#F7F2EC', '#F7F2EC']}
               buttonBackground={['#00836A', '#073E39']}
               buttonText="View Wallet"
               buttonTextColor="#FAFAFA"
@@ -362,12 +336,6 @@ const styles = ScaledSheet.create({
   inputcontainer: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
   },
   ctabutton: {
     paddingVertical: 10,

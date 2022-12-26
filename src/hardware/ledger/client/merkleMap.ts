@@ -21,7 +21,7 @@ export class MerkleMap {
    * @param values values, in corresponding order as the keys, and of equal length
    */
   constructor(keys: readonly Buffer[], values: readonly Buffer[]) {
-    if (keys.length != values.length) {
+    if (keys.length !== values.length) {
       throw new Error('keys and values should have the same length');
     }
 

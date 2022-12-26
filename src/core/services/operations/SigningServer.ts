@@ -45,7 +45,7 @@ export default class SigningServer {
     appId: string,
     verificationToken
   ): Promise<{
-    valid: Boolean;
+    valid: boolean;
   }> => {
     let res: AxiosResponse;
     try {
@@ -127,7 +127,7 @@ export default class SigningServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const {signedPSBT} = res.data;
+    const { signedPSBT } = res.data;
     return {
       signedPSBT,
     };
