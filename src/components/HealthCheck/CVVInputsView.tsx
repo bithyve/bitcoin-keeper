@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
 
 import {
   widthPercentageToDP as wp,
@@ -36,9 +37,9 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
   const getDotColor = () => (textColor ? 'black' : 'white');
 
   const getPin = (num: number) => {
-    if (passCode.length == num && !hide) {
+    if (passCode.length === num && !hide) {
       return (
-        <Text color={getTextColor()} fontWeight="300" fontSize={20} fontFamily="body">
+        <Text color={getTextColor()} bold fontSize={20}>
           {passCode[num - 1]}
         </Text>
       );
@@ -46,7 +47,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
     if (passCode.length >= num) {
       return <DotView height={3} width={3} color={getDotColor()} />;
     }
-    if (passCode.length == num - 1) {
+    if (passCode.length === num - 1) {
       return <Text color={getTextColor()}>|</Text>;
     }
     return '';

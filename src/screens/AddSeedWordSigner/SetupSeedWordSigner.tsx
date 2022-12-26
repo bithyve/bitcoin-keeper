@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 
@@ -43,7 +44,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         >
           <Text
             fontSize={20}
-            fontWeight={300}
+            bold
             letterSpacing={1.64}
             // marginRight={3}
             color="light.greenText2"
@@ -51,13 +52,7 @@ function SetupSeedWordSigner({ route, navigation }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text
-            fontSize={20}
-            fontWeight={200}
-            backgroundColor="green.700"
-            letterSpacing={1}
-            color="light.GreyText"
-          >
+          <Text fontSize={20} backgroundColor="green.700" letterSpacing={1} color="light.GreyText">
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -70,12 +65,11 @@ function SetupSeedWordSigner({ route, navigation }) {
   );
 
   return (
-    <Box flex={1} padding={5} background="light.ReceiveBackground">
+    <Box flex={1} padding={5} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title="Soft Key"
         subtitle={seedText.SeedDesc}
-        color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
 
@@ -105,7 +99,6 @@ function SetupSeedWordSigner({ route, navigation }) {
           marginX={2}
           marginTop={5}
           fontSize={12}
-          fontWeight={200}
           letterSpacing={0.6}
           marginRight={10}
           color="light.GreyText"

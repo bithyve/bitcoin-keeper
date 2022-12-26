@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import Text from 'src/components/KeeperText';
 import KeyPadView from './AppNumPad/KeyPadView';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
 import CVVInputsView from './HealthCheck/CVVInputsView';
@@ -32,14 +33,14 @@ function SettingUpTapsigner(props) {
   };
 
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          m={5}
-          bg="light.lightAccent"
+          margin={5}
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
@@ -49,11 +50,11 @@ function SettingUpTapsigner(props) {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+      <Box padding={10}>
+        <Text fontSize={19} color="light.primaryText">
           {tapsigner.SetupTitle}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" fontFamily="body">
+        <Text fontSize={13} color="light.secondaryText">
           {healthcheck.EnterCVV}
         </Text>
       </Box>
@@ -62,7 +63,7 @@ function SettingUpTapsigner(props) {
         <CVVInputsView passCode={inputText} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
         <Box mt={10} alignSelf="flex-end" mr={10}>
-          {inputText.length == 6 && (
+          {inputText.length === 6 && (
             <Box>
               <CustomGreenButton onPress={onPress} value={common.proceed} />
             </Box>

@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -10,10 +11,10 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function SignWithTapsigner() {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -26,12 +27,12 @@ function SignWithTapsigner() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
       textRef.current = temp;
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       const temp = cvc.slice(0, -1);
       setCvc(temp);
       textRef.current = temp;
@@ -69,15 +70,13 @@ function SignWithTapsigner() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper>
       <Box flex={1}>
-        <Box style={styles.header}>
-          <HeaderTitle
-            title="Sign with Tapsigner"
-            subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
-            onPressHandler={() => navigation.goBack()}
-          />
-        </Box>
+        <HeaderTitle
+          title="Setting up TAPSIGNER"
+          subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
+          onPressHandler={() => navigation.goBack()}
+        />
         <ScrollView>
           <TextInput
             style={styles.input}
@@ -86,14 +85,7 @@ function SignWithTapsigner() {
             value={cvc}
             onChangeText={setCvc}
           />
-          <Text
-            padding={5}
-            fontWeight={200}
-            width={wp(250)}
-            fontSize={13}
-            letterSpacing={0.65}
-            color="light.greenText"
-          >
+          <Text style={styles.heading} color="light.greenText">
             You will be scanning the TAPSIGNER after this step
           </Text>
           <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
@@ -108,52 +100,21 @@ function SignWithTapsigner() {
         />
         <NfcPrompt visible={nfcVisible} />
       </Box>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
 export default SignWithTapsigner;
 
 const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    backgroundColor: '#F7F2EC',
-    flex: 1,
-    padding: 10,
-  },
   header: {
     flex: 1,
-    padding: '5%',
-  },
-  stepContainer: {
-    flexDirection: 'row',
-    marginBottom: '4%',
-    marginHorizontal: '4%',
-  },
-  stepBodyContainer: {
-    width: '80%',
-  },
-  circle: {
-    margin: '5%',
-    marginTop: 0,
-    width: 25,
-    height: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  doneCircle: {
-    backgroundColor: '#055146',
-  },
-  activeCircle: {
-    backgroundColor: '#FAC48B',
-  },
-  inactiveCircle: {
-    backgroundColor: '#E3E3E3',
+    paddingHorizontal: '5%',
+    marginBottom: windowHeight > 850 ? 0 : '25%',
   },
   input: {
-    paddingHorizontal: 20,
     margin: '5%',
+    paddingHorizontal: 15,
     width: wp(305),
     height: 50,
     borderRadius: 10,
@@ -162,5 +123,18 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     alignItems: 'flex-end',
+  },
+  heading: {
+    margin: '5%',
+    padding: 5,
+    width: windowWidth * 0.8,
+    fontSize: 13,
+    letterSpacing: 0.65,
+  },
+  btnContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    marginRight: wp(15),
   },
 });

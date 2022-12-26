@@ -1,4 +1,5 @@
-import { Box, Input, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -72,7 +73,7 @@ function ConfirmSeedWord(props) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" p={10} borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" padding={10} borderRadius={10}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.confirmSeedWord}

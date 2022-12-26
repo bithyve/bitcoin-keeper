@@ -1,4 +1,5 @@
-import { Box, Text, View, ScrollView } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, View, ScrollView } from 'native-base';
 import React, { useContext, useState } from 'react';
 import {
   Platform,
@@ -13,7 +14,7 @@ import {
 
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import * as bip39 from 'bip39';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -127,7 +128,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+        <Text color="light.greenText" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -140,7 +141,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
           ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
@@ -197,9 +198,9 @@ function InputSeedWordSigner({ route }: { route: any }) {
                       width: 22,
                       fontSize: 16,
                       color: '#00836A',
-                      fontWeight: 'bold',
                       marginTop: 8,
                     }}
+                    bold
                   >
                     {getFormattedNumber(index)}
                   </Text>
@@ -236,7 +237,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
               )}
             />
           </View>
-          <Text color="#4F5955" marginX={10} marginY={10} fontSize={12}>
+          <Text color="light.GreyText" marginX={10} marginY={10} fontSize={12}>
             {seed.seedDescription}
           </Text>
           <View
@@ -245,16 +246,15 @@ function InputSeedWordSigner({ route }: { route: any }) {
               justifyContent: 'space-between',
             }}
           >
-            <Box bg="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
+            <Box backgroundColor="transparent" flexDirection="row" marginLeft={10} marginTop={4}>
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
-            <Box bg="transparent" flexDirection="row" marginRight={10}>
+            <Box backgroundColor="transparent" flexDirection="row" marginRight={10}>
               <TouchableOpacity>
                 <Text
                   fontSize={13}
-                  fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   marginTop={2}
                   //   color={buttonCancelColor}
@@ -265,18 +265,12 @@ function InputSeedWordSigner({ route }: { route: any }) {
               </TouchableOpacity>
               <TouchableOpacity onPress={onPressNext} disabled={false}>
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  colors={['#00836A', '#073E39']}
+                  start={[0, 0]}
+                  end={[1, 1]}
+                  colors={['light.gradientStart', 'light.gradientEnd']}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
-                    letterSpacing={1}
-                    color="white"
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color="white">
                     {common.next}
                   </Text>
                 </LinearGradient>
@@ -287,11 +281,10 @@ function InputSeedWordSigner({ route }: { route: any }) {
               close={closeInvalidSeedsModal}
               title={seed.InvalidSeeds}
               subTitle={seed.seedDescription}
-              buttonBackground={['#00836A', '#073E39']}
               buttonText="Retry"
-              buttonTextColor="#FAFAFA"
+              buttonTextColor="light.white"
               buttonCallback={closeInvalidSeedsModal}
-              textColor="#041513"
+              textColor="light.primaryText"
               Content={InValidSeedsScreen}
             />
             <KeeperModal
@@ -299,11 +292,10 @@ function InputSeedWordSigner({ route }: { route: any }) {
               close={closeRecovery}
               title={seed.walletRecoverySuccessful}
               subTitle={seed.seedDescription}
-              buttonBackground={['#00836A', '#073E39']}
               buttonText="View Wallet"
-              buttonTextColor="#FAFAFA"
+              buttonTextColor="light.white"
               buttonCallback={closeWalletSuccessModal}
-              textColor="#041513"
+              textColor="light.primaryText"
               Content={RecoverWalletScreen}
             />
             <ModalWrapper
@@ -342,12 +334,6 @@ const styles = ScaledSheet.create({
   inputcontainer: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
   },
   ctabutton: {
     paddingVertical: 10,

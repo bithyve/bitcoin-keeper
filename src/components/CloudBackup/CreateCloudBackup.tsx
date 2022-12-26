@@ -17,14 +17,14 @@ function CreateCloudBackup(props) {
     },
   ]);
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
       {/* <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          m={5}
-          bg={'#E3BE96'}
+          margin={5}
+          backgroundColor={'#E3BE96'}
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems={'center'}
           justifyContent={'center'}
           alignSelf={'flex-end'}
@@ -35,10 +35,10 @@ function CreateCloudBackup(props) {
         </Box>
       </TouchableOpacity>
       <Box px={10}>
-        <Text fontSize={(19)} color={'light.primaryText'} fontFamily={'heading'}>
+        <Text fontSize={(19)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackTitle}
         </Text>
-        <Text fontSize={(13)} color={'light.primaryText'} fontFamily={'body'}>
+        <Text fontSize={(13)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
@@ -66,17 +66,17 @@ function CreateCloudBackup(props) {
           </Text>
         </Box>
       </Box>
-      <Box p={10}>
-        <Text fontSize={(13)} color={'light.primaryText'} fontFamily={'body'}>
+      <Box padding={10}>
+        <Text fontSize={(13)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
-      {/* <Box p={10} flexDirection={'row'}>
+      {/* <Box padding={10} flexDirection={'row'}>
         {items.map((item, index) => {
           return (
             <Box
               key={index}
-              style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+              style={currentPosition===index ? styles.selectedDot : styles.unSelectedDot}
             />
           );
         })}

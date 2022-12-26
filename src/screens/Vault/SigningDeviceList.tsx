@@ -1,5 +1,6 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -8,18 +9,16 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import Alert from 'src/assets/images/alert_illustration.svg';
 import { BleManager } from 'react-native-ble-plx';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import NFC from 'src/core/services/nfc';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
@@ -110,7 +109,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
-    // setNfcSupport(isSupported);
+    setNfcSupport(isSupported);
     setSignersLoaded(true);
   };
 
@@ -183,7 +182,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
           >
             <Box style={styles.walletMapContainer}>
               <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
-              <Box opacity={0.3} backgroundColor="light.divider" height={hp(24)} width={0.5} />
+              <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {WalletMap(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
@@ -204,14 +203,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
       <Box justifyContent="center" alignItems="center">
         <Alert />
       </Box>
-      <Text
-        fontSize={13}
-        fontWeight={200}
-        letterSpacing={0.65}
-        width={wp(260)}
-        color="light.greenText"
-        marginY={4}
-      >
+      <Text fontSize={13} letterSpacing={0.65} width={wp(260)} color="light.greenText" marginY={4}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
       </Text>
     </Box>
@@ -254,7 +246,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
               })}
               <Text color="light.primaryText" style={styles.contactUsText}>
                 {vault.VaultInfo}{' '}
-                <Text fontStyle="italic" fontWeight="bold">
+                <Text style={styles.italics} bold>
                   Contact Us
                 </Text>
               </Text>
@@ -268,10 +260,9 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
           title="NFC Not supported"
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-          buttonBackground={['#00836A', '#073E39']}
           buttonText="  CTA  "
-          buttonTextColor="#FAFAFA"
-          textColor="#041513"
+          buttonTextColor="light.white"
+          textColor="light.primaryText"
           Content={nfcAlertConternt}
         />
         <KeeperModal
@@ -281,14 +272,14 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
           title="Signing Devices"
           subTitle="A signing device is a piece of hardware or software that stores one of the private keys needed for your vault"
-          modalBackground={['#00836A', '#073E39']}
+          modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
-          buttonTextColor="#073E39"
+          buttonTextColor="light.greenText"
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
-          textColor="#FFF"
+          textColor="light.white"
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
@@ -346,6 +337,14 @@ const styles = StyleSheet.create({
     opacity: 0.1,
     width: windowWidth * 0.8,
     height: 0.5,
+  },
+  divider: {
+    opacity: 0.5,
+    height: hp(26),
+    width: 1.5,
+  },
+  italics: {
+    fontStyle: 'italic',
   },
 });
 export default SigningDeviceList;

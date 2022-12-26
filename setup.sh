@@ -1,6 +1,6 @@
 # enabling node core modules
 # adding node core modules support in react-native
-rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path,assert,crypto,constants --hack --yarn
+rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack --yarn
 
 # ios dependency installation
 cd ios && pod install

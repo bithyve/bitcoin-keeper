@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 
 // components and functions
 import KeeperModal from 'src/components/KeeperModal';
@@ -18,14 +19,7 @@ function TorConnectionContent() {
         <TOR />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
           Connecting via Tor improves your online privacy
         </Text>
       </Box>
@@ -40,26 +34,11 @@ function TorContent() {
         <TOR />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.white"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.white" fontSize={13} padding={1} letterSpacing={0.65}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua.
         </Text>
-        <Text
-          color="light.white"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-          marginTop={hp(10)}
-        >
+        <Text color="light.white" fontSize={13} padding={1} letterSpacing={0.65} marginTop={hp(10)}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua.
         </Text>
@@ -75,14 +54,7 @@ function TorConnectionFailed() {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
           There was an error when connecting via Tor
         </Text>
       </Box>
@@ -97,14 +69,7 @@ function TorEnabledContent() {
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
           All your backend connections will be over Tor network
         </Text>
       </Box>
@@ -134,26 +99,13 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
 
   return (
     <>
-      {/* <KeeperModal
-        visible={false}
-        close={close}
-        title={'Tor'}
-        subTitle={'Keys Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod'}
-        modalBackground={['#00836A', '#073E39']}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
-        buttonText={'Continue'}
-        buttonTextColor={'#073E39'}
-        textColor={'#FFFFFF'}
-        Content={TorContent}
-        DarkCloseIcon={true}
-      /> */}
       <KeeperModal
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
         title="Connecting to Tor"
         subTitle="Network calls and some functions may work slower when the Tor is enabled "
-        textColor="#041513"
-        subTitleColor="#5F6965"
+        textColor="light.primaryText"
+        subTitleColor="light.secondaryText"
         Content={TorConnectionContent}
       />
       <KeeperModal
@@ -161,14 +113,13 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         close={close}
         title="Connection Error"
         subTitle="This can be due to the network or other conditions "
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Try Again"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={() => {
           onPressTryAgain();
         }}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={TorConnectionFailed}
       />
       <KeeperModal
@@ -176,12 +127,11 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         close={close}
         title="Tor Enabled Successfully!"
         subTitle="The app may be slower than usual over Tor"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Close"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={close}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={TorEnabledContent}
       />
     </>

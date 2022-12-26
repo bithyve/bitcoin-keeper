@@ -24,7 +24,7 @@ function AddAmountScreen({ route }: { route }) {
 
   return (
     <View flex={1}>
-      <View style={styles.Container} background="light.ReceiveBackground">
+      <View style={styles.Container} background="light.secondaryBackground">
         <StatusBarComponent padding={50} />
         <HeaderTitle
           title={home.AddAmount}
@@ -72,7 +72,7 @@ function AddAmountScreen({ route }: { route }) {
         </View>
       </View>
       <View position="absolute" bottom={0}>
-        <AppNumPad setValue={setAmount} clear={() => setAmount('')} color="#073E39" />
+        <AppNumPad setValue={setAmount} clear={() => setAmount('')} color="light.greenText" />
       </View>
     </View>
   );

@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-import { Box, ScrollView, Text, View } from 'native-base';
+import { Box, ScrollView, View } from 'native-base';
 import {
   FlatList,
   Keyboard,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
@@ -174,7 +175,7 @@ function EnterSeedScreen() {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+        <Text color="light.greenText" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -187,7 +188,7 @@ function EnterSeedScreen() {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           Make sure the words are entered in the correct sequence
         </Text>
       </View>
@@ -198,7 +199,6 @@ function EnterSeedScreen() {
     if (number < 9) return `0${number + 1}`;
     return number + 1;
   };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
@@ -207,7 +207,7 @@ function EnterSeedScreen() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.container}
       >
-        <ScrollView marginTop={windowHeight > 800 ? 20 : 5}>
+        <ScrollView marginTop={windowHeight > 715 ? 20 : 5}>
           <StatusBarComponent />
           <Box marginX={10}>
             <SeedWordsView
@@ -228,7 +228,7 @@ function EnterSeedScreen() {
               }}
               renderItem={({ item, index }) => (
                 <View style={styles.inputListWrapper}>
-                  <Text style={styles.indexText} fontWeight="300">
+                  <Text style={styles.indexText} bold>
                     {getFormattedNumber(index)}
                   </Text>
                   <TextInput
@@ -270,7 +270,9 @@ function EnterSeedScreen() {
               )}
             />
           </View>
-          <Text style={styles.seedDescText}>{seed.seedDescription}</Text>
+          <Text style={styles.seedDescText} color="light.GreyText">
+            {seed.seedDescription}
+          </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
               <View style={styles.dot} />
@@ -287,11 +289,10 @@ function EnterSeedScreen() {
             close={closeInvalidSeedsModal}
             title={seed.InvalidSeeds}
             subTitle={seed.seedDescription}
-            buttonBackground={['#00836A', '#073E39']}
             buttonText="Retry"
-            buttonTextColor="#FAFAFA"
+            buttonTextColor="light.white"
             buttonCallback={closeInvalidSeedsModal}
-            textColor="#041513"
+            textColor="light.primaryText"
             Content={InValidSeedsScreen}
           />
           <KeeperModal
@@ -299,11 +300,10 @@ function EnterSeedScreen() {
             close={closeRecovery}
             title={seed.walletRecoverySuccessful}
             subTitle={seed.seedDescription}
-            buttonBackground={['#00836A', '#073E39']}
             buttonText="View Wallet"
-            buttonTextColor="#FAFAFA"
+            buttonTextColor="light.white"
             buttonCallback={closeWalletSuccessModal}
-            textColor="#041513"
+            textColor="light.primaryText"
             Content={RecoverWalletScreen}
           />
           {/* <ModalWrapper
@@ -342,12 +342,6 @@ const styles = ScaledSheet.create({
     backgroundColor: 'transparent',
     flexDirection: 'row',
   },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
   ctabutton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -385,7 +379,6 @@ const styles = ScaledSheet.create({
   },
   seedDescText: {
     fontWeight: '400',
-    color: '#4F5955',
     marginHorizontal: 30,
     marginVertical: hp(10),
     fontSize: 12,

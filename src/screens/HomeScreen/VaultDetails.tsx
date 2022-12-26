@@ -1,4 +1,5 @@
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -8,11 +9,9 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
-// components, hooks and functions
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
-// asserts
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/svgs/back_white.svg';
@@ -21,7 +20,7 @@ import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/svgs/receive.svg';
@@ -65,7 +64,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Send />
-          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" style={styles.footerText}>
             Send
           </Text>
         </TouchableOpacity>
@@ -76,7 +75,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Recieve />
-          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" style={styles.footerText}>
             Receive
           </Text>
         </TouchableOpacity>
@@ -87,7 +86,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Buy />
-          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" style={styles.footerText}>
             Buy
           </Text>
         </TouchableOpacity>
@@ -98,7 +97,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <IconSettings />
-          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+          <Text color="light.primaryText" style={styles.footerText}>
             Settings
           </Text>
         </TouchableOpacity>
@@ -118,7 +117,7 @@ function Header() {
         <BackIcon />
       </TouchableOpacity>
       <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-        <Text color="light.white" fontSize={12} letterSpacing={0.84} fontWeight={100}>
+        <Text color="light.white" style={styles.footerText} light>
           Know More
         </Text>
       </TouchableOpacity>
@@ -133,6 +132,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
+  const styles = getStyles(0);
   return (
     <VStack paddingY={12}>
       <HStack alignItems="center" justifyContent="space-between">
@@ -141,58 +141,28 @@ function VaultInfo({ vault }: { vault: Vault }) {
             <VaultIcon />
           </Box>
           <VStack>
-            <Text
-              color="light.white"
-              marginLeft={wp(3)}
-              fontSize={16}
-              fontWeight={200}
-              letterSpacing={1.28}
-            >
+            <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
               {name}
             </Text>
-            <Text
-              color="light.white"
-              marginLeft={wp(3)}
-              fontSize={12}
-              fontWeight={200}
-              letterSpacing={1.28}
-            >
+            <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
               {description}
             </Text>
           </VStack>
         </HStack>
         <HStack alignItems="center">
           <BTC />
-          <Text
-            color="light.white"
-            marginLeft={wp(3)}
-            fontSize={30}
-            fontWeight={200}
-            letterSpacing={1.28}
-          >
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={30}>
             {getAmount(confirmed + unconfirmed)}
           </Text>
         </HStack>
       </HStack>
       <HStack justifyContent="space-between" paddingBottom={10} paddingTop={6}>
-        <Text
-          color="light.white"
-          marginLeft={wp(3)}
-          fontSize={10}
-          fontWeight={300}
-          letterSpacing={1.28}
-        >
+        <Text color="light.white" style={styles.vaultInfoText} fontSize={10} bold>
           Available to spend
         </Text>
         <HStack alignItems="center">
           <BTC />
-          <Text
-            color="light.white"
-            marginLeft={wp(3)}
-            fontSize={14}
-            fontWeight={300}
-            letterSpacing={1.28}
-          >
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={14} bold>
             {confirmed}
           </Text>
         </HStack>
@@ -220,13 +190,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
     <>
       <VStack style={{ paddingTop: windowHeight * 0.12 }}>
         <HStack justifyContent="space-between">
-          <Text
-            color="light.textBlack"
-            marginLeft={wp(3)}
-            fontSize={16}
-            fontWeight={200}
-            letterSpacing={1.28}
-          >
+          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           <TouchableOpacity>
@@ -243,9 +207,9 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
               >
                 <Text
                   color="light.primaryGreen"
-                  marginRight={1}
+                  marginRight={2}
                   fontSize={11}
-                  fontWeight={300}
+                  bold
                   letterSpacing={0.6}
                 >
                   View All
@@ -272,12 +236,12 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
   const styles = getStyles(0);
   const navigation = useNavigation();
 
-  function AddSigner() {
+  const AddSigner = useCallback(() => {
     if (upgradeStatus === VaultMigrationType.UPGRADE) {
       return (
         <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          start={[0, 0]}
+          end={[1, 1]}
           colors={['#B17F44', '#6E4A35']}
           style={[styles.signerCard]}
         >
@@ -300,13 +264,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text
-                color="light.white"
-                fontSize={11}
-                fontWeight={300}
-                letterSpacing={0.6}
-                textAlign="center"
-              >
+              <Text color="light.white" fontSize={11} bold letterSpacing={0.6} textAlign="center">
                 Add signing device to upgrade
               </Text>
             </VStack>
@@ -315,11 +273,12 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
       );
     }
     return null;
-  }
+  }, [upgradeStatus]);
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', bottom: '80%', zIndex: 1 }}
+      style={{ position: 'absolute', top: `${70 - Signers.length}%`, zIndex: 2 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -342,7 +301,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               width="12"
               height="12"
               borderRadius={30}
-              bg="#725436"
+              backgroundColor="#725436"
               justifyContent="center"
               alignItems="center"
               alignSelf="center"
@@ -353,10 +312,9 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <Text
                 color="light.textBlack"
                 fontSize={11}
-                fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
-                noOfLines={1}
+                numberOfLines={1}
               >
                 {getSignerNameFromType(
                   signer.type,
@@ -367,7 +325,6 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <Text
                 color="light.textBlack"
                 fontSize={8}
-                fontWeight={200}
                 letterSpacing={0.6}
                 textAlign="center"
                 numberOfLines={2}
@@ -440,48 +397,50 @@ function VaultDetails({ route, navigation }) {
 
   const styles = getStyles(top);
 
-  function VaultContent() {
-    return (
+  const VaultContent = useCallback(
+    () => (
       <View marginY={5}>
         <Box alignSelf="center">
           <VaultSetupIcon />
         </Box>
-        <Text
-          marginTop={hp(20)}
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-        >
+        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
           Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
           select
         </Text>
-        <Text
-          color="white"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-        >
+        <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
           There are also some additional options if you do not have hardware signing devices
         </Text>
       </View>
-    );
-  }
+    ),
+    []
+  );
+
+  const NewVaultContent = useCallback(
+    () => (
+      <View>
+        <Success />
+        <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
+          For sending out of the vault you will need the signing devices. This means no one can
+          steal your bitcoin in the vault unless they also have the signing devices
+        </Text>
+      </View>
+    ),
+    []
+  );
 
   return (
     <LinearGradient
       colors={['#B17F44', '#6E4A35']}
       style={styles.container}
-      start={{ x: -0.5, y: 1 }}
-      end={{ x: 1, y: 1 }}
+      start={[-0.5, 1]}
+      end={[1, 1]}
     >
-      <VStack mx="8%">
-        <Header />
-        <VaultInfo vault={vault} />
+      <VStack>
+        <VStack mx="8%">
+          <Header />
+          <VaultInfo vault={vault} />
+        </VStack>
+        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
       <VStack
         backgroundColor="light.primaryBackground"
@@ -490,7 +449,6 @@ function VaultDetails({ route, navigation }) {
         flex={1}
         justifyContent="space-between"
       >
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
         <TransactionList
           transactions={transactions}
           pullDownRefresh={syncVault}
@@ -514,21 +472,7 @@ function VaultDetails({ route, navigation }) {
         subTitleColor="light.secondaryText"
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
-        Content={() => (
-          <View>
-            <Success />
-            <Text
-              fontWeight={200}
-              fontSize={13}
-              letterSpacing={0.65}
-              color="light.greenText"
-              marginTop={3}
-            >
-              For sending out of the vault you will need the signing devices. This means no one can
-              steal your bitcoin in the vault unless they also have the signing devices
-            </Text>
-          </View>
-        )}
+        Content={NewVaultContent}
       />
       <KeeperModal
         visible={introModal}
@@ -537,12 +481,12 @@ function VaultDetails({ route, navigation }) {
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
-        modalBackground={['#00836A', '#073E39']}
-        textColor="#FFF"
+        modalBackground={['light.gradientStart', 'light.gradientEnd']}
+        textColor="light.white"
         Content={VaultContent}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         buttonText="Continue"
-        buttonTextColor="#073E39"
+        buttonTextColor="light.greenText"
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}
@@ -590,6 +534,14 @@ const getStyles = (top) =>
       borderRadius: 8,
       borderWidth: 1,
       borderColor: '#FAFCFC',
+    },
+    footerText: {
+      fontSize: 12,
+      letterSpacing: 0.84,
+    },
+    vaultInfoText: {
+      marginLeft: wp(3),
+      letterSpacing: 1.28,
     },
   });
 export default VaultDetails;

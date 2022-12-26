@@ -1,4 +1,5 @@
-import { Box, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
@@ -47,10 +48,10 @@ function TorSettings() {
     <ScreenWrapper>
       <HeaderTitle title="Tos Settings" subtitle="Tor deamon" />
       <Box paddingY="10">
-        <Text color="light.GreyText" fontSize={12} fontFamily="body" pl={10}>
+        <Text color="light.GreyText" fontSize={12} pl={10}>
           {`Status: ${torStatus}`}
         </Text>
-        <Text color="light.GreyText" fontSize={11} fontFamily="body" pl={10}>
+        <Text color="light.GreyText" fontSize={11} pl={10}>
           {message}
         </Text>
         <SettingsSwitchCard

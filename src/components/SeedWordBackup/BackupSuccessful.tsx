@@ -1,53 +1,40 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
-import { TouchableOpacity } from 'react-native';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration from 'src/assets/images/illustration.svg';
-import { useNavigation } from '@react-navigation/native';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
 function BackupSuccessful(props) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
-  const navigation = useNavigation();
 
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box style={styles.wrapper} backgroundColor="light.secondaryBackground">
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
-        <Box
-          m={5}
-          bg="#E3BE96"
-          borderRadius={32}
-          h={8}
-          w={8}
-          alignItems="center"
-          justifyContent="center"
-          alignSelf="flex-end"
-        >
-          <Text fontSize={18} color="#FFF">
-            X
-          </Text>
+        <Box style={styles.closeBtnWrapper}>
+          <Text style={styles.closeText}>X</Text>
         </Box>
       </TouchableOpacity>
-      <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+      <Box style={styles.paragraphWrapper}>
+        <Text fontSize={19} color="light.primaryText">
           {props.title}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {props.subTitle}
         </Text>
       </Box>
-      <Box alignItems="center" my={5}>
+      <Box style={styles.illustrationWrapper}>
         <Illustration />
       </Box>
-      <Box p={10}>
+      <Box style={styles.paragraphWrapper}>
         <Text>{props.paragraph}</Text>
       </Box>
-      <Box alignItems="flex-end" px={10} mb={5}>
+      <Box style={styles.buttonWrapper}>
         <CustomGreenButton
           onPress={() => {
-            // props.confirmBtnPress();
-            navigation.navigate('NewHome');
+            props.confirmBtnPress();
           }}
           value={BackupWallet.home}
         />
@@ -55,4 +42,35 @@ function BackupSuccessful(props) {
     </Box>
   );
 }
+const styles = StyleSheet.create({
+  wrapper: {
+    borderRadius: 5,
+  },
+  closeBtnWrapper: {
+    margin: 15,
+    backgroundColor: '#E3BE96',
+    borderRadius: 35,
+    height: 35,
+    width: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+  },
+  closeText: {
+    fontSize: 18,
+    color: '#FFF',
+  },
+  illustrationWrapper: {
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  paragraphWrapper: {
+    padding: 30,
+  },
+  buttonWrapper: {
+    alignItems: 'flex-end',
+    paddingHorizontal: 25,
+    marginBottom: 25,
+  },
+});
 export default BackupSuccessful;

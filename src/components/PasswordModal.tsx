@@ -1,7 +1,7 @@
-import { Box, Modal, Text, Input } from 'native-base';
+import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -9,6 +9,7 @@ import BTC from 'src/assets/images/btc_white.svg';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { setInvalidPassword } from 'src/store/reducers/bhr';
+import Text from 'src/components/KeeperText';
 import KeeperModal from './KeeperModal';
 
 function PasswordModal(props) {
@@ -18,8 +19,8 @@ function PasswordModal(props) {
     title = 'Title',
     subTitle = null,
     dscription = 'Description',
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
-    buttonBackground = ['#00836A', '#073E39'],
+    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback = props.closePasswordModal || null,
@@ -52,40 +53,34 @@ function PasswordModal(props) {
     return (
       <View>
         <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          start={[0, 0]}
+          end={[1, 1]}
           colors={buttonBackground}
           style={styles.ctabutton}
         >
-          <Text textAlign="right" fontSize={12} fontFamily="body" color={buttonTextColor}>
+          <Text textAlign="right" fontSize={12} color={buttonTextColor}>
             Last Backup: July 15, 2021
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View style={{ marginTop: 10, flexDirection: 'column', alignItems: 'flex-start' }}>
-              <Text fontSize={16} fontWeight="bold" fontFamily="body" color={buttonTextColor}>
+              <Text fontSize={16} bold color={buttonTextColor}>
                 Blue Wallet
               </Text>
-              <Text fontSize={14} fontFamily="body" color={buttonTextColor}>
+              <Text fontSize={14} color={buttonTextColor}>
                 Lorem Ipsum
               </Text>
             </View>
             <View>
               <View style={{ flexDirection: 'row', marginTop: 20 }}>
                 <BTC style={{ marginTop: 15, marginRight: 5 }} />
-                <Text
-                  textAlign="right"
-                  marginBottom={15}
-                  fontSize={28}
-                  fontFamily="body"
-                  color={buttonTextColor}
-                >
+                <Text textAlign="right" marginBottom={15} fontSize={28} color={buttonTextColor}>
                   0.000090
                 </Text>
               </View>
             </View>
           </View>
         </LinearGradient>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -104,8 +99,8 @@ function PasswordModal(props) {
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          start={[0, 0]}
+          end={[1, 1]}
           colors={modalBackground}
           style={styles.container}
         >
@@ -118,24 +113,18 @@ function PasswordModal(props) {
             backgroundColor="transparent"
             width="90%"
           >
-            <Text
-              style={styles.title}
-              fontFamily="body"
-              fontWeight="200"
-              color={textColor}
-              paddingBottom={1}
-            >
+            <Text style={styles.title} color={textColor} paddingBottom={1}>
               {title}
             </Text>
-            <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+            <Text style={styles.subTitle} light color={textColor}>
               {subTitle}
             </Text>
           </Modal.Header>
           <Input
             placeholderTextColor="grey"
-            backgroundColor="#FDF7F0"
+            backgroundColor="light.primaryBackground"
             placeholder="Enter Password"
-            w="90%"
+            width="90%"
             marginY={2}
             height="10"
             value={password}
@@ -151,33 +140,21 @@ function PasswordModal(props) {
               Invalid password
             </Text>
           )}
-          <Text
-            style={styles.subTitle}
-            width="90%"
-            fontFamily="body"
-            fontWeight="100"
-            color={textColor}
-          >
+          <Text style={styles.subTitle} width="90%" light color={textColor}>
             Hint: {backup ? backup.hint : ''}
           </Text>
-          <Box alignSelf="flex-end" flexDirection="row" bg="transparent">
+          <Box alignSelf="flex-end" flexDirection="row" backgroundColor="transparent">
             <TouchableOpacity
               disabled={password.trim() === ''}
               onPress={() => props.onPressNext(password)}
             >
               <LinearGradient
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                start={[0, 0]}
+                end={[1, 1]}
                 colors={buttonBackground}
                 style={styles.cta}
               >
-                <Text
-                  fontSize={13}
-                  fontFamily="body"
-                  fontWeight="300"
-                  letterSpacing={1}
-                  color={buttonTextColor}
-                >
+                <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>
               </LinearGradient>
@@ -189,11 +166,10 @@ function PasswordModal(props) {
           close={closeRecovery}
           title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
-          buttonBackground={['#00836A', '#073E39']}
           buttonText="View Wallet"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={passwordScreen}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={RecoverWalletScreen}
         />
       </Modal.Content>

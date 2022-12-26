@@ -1,6 +1,7 @@
 import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
-import { Box, HStack, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack } from 'native-base';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
@@ -14,11 +15,11 @@ function SignerData({ signer }: { signer: VaultSigner }) {
   return (
     <HStack>
       <Box style={styles.icon}>{WalletMap(signer.type, true).Icon}</Box>
-      <VStack marginX="4" maxW="80%">
+      <VStack marginX="4" maxWidth="80%">
         <Text style={styles.name} color="light.primaryText" numberOfLines={2}>
           {signer.signerName}
         </Text>
-        <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
           {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
         </Text>
       </VStack>

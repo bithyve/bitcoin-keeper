@@ -43,7 +43,7 @@ const uplaodFile = async ({ payload }) => {
           newArray.push(arr[i]);
         }
       }
-      const index = newArray.findIndex((x) => x.appID == appID);
+      const index = newArray.findIndex((x) => x.appID === appID);
       if (index === -1) {
         const tempData = {
           data,
@@ -54,7 +54,7 @@ const uplaodFile = async ({ payload }) => {
         newArray[index] = { appID, ...data };
         newArray[index].dateTime = moment(new Date());
       }
-      if (Platform.OS == 'ios') {
+      if (Platform.OS === 'ios') {
         if (newArray.length) {
           const result = await Cloud.startBackup(JSON.stringify(newArray));
           return result;
@@ -67,9 +67,10 @@ const uplaodFile = async ({ payload }) => {
           id: googleData.id,
         };
         const result = await Cloud.updateFile(JSON.stringify(metaData));
-        if (result.eventName == 'successFullyUpdate') {
+        if (result.eventName === 'successFullyUpdate') {
           return { status: true };
-        } if (result.eventName == 'failure') {
+        }
+        if (result.eventName === 'failure') {
           return result;
         }
       }
@@ -92,7 +93,7 @@ const checkFileIsAvailable = async ({ payload }) => {
     console.log('result checkFileIsAvailable', result);
     if (!result) return null;
     if (!checkDataIsBackedup) {
-      if (result && result.eventName == 'listEmpty') {
+      if (result && result.eventName === 'listEmpty') {
         console.log('createFile');
         const createFileStatus = await createFile({
           payload: {
@@ -101,7 +102,8 @@ const checkFileIsAvailable = async ({ payload }) => {
           },
         });
         return createFileStatus;
-      } if (result.eventName == 'failure') {
+      }
+      if (result.eventName === 'failure') {
         console.log('FAILURE');
         throw new Error(result.eventName);
       } else if (result.eventName === 'UseUserRecoverableAuthIOException') {
@@ -149,27 +151,27 @@ const createFile = async ({ payload }) => {
     if (Platform.OS === 'ios') {
       const result = await Cloud.startBackup(JSON.stringify(WalletData));
       return result;
-    } 
-      const metaData = {
-        name: 'BitcoinKeeperBackup.json',
-        description: 'Backup data for my app',
-        mimeType: 'application/json',
-        data: JSON.stringify(WalletData),
-      };
-      const result = await Cloud.uploadFile(JSON.stringify(metaData));
-      if (result && result.eventName == 'successFullyUpload') {
-        return { status: true };
-        // this.callBack( share )
-      } if (result && result.eventName === 'UseUserRecoverableAuthIOException') {
-        const fileAvailabelStatus = await checkFileIsAvailable({
-          payload: {
-            data,
-            appID,
-          },
-        });
-        return fileAvailabelStatus;
-      }
-    
+    }
+    const metaData = {
+      name: 'BitcoinKeeperBackup.json',
+      description: 'Backup data for my app',
+      mimeType: 'application/json',
+      data: JSON.stringify(WalletData),
+    };
+    const result = await Cloud.uploadFile(JSON.stringify(metaData));
+    if (result && result.eventName === 'successFullyUpload') {
+      return { status: true };
+      // this.callBack( share )
+    }
+    if (result && result.eventName === 'UseUserRecoverableAuthIOException') {
+      const fileAvailabelStatus = await checkFileIsAvailable({
+        payload: {
+          data,
+          appID,
+        },
+      });
+      return fileAvailabelStatus;
+    }
   } catch (error) {
     throw new Error(error);
   }
@@ -187,7 +189,7 @@ const updateData = async ({ payload }) => {
           newArray.push(arr[i]);
         }
       }
-      const index = newArray.findIndex((x) => x.appID == appID);
+      const index = newArray.findIndex((x) => x.appID === appID);
       if (index === -1) {
         const tempData = {
           appID,
@@ -199,7 +201,7 @@ const updateData = async ({ payload }) => {
         newArray[index] = { appID, ...data };
         newArray[index].dateTime = moment(new Date());
       }
-      if (Platform.OS == 'ios') {
+      if (Platform.OS === 'ios') {
         console.log('newaww', newArray);
         if (newArray.length) {
           const result = await Cloud.startBackup(JSON.stringify(newArray));
@@ -215,9 +217,10 @@ const updateData = async ({ payload }) => {
         id: googleData.id,
       };
       const result = await Cloud.updateFile(JSON.stringify(metaData));
-      if (result.eventName == 'successFullyUpdate') {
+      if (result.eventName === 'successFullyUpdate') {
         return { status: true };
-      } if (result.eventName == 'failure') {
+      }
+      if (result.eventName === 'failure') {
         throw new Error(result.eventName);
       }
       console.log('Google Drive.updateFile', result);
@@ -235,7 +238,7 @@ export const uploadData = async (appID: string, data: object) => {
         const googleLoginResult = await Cloud.login();
         if (googleLoginResult) {
           const result = googleLoginResult;
-          if (result.eventName == 'onLogin') {
+          if (result.eventName === 'onLogin') {
             const fileAvailabelStatus = await checkFileIsAvailable({
               payload: {
                 data,
@@ -243,12 +246,11 @@ export const uploadData = async (appID: string, data: object) => {
               },
             });
             return fileAvailabelStatus;
-          } 
-            return {
-              status: false,
-              ...result,
-            };
-          
+          }
+          return {
+            status: false,
+            ...result,
+          };
         }
       }
     } else {
@@ -268,15 +270,14 @@ export const uploadData = async (appID: string, data: object) => {
         });
         const res = JSON.parse(isCloudBackupUpdated);
         return res;
-      } 
-        const isCloudBackupSuccess = await createFile({
-          payload: {
-            data,
-            appID,
-          },
-        });
-        return isCloudBackupSuccess;
-      
+      }
+      const isCloudBackupSuccess = await createFile({
+        payload: {
+          data,
+          appID,
+        },
+      });
+      return isCloudBackupSuccess;
     }
   } catch (error) {
     throw error;
@@ -285,47 +286,45 @@ export const uploadData = async (appID: string, data: object) => {
 
 export const getCloudBackupData = async () => {
   try {
-    if (Platform.OS == 'ios') {
+    if (Platform.OS === 'ios') {
       const backed = await Cloud.downloadBackup();
       const backedJson = backed !== '' ? JSON.parse(backed) : [];
       return {
         status: true,
         data: backedJson,
       };
-    } 
-      const setup = await Cloud.setup();
-      if (setup) {
-        const googleLoginResult = await Cloud.login();
-        if (googleLoginResult.eventName == 'onLogin') {
-          const metaData = {
-            name: 'BitcoinKeeperBackup.json',
-            description: 'Backup data for my app',
-            mimeType: 'application/json',
-          };
-          const result = await Cloud.checkIfFileExist(JSON.stringify(metaData));
-          if (result) {
-            const result1 = await Cloud.readFile(
-              JSON.stringify({
-                id: result.id,
-              })
-            );
-            return {
-              status: true,
-              data: result1.data,
-            };
-          }
+    }
+    const setup = await Cloud.setup();
+    if (setup) {
+      const googleLoginResult = await Cloud.login();
+      if (googleLoginResult.eventName === 'onLogin') {
+        const metaData = {
+          name: 'BitcoinKeeperBackup.json',
+          description: 'Backup data for my app',
+          mimeType: 'application/json',
+        };
+        const result = await Cloud.checkIfFileExist(JSON.stringify(metaData));
+        if (result) {
+          const result1 = await Cloud.readFile(
+            JSON.stringify({
+              id: result.id,
+            })
+          );
           return {
             status: true,
-            data: [],
+            data: result1.data,
           };
-        } 
-          return {
-            status: false,
-            ...googleLoginResult,
-          };
-        
+        }
+        return {
+          status: true,
+          data: [],
+        };
       }
-    
+      return {
+        status: false,
+        ...googleLoginResult,
+      };
+    }
   } catch (error) {
     throw new Error(error);
   }

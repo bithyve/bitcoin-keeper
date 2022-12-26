@@ -1,37 +1,20 @@
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 // asserts
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => {} }) {
   const navigation = useNavigation();
 
-  function GradientIcon({ height, Icon }) {
-    return (
-      <LinearGradient
-        colors={['#B17F44', '#6E4A35']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          height: hp(height),
-          width: hp(height),
-          borderRadius: height,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Icon />
-      </LinearGradient>
-    );
-  }
   const renderTranscation = ({ item, index }: { item; index }) => {
     const { address, amount } = item;
     return (
@@ -51,8 +34,6 @@ function Transactions({ transactions, addTransaction = () => {} }) {
           </TouchableOpacity>
           <Box marginLeft={wp(10)}>
             <Text
-              fontFamily="body"
-              fontWeight="200"
               fontSize={14}
               mt="1"
               numberOfLines={1}
@@ -62,13 +43,7 @@ function Transactions({ transactions, addTransaction = () => {} }) {
             >
               {address}
             </Text>
-            <Text
-              fontFamily="body"
-              fontWeight="200"
-              fontStyle="italic"
-              fontSize={10}
-              numberOfLines={1}
-            >
+            <Text fontSize={10} numberOfLines={1} style={styles.amount}>
               {amount}
             </Text>
           </Box>
@@ -112,6 +87,9 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: wp(10),
+  },
+  amount: {
+    fontStyle: 'italic',
   },
 });
 export default Transactions;

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { FlatList, Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { FlatList, Box } from 'native-base';
 
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -15,55 +16,43 @@ function VersionHistoryList() {
       style={{ overflow: 'visible' }}
       data={VersionHistoryData.reverse()}
       renderItem={({ item }) => (
-        <Box p={1} position="relative">
+        <Box padding={1} position="relative">
           <Box
             zIndex={99}
             position="absolute"
             left={-3}
             top={0}
-            bg="light.ReceiveBackground"
-            p={1}
+            backgroundColor="light.secondaryBackground"
+            padding={1}
             borderRadius={15}
           >
-            <DotView height={2} width={2} color="#E3BE96" />
+            <DotView height={2} width={2} color="light.lightAccent" />
           </Box>
-          <Box borderLeftColor="#E3BE96" borderLeftWidth={1} w="100%">
+          <Box borderLeftColor="light.lightAccent" borderLeftWidth={1} width="100%">
             <Text
               color="light.GreyText"
               fontSize={10}
-              fontWeight="300"
+              bold
               ml={5}
               opacity={0.7}
               letterSpacing={0.3}
             >
               {item.date}
             </Text>
-            <Box bg="light.primaryBackground" p={5} borderRadius={10} my={2} ml={5}>
-              <Text
-                color="light.headerText"
-                fontWeight={200}
-                letterSpacing={1}
-                fontSize={14}
-                fontFamily="heading"
-              >
+            <Box
+              backgroundColor="light.primaryBackground"
+              padding={5}
+              borderRadius={10}
+              my={2}
+              ml={5}
+            >
+              <Text color="light.headerText" letterSpacing={1} fontSize={14}>
                 {item.title}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontWeight={200}
-                letterSpacing={1}
-                fontSize={12}
-                fontFamily="body"
-              >
+              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
                 {item.version}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontWeight={200}
-                letterSpacing={1}
-                fontSize={12}
-                fontFamily="body"
-              >
+              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
                 {item.releaseNote}
               </Text>
             </Box>

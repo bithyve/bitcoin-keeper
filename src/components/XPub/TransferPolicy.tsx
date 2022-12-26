@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { Alert } from 'react-native';
 
 import BtcInput from 'src/assets/images/svgs/btc_input.svg';
@@ -10,6 +10,7 @@ import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { WalletSpecs } from 'src/core/wallets/interfaces/wallet';
+import Text from 'src/components/KeeperText';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
 
@@ -20,7 +21,7 @@ function TransferPolicy({ wallet, close }) {
 
   const onPressNumber = (digit) => {
     let temp = policyText;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setPolicyText(temp);
     }
@@ -39,7 +40,7 @@ function TransferPolicy({ wallet, close }) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" width={wp(275)} borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
         <View
           marginX="5%"
@@ -56,7 +57,7 @@ function TransferPolicy({ wallet, close }) {
           </View>
           <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
-            fontWeight={300}
+            bold
             fontSize={15}
             color="light.greenText"
             marginLeft={3}
@@ -68,13 +69,7 @@ function TransferPolicy({ wallet, close }) {
         </View>
       </Box>
       <Box py={5}>
-        <Text
-          fontSize={13}
-          color="light.greenText"
-          fontFamily="body"
-          fontWeight={200}
-          letterSpacing={0.65}
-        >
+        <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
           This will only trigger a transfer request which you need to approve before the transfer is
           done
         </Text>
