@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
-import { Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+
 import LinearGradient from 'react-native-linear-gradient';
 
 export interface Props {
@@ -36,7 +37,7 @@ function CustomYellowButton(props: Props) {
         colors={['#E3BE96', '#E3BE96']}
         style={styles.linearGradient}
       >
-        <Text color="#30292F" fontSize={12} fontWeight="300" fontFamily="body">
+        <Text color="#30292F" fontSize={12} bold>
           {props.value}
         </Text>
       </LinearGradient>

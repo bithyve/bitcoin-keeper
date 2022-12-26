@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -26,12 +27,12 @@ function SignWithTapsigner() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
       textRef.current = temp;
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       const temp = cvc.slice(0, -1);
       setCvc(temp);
       textRef.current = temp;
@@ -88,7 +89,6 @@ function SignWithTapsigner() {
           />
           <Text
             padding={5}
-            fontWeight={200}
             width={wp(250)}
             fontSize={13}
             letterSpacing={0.65}

@@ -7,7 +7,8 @@ import {
   Dimensions,
   ImageBackground,
 } from 'react-native';
-import { Box, Text, StatusBar } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, StatusBar } from 'native-base';
 
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -25,7 +26,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -38,9 +39,7 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.Comprehensive} `}
-          <Text fontStyle="italic" fontWeight={900}>
-            {onboarding.security}
-          </Text>
+          <Text style={styles.info}>{onboarding.security}</Text>
           {` ${onboarding.slide01Title}`}
         </>
       ),
@@ -52,9 +51,7 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.slide02Title} `}
-          <Text fontStyle="italic" fontWeight={900}>
-            {onboarding.privacy}
-          </Text>
+          <Text style={styles.info}>{onboarding.privacy}</Text>
         </>
       ),
       paragraph: onboarding.slide02Paragraph,
@@ -97,19 +94,12 @@ function OnBoardingSlides({ navigation }) {
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
           <StatusBar backgroundColor="transparent" barStyle="light-content" />
           <Box justifyContent="center" mr={4} mt={10}>
-            {currentPosition != 1 && (
+            {currentPosition !== 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
-                <Text
-                  fontSize={14}
-                  color="light.white"
-                  fontFamily="heading"
-                  fontWeight={300}
-                  textAlign="right"
-                  opacity={0.7}
-                >
+                <Text fontSize={14} color="light.white" bold textAlign="right" opacity={0.7}>
                   Skip&nbsp;&nbsp;
                 </Text>
                 <Skip />
@@ -163,7 +153,7 @@ function OnBoardingSlides({ navigation }) {
                     height: hp(40),
                   }}
                 >
-                  <Text color="light.lightAccent" fontSize={14} fontWeight={300}>
+                  <Text color="light.lightAccent" fontSize={14} bold>
                     {common.seeFAQs}
                   </Text>
                 </Box>
@@ -176,7 +166,7 @@ function OnBoardingSlides({ navigation }) {
                   return (
                     <Box
                       key={index}
-                      style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                      style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                     />
                   );
                 })
@@ -189,13 +179,7 @@ function OnBoardingSlides({ navigation }) {
                       colors={['#FFFFFF', '#80A8A1']}
                       style={styles.cta}
                     >
-                      <Text
-                        fontSize={13}
-                        fontFamily="body"
-                        fontWeight="300"
-                        letterSpacing={1}
-                        color="light.greenText"
-                      >
+                      <Text fontSize={13} bold letterSpacing={1} color="light.greenText">
                         Start App
                       </Text>
                     </LinearGradient>
@@ -233,5 +217,9 @@ const styles = StyleSheet.create({
     height: hp(45),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  info: {
+    fontStyle: 'italic',
+    fontWeight: '900',
   },
 });

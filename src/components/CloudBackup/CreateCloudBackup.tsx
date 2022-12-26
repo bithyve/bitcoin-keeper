@@ -35,10 +35,10 @@ function CreateCloudBackup(props) {
         </Box>
       </TouchableOpacity>
       <Box px={10}>
-        <Text fontSize={(19)} color={'light.primaryText'} fontFamily={'heading'}>
+        <Text fontSize={(19)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackTitle}
         </Text>
-        <Text fontSize={(13)} color={'light.primaryText'} fontFamily={'body'}>
+        <Text fontSize={(13)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
@@ -67,7 +67,7 @@ function CreateCloudBackup(props) {
         </Box>
       </Box>
       <Box p={10}>
-        <Text fontSize={(13)} color={'light.primaryText'} fontFamily={'body'}>
+        <Text fontSize={(13)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
@@ -76,7 +76,7 @@ function CreateCloudBackup(props) {
           return (
             <Box
               key={index}
-              style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+              style={currentPosition===index ? styles.selectedDot : styles.unSelectedDot}
             />
           );
         })}

@@ -1,7 +1,7 @@
-import { Box, useColorMode, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { customTheme } from 'src/common/themes';
 
 type Props = {
   title: string;

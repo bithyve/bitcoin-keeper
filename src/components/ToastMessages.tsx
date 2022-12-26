@@ -1,8 +1,9 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 HexaToastMessages.defaultProps = {
   Image: null,

@@ -1,5 +1,5 @@
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
@@ -10,6 +10,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => {} }) {
   const navigation = useNavigation();
@@ -51,8 +52,6 @@ function Transactions({ transactions, addTransaction = () => {} }) {
           </TouchableOpacity>
           <Box marginLeft={wp(10)}>
             <Text
-              fontFamily="body"
-              fontWeight="200"
               fontSize={14}
               mt="1"
               numberOfLines={1}
@@ -62,13 +61,7 @@ function Transactions({ transactions, addTransaction = () => {} }) {
             >
               {address}
             </Text>
-            <Text
-              fontFamily="body"
-              fontWeight="200"
-              fontStyle="italic"
-              fontSize={10}
-              numberOfLines={1}
-            >
+            <Text fontSize={10} numberOfLines={1} style={styles.amount}>
               {amount}
             </Text>
           </Box>
@@ -112,6 +105,9 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: wp(10),
+  },
+  amount: {
+    fontStyle: 'italic',
   },
 });
 export default Transactions;

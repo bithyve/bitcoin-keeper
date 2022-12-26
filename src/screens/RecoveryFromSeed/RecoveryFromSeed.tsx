@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { View } from 'react-native';
 import React from 'react';
+import Text from 'src/components/KeeperText';
 
 function RecoveryFromSeed() {
   return (
@@ -10,5 +11,3 @@ function RecoveryFromSeed() {
 }
 
 export default RecoveryFromSeed;
-
-const styles = StyleSheet.create({});

@@ -1,4 +1,5 @@
-import { Box, HStack, Image, Switch, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Image, Switch } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
@@ -132,12 +133,12 @@ function LoginScreen({ navigation, route }) {
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
-      if (text != 'x') {
+      if (text !== 'x') {
         tmpPasscode += text;
         setPasscode(tmpPasscode);
       }
     }
-    if (passcode && text == 'x') {
+    if (passcode && text === 'x') {
       setPasscode(passcode.slice(0, -1));
       setLoginError(false);
     }
@@ -184,7 +185,7 @@ function LoginScreen({ navigation, route }) {
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
-      if (!existingFCMToken || existingFCMToken != token) dispatch(updateFCMTokens([token]));
+      if (!existingFCMToken || existingFCMToken !== token) dispatch(updateFCMTokens([token]));
     } catch (error) {
       console.log(error);
     }
@@ -213,13 +214,7 @@ function LoginScreen({ navigation, route }) {
             alignSelf: 'center',
           }}
         />
-        <Text
-          color="light.greenText"
-          fontWeight={200}
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(260)}
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
           This feature is *only* for the testnet version of the app. The developers will get your
           message along with other information from the app.
         </Text>
@@ -236,8 +231,6 @@ function LoginScreen({ navigation, route }) {
               ml={5}
               color="light.white"
               fontSize={22}
-              fontWeight="200"
-              fontFamily="heading"
               style={{
                 marginTop: heightPercentageToDP('10%'),
               }}
@@ -246,18 +239,11 @@ function LoginScreen({ navigation, route }) {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text
-                fontSize={13}
-                ml={5}
-                letterSpacing={0.65}
-                color="light.textColor"
-                fontFamily="body"
-                fontWeight={200}
-              >
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.textColor">
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
-                {/* <Text fontSize={(13)} fontFamily={'body'}>
+                {/* <Text fontSize={(13)} >
                   {login.passcode}
                 </Text> */}
               </Text>
@@ -270,11 +256,10 @@ function LoginScreen({ navigation, route }) {
 
             {loginError && (
               <Text
+                style={styles.errorMessage}
                 color="light.error"
                 fontSize={12}
-                fontStyle="italic"
                 textAlign="right"
-                fontWeight={200}
                 letterSpacing={0.65}
                 mr={12}
               >
@@ -282,7 +267,7 @@ function LoginScreen({ navigation, route }) {
               </Text>
             )}
             <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text color="light.white" fontWeight="200" px="5" fontSize={13} letterSpacing={1}>
+              <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
                 Use bitcoin testnet
               </Text>
               <Switch
@@ -294,7 +279,7 @@ function LoginScreen({ navigation, route }) {
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
-              {passcode.length == 4 && (
+              {passcode.length === 4 && (
                 <Box>
                   <CustomButton
                     onPress={() => {
@@ -320,7 +305,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text color="light.white" fontWeight="300" fontSize={14} fontFamily="body">
+              <Text color="light.white" bold fontSize={14}>
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
@@ -425,6 +410,9 @@ const styles = StyleSheet.create({
   linearGradient: {
     flex: 1,
     padding: 10,
+  },
+  errorMessage: {
+    fontStyle: 'italic',
   },
 });
 

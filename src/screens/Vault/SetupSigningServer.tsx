@@ -1,12 +1,13 @@
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -112,7 +113,6 @@ function SetupSigningServer({ route }: { route }) {
           <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           <Text
             fontSize={13}
-            fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
             color="light.greenText"
@@ -177,8 +177,7 @@ function SetupSigningServer({ route }: { route }) {
               <Text
                 textAlign="center"
                 color="light.recieverAddress"
-                fontFamily="body"
-                fontWeight={300}
+                bold
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"

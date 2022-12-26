@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform } from 'react-native';
-import { Box, Image, Pressable, ScrollView, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -42,24 +43,10 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
           width: '80%',
         }}
       >
-        <Text
-          color="light.primaryText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={14}
-          letterSpacing={1.12}
-          width="90%"
-        >
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12} width="90%">
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={12}
-          letterSpacing={0.6}
-          width="80%"
-        >
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6} width="80%">
           {subTitle}
         </Text>
       </Box>
@@ -161,13 +148,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             alignSelf: 'center',
           }}
         />
-        <Text
-          color="light.greenText"
-          fontWeight={200}
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(240)}
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
           This feature is *only* for the testnet version of the app. The developers will get your
           message along with other information from the app.
         </Text>
@@ -188,24 +169,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
               marginBottom: hp(10),
             }}
           >
-            <Text
-              color="light.textBlack"
-              fontSize={18}
-              fontFamily="heading"
-              px="8"
-              fontWeight={200}
-              letterSpacing={0.9}
-            >
+            <Text color="light.textBlack" fontSize={18} px="8" letterSpacing={0.9}>
               New Keeper App
             </Text>
-            <Text
-              fontWeight={200}
-              color="light.GreyText"
-              fontSize={12}
-              fontFamily="body"
-              px="8"
-              letterSpacing={0.6}
-            >
+            <Text color="light.GreyText" fontSize={12} px="8" letterSpacing={0.6}>
               Use this option if you want to create a new Keeper app
             </Text>
           </Box>
@@ -224,17 +191,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
               marginTop: hp(70),
             }}
           >
-            <Text
-              color="light.textBlack"
-              fontSize={18}
-              fontFamily="heading"
-              px="8"
-              fontWeight={200}
-              letterSpacing={0.9}
-            >
+            <Text color="light.textBlack" fontSize={18} px="8" letterSpacing={0.9}>
               Existing Keeper App
             </Text>
-            <Text color="light.textBlack" fontSize={12} fontFamily="body" px="8">
+            <Text color="light.textBlack" fontSize={12} px="8">
               If you previously had a Keeper wallet you can recover it
             </Text>
 
@@ -264,7 +224,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <CloudRecoveryModal
         visible={cloudModal}
         close={closeCloudModal}
-        title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
+        title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
         subTitle={seed.seedDescription}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"

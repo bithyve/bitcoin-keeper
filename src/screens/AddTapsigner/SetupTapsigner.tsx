@@ -1,5 +1,7 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
@@ -129,7 +131,6 @@ function SetupTapsigner() {
             />
             <Text
               padding={5}
-              fontWeight={200}
               width={wp(250)}
               fontSize={13}
               letterSpacing={0.65}

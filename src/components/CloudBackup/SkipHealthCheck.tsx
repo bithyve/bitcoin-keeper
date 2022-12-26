@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Text from 'src/components/KeeperText';
 import Buttons from '../Buttons';
 
 function SkipHealthCheck(props) {
@@ -28,18 +29,18 @@ function SkipHealthCheck(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.skipHealthCheckTitle}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.skipHealthCheckSubTitle}
         </Text>
       </Box>
       <Box p={10}>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body" mb={5} mt={10}>
+        <Text fontSize={13} color="light.primaryText" mb={5} mt={10}>
           {BackupWallet.skipHealthCheckPara01}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>

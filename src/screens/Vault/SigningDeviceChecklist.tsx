@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import React, { useState } from 'react';
 
 import DotView from 'src/components/DotView';
@@ -36,7 +37,7 @@ function SigningDeviceChecklist({ date }) {
             >
               <DotView height={2} width={2} color="#E3BE96" />
             </Box>
-            <Text color="light.GreyText" fontSize={10} fontWeight="300" ml={5} opacity={0.7}>
+            <Text color="light.GreyText" fontSize={10} bold ml={5} opacity={0.7}>
               {item.date}
             </Text>
             <Box bg="light.primaryBackground" p={5} borderRadius={10} my={2} ml={5}>

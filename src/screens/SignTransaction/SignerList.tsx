@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CheckIcon from 'src/assets/images/checked.svg';
@@ -45,20 +46,12 @@ function SignerList({
               <Text
                 color="light.textBlack"
                 fontSize={14}
-                fontWeight={200}
-                fontFamily="heading"
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
                 {`${signer.signerName} (${signer.xpubInfo.xfp})`}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontSize={12}
-                marginRight={10}
-                fontFamily="body"
-                letterSpacing={0.6}
-              >
+              <Text color="light.GreyText" fontSize={12} marginRight={10} letterSpacing={0.6}>
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
               </Text>
               {!!signer.signerDescription && (
@@ -66,7 +59,6 @@ function SignerList({
                   noOfLines={1}
                   color="#6A7772"
                   fontSize={12}
-                  fontWeight={200}
                   letterSpacing={0.6}
                   fontStyle={null}
                   maxWidth={width * 0.6}

@@ -3,7 +3,8 @@ import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Text, ScrollView, StatusBar, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, ScrollView, StatusBar, useColorMode } from 'native-base';
 import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
@@ -189,7 +190,7 @@ function ChangeLanguage() {
         </View>
         <View style={styles.emptyView} />
         <View style={styles.textValueWrapper}>
-          <Text style={styles.textValue} fontWeight={200} color="light.GreyText">
+          <Text style={styles.textValue} color="light.GreyText">
             {value}
           </Text>
         </View>
@@ -234,10 +235,10 @@ function ChangeLanguage() {
           py={3}
         > */}
         <Box w="60%" marginLeft="10%">
-          <Text fontSize={16} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>
+          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={12} fontWeight={200} letterSpacing={0.6} style={styles.subText}>
+          <Text fontSize={12} letterSpacing={0.6} style={styles.subText}>
             {settings.biometricsDesc}
           </Text>
         </Box>

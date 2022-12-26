@@ -1,4 +1,5 @@
-import { Box, Text, View, ScrollView } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, View, ScrollView } from 'native-base';
 import React, { useContext, useState } from 'react';
 import {
   Platform,
@@ -127,7 +128,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200">
+        <Text color="#073B36" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -140,7 +141,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="#073B36" fontSize={13} p={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
           ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
@@ -197,9 +198,9 @@ function InputSeedWordSigner({ route }: { route: any }) {
                       width: 22,
                       fontSize: 16,
                       color: '#00836A',
-                      fontWeight: 'bold',
                       marginTop: 8,
                     }}
+                    bold
                   >
                     {getFormattedNumber(index)}
                   </Text>
@@ -253,8 +254,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
               <TouchableOpacity>
                 <Text
                   fontSize={13}
-                  fontFamily="body"
-                  fontWeight="300"
+                  bold
                   letterSpacing={1}
                   marginTop={2}
                   //   color={buttonCancelColor}
@@ -270,13 +270,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
                   colors={['#00836A', '#073E39']}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
-                    letterSpacing={1}
-                    color="white"
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color="white">
                     {common.next}
                   </Text>
                 </LinearGradient>
@@ -342,12 +336,6 @@ const styles = ScaledSheet.create({
   inputcontainer: {
     backgroundColor: 'transparent',
     flexDirection: 'row',
-  },
-  numbers: {
-    fontSize: 16,
-    color: '#00836A',
-    fontWeight: 'bold',
-    marginTop: 8,
   },
   ctabutton: {
     paddingVertical: 10,

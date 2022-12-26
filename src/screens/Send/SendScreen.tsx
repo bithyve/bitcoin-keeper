@@ -10,9 +10,10 @@ import {
   ScrollView,
 } from 'react-native';
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
@@ -103,12 +104,12 @@ function SendScreen({ route }) {
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
           : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(
               address,
               TransferType.VAULT_TO_ADDRESS,
@@ -143,7 +144,7 @@ function SendScreen({ route }) {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontFamily="body" fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
+          <Text fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
@@ -188,7 +189,7 @@ function SendScreen({ route }) {
 
             {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
+              <Text marginX={5} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>

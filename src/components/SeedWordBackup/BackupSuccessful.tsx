@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration from 'src/assets/images/illustration.svg';
@@ -30,10 +31,10 @@ function BackupSuccessful(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {props.title}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {props.subTitle}
         </Text>
       </Box>

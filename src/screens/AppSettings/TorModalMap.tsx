@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 
 // components and functions
 import KeeperModal from 'src/components/KeeperModal';
@@ -18,14 +19,7 @@ function TorConnectionContent() {
         <TOR />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} p={1} letterSpacing={0.65}>
           Connecting via Tor improves your online privacy
         </Text>
       </Box>
@@ -40,26 +34,11 @@ function TorContent() {
         <TOR />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.white"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.white" fontSize={13} p={1} letterSpacing={0.65}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua.
         </Text>
-        <Text
-          color="light.white"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-          marginTop={hp(10)}
-        >
+        <Text color="light.white" fontSize={13} p={1} letterSpacing={0.65} marginTop={hp(10)}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua.
         </Text>
@@ -75,14 +54,7 @@ function TorConnectionFailed() {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} p={1} letterSpacing={0.65}>
           There was an error when connecting via Tor
         </Text>
       </Box>
@@ -97,14 +69,7 @@ function TorEnabledContent() {
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} p={1} letterSpacing={0.65}>
           All your backend connections will be over Tor network
         </Text>
       </Box>

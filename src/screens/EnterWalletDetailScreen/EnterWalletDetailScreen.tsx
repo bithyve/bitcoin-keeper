@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input, View } from 'native-base';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ScaledSheet } from 'react-native-size-matters';
 
@@ -71,7 +72,7 @@ function EnterWalletDetailScreen({ route }) {
           marginY={2}
         />
         <Box marginTop={10}>
-          <Text fontWeight="200">Transfer Policy</Text>
+          <Text>Transfer Policy</Text>
           <Input
             placeholder={wallet.TransferPolicy}
             placeholderTextColor="light.greenText"

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 
@@ -32,7 +33,7 @@ function ShowXPub({
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
           <Box bg="light.QrCode" alignItems="center" justifyContent="center" p={1} w={hp(200)}>
-            <Text fontSize={12} color="light.recieverAddress" fontFamily="body">
+            <Text fontSize={12} color="light.recieverAddress">
               {subText}
             </Text>
           </Box>
@@ -49,7 +50,7 @@ function ShowXPub({
               marginBottom={hp(30)}
             >
               <Box py={2} alignItems="center">
-                <Text fontSize={12} fontFamily="body" noOfLines={1} px={3}>
+                <Text fontSize={12} noOfLines={1} px={3}>
                   {data}
                 </Text>
               </Box>

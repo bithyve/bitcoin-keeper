@@ -13,15 +13,15 @@
       this.$hex = hex;
     }
     BinaryHex.prototype = {
-      length () {
+      length() {
         return this.$hex.length / 2;
       },
-      toString (format) {
+      toString(format) {
         if (!format || format === 'hex' || format === 16) return this.$hex;
         if (format === 'utf-8') {
           var encoded = '';
           for (var i = 0; i < this.$hex.length; i += 2) {
-            encoded += `%${  this.$hex.substring(i, i + 2)}`;
+            encoded += `%${this.$hex.substring(i, i + 2)}`;
           }
           return decodeURIComponent(encoded);
         }
@@ -32,14 +32,14 @@
           }
           return String.fromCharCode.apply(String, encoded);
         }
-        throw new Error(`Unrecognised format: ${  format}`);
+        throw new Error(`Unrecognised format: ${format}`);
       },
     };
     BinaryHex.fromLatinString = function (latinString) {
       let hex = '';
       for (let i = 0; i < latinString.length; i++) {
         let pair = latinString.charCodeAt(i).toString(16);
-        if (pair.length === 1) pair = `0${  pair}`;
+        if (pair.length === 1) pair = `0${pair}`;
         hex += pair;
       }
       return new BinaryHex(hex);
@@ -53,7 +53,7 @@
           i += 2;
         } else {
           let hexPair = encoded.charCodeAt(i).toString(16);
-          if (hexPair.length < 2) hexPair = `0${  hexPair}`;
+          if (hexPair.length < 2) hexPair = `0${hexPair}`;
           hex += hexPair;
         }
       }
@@ -65,7 +65,7 @@
 
     const notImplemented = function (label) {
       return function () {
-        throw new Error(`${label  } not implemented`);
+        throw new Error(`${label} not implemented`);
       };
     };
 
@@ -74,7 +74,7 @@
       peekByte: notImplemented('peekByte'),
       readByte: notImplemented('readByte'),
       readChunk: notImplemented('readChunk'),
-      readFloat16 () {
+      readFloat16() {
         const half = this.readUint16();
         const exponent = (half & 0x7fff) >> 10;
         const mantissa = half & 0x3ff;
@@ -85,12 +85,10 @@
           }
           return NaN;
         }
-        const magnitude = exponent
-          ? 2**(exponent - 25) * (1024 + mantissa)
-          : 2**-24 * mantissa;
+        const magnitude = exponent ? 2 ** (exponent - 25) * (1024 + mantissa) : 2 ** -24 * mantissa;
         return negative ? -magnitude : magnitude;
       },
-      readFloat32 () {
+      readFloat32() {
         const intValue = this.readUint32();
         const exponent = (intValue & 0x7fffffff) >> 23;
         const mantissa = intValue & 0x7fffff;
@@ -102,13 +100,13 @@
           return NaN;
         }
         const magnitude = exponent
-          ? 2**(exponent - 23 - 127) * (8388608 + mantissa)
-          : 2**(-23 - 126) * mantissa;
+          ? 2 ** (exponent - 23 - 127) * (8388608 + mantissa)
+          : 2 ** (-23 - 126) * mantissa;
         return negative ? -magnitude : magnitude;
       },
-      readFloat64 () {
+      readFloat64() {
         const int1 = this.readUint32();
-          const int2 = this.readUint32();
+        const int2 = this.readUint32();
         const exponent = (int1 >> 20) & 0x7ff;
         const mantissa = (int1 & 0xfffff) * 4294967296 + int2;
         const negative = int1 & 0x80000000;
@@ -119,17 +117,17 @@
           return NaN;
         }
         const magnitude = exponent
-          ? 2**(exponent - 52 - 1023) * (4503599627370496 + mantissa)
-          : 2**(-52 - 1022) * mantissa;
+          ? 2 ** (exponent - 52 - 1023) * (4503599627370496 + mantissa)
+          : 2 ** (-52 - 1022) * mantissa;
         return negative ? -magnitude : magnitude;
       },
-      readUint16 () {
+      readUint16() {
         return this.readByte() * 256 + this.readByte();
       },
-      readUint32 () {
+      readUint32() {
         return this.readUint16() * 65536 + this.readUint16();
       },
-      readUint64 () {
+      readUint64() {
         return this.readUint32() * 4294967296 + this.readUint32();
       },
     };
@@ -140,27 +138,25 @@
       writeFloat16: notImplemented('writeFloat16'),
       writeFloat32: notImplemented('writeFloat32'),
       writeFloat64: notImplemented('writeFloat64'),
-      writeUint16 (value) {
+      writeUint16(value) {
         this.writeByte((value >> 8) & 0xff);
         this.writeByte(value & 0xff);
       },
-      writeUint32 (value) {
+      writeUint32(value) {
         this.writeUint16((value >> 16) & 0xffff);
         this.writeUint16(value & 0xffff);
       },
-      writeUint64 (value) {
+      writeUint64(value) {
         if (value >= 9007199254740992 || value <= -9007199254740992) {
           throw new Error(
-            `Cannot encode Uint64 of: ${ 
-              value 
-              } magnitude to big (floating point errors)`,
+            `Cannot encode Uint64 of: ${value} magnitude to big (floating point errors)`
           );
         }
         this.writeUint32(Math.floor(value / 4294967296));
         this.writeUint32(value % 4294967296);
       },
       writeString: notImplemented('writeString'),
-      canWriteBinary (chunk) {
+      canWriteBinary(chunk) {
         return false;
       },
       writeBinary: notImplemented('writeChunk'),
@@ -169,27 +165,32 @@
     function readHeaderRaw(reader) {
       const firstByte = reader.readByte();
       const majorType = firstByte >> 5;
-        const value = firstByte & 0x1f;
+      const value = firstByte & 0x1f;
       return { type: majorType, value };
     }
 
     function valueFromHeader(header, reader) {
-      const {value} = header;
+      const { value } = header;
       if (value < 24) {
         return value;
-      } if (value == 24) {
+      }
+      if (value === 24) {
         return reader.readByte();
-      } if (value == 25) {
+      }
+      if (value === 25) {
         return reader.readUint16();
-      } if (value == 26) {
+      }
+      if (value === 26) {
         return reader.readUint32();
-      } if (value == 27) {
+      }
+      if (value === 27) {
         return reader.readUint64();
-      } if (value == 31) {
+      }
+      if (value === 31) {
         // special value for non-terminating arrays/objects
         return null;
       }
-      notImplemented(`Additional info: ${  value}`)();
+      notImplemented(`Additional info: ${value}`)();
     }
 
     function writeHeaderRaw(type, value, writer) {
@@ -252,9 +253,9 @@
               objResult[result[i]] = result[i + 1];
             }
             return objResult;
-          } 
-            return result;
-          
+          }
+          return result;
+
         case 6:
           var tag = valueFromHeader(header, reader);
           var decoder = semanticDecoders[tag];
@@ -263,9 +264,11 @@
         case 7:
           if (header.value === 25) {
             return reader.readFloat16();
-          } if (header.value === 26) {
+          }
+          if (header.value === 26) {
             return reader.readFloat32();
-          } if (header.value === 27) {
+          }
+          if (header.value === 27) {
             return reader.readFloat64();
           }
           switch (valueFromHeader(header, reader)) {
@@ -280,10 +283,10 @@
             case null:
               return stopCode;
             default:
-              throw new Error(`Unknown fixed value: ${  header.value}`);
+              throw new Error(`Unknown fixed value: ${header.value}`);
           }
         default:
-          throw new Error(`Unsupported header: ${  JSON.stringify(header)}`);
+          throw new Error(`Unsupported header: ${JSON.stringify(header)}`);
       }
       throw new Error('not implemented yet');
     }
@@ -310,11 +313,7 @@
       } else if (data === undefined) {
         writeHeader(7, 23, writer);
       } else if (typeof data === 'number') {
-        if (
-          Math.floor(data) === data &&
-          data < 9007199254740992 &&
-          data > -9007199254740992
-        ) {
+        if (Math.floor(data) === data && data < 9007199254740992 && data > -9007199254740992) {
           // Integer
           if (data < 0) {
             writeHeader(1, -1 - data, writer);
@@ -357,7 +356,7 @@
           }
         }
       } else {
-        throw new Error(`CBOR encoding not supported: ${  data}`);
+        throw new Error(`CBOR encoding not supported: ${data}`);
       }
     }
 
@@ -368,7 +367,7 @@
       config: {
         useToJSON: true,
       },
-      addWriter (format, writerFunction) {
+      addWriter(format, writerFunction) {
         if (typeof format === 'string') {
           writerFunctions.push((f) => {
             if (format === f) return writerFunction(f);
@@ -377,7 +376,7 @@
           writerFunctions.push(format);
         }
       },
-      addReader (format, readerFunction) {
+      addReader(format, readerFunction) {
         if (typeof format === 'string') {
           readerFunctions.push((data, f) => {
             if (format === f) return readerFunction(data, f);
@@ -386,7 +385,7 @@
           readerFunctions.push(format);
         }
       },
-      encode (data, format) {
+      encode(data, format) {
         for (let i = 0; i < writerFunctions.length; i++) {
           const func = writerFunctions[i];
           const writer = func(format);
@@ -395,10 +394,10 @@
             return writer.result();
           }
         }
-        throw new Error(`Unsupported output format: ${  format}`);
+        throw new Error(`Unsupported output format: ${format}`);
       },
       // DataItem: {getData: () => any}
-      encodeDataItem (data, format) {
+      encodeDataItem(data, format) {
         for (let i = 0; i < writerFunctions.length; i++) {
           const func = writerFunctions[i];
           const writer = func(format);
@@ -406,15 +405,14 @@
             if (data.getTag() !== undefined) {
               encodeWriter(data, writer);
               return writer.result();
-            } 
-              encodeWriter(data.getData(), writer);
-              return writer.result();
-            
+            }
+            encodeWriter(data.getData(), writer);
+            return writer.result();
           }
         }
-        throw new Error(`Unsupported output format: ${  format}`);
+        throw new Error(`Unsupported output format: ${format}`);
       },
-      decode (data, format) {
+      decode(data, format) {
         for (let i = 0; i < readerFunctions.length; i++) {
           const func = readerFunctions[i];
           const reader = func(data, format);
@@ -422,9 +420,9 @@
             return decodeReader(reader);
           }
         }
-        throw new Error(`Unsupported input format: ${  format}`);
+        throw new Error(`Unsupported input format: ${format}`);
       },
-      decodeToDataItem (data, format) {
+      decodeToDataItem(data, format) {
         for (let i = 0; i < readerFunctions.length; i++) {
           const func = readerFunctions[i];
           const reader = func(data, format);
@@ -432,21 +430,20 @@
             const result = decodeReader(reader);
             if (result instanceof DataItem) {
               return result;
-            } 
-              return new DataItem(result);
-            
+            }
+            return new DataItem(result);
           }
         }
-        throw new Error(`Unsupported input format: ${  format}`);
+        throw new Error(`Unsupported input format: ${format}`);
       },
-      addSemanticEncode (tag, fn) {
+      addSemanticEncode(tag, fn) {
         if (typeof tag !== 'number' || tag % 1 !== 0 || tag < 0) {
           throw new Error('Tag must be a positive integer');
         }
         semanticEncoders.push({ tag, fn });
         return this;
       },
-      addSemanticDecode (tag, fn) {
+      addSemanticDecode(tag, fn) {
         if (typeof tag !== 'number' || tag % 1 !== 0 || tag < 0) {
           throw new Error('Tag must be a positive integer');
         }
@@ -534,14 +531,10 @@
       this.writeBuffer(buffer);
     };
     BufferWriter.prototype.writeBuffer = function (chunk) {
-      if (!(chunk instanceof Buffer))
-        throw new TypeError('BufferWriter only accepts Buffers');
+      if (!(chunk instanceof Buffer)) throw new TypeError('BufferWriter only accepts Buffers');
       if (!this.latestBufferOffset) {
         this.completeBuffers.push(chunk);
-      } else if (
-        this.latestBuffer.length - this.latestBufferOffset >=
-        chunk.length
-      ) {
+      } else if (this.latestBuffer.length - this.latestBufferOffset >= chunk.length) {
         chunk.copy(this.latestBuffer, this.latestBufferOffset);
         this.latestBufferOffset += chunk.length;
         if (this.latestBufferOffset >= this.latestBuffer.length) {
@@ -550,9 +543,7 @@
           this.latestBufferOffset = 0;
         }
       } else {
-        this.completeBuffers.push(
-          this.latestBuffer.slice(0, this.latestBufferOffset),
-        );
+        this.completeBuffers.push(this.latestBuffer.slice(0, this.latestBufferOffset));
         this.completeBuffers.push(chunk);
         this.latestBuffer = Buffer.alloc(this.defaultBufferLength);
         this.latestBufferOffset = 0;
@@ -589,7 +580,8 @@
       api.addWriter((format) => {
         if (!format || format === 'buffer') {
           return new BufferWriter();
-        } if (format === 'hex' || format === 'base64') {
+        }
+        if (format === 'hex' || format === 'base64') {
           return new BufferWriter(format);
         }
       });
@@ -623,18 +615,16 @@
     }
     HexWriter.prototype = Object.create(Writer.prototype);
     HexWriter.prototype.writeByte = function (value) {
-      if (value < 0 || value > 255)
-        throw new Error(`Byte value out of range: ${  value}`);
+      if (value < 0 || value > 255) throw new Error(`Byte value out of range: ${value}`);
       let hex = value.toString(16);
-      if (hex.length == 1) {
-        hex = `0${  hex}`;
+      if (hex.length === 1) {
+        hex = `0${hex}`;
       }
       this.$hex += hex;
     };
     HexWriter.prototype.canWriteBinary = function (chunk) {
       return (
-        chunk instanceof BinaryHex ||
-        (typeof Buffer === 'function' && chunk instanceof Buffer)
+        chunk instanceof BinaryHex || (typeof Buffer === 'function' && chunk instanceof Buffer)
       );
     };
     HexWriter.prototype.writeBinary = function (chunk, lengthFunction) {

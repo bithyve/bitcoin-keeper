@@ -1,13 +1,14 @@
 import * as bip39 from 'bip39';
 
 import { Alert, StyleSheet } from 'react-native';
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -56,14 +57,7 @@ function SetupSuccessfully() {
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(0)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} p={1} letterSpacing={0.65}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
         </Text>
       </Box>
@@ -105,7 +99,6 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -116,7 +109,6 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -136,12 +128,12 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4" flex={1} alignItems="center" justifyContent="center">
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100">
+          <Text color="#073B36" fontSize={13} fontWeight="100">
             {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100">
+          <Text color="#073B36" fontSize={13} fontWeight="100">
             {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
           </Text>
         </Box>
@@ -163,7 +155,6 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -174,7 +165,6 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -200,7 +190,6 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -211,7 +200,6 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -237,7 +225,6 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -248,7 +235,6 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -274,7 +260,6 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -285,7 +270,6 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -308,7 +292,6 @@ function KeeperSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -319,7 +302,6 @@ function KeeperSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -604,12 +586,12 @@ function HardwareModalMap({ type, visible, close }) {
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpPasscode += text;
           setPassword(tmpPasscode);
         }
       }
-      if (password && text == 'x') {
+      if (password && text === 'x') {
         setPassword(password.slice(0, -1));
       }
     };
@@ -630,7 +612,6 @@ function HardwareModalMap({ type, visible, close }) {
           />
           <Text
             fontSize={13}
-            fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
             color="light.greenText"

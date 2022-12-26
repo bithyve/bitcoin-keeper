@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import { Pressable, FlatList, Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Pressable, FlatList, Box } from 'native-base';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -12,6 +13,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import BTC from 'src/assets/images/svgs/btc_black.svg';
 import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
+import { StyleSheet } from 'react-native';
 
 function ArchivedVault() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -42,16 +44,10 @@ function ArchivedVault() {
               marginBottom: hp(10),
             }}
           >
-            <Text color="light.headerText" fontSize={16} fontWeight={300} fontFamily="body">
+            <Text color="light.headerText" fontSize={16} bold>
               {vaultItem?.specs?.transactions?.length}
             </Text>
-            <Text
-              color="light.textBlack"
-              fontSize={12}
-              fontWeight={200}
-              marginLeft={1}
-              letterSpacing={0.72}
-            >
+            <Text color="light.textBlack" fontSize={12} marginLeft={1} letterSpacing={0.72}>
               Transactions
             </Text>
           </Box>
@@ -67,7 +63,6 @@ function ArchivedVault() {
             <Text
               color="light.textBlack"
               fontSize={24}
-              fontWeight={200}
               letterSpacing={1.12}
               style={{
                 marginLeft: wp(4),
@@ -83,11 +78,11 @@ function ArchivedVault() {
               Archived On
             </Text>
             <Text
+              style={styles.date}
               color="light.textBlack"
               fontSize={12}
-              fontWeight={300}
+              bold
               letterSpacing={0.02}
-              fontStyle="italic"
             >
               {` ${'12 December, 2021'}`}
             </Text>
@@ -127,5 +122,11 @@ function ArchivedVault() {
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  date: {
+    fontStyle: 'italic',
+  },
+});
 
 export default ArchivedVault;

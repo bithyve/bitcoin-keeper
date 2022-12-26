@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { Alert, NativeModules, StyleSheet } from 'react-native';
-import { Box, Pressable, ScrollView, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
@@ -155,10 +156,10 @@ function AppSettings({ navigation }) {
           </Box>
         )}
         <Box style={{ marginLeft: wp(20) }}>
-          <Text color="light.primaryText" fontFamily="body" style={styles.appBackupTitle}>
+          <Text color="light.primaryText" style={styles.appBackupTitle}>
             {title}
           </Text>
-          <Text color="light.GreyText" fontFamily="body" style={styles.appBackupSubTitle}>
+          <Text color="light.GreyText" style={styles.appBackupSubTitle}>
             {subTitle}
           </Text>
         </Box>
@@ -265,11 +266,7 @@ function AppSettings({ navigation }) {
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text
-                      color="light.textColor2"
-                      fontFamily="body"
-                      style={styles.telTweetLinkTitle}
-                    >
+                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
                       Keeper Telegram
                     </Text>
                   </Box>
@@ -284,11 +281,7 @@ function AppSettings({ navigation }) {
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text
-                      color="light.textColor2"
-                      fontFamily="body"
-                      style={styles.telTweetLinkTitle}
-                    >
+                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
                       Keeper Twitter
                     </Text>
                   </Box>
@@ -303,35 +296,19 @@ function AppSettings({ navigation }) {
           <Box style={{ flex: hp(0.15) }}>
             <Box style={styles.bottomLinkWrapper} bg="light.primaryBackground">
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text
-                  style={styles.bottomLinkText}
-                  fontFamily="body"
-                  color={`${colorMode}.textColor2`}
-                >
+                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text fontFamily="body" color="light.textColor2">
-                |
-              </Text>
+              <Text color="light.textColor2">|</Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text
-                  style={styles.bottomLinkText}
-                  fontFamily="body"
-                  color={`${colorMode}.textColor2`}
-                >
+                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text fontFamily="body" color="light.textColor2">
-                |
-              </Text>
+              <Text color="light.textColor2">|</Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text
-                  style={styles.bottomLinkText}
-                  fontFamily="body"
-                  color={`${colorMode}.textColor2`}
-                >
+                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.PrivacyPolicy}
                 </Text>
               </Pressable>
