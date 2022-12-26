@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Text } from 'native-base';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { Box, Input, View } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
@@ -14,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/svgs/btc_grey.svg';
+import KeeperText from 'src/components/KeeperText';
 
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
@@ -37,12 +37,14 @@ function EnterWalletDetailScreen({ route }) {
     navigtaion.goBack();
   }, [walletName, walletDescription, transferPolicy]);
 
-  const formatNumber = (value) => {
+  // Format number with comma
+  // Example: 1000000 => 1,000,000
+  const formatNumber = (value : string) => {
     return value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
   return (
-    <View style={styles.Container} background="light.ReceiveBackground">
+    <View style={styles.Container} background="light.mainBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={wallet.AddNewWallet}
@@ -54,7 +56,7 @@ function EnterWalletDetailScreen({ route }) {
         <Input
           placeholder={wallet.WalletNamePlaceHolder}
           placeholderTextColor="light.GreyText"
-          backgroundColor="#fdf7f1"
+          backgroundColor="light.primaryBackground"
           value={walletName}
           onChangeText={(value) => setWalletName(value)}
           style={styles.inputField}
@@ -62,47 +64,49 @@ function EnterWalletDetailScreen({ route }) {
           height={12}
           autoCorrect={false}
           marginY={2}
-          borderWidth="1"
+          borderWidth="0"
         />
         <Input
           placeholder={wallet.WalletDescriptionPlaceholder}
           placeholderTextColor="light.GreyText"
-          backgroundColor="#fdf7f1"
+          backgroundColor="light.primaryBackground"
           value={walletDescription}
           onChangeText={(value) => setWalletDescription(value)}
           style={styles.inputField}
           borderRadius={10}
           height={12}
           autoCorrect={false}
-          borderWidth="1"
+          borderWidth="0"
           marginY={2}
         />
         <Box marginTop={5}>
-          <Text color={'light.GreyText'}
-            style={styles.autoTransferText}>{wallet.AutoTransferInitiated}</Text>
+          <KeeperText type='regular' style={[styles.autoTransferText, {color: 'light.GreyText'}]}>
+            {wallet.AutoTransferInitiated}</KeeperText>  
           <Box style={styles.transferPolicyTextArea}>
             <Box style={styles.bitcoinLogo}>
               <BitcoinGreyIcon height="15" width="15" />
             </Box>
-            <Text
-              style={[styles.splitter]}>|</Text>
+            <KeeperText
+              style={[styles.splitter, {color: 'light.divider'}]}>|</KeeperText>
             <Input
               placeholderTextColor="light.GreyText"
               value={formatNumber(transferPolicy)}
               onChangeText={(value) => setTransferPolicy(formatNumber(value))}
               autoCorrect={false}
-              fontSize={22}
-              fontWeight="700"
+              fontSize={15}
+              fontWeight="300"
+              style={styles.transferPolicyInput}
               keyboardType='numeric'
               borderWidth="0"
+              letterSpacing={3}
+              color='light.greenText'
             />
             <Box style={styles.sats}>
-              <Text fontWeight='bold'>{common.sats}</Text>
+              <KeeperText type='bold'>{common.sats}</KeeperText>
             </Box>
           </Box>
-          <Text
-            color={'light.GreyText'}
-            style={styles.autoTransferTextDesc}>{wallet.AutoTransferInitiatedDesc}</Text>
+          <KeeperText type='regular' style={[styles.autoTransferTextDesc, {color: 'light.GreyText'}]}>
+           {wallet.AutoTransferInitiatedDesc}</KeeperText>
         </Box>
         <View marginY={5}>
           <Buttons
@@ -126,33 +130,32 @@ const styles = ScaledSheet.create({
     padding: '20@s',
   },
   autoTransferText: {
-    fontSize: 15,
+    fontSize: 12,
+    letterSpacing: '0.6@s',
   },
   autoTransferTextDesc: {
-    fontSize: 12,
-    paddingTop: 10
+    fontSize: 10,
+    paddingTop: 10,
+    letterSpacing: '0.5@s',
   },
-  addWalletText: {
-    fontSize: 22,
-    lineHeight: '20@s',
-    letterSpacing: '0.7@s',
-    marginTop: hp(5),
-  },
+  transferPolicyInput:{
+    fontSize: 18,
+    fontWeight: 'bold'  
+},
   addWalletDescription: {
     fontSize: 12,
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
   },
   inputField: {
-    color: '#073E39',
     marginVertical: 10,
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: 13,
+    fontSize: 12,
     letterSpacing: 0.96,
   },
   transferPolicyTextArea: {
     flexDirection: 'row',
-    borderWidth: 1,
+    borderWidth: 0,
     borderRadius: 10,
     marginTop: 10,
     backgroundColor: "#fdf7f1",
@@ -160,18 +163,19 @@ const styles = ScaledSheet.create({
   },
   splitter: {
     fontSize: 30,
-    color: '#eeefed',
     paddingTop: 18,
     paddingRight: 5,
+    opacity: 0.25
   },
   bitcoinLogo: {
     paddingTop: 15,
     paddingLeft: 10,
     paddingRight: 5,
     paddingBottom: 15,
+    opacity: 0.25
   },
   sats: {
-    paddingTop: 14,
+    paddingTop: 12,
     paddingRight: 5,
   }
 });
