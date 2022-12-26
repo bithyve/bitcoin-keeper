@@ -29,10 +29,12 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType } from 'src/hardware';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { vault } = translations;
@@ -118,7 +120,7 @@ function SigningDeviceDetails({ route }) {
         dispatch(healthCheckSigner(vaultId, signer.signerId));
         setHealthCheckSuccess(true);
       } else {
-        Alert.alert('verifivation failed');
+        Alert.alert('verification failed');
       }
     } catch (err) {
       console.log(err);
@@ -232,7 +234,8 @@ function SigningDeviceDetails({ route }) {
         setHealthCheckViewColdCard(true);
         break;
       default:
-        Alert.alert('Health check for this device is not supported currently');
+        // Alert.alert('Health check for this device is not supported currently');
+        showToast('Health check for this device is not supported currently');
     }
   };
 
