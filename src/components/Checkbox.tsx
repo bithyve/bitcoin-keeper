@@ -12,9 +12,11 @@ function CheckBox(props) {
       <Pressable onPress={props.onPress}>{IconName}</Pressable>
       <View style={{ flexDirection: 'column', marginLeft: 15 }}>
         <Text style={styles.title}>{props.title}</Text>
-        <Text style={styles.subtitle} color="light.secondaryText">
-          {props.subTitle}
-        </Text>
+        {props.subTitle && props.subTitle.length > 0 && (
+          <Text style={styles.subtitle} color="light.secondaryText">
+            {props.subTitle}
+          </Text>
+        )}
       </View>
     </View>
   );

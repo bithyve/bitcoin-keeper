@@ -64,7 +64,6 @@ function VaultTransactions({ route }) {
             </Text>
           </Box>
         </Box>
-
         <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
             data={transactions}

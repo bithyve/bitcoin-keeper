@@ -67,6 +67,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
+import NodeSettings from 'src/screens/AppSettings/NodeSettings';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -175,6 +176,7 @@ function AppStack() {
         <Stack.Screen name="ShowQR" component={ShowQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
+        <Stack.Screen name="NodeSettings" component={NodeSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );

@@ -194,6 +194,11 @@ export default function CreatePin(props) {
                         ? '#FF8F79'
                         : 'transparent'
                     }
+                    borderColor={
+                      passcode != confirmPasscode && confirmPasscode.length == 4
+                        ? 'light.error'
+                        : 'transparent'
+                    }
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (

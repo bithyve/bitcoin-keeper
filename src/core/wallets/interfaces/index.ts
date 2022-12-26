@@ -226,3 +226,13 @@ export interface SerializedPSBTEnvelop {
   isSigned: boolean;
   txHex?: string;
 }
+
+export interface NodeDetail {
+  id: number;
+  host: string;
+  port: string;
+  isConnected: boolean;
+  useKeeperNode: boolean;
+  useSSL: boolean;
+}
+

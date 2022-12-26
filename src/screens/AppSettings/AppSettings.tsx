@@ -228,6 +228,14 @@ function AppSettings({ navigation }) {
             value={darkMode}
           /> */}
           <SettingsCard
+            title={settings.nodeSettings}
+            description={settings.nodeSettingsSubtitle}
+            my={1}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('NodeSettings')}
+          />
+          <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}
             my={1}
