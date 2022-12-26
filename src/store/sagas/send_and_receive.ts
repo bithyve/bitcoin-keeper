@@ -1,3 +1,5 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
@@ -29,7 +31,8 @@ import {
   CalculateCustomFeeAction,
   CalculateSendMaxFeeAction,
   CrossTransferAction,
-  FETCH_FEE_AND_EXCHANGE_RATES,
+  FETCH_EXCHANGE_RATES,
+  FETCH_FEE_RATES,
   SEND_PHASE_ONE,
   SEND_PHASE_THREE,
   SEND_PHASE_TWO,
@@ -49,22 +52,31 @@ export function getNextFreeAddress(wallet: Wallet | Vault) {
   return receivingAddress;
 }
 
-function* feeAndExchangeRatesWorker() {
+function* fetchFeeRatesWorker() {
   try {
-    const { exchangeRates, averageTxFees } = yield call(Relay.fetchFeeAndExchangeRates);
+    const averageTxFeeByNetwork = yield call(WalletOperations.calculateAverageTxFee);
+    if (!averageTxFeeByNetwork) console.log('Failed to calculate fee rates');
+    else yield put(setAverageTxFee(averageTxFeeByNetwork));
+  } catch (err) {
+    console.log('Failed to calculate fee rates', { err });
+  }
+}
+
+export const fetchFeeRatesWatcher = createWatcher(fetchFeeRatesWorker, FETCH_FEE_RATES);
+
+function* fetchExchangeRatesWorker() {
+  try {
+    const { exchangeRates } = yield call(Relay.fetchFeeAndExchangeRates);
     if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
-
-    if (!averageTxFees) console.log('Failed to fetch fee rates');
-    else yield put(setAverageTxFee(averageTxFees));
   } catch (err) {
     console.log('Failed to fetch fee and exchange rates', { err });
   }
 }
 
-export const feeAndExchangeRatesWatcher = createWatcher(
-  feeAndExchangeRatesWorker,
-  FETCH_FEE_AND_EXCHANGE_RATES
+export const fetchExchangeRatesWatcher = createWatcher(
+  fetchExchangeRatesWorker,
+  FETCH_EXCHANGE_RATES
 );
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
@@ -120,7 +132,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const { wallet, txnPriority, note } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
-  // const customTxPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.customTxPrerequisites);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
     const { txid, serializedPSBTEnvelops } = yield call(
@@ -158,6 +169,9 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
           })
         );
         break;
+
+      default:
+        throw new Error('Invalid Entity: not a Vault/Wallet');
     }
   } catch (err) {
     yield put(
@@ -315,7 +329,7 @@ export const calculateSendMaxFeeWatcher = createWatcher(
 
 function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
   // feerate should be > minimum relay feerate(default: 1000 satoshis per kB or 1 sat/byte).
-  if (parseInt(payload.feePerByte) < 1) {
+  if (parseInt(payload.feePerByte, 10) < 1) {
     yield put(
       customFeeCalculated({
         successful: false,
@@ -329,20 +343,12 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
   }
 
   const { wallet, recipients, feePerByte, customEstimatedBlocks } = payload;
-  // const network = WalletUtilities.getNetworkByType(wallet.networkType);
-
-  // const sendingState: SendingState = yield select((state) => state.sending);
-  // const selectedRecipients: Recipient[] = [...sendingState.selectedRecipients];
-  // TODO: Wire up the send&receive reducer
   const sending: any = {};
-
-  // const numberOfRecipients = selectedRecipients.length;
   const txPrerequisites = idx(sending, (_) => _.sendST1.carryOver.txPrerequisites);
 
   let outputs;
   if (sending.feeIntelMissing) {
     // process recipients & generate outputs(normally handled by transfer ST1 saga)
-    // const recipients = yield call(processRecipients, accountShell);
     const outputsArray = [];
     for (const recipient of recipients) {
       outputsArray.push({
@@ -356,68 +362,14 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
     outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
   }
 
-  // if (!sending.feeIntelMissing && sending.sendMaxFee) {
-  //   // custom fee w/ send max
-  //   const { fee } = WalletOperations.calculateSendMaxFee(
-  //     wallet,
-  //     numberOfRecipients,
-  //     parseInt(feePerByte),
-  //     network
-  //   );
-
-  //   // upper bound: default low
-  //   if (fee > txPrerequisites[TxPriority.LOW].fee) {
-  //     yield put(
-  //       customFeeCalculated({
-  //         successful: false,
-  //         carryOver: {
-  //           customTxPrerequisites: null,
-  //         },
-  //         err: 'Custom fee cannot be greater than the default low priority fee',
-  //       })
-  //     );
-  //     return;
-  //   }
-
-  //   const recipients: [
-  //     {
-  //       address: string;
-  //       amount: number;
-  //     }
-  //   ] = yield call(processRecipients, accountShell);
-  //   const recipientToBeModified = recipients[recipients.length - 1];
-
-  //   // deduct the previous(default low) fee and add the custom fee
-  //   const customFee = idx(
-  //     sendingState,
-  //     (_) => _.customPriorityST1.carryOver.customTxPrerequisites.fee
-  //   );
-  //   if (customFee) recipientToBeModified.amount += customFee; // reusing custom-fee feature
-  //   else recipientToBeModified.amount += txPrerequisites[TxPriority.LOW].fee;
-  //   recipientToBeModified.amount -= fee;
-  //   recipients[recipients.length - 1] = recipientToBeModified;
-
-  //   outputs.forEach((output) => {
-  //     if (output.address === recipientToBeModified.address)
-  //       output.value = recipientToBeModified.amount;
-  //   });
-
-  //   selectedRecipients[selectedRecipients.length - 1].amount = recipientToBeModified.amount;
-  //   yield put(
-  //     customSendMaxUpdated({
-  //       recipients: selectedRecipients,
-  //     })
-  //   );
-  // }
-
   const customTxPrerequisites = WalletOperations.prepareCustomTransactionPrerequisites(
     wallet,
     outputs,
-    parseInt(feePerByte)
+    parseInt(feePerByte, 10)
   );
 
   if (customTxPrerequisites.inputs) {
-    customTxPrerequisites.estimatedBlocks = parseInt(customEstimatedBlocks);
+    customTxPrerequisites.estimatedBlocks = parseInt(customEstimatedBlocks, 10);
     yield put(
       customFeeCalculated({
         successful: true,

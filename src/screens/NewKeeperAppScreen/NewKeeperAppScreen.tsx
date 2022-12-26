@@ -1,5 +1,6 @@
-import { ActivityIndicator, Platform } from 'react-native';
-import { Box, Image, Pressable, ScrollView, Text } from 'native-base';
+import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import Text from 'src/components/KeeperText';
+import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -12,7 +13,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PasswordModal from 'src/components/PasswordModal';
-import { RFValue } from 'react-native-responsive-fontsize';
 import Recover from 'src/assets/images/svgs/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
@@ -25,7 +25,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
   return (
     <Pressable
       onPress={onPress}
-      backgroundColor="light.lightYellow"
+      backgroundColor="light.primaryBackground"
       flexDirection="row"
       alignItems="center"
       width="90%"
@@ -35,7 +35,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
     >
       <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>
       <Box
-        backgroundColor="light.lightYellow"
+        backgroundColor="light.primaryBackground"
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
@@ -43,24 +43,10 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
           width: '80%',
         }}
       >
-        <Text
-          color="light.lightBlack"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={RFValue(14)}
-          letterSpacing={1.12}
-          width="90%"
-        >
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12} width="90%">
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-          width="80%"
-        >
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6} width="80%">
           {subTitle}
         </Text>
       </Box>
@@ -162,13 +148,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             alignSelf: 'center',
           }}
         />
-        <Text
-          color="light.modalText"
-          fontWeight={200}
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(240)}
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
           This feature is *only* for the testnet version of the app. The developers will get your
           message along with other information from the app.
         </Text>
@@ -178,35 +158,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <ScrollView
-        style={{
-          paddingTop: '5%',
-        }}
-      >
+      <ScrollView style={styles.wrapper}>
         <Box>
-          <Box
-            style={{
-              marginBottom: hp(10),
-            }}
-          >
-            <Text
-              color="light.blackHeaderText"
-              fontSize={RFValue(18)}
-              fontFamily="heading"
-              px="8"
-              fontWeight={200}
-              letterSpacing={0.9}
-            >
+          <Box style={styles.titleWrapper}>
+            <Text color="light.textBlack" style={styles.titleText}>
               New Keeper App
             </Text>
-            <Text
-              fontWeight={200}
-              color="light.GreyText"
-              fontSize={RFValue(12)}
-              fontFamily="body"
-              px="8"
-              letterSpacing={0.6}
-            >
+            <Text color="light.GreyText" style={styles.subTitleText}>
               Use this option if you want to create a new Keeper app
             </Text>
           </Box>
@@ -220,22 +178,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
             loading={keeperInitiating}
           />
 
-          <Box
-            style={{
-              marginTop: hp(70),
-            }}
-          >
-            <Text
-              color="light.blackHeaderText"
-              fontSize={RFValue(18)}
-              fontFamily="heading"
-              px="8"
-              fontWeight={200}
-              letterSpacing={0.9}
-            >
+          <Box style={styles.titleWrapper02}>
+            <Text color="light.textBlack" style={styles.titleText}>
               Existing Keeper App
             </Text>
-            <Text color="light.blackHeaderText" fontSize={RFValue(12)} fontFamily="body" px="8">
+            <Text color="light.textBlack" style={styles.subTitleText}>
               If you previously had a Keeper wallet you can recover it
             </Text>
 
@@ -258,21 +205,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
         </Box>
       </ScrollView>
-      <Text px="10%" py="5%" color="light.lightBlack" fontSize={12}>
+      <Text color="light.primaryText" style={styles.noteText}>
         When you use signing devices to restore Keeper, only vault is restored and the app has new
         wallets
       </Text>
       <CloudRecoveryModal
         visible={cloudModal}
         close={closeCloudModal}
-        title={Platform.OS == 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
+        title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
         subTitle={seed.seedDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={passwordScreen}
-        textColor="#041513"
+        textColor="light.primaryText"
         onPressNext={(backup) => {
           setSelectedBackup(backup);
           passwordScreen();
@@ -284,11 +229,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         title="Confirm Password"
         subTitle={seed.seedDescription}
         dscription={seed.seedDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"
-        buttonTextColor="#FAFAFA"
-        textColor="#041513"
+        buttonTextColor="light.white"
+        textColor="light.primaryText"
         backup={selectedBackup}
         onPressNext={(password) => {
           dispatch(recoverBackup(password, selectedBackup.encData));
@@ -312,12 +255,40 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setModalVisible(false);
           navigation.replace('App', { screen: 'NewHome' });
         }}
-        subTitleColor="#5F6965"
+        subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
     </ScreenWrapper>
   );
 }
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingTop: '5%',
+  },
+  titleWrapper: {
+    marginBottom: hp(10),
+  },
+  titleText: {
+    fontSize: 18,
+    paddingHorizontal: 18,
+    fontWeight: '400',
+    letterSpacing: 0.9,
+  },
+  subTitleText: {
+    fontSize: 12,
+    fontWeight: '400',
+    paddingHorizontal: 18,
+    letterSpacing: 0.6,
+  },
+  titleWrapper02: {
+    marginTop: hp(70),
+  },
+  noteText: {
+    fontSize: 12,
+    paddingHorizontal: '5%',
+    paddingVertical: '5%',
+  },
+});
 
 export default NewKeeperApp;

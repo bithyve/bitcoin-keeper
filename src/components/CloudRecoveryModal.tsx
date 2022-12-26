@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Modal, Text } from 'native-base';
+import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -10,18 +10,19 @@ import Colors from 'src/theme/Colors';
 import GoogleDrive from 'src/assets/images/drive.svg';
 import ICloud from 'src/assets/images/icloud.svg';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 function ListItem({ item, onPress }) {
-  const IconName = Platform.OS == 'ios' ? <ICloud /> : <GoogleDrive />;
+  const IconName = Platform.OS === 'ios' ? <ICloud /> : <GoogleDrive />;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box flexDirection="row">
         {IconName}
         <Box marginY={2}>
-          <Text color="#4F5955" marginLeft={2} marginTop={1}>
+          <Text color="light.GreyText" marginLeft={2} marginTop={1}>
             {`App ID: ${item.appID}`}
           </Text>
-          <Text fontSize={12} color="#4F5955">
+          <Text fontSize={12} color="light.GreyText">
             {moment(item.dateTime).format('DD MMM YYYY, hh:mmA')}
           </Text>
         </Box>
@@ -36,8 +37,8 @@ function CloudRecoveryModal(props) {
     close,
     title = 'Title',
     subTitle = null,
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
-    buttonBackground = ['#00836A', '#073E39'],
+    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = null,
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
@@ -78,13 +79,13 @@ function CloudRecoveryModal(props) {
         {downloadingBackup ? (
           <ActivityIndicator
             size="large"
-            color={Colors.primary}
+            color={Colors.RichGreen}
             style={{ height: '70%', alignSelf: 'center' }}
           />
         ) : (
           <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={[0, 0]}
+            end={[1, 1]}
             colors={modalBackground}
             style={styles.container}
           >
@@ -97,21 +98,10 @@ function CloudRecoveryModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text
-                style={styles.title}
-                fontFamily="body"
-                fontWeight="200"
-                color={textColor}
-                paddingBottom={1}
-              >
+              <Text style={styles.title} color={textColor} paddingBottom={1}>
                 {title}
               </Text>
-              <Text
-                style={styles.subTitle}
-                fontFamily="body"
-                fontWeight="100"
-                color={textColor}
-              >
+              <Text style={styles.subTitle} light color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -128,21 +118,15 @@ function CloudRecoveryModal(props) {
                 />
               )}
             </Modal.Body>
-            <Box alignSelf="flex-end" bg="transparent">
+            <Box alignSelf="flex-end" backgroundColor="transparent">
               <TouchableOpacity onPress={next}>
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
                   colors={buttonBackground}
                   style={styles.cta}
                 >
-                  <Text
-                    fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
-                    letterSpacing={1}
-                    color={buttonTextColor}
-                  >
+                  <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>
                 </LinearGradient>

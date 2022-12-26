@@ -1,4 +1,5 @@
-import { Box, HStack, Pressable, Text, VStack, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -23,7 +24,7 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 function Card({ message, buttonText, buttonCallBack }) {
   return (
     <Box
-      backgroundColor="light.lightYellow"
+      backgroundColor="light.primaryBackground"
       width="100%"
       borderRadius={10}
       justifyContent="center"
@@ -37,17 +38,11 @@ function Card({ message, buttonText, buttonCallBack }) {
           justifyContent: 'space-between',
         }}
       >
-        <Text
-          color="light.modalText"
-          fontSize={13}
-          letterSpacing={0.65}
-          fontWeight={200}
-          width="70%"
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width="70%">
           {message}
         </Text>
         <Pressable
-          bg="light.yellow1"
+          backgroundColor="light.accent"
           justifyContent="center"
           borderRadius={5}
           width={wp(60)}
@@ -55,7 +50,7 @@ function Card({ message, buttonText, buttonCallBack }) {
           alignItems="center"
           onPress={buttonCallBack}
         >
-          <Text fontSize={12} letterSpacing={0.65} fontWeight={200}>
+          <Text fontSize={12} letterSpacing={0.65}>
             {buttonText}
           </Text>
         </Pressable>
@@ -128,22 +123,20 @@ function SignWithColdCard({ route }) {
           />
         </VStack>
         <VStack>
-          <Box bg={`${colorMode}.offWhite`} p={2}>
+          <Box backgroundColor={`${colorMode}.offWhite`} padding={2}>
             <Box opacity={1}>
-              <Text fontSize={14} fontFamily="body" color="light.lightBlack" fontWeight={200}>
+              <Text fontSize={14} color="light.primaryText">
                 Note
               </Text>
             </Box>
             <HStack alignItems="center">
-              <Text fontSize={13} fontFamily="body">
-                Coldcard is showing an error?
-              </Text>
+              <Text fontSize={13}>Coldcard is showing an error?</Text>
               <TouchableOpacity
                 onPress={() => {
                   showMk4Helper(true);
                 }}
               >
-                <Text fontSize={14} fontFamily="body" fontWeight="300">
+                <Text fontSize={14} bold>
                   {' Need Help?'}
                 </Text>
               </TouchableOpacity>
@@ -167,12 +160,8 @@ function SignWithColdCard({ route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14} fontFamily="body">
-                  Manually Register Mk4
-                </Text>
-                <Text fontSize={12} fontFamily="body">
-                  Please resigister the Vault if not already registered
-                </Text>
+                <Text fontSize={14}>Manually Register Mk4</Text>
+                <Text fontSize={12}>Please resigister the Vault if not already registered</Text>
               </VStack>
               <Arrow />
             </TouchableOpacity>
@@ -185,10 +174,8 @@ function SignWithColdCard({ route }) {
               style={{ alignItems: 'center', paddingVertical: 10, flexDirection: 'row' }}
             >
               <VStack width="97%">
-                <Text fontSize={14} fontFamily="body">
-                  Learn more about Mk4
-                </Text>
-                <Text fontSize={12} fontFamily="body">
+                <Text fontSize={14}>Learn more about Mk4</Text>
+                <Text fontSize={12}>
                   Here you will find all of our User Documentation for the COLDCARD.
                 </Text>
               </VStack>

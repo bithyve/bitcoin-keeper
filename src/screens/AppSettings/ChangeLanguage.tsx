@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Text, ScrollView, StatusBar, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, ScrollView, StatusBar, useColorMode } from 'native-base';
 import BackIcon from 'src/assets/icons/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   textCurrency: {
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(18),
+    fontSize: 18,
     color: '#00836A',
     fontWeight: '700',
   },
@@ -41,18 +41,15 @@ const styles = StyleSheet.create({
   },
   textValue: {
     fontFamily: Fonts.FiraSansRegular,
-    fontSize: RFValue(12),
+    fontSize: 12,
     marginLeft: wp('3%'),
   },
   mainText: {
     color: '#00715B',
   },
-  subText: {
-    color: '#4F5955',
-  },
   scrollViewWrapper: {
     borderWidth: 1,
-    borderColor: Colors.borderColor,
+    borderColor: Colors.Platinum,
     borderRadius: 10,
     margin: 15,
     position: 'absolute',
@@ -95,11 +92,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
   },
   symbolText: {
     fontFamily: Fonts.FiraSansMedium,
-    fontSize: RFValue(13),
+    fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
   },
@@ -108,15 +105,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: wp('13%'),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
     backgroundColor: '#FAF4ED',
   },
   codeText: {
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     marginLeft: wp('7%'),
     letterSpacing: 0.6,
-    color: '#4F5955',
   },
   flagWrapper1: {
     flexDirection: 'row',
@@ -130,11 +126,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
   },
   flagStyle: {
     fontFamily: Fonts.FiraSansMedium,
-    fontSize: RFValue(13),
+    fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
   },
@@ -143,14 +139,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: wp('13%'),
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderColor,
+    borderBottomColor: Colors.Platinum,
   },
   countryCodeWrapper2: {
     fontFamily: Fonts.RobotoCondensedRegular,
-    fontSize: RFValue(13),
+    fontSize: 13,
     marginLeft: wp('3%'),
     letterSpacing: 0.6,
-    color: '#4F5955',
   },
   countryCodeText: {
     textTransform: 'uppercase',
@@ -190,7 +185,7 @@ function ChangeLanguage() {
         </View>
         <View style={styles.emptyView} />
         <View style={styles.textValueWrapper}>
-          <Text style={styles.textValue} fontWeight={200} color="light.GreyText">
+          <Text style={styles.textValue} color="light.GreyText">
             {value}
           </Text>
         </View>
@@ -218,7 +213,7 @@ function ChangeLanguage() {
 
   return (
     <SafeAreaView style={styles.wrapper}>
-      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <StatusBar backgroundColor="light.secondaryBackground" barStyle="dark-content" />
       <Box mx={5} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
@@ -234,11 +229,11 @@ function ChangeLanguage() {
           showsVerticalScrollIndicator={false}
           py={3}
         > */}
-        <Box w="60%" marginLeft="10%">
-          <Text fontSize={RFValue(16)} fontWeight={200} letterSpacing={0.8} style={styles.mainText}>
+        <Box width="60%" marginLeft="10%">
+          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={RFValue(12)} fontWeight={200} letterSpacing={0.6} style={styles.subText}>
+          <Text fontSize={12} letterSpacing={0.6} color="light.GreyText">
             {settings.biometricsDesc}
           </Text>
         </Box>
@@ -286,7 +281,9 @@ function ChangeLanguage() {
                   <Text style={styles.symbolText}>{item.symbol}</Text>
                 </View>
                 <View style={styles.codeTextWrapper}>
-                  <Text style={styles.codeText}>{item.code}</Text>
+                  <Text style={styles.codeText} color="light.GreyText">
+                    {item.code}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -328,7 +325,7 @@ function ChangeLanguage() {
                   <Text style={styles.flagStyle}>{item.flag}</Text>
                 </View>
                 <View style={styles.countryCodeWrapper1}>
-                  <Text style={styles.countryCodeWrapper2}>
+                  <Text style={styles.countryCodeWrapper2} color="light.GreyText">
                     <Text style={styles.countryCodeText}>{item.country_code}</Text>
                     <Text>{`- ${item.displayTitle}`}</Text>
                   </Text>

@@ -66,13 +66,15 @@ import SignPSBTScan from 'src/screens/PSTB/SignPSBTScan';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
+import Colors from 'src/theme/Colors';
+import NodeSettings from 'src/screens/AppSettings/NodeSettings';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#F7F2EC',
+    background: Colors.Isabelline,
   },
 };
 
@@ -174,6 +176,7 @@ function AppStack() {
         <Stack.Screen name="ShowQR" component={ShowQR} />
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
+        <Stack.Screen name="NodeSettings" component={NodeSettings} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -199,8 +202,6 @@ function Navigator() {
         close={() => {}}
         title="please wait"
         subTitle="loading"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        textColor="#000"
       />
     </NavigationContainer>
   );

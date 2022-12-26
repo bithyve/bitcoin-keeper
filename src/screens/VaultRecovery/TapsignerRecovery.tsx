@@ -1,5 +1,6 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
@@ -27,7 +28,8 @@ function TapSignerRecovery() {
   const card = React.useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
-  const withModal = (callback) => Platform.select({
+  const withModal = (callback) =>
+    Platform.select({
       android: async () => {
         setNfcVisible(true);
         const resp = await card.nfcWrapper(callback);
@@ -40,11 +42,11 @@ function TapSignerRecovery() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       setCvc(cvc.slice(0, -1));
     }
   };
@@ -77,13 +79,12 @@ function TapSignerRecovery() {
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
           return { xpub, status, xfp: xfp.toString('hex') };
-        } 
-          await card.setup(cvc);
-          const newCard = await card.first_look();
-          const xpub = await card.get_xpub(cvc);
-          const xfp = await card.get_xfp(cvc);
-          return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
-        
+        }
+        await card.setup(cvc);
+        const newCard = await card.first_look();
+        const xpub = await card.get_xpub(cvc);
+        const xfp = await card.get_xfp(cvc);
+        return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
       }
     })();
     return signerDetails;

@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, Text, ScrollView } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { FlatList, Box, ScrollView } from 'native-base';
 import moment from 'moment';
+import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -18,14 +18,17 @@ import {
 } from 'src/store/sagaActions/bhr';
 import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { useNavigation } from '@react-navigation/native';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 import DotView from '../DotView';
 import Buttons from '../Buttons';
 
 function BackupHealthCheckList() {
+  const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const {common} = translations;
+  const { common } = translations;
+  const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
   const { useQuery } = useContext(RealmWrapperContext);
@@ -69,16 +72,16 @@ function BackupHealthCheckList() {
                 zIndex={99}
                 position="absolute"
                 left={-8}
-                bg="light.ReceiveBackground"
-                p={2}
+                backgroundColor="light.secondaryBackground"
+                padding={2}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color="#E3BE96" />
+                <DotView height={2} width={2} color="light.lightAccent" />
               </Box>
               <Text
                 color="light.GreyText"
-                fontSize={RFValue(10)}
-                fontWeight="300"
+                fontSize={10}
+                bold
                 ml={5}
                 opacity={0.7}
                 letterSpacing={0.6}
@@ -86,33 +89,21 @@ function BackupHealthCheckList() {
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
               <Box
-                bg="light.lightYellow"
-                p={5}
+                backgroundColor="light.primaryBackground"
+                padding={5}
                 borderRadius={1}
                 my={2}
-                borderLeftColor="#E3BE96"
+                borderLeftColor="light.lightAccent"
                 borderLeftWidth={1}
-                w="100%"
+                width="100%"
                 ml={wp(3.5)}
                 position="relative"
               >
-                <Text
-                  color="light.headerText"
-                  fontSize={RFValue(14)}
-                  fontFamily="heading"
-                  fontWeight={200}
-                  letterSpacing={1}
-                >
+                <Text color="light.headerText" fontSize={14} letterSpacing={1}>
                   {strings[item.title]}
                 </Text>
                 {item.subtitle !== '' && (
-                  <Text
-                    color="light.GreyText"
-                    fontSize={RFValue(12)}
-                    fontFamily="body"
-                    fontWeight={200}
-                    letterSpacing={0.6}
-                  >
+                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
                     {item.subtitle}
                   </Text>
                 )}
@@ -124,10 +115,7 @@ function BackupHealthCheckList() {
       </ScrollView>
 
       <Box alignItems="flex-start">
-        <Buttons
-          primaryText={common.confirm}
-          primaryCallback={onPressConfirm}
-        />
+        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
       </Box>
 
       <ModalWrapper
@@ -167,6 +155,12 @@ function BackupHealthCheckList() {
         <BackupSuccessful
           closeBottomSheet={() => {
             setHealthCheckModal(false);
+          }}
+          title={BackupWallet.backupSuccessTitle}
+          subTitle={BackupWallet.backupSuccessSubTitle}
+          paragraph={BackupWallet.backupSuccessParagraph}
+          confirmBtnPress={() => {
+            navigtaion.navigate('NewHome');
           }}
         />
       </ModalWrapper>

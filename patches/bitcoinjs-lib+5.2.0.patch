@@ -1,0 +1,47 @@
+diff --git a/node_modules/bitcoinjs-lib/src/psbt.js b/node_modules/bitcoinjs-lib/src/psbt.js
+index 5193dd3..f731990 100644
+--- a/node_modules/bitcoinjs-lib/src/psbt.js
++++ b/node_modules/bitcoinjs-lib/src/psbt.js
+@@ -604,6 +604,29 @@ class Psbt {
+     this.data.clearFinalizedInput(inputIndex);
+     return this;
+   }
++  getDigestToSign(
++    inputIndex, 
++    publicKey, 
++    sighashTypes = [transaction_1.Transaction.SIGHASH_ALL],
++    ){
++    return getHashAndSighashType(
++      this.data.inputs,
++      inputIndex,
++      publicKey,
++      this.__CACHE,
++      sighashTypes,
++    );
++  }
++  addSignedDisgest(inputIndex, publicKey, signature, sighashType){
++    const partialSig = [
++      {
++        pubkey: publicKey,
++        signature: bscript.signature.encode(signature, sighashType),
++      },
++    ];
++    this.data.updateInput(inputIndex, { partialSig });
++    return this
++  }
+ }
+ exports.Psbt = Psbt;
+ /**
+diff --git a/node_modules/bitcoinjs-lib/types/psbt.d.ts b/node_modules/bitcoinjs-lib/types/psbt.d.ts
+index 022a95d..4780aa2 100644
+--- a/node_modules/bitcoinjs-lib/types/psbt.d.ts
++++ b/node_modules/bitcoinjs-lib/types/psbt.d.ts
+@@ -94,6 +94,8 @@ export declare class Psbt {
+     addUnknownKeyValToInput(inputIndex: number, keyVal: KeyValue): this;
+     addUnknownKeyValToOutput(outputIndex: number, keyVal: KeyValue): this;
+     clearFinalizedInput(inputIndex: number): this;
++    getDigestToSign(inputIndex: number, publicKey: Buffer, sighashTypes?: number[]): { hash: Buffer; sighashType: any }
++    addSignedDisgest(inputIndex: number, publicKey: Buffer, signature: Buffer, sighashType: any): this;
+ }
+ interface PsbtOptsOptional {
+     network?: Network;

@@ -1,5 +1,7 @@
-import { Alert, StyleSheet, TextInput } from 'react-native';
-import { Box, Text } from 'native-base';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
@@ -13,7 +15,6 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import config, { APP_STAGE } from 'src/core/config';
@@ -22,7 +23,8 @@ import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupTapsigner() {
@@ -88,7 +90,7 @@ function SetupTapsigner() {
       } else {
         message = err.toString();
       }
-      NFC.showiOSMessage(message);
+      if (Platform.OS === 'ios') NFC.showiOSMessage(message);
       showToast(message, null, 2000, true);
       closeNfc();
       card.endNfcSession();
@@ -109,15 +111,13 @@ function SetupTapsigner() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenWrapper>
       <Box flex={1}>
-        <Box style={styles.header}>
-          <HeaderTitle
-            title="Setting up TAPSIGNER"
-            subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
-            onPressHandler={() => navigation.goBack()}
-          />
-        </Box>
+        <HeaderTitle
+          title="Setting up TAPSIGNER"
+          subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
+          onPressHandler={() => navigation.goBack()}
+        />
         <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
           <ScrollView>
             <TextInput
@@ -127,24 +127,10 @@ function SetupTapsigner() {
               secureTextEntry
               showSoftInputOnFocus={false}
             />
-            <Text
-              padding={5}
-              fontWeight={200}
-              width={wp(250)}
-              fontSize={13}
-              letterSpacing={0.65}
-              color="light.modalText"
-            >
+            <Text style={styles.heading} color="light.greenText">
               You will be scanning the TAPSIGNER after this step
             </Text>
-            <Box
-              style={{
-                flex: 1,
-                justifyContent: "flex-end",
-                flexDirection: "row",
-                marginRight: wp(15)
-              }}
-            >
+            <Box style={styles.btnContainer}>
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
@@ -157,53 +143,21 @@ function SetupTapsigner() {
         />
         <NfcPrompt visible={nfcVisible} />
       </Box>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
 export default SetupTapsigner;
 
 const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    backgroundColor: '#F7F2EC',
-    flex: 1,
-    padding: 10,
-  },
   header: {
     flex: 1,
     paddingHorizontal: '5%',
     marginBottom: windowHeight > 850 ? 0 : '25%',
   },
-  stepContainer: {
-    flexDirection: 'row',
-    marginBottom: '4%',
-    marginHorizontal: '4%',
-  },
-  stepBodyContainer: {
-    width: '80%',
-  },
-  circle: {
-    margin: '5%',
-    marginTop: 0,
-    width: 25,
-    height: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  doneCircle: {
-    backgroundColor: '#055146',
-  },
-  activeCircle: {
-    backgroundColor: '#FAC48B',
-  },
-  inactiveCircle: {
-    backgroundColor: '#E3E3E3',
-  },
   input: {
-    paddingHorizontal: 20,
     margin: '5%',
+    paddingHorizontal: 15,
     width: wp(305),
     height: 50,
     borderRadius: 10,
@@ -212,5 +166,18 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     alignItems: 'flex-end',
+  },
+  heading: {
+    margin: '5%',
+    padding: 5,
+    width: windowWidth * 0.8,
+    fontSize: 13,
+    letterSpacing: 0.65,
+  },
+  btnContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    marginRight: wp(15),
   },
 });

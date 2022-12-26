@@ -1,4 +1,5 @@
-import { Box, HStack, Pressable, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
@@ -30,23 +31,22 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX="4" maxW="64">
+              <VStack marginX="4" maxWidth="64">
                 <Text
-                  color="light.lightBlack"
+                  color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
                   letterSpacing={1.12}
-                  fontWeight={200}
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text color="light.GreyText" fontSize={13} fontWeight={200} letterSpacing={0.6}>
+                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                   Lorem ipsum dolor sit amet, consectetur
                 </Text>
               </VStack>
             </HStack>
-            <Box w="15%" alignItems="center">
+            <Box width="15%" alignItems="center">
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -62,28 +62,27 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
             width="8"
             height="8"
             borderRadius={30}
-            bg="#725436"
+            backgroundColor="#725436"
             justifyContent="center"
             alignItems="center"
             alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxW="80%">
+          <VStack marginX="4" maxWidth="80%">
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={15}
               numberOfLines={2}
               alignItems="center"
               letterSpacing={1.12}
-              fontWeight={200}
             >
               {signer.type}
             </Text>
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text color="light.GreyText" fontWeight={200} fontSize={12} letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             Remove
           </Text>
         </Pressable>
@@ -132,15 +131,17 @@ function VaultRecovery() {
   }, [appId]);
 
   function SuccessModalContent() {
-  return <View>
-      <Box alignSelf="center">
-        <SuccessSvg />
-      </Box>
-      <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
-        The BIP-85 wallets in the app are new as they can’t be recovered using this method
-      </Text>
-    </View>
-}
+    return (
+      <View>
+        <Box alignSelf="center">
+          <SuccessSvg />
+        </Box>
+        <Text color="light.greenText" fontSize={13} padding={2}>
+          The BIP-85 wallets in the app are new as they can’t be recovered using this method
+        </Text>
+      </View>
+    );
+  }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   const navigation = useNavigation();
@@ -169,7 +170,7 @@ function VaultRecovery() {
                 <AddSignerIcon />
               </Box>
             </TouchableOpacity>
-            <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
+            <Text style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
               You can use any one of the signing devices to start with
             </Text>
           </Box>

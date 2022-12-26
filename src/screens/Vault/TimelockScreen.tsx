@@ -1,4 +1,5 @@
-import { Box, Input, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import React, { useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -10,7 +11,6 @@ import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Keyboard } from 'react-native';
 import Note from 'src/components/Note/Note';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
@@ -41,11 +41,11 @@ function TimelockScreen() {
                 borderWidth="0"
                 value={amount}
                 onFocus={() => Keyboard.dismiss()}
-                backgroundColor="light.lightYellow"
+                backgroundColor="light.primaryBackground"
               />
               <Text
-                color="light.time"
-                fontWeight={300}
+                color="light.textColor2"
+                bold
                 letterSpacing={2.8}
                 fontSize={13}
                 marginTop={hp(40)}
@@ -72,7 +72,7 @@ function TimelockScreen() {
         <AppNumPad
           setValue={setAmount}
           clear={() => {}}
-          color="#073E39"
+          color="light.greenText"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
         />
@@ -86,7 +86,7 @@ const styles = ScaledSheet.create({
     color: '#073E39',
     opacity: 0.5,
     fontFamily: Fonts.RobotoCondensedBold,
-    fontSize: RFValue(13),
+    fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),
   },

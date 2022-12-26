@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -10,34 +11,15 @@ function AuthHandler({ status, fixAuthDelay }) {
   const text = isCardBlocked ? `Looks like you've crossed the CVC rate limit!` : '';
 
   return (
-    <Box p={2}>
-      <Text
-        color="error.500"
-        fontSize={16}
-        fontFamily="body"
-        fontWeight="300"
-        letterSpacing={1}
-        textAlign="center"
-      >
+    <Box padding={2}>
+      <Text color="error.500" fontSize={16} bold letterSpacing={1} textAlign="center">
         {text}
       </Text>
-      <Text
-        fontSize={12}
-        fontFamily="body"
-        fontWeight="200"
-        letterSpacing={1}
-        textAlign="center"
-      >
+      <Text fontSize={12} letterSpacing={1} textAlign="center">
         Hold the card for about 15 seconds to unlock it.
       </Text>
       <TouchableOpacity onPress={fixAuthDelay}>
-        <Text
-          fontSize={16}
-          fontFamily="body"
-          fontWeight="300"
-          letterSpacing={1}
-          textAlign="center"
-        >
+        <Text fontSize={16} bold letterSpacing={1} textAlign="center">
           Unlock
         </Text>
       </TouchableOpacity>

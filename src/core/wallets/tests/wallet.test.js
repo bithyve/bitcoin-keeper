@@ -100,9 +100,9 @@ describe('Wallet primitives', () => {
     expect(PSBT.data.outputs.length).toBeGreaterThan(0);
   });
 
-  test('wallet operations: transaction signing(PSBT)', async () => {
+  test('wallet operations: transaction signing(PSBT)', () => {
     const { inputs } = txPrerequisites[txnPriority];
-    const { signedPSBT } = await WalletOperations.signTransaction(wallet, inputs, PSBT);
+    const { signedPSBT } = WalletOperations.signTransaction(wallet, inputs, PSBT);
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     expect(areSignaturesValid).toEqual(true);
 

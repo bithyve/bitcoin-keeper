@@ -1,14 +1,14 @@
-import { Box, Input, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RFValue } from 'react-native-responsive-fontsize';
 import Buttons from '../Buttons';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
-  const {common} = translations;
+  const { BackupWallet } = translations;
+  const { common } = translations;
   const { words } = props;
   const [seedWord, setSeedWord] = useState('');
   const [index] = useState(Math.floor(Math.random() * words.length));
@@ -73,23 +73,23 @@ function ConfirmSeedWord(props) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" p={10} borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" padding={10} borderRadius={10}>
       <Box>
-        <Text fontSize={RFValue(19)} color="light.lightBlack">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.confirmSeedWord}
         </Text>
-        <Text fontSize={RFValue(13)} color="light.lightBlack2" mb={10}>
+        <Text fontSize={13} color="light.secondaryText" mb={10}>
           Exactly as they were displayed
         </Text>
       </Box>
       <Box>
-        <Text fontSize={RFValue(13)} ml={1}>
+        <Text fontSize={13} ml={1}>
           {`Enter the ${getSeedNumber(index)} word`}
         </Text>
         <Input
           placeholder={`Enter ${getHint(index)} word`}
-          placeholderTextColor="light.lightBlack2"
-          backgroundColor="light.lightYellow"
+          placeholderTextColor="light.secondaryText"
+          backgroundColor="light.primaryBackground"
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"
@@ -99,7 +99,7 @@ function ConfirmSeedWord(props) {
             setInvalid(false);
           }}
           style={{
-            fontSize: RFValue(13),
+            fontSize: 13,
             letterSpacing: 0.96,
             height: 50,
           }}
@@ -109,13 +109,13 @@ function ConfirmSeedWord(props) {
         />
       </Box>
       {invalid && (
-        <Text color="red.400" fontSize={RFValue(13)} ml={1}>
+        <Text color="red.400" fontSize={13} ml={1}>
           Invalid word
         </Text>
       )}
 
       <Box my={5}>
-        <Text fontSize={RFValue(13)}>{BackupWallet.seedWordNote}</Text>
+        <Text fontSize={13}>{BackupWallet.seedWordNote}</Text>
       </Box>
       <Buttons
         secondaryText={BackupWallet.startOver}
