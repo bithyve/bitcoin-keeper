@@ -182,7 +182,10 @@ function SigningDeviceList({ navigation }: { navigation }) {
           >
             <Box style={styles.walletMapContainer}>
               <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
-              <Box opacity={0.3} backgroundColor="light.divider" height={hp(24)} width={0.5} />
+              <Box
+                backgroundColor="light.divider"
+                style={styles.divider}
+              />
               <Box style={styles.walletMapLogoWrapper}>
                 {WalletMap(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
@@ -338,6 +341,11 @@ const styles = StyleSheet.create({
     opacity: 0.1,
     width: windowWidth * 0.8,
     height: 0.5,
+  },
+  divider: {
+    opacity: 0.5,
+    height: hp(26),
+    width: 1.5
   },
   italics: {
     fontStyle: 'italic',
