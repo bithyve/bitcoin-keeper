@@ -82,7 +82,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
+    backgroundColor: 'light.secondaryBackground',
   },
 });
 export default VaultTransactions;

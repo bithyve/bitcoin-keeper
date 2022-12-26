@@ -72,7 +72,7 @@ function TimelockScreen() {
         <AppNumPad
           setValue={setAmount}
           clear={() => {}}
-          color="#073E39"
+          color="light.greenText"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
         />

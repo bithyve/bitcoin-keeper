@@ -48,7 +48,7 @@ function AddDescription({ route }) {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor="#073E39"
+            placeholderTextColor="light.greenText"
           />
         </Box>
 
@@ -69,7 +69,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
+    backgroundColor: 'light.secondaryBackground',
   },
   linearGradient: {
     borderRadius: 6,

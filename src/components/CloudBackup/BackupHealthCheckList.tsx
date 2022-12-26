@@ -18,11 +18,11 @@ import {
 } from 'src/store/sagaActions/bhr';
 import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { useNavigation } from '@react-navigation/native';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 import DotView from '../DotView';
 import Buttons from '../Buttons';
-import { useNavigation } from '@react-navigation/native';
 
 function BackupHealthCheckList() {
   const navigtaion = useNavigation();
@@ -72,11 +72,11 @@ function BackupHealthCheckList() {
                 zIndex={99}
                 position="absolute"
                 left={-8}
-                bg="light.ReceiveBackground"
-                p={2}
+                backgroundColor="light.secondaryBackground"
+                padding={2}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color="#E3BE96" />
+                <DotView height={2} width={2} color="light.lightAccent" />
               </Box>
               <Text
                 color="light.GreyText"
@@ -89,13 +89,13 @@ function BackupHealthCheckList() {
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
               <Box
-                bg="light.primaryBackground"
-                p={5}
+                backgroundColor="light.primaryBackground"
+                padding={5}
                 borderRadius={1}
                 my={2}
-                borderLeftColor="#E3BE96"
+                borderLeftColor="light.lightAccent"
                 borderLeftWidth={1}
-                w="100%"
+                width="100%"
                 ml={wp(3.5)}
                 position="relative"
               >

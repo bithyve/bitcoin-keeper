@@ -9,7 +9,7 @@ import Change from 'src/assets/images/svgs/change.svg';
 import DotView from 'src/components/DotView';
 import Edit from 'src/assets/images/svgs/edit.svg';
 import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 // libraries
 import React from 'react';
 import Server from 'src/assets/images/svgs/server.svg';
@@ -22,8 +22,8 @@ function SigningServer({ navigation }) {
     return (
       <LinearGradient
         colors={['#694B2E', '#694B2E']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           height: hp(height),
           width: hp(height),
@@ -67,20 +67,25 @@ function SigningServer({ navigation }) {
           zIndex={99}
           position="absolute"
           left={-8}
-          bg="light.ReceiveBackground"
-          p={2}
+          backgroundColor="light.secondaryBackground"
+          padding={2}
           borderRadius={15}
         >
-          <DotView height={2} width={2} color="#E3BE96" />
+          <DotView height={2} width={2} color="light.lightAccent" />
         </Box>
         <Text color="light.GreyText" fontSize={10} bold ml={5} opacity={0.7}>
           15 March ’21
         </Text>
-        <Box borderLeftColor="#E3BE96" borderLeftWidth={1} ml={wp(3.5)} position="relative">
+        <Box
+          borderLeftColor="light.lightAccent"
+          borderLeftWidth={1}
+          ml={wp(3.5)}
+          position="relative"
+        >
           <Box
             backgroundColor="light.primaryBackground"
             my={2}
-            p={5}
+            padding={5}
             marginLeft={wp(15)}
             borderRadius={10}
           >

@@ -144,7 +144,7 @@ function SendScreen({ route }) {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
+          <Text light fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
@@ -180,7 +180,7 @@ function SendScreen({ route }) {
             <Box style={styles.inputWrapper}>
               <TextInput
                 placeholder="or enter address manually"
-                placeholderTextColor="#4F5955"
+                placeholderTextColor="light.GreyText"
                 style={styles.textInput}
                 value={paymentInfo}
                 onChangeText={handleTextChange}
@@ -209,7 +209,7 @@ function SendScreen({ route }) {
       </ScrollView>
       {/* {Bottom note} */}
       {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor="light.ReceiveBackground">
+        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
           <Note
             title={common.note}
             subtitle="Make sure the address or QR is the one where you want to send the funds to"

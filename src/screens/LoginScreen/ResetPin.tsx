@@ -6,7 +6,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 
@@ -124,7 +124,10 @@ export default function ResetPin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient
+      colors={['light.gradientStart', 'light.gradientEnd']}
+      style={styles.linearGradient}
+    >
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />

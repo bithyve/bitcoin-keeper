@@ -94,7 +94,7 @@ function HealthCheckComponent(props) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" style={styles.wrapper}>
+    <Box backgroundColor="light.secondaryBackground" style={styles.wrapper}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.healthCheck}

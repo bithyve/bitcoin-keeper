@@ -67,8 +67,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
-import Login from '../screens/LoginScreen/Login';
 import NodeSettings from 'src/screens/AppSettings/NodeSettings';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -199,10 +199,9 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
-        textColor="#000"
       />
     </NavigationContainer>
   );

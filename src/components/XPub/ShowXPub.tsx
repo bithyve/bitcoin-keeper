@@ -32,17 +32,23 @@ function ShowXPub({
       <Box justifyContent="center" alignItems="center" width={wp(275)}>
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
-          <Box bg="light.QrCode" alignItems="center" justifyContent="center" p={1} w={hp(200)}>
+          <Box
+            backgroundColor="light.QrCode"
+            alignItems="center"
+            justifyContent="center"
+            padding={1}
+            width={hp(200)}
+          >
             <Text fontSize={12} color="light.recieverAddress">
               {subText}
             </Text>
           </Box>
         </Box>
-        <Box p={2}>
+        <Box padding={2}>
           {copyable ? (
             <Box
               flexDirection="row"
-              bg="light.textInputBackground"
+              backgroundColor="light.textInputBackground"
               borderTopLeftRadius={10}
               borderBottomLeftRadius={10}
               width={wp(220)}
@@ -50,7 +56,7 @@ function ShowXPub({
               marginBottom={hp(30)}
             >
               <Box py={2} alignItems="center">
-                <Text fontSize={12} noOfLines={1} px={3}>
+                <Text fontSize={12} numberOfLines={1} px={3}>
                   {data}
                 </Text>
               </Box>

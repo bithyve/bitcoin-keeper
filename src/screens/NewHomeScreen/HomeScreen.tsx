@@ -57,7 +57,7 @@ function InheritanceComponent() {
     <Box alignItems="center" marginTop={hp(19.96)}>
       <Box
         style={styles.bottomCard}
-        bg={{
+        backgroundColor={{
           linearGradient: {
             colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
@@ -96,13 +96,12 @@ function InheritanceComponent() {
           cloudButton={wallet.FromCloud}
           cloudButtonDesc={wallet.WalletDesc}
           mainDesc={wallet.XPubSubTitle}
-          buttonBackground={['#00836A', '#073E39']}
           buttonCancel="Cancel"
           buttonText="Next"
-          buttonTextColor="#FAFAFA"
-          buttonCancelColor="#073E39"
+          buttonTextColor="light.white"
+          buttonCancelColor="light.greenText"
           buttonCallback={navigateBack}
-          textColor="#041513"
+          textColor="light.primaryText"
         />
       </Box>
     </Box>
@@ -124,7 +123,7 @@ function LinkedWallets(props) {
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
       <Box
-        bg={{
+        backgroundColor={{
           linearGradient: {
             colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
@@ -313,7 +312,7 @@ function VaultStatus(props) {
               ) : (
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
-                    <Box bg="light.lightAccent" style={styles.vaultSigner}>
+                    <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
                       {WalletMap(signer.type).Icon}
                     </Box>
                   ))}
@@ -380,7 +379,7 @@ function VaultInfo() {
 
   return (
     <Box
-      bg={{
+      backgroundColor={{
         linearGradient: {
           colors: ['light.gradientStart', 'light.gradientEnd'],
           start: [0, 0],
@@ -438,7 +437,7 @@ function TransVaultSuccessfulContent() {
       <Box alignSelf="center">
         <VaultIcon />
       </Box>
-      <Text color="#073B36" fontSize={13} p={2}>
+      <Text color="light.greenText" fontSize={13} padding={2}>
         The transaction should be visible in the vault in some time.
       </Text>
     </Box>
@@ -474,8 +473,8 @@ function HomeScreen({ navigation }) {
         title="Transfer to Vault Successfull"
         subTitle="You have successfully transferred from your wallet to the vault"
         buttonText="View Vault"
-        textColor="#073B36"
-        buttonTextColor="#FAFAFA"
+        textcolor="light.greenText"
+        buttonTextColor="light.white"
         Content={TransVaultSuccessfulContent}
       />
     </Box>

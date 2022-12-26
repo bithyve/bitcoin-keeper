@@ -33,14 +33,14 @@ function SettingUpTapsigner(props) {
   };
 
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          m={5}
-          bg="light.lightAccent"
+          margin={5}
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
@@ -50,7 +50,7 @@ function SettingUpTapsigner(props) {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box p={10}>
+      <Box padding={10}>
         <Text fontSize={19} color="light.primaryText">
           {tapsigner.SetupTitle}
         </Text>

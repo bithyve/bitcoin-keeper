@@ -15,7 +15,7 @@ function SignerData({ signer }: { signer: VaultSigner }) {
   return (
     <HStack>
       <Box style={styles.icon}>{WalletMap(signer.type, true).Icon}</Box>
-      <VStack marginX="4" maxW="80%">
+      <VStack marginX="4" maxWidth="80%">
         <Text style={styles.name} color="light.primaryText" numberOfLines={2}>
           {signer.signerName}
         </Text>

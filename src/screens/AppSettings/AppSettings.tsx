@@ -58,7 +58,7 @@ function AppSettings({ navigation }) {
 
   const RenderTorStatus = useCallback(
     () => (
-      <Box backgroundColor="#E3BE96" py={0.5} px={1.5} borderRadius={10}>
+      <Box backgroundColor="light.lightAccent" py={0.5} px={1.5} borderRadius={10}>
         <Text fontSize={11}>{torStatus}</Text>
       </Box>
     ),
@@ -73,8 +73,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -147,7 +147,7 @@ function AppSettings({ navigation }) {
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
-                bg="light.indicator"
+                backgroundColor="light.indicator"
                 borderColor="light.white"
                 style={styles.notificationIndicator}
               />
@@ -183,7 +183,7 @@ function AppSettings({ navigation }) {
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
       <Box style={styles.appSettingTitleWrapper}>
-        <Box w="70%">
+        <Box width="70%">
           <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
           <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
         </Box>
@@ -267,7 +267,7 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.ReceiveBackground">
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
               <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
@@ -302,7 +302,7 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} bg="light.primaryBackground">
+            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}

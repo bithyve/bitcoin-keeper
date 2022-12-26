@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -222,7 +222,10 @@ function LoginScreen({ navigation, route }) {
     );
   }
   return (
-    <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient
+      colors={['light.gradientStart', 'light.gradientEnd']}
+      style={styles.linearGradient}
+    >
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -358,8 +361,7 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
-        textColor="#000"
-        subTitleColor="#5F6965"
+        subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
         buttonCallback={loginModalAction}

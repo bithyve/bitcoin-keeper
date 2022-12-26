@@ -42,7 +42,7 @@ function Card({ message, buttonText, buttonCallBack }) {
           {message}
         </Text>
         <Pressable
-          bg="light.accent"
+          backgroundColor="light.accent"
           justifyContent="center"
           borderRadius={5}
           width={wp(60)}
@@ -123,7 +123,7 @@ function SignWithColdCard({ route }) {
           />
         </VStack>
         <VStack>
-          <Box bg={`${colorMode}.offWhite`} p={2}>
+          <Box backgroundColor={`${colorMode}.offWhite`} padding={2}>
             <Box opacity={1}>
               <Text fontSize={14} color="light.primaryText">
                 Note

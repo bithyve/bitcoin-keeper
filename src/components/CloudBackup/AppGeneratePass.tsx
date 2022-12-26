@@ -22,19 +22,19 @@ function AppGeneratePass(props: any) {
   const { common } = translations;
   const { closeBottomSheet, confirmBtnPress } = props;
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
       <TouchableOpacity onPress={() => closeBottomSheet()}>
         <Box
-          m={5}
-          bg="#E3BE96"
+          margin={5}
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
         >
-          <Text fontSize={18} color="#FFF">
+          <Text fontSize={18} color="light.white">
             X
           </Text>
         </Box>
@@ -66,7 +66,7 @@ function AppGeneratePass(props: any) {
             justifyContent="space-between"
             backgroundColor="light.textInputBackground"
           >
-            <Text width="80%" marginLeft={4} noOfLines={1} fontSize={18}>
+            <Text width="80%" marginLeft={4} numberOfLines={1} fontSize={18}>
               {agsp}
             </Text>
             <Box
@@ -91,23 +91,23 @@ function AppGeneratePass(props: any) {
           </Text>
         )}
       </Box>
-      <Box p={10}>
+      <Box padding={10}>
         <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
-      <Box px={10} w="90%" flexDirection="row" alignItems="center">
-        <Box w="15%">
+      <Box px={10} width="90%" flexDirection="row" alignItems="center">
+        <Box width="15%">
           <CopyIcon />
         </Box>
-        <Box w="80%">
+        <Box width="80%">
           <Text fontSize={12} bold>
             Backing up drive
           </Text>
           <Text fontSize={12}>Lorem ipsum dolor sit amet</Text>
         </Box>
       </Box>
-      <Box alignItems="center" flexDirection="row" w="95%" py={5}>
+      <Box alignItems="center" flexDirection="row" width="95%" py={5}>
         <TouchableOpacity
           onPress={() => closeBottomSheet()}
           style={{ width: '60%', paddingLeft: '15%' }}
@@ -116,7 +116,7 @@ function AppGeneratePass(props: any) {
             {common.cancel}
           </Text>
         </TouchableOpacity>
-        <Box w="40%">
+        <Box width="40%">
           <CustomGreenButton
             onPress={() => {
               confirmBtnPress(agsp);

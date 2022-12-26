@@ -14,18 +14,18 @@ function ResetPassSuccess(props) {
   function onPressProceed() {}
 
   return (
-    <Box bg="#F7F2EC" p={10} borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" padding={10} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          bg="#E3BE96"
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
         >
-          <Text fontSize={18} color="#FFF">
+          <Text fontSize={18} color="light.white">
             X
           </Text>
         </Box>
