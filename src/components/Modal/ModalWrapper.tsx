@@ -16,7 +16,7 @@ function ModalWrapper(props: Props) {
       onBackButtonPress={() => props.onSwipeComplete}
       onBackdropPress={() => props.onSwipeComplete}
       style={{
-        justifyContent: props.position == 'center' ? 'center' : 'flex-end',
+        justifyContent: props.position === 'center' ? 'center' : 'flex-end',
         marginHorizontal: 15,
         marginBottom: 25,
       }}

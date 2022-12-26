@@ -1,13 +1,14 @@
 import * as bip39 from 'bip39';
 
 import { Alert, StyleSheet } from 'react-native';
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -22,7 +23,6 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
@@ -40,15 +40,15 @@ import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware'
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
-import { getPassportDetails, getPassportDetailsForWatchOnly } from 'src/hardware/passport';
+import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { hash512 } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
-
-const RNBiometrics = new ReactNativeBiometrics();
+import HWError from 'src/hardware/HWErrorState';
+import { HWErrorType } from 'src/common/data/enums/Hardware';
 
 function SetupSuccessfully() {
   return (
@@ -57,14 +57,7 @@ function SetupSuccessfully() {
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(0)}>
-        <Text
-          color="light.modalText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
+        <Text color="light.greenText" fontSize={13} p={1} letterSpacing={0.65}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
         </Text>
       </Box>
@@ -74,16 +67,9 @@ function SetupSuccessfully() {
 
 export function BulletPoint({ text }) {
   return (
-    <Box
-      style={styles.bulletContainer}>
-      <Box
-        backgroundColor="light.modalText"
-        style={styles.bulletPoint}
-      />
-      <Text
-        color="light.modalText"
-        style={styles.bullerPointText}
-      >
+    <Box style={styles.bulletContainer}>
+      <Box backgroundColor="light.greenText" style={styles.bulletPoint} />
+      <Text color="light.greenText" style={styles.bullerPointText}>
         {text}
       </Text>
     </Box>
@@ -113,7 +99,6 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -124,7 +109,6 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -144,12 +128,12 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4" flex={1} alignItems="center" justifyContent="center">
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100">
+          <Text color="#073B36" fontSize={13} fontWeight="100">
             {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100">
+          <Text color="#073B36" fontSize={13} fontWeight="100">
             {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
           </Text>
         </Box>
@@ -159,8 +143,9 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-    } > QR Code.\n`;
+  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > QR Code.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -170,7 +155,6 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -181,7 +165,6 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -195,8 +178,9 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-    } > Native Segwit > Keeper.\n`;
+  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+    isMultisig ? 'Multisig' : 'Singlesig'
+  } > Native Segwit > Keeper.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -206,7 +190,6 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -217,7 +200,6 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -243,7 +225,6 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -254,7 +235,6 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -268,8 +248,9 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
 }
 
 function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-    } and Native Segwit in the options section.\n`;
+  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+    isMultisig ? 'MultiSig' : 'SingleSig'
+  } and Native Segwit in the options section.\n`;
   return (
     <View>
       <Box ml={wp(21)}>
@@ -279,7 +260,6 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -290,7 +270,6 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -313,7 +292,6 @@ function KeeperSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -324,7 +302,6 @@ function KeeperSetupContent() {
         <Text
           color="#073B36"
           fontSize={13}
-          fontWeight={200}
           letterSpacing={0.65}
           style={{
             marginLeft: wp(10),
@@ -368,53 +345,63 @@ function SetupSeedWords() {
 }
 
 const setupPassport = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp } = isMultisig
-    ? getPassportDetails(qrData)
-    : getPassportDetailsForWatchOnly(qrData);
-  const passport: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.PASSPORT,
-    storageType: SignerStorage.COLD,
-  });
-  return passport;
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const passport: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.PASSPORT,
+      storageType: SignerStorage.COLD,
+    });
+    return passport;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupSeedSigner = (qrData) => {
-  const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-  const seedSigner: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.SEEDSIGNER,
-    storageType: SignerStorage.COLD,
-  });
-  return seedSigner;
+const setupSeedSigner = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSeedSignerDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const seedSigner: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.SEEDSIGNER,
+      storageType: SignerStorage.COLD,
+    });
+    return seedSigner;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupKeystone = (qrData) => {
-  const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-  const keystone: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.KEYSTONE,
-    storageType: SignerStorage.COLD,
-  });
-  return keystone;
+const setupKeystone = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getKeystoneDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const keystone: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.KEYSTONE,
+      storageType: SignerStorage.COLD,
+    });
+    return keystone;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
-const setupJade = (qrData) => {
-  const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
-  const jade: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
-    xfp,
-    signerType: SignerType.JADE,
-    storageType: SignerStorage.COLD,
-  });
-  return jade;
+const setupJade = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getJadeDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const jade: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.JADE,
+      storageType: SignerStorage.COLD,
+    });
+    return jade;
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
 };
 
 const setupKeeperSigner = (qrData) => {
@@ -558,7 +545,7 @@ function HardwareModalMap({ type, visible, close }) {
     );
   };
 
-  const onQRScan = (qrData) => {
+  const onQRScan = (qrData, resetQR) => {
     let hw: VaultSigner;
     try {
       switch (type as SignerType) {
@@ -566,16 +553,16 @@ function HardwareModalMap({ type, visible, close }) {
           hw = setupPassport(qrData, isMultisig);
           break;
         case SignerType.SEEDSIGNER:
-          hw = setupSeedSigner(qrData);
+          hw = setupSeedSigner(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
           hw = setupKeeperSigner(qrData);
           break;
         case SignerType.KEYSTONE:
-          hw = setupKeystone(qrData);
+          hw = setupKeystone(qrData, isMultisig);
           break;
         case SignerType.JADE:
-          hw = setupJade(qrData);
+          hw = setupJade(qrData, isMultisig);
           break;
         default:
           break;
@@ -584,9 +571,14 @@ function HardwareModalMap({ type, visible, close }) {
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
     } catch (error) {
-      captureError(error);
-      Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (error instanceof HWError) {
+        showToast(error.message, null, 3000, true);
+        resetQR();
+      } else {
+        captureError(error);
+        Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
     }
   };
 
@@ -594,12 +586,12 @@ function HardwareModalMap({ type, visible, close }) {
     const onPressNumber = (text) => {
       let tmpPasscode = password;
       if (password.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpPasscode += text;
           setPassword(tmpPasscode);
         }
       }
-      if (password && text == 'x') {
+      if (password && text === 'x') {
         setPassword(password.slice(0, -1));
       }
     };
@@ -620,10 +612,9 @@ function HardwareModalMap({ type, visible, close }) {
           />
           <Text
             fontSize={13}
-            fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
-            color="light.modalText"
+            color="light.greenText"
             marginTop={2}
           >
             The app will use the Mobile Key to sign on entering the correct Passcode
@@ -648,7 +639,7 @@ function HardwareModalMap({ type, visible, close }) {
         <KeyPadView
           onPressNumber={onPressNumber}
           onDeletePressed={onDeletePressed}
-          keyColor="light.lightBlack"
+          keyColor="light.primaryText"
           ClearIcon={<DeleteIcon />}
         />
       </Box>
@@ -662,7 +653,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={tapsigner.SetupTitle}
         subTitle={tapsigner.SetupDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -675,7 +665,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={coldcard.SetupTitle}
         subTitle={coldcard.SetupDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -688,7 +677,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={ledger.SetupTitle}
         subTitle={ledger.SetupDescription}
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -701,7 +689,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up a Signing Server"
         subTitle="A Signing Server will hold one of the keys in the vault"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -714,7 +701,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Set up a Mobile Key"
         subTitle="This key available for signing transactions if you confirm your passcode or biometrics"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -732,7 +718,6 @@ function HardwareModalMap({ type, visible, close }) {
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         textColor="#041513"
         Content={PasswordEnter}
       />
@@ -741,7 +726,6 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Keep your Soft Signer ready"
         subTitle="This is the twelve word Recovery Phrase you would have noted down when creating the vault"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
         buttonTextColor="#FAFAFA"
@@ -755,7 +739,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Signing Server Setup Successfully"
         subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="View Vault"
         buttonTextColor="#FAFAFA"
@@ -771,7 +754,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up Passport (Batch 2)"
         subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -785,7 +767,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up SeedSigner"
         subTitle="Keep your SeedSigner ready and powered before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -799,7 +780,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up Keystone"
         subTitle="Keep your Keystone ready before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -813,7 +793,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Setting up Blockstream Jade"
         subTitle="Keep your Jade ready and unlocked before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -827,7 +806,6 @@ function HardwareModalMap({ type, visible, close }) {
         title="Keep your Device Ready"
         subTitle="Keep your Keeper Signing Device ready before proceeding"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
         buttonTextColor="#FAFAFA"
@@ -842,19 +820,19 @@ const styles = StyleSheet.create({
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
   bulletPoint: {
     marginRight: wp(5),
     height: hp(5),
     width: hp(5),
     borderRadius: 10,
-    top: 12
+    top: 12,
   },
   bullerPointText: {
     letterSpacing: 1,
     padding: 3,
-    fontSize: 13
-  }
-})
+    fontSize: 13,
+  },
+});
 export default HardwareModalMap;

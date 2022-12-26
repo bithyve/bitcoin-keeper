@@ -1,4 +1,5 @@
-import { Box, Modal, Text, Input, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
@@ -31,10 +32,10 @@ function CustomPriorityModal(props) {
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
-    if (text != 'x') {
+    if (text !== 'x') {
       currentFee += text;
       updateFeeAndBlock(currentFee);
-    } else if (currentFee && text == 'x') {
+    } else if (currentFee && text === 'x') {
       updateFeeAndBlock(currentFee.slice(0, -1));
     }
   };
@@ -94,16 +95,10 @@ function CustomPriorityModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text
-                style={styles.title}
-                fontFamily="body"
-                fontWeight="200"
-                color={textColor}
-                paddingBottom={2}
-              >
+              <Text style={styles.title} color={textColor} paddingBottom={2}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -117,7 +112,7 @@ function CustomPriorityModal(props) {
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text fontFamily="body" fontWeight="200" color="#073B36" mx={windowWidth * 0.038}>
+              <Text color="#073B36" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
@@ -134,13 +129,7 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text
-                  mr={windowWidth * 0.07}
-                  color="#073E39"
-                  fontFamily="body"
-                  fontWeight="300"
-                  letterSpacing={1.6}
-                >
+                <Text mr={windowWidth * 0.07} color="#073E39" bold letterSpacing={1.6}>
                   Start Over
                 </Text>
               </TouchableOpacity>
@@ -157,8 +146,7 @@ function CustomPriorityModal(props) {
                 >
                   <Text
                     fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
+                    bold
                     letterSpacing={1.6}
                     color={buttonTextColor}
                     mx={windowWidth * 0.04}
@@ -172,7 +160,7 @@ function CustomPriorityModal(props) {
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
-              keyColor="light.lightBlack"
+              keyColor="light.primaryText"
               ClearIcon={<DeleteIcon />}
             />
           </Box>

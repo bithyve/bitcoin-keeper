@@ -1,4 +1,5 @@
-import { Box, Input, Pressable, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input, Pressable } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -10,7 +11,6 @@ import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/svgs/btc_input.svg';
 
 import HeaderTitle from 'src/components/HeaderTitle';
-import { RFValue } from 'react-native-responsive-fontsize';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -19,9 +19,9 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import WalletDetails from './WalletDetails';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import WalletDetails from './WalletDetails';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -41,8 +41,7 @@ function AddSendAmount({ route }) {
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
-  const [recipientCount, setReicipientCount] = useState(1);
-
+  const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
@@ -99,7 +98,7 @@ function AddSendAmount({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         title={
-          transferType == TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
+          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
         }
         // subtitle={`Sending to ${address}`}
       />
@@ -119,9 +118,9 @@ function AddSendAmount({ route }) {
         style={{
           marginVertical: hp(10),
         }}
-      ></Box>
+      />
       <Box marginX={3}>
-        <Box backgroundColor="light.lightYellow" style={styles.inputWrapper}>
+        <Box backgroundColor="light.primaryBackground" style={styles.inputWrapper}>
           <Box flexDirection="row" alignItems="center">
             <Box marginRight={2}>
               <BitcoinInput />
@@ -129,7 +128,7 @@ function AddSendAmount({ route }) {
             <Box
               marginLeft={2}
               width={0.5}
-              backgroundColor="light.borderSaperator"
+              backgroundColor="light.divider"
               opacity={0.3}
               height={7}
             />
@@ -139,9 +138,9 @@ function AddSendAmount({ route }) {
               color="light.greenText"
               opacity={0.5}
               width="70%"
-              fontSize={RFValue(12)}
+              fontSize={12}
               letterSpacing={1.04}
-              fontWeight={300}
+              bold
               borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}
@@ -188,7 +187,7 @@ function AddSendAmount({ route }) {
           clear={() => setAmount('')}
           color="#073E39"
           height={windowHeight > 670 ? 85 : 65}
-          darkDeleteIcon={true}
+          darkDeleteIcon
         />
       </Box>
       {/* )} */}
@@ -201,7 +200,7 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '100%',
-    backgroundColor: Colors?.textInputBackground,
+    backgroundColor: Colors.Isabelline,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
@@ -233,7 +232,7 @@ const styles = ScaledSheet.create({
     borderRadius: 5,
   },
   sendMaxText: {
-    fontSize: RFValue(12),
+    fontSize: 12,
     letterSpacing: 0.6,
     fontWeight: '500',
   },

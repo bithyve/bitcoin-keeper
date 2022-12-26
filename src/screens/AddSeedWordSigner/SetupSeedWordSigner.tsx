@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 
@@ -32,9 +33,9 @@ function SetupSeedWordSigner({ route, navigation }) {
         }}
       >
         <Box
-          backgroundColor="light.lightYellow"
+          backgroundColor="light.primaryBackground"
           flexDirection="row"
-          justifyContent={'space-evenly'}
+          justifyContent="space-evenly"
           padding={4}
           borderRadius={10}
           marginX={3}
@@ -43,7 +44,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         >
           <Text
             fontSize={20}
-            fontWeight={300}
+            bold
             letterSpacing={1.64}
             // marginRight={3}
             color="light.greenText2"
@@ -51,13 +52,7 @@ function SetupSeedWordSigner({ route, navigation }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text
-            fontSize={20}
-            fontWeight={200}
-            backgroundColor="green.700"
-            letterSpacing={1}
-            color="light.seedText"
-          >
+          <Text fontSize={20} backgroundColor="green.700" letterSpacing={1} color="light.GreyText">
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -105,7 +100,6 @@ function SetupSeedWordSigner({ route, navigation }) {
           marginX={2}
           marginTop={5}
           fontSize={12}
-          fontWeight={200}
           letterSpacing={0.6}
           marginRight={10}
           color="light.GreyText"

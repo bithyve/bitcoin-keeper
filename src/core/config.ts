@@ -36,33 +36,33 @@ const DEFAULT_CONFIG = {
 };
 
 class Configuration {
-  public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER
+  public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER?.trim()
     ? config.TESTNET_WRAPPER.trim()
     : DEFAULT_CONFIG.TESTNET_WRAPPER;
 
-  public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER
+  public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER?.trim()
     ? config.MAINNET_WRAPPER.trim()
     : DEFAULT_CONFIG.MAINNET_WRAPPER;
 
-  public RELAY = config.RELAY ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
+  public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
 
-  public SIGNING_SERVER = config.SIGNING_SERVER
+  public SIGNING_SERVER = config.SIGNING_SERVER?.trim()
     ? config.SIGNING_SERVER.trim()
     : DEFAULT_CONFIG.SIGNING_SERVER;
 
-  public AUTH_ID: string = config.AUTH_ID ? config.AUTH_ID.trim() : DEFAULT_CONFIG.AUTH_ID;
+  public AUTH_ID: string = config.AUTH_ID?.trim() ? config.AUTH_ID.trim() : DEFAULT_CONFIG.AUTH_ID;
 
-  public HEXA_ID: string = config.HEXA_ID ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
+  public HEXA_ID: string = config.HEXA_ID?.trim() ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
 
   public BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH = `m/83696968'/39'/0'/12'/83696968'`;
 
   public VAC_CHILD_INDEX: number = 3012009;
 
-  public ENC_KEY_STORAGE_IDENTIFIER: string = config.ENC_KEY_STORAGE_IDENTIFIER
+  public ENC_KEY_STORAGE_IDENTIFIER: string = config.ENC_KEY_STORAGE_IDENTIFIER?.trim()
     ? config.ENC_KEY_STORAGE_IDENTIFIER.trim()
     : DEFAULT_CONFIG.ENC_KEY_STORAGE_IDENTIFIER;
 
-  public SENTRY_DNS: string = config.SENTRY_DNS
+  public SENTRY_DNS: string = config.SENTRY_DNS?.trim()
     ? config.SENTRY_DNS.trim()
     : DEFAULT_CONFIG.SENTRY_DNS;
 
@@ -93,7 +93,7 @@ class Configuration {
     baseURL: this.RELAY,
     timeout: this.REQUEST_TIMEOUT * 3,
     headers: {
-      'HEXA-ID': config.HEXA_ID ? config.HEXA_ID : DEFAULT_CONFIG.HEXA_ID,
+      'HEXA-ID': config.HEXA_ID?.trim() ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID,
       appVersion: DeviceInfo.getVersion(),
       buildNumber: DeviceInfo.getBuildNumber(),
       os: Platform.OS,
@@ -111,12 +111,14 @@ class Configuration {
 
   public ENVIRONMENT: string;
 
-  public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN ? config.INSTABUG_TOKEN : '';
+  public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN?.trim() ? config.INSTABUG_TOKEN.trim() : '';
 
   constructor() {
     this.NETWORK = bitcoinJS.networks.testnet;
     this.NETWORK_TYPE = NetworkType.TESTNET;
-    this.ENVIRONMENT = config.ENVIRONMENT ? config.ENVIRONMENT : DEFAULT_CONFIG.ENVIRONMENT;
+    this.ENVIRONMENT = config.ENVIRONMENT?.trim()
+      ? config.ENVIRONMENT.trim()
+      : DEFAULT_CONFIG.ENVIRONMENT;
   }
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {

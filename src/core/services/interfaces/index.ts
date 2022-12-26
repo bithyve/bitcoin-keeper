@@ -21,13 +21,13 @@ export interface SingerVerification {
 }
 
 export interface SignerRestriction {
-  none: Boolean;
-  maxTransactionAmount?: Number; // max amount for an outgoing transaction
+  none: boolean;
+  maxTransactionAmount?: number; // max amount for an outgoing transaction
 }
 
 export interface SignerException {
-  none: Boolean;
-  transactionAmount?: Number; // max tx amount till no verification is needed
+  none: boolean;
+  transactionAmount?: number; // max tx amount till no verification is needed
 }
 
 export interface SignerPolicy {

@@ -1,5 +1,7 @@
-import { Alert, StyleSheet, TextInput } from 'react-native';
-import { Box, Text } from 'native-base';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Box } from 'native-base';
+import Text from 'src/components/KeeperText';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
@@ -88,7 +90,7 @@ function SetupTapsigner() {
       } else {
         message = err.toString();
       }
-      NFC.showiOSMessage(message);
+      if (Platform.OS === 'ios') NFC.showiOSMessage(message);
       showToast(message, null, 2000, true);
       closeNfc();
       card.endNfcSession();
@@ -129,20 +131,19 @@ function SetupTapsigner() {
             />
             <Text
               padding={5}
-              fontWeight={200}
               width={wp(250)}
               fontSize={13}
               letterSpacing={0.65}
-              color="light.modalText"
+              color="light.greenText"
             >
               You will be scanning the TAPSIGNER after this step
             </Text>
             <Box
               style={{
                 flex: 1,
-                justifyContent: "flex-end",
-                flexDirection: "row",
-                marginRight: wp(15)
+                justifyContent: 'flex-end',
+                flexDirection: 'row',
+                marginRight: wp(15),
               }}
             >
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />

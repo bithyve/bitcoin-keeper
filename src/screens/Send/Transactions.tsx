@@ -1,5 +1,5 @@
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
@@ -10,6 +10,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/icons/modal_close.svg';
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => {} }) {
   const navigation = useNavigation();
@@ -36,51 +37,43 @@ function Transactions({ transactions, addTransaction = () => {} }) {
     const { address, amount } = item;
     return (
       <Box
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ marginRight: wp(10) }}
-          flexDirection="row"
-          backgroundColor="light.lightYellow"
-          width={wp(215)}
-          height={hp(54)}
-          borderRadius={10}
-        >
-          <Box flexDirection="row">
-            <TouchableOpacity style={styles.buttonBackground}>
-              <IconWallet />
-            </TouchableOpacity>
-            <Box marginLeft={wp(10)}>
-              <Text
-                fontFamily="body"
-                fontWeight="200"
-                fontSize={14}
-                mt="1"
-                numberOfLines={1}
-                letterSpacing={1.12}
-                color="light.sendCardHeading"
-                width={wp(100)}
-              >
-                {address}
-              </Text>
-              <Text
-                fontFamily="body"
-                fontWeight="200"
-                fontStyle="italic"
-                fontSize={10}
-                numberOfLines={1}
-              >
-                {amount}
-              </Text>
-            </Box>
-          </Box>
-          <TouchableOpacity
-            style={{
-              marginRight: wp(5),
-            }}
-          >
-            <Close />
+        justifyContent="space-between"
+        alignItems="center"
+        style={{ marginRight: wp(10) }}
+        flexDirection="row"
+        backgroundColor="light.primaryBackground"
+        width={wp(215)}
+        height={hp(54)}
+        borderRadius={10}
+      >
+        <Box flexDirection="row">
+          <TouchableOpacity style={styles.buttonBackground}>
+            <IconWallet />
           </TouchableOpacity>
+          <Box marginLeft={wp(10)}>
+            <Text
+              fontSize={14}
+              mt="1"
+              numberOfLines={1}
+              letterSpacing={1.12}
+              color="light.sendCardHeading"
+              width={wp(100)}
+            >
+              {address}
+            </Text>
+            <Text fontSize={10} numberOfLines={1} style={styles.amount}>
+              {amount}
+            </Text>
+          </Box>
         </Box>
+        <TouchableOpacity
+          style={{
+            marginRight: wp(5),
+          }}
+        >
+          <Close />
+        </TouchableOpacity>
+      </Box>
     );
   };
   return (
@@ -112,6 +105,9 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: wp(10),
+  },
+  amount: {
+    fontStyle: 'italic',
   },
 });
 export default Transactions;

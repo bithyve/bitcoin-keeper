@@ -10,10 +10,7 @@ export class Merkle {
   private rootNode: Node;
   private leafNodes: Node[];
   private h: (buf: Buffer) => Buffer;
-  constructor(
-    leaves: Buffer[],
-    hasher: (buf: Buffer) => Buffer = crypto.sha256
-  ) {
+  constructor(leaves: Buffer[], hasher: (buf: Buffer) => Buffer = crypto.sha256) {
     this.leaves = leaves;
     this.h = hasher;
     const nodes = this.calculateRoot(leaves);
@@ -42,13 +39,13 @@ export class Merkle {
     leaves: Node[];
   } {
     const n = leaves.length;
-    if (n == 0) {
+    if (n === 0) {
       return {
         root: new Node(undefined, undefined, Buffer.alloc(32, 0)),
         leaves: [],
       };
     }
-    if (n == 1) {
+    if (n === 1) {
       const newNode = new Node(undefined, undefined, leaves[0]);
       return { root: newNode, leaves: [newNode] };
     }
@@ -76,11 +73,7 @@ export function hashLeaf(
   return hashConcat(Buffer.from([0]), buf, hashFunction);
 }
 
-function hashConcat(
-  bufA: Buffer,
-  bufB: Buffer,
-  hashFunction: (buf: Buffer) => Buffer
-): Buffer {
+function hashConcat(bufA: Buffer, bufB: Buffer, hashFunction: (buf: Buffer) => Buffer): Buffer {
   return hashFunction(Buffer.concat([bufA, bufB]));
 }
 
@@ -95,7 +88,7 @@ class Node {
     this.hash = hash;
   }
   isLeaf(): boolean {
-    return this.leftChild == undefined;
+    return this.leftChild === undefined;
   }
 }
 
@@ -103,7 +96,7 @@ function proveNode(node: Node): Buffer[] {
   if (!node.parent) {
     return [];
   }
-  if (node.parent.leftChild == node) {
+  if (node.parent.leftChild === node) {
     if (!node.parent.rightChild) {
       throw new Error('Expected right child to exist');
     }
@@ -127,5 +120,5 @@ function highestPowerOf2LessThan(n: number) {
 }
 
 function isPowerOf2(n: number): boolean {
-  return (n & (n - 1)) == 0;
+  return (n & (n - 1)) === 0;
 }

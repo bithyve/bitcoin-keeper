@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
-import { RFValue } from 'react-native-responsive-fontsize';
 import { LocalizationContext } from 'src/common/content/LocContext';
+import Text from 'src/components/KeeperText';
 import Buttons from '../Buttons';
 
 function SkipHealthCheck(props) {
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
-  const {common} = translations;
+  const { BackupWallet } = translations;
+  const { common } = translations;
   return (
     <Box bg="#F7F2EC" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
@@ -29,18 +29,18 @@ function SkipHealthCheck(props) {
         </Box>
       </TouchableOpacity>
       <Box p={10}>
-        <Text fontSize={RFValue(19)} color="light.lightBlack" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.skipHealthCheckTitle}
         </Text>
-        <Text fontSize={RFValue(13)} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.skipHealthCheckSubTitle}
         </Text>
       </Box>
       <Box p={10}>
-        <Text fontSize={RFValue(13)} color="light.lightBlack" fontFamily="body" mb={5} mt={10}>
+        <Text fontSize={13} color="light.primaryText" mb={5} mt={10}>
           {BackupWallet.skipHealthCheckPara01}
         </Text>
-        <Text fontSize={RFValue(13)} color="light.lightBlack" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.skipHealthCheckPara02}
         </Text>
       </Box>

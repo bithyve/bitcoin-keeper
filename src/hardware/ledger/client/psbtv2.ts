@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import {
-  BufferReader,
-  BufferWriter,
-  unsafeFrom64bitLE,
-  unsafeTo64bitLE,
-} from './buffertools';
+import { BufferReader, BufferWriter, unsafeFrom64bitLE, unsafeTo64bitLE } from './buffertools';
 import { sanitizeBigintToNumber } from './varint';
 
 export enum psbtGlobal {
@@ -76,9 +71,7 @@ export class PsbtV2 {
     this.setGlobal(psbtGlobal.FALLBACK_LOCKTIME, uint32LE(locktime));
   }
   getGlobalFallbackLocktime(): number | undefined {
-    return this.getGlobalOptional(psbtGlobal.FALLBACK_LOCKTIME)?.readUInt32LE(
-      0
-    );
+    return this.getGlobalOptional(psbtGlobal.FALLBACK_LOCKTIME)?.readUInt32LE(0);
   }
   setGlobalInputCount(inputCount: number) {
     this.setGlobal(psbtGlobal.INPUT_COUNT, varint(inputCount));
@@ -111,11 +104,7 @@ export class PsbtV2 {
   getInputNonWitnessUtxo(inputIndex: number): Buffer | undefined {
     return this.getInputOptional(inputIndex, psbtIn.NON_WITNESS_UTXO, b());
   }
-  setInputWitnessUtxo(
-    inputIndex: number,
-    amount: Buffer,
-    scriptPubKey: Buffer
-  ) {
+  setInputWitnessUtxo(inputIndex: number, amount: Buffer, scriptPubKey: Buffer) {
     const buf = new BufferWriter();
     buf.writeSlice(amount);
     buf.writeVarSlice(scriptPubKey);
@@ -155,8 +144,7 @@ export class PsbtV2 {
     masterFingerprint: Buffer,
     path: readonly number[]
   ) {
-    if (pubkey.length != 33)
-      throw new Error('Invalid pubkey length: ' + pubkey.length);
+    if (pubkey.length !== 33) throw new Error('Invalid pubkey length: ' + pubkey.length);
     this.setInput(
       inputIndex,
       psbtIn.BIP32_DERIVATION,
@@ -167,14 +155,8 @@ export class PsbtV2 {
   getInputBip32Derivation(
     inputIndex: number,
     pubkey: Buffer
-  ):
-    | { readonly masterFingerprint: Buffer; readonly path: readonly number[] }
-    | undefined {
-    const buf = this.getInputOptional(
-      inputIndex,
-      psbtIn.BIP32_DERIVATION,
-      pubkey
-    );
+  ): { readonly masterFingerprint: Buffer; readonly path: readonly number[] } | undefined {
+    const buf = this.getInputOptional(inputIndex, psbtIn.BIP32_DERIVATION, pubkey);
     if (!buf) return undefined;
     return this.decodeBip32Derivation(buf);
   }
@@ -206,11 +188,7 @@ export class PsbtV2 {
     this.setInput(inputIndex, psbtIn.SEQUENCE, b(), uint32LE(sequence));
   }
   getInputSequence(inputIndex: number): number {
-    return (
-      this.getInputOptional(inputIndex, psbtIn.SEQUENCE, b())?.readUInt32LE(
-        0
-      ) ?? 0xffffffff
-    );
+    return this.getInputOptional(inputIndex, psbtIn.SEQUENCE, b())?.readUInt32LE(0) ?? 0xffffffff;
   }
   setInputTapKeySig(inputIndex: number, sig: Buffer) {
     this.setInput(inputIndex, psbtIn.TAP_KEY_SIG, b(), sig);
@@ -225,8 +203,7 @@ export class PsbtV2 {
     masterFingerprint: Buffer,
     path: readonly number[]
   ) {
-    if (pubkey.length != 32)
-      throw new Error('Invalid pubkey length: ' + pubkey.length);
+    if (pubkey.length !== 32) throw new Error('Invalid pubkey length: ' + pubkey.length);
     const buf = this.encodeTapBip32Derivation(hashes, masterFingerprint, path);
     this.setInput(inputIndex, psbtIn.TAP_BIP32_DERIVATION, pubkey, buf);
   }
@@ -302,11 +279,7 @@ export class PsbtV2 {
     readonly masterFingerprint: Buffer;
     readonly path: readonly number[];
   } {
-    const buf = this.getOutput(
-      outputIndex,
-      psbtOut.TAP_BIP32_DERIVATION,
-      pubkey
-    );
+    const buf = this.getOutput(outputIndex, psbtOut.TAP_BIP32_DERIVATION, pubkey);
     return this.decodeTapBip32Derivation(buf);
   }
 
@@ -324,10 +297,7 @@ export class PsbtV2 {
     this.copyMaps(this.inputMaps, to.inputMaps);
     this.copyMaps(this.outputMaps, to.outputMaps);
   }
-  copyMaps(
-    from: readonly ReadonlyMap<string, Buffer>[],
-    to: Map<string, Buffer>[]
-  ) {
+  copyMaps(from: readonly ReadonlyMap<string, Buffer>[], to: Map<string, Buffer>[]) {
     from.forEach((m, index) => {
       const to_index = new Map();
       this.copyMap(m, to_index);
@@ -366,7 +336,7 @@ export class PsbtV2 {
   }
   private readKeyPair(map: Map<string, Buffer>, buf: BufferReader): boolean {
     const keyLen = sanitizeBigintToNumber(buf.readVarInt());
-    if (keyLen == 0) {
+    if (keyLen === 0) {
       return false;
     }
     const keyType = buf.readUInt8();
@@ -375,10 +345,7 @@ export class PsbtV2 {
     set(map, keyType, keyData, value);
     return true;
   }
-  private getKeyDatas(
-    map: ReadonlyMap<string, Buffer>,
-    keyType: KeyType
-  ): readonly Buffer[] {
+  private getKeyDatas(map: ReadonlyMap<string, Buffer>, keyType: KeyType): readonly Buffer[] {
     const result: Buffer[] = [];
     map.forEach((_v, k) => {
       if (this.isKeyType(k, [keyType])) {
@@ -389,7 +356,7 @@ export class PsbtV2 {
   }
   private isKeyType(hexKey: string, keyTypes: readonly KeyType[]): boolean {
     const keyType = Buffer.from(hexKey.substring(0, 2), 'hex').readUInt8(0);
-    return keyTypes.some((k) => k == keyType);
+    return keyTypes.some((k) => k === keyType);
   }
   private setGlobal(keyType: KeyType, value: Buffer) {
     const key = new Key(keyType, Buffer.from([]));
@@ -401,48 +368,28 @@ export class PsbtV2 {
   private getGlobalOptional(keyType: KeyType): Buffer | undefined {
     return get(this.globalMap, keyType, b(), true);
   }
-  private setInput(
-    index: number,
-    keyType: KeyType,
-    keyData: Buffer,
-    value: Buffer
-  ) {
+  private setInput(index: number, keyType: KeyType, keyData: Buffer, value: Buffer) {
     set(this.getMap(index, this.inputMaps), keyType, keyData, value);
   }
   private getInput(index: number, keyType: KeyType, keyData: Buffer): Buffer {
     return get(this.inputMaps[index], keyType, keyData, false)!;
   }
-  private getInputOptional(
-    index: number,
-    keyType: KeyType,
-    keyData: Buffer
-  ): Buffer | undefined {
+  private getInputOptional(index: number, keyType: KeyType, keyData: Buffer): Buffer | undefined {
     return get(this.inputMaps[index], keyType, keyData, true);
   }
-  private setOutput(
-    index: number,
-    keyType: KeyType,
-    keyData: Buffer,
-    value: Buffer
-  ) {
+  private setOutput(index: number, keyType: KeyType, keyData: Buffer, value: Buffer) {
     set(this.getMap(index, this.outputMaps), keyType, keyData, value);
   }
   private getOutput(index: number, keyType: KeyType, keyData: Buffer): Buffer {
     return get(this.outputMaps[index], keyType, keyData, false)!;
   }
-  private getMap(
-    index: number,
-    maps: Map<string, Buffer>[]
-  ): Map<string, Buffer> {
+  private getMap(index: number, maps: Map<string, Buffer>[]): Map<string, Buffer> {
     if (maps[index]) {
       return maps[index];
     }
     return (maps[index] = new Map());
   }
-  private encodeBip32Derivation(
-    masterFingerprint: Buffer,
-    path: readonly number[]
-  ) {
+  private encodeBip32Derivation(masterFingerprint: Buffer, path: readonly number[]) {
     const buf = new BufferWriter();
     this.writeBip32Derivation(buf, masterFingerprint, path);
     return buf.buffer();
@@ -571,12 +518,7 @@ function serializeMap(buf: BufferWriter, map: ReadonlyMap<string, Buffer>) {
 function b(): Buffer {
   return Buffer.from([]);
 }
-function set(
-  map: Map<string, Buffer>,
-  keyType: KeyType,
-  keyData: Buffer,
-  value: Buffer
-) {
+function set(map: Map<string, Buffer>, keyType: KeyType, keyData: Buffer, value: Buffer) {
   const key = new Key(keyType, keyData);
   map.set(key.toString(), value);
 }

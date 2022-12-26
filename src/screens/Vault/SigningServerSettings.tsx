@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Text, Pressable } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 // components and functions
@@ -36,22 +36,10 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
         </Box>
       )}
       <Box w={Icon ? '80%' : '96%'}>
-        <Text
-          color="light.lightBlack"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={RFValue(14)}
-          letterSpacing={1.12}
-        >
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={RFValue(12)}
-          letterSpacing={0.6}
-        >
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -110,28 +98,13 @@ function SigningServerSettings({ route }) {
             <GradientIcon Icon={Server} height={hp(48)} />
           </Box>
           <Box>
-            <Text
-              color="light.white"
-              letterSpacing={0.28}
-              fontSize={RFValue(14)}
-              fontWeight={200}
-            >
+            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
               {signingServerName}
             </Text>
-            <Text
-              color="light.vaultCardText"
-              letterSpacing={1}
-              fontSize={RFValue(10)}
-              fontWeight={200}
-            >
+            <Text color="light.vaultCardText" letterSpacing={1} fontSize={10}>
               {addedOn}
             </Text>
-            <Text
-              color="light.vaultCardText"
-              letterSpacing={0.6}
-              fontSize={RFValue(12)}
-              fontWeight={200}
-            >
+            <Text color="light.vaultCardText" letterSpacing={0.6} fontSize={12}>
               {signingServerDescription}
             </Text>
           </Box>

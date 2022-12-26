@@ -1,28 +1,25 @@
 import React from 'react';
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Text, View, Box } from 'native-base';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { View, Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => { },
-  secondaryCallback = () => { },
+  primaryCallback = () => {},
+  secondaryCallback = () => {},
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
   paddingHorizontal = wp(40),
-  activeOpacity = 0
+  activeOpacity = 0,
 }) {
-
   const getPrimaryButton = () => {
     if (primaryLoading) {
-      return (
-        <ActivityIndicator style={styles.createBtn} />
-      );
+      return <ActivityIndicator style={styles.createBtn} />;
     }
     return (
       <TouchableOpacity
@@ -30,59 +27,46 @@ function Buttons({
         disabled={primaryDisable}
         activeOpacity={activeOpacity}
       >
-        <Shadow
-          distance={10}
-          startColor="#073E3926"
-          offset={[3, 4]}
-        >
+        <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
           <Box
             style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
             bg={{
               linearGradient: {
-                colors: ['light.lgStart', 'light.lgEnd'],
+                colors: ['light.gradientStart', 'light.gradientEnd'],
                 start: [0, 0],
-                end: [1, 1]
-              }
+                end: [1, 1],
+              },
             }}
           >
-            <Text
-              numberOfLines={1}
-              style={styles.btnText}
-              color="light.white"
-            >
+            <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
               {primaryText}
             </Text>
           </Box>
         </Shadow>
       </TouchableOpacity>
     );
-  }
+  };
 
   return (
-    <View
-      style={styles.container}
-    >
-      {secondaryText != '' && (
+    <View style={styles.container}>
+      {secondaryText !== '' && (
         <TouchableOpacity
-          style={[styles.cancelBtn, {
-            opacity: secondaryDisable ? 0.5 : 1
-          }]}
+          style={[
+            styles.cancelBtn,
+            {
+              opacity: secondaryDisable ? 0.5 : 1,
+            },
+          ]}
           onPress={secondaryCallback}
           disabled={secondaryDisable}
           activeOpacity={0.5}
         >
-          <Text
-            numberOfLines={1}
-            style={styles.btnText}
-            color="light.greenText"
-          >
+          <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
             {secondaryText}
           </Text>
         </TouchableOpacity>
       )}
-      {primaryText ? (
-        getPrimaryButton()
-      ) : null}
+      {primaryText ? getPrimaryButton() : null}
     </View>
   );
 }
@@ -103,9 +87,8 @@ const styles = ScaledSheet.create({
     borderRadius: '10@s',
   },
   btnText: {
-    fontSize: RFValue(14),
+    fontSize: 14,
     letterSpacing: 0.84,
-    fontWeight: 'bold',
-  }
+  },
 });
 export default Buttons;

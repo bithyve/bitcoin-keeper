@@ -227,7 +227,7 @@
     "Transferbitcoincustody": "Transfer bitcoin custody",
     "ActivateTransfer": "Activate Transfer",
     "Thebestinheritance": "The best inheritance in history",
-    "UpgradetoElitetier": "Upgrade to Elite tier and setup the vault with 5 Signers",
+    "UpgradetoElitetier": "Upgrade to Elite tier and setup the vault with 5 signing devices",
     "ActivateInheritance": "Activate Inheritance",
     "Downloadandsafelykeepinheritencedocuments": "Download and safely keep inheritence documents. Safekeeping best practices. Will template for digital assets. Inheritance recovery instructions",
     "Setupfalserecoveryalert": "Setup false recovery alert (optional)",
@@ -235,7 +235,7 @@
     "IndependentRecovery": "Independent Recovery",
     "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your vault even without the Keeper app or any service from the company",
     "Practicehealthcheck": "Practice health check",
-    "Makessureyousignersareaccessible": "Make sure you signers are accessible. Change them if that is not the case"
+    "Makessureyousignersareaccessible": "Make sure you signing devices are accessible. Change them if that is not the case"
   },
   "wallet": {
     "Createwallet": "Create a wallet",
@@ -289,10 +289,10 @@
     "SetupyourVault": "Setup your vault",
     "VaultDesc": "A signing device is an an air gapped device which helps you keep your vault safe",
     "SetupNow": "Setup Now",
-    "Addsigner": "Add a signer",
+    "Addsigner": "Add a signing device",
     "Vault": "Vault",
     "Yoursupersecurebitcoin": "Your super secure bitcoin",
-    "MySigners": "My Signers",
+    "MySigners": "My signing devices",
     "Usedforsecuringfunds": "Used for securing funds",
     "Inheritance": "Inheritance",
     "Setupinheritancetoyoursats": "Set up inheritance to your sats",
@@ -444,7 +444,7 @@
     "security": "security",
     "privacy": "privacy",
     "slide01Title": "for\n your bitcoin keys",
-    "slide01Paragraph": "Keeper works with most of the trusted hardware signers which hold your keys in an air-gapped and/ or multisig manner",
+    "slide01Paragraph": "Keeper works with most of the trusted hardware signing devices which hold your keys in an air-gapped and/ or multisig manner",
     "slide02Title": "Security should not\ncome at the cost of",
     "slide02Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
@@ -452,7 +452,7 @@
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
     "slide04Paragraph": "BIP 85 hot wallets, auto-transfer to vault, buy bitcoin directly in to your cold storage, and much more",
     "slide05Title": "Works just with the mobile app,\nno computer needed",
-    "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signers, without any intermediate step",
+    "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signing devices, without any intermediate step",
     "slide06Title": "Affordable plans\nand a great offer",
     "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your vault now."
   },
