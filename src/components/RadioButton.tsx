@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -23,26 +23,32 @@ const RadioButton: React.FC<Props> = ({
   ignoresTouch = false,
   onpress = () => {},
 }: Props) => {
-  const containerStyle = useMemo(() => ({
+  const containerStyle = useMemo(
+    () => ({
       ...styles.rootContainer,
       borderColor,
       borderRadius: size / 2,
       height: size,
       width: size,
-    }), [
-    // borderColor,
-    size,
-  ]);
+    }),
+    [
+      // borderColor,
+      size,
+    ]
+  );
 
-  const innerCircleStyle = useMemo(() => ({
+  const innerCircleStyle = useMemo(
+    () => ({
       // backgroundColor: color,
       borderRadius: size / 2,
       height: size - 5,
       width: size - 5,
-    }), [
-    // color,
-    size,
-  ]);
+    }),
+    [
+      // color,
+      size,
+    ]
+  );
 
   return (
     <TouchableOpacity
@@ -53,9 +59,9 @@ const RadioButton: React.FC<Props> = ({
     >
       <LinearGradient
         style={{ ...styles.createBtn }}
-        start={{ x: 0.8, y: 0.1 }}
-        end={{ x: 0.35, y: 0.9 }}
-        colors={['#00836A', '#073E39']}
+        start={[0.8, 0.1]}
+        end={[0.35, 0.9]}
+        colors={['light.gradientStart', 'light.gradientEnd']}
       >
         {isChecked && <View style={innerCircleStyle} />}
       </LinearGradient>

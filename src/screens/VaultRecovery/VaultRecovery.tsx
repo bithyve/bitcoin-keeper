@@ -31,7 +31,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX="4" maxW="64">
+              <VStack marginX="4" maxWidth="64">
                 <Text
                   color="light.primaryText"
                   fontSize={15}
@@ -46,7 +46,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
                 </Text>
               </VStack>
             </HStack>
-            <Box w="15%" alignItems="center">
+            <Box width="15%" alignItems="center">
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -62,14 +62,14 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
             width="8"
             height="8"
             borderRadius={30}
-            bg="#725436"
+            backgroundColor="#725436"
             justifyContent="center"
             alignItems="center"
             alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxW="80%">
+          <VStack marginX="4" maxWidth="80%">
             <Text
               color="light.primaryText"
               fontSize={15}
@@ -136,7 +136,7 @@ function VaultRecovery() {
         <Box alignSelf="center">
           <SuccessSvg />
         </Box>
-        <Text color="#073B36" fontSize={13} p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           The BIP-85 wallets in the app are new as they can’t be recovered using this method
         </Text>
       </View>

@@ -73,7 +73,7 @@ function ConfirmSeedWord(props) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" p={10} borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" padding={10} borderRadius={10}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.confirmSeedWord}

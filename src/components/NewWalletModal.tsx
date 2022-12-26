@@ -1,7 +1,7 @@
 import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -28,14 +28,14 @@ function NewWalletModal(props) {
     cloudButton = 'cloud Button',
     cloudButtonDesc = 'cloud Button Desc',
     mainDesc = 'main Desc',
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
-    buttonBackground = ['#00836A', '#073E39'],
+    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = 'Button text',
     buttonCancel = 'Button Cancel',
     buttonTextColor = 'white',
     buttonCancelColor = 'buttonCancel',
     buttonCallback = props.close || null,
-    textColor = '#000',
+    textColor = 'light.secondaryText',
     checkBoxColor = '#D8A572',
   } = props;
   const { bottom } = useSafeAreaInsets();
@@ -84,30 +84,30 @@ function NewWalletModal(props) {
         <View style={{ backgroundColor: '#FDF7F0', marginVertical: 20 }}>
           <Box flexDirection="row" marginY={5} alignSelf="center">
             {IconName}
-            <Text color="#4F5955" marginLeft={5} marginTop={1}>
+            <Text color="light.GreyText" marginLeft={5} marginTop={1}>
               dastanp@gmail.com
             </Text>
           </Box>
           <Box flexDirection="row" justifyContent="space-between">
             <View>
-              <Text fontSize={12} color="#4F5955">
+              <Text fontSize={12} color="light.GreyText">
                 Folder: Blue Wallet Backup
               </Text>
-              <Text fontSize={12} color="#4F5955">
+              <Text fontSize={12} color="light.GreyText">
                 Pro Tier Backup
               </Text>
             </View>
             <View>
-              <Text fontSize={12} color="#4F5955">
+              <Text fontSize={12} color="light.GreyText">
                 Backed Up
               </Text>
-              <Text fontSize={12} color="#4F5955">
+              <Text fontSize={12} color="light.GreyText">
                 July 15, 2021
               </Text>
             </View>
           </Box>
         </View>
-        <Text color="#073B36" fontSize={13} p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -125,8 +125,8 @@ function NewWalletModal(props) {
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          start={[0, 0]}
+          end={[1, 1]}
           colors={modalBackground}
           style={styles.container}
         >
@@ -201,11 +201,11 @@ function NewWalletModal(props) {
             </Text>
           </Modal.Body>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Box bg="transparent" flexDirection="row" marginLeft={5} marginTop={4}>
+            <Box backgroundColor="transparent" flexDirection="row" marginLeft={5} marginTop={4}>
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
-            <Box bg="transparent" flexDirection="row" marginRight={5}>
+            <Box backgroundColor="transparent" flexDirection="row" marginRight={5}>
               <TouchableOpacity onPress={buttonCallback}>
                 <Text
                   fontSize={13}
@@ -220,8 +220,8 @@ function NewWalletModal(props) {
               </TouchableOpacity>
               <TouchableOpacity onPress={onPress}>
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
                   colors={buttonBackground}
                   style={styles.cta}
                 >
@@ -238,24 +238,12 @@ function NewWalletModal(props) {
           close={close}
           title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
           subTitle={seed.seedDescription}
-          buttonBackground={['#00836A', '#073E39']}
           buttonText="Next"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={passwordScreen}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={RecoverWalletScreen}
         />
-        {/* <PasswordModal
-          visible={passwordModal}
-          closePasswordModal={closePassword}
-          title={'Confirm Password'}
-          subTitle={seed.seedDescription}
-          dscription={seed.seedDescription}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText={'Next'}
-          buttonTextColor={'#FAFAFA'}
-          textColor={'#041513'}
-        /> */}
       </Modal.Content>
     </Modal>
   );
@@ -279,7 +267,6 @@ const styles = StyleSheet.create({
     // letterSpacing: 1,
   },
   subTitle2: {
-    color: '#5F6965',
     fontSize: 15,
   },
   cta: {

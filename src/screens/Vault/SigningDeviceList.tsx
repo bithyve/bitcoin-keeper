@@ -182,10 +182,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
           >
             <Box style={styles.walletMapContainer}>
               <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
-              <Box
-                backgroundColor="light.divider"
-                style={styles.divider}
-              />
+              <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {WalletMap(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
@@ -263,10 +260,9 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
           title="NFC Not supported"
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-          buttonBackground={['#00836A', '#073E39']}
           buttonText="  CTA  "
-          buttonTextColor="#FAFAFA"
-          textColor="#041513"
+          buttonTextColor="light.white"
+          textColor="light.primaryText"
           Content={nfcAlertConternt}
         />
         <KeeperModal
@@ -276,14 +272,14 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
           title="Signing Devices"
           subTitle="A signing device is a piece of hardware or software that stores one of the private keys needed for your vault"
-          modalBackground={['#00836A', '#073E39']}
+          modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
-          buttonTextColor="#073E39"
+          buttonTextColor="light.greenText"
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
-          textColor="#FFF"
+          textColor="light.white"
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
@@ -345,7 +341,7 @@ const styles = StyleSheet.create({
   divider: {
     opacity: 0.5,
     height: hp(26),
-    width: 1.5
+    width: 1.5,
   },
   italics: {
     fontStyle: 'italic',

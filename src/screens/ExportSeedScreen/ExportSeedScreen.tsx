@@ -74,7 +74,7 @@ function ExportSeedScreen({ route, navigation }) {
   );
 
   return (
-    <Box style={styles.container} background="light.ReceiveBackground">
+    <Box style={styles.container} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title={seedText.recoveryPhrase}

@@ -143,7 +143,7 @@ function SetupSigningServer({ route }: { route }) {
   }, [otp]);
 
   return (
-    <View style={styles.Container} background="light.ReceiveBackground">
+    <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
@@ -248,7 +248,7 @@ function SetupSigningServer({ route }: { route }) {
         }}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signing server"
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={otpContent}
       />
     </View>

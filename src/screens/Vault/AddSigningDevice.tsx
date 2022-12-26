@@ -76,18 +76,11 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   if (!signer) {
     return (
       <Pressable onPress={navigateToSignerList}>
-        <Box
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginHorizontal: 10,
-            marginBottom: hp(25),
-          }}
-        >
+        <Box style={styles.signerItemContainer}>
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX="4" maxW="64">
+              <VStack marginX="4" maxWidth="64">
                 <Text
                   color="light.primaryText"
                   fontSize={15}
@@ -102,7 +95,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                 </Text>
               </VStack>
             </HStack>
-            <Box w="15%" alignItems="center">
+            <Box style={styles.backArrow}>
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -133,14 +126,14 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             width="8"
             height="8"
             borderRadius={30}
-            bg="#725436"
+            backgroundColor="#725436"
             justifyContent="center"
             alignItems="center"
             alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxW="80%">
+          <VStack marginX="4" maxWidth="80%">
             <Text
               color="light.primaryText"
               fontSize={15}
@@ -353,6 +346,12 @@ function AddSigningDevice() {
 }
 
 const styles = ScaledSheet.create({
+  signerItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: hp(25),
+  },
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -389,6 +388,10 @@ const styles = ScaledSheet.create({
   },
   descriptionContainer: {
     width: width * 0.8,
+  },
+  backArrow: {
+    width: '15%',
+    alignItems: 'center',
   },
 });
 

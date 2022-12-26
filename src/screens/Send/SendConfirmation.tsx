@@ -139,7 +139,7 @@ function SendConfirmation({ route }) {
         <Box alignSelf="center">
           <SuccessIcon />
         </Box>
-        <Text color="#073B36" fontSize={13} p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           You can view the confirmation status of the transaction on any block explorer or when the
           vault transaction list is refreshed
         </Text>
@@ -505,7 +505,7 @@ function SendConfirmation({ route }) {
           <Box
             flexDirection="row"
             rounded="lg"
-            background="#FDF7F0"
+            background="light.primaryBackground"
             justifyContent="space-between"
             alignItems="center"
             marginTop={hp(10)}
@@ -514,7 +514,13 @@ function SendConfirmation({ route }) {
             px="2"
             py="2"
           >
-            <Text style={styles.customPriority} color="#00715B" fontSize={12} bold p={2}>
+            <Text
+              style={styles.customPriority}
+              color="light.greenText2"
+              fontSize={12}
+              bold
+              padding={2}
+            >
               Custom Priority
             </Text>
             <ArrowIcon />
@@ -610,8 +616,8 @@ function SendConfirmation({ route }) {
         subTitle="The transaction has been successfully broadcasted"
         buttonText={walletTransactions.ViewDetails}
         buttonCallback={() => viewDetails()}
-        textColor="#073B36"
-        buttonTextColor="#FAFAFA"
+        textcolor="light.greenText"
+        buttonTextColor="light.white"
         Content={SendSuccessfulContent}
       />
     </ScreenWrapper>

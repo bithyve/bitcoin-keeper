@@ -11,7 +11,7 @@ import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryLi
 function AppVersionHistory({ navigation }) {
   return (
     <SafeAreaView style={styles.wrapper}>
-      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <StatusBar backgroundColor="light.secondaryBackground" barStyle="dark-content" />
       <Box style={styles.backBtnWrapper}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
@@ -24,7 +24,7 @@ function AppVersionHistory({ navigation }) {
         </Text>
       </Box>
       <ScrollView>
-        <Box m={10}>
+        <Box margin={10}>
           <VersionHistoryList />
         </Box>
       </ScrollView>

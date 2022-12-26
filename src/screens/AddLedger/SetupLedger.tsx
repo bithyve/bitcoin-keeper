@@ -11,7 +11,7 @@ import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { getLedgerDetails, getMockLedgerDetails } from 'src/hardware/ledger';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -29,6 +29,57 @@ import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+
+function Item({ device, setConnecting, connectToDevice }: any) {
+  return (
+    <TouchableOpacity
+      style={styles.deviceItem}
+      onPress={() => {
+        setConnecting(true);
+        connectToDevice(device);
+      }}
+    >
+      <Text style={styles.deviceName}>{device.name}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function LedgerSetupContent({
+  isScanning,
+  allDevices,
+  addMockLedger,
+  connecting,
+  setConnecting,
+  connectToDevice,
+}: any) {
+  return (
+    <TapGestureHandler numberOfTaps={3} onActivated={() => addMockLedger()}>
+      <View>
+        {isScanning && !allDevices.length ? (
+          <Image source={require('src/assets/video/Loader.gif')} style={styles.loader} />
+        ) : null}
+        {connecting ? (
+          <ActivityIndicator />
+        ) : (
+          <Box ml={wp(21)}>
+            {allDevices.map((device) => (
+              <Item
+                device={device}
+                setConnecting={setConnecting}
+                connectToDevice={connectToDevice}
+              />
+            ))}
+          </Box>
+        )}
+        <Box marginTop="4">
+          <Text color="light.greenText" light style={styles.instruct}>
+            Please open on the BTC app before connecting to the deivce
+          </Text>
+        </Box>
+      </View>
+    </TapGestureHandler>
+  );
+}
 
 function AddLedger() {
   const {
@@ -78,53 +129,6 @@ function AddLedger() {
     };
   }, []);
 
-  function Item({ device }) {
-    return (
-      <TouchableOpacity
-        style={styles.deviceItem}
-        onPress={() => {
-          setConnecting(true);
-          connectToDevice(device);
-        }}
-      >
-        <Text style={styles.deviceName}>{device.name}</Text>
-      </TouchableOpacity>
-    );
-  }
-
-  function LedgerSetupContent() {
-    return (
-      <TapGestureHandler numberOfTaps={3} onActivated={() => addMockLedger()}>
-        <View>
-          {isScanning && !allDevices.length ? (
-            <Image
-              source={require('src/assets/video/Loader.gif')}
-              style={{
-                width: wp(250),
-                height: wp(100),
-                alignSelf: 'center',
-                marginTop: hp(30),
-              }}
-            />
-          ) : null}
-          {connecting ? (
-            <ActivityIndicator />
-          ) : (
-            <Box ml={wp(21)}>
-              {allDevices.map((device) => (
-                <Item device={device} />
-              ))}
-            </Box>
-          )}
-          <Box marginTop="4">
-            <Text color="#073B36" fontSize={13} light p={1}>
-              Please open on the BTC app before connecting to the deivce
-            </Text>
-          </Box>
-        </View>
-      </TapGestureHandler>
-    );
-  }
   const { showToast } = useToastMessage();
   const addMockLedger = (amfData = null) => {
     if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
@@ -166,6 +170,20 @@ function AddLedger() {
     }
   };
 
+  const Content = useCallback(
+    () => (
+      <LedgerSetupContent
+        isScanning={isScanning}
+        allDevices={allDevices}
+        addMockLedger={addMockLedger}
+        connecting={connecting}
+        setConnecting={setConnecting}
+        connectToDevice={connectToDevice}
+      />
+    ),
+    [isScanning, allDevices, connecting]
+  );
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <KeeperModal
@@ -174,9 +192,8 @@ function AddLedger() {
         close={close}
         title={ledger.ScanningBT}
         subTitle={ledger.KeepLedgerReady}
-        buttonBackground={['#00836A', '#073E39']}
-        textColor="#041513"
-        Content={LedgerSetupContent}
+        textColor="light.primaryText"
+        Content={Content}
       />
     </SafeAreaView>
   );
@@ -197,6 +214,16 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  instruct: {
+    fontSize: 13,
+    padding: 1,
+  },
+  loader: {
+    width: wp(250),
+    height: wp(100),
+    alignSelf: 'center',
+    marginTop: hp(30),
   },
 });
 

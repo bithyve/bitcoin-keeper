@@ -32,10 +32,10 @@ function TapsignerSetupContent() {
     <View>
       <TapsignerSetupImage />
       <Box marginTop="4">
-        <Text color="#073B36" fontSize={13} light p={1}>
+        <Text color="light.greenText" fontSize={13} light padding={1}>
           {`\u2022 You will need the Pin/CVC at the back of TAPSIGNER`}
         </Text>
-        <Text color="#073B36" fontSize={13} light p={1}>
+        <Text color="light.greenText" fontSize={13} light padding={1}>
           {'\u2022 Make sure that TAPSIGNER is not used as a Signer on other apps'}
         </Text>
       </Box>
@@ -52,14 +52,14 @@ function ColdCardSetupContent() {
       <Box marginTop="4" alignItems="flex-start">
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
           <Box mb={hp(19)} mx={wp(10)} flexDirection="row">
-            <Text color="#073B36" fontSize={13} light ml={3}>
+            <Text color="light.greenText" fontSize={13} light ml={3}>
               {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
             </Text>
           </Box>
         </Box>
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
           <Box mb={hp(19)} mx={wp(10)} flexDirection="row">
-            <Text color="#073B36" fontSize={13} light ml={3}>
+            <Text color="light.greenText" fontSize={13} light ml={3}>
               {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
             </Text>
           </Box>
@@ -77,7 +77,7 @@ function PassportSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -87,7 +87,7 @@ function PassportSetupContent() {
           {`\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > Multisig > QR Code.\n`}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -109,7 +109,7 @@ function SeedSignerSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -119,7 +119,7 @@ function SeedSignerSetupContent() {
           {`\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > Multisig > Nested Segwit > Keeper.\n`}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -141,7 +141,7 @@ function KeystoneSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -151,7 +151,7 @@ function KeystoneSetupContent() {
           {`\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -173,7 +173,7 @@ function JadeSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -183,7 +183,7 @@ function JadeSetupContent() {
           {`\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to Multisig and Native Segwit in the options section.\n`}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -364,14 +364,13 @@ function SignersList() {
           close={close}
           title="Verify TAPSIGNER"
           subTitle="Keep your TAPSIGNER ready"
-          buttonBackground={['#00836A', '#073E39']}
           buttonText="Verify"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={() => {
             navigate('TapSignerRecovery');
             close();
           }}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={TapsignerSetupContent}
         />
         <KeeperModal
@@ -379,14 +378,13 @@ function SignersList() {
           close={close}
           title="Verify Coldcard"
           subTitle="Keep your Coldcard ready"
-          buttonBackground={['#00836A', '#073E39']}
           buttonText="Proceed"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={() => {
             navigate('ColdCardReocvery');
             close();
           }}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={ColdCardSetupContent}
         />
         <KeeperModal
@@ -394,12 +392,11 @@ function SignersList() {
           close={close}
           title="Setting up Passport (Batch 2)"
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
-          subTitleColor="#5F6965"
-          buttonBackground={['#00836A', '#073E39']}
+          subTitleColor="light.secondaryText"
           buttonText="Continue"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={navigateToAddQrBasedSigner}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={PassportSetupContent}
         />
         <KeeperModal
@@ -407,12 +404,11 @@ function SignersList() {
           close={close}
           title="Setting up SeedSigner"
           subTitle="Keep your SeedSigner ready and powered before proceeding"
-          subTitleColor="#5F6965"
-          buttonBackground={['#00836A', '#073E39']}
+          subTitleColor="light.secondaryText"
           buttonText="Continue"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={navigateToAddQrBasedSigner}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={SeedSignerSetupContent}
         />
         <KeeperModal
@@ -420,12 +416,11 @@ function SignersList() {
           close={close}
           title="Setting up Keystone"
           subTitle="Keep your Keystone ready before proceeding"
-          subTitleColor="#5F6965"
-          buttonBackground={['#00836A', '#073E39']}
+          subTitleColor="light.secondaryText"
           buttonText="Continue"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={navigateToAddQrBasedSigner}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={KeystoneSetupContent}
         />
         <KeeperModal
@@ -433,12 +428,11 @@ function SignersList() {
           close={close}
           title="Setting up Blockstream Jade"
           subTitle="Keep your Jade ready and unlocked before proceeding"
-          subTitleColor="#5F6965"
-          buttonBackground={['#00836A', '#073E39']}
+          subTitleColor="light.secondaryText"
           buttonText="Continue"
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={navigateToAddQrBasedSigner}
-          textColor="#041513"
+          textColor="light.primaryText"
           Content={JadeSetupContent}
         />
       </>

@@ -12,7 +12,7 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
 import Server from 'src/assets/images/svgs/server.svg';
 import BackupIcon from 'src/assets/icons/backup.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 
 type Props = {
   title: string;
@@ -31,11 +31,11 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
       onPress={onPress}
     >
       {Icon && (
-        <Box w="16%">
+        <Box width="16%">
           <BackupIcon />
         </Box>
       )}
-      <Box w={Icon ? '80%' : '96%'}>
+      <Box width={Icon ? '80%' : '96%'}>
         <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
@@ -43,7 +43,7 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
           {subTitle}
         </Text>
       </Box>
-      <Box w="4%">
+      <Box width="4%">
         <Arrow />
       </Box>
     </Pressable>
@@ -57,8 +57,8 @@ function SigningServerSettings({ route }) {
     return (
       <LinearGradient
         colors={['#694B2E', '#694B2E']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           height: hp(height),
           width: hp(height),
@@ -76,8 +76,8 @@ function SigningServerSettings({ route }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -113,7 +113,7 @@ function SigningServerSettings({ route }) {
     );
   }
   return (
-    <Box style={styles.Container} background="light.ReceiveBackground">
+    <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle

@@ -11,24 +11,24 @@ function SkipHealthCheck(props) {
   const { BackupWallet } = translations;
   const { common } = translations;
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          m={5}
-          bg="#E3BE96"
+          margin={5}
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
         >
-          <Text fontSize={18} color="#FFF">
+          <Text fontSize={18} color="light.white">
             X
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box p={10}>
+      <Box padding={10}>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.skipHealthCheckTitle}
         </Text>
@@ -36,7 +36,7 @@ function SkipHealthCheck(props) {
           {BackupWallet.skipHealthCheckSubTitle}
         </Text>
       </Box>
-      <Box p={10}>
+      <Box padding={10}>
         <Text fontSize={13} color="light.primaryText" mb={5} mt={10}>
           {BackupWallet.skipHealthCheckPara01}
         </Text>

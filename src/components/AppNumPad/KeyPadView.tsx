@@ -39,7 +39,7 @@ const KeyPadView: React.FC<Props> = ({
     </Box>
     <Box flexDirection="row" height={hp('8%')}>
       <Box style={styles.emptyBtnView}>
-        <Text flex={1} p={15} />
+        <Text flex={1} padding={15} />
       </Box>
       <TouchableOpacity
         onPress={() => onPressNumber('0')}

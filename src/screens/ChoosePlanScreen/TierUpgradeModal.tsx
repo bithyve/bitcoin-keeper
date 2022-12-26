@@ -13,7 +13,7 @@ function Content({ isUpgrade }) {
         <AlertIllustration />
       </Box>
       <Box marginTop={hp(40)}>
-        <Text color="light.greenText" fontSize={11} p={1} letterSpacing={0.65}>
+        <Text color="light.greenText" fontSize={11} padding={1} letterSpacing={0.65}>
           {isUpgrade
             ? `To use the vault, add signing devices`
             : 'To use the vault, remove signing devices'}
@@ -34,12 +34,11 @@ function TierUpgradeModal({ visible, close, onPress, isUpgrade, plan }) {
           ? `You have successfully upgraded to ${plan}`
           : `You have successfully downgraded to ${plan}`
       }
-      subTitleColor="#5F6965"
-      buttonBackground={['#00836A', '#073E39']}
+      subTitleColor="light.secondaryText"
       buttonText={isUpgrade ? 'Add now' : 'Remove now'}
-      buttonTextColor="#FAFAFA"
+      buttonTextColor="light.white"
       buttonCallback={onPress}
-      textColor="#041513"
+      textColor="light.primaryText"
       Content={() => <Content isUpgrade={isUpgrade} />}
     />
   );

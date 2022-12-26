@@ -3,7 +3,7 @@ import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteIcon from 'src/assets/images/delete.svg';
@@ -18,7 +18,7 @@ function CustomPriorityModal(props) {
     title = 'Title',
     subTitle = null,
     info = null,
-    buttonBackground = ['#00836A', '#073E39'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback,
@@ -85,7 +85,7 @@ function CustomPriorityModal(props) {
         justifyContent="flex-end"
       >
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-          <Box style={styles.container}>
+          <Box style={styles.container} backgroundColor="light.secondaryBackground">
             <TouchableOpacity style={styles.close} onPress={close}>
               <Close />
             </TouchableOpacity>
@@ -106,13 +106,13 @@ function CustomPriorityModal(props) {
               <Input
                 mx="3"
                 placeholder="Enter Amount"
-                w="100%"
+                width="100%"
                 variant="unstyled"
                 value={customPriorityFee}
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text color="#073B36" mx={windowWidth * 0.038}>
+              <Text color="light.greenText" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
@@ -120,7 +120,7 @@ function CustomPriorityModal(props) {
             <Box
               alignSelf="flex-end"
               flexDirection="row"
-              bg="transparent"
+              backgroundColor="transparent"
               alignItems="center"
               my={windowWidth * 0.031}
             >
@@ -129,7 +129,7 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text mr={windowWidth * 0.07} color="#073E39" bold letterSpacing={1.6}>
+                <Text mr={windowWidth * 0.07} color="light.greenText" bold letterSpacing={1.6}>
                   Start Over
                 </Text>
               </TouchableOpacity>
@@ -139,8 +139,8 @@ function CustomPriorityModal(props) {
                 }}
               >
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
                   colors={buttonBackground}
                   style={styles.cta}
                 >
@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: '4%',
     paddingVertical: '5%',
-    backgroundColor: '#F7F2EC',
   },
   title: {
     fontSize: 19,

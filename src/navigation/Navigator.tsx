@@ -200,7 +200,6 @@ function Navigator() {
         close={() => {}}
         title="please wait"
         subTitle="loading"
-        textColor="#000"
       />
     </NavigationContainer>
   );

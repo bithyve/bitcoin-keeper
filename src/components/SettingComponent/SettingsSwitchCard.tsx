@@ -10,7 +10,7 @@ function SettingsSwitchCard(props) {
       onPress={(value) => props.onSwitchToggle(value)}
       flexDirection="row"
       justifyContent="space-evenly"
-      p={3}
+      padding={3}
       borderRadius={10}
       {...props}
     >

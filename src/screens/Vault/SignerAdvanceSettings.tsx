@@ -106,7 +106,7 @@ function SignerAdvanceSettings({ route }: any) {
   return (
     <ScreenWrapper>
       <HeaderTitle title="Advanced Settings" headerTitleColor="#092C27" />
-      <Box bg={gradientStyles} style={styles.card}>
+      <Box backgroundColor={gradientStyles} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{WalletMap(signer.type, true).Icon}</Box>
           <VStack justifyContent="center" px={4}>

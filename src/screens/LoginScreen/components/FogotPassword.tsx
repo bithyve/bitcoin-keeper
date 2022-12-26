@@ -59,13 +59,13 @@ function FogotPassword(props) {
   }
 
   return (
-    <Box bg="#F7F2EC" p={5}>
+    <Box backgroundColor="light.secondaryBackground" padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          bg="#E3BE96"
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
@@ -98,7 +98,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            bg="#FDF7F0"
+            backgroundColor="light.primaryBackground"
             pl={5}
             py={4}
             my={6}
@@ -111,7 +111,7 @@ function FogotPassword(props) {
           />
 
           {invalid && (
-            <Text color="#FF0000" m={2}>
+            <Text color="#FF0000" margin={2}>
               {login.Invalidword}
             </Text>
           )}
@@ -127,7 +127,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            bg="#FDF7F0"
+            backgroundColor="light.primaryBackground"
             pl={5}
             py={4}
             my={6}
