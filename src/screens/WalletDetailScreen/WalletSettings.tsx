@@ -78,7 +78,7 @@ function WalletSettings({ route }) {
   function WalletCard({ walletName, walletBalance, walletDescription }) {
     return (
       <Box
-        bg={{
+        backgroundColor={{
           linearGradient: {
             colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
@@ -155,7 +155,7 @@ function WalletSettings({ route }) {
   };
 
   return (
-    <Box style={styles.Container} background="light.ReceiveBackground">
+    <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
@@ -253,7 +253,7 @@ function WalletSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box style={styles.note} backgroundColor="light.ReceiveBackground">
+      <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -268,8 +268,8 @@ function WalletSettings({ route }) {
           title={walletTranslation.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation.confirmPassSubTitle}
-          subTitleColor="#5F6965"
-          textColor="#041513"
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
           Content={() => (
             <SeedConfirmPasscode
               closeBottomSheet={() => {
@@ -286,8 +286,8 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
-          subTitleColor="#5F6965"
-          textColor="#041513"
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
           Content={() => (
             <ShowXPub
               data={wallet.specs.xpub}
@@ -305,8 +305,8 @@ function WalletSettings({ route }) {
           title="Cosigner Details"
           subTitleWidth={wp(240)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
-          subTitleColor="#5F6965"
-          textColor="#041513"
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
           Content={() => (
             <ShowXPub
               data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
@@ -324,8 +324,8 @@ function WalletSettings({ route }) {
           close={() => setTransferPolicyVisible(false)}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
-          subTitleColor="#5F6965"
-          textColor="#041513"
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
           Content={() => (
             <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />
           )}

@@ -20,7 +20,7 @@ function HexaToastMessages({
   error?: boolean;
 }) {
   return (
-    <Box bg={error ? 'error.500' : 'light.accent'} style={styles.toast}>
+    <Box backgroundColor={error ? 'error.500' : 'light.accent'} style={styles.toast}>
       {Image && <Box>{Image}</Box>}
       <Text marginLeft={Image ? 3 : 0} color={error ? 'error.200' : null}>
         {title}

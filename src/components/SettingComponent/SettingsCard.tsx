@@ -8,12 +8,18 @@ import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
 function SettingsCard(props) {
   return (
     <Pressable onPress={() => props.onPress()}>
-      <Box flexDirection="row" justifyContent="space-between" p={3} borderRadius={10} {...props}>
+      <Box
+        flexDirection="row"
+        justifyContent="space-between"
+        padding={3}
+        borderRadius={10}
+        {...props}
+      >
         <Box flex={0.7}>
           <Text color="#041513" fontSize={14} letterSpacing={1.04}>
             {props.title}
           </Text>
-          <Text color="#4F5955" letterSpacing={0.36} fontSize={12}>
+          <Text color="light.GreyText" letterSpacing={0.36} fontSize={12}>
             {props.description}
           </Text>
         </Box>

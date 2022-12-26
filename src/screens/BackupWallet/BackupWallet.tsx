@@ -92,7 +92,7 @@ function BackupWallet() {
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box style={styles.wrapper} background="light.ReceiveBackground">
+    <Box style={styles.wrapper} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <Box
         style={{

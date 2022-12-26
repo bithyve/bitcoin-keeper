@@ -11,7 +11,7 @@ function AuthHandler({ status, fixAuthDelay }) {
   const text = isCardBlocked ? `Looks like you've crossed the CVC rate limit!` : '';
 
   return (
-    <Box p={2}>
+    <Box padding={2}>
       <Text color="error.500" fontSize={16} bold letterSpacing={1} textAlign="center">
         {text}
       </Text>

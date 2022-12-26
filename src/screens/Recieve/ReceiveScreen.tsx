@@ -74,7 +74,7 @@ function ReceiveScreen({ route }: { route }) {
       {/* {Input Field} */}
       <Box style={styles.inputContainer}>
         <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-          <Text width="80%" marginLeft={4} noOfLines={1}>
+          <Text width="80%" marginLeft={4} numberOfLines={1}>
             {paymentURI || receivingAddress}
           </Text>
           <TouchableOpacity
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
-    noOfLines: 1,
+    numberOfLines: 1,
   },
   inputContainer: {
     alignItems: 'center',

@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Modal, View, Box } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,12 +14,12 @@ function SuccessModal(props) {
     close,
     title = 'Title',
     subTitle = 'Subtitle',
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
-    buttonBackground = ['#00836A', '#073E39'],
+    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = 'Button text',
-    buttonTextColor = '#FAFAFA',
+    buttonTextColor = 'light.white',
     buttonCallback = props.close || null,
-    textColor = '#4F5955',
+    textColor = 'light.GreyText',
     cancelButtonText = 'Cancel',
     cancelButtonColor = '#073E39',
     cancelButtonPressed,
@@ -46,8 +46,8 @@ function SuccessModal(props) {
       <View flex={1} style={styles.viewContainer}>
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
           <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={[0, 0]}
+            end={[1, 1]}
             colors={modalBackground}
             style={styles.container}
           >
@@ -63,14 +63,19 @@ function SuccessModal(props) {
               <Text style={styles.title} color={textColor} paddingBottom={1}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} light color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
             <Modal.Body>
               <Content />
             </Modal.Body>
-            <Box alignItems="center" alignSelf="flex-end" bg="transparent" flexDirection="row">
+            <Box
+              alignItems="center"
+              alignSelf="flex-end"
+              backgroundColor="transparent"
+              flexDirection="row"
+            >
               <TouchableOpacity onPress={cancelButtonPressed}>
                 <Text fontSize={13} bold letterSpacing={1} color={cancelButtonColor} mr={wp(18)}>
                   {cancelButtonText}
@@ -78,8 +83,8 @@ function SuccessModal(props) {
               </TouchableOpacity>
               <TouchableOpacity onPress={buttonPressed}>
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
                   colors={buttonBackground}
                   style={styles.cta}
                 >

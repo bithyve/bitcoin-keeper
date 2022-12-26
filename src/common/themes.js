@@ -64,7 +64,7 @@ export const customTheme = extendTheme({
       QrCode: Colors.WhiteCoffee,
       recieverAddress: Colors.DimGray,
       textInputBackground: Colors.Isabelline,
-      ReceiveBackground: Colors.Isabelline,
+      secondaryBackground: Colors.Isabelline,
       GreyText: Colors.Feldgrau,
       dateText: Colors.HookerGreen,
       Border: Colors.CastletonGreen,
@@ -87,6 +87,7 @@ export const customTheme = extendTheme({
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.RichGreen, // linearGradient
       error: Colors.CongoPink,
+      black: Colors.Black,
     },
     dark: {
       black: Colors.Black,

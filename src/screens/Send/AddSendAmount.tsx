@@ -185,7 +185,7 @@ function AddSendAmount({ route }) {
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
-          color="#073E39"
+          color="light.greenText"
           height={windowHeight > 670 ? 85 : 65}
           darkDeleteIcon
         />

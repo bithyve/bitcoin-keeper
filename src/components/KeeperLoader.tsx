@@ -3,7 +3,7 @@ import { Box, Modal } from 'native-base';
 import { Image, Platform, StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
@@ -12,7 +12,7 @@ function KeeperLoader(props) {
   const {
     visible,
     close,
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
+    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
     textColor = '#000',
     subTitleColor = 'light.secondaryText',
     loadingContent,
@@ -56,8 +56,8 @@ function KeeperLoader(props) {
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <GestureHandlerRootView>
           <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={[0, 0]}
+            end={[1, 1]}
             colors={modalBackground}
             style={styles.container}
           >

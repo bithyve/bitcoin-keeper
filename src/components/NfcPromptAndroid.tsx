@@ -44,7 +44,7 @@ function NfcPrompt({ visible }) {
       <View style={[styles.wrapper]}>
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
-          <View style={styles.center}>
+          <View style={styles.center} backgroundColor="light.secondaryBackground">
             <NFC />
             <Text
               color="light.greenText"
@@ -79,17 +79,16 @@ const styles = StyleSheet.create({
   },
   prompt: {
     height: 300,
-    alignSelf: 'stretch',
-    padding: 20,
-    backgroundColor: '#F7F2EC',
-    borderRadius: 20,
-    margin: 20,
     zIndex: 2,
+    alignSelf: 'stretch',
   },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 20,
+    padding: 20,
+    margin: 20,
   },
 });
 

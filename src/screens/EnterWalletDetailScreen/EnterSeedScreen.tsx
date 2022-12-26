@@ -175,7 +175,7 @@ function EnterSeedScreen() {
     return (
       <View>
         <Illustration />
-        <Text color="#073B36" fontSize={13}>
+        <Text color="light.greenText" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -188,7 +188,7 @@ function EnterSeedScreen() {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="#073B36" fontSize={13} p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           Make sure the words are entered in the correct sequence
         </Text>
       </View>
@@ -270,7 +270,9 @@ function EnterSeedScreen() {
               )}
             />
           </View>
-          <Text style={styles.seedDescText}>{seed.seedDescription}</Text>
+          <Text style={styles.seedDescText} color="light.GreyText">
+            {seed.seedDescription}
+          </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
               <View style={styles.dot} />
@@ -287,11 +289,10 @@ function EnterSeedScreen() {
             close={closeInvalidSeedsModal}
             title={seed.InvalidSeeds}
             subTitle={seed.seedDescription}
-            buttonBackground={['#00836A', '#073E39']}
             buttonText="Retry"
-            buttonTextColor="#FAFAFA"
+            buttonTextColor="light.white"
             buttonCallback={closeInvalidSeedsModal}
-            textColor="#041513"
+            textColor="light.primaryText"
             Content={InValidSeedsScreen}
           />
           <KeeperModal
@@ -299,11 +300,10 @@ function EnterSeedScreen() {
             close={closeRecovery}
             title={seed.walletRecoverySuccessful}
             subTitle={seed.seedDescription}
-            buttonBackground={['#00836A', '#073E39']}
             buttonText="View Wallet"
-            buttonTextColor="#FAFAFA"
+            buttonTextColor="light.white"
             buttonCallback={closeWalletSuccessModal}
-            textColor="#041513"
+            textColor="light.primaryText"
             Content={RecoverWalletScreen}
           />
           {/* <ModalWrapper
@@ -379,7 +379,6 @@ const styles = ScaledSheet.create({
   },
   seedDescText: {
     fontWeight: '400',
-    color: '#4F5955',
     marginHorizontal: 30,
     marginVertical: hp(10),
     fontSize: 12,

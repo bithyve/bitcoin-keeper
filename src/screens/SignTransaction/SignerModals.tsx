@@ -438,11 +438,11 @@ function SignerModals({
                 close={() => setLedgerModal(false)}
                 title="Looking for Nano X"
                 subTitle="Power up your Ledger Nano X and open the BTC app"
-                modalBackground={['#00836A', '#073E39']}
+                modalBackground={['light.gradientStart', 'light.gradientEnd']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
                 buttonText={LedgerCom.current ? 'SIGN' : null}
-                buttonTextColor="#073E39"
-                textColor="#FFF"
+                buttonTextColor="light.greenText"
+                textColor="light.white"
                 DarkCloseIcon
                 Content={() => <LedgerContent signTransaction={signTransaction} />}
               />
@@ -456,7 +456,7 @@ function SignerModals({
                 }}
                 title="Enter your password"
                 subTitle=""
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <PasswordEnter signTransaction={signTransaction} />}
               />
             );
@@ -469,7 +469,7 @@ function SignerModals({
                 }}
                 title="Confirm OTP to setup 2FA"
                 subTitle="Lorem ipsum dolor sit amet, "
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <OtpContent signTransaction={signTransaction} />}
               />
             );
@@ -482,7 +482,7 @@ function SignerModals({
                 }}
                 title="Keep Passport Ready"
                 subTitle="Keep your Foundation Passport ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <PassportContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -497,7 +497,7 @@ function SignerModals({
                 }}
                 title="Keep SeedSigner Ready"
                 subTitle="Keep your SeedSigner ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <SeedSignerContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -512,7 +512,7 @@ function SignerModals({
                 }}
                 title="Keep Keystone Ready"
                 subTitle="Keep your Keystone ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <KeystoneContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -527,7 +527,7 @@ function SignerModals({
                 }}
                 title="Keep Jade Ready"
                 subTitle="Keep your Jade ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <JadeContent />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -542,7 +542,7 @@ function SignerModals({
                 }}
                 title="Keep your Device Ready"
                 subTitle="Keep your Keeper Signing Device ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <KeeperContent />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}

@@ -40,7 +40,7 @@ function TransferPolicy({ wallet, close }) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" width={wp(275)} borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
         <View
           marginX="5%"
