@@ -16,10 +16,6 @@ import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration_1 from 'src/assets/images/svgs/illustration_1.svg';
 import Illustration_2 from 'src/assets/images/svgs/illustration_2.svg';
-import Illustration_3 from 'src/assets/images/svgs/illustration_3.svg';
-import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
-import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
-import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
 import Skip from 'src/assets/images/svgs/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
@@ -57,30 +53,6 @@ function OnBoardingSlides({ navigation }) {
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
-    // {
-    //   id: '3',
-    //   title: onboarding.slide03Title,
-    //   paragraph: onboarding.slide03Paragraph,
-    //   illustration: <Illustration_3 />,
-    // },
-    // {
-    //   id: '4',
-    //   title: onboarding.slide04Title,
-    //   paragraph: onboarding.slide04Paragraph,
-    //   illustration: <Illustration_4 />,
-    // },
-    // {
-    //   id: '5',
-    //   title: onboarding.slide05Title,
-    //   paragraph: onboarding.slide05Paragraph,
-    //   illustration: <Illustration_6 />,
-    // },
-    // {
-    //   id: '6',
-    //   title: onboarding.slide06Title,
-    //   paragraph: onboarding.slide06Paragraph,
-    //   illustration: <Illustration_3 />,
-    // },
   ]);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -92,7 +64,6 @@ function OnBoardingSlides({ navigation }) {
     <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
-          <StatusBar backgroundColor="transparent" barStyle="light-content" />
           <Box justifyContent="center" mr={4} mt={10}>
             {currentPosition !== 1 && (
               <TouchableOpacity

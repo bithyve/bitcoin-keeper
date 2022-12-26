@@ -1,4 +1,4 @@
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -158,21 +158,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <ScrollView
-        style={{
-          paddingTop: '5%',
-        }}
-      >
+      <ScrollView style={styles.wrapper}>
         <Box>
-          <Box
-            style={{
-              marginBottom: hp(10),
-            }}
-          >
-            <Text color="light.textBlack" fontSize={18} px="8" letterSpacing={0.9}>
+          <Box style={styles.titleWrapper}>
+            <Text color="light.textBlack" style={styles.titleText}>
               New Keeper App
             </Text>
-            <Text color="light.GreyText" fontSize={12} px="8" letterSpacing={0.6}>
+            <Text color="light.GreyText" style={styles.subTitleText}>
               Use this option if you want to create a new Keeper app
             </Text>
           </Box>
@@ -186,15 +178,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
             loading={keeperInitiating}
           />
 
-          <Box
-            style={{
-              marginTop: hp(70),
-            }}
-          >
-            <Text color="light.textBlack" fontSize={18} px="8" letterSpacing={0.9}>
+          <Box style={styles.titleWrapper02}>
+            <Text color="light.textBlack" style={styles.titleText}>
               Existing Keeper App
             </Text>
-            <Text color="light.textBlack" fontSize={12} px="8">
+            <Text color="light.textBlack" style={styles.subTitleText}>
               If you previously had a Keeper wallet you can recover it
             </Text>
 
@@ -217,7 +205,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
         </Box>
       </ScrollView>
-      <Text px="10%" py="5%" color="light.primaryText" fontSize={12}>
+      <Text color="light.primaryText" style={styles.noteText}>
         When you use signing devices to restore Keeper, only vault is restored and the app has new
         wallets
       </Text>
@@ -276,5 +264,33 @@ function NewKeeperApp({ navigation }: { navigation }) {
     </ScreenWrapper>
   );
 }
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingTop: '5%',
+  },
+  titleWrapper: {
+    marginBottom: hp(10),
+  },
+  titleText: {
+    fontSize: 18,
+    paddingHorizontal: 18,
+    fontWeight: '400',
+    letterSpacing: 0.9,
+  },
+  subTitleText: {
+    fontSize: 12,
+    fontWeight: '400',
+    paddingHorizontal: 18,
+    letterSpacing: 0.6,
+  },
+  titleWrapper02: {
+    marginTop: hp(70),
+  },
+  noteText: {
+    fontSize: 12,
+    paddingHorizontal: '5%',
+    paddingVertical: '5%',
+  },
+});
 
 export default NewKeeperApp;

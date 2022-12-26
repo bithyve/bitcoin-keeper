@@ -12,7 +12,13 @@ function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
-        <Text fontSize={18} color="light.white" textAlign="center" letterSpacing={1.8}>
+        <Text
+          fontSize={18}
+          color="light.white"
+          textAlign="center"
+          fontWeight={200}
+          letterSpacing={1.8}
+        >
           {props.title}
         </Text>
       </Box>

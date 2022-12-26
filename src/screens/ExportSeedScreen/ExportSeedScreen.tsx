@@ -30,8 +30,6 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
 
-  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
-
   useEffect(() => {
     if (backupMethod !== null) {
       setBackupSuccessModal(true);
@@ -135,15 +133,15 @@ function ExportSeedScreen({ route, navigation }) {
           onSwipeComplete={() => setBackupSuccessModal(false)}
         >
           <BackupSuccessful
+            title={BackupWallet.backupSuccessTitle}
+            subTitle={BackupWallet.backupSuccessSubTitle}
+            paragraph={BackupWallet.backupSuccessParagraph}
             closeBottomSheet={() => {
               setBackupSuccessModal(false);
             }}
             confirmBtnPress={() => {
               navigtaion.navigate('NewHome');
             }}
-            title={BackupWallet.backupSuccessTitle}
-            subTitle={BackupWallet.backupSuccessSubTitle}
-            paragraph={BackupWallet.backupSuccessParagraph}
           />
         </ModalWrapper>
       </Box>
