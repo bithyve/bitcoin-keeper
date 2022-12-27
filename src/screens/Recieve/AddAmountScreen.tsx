@@ -72,7 +72,12 @@ function AddAmountScreen({ route }: { route }) {
         </View>
       </View>
       <View position="absolute" bottom={0}>
-        <AppNumPad setValue={setAmount} clear={() => setAmount('')} color="light.greenText" />
+        <AppNumPad
+          setValue={setAmount}
+          clear={() => setAmount('')}
+          color="light.greenText"
+          darkDeleteIcon
+        />
       </View>
     </View>
   );
