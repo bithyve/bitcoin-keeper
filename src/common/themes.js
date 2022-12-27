@@ -1,5 +1,7 @@
 import Colors from 'src/theme/Colors';
-import { extendTheme } from 'native-base';
+import {
+  extendTheme
+} from 'native-base';
 import Fonts from './Fonts';
 
 export const customTheme = extendTheme({
