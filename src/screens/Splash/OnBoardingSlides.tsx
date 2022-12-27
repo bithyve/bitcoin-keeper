@@ -14,9 +14,9 @@ import LinearGradient from 'src/components/KeeperGradient';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Illustration_1 from 'src/assets/images/svgs/illustration_1.svg';
-import Illustration_2 from 'src/assets/images/svgs/illustration_2.svg';
-import Skip from 'src/assets/images/svgs/skip.svg';
+import Illustration_1 from 'src/assets/images/illustration_1.svg';
+import Illustration_2 from 'src/assets/images/illustration_2.svg';
+import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';

@@ -1,7 +1,7 @@
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Box, View } from 'native-base';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -11,7 +11,7 @@ import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import CopyIcon from 'src/assets/images/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';

@@ -2,8 +2,8 @@ import { Box, Modal, Pressable } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
-import Close from 'src/assets/icons/modal_close.svg';
-import CloseGreen from 'src/assets/icons/modal_close_green.svg';
+import Close from 'src/assets/images/modal_close.svg';
+import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

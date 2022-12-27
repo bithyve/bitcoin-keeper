@@ -2,7 +2,7 @@ import { Input, View } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import AppNumPad from 'src/components/AppNumPad';
-import BtcInput from 'src/assets/images/svgs/btc_input.svg';
+import BtcInput from 'src/assets/images/btc_input.svg';
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';

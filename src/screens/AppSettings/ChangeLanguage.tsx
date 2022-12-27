@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import Text from 'src/components/KeeperText';
 import { Box, ScrollView, StatusBar, useColorMode } from 'native-base';
-import BackIcon from 'src/assets/icons/back.svg';
+import BackIcon from 'src/assets/images/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
@@ -15,7 +15,7 @@ import Fonts from 'src/common/Fonts';
 import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import availableLanguages from '../../common/content/availableLanguages';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 

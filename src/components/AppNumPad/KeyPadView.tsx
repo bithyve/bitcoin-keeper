@@ -1,7 +1,7 @@
 import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import DeleteIcon from 'src/assets/icons/delete.svg';
+import DeleteIcon from 'src/assets/images/delete.svg';
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Text from 'src/components/KeeperText';

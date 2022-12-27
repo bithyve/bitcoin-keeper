@@ -19,7 +19,7 @@ import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails
 import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import HomeScreen from 'src/screens/NewHomeScreen/HomeScreen';
+import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
@@ -53,7 +53,7 @@ import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
-import VaultDetails from 'src/screens/HomeScreen/VaultDetails';
+import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';

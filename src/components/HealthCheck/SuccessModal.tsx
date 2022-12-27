@@ -6,7 +6,7 @@ import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Close from 'src/assets/icons/modal_close.svg';
+import Close from 'src/assets/images/modal_close.svg';
 
 function SuccessModal(props) {
   const {

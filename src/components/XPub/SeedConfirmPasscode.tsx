@@ -8,7 +8,7 @@ import { increasePinFailAttempts } from 'src/store/reducers/storage';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { credsAuth } from 'src/store/sagaActions/login';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from '../Buttons';

@@ -3,7 +3,7 @@ import { Box } from 'native-base';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CheckIcon from 'src/assets/images/checked.svg';
-import Next from 'src/assets/images/svgs/icon_arrow.svg';
+import Next from 'src/assets/images/icon_arrow.svg';
 import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';

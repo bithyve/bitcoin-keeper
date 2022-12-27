@@ -4,16 +4,16 @@ import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-nati
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 // asserts
-import BackIcon from 'src/assets/icons/back.svg';
-import Change from 'src/assets/images/svgs/change.svg';
+import BackIcon from 'src/assets/images/back.svg';
+import Change from 'src/assets/images/change.svg';
 import DotView from 'src/components/DotView';
-import Edit from 'src/assets/images/svgs/edit.svg';
-import Heathcheck from 'src/assets/images/svgs/heathcheck.svg';
+import Edit from 'src/assets/images/edit.svg';
+import Heathcheck from 'src/assets/images/heathcheck.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 // libraries
 import React from 'react';
-import Server from 'src/assets/images/svgs/server.svg';
-import Settings from 'src/assets/images/svgs/settings_brown.svg';
+import Server from 'src/assets/images/server.svg';
+import Settings from 'src/assets/images/settings_brown.svg';
 // Components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 

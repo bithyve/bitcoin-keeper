@@ -10,8 +10,8 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
+import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/images/backupIcon.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';

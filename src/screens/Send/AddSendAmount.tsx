@@ -8,7 +8,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
-import BitcoinInput from 'src/assets/images/svgs/btc_input.svg';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import { ScaledSheet } from 'react-native-size-matters';

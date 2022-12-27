@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
 
-import BackButton from 'src/assets/images/svgs/back.svg';
+import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
