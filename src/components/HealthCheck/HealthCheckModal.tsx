@@ -1,7 +1,7 @@
 import { Box, Modal, Input } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import Close from 'src/assets/icons/modal_close.svg';
+import Close from 'src/assets/images/modal_close.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

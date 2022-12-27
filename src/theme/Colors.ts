@@ -2,6 +2,7 @@ const Colors = {
   White: 'rgba(255,255,255,1)',
   Glass: 'rgba(255,255,255,.2)',
   LightYellow: 'rgba(253,247,240,1)',
+  LightWhite: 'rgba(247,242,236,1)',
   Isabelline: 'rgba(252,246,239,1)',
   Platinum: 'rgba(227,227,227,1)',
   WhiteCoffee: 'rgba(232,224,217,1)',
@@ -34,5 +35,6 @@ const Colors = {
   CongoPink: 'rgba(255,143,121,1)',
   OutrageousOrange: 'rgba(248,107,80,1)',
   CarmineRed: 'rgba(255,0,51,1)',
+  
 };
 export default Colors;

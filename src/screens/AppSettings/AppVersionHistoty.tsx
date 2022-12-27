@@ -5,7 +5,7 @@ import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
-import BackIcon from 'src/assets/icons/back.svg';
+import BackIcon from 'src/assets/images/back.svg';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
 
 function AppVersionHistory({ navigation }) {

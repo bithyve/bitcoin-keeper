@@ -17,6 +17,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
@@ -319,7 +320,7 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+            ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}

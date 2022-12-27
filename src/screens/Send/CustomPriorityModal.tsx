@@ -2,11 +2,10 @@ import Text from 'src/components/KeeperText';
 import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
-import Close from 'src/assets/icons/modal_close.svg';
+import Close from 'src/assets/images/modal_close.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import DeleteIcon from 'src/assets/images/delete.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 import { useAppSelector } from 'src/store/hooks';
@@ -161,7 +160,6 @@ function CustomPriorityModal(props) {
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
               keyColor="light.primaryText"
-              ClearIcon={<DeleteIcon />}
             />
           </Box>
         </Modal.Content>

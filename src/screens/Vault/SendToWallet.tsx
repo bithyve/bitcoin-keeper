@@ -1,7 +1,7 @@
 import { StyleSheet, StatusBar } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Input, InputGroup, Pressable, Stack, Icon } from 'native-base';
-import BackIcon from 'src/assets/icons/back.svg';
+import BackIcon from 'src/assets/images/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import React from 'react';
 import {
@@ -9,9 +9,9 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-import WalletIcon from 'src/assets/icons/icon_wallet.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import IconDoller from 'src/assets/images/icon_dollar.svg';
+import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 
 const onPressNumber = () => {

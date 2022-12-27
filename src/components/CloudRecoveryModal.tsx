@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
-import Close from 'src/assets/icons/modal_close.svg';
+import Close from 'src/assets/images/modal_close.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from 'src/store/hooks';

@@ -14,29 +14,30 @@ import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 // icons and images
-import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
-import AddWalletIcon from 'src/assets/images/svgs/addWallet_illustration.svg';
-import BTC from 'src/assets/images/svgs/btc_wallet.svg';
-import BackIcon from 'src/assets/images/svgs/back.svg';
-import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
+
+import AddSCardIcon from 'src/assets/images/card_add.svg';
+import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
+import BTC from 'src/assets/images/btc_wallet.svg';
+import BackIcon from 'src/assets/images/back.svg';
+import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import Carousel from 'react-native-snap-carousel';
-import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import IconSettings from 'src/assets/images/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import Recieve from 'src/assets/images/svgs/receive.svg';
-import Send from 'src/assets/images/svgs/send.svg';
+import Recieve from 'src/assets/images/receive.svg';
+import Send from 'src/assets/images/send.svg';
 import { Shadow } from 'react-native-shadow-2';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 // components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
+import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletInsideGreen from 'src/assets/images/svgs/Wallet_inside_green.svg';
+import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';

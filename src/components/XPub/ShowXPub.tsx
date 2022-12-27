@@ -8,7 +8,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import CopyIcon from 'src/assets/images/icon_copy.svg';
 import Note from '../Note/Note';
 
 function ShowXPub({
