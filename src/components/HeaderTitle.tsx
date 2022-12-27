@@ -65,9 +65,8 @@ function HeaderTitle({
           {title && (
             <Text
               numberOfLines={1}
-              style={styles.addWalletText}
+              style={[styles.addWalletText, { fontSize: titleFontSize }]}
               color={headerTitleColor}
-              fontSize={titleFontSize}
             >
               {title}
             </Text>

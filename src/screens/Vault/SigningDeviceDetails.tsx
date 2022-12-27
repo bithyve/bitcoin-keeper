@@ -249,7 +249,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            backgroundColor="light.lightAccent"
+            backgroundColor="light.accent"
             justifyContent="center"
             alignItems="center"
           >

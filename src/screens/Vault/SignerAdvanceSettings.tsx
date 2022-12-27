@@ -20,6 +20,7 @@ import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { globalStyles } from 'src/common/globalStyles';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 
@@ -103,21 +104,22 @@ function SignerAdvanceSettings({ route }: any) {
     if (isPolicyServer) navigateToPolicyChange(signer);
   };
 
+  const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Advanced Settings" headerTitleColor="#092C27" />
+      <HeaderTitle title="Advanced Settings" headerTitleColor="light.textBlack" />
       <Box backgroundColor={gradientStyles} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{WalletMap(signer.type, true).Icon}</Box>
           <VStack justifyContent="center" px={4}>
-            <Text color="white" fontSize={14}>
+            <Text color="white" style={[font14]}>
               {signerName}
             </Text>
-            <Text color="white" fontSize={10} light>
+            <Text color="white" style={[font10]} light>
               {moment(signer.addedOn).calendar().toLowerCase()}
             </Text>
             {signer.signerDescription ? (
-              <Text color="white" fontSize={12} light>
+              <Text color="white" style={[font12]} light>
                 {signer.signerDescription}
               </Text>
             ) : null}
@@ -127,10 +129,10 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={openDescriptionModal}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.primaryText" fontSize={14}>
+            <Text color="light.primaryText" style={[font14]}>
               Edit Description
             </Text>
-            <Text color="light.primaryText" fontSize={12} light>
+            <Text color="light.primaryText" style={[font12]} light>
               Short description to help you remember
             </Text>
           </VStack>
@@ -140,10 +142,10 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={registerSigner}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.primaryText" fontSize={14}>
+            <Text color="light.primaryText" style={[font14]}>
               Manual Registration
             </Text>
-            <Text color="light.primaryText" fontSize={12} light>
+            <Text color="light.primaryText" style={[font12]} light>
               {`Register your active vault with the ${signerName}.`}
             </Text>
           </VStack>
@@ -154,10 +156,10 @@ function SignerAdvanceSettings({ route }: any) {
         <TouchableOpacity onPress={changePolicy}>
           <HStack style={styles.item}>
             <VStack px={4} width="90%">
-              <Text color="light.primaryText" fontSize={14}>
+              <Text color="light.primaryText" style={[font14]}>
                 Change Verification & Policy
               </Text>
-              <Text color="light.primaryText" fontSize={12} light>
+              <Text color="light.primaryText" style={[font12]} light>
                 Restriction and threshold
               </Text>
             </VStack>
