@@ -14,6 +14,7 @@ import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 // icons and images
+
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import BTC from 'src/assets/images/btc_wallet.svg';
