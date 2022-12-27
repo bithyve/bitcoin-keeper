@@ -12,7 +12,7 @@ import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import BitcoinGreyIcon from 'src/assets/images/svgs/btc_grey.svg';
+import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
 import KeeperText from 'src/components/KeeperText';
 import config from 'src/core/config';
 
@@ -24,8 +24,10 @@ function EnterWalletDetailScreen({ route }) {
   const { common } = translations;
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
-  const [transferPolicy, setTransferPolicy] = useState(config.NETWORK_TYPE === NetworkType.TESTNET ? '5000': '1000000');
-   
+  const [transferPolicy, setTransferPolicy] = useState(
+    config.NETWORK_TYPE === NetworkType.TESTNET ? '5000' : '1000000'
+  );
+
   const createNewWallet = useCallback(() => {
     const newWallet: NewWalletInfo = {
       walletType: WalletType.CHECKING,
@@ -41,9 +43,8 @@ function EnterWalletDetailScreen({ route }) {
 
   // Format number with comma
   // Example: 1000000 => 1,000,000
-  const formatNumber = (value : string) => {
-    return value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  }
+  const formatNumber = (value: string) =>
+    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   return (
     <View style={styles.Container} background="light.mainBackground">
@@ -82,14 +83,14 @@ function EnterWalletDetailScreen({ route }) {
           marginY={2}
         />
         <Box marginTop={5}>
-          <KeeperText type='regular' style={[styles.autoTransferText, {color: 'light.GreyText'}]}>
-            {wallet.AutoTransferInitiated}</KeeperText>  
+          <KeeperText type="regular" style={[styles.autoTransferText, { color: 'light.GreyText' }]}>
+            {wallet.AutoTransferInitiated}
+          </KeeperText>
           <Box style={styles.transferPolicyTextArea}>
             <Box style={styles.bitcoinLogo}>
               <BitcoinGreyIcon height="15" width="15" />
             </Box>
-            <KeeperText
-              style={[styles.splitter, {color: 'light.divider'}]}>|</KeeperText>
+            <KeeperText style={[styles.splitter, { color: 'light.divider' }]}>|</KeeperText>
             <Input
               placeholderTextColor="light.GreyText"
               value={formatNumber(transferPolicy)}
@@ -98,17 +99,21 @@ function EnterWalletDetailScreen({ route }) {
               fontSize={15}
               fontWeight="300"
               style={styles.transferPolicyInput}
-              keyboardType='numeric'
+              keyboardType="numeric"
               borderWidth="0"
               letterSpacing={3}
-              color='light.greenText'
+              color="light.greenText"
             />
             <Box style={styles.sats}>
-              <KeeperText type='bold'>{common.sats}</KeeperText>
+              <KeeperText type="bold">{common.sats}</KeeperText>
             </Box>
           </Box>
-          <KeeperText type='regular' style={[styles.autoTransferTextDesc, {color: 'light.GreyText'}]}>
-           {wallet.AutoTransferInitiatedDesc}</KeeperText>
+          <KeeperText
+            type="regular"
+            style={[styles.autoTransferTextDesc, { color: 'light.GreyText' }]}
+          >
+            {wallet.AutoTransferInitiatedDesc}
+          </KeeperText>
         </Box>
         <View marginY={5}>
           <Buttons
@@ -140,10 +145,10 @@ const styles = ScaledSheet.create({
     paddingTop: 10,
     letterSpacing: '0.5@s',
   },
-  transferPolicyInput:{
+  transferPolicyInput: {
     fontSize: 18,
-    fontWeight: 'bold'  
-},
+    fontWeight: 'bold',
+  },
   addWalletDescription: {
     fontSize: 12,
     lineHeight: '15@s',
@@ -160,25 +165,25 @@ const styles = ScaledSheet.create({
     borderWidth: 0,
     borderRadius: 10,
     marginTop: 10,
-    backgroundColor: "#fdf7f1",
-    borderColor: '#f4eee9'
+    backgroundColor: '#fdf7f1',
+    borderColor: '#f4eee9',
   },
   splitter: {
     fontSize: 30,
     paddingTop: 18,
     paddingRight: 5,
-    opacity: 0.25
+    opacity: 0.25,
   },
   bitcoinLogo: {
     paddingTop: 15,
     paddingLeft: 10,
     paddingRight: 5,
     paddingBottom: 15,
-    opacity: 0.25
+    opacity: 0.25,
   },
   sats: {
     paddingTop: 12,
     paddingRight: 5,
-  }
+  },
 });
 export default EnterWalletDetailScreen;
