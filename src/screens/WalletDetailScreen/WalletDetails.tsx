@@ -16,12 +16,10 @@ import Text from 'src/components/KeeperText';
 // icons and images
 import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
 import AddWalletIcon from 'src/assets/images/svgs/addWallet_illustration.svg';
-import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
 import BTC from 'src/assets/images/svgs/btc_wallet.svg';
 import BackIcon from 'src/assets/images/svgs/back.svg';
 import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
 import Carousel from 'react-native-snap-carousel';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
