@@ -8,7 +8,6 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/common/content/LocContext';
-// import { Transaction } from 'src/core/wallets/interfaces';
 import openLink from 'src/utils/OpenLink';
 // asserts
 import IconRecieve from 'src/assets/images/svgs/icon_received_lg.svg';
