@@ -1,9 +1,9 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import CheckIcon from 'src/assets/images/checked.svg';
 import Next from 'src/assets/images/svgs/icon_arrow.svg';
-import { RFValue } from 'react-native-responsive-fontsize';
 import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -26,7 +26,7 @@ function SignerList({
   ).length;
   return (
     <TouchableOpacity onPress={callback}>
-      <Box m={5}>
+      <Box margin={5}>
         <Box flexDirection="row" borderRadius={10} justifyContent="space-between">
           <Box flexDirection="row">
             <View style={styles.inheritenceView}>
@@ -34,7 +34,7 @@ function SignerList({
                 width={30}
                 height={30}
                 borderRadius={30}
-                bg="#FAC48B"
+                backgroundColor="light.accent"
                 justifyContent="center"
                 alignItems="center"
                 marginX={1}
@@ -45,29 +45,20 @@ function SignerList({
             <View style={{ flexDirection: 'column' }}>
               <Text
                 color="light.textBlack"
-                fontSize={RFValue(14)}
-                fontWeight={200}
-                fontFamily="heading"
+                fontSize={14}
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
                 {`${signer.signerName} (${signer.xpubInfo.xfp})`}
               </Text>
-              <Text
-                color="light.GreyText"
-                fontSize={RFValue(12)}
-                marginRight={10}
-                fontFamily="body"
-                letterSpacing={0.6}
-              >
+              <Text color="light.GreyText" fontSize={12} marginRight={10} letterSpacing={0.6}>
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
               </Text>
               {!!signer.signerDescription && (
                 <Text
-                  noOfLines={1}
+                  numberOfLines={1}
                   color="#6A7772"
                   fontSize={12}
-                  fontWeight={200}
                   letterSpacing={0.6}
                   fontStyle={null}
                   maxWidth={width * 0.6}

@@ -1,3 +1,5 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable no-plusplus */
 import { call, put, select } from 'redux-saga/effects';
 import {
   decrypt,
@@ -13,6 +15,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
+import ElectrumClient from 'src/core/services/electrum/client';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -43,7 +46,7 @@ import { RootState } from '../store';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
-import { fetchFeeAndExchangeRates } from '../sagaActions/send_and_receive';
+import { fetchFeeRates, fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
@@ -56,9 +59,8 @@ export const stringToArrayBuffer = (byteString: string): Uint8Array => {
       byteArray[i] = byteString.codePointAt(i);
     }
     return byteArray;
-  } 
-    return null;
-  
+  }
+  return null;
 };
 
 function* credentialsStorageWorker({ payload }) {
@@ -80,12 +82,20 @@ function* credentialsStorageWorker({ payload }) {
     // setup the application
     // yield put(setupKeeperApp());
     yield put(setPinHash(hash));
-
     yield put(setCredStored());
     yield put(setAppVersion(DeviceInfo.getVersion()));
-    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
+
+    // connect electrum-client
+    const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+    ElectrumClient.setActivePeer(privateNodes);
+    yield call(ElectrumClient.connect);
+
     // fetch fee and exchange rates
-    yield put(fetchFeeAndExchangeRates());
+    yield put(fetchFeeRates());
+    yield put(fetchExchangeRates());
+
+    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
+
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
@@ -105,7 +115,8 @@ function* credentialsAuthWorker({ payload }) {
     const { method } = payload;
     yield put(setupLoading('authenticating'));
 
-    let hash; let encryptedKey;
+    let hash;
+    let encryptedKey;
     if (method === LoginMethod.PIN) {
       hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
@@ -131,12 +142,22 @@ function* credentialsAuthWorker({ payload }) {
   }
   yield put(credsAuthenticated(true));
   yield put(setKey(key));
+  
+  // connect electrum-client
+  const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+  ElectrumClient.setActivePeer(privateNodes);
+  yield call(ElectrumClient.connect);
+
   if (!payload.reLogin) {
     // case: login
     const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
 
     yield put(autoSyncWallets());
-    yield put(fetchFeeAndExchangeRates());
+
+    // fetch fee and exchange rates
+    yield put(fetchFeeRates());
+    yield put(fetchExchangeRates());
+
     yield put(getMessages());
     yield put(setWarning(history));
     yield put(uaiChecks());
@@ -151,6 +172,7 @@ export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
+  console.log({ oldPasscode, newPasscode });
   try {
     // todo
   } catch (err) {
@@ -243,7 +265,7 @@ function* applicationUpdateWorker({
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
       date: new Date().toString(),
-      title: `Upgraded from ${  previousVersion}`,
+      title: `Upgraded from ${previousVersion}`,
     });
     messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
     messaging().subscribeToTopic(getReleaseTopic(newVersion));
@@ -251,7 +273,7 @@ function* applicationUpdateWorker({
     const res = yield call(Relay.fetchReleaseNotes, newVersion);
     let notes = '';
     notes = res.release
-      ? Platform.OS == 'ios'
+      ? Platform.OS === 'ios'
         ? res.release.releaseNotes.ios
         : res.release.releaseNotes.android
       : '';
@@ -259,7 +281,7 @@ function* applicationUpdateWorker({
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: notes,
       date: new Date().toString(),
-      title: `Upgraded from ${  previousVersion}`,
+      title: `Upgraded from ${previousVersion}`,
     });
   } catch (error) {
     console.log(error);

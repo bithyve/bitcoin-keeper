@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -58,15 +59,15 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color="light.white1" numberOfLines={2} style={styles.modalTitle}>
+            <Text color="light.white" numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text color="light.white1" numberOfLines={2} style={styles.modalSubtitle}>
+            <Text color="light.white" numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text color="light.white1" style={styles.modalDesc}>
+        <Text color="light.white" style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -91,9 +92,9 @@ function SetupInheritance() {
   function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={['light.gradientStart', 'light.gradientEnd']}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           ...styles.gradientIcon,
           height: hp(height),
@@ -125,7 +126,7 @@ function SetupInheritance() {
         <Text color="light.textWallet" style={styles.title}>
           Inheritance Support
         </Text>
-        <Text color="light.lightBlack2" style={styles.subtitle}>
+        <Text color="light.secondaryText" style={styles.subtitle}>
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>
@@ -133,7 +134,7 @@ function SetupInheritance() {
 
       <Box style={styles.bottomContainer}>
         <Assert />
-        <Text numberOfLines={2} fontWeight={100} style={styles.message}>
+        <Text numberOfLines={2} light style={styles.message}>
           {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
@@ -160,11 +161,11 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={['#00836A', '#073E39']}
-        textColor="#FFFFFF"
+        modalBackground={['light.gradientStart', 'light.gradientEnd']}
+        textColor="light.white"
         buttonText="Proceed"
-        buttonTextColor="#073E39"
-        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonTextColor="light.greenText"
+        buttonBackground={['#FFF', '#80A8A1']}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon

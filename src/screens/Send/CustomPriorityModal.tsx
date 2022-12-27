@@ -1,8 +1,9 @@
-import { Box, Modal, Text, Input, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Modal, Input } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/icons/modal_close.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DeleteIcon from 'src/assets/images/delete.svg';
@@ -17,7 +18,7 @@ function CustomPriorityModal(props) {
     title = 'Title',
     subTitle = null,
     info = null,
-    buttonBackground = ['#00836A', '#073E39'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback,
@@ -31,10 +32,10 @@ function CustomPriorityModal(props) {
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
-    if (text != 'x') {
+    if (text !== 'x') {
       currentFee += text;
       updateFeeAndBlock(currentFee);
-    } else if (currentFee && text == 'x') {
+    } else if (currentFee && text === 'x') {
       updateFeeAndBlock(currentFee.slice(0, -1));
     }
   };
@@ -84,7 +85,7 @@ function CustomPriorityModal(props) {
         justifyContent="flex-end"
       >
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-          <Box style={styles.container}>
+          <Box style={styles.container} backgroundColor="light.secondaryBackground">
             <TouchableOpacity style={styles.close} onPress={close}>
               <Close />
             </TouchableOpacity>
@@ -94,16 +95,10 @@ function CustomPriorityModal(props) {
               backgroundColor="transparent"
               width="90%"
             >
-              <Text
-                style={styles.title}
-                fontFamily="body"
-                fontWeight="200"
-                color={textColor}
-                paddingBottom={2}
-              >
+              <Text style={styles.title} color={textColor} paddingBottom={2}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontFamily="body" fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} light color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -111,13 +106,13 @@ function CustomPriorityModal(props) {
               <Input
                 mx="3"
                 placeholder="Enter Amount"
-                w="100%"
+                width="100%"
                 variant="unstyled"
                 value={customPriorityFee}
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text fontFamily="body" fontWeight="200" color="#073B36" mx={windowWidth * 0.038}>
+              <Text color="light.greenText" mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
@@ -125,7 +120,7 @@ function CustomPriorityModal(props) {
             <Box
               alignSelf="flex-end"
               flexDirection="row"
-              bg="transparent"
+              backgroundColor="transparent"
               alignItems="center"
               my={windowWidth * 0.031}
             >
@@ -134,13 +129,7 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text
-                  mr={windowWidth * 0.07}
-                  color="#073E39"
-                  fontFamily="body"
-                  fontWeight="300"
-                  letterSpacing={1.6}
-                >
+                <Text mr={windowWidth * 0.07} color="light.greenText" bold letterSpacing={1.6}>
                   Start Over
                 </Text>
               </TouchableOpacity>
@@ -150,15 +139,14 @@ function CustomPriorityModal(props) {
                 }}
               >
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
                   colors={buttonBackground}
                   style={styles.cta}
                 >
                   <Text
                     fontSize={13}
-                    fontFamily="body"
-                    fontWeight="300"
+                    bold
                     letterSpacing={1.6}
                     color={buttonTextColor}
                     mx={windowWidth * 0.04}
@@ -172,7 +160,7 @@ function CustomPriorityModal(props) {
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
-              keyColor="light.lightBlack"
+              keyColor="light.primaryText"
               ClearIcon={<DeleteIcon />}
             />
           </Box>
@@ -189,7 +177,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: '4%',
     paddingVertical: '5%',
-    backgroundColor: '#F7F2EC',
   },
   title: {
     fontSize: 19,

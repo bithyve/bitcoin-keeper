@@ -1,9 +1,10 @@
 import { Dimensions, Pressable } from 'react-native';
-import { Box, FlatList, HStack, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, FlatList, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { DerivationPurpose, SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -29,7 +30,7 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import { getSignerSigTypeInfo } from 'src/hardware';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
@@ -75,20 +76,13 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   if (!signer) {
     return (
       <Pressable onPress={navigateToSignerList}>
-        <Box
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginHorizontal: 10,
-            marginBottom: hp(25),
-          }}
-        >
+        <Box style={styles.signerItemContainer}>
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX="4" maxW="64">
+              <VStack marginX="4" maxWidth="64">
                 <Text
-                  color="light.lightBlack"
+                  color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
@@ -96,12 +90,12 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                 >
                   {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
-                <Text fontWeight={200} color="light.GreyText" fontSize={13} letterSpacing={0.6}>
+                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                   Select signing device
                 </Text>
               </VStack>
             </HStack>
-            <Box w="15%" alignItems="center">
+            <Box style={styles.backArrow}>
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -109,11 +103,12 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
       </Pressable>
     );
   }
-  const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
+  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
   let shouldReconfigure = false;
-  if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
-    shouldReconfigure = true;
-  } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+  if (
+    (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
+    (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
+  ) {
     shouldReconfigure = true;
   }
   return (
@@ -131,36 +126,35 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             width="8"
             height="8"
             borderRadius={30}
-            bg="#725436"
+            backgroundColor="#725436"
             justifyContent="center"
             alignItems="center"
             alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxW="80%">
+          <VStack marginX="4" maxWidth="80%">
             <Text
-              color="light.lightBlack"
+              color="light.primaryText"
               fontSize={15}
               numberOfLines={1}
               alignItems="center"
-              fontWeight={200}
               letterSpacing={1.12}
               maxWidth={width * 0.5}
             >
               {`${signer.signerName}`}
               <Text fontSize={12}>{` (${signer.xpubInfo.xfp})`}</Text>
             </Text>
-            <Text color="light.GreyText" fontSize={12} fontWeight={200} letterSpacing={0.6}>
+            <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
               <Box style={styles.descriptionBox}>
                 <Text
-                  noOfLines={1}
+                  numberOfLines={1}
                   color={signer.signerDescription ? '#6A7772' : '#387F6A'}
                   fontSize={12}
-                  fontWeight={signer.signerDescription ? 200 : 300}
+                  bold={!signer.signerDescription}
                   letterSpacing={0.6}
                   fontStyle={signer.signerDescription ? null : 'italic'}
                 >
@@ -171,7 +165,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text fontWeight={200} color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>
@@ -213,21 +207,8 @@ const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
   );
 };
 
-const PATH_INSENSITIVE_SIGNERS = [SignerType.TAPSIGNER];
-
 const signerLimitMatchesSubscriptionScheme = ({ vaultSigners, currentSignerLimit }) =>
   vaultSigners && vaultSigners.length !== currentSignerLimit;
-
-const getSignerInfoFromPath = (signer: VaultSigner) => {
-  const purpose = WalletUtilities.getSignerPurposeFromPath(signer.xpubInfo.derivationPath);
-  if (PATH_INSENSITIVE_SIGNERS.includes(signer.type) || signer.isMock) {
-    return { isSingleSig: true, isMultiSig: true, purpose };
-  }
-  if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
-    return { isSingleSig: false, isMultiSig: true, purpose };
-  }
-  return { isSingleSig: true, isMultiSig: false, purpose };
-};
 
 function AddSigningDevice() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -284,10 +265,11 @@ function AddSigningDevice() {
     if (signer) {
       if (signer.signerName.includes('*') && !signer.signerName.includes('**'))
         amfSigners.push(signer.type);
-      const { isSingleSig, isMultiSig } = getSignerInfoFromPath(signer);
-      if (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) {
-        misMatchedSigners.push(signer.xpubInfo.xfp);
-      } else if (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig) {
+      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
+      if (
+        (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
+        (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
+      ) {
         misMatchedSigners.push(signer.xpubInfo.xfp);
       }
     }
@@ -364,6 +346,12 @@ function AddSigningDevice() {
 }
 
 const styles = ScaledSheet.create({
+  signerItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: hp(25),
+  },
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -401,6 +389,10 @@ const styles = ScaledSheet.create({
   },
   descriptionContainer: {
     width: width * 0.8,
+  },
+  backArrow: {
+    width: '15%',
+    alignItems: 'center',
   },
 });
 

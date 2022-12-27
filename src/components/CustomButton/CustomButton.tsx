@@ -1,9 +1,8 @@
 import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native';
 
-import LinearGradient from 'react-native-linear-gradient';
-import { RFValue } from 'react-native-responsive-fontsize';
+import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
-import { Text } from 'native-base';
+import Text from 'src/components/KeeperText';
 
 export interface Props {
   value: string;
@@ -27,24 +26,12 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
       }}
     >
       <LinearGradient
-        start={{
-          x: 1,
-          y: 0,
-        }}
-        end={{
-          x: 0,
-          y: 0,
-        }}
-        useAngle
-        angle={286}
-        angleCenter={{
-          x: 1,
-          y: 0.0,
-        }}
-        colors={['#00836A', '#FFFFFF']}
+        start={[1, 0]}
+        end={[0, 0]}
+        colors={['#80A8A1', '#FFFFFF']}
         style={styles.linearGradient}
       >
-        <Text color="#073E39" fontSize={RFValue(12)} fontWeight="300" fontFamily="body">
+        <Text color="light.greenText" fontSize={12} bold>
           {value}
         </Text>
       </LinearGradient>

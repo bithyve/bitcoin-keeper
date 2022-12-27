@@ -1,12 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { Box } from 'native-base';
+import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
 function CreateCloudBackup(props) {
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
+  const { BackupWallet } = translations;
 
   const [currentPosition, setCurrentPosition] = useState(0);
   const [items, setItems] = useState([
@@ -18,14 +17,14 @@ function CreateCloudBackup(props) {
     },
   ]);
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
       {/* <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          m={5}
-          bg={'#E3BE96'}
+          margin={5}
+          backgroundColor={'#E3BE96'}
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems={'center'}
           justifyContent={'center'}
           alignSelf={'flex-end'}
@@ -36,17 +35,17 @@ function CreateCloudBackup(props) {
         </Box>
       </TouchableOpacity>
       <Box px={10}>
-        <Text fontSize={RFValue(19)} color={'light.lightBlack'} fontFamily={'heading'}>
+        <Text fontSize={(19)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackTitle}
         </Text>
-        <Text fontSize={RFValue(13)} color={'light.lightBlack'} fontFamily={'body'}>
+        <Text fontSize={(13)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
       <Box flexDirection={'row'} px={10} py={5} alignItems={'center'}>
         <Check />
         <Box marginLeft={5}>
-          <Text color={'#00715B'} fontSize={RFValue(16)}>
+          <Text color={'#00715B'} fontSize={(16)}>
             Lorem ipsum dolor
           </Text>
         </Box>
@@ -54,7 +53,7 @@ function CreateCloudBackup(props) {
       <Box flexDirection={'row'} px={10} py={5} alignItems={'center'}>
         <Check />
         <Box marginLeft={5}>
-          <Text color={'#00715B'} fontSize={RFValue(16)}>
+          <Text color={'#00715B'} fontSize={(16)}>
             Lorem ipsum dolor
           </Text>
         </Box>
@@ -62,22 +61,22 @@ function CreateCloudBackup(props) {
       <Box flexDirection={'row'} px={10} py={5} alignItems={'center'}>
         <Check />
         <Box marginLeft={5}>
-          <Text color={'#00715B'} fontSize={RFValue(16)}>
+          <Text color={'#00715B'} fontSize={(16)}>
             Lorem ipsum dolor
           </Text>
         </Box>
       </Box>
-      <Box p={10}>
-        <Text fontSize={RFValue(13)} color={'light.lightBlack'} fontFamily={'body'}>
+      <Box padding={10}>
+        <Text fontSize={(13)} color={'light.primaryText'} >
           {BackupWallet.createCloudBackSubTitle}
         </Text>
       </Box>
-      {/* <Box p={10} flexDirection={'row'}>
+      {/* <Box padding={10} flexDirection={'row'}>
         {items.map((item, index) => {
           return (
             <Box
               key={index}
-              style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+              style={currentPosition===index ? styles.selectedDot : styles.unSelectedDot}
             />
           );
         })}

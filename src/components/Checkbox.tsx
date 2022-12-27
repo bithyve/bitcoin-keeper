@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
+import Text from './KeeperText';
 
 function CheckBox(props) {
   const IconName = props.isChecked ? <Selected /> : <UnSelected />;
@@ -11,7 +12,11 @@ function CheckBox(props) {
       <Pressable onPress={props.onPress}>{IconName}</Pressable>
       <View style={{ flexDirection: 'column', marginLeft: 15 }}>
         <Text style={styles.title}>{props.title}</Text>
-        <Text style={styles.subtitle}>{props.subTitle}</Text>
+        {props.subTitle && props.subTitle.length > 0 && (
+          <Text style={styles.subtitle} color="light.secondaryText">
+            {props.subTitle}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -33,7 +38,6 @@ const styles = StyleSheet.create({
     color: '#041513',
   },
   subtitle: {
-    color: '#5F6965',
     fontSize: 15,
   },
 });

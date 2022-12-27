@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { Box, Text, Input } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -59,13 +59,13 @@ function FogotPassword(props) {
   }
 
   return (
-    <Box bg="#F7F2EC" p={5}>
+    <Box backgroundColor="light.secondaryBackground" padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
-          bg="#E3BE96"
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
@@ -73,17 +73,15 @@ function FogotPassword(props) {
           <Close />
         </Box>
       </TouchableOpacity>
-      <Text fontWeight={200} fontSize={RFValue(19)} letterSpacing={1}>
+      <Text fontSize={19} letterSpacing={1}>
         {login.ForgotPasscode}
       </Text>
-      <Text fontWeight={200} fontSize={RFValue(12)}>
-        {login.forgotPasscodeDesc}
-      </Text>
+      <Text fontSize={12}>{login.forgotPasscodeDesc}</Text>
       {props.type === 'seed' ? (
         <Box>
-          <Text fontWeight={200} fontSize={RFValue(13)} mt={10}>
+          <Text fontSize={13} mt={10}>
             Enter the
-            <Text fontWeight={500} fontSize={RFValue(13)}>
+            <Text fontWeight={500} fontSize={13}>
               {` ${getSeedIndexText(resetCred.index + 1)} `}
             </Text>
             word
@@ -100,7 +98,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            bg="#FDF7F0"
+            backgroundColor="light.primaryBackground"
             pl={5}
             py={4}
             my={6}
@@ -113,7 +111,7 @@ function FogotPassword(props) {
           />
 
           {invalid && (
-            <Text fontWeight={200} color="#FF0000" m={2}>
+            <Text color="#FF0000" margin={2}>
               {login.Invalidword}
             </Text>
           )}
@@ -129,7 +127,7 @@ function FogotPassword(props) {
             fontSize={13}
             fontWeight="bold"
             color="#000000"
-            bg="#FDF7F0"
+            backgroundColor="light.primaryBackground"
             pl={5}
             py={4}
             my={6}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Text, useColorMode } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, useColorMode } from 'native-base';
 import Switch from '../../components/Switch/Switch';
 
 function CountryCard(props) {
@@ -7,19 +8,19 @@ function CountryCard(props) {
 
   return (
     <Box
-      bg={`${colorMode}.white`}
+      backgroundColor={`${colorMode}.white`}
       flexDirection="row"
       justifyContent="space-evenly"
       mx={7}
-      p={3}
+      padding={3}
       borderRadius={10}
       {...props}
     >
       <Box flex={0.8}>
-        <Text color="#00715B" letterSpacing={1.12} fontFamily="body" fontWeight={200} fontSize={16}>
+        <Text color="light.greenText2" letterSpacing={1.12} fontSize={16}>
           {props.title}
         </Text>
-        <Text color="#4F5955" fontFamily="body" letterSpacing={0.6} fontWeight={200} fontSize={12}>
+        <Text color="light.GreyText" letterSpacing={0.6} fontSize={12}>
           {props.description}
         </Text>
       </Box>

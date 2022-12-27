@@ -7,6 +7,8 @@ export interface Props {
   color?: string;
 }
 function DotView(props: Props) {
-  return <Box h={props.height} w={props.width} borderRadius={6} bg={props.color} />;
+  return (
+    <Box h={props.height} width={props.width} borderRadius={6} backgroundColor={props.color} />
+  );
 }
 export default DotView;
