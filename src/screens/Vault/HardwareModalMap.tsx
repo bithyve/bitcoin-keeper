@@ -49,6 +49,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import * as SecureStore from '../../storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
