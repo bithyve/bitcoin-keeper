@@ -270,7 +270,7 @@ function ChoosePlan(props) {
         )}
 
         <Box
-          backgroundColor="light.ReceiveBackground"
+          backgroundColor="light.secondaryBackground"
           position="absolute"
           bottom={-10}
           justifyContent="flex-end"

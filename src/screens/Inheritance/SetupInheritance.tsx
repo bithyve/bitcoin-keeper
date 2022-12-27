@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -92,9 +92,9 @@ function SetupInheritance() {
   function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
-        colors={['#00836A', '#073E39']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={['light.gradientStart', 'light.gradientEnd']}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           ...styles.gradientIcon,
           height: hp(height),
@@ -134,7 +134,7 @@ function SetupInheritance() {
 
       <Box style={styles.bottomContainer}>
         <Assert />
-        <Text numberOfLines={2} fontWeight={100} style={styles.message}>
+        <Text numberOfLines={2} light style={styles.message}>
           {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
@@ -161,11 +161,11 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={['#00836A', '#073E39']}
-        textColor="#FFFFFF"
+        modalBackground={['light.gradientStart', 'light.gradientEnd']}
+        textColor="light.white"
         buttonText="Proceed"
-        buttonTextColor="#073E39"
-        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonTextColor="light.greenText"
+        buttonBackground={['#FFF', '#80A8A1']}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon

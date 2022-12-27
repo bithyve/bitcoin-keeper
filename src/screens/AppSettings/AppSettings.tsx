@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { Alert, NativeModules, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { Alert, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
-import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import BackupIcon from 'src/assets/images/svgs/backup.svg';
 import Twitter from 'src/assets/images/svgs/Twitter.svg';
@@ -19,18 +18,22 @@ import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCa
 import openLink from 'src/utils/OpenLink';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { BackupHistory } from 'src/common/data/enums/BHR';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import TorModalMap from './TorModalMap';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const RNBiometrics = new ReactNativeBiometrics();
-const { GoogleDrive } = NativeModules;
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
   const { appId } = useAppSelector((state) => state.storage);
   const { backupMethod } = useAppSelector((state) => state.bhr);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -38,8 +41,12 @@ function AppSettings({ navigation }) {
   const { translations, formatString } = useContext(LocalizationContext);
   const { common } = translations;
   const { settings } = translations;
+  const backupWalletStrings = translations.BackupWallet;
+
   const [showTorModal, setShowTorModal] = useState(false);
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+
+  const backupHistory = useMemo(() => data.sorted('date', true), [data]);
 
   const onChangeTorStatus = (status: TorStatus, message) => {
     settorStatus(status);
@@ -58,7 +65,7 @@ function AppSettings({ navigation }) {
 
   const RenderTorStatus = useCallback(
     () => (
-      <Box backgroundColor="#E3BE96" py={0.5} px={1.5} borderRadius={10}>
+      <Box backgroundColor="light.lightAccent" py={0.5} px={1.5} borderRadius={10}>
         <Text fontSize={11}>{torStatus}</Text>
       </Box>
     ),
@@ -113,26 +120,6 @@ function AppSettings({ navigation }) {
     setDarkMode(!darkMode);
   };
 
-  const backup = async () => {
-    try {
-      const res = await uploadData(appId, {
-        encData: 'vavadv',
-      });
-      console.log('RESSS', res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const doanload = async () => {
-    try {
-      const res = await getCloudBackupData();
-      console.log('CLOUD DATA', JSON.stringify(res));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   function Option({ title, subTitle, onPress, Icon }) {
     return (
       <Pressable
@@ -147,7 +134,7 @@ function AppSettings({ navigation }) {
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
-                bg="light.indicator"
+                backgroundColor="light.indicator"
                 borderColor="light.white"
                 style={styles.notificationIndicator}
               />
@@ -183,7 +170,7 @@ function AppSettings({ navigation }) {
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
       <Box style={styles.appSettingTitleWrapper}>
-        <Box w="70%">
+        <Box width="70%">
           <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
           <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
         </Box>
@@ -203,7 +190,11 @@ function AppSettings({ navigation }) {
         >
           <Option
             title="App Backup"
-            subTitle="Recovery Phrases health check is due"
+            subTitle={
+              backupMethod === null
+                ? 'Recovery Phrases health check is due'
+                : backupWalletStrings[backupHistory[0].title]
+            }
             onPress={() => {
               navigation.navigate('BackupWallet');
             }}
@@ -227,6 +218,14 @@ function AppSettings({ navigation }) {
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
           /> */}
+          <SettingsCard
+            title={settings.nodeSettings}
+            description={settings.nodeSettingsSubtitle}
+            my={1}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('NodeSettings')}
+          />
           <SettingsCard
             title={settings.VersionHistory}
             description={settings.VersionHistorySubTitle}
@@ -259,7 +258,7 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.ReceiveBackground">
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
               <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
@@ -294,7 +293,7 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} bg="light.primaryBackground">
+            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}

@@ -143,7 +143,7 @@ function SetupSigningServer({ route }: { route }) {
   }, [otp]);
 
   return (
-    <View style={styles.Container} background="light.ReceiveBackground">
+    <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
@@ -181,7 +181,7 @@ function SetupSigningServer({ route }: { route }) {
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"
-                noOfLines={1}
+                numberOfLines={1}
               >
                 2FA Signing Server
               </Text>
@@ -196,7 +196,7 @@ function SetupSigningServer({ route }: { route }) {
                 borderBottomLeftRadius={10}
                 borderTopLeftRadius={10}
               >
-                <Text width="80%" marginLeft={4} noOfLines={1}>
+                <Text width="80%" marginLeft={4} numberOfLines={1}>
                   {twoFAKey}
                 </Text>
                 <TouchableOpacity
@@ -248,7 +248,7 @@ function SetupSigningServer({ route }: { route }) {
         }}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signing server"
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={otpContent}
       />
     </View>

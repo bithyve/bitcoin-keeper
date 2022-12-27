@@ -93,14 +93,12 @@ function AddSendAmount({ route }) {
     },
     []
   );
-  console.log(windowHeight);
   return (
     <ScreenWrapper>
       <HeaderTitle
         title={
           transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
         }
-        // subtitle={`Sending to ${address}`}
       />
       <Box
         style={{
@@ -140,7 +138,6 @@ function AddSendAmount({ route }) {
               width="70%"
               fontSize={12}
               letterSpacing={1.04}
-              bold
               borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}
@@ -180,17 +177,15 @@ function AddSendAmount({ route }) {
           </Box>
         </Box>
       </Box>
-      {/* {!isKeyboardVisible && ( */}
       <Box style={styles.appNumPadWrapper}>
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
-          color="#073E39"
+          color="light.greenText"
           height={windowHeight > 670 ? 85 : 65}
           darkDeleteIcon
         />
       </Box>
-      {/* )} */}
     </ScreenWrapper>
   );
 }
@@ -249,11 +244,8 @@ const styles = ScaledSheet.create({
     justifyContent: 'flex-end',
   },
   appNumPadWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: windowWidth,
-    position: 'absolute',
-    bottom: 0,
+    width: '110%',
+    marginLeft: '-5%',
   },
 });
 export default AddSendAmount;

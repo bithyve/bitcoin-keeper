@@ -76,18 +76,11 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   if (!signer) {
     return (
       <Pressable onPress={navigateToSignerList}>
-        <Box
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginHorizontal: 10,
-            marginBottom: hp(25),
-          }}
-        >
+        <Box style={styles.signerItemContainer}>
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX="4" maxW="64">
+              <VStack marginX="4" maxWidth="64">
                 <Text
                   color="light.primaryText"
                   fontSize={15}
@@ -102,7 +95,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                 </Text>
               </VStack>
             </HStack>
-            <Box w="15%" alignItems="center">
+            <Box style={styles.backArrow}>
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -133,14 +126,14 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             width="8"
             height="8"
             borderRadius={30}
-            bg="#725436"
+            backgroundColor="#725436"
             justifyContent="center"
             alignItems="center"
             alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxW="80%">
+          <VStack marginX="4" maxWidth="80%">
             <Text
               color="light.primaryText"
               fontSize={15}
@@ -158,10 +151,10 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             <Pressable onPress={openDescriptionModal}>
               <Box style={styles.descriptionBox}>
                 <Text
-                  noOfLines={1}
+                  numberOfLines={1}
                   color={signer.signerDescription ? '#6A7772' : '#387F6A'}
                   fontSize={12}
-                  fontWeight={signer.signerDescription ? 200 : 300}
+                  bold={!signer.signerDescription}
                   letterSpacing={0.6}
                   fontStyle={signer.signerDescription ? null : 'italic'}
                 >
@@ -330,11 +323,10 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${
-                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(
-                ' and '
-              )}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+                } xPub\nPlease export ${misMatchedSigners.join(
+                  ' and '
+                )}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
@@ -346,6 +338,7 @@ function AddSigningDevice() {
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"
           secondaryCallback={navigation.goBack}
+          paddingHorizontal={wp(30)}
         />
       </Box>
     </ScreenWrapper>
@@ -353,6 +346,12 @@ function AddSigningDevice() {
 }
 
 const styles = ScaledSheet.create({
+  signerItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: hp(25),
+  },
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -367,9 +366,10 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     width: windowWidth,
-    bottom: 20,
+    bottom: 5,
     right: 20,
     padding: 20,
+    backgroundColor: '#F7F2EC',
   },
   noteContainer: {
     width: wp(330),
@@ -389,6 +389,10 @@ const styles = ScaledSheet.create({
   },
   descriptionContainer: {
     width: width * 0.8,
+  },
+  backArrow: {
+    width: '15%',
+    alignItems: 'center',
   },
 });
 

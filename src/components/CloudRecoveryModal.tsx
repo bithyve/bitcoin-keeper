@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Modal } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import Close from 'src/assets/icons/modal_close.svg';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -19,10 +19,10 @@ function ListItem({ item, onPress }) {
       <Box flexDirection="row">
         {IconName}
         <Box marginY={2}>
-          <Text color="#4F5955" marginLeft={2} marginTop={1}>
+          <Text color="light.GreyText" marginLeft={2} marginTop={1}>
             {`App ID: ${item.appID}`}
           </Text>
-          <Text fontSize={12} color="#4F5955">
+          <Text fontSize={12} color="light.GreyText">
             {moment(item.dateTime).format('DD MMM YYYY, hh:mmA')}
           </Text>
         </Box>
@@ -37,8 +37,8 @@ function CloudRecoveryModal(props) {
     close,
     title = 'Title',
     subTitle = null,
-    modalBackground = ['#F7F2EC', '#F7F2EC'],
-    buttonBackground = ['#00836A', '#073E39'],
+    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
+    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
     buttonText = null,
     buttonTextColor = 'white',
     buttonCallback = props.close || null,
@@ -84,8 +84,8 @@ function CloudRecoveryModal(props) {
           />
         ) : (
           <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={[0, 0]}
+            end={[1, 1]}
             colors={modalBackground}
             style={styles.container}
           >
@@ -101,7 +101,7 @@ function CloudRecoveryModal(props) {
               <Text style={styles.title} color={textColor} paddingBottom={1}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} fontWeight="100" color={textColor}>
+              <Text style={styles.subTitle} light color={textColor}>
                 {subTitle}
               </Text>
             </Modal.Header>
@@ -118,11 +118,11 @@ function CloudRecoveryModal(props) {
                 />
               )}
             </Modal.Body>
-            <Box alignSelf="flex-end" bg="transparent">
+            <Box alignSelf="flex-end" backgroundColor="transparent">
               <TouchableOpacity onPress={next}>
                 <LinearGradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                  start={[0, 0]}
+                  end={[1, 1]}
                   colors={buttonBackground}
                   style={styles.cta}
                 >

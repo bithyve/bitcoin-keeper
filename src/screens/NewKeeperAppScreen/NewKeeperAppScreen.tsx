@@ -214,11 +214,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
         close={closeCloudModal}
         title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
         subTitle={seed.seedDescription}
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={passwordScreen}
-        textColor="#041513"
+        textColor="light.primaryText"
         onPressNext={(backup) => {
           setSelectedBackup(backup);
           passwordScreen();
@@ -230,10 +229,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         title="Confirm Password"
         subTitle={seed.seedDescription}
         dscription={seed.seedDescription}
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Next"
-        buttonTextColor="#FAFAFA"
-        textColor="#041513"
+        buttonTextColor="light.white"
+        textColor="light.primaryText"
         backup={selectedBackup}
         onPressNext={(password) => {
           dispatch(recoverBackup(password, selectedBackup.encData));
@@ -257,7 +255,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setModalVisible(false);
           navigation.replace('App', { screen: 'NewHome' });
         }}
-        subTitleColor="#5F6965"
+        subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />

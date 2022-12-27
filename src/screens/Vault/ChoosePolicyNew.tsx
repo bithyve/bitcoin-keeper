@@ -159,7 +159,7 @@ function ChoosePolicyNew({ navigation, route }) {
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
           clear={() => {}}
-          color="#073E39"
+          color="light.greenText"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
         />

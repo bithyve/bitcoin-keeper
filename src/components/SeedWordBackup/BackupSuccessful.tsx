@@ -11,7 +11,7 @@ function BackupSuccessful(props) {
   const { BackupWallet } = translations;
 
   return (
-    <Box style={styles.wrapper}>
+    <Box style={styles.wrapper} backgroundColor="light.secondaryBackground">
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box style={styles.closeBtnWrapper}>
           <Text style={styles.closeText}>X</Text>
@@ -44,7 +44,6 @@ function BackupSuccessful(props) {
 }
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: '#F7F2EC',
     borderRadius: 5,
   },
   closeBtnWrapper: {

@@ -65,12 +65,11 @@ function SetupSeedWordSigner({ route, navigation }) {
   );
 
   return (
-    <Box flex={1} padding={5} background="light.ReceiveBackground">
+    <Box flex={1} padding={5} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title="Soft Key"
         subtitle={seedText.SeedDesc}
-        color="light.ReceiveBackground"
         onPressHandler={() => navigtaion.goBack()}
       />
 

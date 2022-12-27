@@ -1,9 +1,6 @@
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import {
-  FlatList,
-  RefreshControl,
-} from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
@@ -41,17 +38,18 @@ function ViewAllTransactions({ route }) {
   };
 
   const renderTransactionElement = ({ item }) => (
-      <TransactionElement
-        transaction={item}
-        onPress={() => {
-          navigtaion.navigate('TransactionDetails', {
-            transaction: item,
-          });
-        }} />
-    );
+    <TransactionElement
+      transaction={item}
+      onPress={() => {
+        navigtaion.navigate('TransactionDetails', {
+          transaction: item,
+        });
+      }}
+    />
+  );
 
   return (
-    <Box style={styles.Container} background="light.ReceiveBackground">
+    <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle

@@ -6,7 +6,13 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 
 function LanguageNote(props) {
   return (
-    <Box bg="light.primaryBackground" mx={5} p={3} height={hp(82)} justifyContent="center">
+    <Box
+      backgroundColor="light.primaryBackground"
+      mx={5}
+      padding={3}
+      height={hp(82)}
+      justifyContent="center"
+    >
       <Box opacity={1}>
         <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
           {props.title}

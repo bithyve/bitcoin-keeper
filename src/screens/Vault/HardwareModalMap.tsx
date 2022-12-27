@@ -1,9 +1,8 @@
+import React, { useContext, useState } from 'react';
 import * as bip39 from 'bip39';
-
 import { Alert, StyleSheet } from 'react-native';
 import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -47,8 +46,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import * as SecureStore from '../../storage/secure-store';
+
+const RNBiometrics = new ReactNativeBiometrics();
 
 function SetupSuccessfully() {
   return (
@@ -57,7 +61,7 @@ function SetupSuccessfully() {
         <SuccessIllustration />
       </Box>
       <Box marginTop={hp(0)}>
-        <Text color="light.greenText" fontSize={13} p={1} letterSpacing={0.65}>
+        <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
         </Text>
       </Box>
@@ -97,7 +101,7 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -107,7 +111,7 @@ function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
           {`\u2022 ${userInstruction}`}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -128,12 +132,12 @@ function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4" flex={1} alignItems="center" justifyContent="center">
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontWeight="100">
+          <Text color="light.greenText" fontSize={13} light>
             {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
           </Text>
         </Box>
         <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontWeight="100">
+          <Text color="light.greenText" fontSize={13} light>
             {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
           </Text>
         </Box>
@@ -153,7 +157,7 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -163,7 +167,7 @@ function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
           {instructions}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -188,7 +192,7 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -198,7 +202,7 @@ function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
           {instructions}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -223,7 +227,7 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -233,7 +237,7 @@ function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
           {instructions}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -258,7 +262,7 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -268,7 +272,7 @@ function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
           {instructions}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -290,7 +294,7 @@ function KeeperSetupContent() {
       </Box>
       <Box marginTop="4">
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -300,7 +304,7 @@ function KeeperSetupContent() {
           {`\u2022 Choose a wallet or create a new one from your Linked Wallets\n`}
         </Text>
         <Text
-          color="#073B36"
+          color="light.greenText"
           fontSize={13}
           letterSpacing={0.65}
           style={{
@@ -482,6 +486,9 @@ function HardwareModalMap({ type, visible, close }) {
   const [passwordModal, setPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const appId = useAppSelector((state) => state.storage.appId);
+  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -582,6 +589,35 @@ function HardwareModalMap({ type, visible, close }) {
     }
   };
 
+  const biometricAuth = async () => {
+    if (loginMethod === LoginMethod.BIOMETRIC) {
+      try {
+        setTimeout(async () => {
+          const { success, signature } = await RNBiometrics.createSignature({
+            promptMessage: 'Authenticate',
+            payload: appId,
+            cancelButtonText: 'Use PIN',
+          });
+          if (success) {
+            const res = await SecureStore.verifyBiometricAuth(signature, appId);
+            if (res.success) {
+              const mobileKey = await setupMobileKey({ primaryMnemonic });
+              dispatch(addSigningDevice(mobileKey));
+              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+              showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
+            } else {
+              Alert.alert('Incorrect password. Try again!');
+            }
+          }
+        }, 200);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setPasswordModal(true);
+    }
+  };
+
   function PasswordEnter() {
     const onPressNumber = (text) => {
       let tmpPasscode = password;
@@ -653,23 +689,21 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={tapsigner.SetupTitle}
         subTitle={tapsigner.SetupDescription}
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToTapsignerSetup}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <TapsignerSetupContent />}
       />
       <KeeperModal
         visible={visible && type === SignerType.COLDCARD}
         close={close}
         title={coldcard.SetupTitle}
-        subTitle={coldcard.SetupDescription}
-        buttonBackground={['#00836A', '#073E39']}
+        subTitle={`${coldcard.SetupDescription}`}
         buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToColdCardSetup}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <ColdCardSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
@@ -677,11 +711,10 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title={ledger.SetupTitle}
         subTitle={ledger.SetupDescription}
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToLedgerSetup}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <LedgerSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
@@ -689,11 +722,10 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up a Signing Server"
         subTitle="A Signing Server will hold one of the keys in the vault"
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Continue"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToSigningServerSetup}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={SettingSigningServer}
       />
       <KeeperModal
@@ -701,14 +733,13 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Set up a Mobile Key"
         subTitle="This key available for signing transactions if you confirm your passcode or biometrics"
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={() => {
           close();
-          setPasswordModal(true);
+          biometricAuth();
         }}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={SetUpMobileKey}
       />
       <KeeperModal
@@ -718,7 +749,7 @@ function HardwareModalMap({ type, visible, close }) {
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={PasswordEnter}
       />
       <KeeperModal
@@ -726,11 +757,10 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Keep your Soft Signer ready"
         subTitle="This is the twelve word Recovery Phrase you would have noted down when creating the vault"
-        buttonBackground={['#00836A', '#073E39']}
         buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToSeedWordSetup}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={SetupSeedWords}
       />
       <KeeperModal
@@ -738,14 +768,13 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Signing Server Setup Successfully"
         subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="View Vault"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={() => {
           console.log('View Vault');
         }}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={SetupSuccessfully}
       />
       <KeeperModal
@@ -753,12 +782,11 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up Passport (Batch 2)"
         subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Continue"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <PassportSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
@@ -766,12 +794,11 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up SeedSigner"
         subTitle="Keep your SeedSigner ready and powered before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Continue"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <SeedSignerSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
@@ -779,12 +806,11 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up Keystone"
         subTitle="Keep your Keystone ready before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Continue"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <KeystoneSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
@@ -792,12 +818,11 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Setting up Blockstream Jade"
         subTitle="Keep your Jade ready and unlocked before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Continue"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={() => <JadeSetupContent isMultisig={isMultisig} />}
       />
       <KeeperModal
@@ -805,12 +830,11 @@ function HardwareModalMap({ type, visible, close }) {
         close={close}
         title="Keep your Device Ready"
         subTitle="Keep your Keeper Signing Device ready before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
+        subTitleColor="light.secondaryText"
         buttonText="Continue"
-        buttonTextColor="#FAFAFA"
+        buttonTextColor="light.white"
         buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={KeeperSetupContent}
       />
     </>

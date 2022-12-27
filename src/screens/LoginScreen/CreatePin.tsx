@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -147,7 +147,11 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient testID="main" colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient
+      testID="main"
+      colors={['light.gradientStart', 'light.gradientEnd']}
+      style={styles.linearGradient}
+    >
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -188,6 +192,11 @@ export default function CreatePin(props) {
                     borderColor={
                       passcode !== confirmPasscode && confirmPasscode.length === 4
                         ? '#FF8F79'
+                        : 'transparent'
+                    }
+                    borderColor={
+                      passcode != confirmPasscode && confirmPasscode.length == 4
+                        ? 'light.error'
                         : 'transparent'
                     }
                   />

@@ -21,12 +21,12 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
-import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useBLE from 'src/hooks/useLedger';
 import useVault from 'src/hooks/useVault';
 import { BulletPoint } from '../Vault/HardwareModalMap';
+import * as SecureStore from '../../storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -194,11 +194,10 @@ function TapsignerContent() {
   );
 }
 
-function PasswordEnter({ signTransaction }) {
+function PasswordEnter({ signTransaction, setPasswordModal }) {
   const { pinHash } = useAppSelector((state) => state.storage);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
-  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
   const dispatch = useAppDispatch();
 
   const [password, setPassword] = useState('');
@@ -213,6 +212,7 @@ function PasswordEnter({ signTransaction }) {
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
+        setPasswordModal(false);
         setTimeout(async () => {
           const { success, signature } = await RNBiometrics.createSignature({
             promptMessage: 'Authenticate',
@@ -220,7 +220,12 @@ function PasswordEnter({ signTransaction }) {
             cancelButtonText: 'Use PIN',
           });
           if (success) {
-            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+            const res = await SecureStore.verifyBiometricAuth(signature, appId);
+            if (res.success) {
+              signTransaction();
+            } else {
+              Alert.alert('Invalid auth. Try again!');
+            }
           }
         }, 200);
       } catch (error) {
@@ -228,18 +233,6 @@ function PasswordEnter({ signTransaction }) {
       }
     }
   };
-
-  useEffect(() => {
-    if (authenticationFailed) {
-      console.log('authenticationFailed', authenticationFailed);
-    }
-  }, [authenticationFailed]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      signTransaction();
-    }
-  }, [isAuthenticated]);
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -438,11 +431,11 @@ function SignerModals({
                 close={() => setLedgerModal(false)}
                 title="Looking for Nano X"
                 subTitle="Power up your Ledger Nano X and open the BTC app"
-                modalBackground={['#00836A', '#073E39']}
+                modalBackground={['light.gradientStart', 'light.gradientEnd']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
                 buttonText={LedgerCom.current ? 'SIGN' : null}
-                buttonTextColor="#073E39"
-                textColor="#FFF"
+                buttonTextColor="light.greenText"
+                textColor="light.white"
                 DarkCloseIcon
                 Content={() => <LedgerContent signTransaction={signTransaction} />}
               />
@@ -456,7 +449,7 @@ function SignerModals({
                 }}
                 title="Enter your password"
                 subTitle=""
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <PasswordEnter signTransaction={signTransaction} />}
               />
             );
@@ -469,7 +462,7 @@ function SignerModals({
                 }}
                 title="Confirm OTP to setup 2FA"
                 subTitle="Lorem ipsum dolor sit amet, "
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <OtpContent signTransaction={signTransaction} />}
               />
             );
@@ -482,7 +475,7 @@ function SignerModals({
                 }}
                 title="Keep Passport Ready"
                 subTitle="Keep your Foundation Passport ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <PassportContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -497,7 +490,7 @@ function SignerModals({
                 }}
                 title="Keep SeedSigner Ready"
                 subTitle="Keep your SeedSigner ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <SeedSignerContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -512,7 +505,7 @@ function SignerModals({
                 }}
                 title="Keep Keystone Ready"
                 subTitle="Keep your Keystone ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <KeystoneContent isMultisig={isMultisig} />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -527,7 +520,7 @@ function SignerModals({
                 }}
                 title="Keep Jade Ready"
                 subTitle="Keep your Jade ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <JadeContent />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}
@@ -542,7 +535,7 @@ function SignerModals({
                 }}
                 title="Keep your Device Ready"
                 subTitle="Keep your Keeper Signing Device ready before proceeding"
-                textColor="#041513"
+                textColor="light.primaryText"
                 Content={() => <KeeperContent />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToQrSigning(signer)}

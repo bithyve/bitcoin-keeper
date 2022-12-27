@@ -47,9 +47,6 @@ const styles = StyleSheet.create({
   mainText: {
     color: '#00715B',
   },
-  subText: {
-    color: '#4F5955',
-  },
   scrollViewWrapper: {
     borderWidth: 1,
     borderColor: Colors.Platinum,
@@ -116,7 +113,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: wp('7%'),
     letterSpacing: 0.6,
-    color: '#4F5955',
   },
   flagWrapper1: {
     flexDirection: 'row',
@@ -150,7 +146,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: wp('3%'),
     letterSpacing: 0.6,
-    color: '#4F5955',
   },
   countryCodeText: {
     textTransform: 'uppercase',
@@ -218,7 +213,7 @@ function ChangeLanguage() {
 
   return (
     <SafeAreaView style={styles.wrapper}>
-      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <StatusBar backgroundColor="light.secondaryBackground" barStyle="dark-content" />
       <Box mx={5} my={10}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
@@ -234,11 +229,11 @@ function ChangeLanguage() {
           showsVerticalScrollIndicator={false}
           py={3}
         > */}
-        <Box w="60%" marginLeft="10%">
+        <Box width="60%" marginLeft="10%">
           <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={12} letterSpacing={0.6} style={styles.subText}>
+          <Text fontSize={12} letterSpacing={0.6} color="light.GreyText">
             {settings.biometricsDesc}
           </Text>
         </Box>
@@ -286,7 +281,9 @@ function ChangeLanguage() {
                   <Text style={styles.symbolText}>{item.symbol}</Text>
                 </View>
                 <View style={styles.codeTextWrapper}>
-                  <Text style={styles.codeText}>{item.code}</Text>
+                  <Text style={styles.codeText} color="light.GreyText">
+                    {item.code}
+                  </Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -328,7 +325,7 @@ function ChangeLanguage() {
                   <Text style={styles.flagStyle}>{item.flag}</Text>
                 </View>
                 <View style={styles.countryCodeWrapper1}>
-                  <Text style={styles.countryCodeWrapper2}>
+                  <Text style={styles.countryCodeWrapper2} color="light.GreyText">
                     <Text style={styles.countryCodeText}>{item.country_code}</Text>
                     <Text>{`- ${item.displayTitle}`}</Text>
                   </Text>

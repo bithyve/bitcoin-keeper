@@ -3,7 +3,7 @@ import { Box, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 // asserts
 import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -15,24 +15,6 @@ import Text from 'src/components/KeeperText';
 function Transactions({ transactions, addTransaction = () => {} }) {
   const navigation = useNavigation();
 
-  function GradientIcon({ height, Icon }) {
-    return (
-      <LinearGradient
-        colors={['#B17F44', '#6E4A35']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          height: hp(height),
-          width: hp(height),
-          borderRadius: height,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Icon />
-      </LinearGradient>
-    );
-  }
   const renderTranscation = ({ item, index }: { item; index }) => {
     const { address, amount } = item;
     return (

@@ -64,7 +64,6 @@ function VaultTransactions({ route }) {
             </Text>
           </Box>
         </Box>
-
         <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
             data={transactions}
@@ -83,7 +82,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
+    backgroundColor: 'light.secondaryBackground',
   },
 });
 export default VaultTransactions;

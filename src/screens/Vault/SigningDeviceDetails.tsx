@@ -27,9 +27,9 @@ import { useDispatch } from 'react-redux';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType } from 'src/hardware';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import useToastMessage from 'src/hooks/useToastMessage';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -174,10 +174,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <TapsignerSetupImage />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           You will need the Pin/ CVC at the back of the card
         </Text>
       </View>
@@ -188,10 +188,10 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <TapsignerSetupImage /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} p={2} />
+        <Text color="light.secondaryText" fontSize={13} padding={2} />
       </View>
     );
   }
@@ -200,11 +200,11 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <SuccessIcon /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           You can choose to manually confirm the health of the signing device if you are sure that
           they are secure and accessible.
         </Text>
-        <Text color="light.secondaryText" fontSize={13} p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -218,7 +218,7 @@ function SigningDeviceDetails({ route }) {
           {' '}
           <Illustration />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           You will be reminded in 90 days for the health check
         </Text>
       </View>
@@ -249,7 +249,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            bg="light.lightAccent"
+            backgroundColor="light.lightAccent"
             justifyContent="center"
             alignItems="center"
           >
@@ -319,7 +319,7 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor="light.ReceiveBackground"
+        backgroundColor="light.secondaryBackground"
       >
         <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
           You will be reminded in 90 days for the health check

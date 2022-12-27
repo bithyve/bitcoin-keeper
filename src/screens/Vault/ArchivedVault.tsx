@@ -74,7 +74,7 @@ function ArchivedVault() {
             </Text>
           </Box>
           <Box flexDirection="row">
-            <Text color="light.textBlack" fontSize={12} fontWeight={100} letterSpacing={0.02}>
+            <Text color="light.textBlack" fontSize={12} light letterSpacing={0.02}>
               Archived On
             </Text>
             <Text

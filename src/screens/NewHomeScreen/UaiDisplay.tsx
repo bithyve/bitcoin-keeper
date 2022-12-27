@@ -107,7 +107,7 @@ function UaiDisplay({ uaiStack }) {
     return (
       <>
         <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
-          <Text noOfLines={2} color="light.white" style={styles.uaiTitle}>
+          <Text numberOfLines={2} color="light.white" style={styles.uaiTitle}>
             {uai?.title}
           </Text>
           <NextIcon pressHandler={pressHandler} />
@@ -117,12 +117,10 @@ function UaiDisplay({ uaiStack }) {
           close={() => setShowModal(false)}
           title={uaiConfig?.modalDetails?.heading}
           subTitle={uaiConfig?.modalDetails?.subTitle}
-          buttonBackground={['#00836A', '#073E39']}
           buttonText={uaiConfig?.modalDetails?.btnText}
-          buttonTextColor="#FAFAFA"
+          buttonTextColor="light.white"
           buttonCallback={uaiConfig?.cta}
-          textColor="#000"
-          Content={() => <Text color="#073B36">{uai?.displayText}</Text>}
+          Content={() => <Text color="light.greenText">{uai?.displayText}</Text>}
         />
       </>
     );
