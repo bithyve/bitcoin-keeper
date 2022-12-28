@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform, ScrollView } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import RNIap, {
   Subscription,
   getSubscriptions,
@@ -10,16 +11,16 @@ import RNIap, {
 import React, { useContext, useEffect, useState } from 'react';
 
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
-import DiamondHands from 'src/assets/images/svgs/ic_diamond_hands.svg';
-import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
+import DiamondHands from 'src/assets/images/ic_diamond_hands.svg';
+import DiamondHandsFocused from 'src/assets/images/ic_diamond_hands_focused.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Hodler from 'src/assets/images/svgs/ic_hodler.svg';
-import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
+import Hodler from 'src/assets/images/ic_hodler.svg';
+import HodlerFocused from 'src/assets/images/ic_hodler_focused.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
-import Pleb from 'src/assets/images/svgs/ic_pleb.svg';
-import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
+import Pleb from 'src/assets/images/ic_pleb.svg';
+import PlebFocused from 'src/assets/images/ic_pleb_focused.svg';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -248,25 +249,17 @@ function ChoosePlan(props) {
 
             <Box ml={8}>
               <Box>
-                <Text fontSize={14} color="light.primaryText" fontWeight={200} letterSpacing={1.12}>
+                <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
                   {getBenifitsTitle(items[currentPosition].name)}:
                 </Text>
-                {/* <Text fontSize={(12)} color={'light.GreyText'} fontFamily={'body'}>
+                {/* <Text fontSize={(12)} color={'light.GreyText'} >
             {items[currentPosition].subTitle}
           </Text> */}
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
                   <Box flexDirection="row" alignItems="center">
-                    <Text
-                      fontSize={13}
-                      color="light.GreyText"
-                      mb={2}
-                      ml={3}
-                      fontFamily="body"
-                      fontWeight={200}
-                      letterSpacing={0.65}
-                    >
+                    <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
                       {`• ${i}`}
                     </Text>
                   </Box>
@@ -277,7 +270,7 @@ function ChoosePlan(props) {
         )}
 
         <Box
-          backgroundColor="light.ReceiveBackground"
+          backgroundColor="light.secondaryBackground"
           position="absolute"
           bottom={-10}
           justifyContent="flex-end"

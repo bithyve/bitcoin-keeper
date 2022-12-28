@@ -7,37 +7,37 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, Pressable, Text, View } from 'native-base';
+import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 // icons and images
-import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
-import AddWalletIcon from 'src/assets/images/svgs/addWallet_illustration.svg';
-import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
-import BTC from 'src/assets/images/svgs/btc_wallet.svg';
-import BackIcon from 'src/assets/images/svgs/back.svg';
-import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
+
+import AddSCardIcon from 'src/assets/images/card_add.svg';
+import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
+import BTC from 'src/assets/images/btc_wallet.svg';
+import BackIcon from 'src/assets/images/back.svg';
+import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import Carousel from 'react-native-snap-carousel';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import IconSettings from 'src/assets/images/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import Recieve from 'src/assets/images/svgs/receive.svg';
-import Send from 'src/assets/images/svgs/send.svg';
+import Recieve from 'src/assets/images/receive.svg';
+import Send from 'src/assets/images/send.svg';
 import { Shadow } from 'react-native-shadow-2';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 // components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
+import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletInsideGreen from 'src/assets/images/svgs/Wallet_inside_green.svg';
+import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -94,9 +94,9 @@ function WalletDetails({ route }) {
         }}
       >
         <LinearGradient
-          colors={isActive ? ['#00836A', '#073E39'] : ['#06423C', '#06423C']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          colors={isActive ? ['light.gradientStart', 'light.gradientEnd'] : ['#06423C', '#06423C']}
+          start={[0, 0]}
+          end={[1, 1]}
           style={styles.walletContainer}
         >
           {!(item?.presentationData && item?.specs) ? (
@@ -180,8 +180,8 @@ function WalletDetails({ route }) {
     return (
       <LinearGradient
         colors={gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           height: hp(height),
           width: hp(height),
@@ -199,11 +199,11 @@ function WalletDetails({ route }) {
         <Box alignSelf="center">
           <VaultSetupIcon />
         </Box>
-        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} p={1}>
+        <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
           You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to
           Keeper
         </Text>
-        <Text color="white" fontSize={13} letterSpacing={0.65} p={1}>
+        <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
           When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This
           ensures you don’t have more sats in hot wallets than you need.
         </Text>
@@ -268,11 +268,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Available to spend
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
+                  <Text bold>
                     {' '}
                     {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
                   </Text>
@@ -300,13 +296,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Transfer Policy is set at{'  '}
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    ฿ {wallets[walletIndex].specs.transferPolicy}sats
-                  </Text>
+                  <Text bold>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
                 </Text>
               </Box>
             </Pressable>
@@ -371,7 +361,7 @@ function WalletDetails({ route }) {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color="light.primaryText" noOfLines={2} style={styles.addNewWalletText}>
+          <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
             Add a new wallet or import one
           </Text>
         </Box>
@@ -383,8 +373,8 @@ function WalletDetails({ route }) {
         }}
         title="Bip-85 Wallets"
         subTitle="Create as many (hot) wallets as you want, and backup with a single Recovery Phrase"
-        modalBackground={['#00836A', '#073E39']}
-        textColor="#FFF"
+        modalBackground={['light.gradientStart', 'light.gradientEnd']}
+        textColor="light.white"
         Content={LinkedWalletContent}
         DarkCloseIcon
         learnMore
@@ -506,12 +496,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: wp(2),
-  },
-  viewAllText: {
-    letterSpacing: 0.6,
-    marginRight: 5,
-    fontSize: 11,
-    fontWeight: 'bold',
   },
   transactionsListContainer: {
     marginTop: hp(10),

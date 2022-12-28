@@ -81,20 +81,14 @@ export class AppClient {
    * @param display `false` to silently retrieve a pubkey for a standard path, `true` to display the path on screen
    * @returns the base58-encoded serialized extended pubkey (xpub)
    */
-  async getExtendedPubkey(
-    path: string,
-    display: boolean = false
-  ): Promise<string> {
+  async getExtendedPubkey(path: string, display: boolean = false): Promise<string> {
     const pathElements = pathStringToArray(path);
     if (pathElements.length > 6) {
       throw new Error('Path too long. At most 6 levels allowed.');
     }
     const response = await this.makeRequest(
       BitcoinIns.GET_PUBKEY,
-      Buffer.concat([
-        Buffer.from(display ? [1] : [0]),
-        pathElementsToBuffer(pathElements),
-      ])
+      Buffer.concat([Buffer.from(display ? [1] : [0]), pathElementsToBuffer(pathElements)])
     );
     return response.toString('ascii');
   }
@@ -108,10 +102,7 @@ export class AppClient {
    * @param walletPolicy the `WalletPolicy` to register
    * @returns a pair of two 32-byte arrays: the id of the Wallet Policy, followed by the policy hmac
    */
-  async registerWallet(
-    walletPolicy: WalletPolicy
-  ): Promise<readonly [Buffer, Buffer]> {
-
+  async registerWallet(walletPolicy: WalletPolicy): Promise<readonly [Buffer, Buffer]> {
     const clientInterpreter = new ClientCommandInterpreter();
 
     clientInterpreter.addKnownWalletPolicy(walletPolicy);
@@ -119,17 +110,12 @@ export class AppClient {
     const serializedWalletPolicy = walletPolicy.serialize();
     const response = await this.makeRequest(
       BitcoinIns.REGISTER_WALLET,
-      Buffer.concat([
-        createVarint(serializedWalletPolicy.length),
-        serializedWalletPolicy,
-      ]),
+      Buffer.concat([createVarint(serializedWalletPolicy.length), serializedWalletPolicy]),
       clientInterpreter
     );
 
-    if (response.length != 64) {
-      throw Error(
-        `Invalid response length. Expected 64 bytes, got ${response.length}`
-      );
+    if (response.length !== 64) {
+      throw Error(`Invalid response length. Expected 64 bytes, got ${response.length}`);
     }
 
     return [response.subarray(0, 32), response.subarray(32)];
@@ -153,12 +139,11 @@ export class AppClient {
     addressIndex: number,
     display: boolean
   ): Promise<string> {
-    if (change !== 0 && change !== 1)
-      throw new Error('Change can only be 0 or 1');
+    if (change !== 0 && change !== 1) throw new Error('Change can only be 0 or 1');
     if (addressIndex < 0 || !Number.isInteger(addressIndex))
       throw new Error('Invalid address index');
 
-    if (walletHMAC != null && walletHMAC.length != 32) {
+    if (walletHMAC !== null && walletHMAC.length !== 32) {
       throw new Error('Invalid HMAC length');
     }
 
@@ -206,7 +191,7 @@ export class AppClient {
   ): Promise<[number, Buffer, Buffer][]> {
     const merkelizedPsbt = new MerkelizedPsbt(psbt);
 
-    if (walletHMAC != null && walletHMAC.length != 32) {
+    if (walletHMAC !== null && walletHMAC.length !== 32) {
       throw new Error('Invalid HMAC length');
     }
 
@@ -255,7 +240,7 @@ export class AppClient {
       const [inputIndex, inputIndexLen] = parseVarint(inputAndSig, 0);
       const pubkeyLen = inputAndSig[inputIndexLen];
       const pubkey = inputAndSig.subarray(inputIndexLen + 1, inputIndexLen + 1 + pubkeyLen);
-      const signature = inputAndSig.subarray(inputIndexLen + 1 + pubkeyLen)
+      const signature = inputAndSig.subarray(inputIndexLen + 1 + pubkeyLen);
 
       ret.push([Number(inputIndex), pubkey, signature]);
     }
@@ -268,7 +253,7 @@ export class AppClient {
    */
   async getMasterFingerprint(): Promise<string> {
     const fpr = await this.makeRequest(BitcoinIns.GET_MASTER_FINGERPRINT, Buffer.from([]));
-    return fpr.toString("hex");
+    return fpr.toString('hex');
   }
 
   /**
@@ -282,10 +267,7 @@ export class AppClient {
    * @param path the BIP-32 path of the key used to sign the message
    * @returns base64-encoded signature of the message.
    */
-  async signMessage(
-    message: Buffer,
-    path: string
-  ): Promise<string> {
+  async signMessage(message: Buffer, path: string): Promise<string> {
     const pathElements = pathStringToArray(path);
 
     const clientInterpreter = new ClientCommandInterpreter();
@@ -302,11 +284,7 @@ export class AppClient {
 
     const result = await this.makeRequest(
       BitcoinIns.SIGN_MESSAGE,
-      Buffer.concat([
-        pathElementsToBuffer(pathElements),
-        createVarint(message.length),
-        chunksRoot,
-      ]),
+      Buffer.concat([pathElementsToBuffer(pathElements), createVarint(message.length), chunksRoot]),
       clientInterpreter
     );
 

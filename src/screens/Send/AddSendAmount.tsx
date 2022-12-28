@@ -1,4 +1,5 @@
-import { Box, Input, Pressable, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Input, Pressable } from 'native-base';
 import { Keyboard, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -7,7 +8,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
-import BitcoinInput from 'src/assets/images/svgs/btc_input.svg';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -40,8 +41,7 @@ function AddSendAmount({ route }) {
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
-  const [recipientCount, setReicipientCount] = useState(1);
-
+  const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
@@ -93,14 +93,12 @@ function AddSendAmount({ route }) {
     },
     []
   );
-  console.log(windowHeight);
   return (
     <ScreenWrapper>
       <HeaderTitle
         title={
-          transferType == TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
+          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
         }
-        // subtitle={`Sending to ${address}`}
       />
       <Box
         style={{
@@ -140,7 +138,6 @@ function AddSendAmount({ route }) {
               width="70%"
               fontSize={12}
               letterSpacing={1.04}
-              fontWeight={300}
               borderWidth="0"
               value={amount}
               onChangeText={(value) => setAmount(value)}
@@ -180,17 +177,15 @@ function AddSendAmount({ route }) {
           </Box>
         </Box>
       </Box>
-      {/* {!isKeyboardVisible && ( */}
       <Box style={styles.appNumPadWrapper}>
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
-          color="#073E39"
+          color="light.greenText"
           height={windowHeight > 670 ? 85 : 65}
           darkDeleteIcon
         />
       </Box>
-      {/* )} */}
     </ScreenWrapper>
   );
 }
@@ -249,11 +244,8 @@ const styles = ScaledSheet.create({
     justifyContent: 'flex-end',
   },
   appNumPadWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: windowWidth,
-    position: 'absolute',
-    bottom: 0,
+    width: '110%',
+    marginLeft: '-5%',
   },
 });
 export default AddSendAmount;

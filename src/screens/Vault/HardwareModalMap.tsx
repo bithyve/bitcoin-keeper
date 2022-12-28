@@ -1,18 +1,19 @@
+/* eslint-disable no-case-declarations */
+import React, { useCallback, useContext, useState } from 'react';
 import * as bip39 from 'bip39';
-
 import { Alert, StyleSheet } from 'react-native';
-import { Box, Text, View } from 'native-base';
+import { Box, Center, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
@@ -28,7 +29,6 @@ import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
-import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -46,319 +46,183 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
+import ReactNativeBiometrics from 'react-native-biometrics';
+import * as SecureStore from '../../storage/secure-store';
 
-function SetupSuccessfully() {
-  return (
-    <Box width={wp(270)}>
-      <Box alignItems="center">
-        <SuccessIllustration />
-      </Box>
-      <Box marginTop={hp(0)}>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          fontFamily="body"
-          fontWeight="200"
-          p={1}
-          letterSpacing={0.65}
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-        </Text>
-      </Box>
-    </Box>
-  );
-}
+const RNBiometrics = new ReactNativeBiometrics();
 
-export function BulletPoint({ text }) {
+export function BulletPoint({ text }: { text: string }) {
   return (
     <Box style={styles.bulletContainer}>
       <Box backgroundColor="light.greenText" style={styles.bulletPoint} />
-      <Text color="light.greenText" style={styles.bullerPointText}>
+      <Text color="light.greenText" style={styles.infoText}>
         {text}
       </Text>
     </Box>
   );
 }
 
-function TapsignerSetupContent() {
-  return (
-    <View>
-      <TapsignerSetupImage />
-      <BulletPoint text="You will need the Pin/CVC at the back of TAPSIGNER" />
-      <BulletPoint text="You should generally not use the same signing device on multiple wallets/apps" />
-    </View>
-  );
-}
+const getSignerContent = (type: SignerType, isMultisig: boolean, translations: any) => {
+  const { tapsigner, coldcard, ledger } = translations;
+  switch (type) {
+    case SignerType.COLDCARD:
+      const ccInstructions = isMultisig
+        ? `Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`
+        : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
+      return {
+        Illustration: <ColdCardSetupImage />,
+        Instructions: [
+          ccInstructions,
+          `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).`,
+        ],
+        title: coldcard.SetupTitle,
+        subTitle: `${coldcard.SetupDescription}`,
+      };
+    case SignerType.JADE:
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
+      return {
+        Illustration: <JadeSVG />,
+        Instructions: [
+          jadeInstructions,
+          `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+        ],
+        title: 'Setting up Blockstream Jade',
+        subTitle: 'Keep your Jade ready and unlocked before proceeding',
+      };
+    case SignerType.KEEPER:
+      return {
+        Illustration: <KeeperSetupImage />,
+        Instructions: [
+          `Choose a wallet or create a new one from your Linked Wallets`,
+          `Within settings choose Show Cosigner Details to scan the QR`,
+        ],
+        title: 'Keep your Device Ready',
+        subTitle: 'Keep your Keeper Signing Device ready before proceeding',
+      };
+    case SignerType.MOBILE_KEY:
+      return {
+        Illustration: <MobileKeyIllustration />,
+        Instructions: [
+          `To secure this key, you need the Recovery Phrase of the wallets to be backed up`,
+          `This key available for signing transactions if you confirm your passcode or biometrics`,
+        ],
+        title: 'Set up a Mobile Key',
+        subTitle:
+          'This key available for signing transactions if you confirm your passcode or biometrics',
+      };
+    case SignerType.LEDGER:
+      return {
+        Illustration: <LedgerImage />,
+        Instructions: [
+          `Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network.`,
+          `Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub.`,
+        ],
+        title: ledger.SetupTitle,
+        subTitle: ledger.SetupDescription,
+      };
+    case SignerType.KEYSTONE:
+      const keystoneInstructions = isMultisig
+        ? `Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`
+        : `Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
+      return {
+        Illustration: <KeystoneSetupImage />,
+        Instructions: [
+          keystoneInstructions,
+          `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+        ],
+        title: 'Setting up Keystone',
+        subTitle: 'Keep your Keystone ready before proceeding',
+      };
+    case SignerType.PASSPORT:
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
+      return {
+        Illustration: <PassportSVG />,
+        Instructions: [
+          passportInstructions,
+          `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+        ],
+        title: 'Setting up Passport (Batch 2)',
+        subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
+      };
+    case SignerType.POLICY_SERVER:
+      return {
+        Illustration: <SigningServerIllustration />,
+        Instructions: [
+          `A 2FA authenticator will have to be set up to use this option.`,
+          `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+        ],
+        title: 'Setting up a Signing Server',
+        subTitle: 'A Signing Server will hold one of the keys in the vault',
+      };
+    case SignerType.SEEDSIGNER:
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
+      return {
+        Illustration: <SeedSignerSetupImage />,
+        Instructions: [
+          seedSignerInstructions,
+          `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+        ],
+        title: 'Setting up SeedSigner',
+        subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+      };
+    case SignerType.SEED_WORDS:
+      return {
+        Illustration: <SeedWordsIllustration />,
+        Instructions: [
+          `Once the transaction is signed the key is not stored on the app.`,
+          `Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer.`,
+        ],
+        title: 'Keep your Soft Signer ready',
+        subTitle:
+          'This is the twelve word Recovery Phrase you would have noted down when creating the vault',
+      };
+    case SignerType.TAPSIGNER:
+      return {
+        Illustration: <TapsignerSetupImage />,
+        Instructions: [
+          'You will need the Pin/CVC at the back of TAPSIGNER',
+          'You should generally not use the same signing device on multiple wallets/apps',
+        ],
+        title: tapsigner.SetupTitle,
+        subTitle: tapsigner.SetupDescription,
+      };
+    case SignerType.TREZOR:
+    default:
+      return {
+        Illustration: null,
+        Instructions: [],
+        title: tapsigner.SetupTitle,
+        subTitle: tapsigner.SetupDescription,
+        unsupported: true,
+      };
+  }
+};
 
-function ColdCardSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const userInstruction = isMultisig
-    ? `Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`
-    : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
+function SignerContent({
+  Illustration,
+  Instructions,
+}: {
+  Illustration: Element;
+  Instructions: Array<string>;
+}) {
   return (
     <View>
-      <Box ml={wp(21)}>
-        <ColdCardSetupImage />
-      </Box>
+      <Center>{Illustration}</Center>
       <Box marginTop="4">
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 ${userInstruction}`}
-        </Text>
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
-        </Text>
+        {Instructions.map((instruction) => (
+          <BulletPoint text={instruction} />
+        ))}
       </Box>
     </View>
-  );
-}
-function LedgerSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  return (
-    <View>
-      <Box ml={wp(21)}>
-        <LedgerImage />
-      </Box>
-      <Box marginTop="4" flex={1} alignItems="center" justifyContent="center">
-        <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100">
-            {`\u2022 Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network`}
-          </Text>
-        </Box>
-        <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="100">
-            {`\u2022 Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub`}
-          </Text>
-        </Box>
-      </Box>
-    </View>
-  );
-}
-
-function PassportSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-    isMultisig ? 'Multisig' : 'Singlesig'
-  } > QR Code.\n`;
-  return (
-    <View>
-      <Box ml={wp(21)}>
-        <PassportSVG />
-      </Box>
-      <Box marginTop="4">
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {instructions}
-        </Text>
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it`}
-        </Text>
-      </Box>
-    </View>
-  );
-}
-
-function SeedSignerSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-    isMultisig ? 'Multisig' : 'Singlesig'
-  } > Native Segwit > Keeper.\n`;
-  return (
-    <View>
-      <Box ml={wp(21)}>
-        <SeedSignerSetupImage />
-      </Box>
-      <Box marginTop="4">
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {instructions}
-        </Text>
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it`}
-        </Text>
-      </Box>
-    </View>
-  );
-}
-
-function KeystoneSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = isMultisig
-    ? `\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`
-    : `\u2022 Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
-  return (
-    <View>
-      <Box ml={wp(21)}>
-        <KeystoneSetupImage />
-      </Box>
-      <Box marginTop="4">
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {instructions}
-        </Text>
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`}
-        </Text>
-      </Box>
-    </View>
-  );
-}
-
-function JadeSetupContent({ isMultisig }: { isMultisig: boolean }) {
-  const instructions = `\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-    isMultisig ? 'MultiSig' : 'SingleSig'
-  } and Native Segwit in the options section.\n`;
-  return (
-    <View>
-      <Box ml={wp(21)}>
-        <JadeSVG />
-      </Box>
-      <Box marginTop="4">
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {instructions}
-        </Text>
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`}
-        </Text>
-      </Box>
-    </View>
-  );
-}
-
-function KeeperSetupContent() {
-  return (
-    <View>
-      <Box ml={wp(21)}>
-        <KeeperSetupImage />
-      </Box>
-      <Box marginTop="4">
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Choose a wallet or create a new one from your Linked Wallets\n`}
-        </Text>
-        <Text
-          color="#073B36"
-          fontSize={13}
-          fontWeight={200}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Within settings choose Show Cosigner Details to scan the QR`}
-        </Text>
-      </Box>
-    </View>
-  );
-}
-
-function SettingSigningServer() {
-  return (
-    <Box>
-      <SigningServerIllustration />
-      <BulletPoint text="A 2FA authenticator will have to be set up to use this option" />
-      <BulletPoint text="On providing the correct code from the auth app, the Signing Server will sign the transaction" />
-    </Box>
-  );
-}
-
-function SetUpMobileKey() {
-  return (
-    <Box>
-      <MobileKeyIllustration />
-      <BulletPoint text="To secure this key, you need the Recovery Phrase of the wallets to be backed up" />
-      <BulletPoint text="This key available for signing transactions if you confirm your passcode or biometrics" />
-    </Box>
-  );
-}
-
-function SetupSeedWords() {
-  return (
-    <Box>
-      <SeedWordsIllustration />
-      <BulletPoint text="Once the transaction is signed the key is not stored on the app" />
-      <BulletPoint text="Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer" />
-    </Box>
   );
 }
 
@@ -490,16 +354,86 @@ const setupSeedWordsBasedKey = (mnemonic) => {
   return softSigner;
 };
 
-function HardwareModalMap({ type, visible, close }) {
-  const dispatch = useDispatch();
-
-  const { translations } = useContext(LocalizationContext);
-  const { tapsigner } = translations;
-  const { coldcard } = translations;
-  const { ledger } = translations;
-  const [passwordModal, setPasswordModal] = useState(false);
+function PasswordEnter(primaryMnemonic) {
   const [password, setPassword] = useState('');
   const { pinHash } = useAppSelector((state) => state.storage);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+
+  const onPressNumber = (text) => {
+    let tmpPasscode = password;
+    if (password.length < 4) {
+      if (text !== 'x') {
+        tmpPasscode += text;
+        setPassword(tmpPasscode);
+      }
+    }
+    if (password && text === 'x') {
+      setPassword(password.slice(0, -1));
+    }
+  };
+
+  const onDeletePressed = () => {
+    setPassword(password.slice(0, password.length - 1));
+  };
+
+  return (
+    <Box width={hp(280)}>
+      <Box>
+        <CVVInputsView
+          passCode={password}
+          passcodeFlag={false}
+          backgroundColor
+          textColor
+          length={4}
+        />
+        <Text style={styles.infoText} color="light.greenText">
+          The app will use the Mobile Key to sign on entering the correct Passcode
+        </Text>
+        <Box mt={10} alignSelf="flex-end" mr={2}>
+          <Box>
+            <CustomGreenButton
+              onPress={async () => {
+                const currentPinHash = hash512(password);
+                if (currentPinHash === pinHash) {
+                  const mobileKey = await setupMobileKey({ primaryMnemonic });
+                  dispatch(addSigningDevice(mobileKey));
+                  navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+                  showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
+                } else Alert.alert('Incorrect password. Try again!');
+              }}
+              value="Confirm"
+            />
+          </Box>
+        </Box>
+      </Box>
+      <KeyPadView
+        onPressNumber={onPressNumber}
+        onDeletePressed={onDeletePressed}
+        keyColor="light.primaryText"
+        ClearIcon={<DeleteIcon />}
+      />
+    </Box>
+  );
+}
+
+function HardwareModalMap({
+  type,
+  visible,
+  close,
+}: {
+  type: SignerType;
+  visible: boolean;
+  close: any;
+}) {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const [passwordModal, setPasswordModal] = useState(false);
+  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const appId = useAppSelector((state) => state.storage.appId);
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -507,29 +441,23 @@ function HardwareModalMap({ type, visible, close }) {
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
 
-  const navigation = useNavigation();
   const navigateToTapsignerSetup = () => {
-    close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
   };
 
   const navigateToColdCardSetup = () => {
-    close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddColdCard', params: {} }));
   };
 
   const navigateToLedgerSetup = () => {
-    close();
     navigation.dispatch(CommonActions.navigate({ name: 'AddLedger', params: {} }));
   };
 
   const navigateToSigningServerSetup = () => {
-    close();
     navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
   };
 
   const navigateToAddQrBasedSigner = () => {
-    close();
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ScanQR',
@@ -542,7 +470,6 @@ function HardwareModalMap({ type, visible, close }) {
     );
   };
 
-  const { showToast } = useToastMessage();
   const navigateToSeedWordSetup = () => {
     close();
     const mnemonic = bip39.generateMnemonic();
@@ -600,135 +527,83 @@ function HardwareModalMap({ type, visible, close }) {
     }
   };
 
-  function PasswordEnter() {
-    const onPressNumber = (text) => {
-      let tmpPasscode = password;
-      if (password.length < 4) {
-        if (text != 'x') {
-          tmpPasscode += text;
-          setPassword(tmpPasscode);
-        }
+  const biometricAuth = async () => {
+    if (loginMethod === LoginMethod.BIOMETRIC) {
+      try {
+        setTimeout(async () => {
+          const { success, signature } = await RNBiometrics.createSignature({
+            promptMessage: 'Authenticate',
+            payload: appId,
+            cancelButtonText: 'Use PIN',
+          });
+          if (success) {
+            const res = await SecureStore.verifyBiometricAuth(signature, appId);
+            if (res.success) {
+              const mobileKey = await setupMobileKey({ primaryMnemonic });
+              dispatch(addSigningDevice(mobileKey));
+              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+              showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
+            } else {
+              Alert.alert('Incorrect password. Try again!');
+            }
+          }
+        }, 200);
+      } catch (error) {
+        captureError(error);
       }
-      if (password && text == 'x') {
-        setPassword(password.slice(0, -1));
-      }
-    };
+    } else {
+      setPasswordModal(true);
+    }
+  };
 
-    const onDeletePressed = (text) => {
-      setPassword(password.slice(0, password.length - 1));
-    };
+  const { Illustration, Instructions, title, subTitle, unsupported } = getSignerContent(
+    type,
+    isMultisig,
+    translations
+  );
+  const Content = useCallback(
+    () => <SignerContent Illustration={Illustration} Instructions={Instructions} />,
+    []
+  );
 
-    return (
-      <Box width={hp(280)}>
-        <Box>
-          <CVVInputsView
-            passCode={password}
-            passcodeFlag={false}
-            backgroundColor
-            textColor
-            length={4}
-          />
-          <Text
-            fontSize={13}
-            fontWeight={200}
-            letterSpacing={0.65}
-            width={wp(290)}
-            color="light.greenText"
-            marginTop={2}
-          >
-            The app will use the Mobile Key to sign on entering the correct Passcode
-          </Text>
-          <Box mt={10} alignSelf="flex-end" mr={2}>
-            <Box>
-              <CustomGreenButton
-                onPress={async () => {
-                  const currentPinHash = hash512(password);
-                  if (currentPinHash === pinHash) {
-                    const mobileKey = await setupMobileKey({ primaryMnemonic });
-                    dispatch(addSigningDevice(mobileKey));
-                    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-                    showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
-                  } else Alert.alert('Incorrect password. Try again!');
-                }}
-                value="Confirm"
-              />
-            </Box>
-          </Box>
-        </Box>
-        <KeyPadView
-          onPressNumber={onPressNumber}
-          onDeletePressed={onDeletePressed}
-          keyColor="light.primaryText"
-          ClearIcon={<DeleteIcon />}
-        />
-      </Box>
-    );
-  }
+  const buttonCallback = () => {
+    close();
+    switch (type) {
+      case SignerType.TAPSIGNER:
+        return navigateToTapsignerSetup();
+      case SignerType.COLDCARD:
+        return navigateToColdCardSetup();
+      case SignerType.LEDGER:
+        return navigateToLedgerSetup();
+      case SignerType.POLICY_SERVER:
+        return navigateToSigningServerSetup();
+      case SignerType.MOBILE_KEY:
+        return biometricAuth();
+      case SignerType.SEED_WORDS:
+        return navigateToSeedWordSetup();
+      case SignerType.PASSPORT:
+      case SignerType.SEEDSIGNER:
+      case SignerType.KEYSTONE:
+      case SignerType.JADE:
+      case SignerType.KEEPER:
+        return navigateToAddQrBasedSigner();
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
       <KeeperModal
-        visible={visible && type === SignerType.TAPSIGNER}
+        visible={visible && !unsupported}
         close={close}
-        title={tapsigner.SetupTitle}
-        subTitle={tapsigner.SetupDescription}
-        buttonBackground={['#00836A', '#073E39']}
+        title={title}
+        subTitle={subTitle}
         buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToTapsignerSetup}
-        textColor="#041513"
-        Content={() => <TapsignerSetupContent />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.COLDCARD}
-        close={close}
-        title={coldcard.SetupTitle}
-        subTitle={coldcard.SetupDescription}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToColdCardSetup}
-        textColor="#041513"
-        Content={() => <ColdCardSetupContent isMultisig={isMultisig} />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.LEDGER}
-        close={close}
-        title={ledger.SetupTitle}
-        subTitle={ledger.SetupDescription}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToLedgerSetup}
-        textColor="#041513"
-        Content={() => <LedgerSetupContent isMultisig={isMultisig} />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.POLICY_SERVER}
-        close={close}
-        title="Setting up a Signing Server"
-        subTitle="A Signing Server will hold one of the keys in the vault"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Continue"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToSigningServerSetup}
-        textColor="#041513"
-        Content={SettingSigningServer}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.MOBILE_KEY}
-        close={close}
-        title="Set up a Mobile Key"
-        subTitle="This key available for signing transactions if you confirm your passcode or biometrics"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={() => {
-          close();
-          setPasswordModal(true);
-        }}
-        textColor="#041513"
-        Content={SetUpMobileKey}
+        buttonTextColor="light.white"
+        buttonCallback={buttonCallback}
+        textColor="light.primaryText"
+        Content={Content}
       />
       <KeeperModal
         visible={passwordModal}
@@ -737,100 +612,8 @@ function HardwareModalMap({ type, visible, close }) {
         }}
         title="Enter your password"
         subTitle="The one you use to login to the app"
-        textColor="#041513"
-        Content={PasswordEnter}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.SEED_WORDS}
-        close={close}
-        title="Keep your Soft Signer ready"
-        subTitle="This is the twelve word Recovery Phrase you would have noted down when creating the vault"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Proceed"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToSeedWordSetup}
-        textColor="#041513"
-        Content={SetupSeedWords}
-      />
-      <KeeperModal
-        visible={false}
-        close={close}
-        title="Signing Server Setup Successfully"
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="View Vault"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={() => {
-          console.log('View Vault');
-        }}
-        textColor="#041513"
-        Content={SetupSuccessfully}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.PASSPORT}
-        close={close}
-        title="Setting up Passport (Batch 2)"
-        subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Continue"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
-        Content={() => <PassportSetupContent isMultisig={isMultisig} />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.SEEDSIGNER}
-        close={close}
-        title="Setting up SeedSigner"
-        subTitle="Keep your SeedSigner ready and powered before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Continue"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
-        Content={() => <SeedSignerSetupContent isMultisig={isMultisig} />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.KEYSTONE}
-        close={close}
-        title="Setting up Keystone"
-        subTitle="Keep your Keystone ready before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Continue"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
-        Content={() => <KeystoneSetupContent isMultisig={isMultisig} />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.JADE}
-        close={close}
-        title="Setting up Blockstream Jade"
-        subTitle="Keep your Jade ready and unlocked before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Continue"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
-        Content={() => <JadeSetupContent isMultisig={isMultisig} />}
-      />
-      <KeeperModal
-        visible={visible && type === SignerType.KEEPER}
-        close={close}
-        title="Keep your Device Ready"
-        subTitle="Keep your Keeper Signing Device ready before proceeding"
-        subTitleColor="#5F6965"
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText="Continue"
-        buttonTextColor="#FAFAFA"
-        buttonCallback={navigateToAddQrBasedSigner}
-        textColor="#041513"
-        Content={KeeperSetupContent}
+        textColor="light.primaryText"
+        Content={() => PasswordEnter(primaryMnemonic)}
       />
     </>
   );
@@ -839,7 +622,6 @@ const styles = StyleSheet.create({
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
-    alignItems: 'flex-start',
   },
   bulletPoint: {
     marginRight: wp(5),
@@ -848,10 +630,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     top: 12,
   },
-  bullerPointText: {
-    letterSpacing: 1,
+  infoText: {
+    letterSpacing: 0.65,
     padding: 3,
     fontSize: 13,
+    width: windowWidth * 0.78,
   },
 });
 export default HardwareModalMap;

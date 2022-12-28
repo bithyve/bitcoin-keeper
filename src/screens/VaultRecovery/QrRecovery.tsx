@@ -1,5 +1,6 @@
 import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
-import { Box, HStack, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 
 import HeaderTitle from 'src/components/HeaderTitle';

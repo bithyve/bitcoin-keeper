@@ -1,9 +1,10 @@
 import React from 'react';
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Text, View, Box } from 'native-base';
+import { View, Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 function Buttons({
   primaryText = '',
@@ -29,7 +30,7 @@ function Buttons({
         <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
           <Box
             style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
-            bg={{
+            backgroundColor={{
               linearGradient: {
                 colors: ['light.gradientStart', 'light.gradientEnd'],
                 start: [0, 0],
@@ -37,7 +38,7 @@ function Buttons({
               },
             }}
           >
-            <Text numberOfLines={1} style={styles.btnText} color="light.white">
+            <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
               {primaryText}
             </Text>
           </Box>
@@ -48,7 +49,7 @@ function Buttons({
 
   return (
     <View style={styles.container}>
-      {secondaryText != '' && (
+      {secondaryText !== '' && (
         <TouchableOpacity
           style={[
             styles.cancelBtn,
@@ -60,7 +61,7 @@ function Buttons({
           disabled={secondaryDisable}
           activeOpacity={0.5}
         >
-          <Text numberOfLines={1} style={styles.btnText} color="light.greenText">
+          <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
             {secondaryText}
           </Text>
         </TouchableOpacity>
@@ -88,7 +89,6 @@ const styles = ScaledSheet.create({
   btnText: {
     fontSize: 14,
     letterSpacing: 0.84,
-    fontWeight: 'bold',
   },
 });
 export default Buttons;

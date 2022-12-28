@@ -1,9 +1,10 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import DeleteIcon from 'src/assets/icons/delete.svg';
+import DeleteIcon from 'src/assets/images/delete.svg';
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Text from 'src/components/KeeperText';
 import KeyPadButton from './KeyPadButton';
 
 export interface Props {
@@ -38,7 +39,7 @@ const KeyPadView: React.FC<Props> = ({
     </Box>
     <Box flexDirection="row" height={hp('8%')}>
       <Box style={styles.emptyBtnView}>
-        <Text flex={1} p={15} />
+        <Text flex={1} padding={15} />
       </Box>
       <TouchableOpacity
         onPress={() => onPressNumber('0')}

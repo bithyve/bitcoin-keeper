@@ -1,19 +1,20 @@
-import { Box, HStack, Pressable, Text, VStack } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import AddIcon from 'src/assets/images/green_add.svg';
-import AddSignerIcon from 'src/assets/icons/addSigner.svg';
+import AddSignerIcon from 'src/assets/images/addSigner.svg';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import Relay from 'src/core/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SuccessSvg from 'src/assets/images/svgs/successSvg.svg';
+import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { reoverVault } from 'src/store/sagaActions/bhr';
 import { setVaultMetaData } from 'src/store/reducers/bhr';
@@ -30,23 +31,22 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX="4" maxW="64">
+              <VStack marginX="4" maxWidth="64">
                 <Text
                   color="light.primaryText"
                   fontSize={15}
                   numberOfLines={2}
                   alignItems="center"
                   letterSpacing={1.12}
-                  fontWeight={200}
                 >
                   {`Verify Signer ${index + 1}`}
                 </Text>
-                <Text color="light.GreyText" fontSize={13} fontWeight={200} letterSpacing={0.6}>
+                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                   Lorem ipsum dolor sit amet, consectetur
                 </Text>
               </VStack>
             </HStack>
-            <Box w="15%" alignItems="center">
+            <Box width="15%" alignItems="center">
               <IconArrowBlack />
             </Box>
           </HStack>
@@ -62,28 +62,27 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
             width="8"
             height="8"
             borderRadius={30}
-            bg="#725436"
+            backgroundColor="#725436"
             justifyContent="center"
             alignItems="center"
             alignSelf="center"
           >
             {WalletMap(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxW="80%">
+          <VStack marginX="4" maxWidth="80%">
             <Text
               color="light.primaryText"
               fontSize={15}
               numberOfLines={2}
               alignItems="center"
               letterSpacing={1.12}
-              fontWeight={200}
             >
               {signer.type}
             </Text>
           </VStack>
         </HStack>
         <Pressable style={styles.remove}>
-          <Text color="light.GreyText" fontWeight={200} fontSize={12} letterSpacing={0.6}>
+          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             Remove
           </Text>
         </Pressable>
@@ -137,7 +136,7 @@ function VaultRecovery() {
         <Box alignSelf="center">
           <SuccessSvg />
         </Box>
-        <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.greenText" fontSize={13} padding={2}>
           The BIP-85 wallets in the app are new as they can’t be recovered using this method
         </Text>
       </View>
@@ -171,7 +170,7 @@ function VaultRecovery() {
                 <AddSignerIcon />
               </Box>
             </TouchableOpacity>
-            <Text fontWeight={200} style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
+            <Text style={{ textAlign: 'center', width: '70%', marginTop: 20 }}>
               You can use any one of the signing devices to start with
             </Text>
           </Box>

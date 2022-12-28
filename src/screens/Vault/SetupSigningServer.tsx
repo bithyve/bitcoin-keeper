@@ -1,13 +1,17 @@
-import { ActivityIndicator, Clipboard, TouchableOpacity } from 'react-native';
-import { Box, DeleteIcon, Text, View } from 'native-base';
+import { ActivityIndicator, TouchableOpacity } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import { Box, View } from 'native-base';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import CopyIcon from 'src/assets/images/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -83,9 +87,9 @@ function SetupSigningServer({ route }: { route }) {
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 
-  const otpContent = useCallback(() => {
-    const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState('');
 
+  const otpContent = useCallback(() => {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
       if (otp.length < 6) {
@@ -109,7 +113,6 @@ function SetupSigningServer({ route }: { route }) {
           <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           <Text
             fontSize={13}
-            fontWeight={200}
             letterSpacing={0.65}
             width={wp(290)}
             color="light.greenText"
@@ -137,10 +140,10 @@ function SetupSigningServer({ route }: { route }) {
         />
       </Box>
     );
-  }, []);
+  }, [otp]);
 
   return (
-    <View style={styles.Container} background="light.ReceiveBackground">
+    <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
@@ -174,12 +177,11 @@ function SetupSigningServer({ route }: { route }) {
               <Text
                 textAlign="center"
                 color="light.recieverAddress"
-                fontFamily="body"
-                fontWeight={300}
+                bold
                 fontSize={12}
                 letterSpacing={1.08}
                 width="100%"
-                noOfLines={1}
+                numberOfLines={1}
               >
                 2FA Signing Server
               </Text>
@@ -194,7 +196,7 @@ function SetupSigningServer({ route }: { route }) {
                 borderBottomLeftRadius={10}
                 borderTopLeftRadius={10}
               >
-                <Text width="80%" marginLeft={4} noOfLines={1}>
+                <Text width="80%" marginLeft={4} numberOfLines={1}>
                   {twoFAKey}
                 </Text>
                 <TouchableOpacity
@@ -246,7 +248,7 @@ function SetupSigningServer({ route }: { route }) {
         }}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signing server"
-        textColor="#041513"
+        textColor="light.primaryText"
         Content={otpContent}
       />
     </View>

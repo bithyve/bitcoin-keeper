@@ -1,16 +1,17 @@
 import React from 'react';
-import { Box, Text, ScrollView, StatusBar } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, ScrollView, StatusBar } from 'native-base';
 import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
-import BackIcon from 'src/assets/icons/back.svg';
+import BackIcon from 'src/assets/images/back.svg';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
 
 function AppVersionHistory({ navigation }) {
   return (
     <SafeAreaView style={styles.wrapper}>
-      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <StatusBar backgroundColor="light.secondaryBackground" barStyle="dark-content" />
       <Box style={styles.backBtnWrapper}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
@@ -18,12 +19,12 @@ function AppVersionHistory({ navigation }) {
       </Box>
 
       <Box style={styles.versionHistoryTitleWrapper}>
-        <Text color="light.headerText" fontFamily="heading" style={styles.versionHistoryTitle}>
+        <Text color="light.headerText" style={styles.versionHistoryTitle}>
           Version History
         </Text>
       </Box>
       <ScrollView>
-        <Box m={10}>
+        <Box margin={10}>
           <VersionHistoryList />
         </Box>
       </ScrollView>

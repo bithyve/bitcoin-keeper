@@ -56,7 +56,6 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     purpose?: DerivationPurpose
   ): { updatedWallet: Wallet | Vault; receivingAddress: string } => {
-    // TODO: either remove ActiveAddressAssignee or reintroduce it(realm compatibility issue)
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as Vault).isMultiSig) {
@@ -404,7 +403,7 @@ export default class WalletOperations {
     const inputTxs = await ElectrumClient.getTransactionsById(inputTxIds);
 
     let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
-    let lastUsedChangeAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
+    let lastUsedChangeAddressIndex = wallet.specs.nextFreeChangeAddressIndex - 1;
 
     for (const txid in txs) {
       const tx = txs[txid];
@@ -604,27 +603,12 @@ export default class WalletOperations {
 
   static updateActiveAddresses = (
     wallet: Wallet | Vault,
-    consumedUTXOs: { [txid: string]: InputUTXOs },
-    txid: string,
-    recipients: {
-      id?: string;
-      address: string;
-      amount: number;
-      name?: string;
-    }[]
+    consumedUTXOs: { [txid: string]: InputUTXOs }
   ) => {
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
     const activeExternalAddresses = wallet.specs.activeAddresses.external;
     const activeInternalAddresses = wallet.specs.activeAddresses.internal;
-
-    const recipientInfo = {
-      [txid]: recipients.map((recipient) => ({
-        id: recipient.id,
-        name: recipient.name,
-        amount: recipient.amount,
-      })),
-    };
 
     for (const consumedUTXO of Object.values(consumedUTXOs)) {
       let found = false;
@@ -680,7 +664,6 @@ export default class WalletOperations {
             // include out of bound(soft-refresh range) int address
             if (activeInternalAddresses[address] === undefined)
               activeInternalAddresses[address] = itr;
-            found = true;
             break;
           }
         }
@@ -714,17 +697,7 @@ export default class WalletOperations {
     wallet.specs.nextFreeChangeAddressIndex++;
   };
 
-  static removeConsumedUTXOs = (
-    wallet: Wallet | Vault,
-    inputs: InputUTXOs[],
-    txid: string,
-    recipients: {
-      id?: string;
-      address: string;
-      amount: number;
-      name?: string;
-    }[]
-  ) => {
+  static removeConsumedUTXOs = (wallet: Wallet | Vault, inputs: InputUTXOs[]) => {
     const consumedUTXOs: { [txid: string]: InputUTXOs } = {};
     inputs.forEach((input) => {
       consumedUTXOs[input.txId] = input;
@@ -738,7 +711,7 @@ export default class WalletOperations {
     });
 
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
-    WalletOperations.updateActiveAddresses(wallet, consumedUTXOs, txid, recipients);
+    WalletOperations.updateActiveAddresses(wallet, consumedUTXOs);
   };
 
   static fetchFeeRatesByPriority = async () => {
@@ -839,12 +812,12 @@ export default class WalletOperations {
     | {
         fee: number;
         balance: number;
-        txPrerequisites?: undefined;
+        txPrerequisites?;
       }
     | {
         txPrerequisites: TransactionPrerequisite;
-        fee?: undefined;
-        balance?: undefined;
+        fee?;
+        balance?;
       } => {
     const inputUTXOs = wallet.specs.confirmedUTXOs;
     let confirmedBalance = 0;
@@ -1263,10 +1236,10 @@ export default class WalletOperations {
   ):
     | {
         signedPSBT: bitcoinJS.Psbt;
-        serializedPSBTEnvelop?: undefined;
+        serializedPSBTEnvelop?;
       }
     | {
-        signedPSBT?: undefined;
+        signedPSBT?;
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
     const signingPayload: SigningPayload[] = [];
@@ -1339,15 +1312,8 @@ export default class WalletOperations {
   static broadcastTransaction = async (
     wallet: Wallet | Vault,
     txHex: string,
-    inputs: InputUTXOs[],
-    recipients: {
-      address: string;
-      amount: number;
-    }[],
-    network: bitcoinJS.Network
+    inputs: InputUTXOs[]
   ) => {
-    // const { txid } = await WalletUtilities.broadcastTransaction(txHex, network);
-
     const txid = await ElectrumClient.broadcast(txHex);
 
     if (!txid) throw new Error('Failed to broadcast transaction, txid missing');
@@ -1359,7 +1325,7 @@ export default class WalletOperations {
       throw new Error(err || txid);
     }
 
-    WalletOperations.removeConsumedUTXOs(wallet, inputs, txid, recipients); // chip consumed utxos
+    WalletOperations.removeConsumedUTXOs(wallet, inputs); // chip consumed utxos
     return txid;
   };
 
@@ -1429,10 +1395,10 @@ export default class WalletOperations {
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
-        txid?: undefined;
+        txid?;
       }
     | {
-        serializedPSBTEnvelop?: undefined;
+        serializedPSBTEnvelop?;
         txid: string;
       }
   > => {
@@ -1522,8 +1488,7 @@ export default class WalletOperations {
       txHex = combinedPSBT.finalizeAllInputs().extractTransaction().toHex();
     }
 
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
+    const txid = await this.broadcastTransaction(wallet, txHex, inputs);
     return {
       txid,
     };

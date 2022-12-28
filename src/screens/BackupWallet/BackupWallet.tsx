@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -73,23 +74,11 @@ function BackupWallet() {
         onPress={onPress}
       >
         <Box width="100%">
-          <Text
-            color="light.primaryText"
-            fontFamily="body"
-            fontWeight={200}
-            fontSize={14}
-            letterSpacing={1.12}
-          >
+          <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
             {title}
           </Text>
           {subTitle ? (
-            <Text
-              color="light.GreyText"
-              fontFamily="body"
-              fontWeight={200}
-              fontSize={12}
-              letterSpacing={0.6}
-            >
+            <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
               {subTitle}
             </Text>
           ) : null}
@@ -103,7 +92,7 @@ function BackupWallet() {
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box style={styles.wrapper} background="light.ReceiveBackground">
+    <Box style={styles.wrapper} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <Box
         style={{

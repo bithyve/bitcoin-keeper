@@ -1,12 +1,13 @@
 import { Alert, Platform, TouchableOpacity } from 'react-native';
-import { Box, HStack, Text, VStack, View } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 
-import AdvnaceOptions from 'src/assets/images/svgs/Advancedoptions.svg';
+import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import Change from 'src/assets/images/svgs/change.svg';
-import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
+import Change from 'src/assets/images/change.svg';
+import HealthCheck from 'src/assets/images/heathcheck.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
@@ -26,12 +27,14 @@ import { useDispatch } from 'react-redux';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType } from 'src/hardware';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { vault } = translations;
@@ -117,7 +120,7 @@ function SigningDeviceDetails({ route }) {
         dispatch(healthCheckSigner(vaultId, signer.signerId));
         setHealthCheckSuccess(true);
       } else {
-        Alert.alert('verifivation failed');
+        Alert.alert('verification failed');
       }
     } catch (err) {
       console.log(err);
@@ -171,10 +174,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <TapsignerSetupImage />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           You will need the Pin/ CVC at the back of the card
         </Text>
       </View>
@@ -185,10 +188,10 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <TapsignerSetupImage /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2} />
+        <Text color="light.secondaryText" fontSize={13} padding={2} />
       </View>
     );
   }
@@ -197,11 +200,11 @@ function SigningDeviceDetails({ route }) {
     return (
       <View>
         <Box alignSelf="center">{/* <SuccessIcon /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           You can choose to manually confirm the health of the signing device if you are sure that
           they are secure and accessible.
         </Text>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -215,7 +218,7 @@ function SigningDeviceDetails({ route }) {
           {' '}
           <Illustration />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+        <Text color="light.secondaryText" fontSize={13} padding={2}>
           You will be reminded in 90 days for the health check
         </Text>
       </View>
@@ -231,7 +234,8 @@ function SigningDeviceDetails({ route }) {
         setHealthCheckViewColdCard(true);
         break;
       default:
-        Alert.alert('Health check for this device is not supported currently');
+        // Alert.alert('Health check for this device is not supported currently');
+        showToast('Health check for this device is not supported currently');
     }
   };
 
@@ -245,7 +249,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            bg="light.lightAccent"
+            backgroundColor="light.accent"
             justifyContent="center"
             alignItems="center"
           >
@@ -315,7 +319,7 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor="light.ReceiveBackground"
+        backgroundColor="light.secondaryBackground"
       >
         <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
           You will be reminded in 90 days for the health check

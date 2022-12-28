@@ -17,7 +17,7 @@ import { addNewWallets } from '../sagaActions/wallets';
 import config from '../../core/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
-import { newWalletInfo } from './wallets';
+import { NewWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
 
 function* setupKeeperAppWorker({ payload }) {
@@ -68,7 +68,7 @@ function* setupKeeperAppWorker({ payload }) {
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
     // create default wallet
-    const defaultWallet: newWalletInfo = {
+    const defaultWallet: NewWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: 'Wallet 1',
@@ -132,7 +132,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
     yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
     // create default wallet
-    const defaultWallet: newWalletInfo = {
+    const defaultWallet: NewWalletInfo = {
       walletType: WalletType.CHECKING,
       walletDetails: {
         name: 'Mobile Wallet',

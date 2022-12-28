@@ -2,8 +2,16 @@ import QRCode from 'react-native-qrcode-svg';
 import React from 'react';
 import useDynamicQrContent from 'src/hooks/useDynamicQrContent';
 import { Dimensions } from 'react-native';
+import { BufferEncoding } from 'src/common/data/enums/BufferEncoding';
 
 const { width } = Dimensions.get('window');
+
+DisplayQR.defaultProps = {
+  toBytes: true,
+  type: 'hex',
+  rotation: 200,
+  shouldRotate: true,
+};
 
 function DisplayQR({
   qrContents,

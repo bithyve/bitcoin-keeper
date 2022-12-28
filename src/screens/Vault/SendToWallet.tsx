@@ -1,6 +1,7 @@
 import { StyleSheet, StatusBar } from 'react-native';
-import { Box, Input, InputGroup, Pressable, Stack, Text, Icon } from 'native-base';
-import BackIcon from 'src/assets/icons/back.svg';
+import Text from 'src/components/KeeperText';
+import { Box, Input, InputGroup, Pressable, Stack, Icon } from 'native-base';
+import BackIcon from 'src/assets/images/back.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import React from 'react';
 import {
@@ -8,9 +9,9 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
-import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-import WalletIcon from 'src/assets/icons/icon_wallet.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import IconDoller from 'src/assets/images/icon_dollar.svg';
+import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 
 const onPressNumber = () => {
@@ -23,17 +24,17 @@ const onDeletePressed = () => {
 
 function SendToWallet({ navigation }) {
   return (
-    <Box style={styles.Container}>
+    <Box style={styles.Container} backgroundColor="light.secondaryBackground">
       <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
       <Pressable onPress={() => navigation.goBack()} mx={8} my={12}>
         <BackIcon />
       </Pressable>
-      <Box ml={10} mb={5} flexDirection="row" w="100%" alignItems="center">
-        <Box w="60%">
+      <Box ml={10} mb={5} flexDirection="row" width="100%" alignItems="center">
+        <Box width="60%">
           <Text fontSize={20}>Sending to Wallet</Text>
           <Text fontSize={12}>Lorem ipsum dolor sit amet</Text>
         </Box>
-        <Box alignItems="center" justifyContent="center" w="30%">
+        <Box alignItems="center" justifyContent="center" width="30%">
           <CurrencyTypeSwitch />
         </Box>
       </Box>
@@ -60,28 +61,24 @@ function SendToWallet({ navigation }) {
               />
             }
             placeholder="|  Enter Amount"
-            placeholderTextColor="#073E39"
+            placeholderTextColor="light.greenText"
             size="xl"
             width="100%"
           />
         </InputGroup>
-        <Input placeholder="Add Note" placeholderTextColor="#073E39" size="xl" />
+        <Input placeholder="Add Note" placeholderTextColor="light.greenText" size="xl" />
       </Stack>
       <Box style={styles.actionButtons}>
         <Pressable onPress={() => console.log('Cancel Pressed')}>
-          <Text mt="12%" mr="10%" color="#073E39" fontSize={15}>
+          <Text mt="12%" mr="10%" color="light.greenText" fontSize={15}>
             Cancel
           </Text>
         </Pressable>
-        {/* <Pressable>
-          <LinearGradient
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            colors={['#00836A', '#073E39']}
-          />
-          <Text>Send</Text>
-        </Pressable> */}
-        <CustomButton value="Send" color="#FAFAFA" onPress={() => console.log('Send Pressed')} />
+        <CustomButton
+          value="Send"
+          color="light.white"
+          onPress={() => console.log('Send Pressed')}
+        />
       </Box>
       <Box style={styles.keypadView}>
         <KeyPadView
@@ -102,7 +99,6 @@ export default SendToWallet;
 const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    backgroundColor: '#F7F2EC',
   },
   inputContainer: {
     width: wp('75%'),

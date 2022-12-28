@@ -1,10 +1,11 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 
-import BackButton from 'src/assets/images/svgs/back.svg';
+import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;
@@ -26,9 +27,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
           <Text
             numberOfLines={1}
             style={styles.addWalletText}
-            color="#00715B"
-            fontFamily="body"
-            fontWeight="200"
+            color="light.greenText2"
             fontSize={19}
           >
             {title}
@@ -39,8 +38,7 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
             numberOfLines={1}
             style={styles.addWalletDescription}
             color="light.primaryText"
-            fontFamily="body"
-            fontWeight="100"
+            light
             fontSize={12}
           >
             {subtitle}

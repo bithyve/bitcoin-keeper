@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
@@ -19,18 +20,18 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 // asserts (svgs, pngs)
-import Arrow from 'src/assets/images/svgs/arrow.svg';
-import BTC from 'src/assets/images/svgs/btc.svg';
-import Chain from 'src/assets/icons/illustration_homescreen.svg';
-import DiamondHandsFocused from 'src/assets/images/svgs/ic_diamond_hands_focused.svg';
-import Hidden from 'src/assets/images/svgs/hidden.svg';
-import HodlerFocused from 'src/assets/images/svgs/ic_hodler_focused.svg';
-import Inheritance from 'src/assets/images/svgs/inheritance.svg';
-import LinkedWallet from 'src/assets/images/svgs/linked_wallet.svg';
-import PlebFocused from 'src/assets/images/svgs/ic_pleb_focused.svg';
-import SettingIcon from 'src/assets/images/svgs/settings.svg';
+import Arrow from 'src/assets/images/arrow.svg';
+import BTC from 'src/assets/images/btc.svg';
+import Chain from 'src/assets/images/illustration_homescreen.svg';
+import DiamondHandsFocused from 'src/assets/images/ic_diamond_hands_focused.svg';
+import Hidden from 'src/assets/images/hidden.svg';
+import HodlerFocused from 'src/assets/images/ic_hodler_focused.svg';
+import Inheritance from 'src/assets/images/inheritance.svg';
+import LinkedWallet from 'src/assets/images/linked_wallet.svg';
+import PlebFocused from 'src/assets/images/ic_pleb_focused.svg';
+import SettingIcon from 'src/assets/images/settings.svg';
 import VaultImage from 'src/assets/images/Vault.png';
-import VaultIcon from 'src/assets/icons/vaultSuccess.svg';
+import VaultIcon from 'src/assets/images/vaultSuccess.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from '../Vault/WalletMap';
@@ -56,7 +57,7 @@ function InheritanceComponent() {
     <Box alignItems="center" marginTop={hp(19.96)}>
       <Box
         style={styles.bottomCard}
-        bg={{
+        backgroundColor={{
           linearGradient: {
             colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
@@ -95,13 +96,12 @@ function InheritanceComponent() {
           cloudButton={wallet.FromCloud}
           cloudButtonDesc={wallet.WalletDesc}
           mainDesc={wallet.XPubSubTitle}
-          buttonBackground={['#00836A', '#073E39']}
           buttonCancel="Cancel"
           buttonText="Next"
-          buttonTextColor="#FAFAFA"
-          buttonCancelColor="#073E39"
+          buttonTextColor="light.white"
+          buttonCancelColor="light.greenText"
           buttonCallback={navigateBack}
-          textColor="#041513"
+          textColor="light.primaryText"
         />
       </Box>
     </Box>
@@ -123,7 +123,7 @@ function LinkedWallets(props) {
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
     >
       <Box
-        bg={{
+        backgroundColor={{
           linearGradient: {
             colors: ['light.gradientStart', 'light.gradientEnd'],
             start: [0, 0],
@@ -286,16 +286,16 @@ function VaultStatus(props) {
         <TouchableOpacity onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
             <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
-              <Text color="light.primaryText" style={styles.torText}>
+              <Text color="light.primaryText" style={styles.torText} bold>
                 {getTorStatusText}
               </Text>
             </Box>
             <Box style={styles.vaultBody}>
-              <Text color="light.white" style={styles.vaultHeading}>
+              <Text color="light.white" style={styles.vaultHeading} bold>
                 Your Vault
               </Text>
 
-              <Text color="light.white" style={styles.vaultSubHeading}>
+              <Text color="light.white" style={styles.vaultSubHeading} bold>
                 {!signers.length
                   ? 'Add a signing device to upgrade '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
@@ -312,7 +312,7 @@ function VaultStatus(props) {
               ) : (
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
-                    <Box bg="light.lightAccent" style={styles.vaultSigner}>
+                    <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
                       {WalletMap(signer.type).Icon}
                     </Box>
                   ))}
@@ -348,7 +348,7 @@ function VaultStatus(props) {
               style={styles.balanceToggleContainer}
               onPress={() => props.onAmountPress()}
             >
-              <Text color="light.sendMax" style={styles.balanceToggleText}>
+              <Text color="light.sendMax" style={styles.balanceToggleText} bold>
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
@@ -379,7 +379,7 @@ function VaultInfo() {
 
   return (
     <Box
-      bg={{
+      backgroundColor={{
         linearGradient: {
           colors: ['light.gradientStart', 'light.gradientEnd'],
           start: [0, 0],
@@ -437,7 +437,7 @@ function TransVaultSuccessfulContent() {
       <Box alignSelf="center">
         <VaultIcon />
       </Box>
-      <Text color="#073B36" fontSize={13} fontFamily="body" fontWeight="200" p={2}>
+      <Text color="light.greenText" fontSize={13} padding={2}>
         The transaction should be visible in the vault in some time.
       </Text>
     </Box>
@@ -473,8 +473,8 @@ function HomeScreen({ navigation }) {
         title="Transfer to Vault Successfull"
         subTitle="You have successfully transferred from your wallet to the vault"
         buttonText="View Vault"
-        textColor="#073B36"
-        buttonTextColor="#FAFAFA"
+        textcolor="light.greenText"
+        buttonTextColor="light.white"
         Content={TransVaultSuccessfulContent}
       />
     </Box>
@@ -568,7 +568,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textAlign: 'center',
     textTransform: 'uppercase',
-    fontWeight: 'bold',
   },
   vaultBody: {
     marginTop: hp(windowHeight > 700 ? 60.5 : 25),
@@ -577,12 +576,10 @@ const styles = StyleSheet.create({
   vaultHeading: {
     letterSpacing: 0.8,
     fontSize: 16,
-    fontWeight: 'bold',
   },
   vaultSubHeading: {
     letterSpacing: 0.9,
     fontSize: 12,
-    fontWeight: 'bold',
     opacity: 0.8,
     paddingBottom: 2,
   },
@@ -617,7 +614,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   balanceToggleText: {
-    fontWeight: 'bold',
     fontSize: 11,
     letterSpacing: 0.88,
   },

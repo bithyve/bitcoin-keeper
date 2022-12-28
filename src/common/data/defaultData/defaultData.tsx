@@ -1,6 +1,6 @@
 import BlockChainHomeIcon from 'src/assets/images/blockchainHome.svg';
-import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
-import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import SingleSigIcon from 'src/assets/images/single_sig.svg';
+import BlueWalletIcon from 'src/assets/images/blue_wallet.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export interface WALLET {
@@ -9,7 +9,7 @@ export interface WALLET {
   name: string;
   description: string;
   isImported: boolean;
-  balance: Number;
+  balance: number;
 }
 
 export const defaultWallets: WALLET[] = [
@@ -33,7 +33,7 @@ export const defaultWallets: WALLET[] = [
 
 export const walletData = (item) => {
   const walletTitle = (item as Wallet)?.presentationData?.name;
-  if (walletTitle == 'Full Import') {
+  if (walletTitle === 'Full Import') {
     return {
       Icon: BlueWalletIcon,
       type: 'Blue Wallet',
@@ -41,7 +41,8 @@ export const walletData = (item) => {
       description: 'Daily Spends',
       balance: 0,
     };
-  } if (walletTitle == 'Checking Wallet') {
+  }
+  if (walletTitle === 'Checking Wallet') {
     return {
       Icon: SingleSigIcon,
       type: 'Single-sig',
@@ -49,13 +50,12 @@ export const walletData = (item) => {
       description: item?.presentationData?.description,
       balance: 0,
     };
-  } 
-    return {
-      Icon: item.Icon,
-      type: item.type,
-      name: item.name,
-      description: item.description,
-      balance: item.balance,
-    };
-  
+  }
+  return {
+    Icon: item.Icon,
+    type: item.type,
+    name: item.name,
+    description: item.description,
+    balance: item.balance,
+  };
 };

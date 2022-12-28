@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text, Input } from 'native-base';
+import { Box, Input } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { BackupType } from 'src/common/data/enums/BHR';
 import { StyleSheet } from 'react-native';
+import Text from 'src/components/KeeperText';
 import Buttons from '../Buttons';
 
 function HealthCheckComponent(props) {
@@ -93,7 +94,7 @@ function HealthCheckComponent(props) {
   };
 
   return (
-    <Box bg="light.ReceiveBackground" style={styles.wrapper}>
+    <Box backgroundColor="light.secondaryBackground" style={styles.wrapper}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.healthCheck}

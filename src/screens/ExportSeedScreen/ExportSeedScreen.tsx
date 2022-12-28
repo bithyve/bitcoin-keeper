@@ -1,4 +1,5 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -28,8 +29,6 @@ function ExportSeedScreen({ route, navigation }) {
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
-
-  console.log('showWordIndex', showWordIndex, typeof showWordIndex);
 
   useEffect(() => {
     if (backupMethod !== null) {
@@ -75,7 +74,7 @@ function ExportSeedScreen({ route, navigation }) {
   );
 
   return (
-    <Box style={styles.container} background="light.ReceiveBackground">
+    <Box style={styles.container} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title={seedText.recoveryPhrase}
@@ -134,15 +133,15 @@ function ExportSeedScreen({ route, navigation }) {
           onSwipeComplete={() => setBackupSuccessModal(false)}
         >
           <BackupSuccessful
+            title={BackupWallet.backupSuccessTitle}
+            subTitle={BackupWallet.backupSuccessSubTitle}
+            paragraph={BackupWallet.backupSuccessParagraph}
             closeBottomSheet={() => {
               setBackupSuccessModal(false);
             }}
             confirmBtnPress={() => {
               navigtaion.navigate('NewHome');
             }}
-            title={BackupWallet.backupSuccessTitle}
-            subTitle={BackupWallet.backupSuccessSubTitle}
-            paragraph={BackupWallet.backupSuccessParagraph}
           />
         </ModalWrapper>
       </Box>
@@ -160,7 +159,7 @@ const styles = StyleSheet.create({
   seedCardWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    padding: 16,
     borderRadius: 10,
     marginHorizontal: 8,
     marginVertical: 10,

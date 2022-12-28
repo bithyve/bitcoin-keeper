@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import CurrencyKind from "src/common/data/enums/CurrencyKind";
 import LoginMethod from "src/common/data/enums/LoginMethod";
 import ThemeMode from "src/common/data/enums/ThemeMode";
+import { NodeDetail } from "src/core/wallets/interfaces";
 
 const initialState: {
   loginMethod: LoginMethod;
@@ -10,7 +11,9 @@ const initialState: {
   currencyCode: string;
   language: string;
   torEnbled: boolean;
-  inheritanceModal: boolean
+  inheritanceModal: boolean,
+  connectToMyNodeEnabled: boolean,
+  nodeDetails: NodeDetail[]
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -18,7 +21,9 @@ const initialState: {
   currencyCode: 'USD',
   language: 'en',
   torEnbled: false,
-  inheritanceModal: true
+  inheritanceModal: true,
+  connectToMyNodeEnabled: false,
+  nodeDetails: []
 }
 
 const settingsSlice = createSlice({
@@ -46,9 +51,25 @@ const settingsSlice = createSlice({
     setInheritance: (state, action: PayloadAction<boolean>) => {
       state.inheritanceModal = action.payload
     },
+    setConnectToMyNode: (state, action: PayloadAction<boolean>) => {
+      state.connectToMyNodeEnabled = action.payload
+    },
+    setNodeDetails: (state, action: PayloadAction<NodeDetail[]>) => {
+      state.nodeDetails = action.payload
+    }
   }
 })
 
-export const { setLoginMethod, setThemeMode, setCurrencyKind, setCurrencyCode, setLanguage, setTorEnabled, setInheritance } = settingsSlice.actions
+export const { 
+  setLoginMethod, 
+  setThemeMode, 
+  setCurrencyKind, 
+  setCurrencyCode, 
+  setLanguage, 
+  setTorEnabled, 
+  setInheritance, 
+  setConnectToMyNode,
+  setNodeDetails 
+} = settingsSlice.actions
 
 export default settingsSlice.reducer;

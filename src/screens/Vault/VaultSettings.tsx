@@ -77,31 +77,19 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
       onPress={onPress}
     >
       {Icon && (
-        <Box w="16%">
+        <Box width="16%">
           <BackupIcon />
         </Box>
       )}
-      <Box w={Icon ? '80%' : '96%'}>
-        <Text
-          color="light.primaryText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={14}
-          letterSpacing={1.12}
-        >
+      <Box width={Icon ? '80%' : '96%'}>
+        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text
-          color="light.GreyText"
-          fontFamily="body"
-          fontWeight={200}
-          fontSize={12}
-          letterSpacing={0.6}
-        >
+        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
-      <Box w="4%">
+      <Box width="4%">
         <Arrow />
       </Box>
     </Pressable>
@@ -126,8 +114,8 @@ function VaultSettings({ route }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={[0, 0]}
+        end={[1, 1]}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -147,14 +135,14 @@ function VaultSettings({ route }) {
           }}
         >
           <Box>
-            <Text color="light.white" letterSpacing={0.28} fontSize={14} fontWeight={200}>
+            <Text color="light.white" letterSpacing={0.28} fontSize={14}>
               {vaultName}
             </Text>
-            <Text color="light.white" letterSpacing={0.24} fontSize={12} fontWeight={100}>
+            <Text color="light.white" letterSpacing={0.24} fontSize={12} light>
               {vaultDescription}
             </Text>
           </Box>
-          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)} fontWeight={200}>
+          <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
             {vaultBalance}sats
           </Text>
         </Box>
@@ -162,7 +150,7 @@ function VaultSettings({ route }) {
     );
   }
   return (
-    <Box style={styles.Container} background="light.ReceiveBackground">
+    <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle

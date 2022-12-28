@@ -1,13 +1,15 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text } from 'native-base';
-import { TouchableOpacity, Clipboard } from 'react-native';
+import { Box } from 'native-base';
+import { TouchableOpacity } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import CopyIcon from 'src/assets/images/icon_copy.svg';
 import { generateKey } from 'src/core/services/operations/encryption';
+import Text from 'src/components/KeeperText';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
-function AppGeneratePass(props) {
+function AppGeneratePass(props: any) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const [agsp] = useState(
@@ -18,29 +20,30 @@ function AppGeneratePass(props) {
   const [copied, setCopied] = useState(false);
 
   const { common } = translations;
+  const { closeBottomSheet, confirmBtnPress } = props;
   return (
-    <Box bg="#F7F2EC" borderRadius={10}>
-      <TouchableOpacity onPress={() => props.closeBottomSheet()}>
+    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
+      <TouchableOpacity onPress={() => closeBottomSheet()}>
         <Box
-          m={5}
-          bg="#E3BE96"
+          margin={5}
+          backgroundColor="light.lightAccent"
           borderRadius={32}
           h={8}
-          w={8}
+          width={8}
           alignItems="center"
           justifyContent="center"
           alignSelf="flex-end"
         >
-          <Text fontSize={18} color="#FFF">
+          <Text fontSize={18} color="light.white">
             X
           </Text>
         </Box>
       </TouchableOpacity>
       <Box px={10} py={5}>
-        <Text fontSize={19} color="light.primaryText" fontFamily="heading">
+        <Text fontSize={19} color="light.primaryText">
           {BackupWallet.appGeneratePassTitle}
         </Text>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
@@ -63,7 +66,7 @@ function AppGeneratePass(props) {
             justifyContent="space-between"
             backgroundColor="light.textInputBackground"
           >
-            <Text width="80%" marginLeft={4} noOfLines={1} fontSize={18} fontWeight={200}>
+            <Text width="80%" marginLeft={4} numberOfLines={1} fontSize={18}>
               {agsp}
             </Text>
             <Box
@@ -88,35 +91,35 @@ function AppGeneratePass(props) {
           </Text>
         )}
       </Box>
-      <Box p={10}>
-        <Text fontSize={13} color="light.primaryText" fontFamily="body">
+      <Box padding={10}>
+        <Text fontSize={13} color="light.primaryText">
           {BackupWallet.appGeneratePassSubTitle}
         </Text>
       </Box>
-      <Box px={10} w="90%" flexDirection="row" alignItems="center">
-        <Box w="15%">
+      <Box px={10} width="90%" flexDirection="row" alignItems="center">
+        <Box width="15%">
           <CopyIcon />
         </Box>
-        <Box w="80%">
-          <Text fontSize={12} fontWeight={300}>
+        <Box width="80%">
+          <Text fontSize={12} bold>
             Backing up drive
           </Text>
           <Text fontSize={12}>Lorem ipsum dolor sit amet</Text>
         </Box>
       </Box>
-      <Box alignItems="center" flexDirection="row" w="95%" py={5}>
+      <Box alignItems="center" flexDirection="row" width="95%" py={5}>
         <TouchableOpacity
-          onPress={() => props.closeBottomSheet()}
+          onPress={() => closeBottomSheet()}
           style={{ width: '60%', paddingLeft: '15%' }}
         >
           <Text fontSize={14} textAlign="center">
             {common.cancel}
           </Text>
         </TouchableOpacity>
-        <Box w="40%">
+        <Box width="40%">
           <CustomGreenButton
             onPress={() => {
-              props.confirmBtnPress(agsp);
+              confirmBtnPress(agsp);
             }}
             value={common.next}
           />

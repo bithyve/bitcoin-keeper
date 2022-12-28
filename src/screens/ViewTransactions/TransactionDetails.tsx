@@ -1,4 +1,6 @@
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { TouchableOpacity } from 'react-native';
+import { Box } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -6,10 +8,10 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { Transaction } from 'src/core/wallets/interfaces';
+import openLink from 'src/utils/OpenLink';
 // asserts
-import IconRecieve from 'src/assets/images/svgs/icon_received_lg.svg';
-import IconSend from 'src/assets/images/svgs/icon_send_lg.svg';
+import IconRecieve from 'src/assets/images/icon_received_lg.svg';
+import IconSend from 'src/assets/images/icon_send_lg.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 
@@ -34,22 +36,20 @@ function TransactionDetails({ route }) {
         }}
       >
         <Text
-          fontWeight={200}
           fontSize={14}
           letterSpacing={1.12}
           color="light.headerText"
           width="90%"
-          noOfLines={1}
+          numberOfLines={1}
         >
           {title}
         </Text>
         <Text
-          fontWeight={200}
           fontSize={12}
           letterSpacing={2.4}
           color="light.GreyText"
           width="90%"
-          noOfLines={1}
+          numberOfLines={1}
         >
           {describtion}
         </Text>
@@ -75,7 +75,7 @@ function TransactionDetails({ route }) {
           justifyContent="space-between"
         >
           <Box flexDirection="row">
-            {transaction.transactionType == 'Received' ? <IconRecieve /> : <IconSend />}
+            {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
             <Box
               style={{
                 marginLeft: wp(10),
@@ -83,24 +83,23 @@ function TransactionDetails({ route }) {
               }}
             >
               <Text
-                fontWeight={200}
                 fontSize={14}
                 letterSpacing={0.7}
                 color="light.headerText"
-                noOfLines={1}
+                numberOfLines={1}
                 width={wp(120)}
               >
                 {transaction.address}
               </Text>
-              <Text fontWeight={200} fontSize={10} letterSpacing={0.5} color="light.dateText">
+              <Text fontSize={10} letterSpacing={0.5} color="light.dateText">
                 {transaction.date}
               </Text>
             </Box>
           </Box>
           <Box>
-            <Text fontWeight={200} fontSize={19} letterSpacing={0.95}>
+            <Text fontSize={19} letterSpacing={0.95}>
               {`${getAmount(transaction.amount)} `}
-              <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)} fontWeight={200}>
+              <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)}>
                 {getUnit()}
               </Text>
             </Text>
@@ -111,15 +110,21 @@ function TransactionDetails({ route }) {
       <Box alignItems="center" marginTop={hp(44)} justifyContent="center" marginX={3}>
         <InfoCard title="To Address" describtion={transaction.recipientAddresses} />
         <InfoCard title="From Address" describtion={transaction.senderAddresses} />
-        <InfoCard title="Transaction ID" describtion={transaction.txid} />
+        <TouchableOpacity onPress={() => openLink('https://explorer.btc.com/')}>
+          <InfoCard title="Transaction ID" describtion={transaction.txid} />
+        </TouchableOpacity>
         <Box flexDirection="row" alignItems="center" justifyContent="space-between" width="100%">
           <InfoCard title="Fee" describtion={transaction.fee} width={145} />
-          <InfoCard title="Type" describtion={transaction.transactionType} width={145} />
+          <InfoCard
+            title="Confirmations"
+            describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
+            width={145}
+          />
         </Box>
-        <Box flexDirection="row" justifyContent="space-between" width="100%">
+        {/* <Box flexDirection="row" justifyContent="space-between" width="100%">
           <InfoCard title="Privacy" describtion={transaction.type} width={145} />
-          <InfoCard title="Confirmations" describtion={transaction.confirmations} width={145} />
-        </Box>
+          <InfoCard title="Type" describtion={transaction.transactionType} width={145} />
+        </Box> */}
       </Box>
     </Box>
   );
@@ -129,7 +134,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
+    backgroundColor: 'light.secondaryBackground',
   },
 });
 export default TransactionDetails;

@@ -1,6 +1,4 @@
-import { AxiosResponse } from 'axios';
-import { getAppImage } from 'src/store/sagaActions/bhr';
-import idx from 'idx';
+/* eslint-disable consistent-return */
 import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
 import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
@@ -140,12 +138,10 @@ export default class Relay {
     try {
       let res;
       try {
-        // TODO: re-route fee/exchange-rates fetch from legacy relay to keeper-relay
         res = await RestClient.post(`${RELAY}fetchFeeAndExchangeRates`, {
           HEXA_ID,
         });
       } catch (err) {
-        // console.log({ err });
         if (err.response) throw new Error(err.response.data.err);
         if (err.code) throw new Error(err.code);
       }
@@ -166,11 +162,11 @@ export default class Relay {
   ) => {
     try {
       let res;
-      const obj = {
-        AUTH_ID,
-        receivers,
-        notification,
-      };
+      // const obj = {
+      //   AUTH_ID,
+      //   receivers,
+      //   notification,
+      // };
       try {
         res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
           AUTH_ID,
@@ -321,7 +317,7 @@ export default class Relay {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
         id: appId,
       });
-      const {data} = res;
+      const { data } = res;
       return data;
     } catch (err) {
       captureError(err);
@@ -331,8 +327,7 @@ export default class Relay {
 
   public static getVaultMetaData = async (signerId): Promise<any> => {
     try {
-      let res;
-      res = await RestClient.post(`${RELAY}getVaultMetaData`, {
+      const res: any = await RestClient.post(`${RELAY}getVaultMetaData`, {
         signerId,
       });
       const data = res.data || res.json;
@@ -345,7 +340,7 @@ export default class Relay {
 
   public static getSignerIdInfo = async (signerId): Promise<any> => {
     try {
-      const res = await RestClient.post(`${RELAY}getSignerIdInfo`, {
+      const res: any = await RestClient.post(`${RELAY}getSignerIdInfo`, {
         signerId,
       });
       const data = res.data || res.json;
@@ -358,7 +353,7 @@ export default class Relay {
 
   public static getVac = async (signerIdsHash): Promise<any> => {
     try {
-      const res = await RestClient.post(`${RELAY}getVac`, {
+      const res: any = await RestClient.post(`${RELAY}getVac`, {
         signerIdsHash,
       });
       const data = res.data || res.json;

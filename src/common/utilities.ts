@@ -32,7 +32,7 @@ export const timeConvert = (valueInMinutes) => {
     return `${hours} hours`;
   }
   if (days > 0) {
-    return days == 1 ? `${days} day` : `${days} days`;
+    return days === 1 ? `${days} day` : `${days} days`;
   }
 };
 

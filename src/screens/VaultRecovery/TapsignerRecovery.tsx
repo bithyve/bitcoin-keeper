@@ -1,5 +1,6 @@
 import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
@@ -7,7 +8,6 @@ import config, { APP_STAGE } from 'src/core/config';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -27,7 +27,8 @@ function TapSignerRecovery() {
   const card = React.useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
-  const withModal = (callback) => Platform.select({
+  const withModal = (callback) =>
+    Platform.select({
       android: async () => {
         setNfcVisible(true);
         const resp = await card.nfcWrapper(callback);
@@ -40,11 +41,11 @@ function TapSignerRecovery() {
 
   const onPressHandler = (digit) => {
     let temp = cvc;
-    if (digit != 'x') {
+    if (digit !== 'x') {
       temp += digit;
       setCvc(temp);
     }
-    if (cvc && digit == 'x') {
+    if (cvc && digit === 'x') {
       setCvc(cvc.slice(0, -1));
     }
   };
@@ -77,13 +78,12 @@ function TapSignerRecovery() {
           const xpub = await card.get_xpub(cvc);
           const xfp = await card.get_xfp(cvc);
           return { xpub, status, xfp: xfp.toString('hex') };
-        } 
-          await card.setup(cvc);
-          const newCard = await card.first_look();
-          const xpub = await card.get_xpub(cvc);
-          const xfp = await card.get_xfp(cvc);
-          return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
-        
+        }
+        await card.setup(cvc);
+        const newCard = await card.first_look();
+        const xpub = await card.get_xpub(cvc);
+        const xfp = await card.get_xfp(cvc);
+        return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
       }
     })();
     return signerDetails;
@@ -145,7 +145,6 @@ function TapSignerRecovery() {
           <KeyPadView
             onPressNumber={onPressHandler}
             keyColor="#041513"
-            ClearIcon={<DeleteIcon />}
             onDeletePressed={onDeletePressed}
           />
           <NfcPrompt visible={nfcVisible} />

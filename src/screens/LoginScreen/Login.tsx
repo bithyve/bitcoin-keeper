@@ -1,4 +1,5 @@
-import { Box, HStack, Image, Switch, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Image, Switch } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
@@ -7,7 +8,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -16,6 +17,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
@@ -132,12 +134,12 @@ function LoginScreen({ navigation, route }) {
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
-      if (text != 'x') {
+      if (text !== 'x') {
         tmpPasscode += text;
         setPasscode(tmpPasscode);
       }
     }
-    if (passcode && text == 'x') {
+    if (passcode && text === 'x') {
       setPasscode(passcode.slice(0, -1));
       setLoginError(false);
     }
@@ -184,7 +186,7 @@ function LoginScreen({ navigation, route }) {
   const updateFCM = async () => {
     try {
       const token = await messaging().getToken();
-      if (!existingFCMToken || existingFCMToken != token) dispatch(updateFCMTokens([token]));
+      if (!existingFCMToken || existingFCMToken !== token) dispatch(updateFCMTokens([token]));
     } catch (error) {
       console.log(error);
     }
@@ -213,13 +215,7 @@ function LoginScreen({ navigation, route }) {
             alignSelf: 'center',
           }}
         />
-        <Text
-          color="light.greenText"
-          fontWeight={200}
-          fontSize={13}
-          letterSpacing={0.65}
-          width={wp(260)}
-        >
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
           This feature is *only* for the testnet version of the app. The developers will get your
           message along with other information from the app.
         </Text>
@@ -227,7 +223,10 @@ function LoginScreen({ navigation, route }) {
     );
   }
   return (
-    <LinearGradient colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient
+      colors={['light.gradientStart', 'light.gradientEnd']}
+      style={styles.linearGradient}
+    >
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -236,8 +235,6 @@ function LoginScreen({ navigation, route }) {
               ml={5}
               color="light.white"
               fontSize={22}
-              fontWeight="200"
-              fontFamily="heading"
               style={{
                 marginTop: heightPercentageToDP('10%'),
               }}
@@ -246,18 +243,11 @@ function LoginScreen({ navigation, route }) {
               {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
-              <Text
-                fontSize={13}
-                ml={5}
-                letterSpacing={0.65}
-                color="light.textColor"
-                fontFamily="body"
-                fontWeight={200}
-              >
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.textColor">
                 {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
-                {/* <Text fontSize={(13)} fontFamily={'body'}>
+                {/* <Text fontSize={(13)} >
                   {login.passcode}
                 </Text> */}
               </Text>
@@ -270,11 +260,10 @@ function LoginScreen({ navigation, route }) {
 
             {loginError && (
               <Text
+                style={styles.errorMessage}
                 color="light.error"
                 fontSize={12}
-                fontStyle="italic"
                 textAlign="right"
-                fontWeight={200}
                 letterSpacing={0.65}
                 mr={12}
               >
@@ -282,7 +271,7 @@ function LoginScreen({ navigation, route }) {
               </Text>
             )}
             <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text color="light.white" fontWeight="200" px="5" fontSize={13} letterSpacing={1}>
+              <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
                 Use bitcoin testnet
               </Text>
               <Switch
@@ -294,7 +283,7 @@ function LoginScreen({ navigation, route }) {
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
-              {passcode.length == 4 && (
+              {passcode.length === 4 && (
                 <Box>
                   <CustomButton
                     onPress={() => {
@@ -320,7 +309,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text color="light.white" fontWeight="300" fontSize={14} fontFamily="body">
+              <Text color="light.white" bold fontSize={14}>
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
@@ -331,7 +320,7 @@ function LoginScreen({ navigation, route }) {
             disabled={!canLogin}
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+            ClearIcon={<DeleteIcon />}
           />
         </Box>
         {/* forgot modal */}
@@ -373,8 +362,7 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
-        textColor="#000"
-        subTitleColor="#5F6965"
+        subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
         buttonCallback={loginModalAction}
@@ -425,6 +413,9 @@ const styles = StyleSheet.create({
   linearGradient: {
     flex: 1,
     padding: 10,
+  },
+  errorMessage: {
+    fontStyle: 'italic',
   },
 });
 

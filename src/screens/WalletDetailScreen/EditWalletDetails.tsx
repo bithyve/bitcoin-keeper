@@ -39,7 +39,7 @@ function EditWalletSettings({ route }) {
   };
 
   return (
-    <View style={styles.Container} background="light.ReceiveBackground">
+    <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletText.WalletDetails}

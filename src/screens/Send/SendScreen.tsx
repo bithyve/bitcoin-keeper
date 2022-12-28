@@ -10,14 +10,15 @@ import {
   ScrollView,
 } from 'react-native';
 // libraries
-import { Box, Text, View } from 'native-base';
+import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
+import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
@@ -47,7 +48,6 @@ function SendScreen({ route }) {
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { home } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
@@ -104,12 +104,12 @@ function SendScreen({ route }) {
     setPaymentInfo(address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
           : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        sender.entityKind == 'VAULT'
+        sender.entityKind === 'VAULT'
           ? navigateToNext(
               address,
               TransferType.VAULT_TO_ADDRESS,
@@ -127,7 +127,7 @@ function SendScreen({ route }) {
 
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
-      if (sender.entityKind == 'VAULT') {
+      if (sender.entityKind === 'VAULT') {
         navigateToNext(getNextFreeAddress(item), TransferType.VAULT_TO_WALLET, null, item);
       } else {
         navigateToNext(getNextFreeAddress(item), TransferType.WALLET_TO_WALLET, null, item);
@@ -144,7 +144,7 @@ function SendScreen({ route }) {
           <IconWallet />
         </TouchableOpacity>
         <Box>
-          <Text fontFamily="body" fontWeight="100" fontSize={12} mt="1" numberOfLines={1}>
+          <Text light fontSize={12} mt="1" numberOfLines={1}>
             {item.presentationData.name}
           </Text>
         </Box>
@@ -180,7 +180,7 @@ function SendScreen({ route }) {
             <Box style={styles.inputWrapper}>
               <TextInput
                 placeholder="or enter address manually"
-                placeholderTextColor="#4F5955"
+                placeholderTextColor="light.GreyText"
                 style={styles.textInput}
                 value={paymentInfo}
                 onChangeText={handleTextChange}
@@ -189,7 +189,7 @@ function SendScreen({ route }) {
 
             {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={5} fontFamily="body" fontSize={14} letterSpacing={1.12}>
+              <Text marginX={5} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>
@@ -209,7 +209,7 @@ function SendScreen({ route }) {
       </ScrollView>
       {/* {Bottom note} */}
       {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor="light.ReceiveBackground">
+        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
           <Note
             title={common.note}
             subtitle="Make sure the address or QR is the one where you want to send the funds to"

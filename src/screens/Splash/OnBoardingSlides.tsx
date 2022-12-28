@@ -7,25 +7,22 @@ import {
   Dimensions,
   ImageBackground,
 } from 'react-native';
-import { Box, Text, StatusBar } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, StatusBar } from 'native-base';
 
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Illustration_1 from 'src/assets/images/svgs/illustration_1.svg';
-import Illustration_2 from 'src/assets/images/svgs/illustration_2.svg';
-import Illustration_3 from 'src/assets/images/svgs/illustration_3.svg';
-import Illustration_4 from 'src/assets/images/svgs/illustration_4.svg';
-import Illustration_5 from 'src/assets/images/svgs/illustration_5.svg';
-import Illustration_6 from 'src/assets/images/svgs/illustration_6.svg';
-import Skip from 'src/assets/images/svgs/skip.svg';
+import Illustration_1 from 'src/assets/images/illustration_1.svg';
+import Illustration_2 from 'src/assets/images/illustration_2.svg';
+import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -38,9 +35,7 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.Comprehensive} `}
-          <Text fontStyle="italic" fontWeight={900}>
-            {onboarding.security}
-          </Text>
+          <Text style={styles.info}>{onboarding.security}</Text>
           {` ${onboarding.slide01Title}`}
         </>
       ),
@@ -52,38 +47,12 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.slide02Title} `}
-          <Text fontStyle="italic" fontWeight={900}>
-            {onboarding.privacy}
-          </Text>
+          <Text style={styles.info}>{onboarding.privacy}</Text>
         </>
       ),
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
-    // {
-    //   id: '3',
-    //   title: onboarding.slide03Title,
-    //   paragraph: onboarding.slide03Paragraph,
-    //   illustration: <Illustration_3 />,
-    // },
-    // {
-    //   id: '4',
-    //   title: onboarding.slide04Title,
-    //   paragraph: onboarding.slide04Paragraph,
-    //   illustration: <Illustration_4 />,
-    // },
-    // {
-    //   id: '5',
-    //   title: onboarding.slide05Title,
-    //   paragraph: onboarding.slide05Paragraph,
-    //   illustration: <Illustration_6 />,
-    // },
-    // {
-    //   id: '6',
-    //   title: onboarding.slide06Title,
-    //   paragraph: onboarding.slide06Paragraph,
-    //   illustration: <Illustration_3 />,
-    // },
   ]);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -92,24 +61,16 @@ function OnBoardingSlides({ navigation }) {
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   return (
-    <LinearGradient colors={['#00836A', '#073E39']} style={{ flex: 1 }}>
+    <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
-          <StatusBar backgroundColor="transparent" barStyle="light-content" />
           <Box justifyContent="center" mr={4} mt={10}>
-            {currentPosition != 1 && (
+            {currentPosition !== 1 && (
               <TouchableOpacity
                 onPress={() => navigation.replace('NewKeeperApp')}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
-                <Text
-                  fontSize={14}
-                  color="light.white"
-                  fontFamily="heading"
-                  fontWeight={300}
-                  textAlign="right"
-                  opacity={0.7}
-                >
+                <Text fontSize={14} color="light.white" bold textAlign="right" opacity={0.7}>
                   Skip&nbsp;&nbsp;
                 </Text>
                 <Skip />
@@ -141,7 +102,7 @@ function OnBoardingSlides({ navigation }) {
             position="absolute"
             flex={0.2}
             flexDirection="row"
-            m={5}
+            margin={5}
             alignItems="center"
             style={{
               bottom: hp(20),
@@ -150,20 +111,20 @@ function OnBoardingSlides({ navigation }) {
               paddingHorizontal: wp(20),
             }}
           >
-            <Box w="70%">
+            <Box width="70%">
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
                 <Box
                   borderColor="light.lightAccent"
                   borderWidth={0.7}
                   borderRadius={30}
-                  w={120}
+                  width={120}
                   alignItems="center"
                   justifyContent="center"
                   style={{
                     height: hp(40),
                   }}
                 >
-                  <Text color="light.lightAccent" fontSize={14} fontWeight={300}>
+                  <Text color="light.lightAccent" fontSize={14} bold>
                     {common.seeFAQs}
                   </Text>
                 </Box>
@@ -176,26 +137,20 @@ function OnBoardingSlides({ navigation }) {
                   return (
                     <Box
                       key={index}
-                      style={currentPosition == index ? styles.selectedDot : styles.unSelectedDot}
+                      style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                     />
                   );
                 })
               ) : (
-                <Box alignSelf="center" bg="transparent">
+                <Box alignSelf="center" backgroundColor="transparent">
                   <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
                     <LinearGradient
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
+                      start={[0, 0]}
+                      end={[1, 1]}
                       colors={['#FFFFFF', '#80A8A1']}
                       style={styles.cta}
                     >
-                      <Text
-                        fontSize={13}
-                        fontFamily="body"
-                        fontWeight="300"
-                        letterSpacing={1}
-                        color="light.greenText"
-                      >
+                      <Text fontSize={13} bold letterSpacing={1} color="light.greenText">
                         Start App
                       </Text>
                     </LinearGradient>
@@ -233,5 +188,9 @@ const styles = StyleSheet.create({
     height: hp(45),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  info: {
+    fontStyle: 'italic',
+    fontWeight: '900',
   },
 });

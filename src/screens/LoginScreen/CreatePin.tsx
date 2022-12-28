@@ -1,4 +1,5 @@
-import { Box, HStack, Switch, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box, HStack, Switch } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -9,13 +10,14 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import LinearGradient from 'react-native-linear-gradient';
+import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
@@ -60,32 +62,32 @@ export default function CreatePin(props) {
     let tmpConfirmPasscode = confirmPasscode;
     if (passcodeFlag) {
       if (passcode.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpPasscode += text;
           setPasscode(tmpPasscode);
         }
-      } else if (passcode.length == 4 && passcodeFlag) {
+      } else if (passcode.length === 4 && passcodeFlag) {
         setPasscodeFlag(false);
         setConfirmPasscodeFlag(1);
         setPasscode(passcode);
       }
-      if (passcode && text == 'x') {
+      if (passcode && text === 'x') {
         const passcodeTemp = passcode.slice(0, -1);
         setPasscode(passcodeTemp);
-        if (passcodeTemp.length == 0) {
+        if (passcodeTemp.length === 0) {
           setConfirmPasscodeFlag(0);
         }
       }
     } else if (confirmPasscodeFlag) {
       if (confirmPasscode.length < 4) {
-        if (text != 'x') {
+        if (text !== 'x') {
           tmpConfirmPasscode += text;
           setConfirmPasscode(tmpConfirmPasscode);
         }
       }
-      if (confirmPasscode && text == 'x') {
+      if (confirmPasscode && text === 'x') {
         setConfirmPasscode(confirmPasscode.slice(0, -1));
-      } else if (!confirmPasscode && text == 'x') {
+      } else if (!confirmPasscode && text === 'x') {
         setPasscodeFlag(true);
         setConfirmPasscodeFlag(0);
         setConfirmPasscode(confirmPasscode);
@@ -102,17 +104,17 @@ export default function CreatePin(props) {
   };
 
   useEffect(() => {
-    if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length == 4) {
+    if (confirmPasscode.length <= 4 && confirmPasscode.length > 0 && passcode.length === 4) {
       setPasscodeFlag(false);
       setConfirmPasscodeFlag(2);
-    } else if (passcode.length == 4 && confirmPasscodeFlag != 2) {
+    } else if (passcode.length === 4 && confirmPasscodeFlag !== 2) {
       setPasscodeFlag(false);
       setConfirmPasscodeFlag(1);
     } else if (
       !confirmPasscode &&
       passcode.length > 0 &&
       passcode.length <= 4 &&
-      confirmPasscodeFlag == 2
+      confirmPasscodeFlag === 2
     ) {
       setPasscodeFlag(true);
       setConfirmPasscodeFlag(0);
@@ -123,7 +125,7 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   useEffect(() => {
-    if (credsChanged == 'changed') {
+    if (credsChanged === 'changed') {
       setIsDisabled(false);
       if (oldPasscode === '') {
         dispatch(switchCredsChanged());
@@ -138,7 +140,7 @@ export default function CreatePin(props) {
   }, [credsChanged]);
 
   useEffect(() => {
-    if (passcode == confirmPasscode) {
+    if (passcode === confirmPasscode) {
       setIsDisabled(false);
     } else {
       setIsDisabled(true);
@@ -146,7 +148,11 @@ export default function CreatePin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient testID="main" colors={['#00836A', '#073E39']} style={styles.linearGradient}>
+    <LinearGradient
+      testID="main"
+      colors={['light.gradientStart', 'light.gradientEnd']}
+      style={styles.linearGradient}
+    >
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -154,10 +160,10 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text style={styles.welcomeText} color="light.white" fontFamily="heading">
+              <Text style={styles.welcomeText} color="light.white">
                 {login.welcome}
               </Text>
-              <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
+              <Text color="light.textColor" style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -166,7 +172,7 @@ export default function CreatePin(props) {
                 passCode={passcode}
                 passcodeFlag={passcodeFlag}
                 borderColor={
-                  passcode != confirmPasscode && confirmPasscode.length == 4
+                  passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
                       `light.error`
                     : 'transparent'
@@ -174,25 +180,30 @@ export default function CreatePin(props) {
               />
               {/*  */}
             </Box>
-            {passcode.length == 4 ? (
+            {passcode.length === 4 ? (
               <Box>
-                <Text color="light.textColor" fontFamily="body" style={styles.labelText}>
+                <Text color="light.textColor" style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
                   {/* pin input view */}
                   <PinInputsView
                     passCode={confirmPasscode}
-                    passcodeFlag={!(confirmPasscodeFlag == 0 && confirmPasscodeFlag == 2)}
+                    passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
                     borderColor={
-                      passcode !== confirmPasscode && confirmPasscode.length == 4
+                      passcode !== confirmPasscode && confirmPasscode.length === 4
                         ? '#FF8F79'
+                        : 'transparent'
+                    }
+                    borderColor={
+                      passcode != confirmPasscode && confirmPasscode.length == 4
+                        ? 'light.error'
                         : 'transparent'
                     }
                   />
                   {/*  */}
-                  {passcode != confirmPasscode && confirmPasscode.length == 4 && (
-                    <Text color="light.error" fontStyle="italic" style={styles.errorText}>
+                  {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
+                    <Text color="light.error" style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
@@ -226,8 +237,7 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.primaryText'}
-            // ClearIcon={<DeleteIcon />}
+            ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>
@@ -256,6 +266,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     width: wp('68%'),
     textAlign: 'right',
+    fontStyle: 'italic',
   },
   bitcoinTestnetText: {
     fontWeight: '400',

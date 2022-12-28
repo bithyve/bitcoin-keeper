@@ -1,11 +1,12 @@
-import { Box, Text } from 'native-base';
+import { Box } from 'native-base';
 
-import BackButton from 'src/assets/images/svgs/back.svg';
+import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;
@@ -46,7 +47,7 @@ function HeaderTitle({
                 backgroundColor="light.lightAccent"
                 style={styles.learnMoreContainer}
               >
-                <Text color="light.learnMoreBorder" fontWeight={200} style={styles.learnMoreText}>
+                <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>
@@ -64,9 +65,8 @@ function HeaderTitle({
           {title && (
             <Text
               numberOfLines={1}
-              style={styles.addWalletText}
+              style={[styles.addWalletText, { fontSize: titleFontSize }]}
               color={headerTitleColor}
-              fontSize={titleFontSize}
             >
               {title}
             </Text>

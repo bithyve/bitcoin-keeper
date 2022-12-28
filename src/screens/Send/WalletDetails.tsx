@@ -1,14 +1,15 @@
 import React from 'react';
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { ScaledSheet } from 'react-native-size-matters';
 
 // components
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import EditIcon from 'src/assets/images/svgs/edit.svg';
-import BTCIcon from 'src/assets/images/svgs/btc_black.svg';
-import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
+import EditIcon from 'src/assets/images/edit.svg';
+import BTCIcon from 'src/assets/images/btc_black.svg';
+import IconWallet from 'src/assets/images/icon_wallet.svg';
 
 function WalletDetails({ availableAmt, walletName, isEditable = false }) {
   return (
@@ -29,7 +30,7 @@ function WalletDetails({ availableAmt, walletName, isEditable = false }) {
             Available to spend &nbsp;
             <BTCIcon />
             &nbsp;
-            <Text fontWeight="bold" fontSize={14}>
+            <Text bold fontSize={14}>
               {availableAmt && availableAmt} sats
             </Text>
           </Text>

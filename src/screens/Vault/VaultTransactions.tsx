@@ -1,5 +1,6 @@
 // libraries
-import { Box, Text } from 'native-base';
+import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -13,7 +14,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 // asserts
-import VaultIcon from 'src/assets/images/svgs/icon_vault_brown.svg';
+import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -55,15 +56,14 @@ function VaultTransactions({ route }) {
         <Box flexDirection="row" alignItems="center">
           <VaultIcon />
           <Box>
-            <Text fontWeight={200} fontSize={16} letterSpacing={0.8} color="light.headerText">
+            <Text fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
             </Text>
-            <Text fontWeight={200} fontSize={12} letterSpacing={0.6} color="light.greenText">
+            <Text fontSize={12} letterSpacing={0.6} color="light.greenText">
               {subtitle}
             </Text>
           </Box>
         </Box>
-
         <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
             data={transactions}
@@ -82,7 +82,7 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.ReceiveBackground',
+    backgroundColor: 'light.secondaryBackground',
   },
 });
 export default VaultTransactions;
