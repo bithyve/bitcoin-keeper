@@ -139,9 +139,10 @@ function WalletDetails({ route }) {
                 </Box>
                 <Text
                   color="light.white"
-                  fontSize={hp(24)}
                   style={{
+                    fontSize: hp(24),
                     letterSpacing: 1.2,
+                    lineHeight: hp(34),
                   }}
                 >
                   {getAmount(walletBalance)}
@@ -451,7 +452,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     borderRadius: hp(10),
     width: wp(170),
-    height: hp(Platform.OS === 'android' ? 170 : 165),
+    height: hp(175),
     position: 'relative',
     marginLeft: 0,
   },
