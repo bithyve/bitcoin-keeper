@@ -5,9 +5,9 @@ import { useToast } from 'native-base';
 const useToastMessage = () => {
   const Toast = useToast();
 
-  function showToast(title, image?, duration = 3000, error = false) {
+  function showToast(title, image?, duration = 3000, error = false, width = '100%') {
     Toast.show({
-      render: () => <HexaToastMessages title={title} Image={image} error={error} />,
+      render: () => <HexaToastMessages title={title} Image={image} error={error} width={width} />,
       duration,
     });
   }
