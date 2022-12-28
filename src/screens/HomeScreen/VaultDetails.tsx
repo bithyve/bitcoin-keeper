@@ -436,7 +436,7 @@ function VaultDetails({ route, navigation }) {
       end={[1, 1]}
     >
       <VStack>
-        <VStack mx="8%">
+        <VStack mx="8%" mt={5}>
           <Header />
           <VaultInfo vault={vault} />
         </VStack>
