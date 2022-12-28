@@ -12,27 +12,27 @@ import {
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
-import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
+import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
-import BackIcon from 'src/assets/images/svgs/back_white.svg';
-import Buy from 'src/assets/images/svgs/icon_buy.svg';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+import BackIcon from 'src/assets/images/back_white.svg';
+import Buy from 'src/assets/images/icon_buy.svg';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
+import IconSettings from 'src/assets/images/icon_settings.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import Recieve from 'src/assets/images/svgs/receive.svg';
+import Recieve from 'src/assets/images/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
-import Send from 'src/assets/images/svgs/send.svg';
+import Send from 'src/assets/images/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
+import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -45,7 +45,7 @@ import { getSignerNameFromType } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletMap } from '../Vault/WalletMap';
+import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {

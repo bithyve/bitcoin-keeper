@@ -1,4 +1,5 @@
 import Text from 'src/components/KeeperText';
+import { TouchableOpacity } from 'react-native';
 import { Box } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -7,10 +8,10 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { Transaction } from 'src/core/wallets/interfaces';
+import openLink from 'src/utils/OpenLink';
 // asserts
-import IconRecieve from 'src/assets/images/svgs/icon_received_lg.svg';
-import IconSend from 'src/assets/images/svgs/icon_send_lg.svg';
+import IconRecieve from 'src/assets/images/icon_received_lg.svg';
+import IconSend from 'src/assets/images/icon_send_lg.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 
@@ -109,15 +110,21 @@ function TransactionDetails({ route }) {
       <Box alignItems="center" marginTop={hp(44)} justifyContent="center" marginX={3}>
         <InfoCard title="To Address" describtion={transaction.recipientAddresses} />
         <InfoCard title="From Address" describtion={transaction.senderAddresses} />
-        <InfoCard title="Transaction ID" describtion={transaction.txid} />
+        <TouchableOpacity onPress={() => openLink('https://explorer.btc.com/')}>
+          <InfoCard title="Transaction ID" describtion={transaction.txid} />
+        </TouchableOpacity>
         <Box flexDirection="row" alignItems="center" justifyContent="space-between" width="100%">
           <InfoCard title="Fee" describtion={transaction.fee} width={145} />
-          <InfoCard title="Type" describtion={transaction.transactionType} width={145} />
+          <InfoCard
+            title="Confirmations"
+            describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
+            width={145}
+          />
         </Box>
-        <Box flexDirection="row" justifyContent="space-between" width="100%">
+        {/* <Box flexDirection="row" justifyContent="space-between" width="100%">
           <InfoCard title="Privacy" describtion={transaction.type} width={145} />
-          <InfoCard title="Confirmations" describtion={transaction.confirmations} width={145} />
-        </Box>
+          <InfoCard title="Type" describtion={transaction.transactionType} width={145} />
+        </Box> */}
       </Box>
     </Box>
   );

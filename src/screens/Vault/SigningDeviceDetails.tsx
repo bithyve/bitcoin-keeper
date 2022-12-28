@@ -4,10 +4,10 @@ import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 
-import AdvnaceOptions from 'src/assets/images/svgs/Advancedoptions.svg';
+import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import Change from 'src/assets/images/svgs/change.svg';
-import HealthCheck from 'src/assets/images/svgs/heathcheck.svg';
+import Change from 'src/assets/images/change.svg';
+import HealthCheck from 'src/assets/images/heathcheck.svg';
 import Illustration from 'src/assets/images/illustration.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
@@ -249,7 +249,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            backgroundColor="light.lightAccent"
+            backgroundColor="light.accent"
             justifyContent="center"
             alignItems="center"
           >

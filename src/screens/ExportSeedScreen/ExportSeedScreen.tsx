@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   seedCardWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
+    padding: 16,
     borderRadius: 10,
     marginHorizontal: 8,
     marginVertical: 10,
