@@ -20,13 +20,7 @@ function TransactionElement({
   onPress?: () => void;
 }) {
   const { colorMode } = useColorMode();
-  const date = new Date(transaction?.date).toLocaleString(undefined, {
-    day: 'numeric',
-    month: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const date = new Date(transaction?.date).toUTCString();
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -42,7 +36,7 @@ function TransactionElement({
               {transaction?.txid}
             </Text>
             <Text color={`${colorMode}.dateText`} style={styles.transactionDate}>
-              {new Date(date).toUTCString()}
+              {date}
             </Text>
           </Box>
         </Box>
