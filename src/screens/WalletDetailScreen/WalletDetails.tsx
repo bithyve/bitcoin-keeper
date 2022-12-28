@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
     fontSize: 10,
     fontWeight: '400',
-    marginTop: hp(16),
+    marginTop: hp(10),
   },
   walletBalance: {
     flexDirection: 'row',
