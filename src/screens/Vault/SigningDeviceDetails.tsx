@@ -1,4 +1,4 @@
-import { Alert, Platform, TouchableOpacity } from 'react-native';
+import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -30,6 +30,7 @@ import { getSignerNameFromType } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
+import SkipHealthCheckIcon from 'src/assets/images/svgs/skipHealthCheck.svg';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -199,12 +200,14 @@ function SigningDeviceDetails({ route }) {
   function HealthCheckSkipContent() {
     return (
       <View>
-        <Box alignSelf="center">{/* <SuccessIcon /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} padding={2}>
+        <Box marginLeft={5}>
+          <SkipHealthCheckIcon />
+        </Box>
+        <Text color="light.secondaryText" style={styles.textStyle}>
           You can choose to manually confirm the health of the signing device if you are sure that
           they are secure and accessible.
         </Text>
-        <Text color="light.secondaryText" fontSize={13} padding={2}>
+        <Text color="light.secondaryText" style={styles.textStyle}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -387,6 +390,7 @@ function SigningDeviceDetails({ route }) {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle="It is very important that you keep your signing devices secure and fairly accessible at all times."
+          textColor={'light.secondaryText'}
           buttonText="Manual Confirm"
           buttonTextColor="light.white"
           cancelButtonText="Will Do Later"
@@ -427,5 +431,12 @@ function SigningDeviceDetails({ route }) {
     </ScreenWrapper>
   );
 }
+const styles = StyleSheet.create({
+  textStyle: {
+    fontSize: 13,
+    paddingVertical: 2,
+    left: -7,
+  },
+});
 
 export default SigningDeviceDetails;
