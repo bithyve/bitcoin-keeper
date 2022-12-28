@@ -16,6 +16,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/svgs/toast_error.svg';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -164,7 +165,7 @@ function EnterSeedScreen() {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }
     } else {
-      showToast('Enter correct seedwords', <TickIcon />);
+      showToast('Enter correct seedwords', <ToastErrorIcon />);
     }
   };
 
