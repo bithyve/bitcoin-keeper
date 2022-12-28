@@ -11,7 +11,6 @@ import {
 import React, { useContext, useEffect, useState } from 'react';
 // components, hooks and functions
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-
 // asserts
 import AddIcon from 'src/assets/images/svgs/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
@@ -48,37 +47,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from '../Vault/WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import { VaultSigner, VaultScheme } from 'src/core/wallets/interfaces/vault';
-
-const getDerivationPath = (derivationPath: string) => {
-  return derivationPath.substring(2).split("'").join('h');
-};
-
-const getMultiKeyExpressions = (signers: VaultSigner[]) => {
-  let keyExpressions = signers.map((signer: VaultSigner) => {
-    return getKeyExpression(signer.xpubInfo.xfp, signer.xpubInfo.derivationPath, signer.xpub);
-  });
-  return keyExpressions.join();
-};
-
-const getKeyExpression = (masterFingerprint: string, derivationPath: string, xpub: string) => {
-  return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}/<0;1>/*`;
-};
-
-const genrateOutputDescriptors = (
-  isMultisig: boolean,
-  signers: VaultSigner[],
-  scheme: VaultScheme
-) => {
-  if (!isMultisig) {
-    const signer: VaultSigner = signers[0];
-    console.log(
-      `wpkh(${getKeyExpression(signer.xpubInfo.xfp, signer.xpubInfo.derivationPath, signer.xpub)})`
-    );
-  } else {
-    console.log(`sh(wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})))`);
-  }
-};
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -125,9 +93,10 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            showToast('Comming Soon');
-            console.log(vault);
-            genrateOutputDescriptors(vault.isMultiSig, vault.signers, vault.scheme);
+            navigation.navigate('VaultSettings');
+            // showToast('Comming Soon');
+            // console.log(vault);
+            // genrateOutputDescriptors(vault.isMultiSig, vault.signers, vault.scheme);
           }}
         >
           <IconSettings />

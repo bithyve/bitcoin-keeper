@@ -4,13 +4,13 @@ import { StyleSheet } from 'react-native';
 import { customTheme } from 'src/common/themes';
 
 type Props = {
-  title: string;
+  title?: string;
   subtitle: string;
   subtitleColor?: string;
   width?: string | number;
 };
 
-function Note({ title, subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) {
+function Note({ title = 'Note', subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) {
   const { colorMode } = useColorMode();
 
   return (
