@@ -94,9 +94,6 @@ function Footer({ vault }: { vault: Vault }) {
           style={styles.IconText}
           onPress={() => {
             navigation.navigate('VaultSettings');
-            // showToast('Comming Soon');
-            // console.log(vault);
-            // genrateOutputDescriptors(vault.isMultiSig, vault.signers, vault.scheme);
           }}
         >
           <IconSettings />
