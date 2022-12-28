@@ -42,7 +42,7 @@ function TransactionElement({
               {transaction?.txid}
             </Text>
             <Text color={`${colorMode}.dateText`} style={styles.transactionDate}>
-              {date}
+              {new Date(date).toUTCString()}
             </Text>
           </Box>
         </Box>
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   transactionDate: {
-    marginHorizontal: 1,
+    marginHorizontal: 4,
     fontSize: 11,
     fontWeight: '200',
     letterSpacing: 0.5,
