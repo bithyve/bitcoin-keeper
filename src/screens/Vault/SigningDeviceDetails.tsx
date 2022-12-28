@@ -19,6 +19,7 @@ import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 import { SignerType } from 'src/core/wallets/enums';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -188,11 +189,13 @@ function SigningDeviceDetails({ route }) {
   function HealthCheckContentColdCard() {
     return (
       <View>
-        <Box alignSelf="center">{/* <TapsignerSetupImage /> */}</Box>
-        <Text color="light.secondaryText" fontSize={13} padding={2}>
+        <Box alignSelf="center">
+          <ColdCardSetupImage />
+        </Box>
+        <Text color="light.secondaryText" style={styles.textStyle}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} padding={2} />
+        <Text color="light.secondaryText" style={styles.textStyle} />
       </View>
     );
   }
