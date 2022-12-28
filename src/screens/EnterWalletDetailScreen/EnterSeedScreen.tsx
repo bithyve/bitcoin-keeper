@@ -205,7 +205,7 @@ function EnterSeedScreen() {
         style={styles.container}
       >
         <StatusBarComponent />
-        <Box marginX={10}>
+        <Box marginX={10} mt={25}>
           <SeedWordsView
             title={seed?.enterRecoveryPhrase}
             subtitle={seed.recoverWallet}
