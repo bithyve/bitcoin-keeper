@@ -264,7 +264,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text color="light.white" fontSize={11} bold letterSpacing={0.6} textAlign="center">
+              <Text color="light.white" fontSize={10} bold letterSpacing={0.6} textAlign="center">
                 Add signing device to upgrade
               </Text>
             </VStack>
