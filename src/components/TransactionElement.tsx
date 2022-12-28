@@ -5,10 +5,10 @@ import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
 
-import IconRecieve from 'src/assets/images/svgs/icon_received.svg';
-import IconSent from 'src/assets/images/svgs/icon_sent.svg';
-import BtcBlack from 'src/assets/images/svgs/btc_black.svg';
-import IconArrowGrey from 'src/assets/images/svgs/icon_arrow_grey.svg';
+import IconRecieve from 'src/assets/images/icon_received.svg';
+import IconSent from 'src/assets/images/icon_sent.svg';
+import BtcBlack from 'src/assets/images/btc_black.svg';
+import IconArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 

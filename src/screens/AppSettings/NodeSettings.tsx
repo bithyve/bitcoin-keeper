@@ -12,7 +12,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Switch from 'src/components/Switch/Switch';
-import AddIcon from 'src/assets/images/svgs/icon_add_new.svg';
+import AddIcon from 'src/assets/images/icon_add_new.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ElectrumClient from 'src/core/services/electrum/client';
 import useToastMessage from 'src/hooks/useToastMessage';

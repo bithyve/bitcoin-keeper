@@ -4,7 +4,7 @@ import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { LocalizationContext } from 'src/common/content/LocContext';
 
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import CopyIcon from 'src/assets/images/icon_copy.svg';
 import { generateKey } from 'src/core/services/operations/encryption';
 import Text from 'src/components/KeeperText';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';

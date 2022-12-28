@@ -1,7 +1,7 @@
 import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';

@@ -17,6 +17,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
@@ -236,8 +237,7 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // keyColor={'light.primaryText'}
-            // ClearIcon={<DeleteIcon />}
+            ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

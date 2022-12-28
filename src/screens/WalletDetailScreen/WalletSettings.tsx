@@ -26,7 +26,7 @@ import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
 // icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
+import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 

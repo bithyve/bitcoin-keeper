@@ -52,6 +52,7 @@ export const customTheme = extendTheme({
     light: {
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
+      mainBackground: Colors.LightWhite,
       white: Colors.White,
       primaryText: Colors.RichBlack,
       secondaryText: Colors.GraniteGray,

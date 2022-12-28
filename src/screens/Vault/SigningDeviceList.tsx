@@ -17,7 +17,7 @@ import NFC from 'src/core/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
-import SigningDevicesIllustration from 'src/assets/images/svgs/illustration_SD.svg';
+import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';

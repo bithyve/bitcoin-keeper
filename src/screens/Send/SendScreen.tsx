@@ -18,7 +18,7 @@ import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import IconWallet from 'src/assets/images/svgs/icon_wallet.svg';
+import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';

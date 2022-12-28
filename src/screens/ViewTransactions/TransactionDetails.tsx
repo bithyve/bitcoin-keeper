@@ -10,8 +10,8 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import openLink from 'src/utils/OpenLink';
 // asserts
-import IconRecieve from 'src/assets/images/svgs/icon_received_lg.svg';
-import IconSend from 'src/assets/images/svgs/icon_send_lg.svg';
+import IconRecieve from 'src/assets/images/icon_received_lg.svg';
+import IconSend from 'src/assets/images/icon_send_lg.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 
