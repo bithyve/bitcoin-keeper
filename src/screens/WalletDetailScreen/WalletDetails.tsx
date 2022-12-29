@@ -10,7 +10,7 @@ import {
 import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 // icons and images
@@ -20,7 +20,6 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import BackIcon from 'src/assets/images/back.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
-import Carousel from 'react-native-snap-carousel';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
@@ -51,7 +50,6 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
@@ -73,9 +71,11 @@ function WalletDetails({ route }) {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
 
-  const _onSnapToItem = (index: number) => {
-    setWalletIndex(index);
-  };
+  const onViewRef = React.useRef((viewableItems) => {
+    const index = viewableItems.changed.find((item) => item.isViewable === true);
+    setWalletIndex(index.index);
+  });
+  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   function _renderItem({ item, index }: { item; index }) {
     const walletName = item?.presentationData?.name;
@@ -211,13 +211,7 @@ function WalletDetails({ route }) {
       </View>
     );
   }
-  const onViewRef = React.useRef((viewableItems) => {
-    console.log('Visible items are', viewableItems);
-    // console.log('viewableItems.changed[0].index', viewableItems.changed[0].index);
-    const index = viewableItems.changed.find((item) => item.isViewable === true);
-    console.log('index', index.index);
-    // setWalletIndex(index);
-  });
+
   return (
     <Box style={styles.container}>
       <StatusBarComponent padding={50} />
@@ -244,25 +238,14 @@ function WalletDetails({ route }) {
       </Box>
 
       <Box style={styles.walletsContainer}>
-        {/* <Carousel
-          onSnapToItem={_onSnapToItem}
-          ref={carasualRef}
-          data={[...wallets, { isEnd: true }]}
-          renderItem={_renderItem}
-          sliderWidth={windowWidth}
-          itemWidth={wp(170)}
-          itemHeight={hp(180)}
-          layout="default"
-          activeSlideAlignment="start"
-          inactiveSlideOpacity={1}
-        /> */}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
           data={[...wallets, { isEnd: true }]}
           renderItem={_renderItem}
           onViewableItemsChanged={onViewRef.current}
-          snapToAlignment={'center'}
+          viewabilityConfig={viewConfigRef.current}
+          snapToAlignment={'start'}
         />
       </Box>
 
@@ -466,7 +449,7 @@ const styles = StyleSheet.create({
   },
   walletContainer: {
     borderRadius: hp(10),
-    width: wp(170),
+    width: wp(220),
     height: hp(Platform.OS === 'android' ? 170 : 165),
     position: 'relative',
     marginLeft: 0,
