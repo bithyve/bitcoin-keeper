@@ -91,6 +91,7 @@ function WalletDetails({ route }) {
         offset={[0, 14]}
         viewStyle={{
           height: hp(150),
+          marginRight: 15,
         }}
       >
         <LinearGradient
@@ -210,6 +211,13 @@ function WalletDetails({ route }) {
       </View>
     );
   }
+  const onViewRef = React.useRef((viewableItems) => {
+    console.log('Visible items are', viewableItems);
+    // console.log('viewableItems.changed[0].index', viewableItems.changed[0].index);
+    const index = viewableItems.changed.find((item) => item.isViewable === true);
+    console.log('index', index.index);
+    // setWalletIndex(index);
+  });
   return (
     <Box style={styles.container}>
       <StatusBarComponent padding={50} />
@@ -236,7 +244,7 @@ function WalletDetails({ route }) {
       </Box>
 
       <Box style={styles.walletsContainer}>
-        <Carousel
+        {/* <Carousel
           onSnapToItem={_onSnapToItem}
           ref={carasualRef}
           data={[...wallets, { isEnd: true }]}
@@ -247,6 +255,14 @@ function WalletDetails({ route }) {
           layout="default"
           activeSlideAlignment="start"
           inactiveSlideOpacity={1}
+        /> */}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          data={[...wallets, { isEnd: true }]}
+          renderItem={_renderItem}
+          onViewableItemsChanged={onViewRef.current}
+          snapToAlignment={'center'}
         />
       </Box>
 
