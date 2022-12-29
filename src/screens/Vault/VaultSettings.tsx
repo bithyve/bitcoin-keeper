@@ -9,9 +9,9 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
-import IconCopy from 'src/assets/images/svgs/icon_copy.svg';
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
+import IconCopy from 'src/assets/images/icon_copy.svg';
+import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/images/backup.svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
