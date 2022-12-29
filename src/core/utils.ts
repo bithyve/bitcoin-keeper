@@ -6,7 +6,13 @@ export const getDerivationPath = (derivationPath: string) => {
 
 export const getMultiKeyExpressions = (signers: VaultSigner[]) => {
   let keyExpressions = signers.map((signer: VaultSigner) => {
-    return getKeyExpression(signer.xpubInfo.xfp, signer.xpubInfo.derivationPath, signer.xpub);
+    return getKeyExpression(
+      signer.xpubInfo.xfp,
+      signer.xpubInfo.derivationPath,
+      signer.xpub,
+      signer.type,
+      signer.signerDescription
+    );
   });
   return keyExpressions.join();
 };
@@ -14,9 +20,13 @@ export const getMultiKeyExpressions = (signers: VaultSigner[]) => {
 export const getKeyExpression = (
   masterFingerprint: string,
   derivationPath: string,
-  xpub: string
+  xpub: string,
+  type: string,
+  description: string
 ) => {
-  return `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}/<0;1>/*`;
+  return `{${type}${description ? `-${description}` : ''}}[${masterFingerprint}/${getDerivationPath(
+    derivationPath
+  )}]${xpub}/<0;1>/*`;
 };
 
 export const genrateOutputDescriptors = (
@@ -29,7 +39,9 @@ export const genrateOutputDescriptors = (
     return `wpkh(${getKeyExpression(
       signer.xpubInfo.xfp,
       signer.xpubInfo.derivationPath,
-      signer.xpub
+      signer.xpub,
+      signer.type,
+      signer.signerDescription
     )})`;
   } else {
     return `sh(wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})))`;
