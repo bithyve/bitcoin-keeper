@@ -22,6 +22,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import Colors from 'src/theme/Colors';
 
 type Props = {
   title: string;
@@ -221,7 +222,7 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
   },
   buttonContainer: {
-    borderColor: '#F7F2EC',
+    borderColor: Colors.Seashell,
     marginTop: 10,
     paddingTop: 20,
     borderTopWidth: 0.5,
