@@ -31,7 +31,7 @@ import { getSignerNameFromType } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletMap } from './WalletMap';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import SkipHealthCheckIcon from 'src/assets/images/svgs/skipHealthCheck.svg';
+import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();

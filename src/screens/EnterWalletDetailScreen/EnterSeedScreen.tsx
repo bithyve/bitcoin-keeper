@@ -15,7 +15,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import ToastErrorIcon from 'src/assets/images/svgs/toast_error.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
