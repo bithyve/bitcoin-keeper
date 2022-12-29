@@ -1,4 +1,4 @@
-import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, BackHandler, Platform, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -118,6 +118,14 @@ function NewKeeperApp({ navigation }: { navigation }) {
       }, 3000);
     }
   }, [appRecreated]);
+
+  useEffect(() => {
+    const backAction = () => {
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
 
   const passwordScreen = () => {
     setCloudModal(false);

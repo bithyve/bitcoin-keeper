@@ -31,7 +31,7 @@ function OnboardingSlideComponent(props) {
       {props.currentPosition === 5 && (
         <Box justifyContent="center" mt={15}>
           <TouchableOpacity
-            onPress={() => props.navigation.replace('NewKeeperApp')}
+            onPress={() => props.navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
             style={styles.buttonWrapper}
           >
             <Text fontSize={14} color="light.white" textAlign="center" bold>
