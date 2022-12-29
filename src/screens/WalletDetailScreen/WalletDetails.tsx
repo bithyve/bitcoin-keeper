@@ -71,11 +71,11 @@ function WalletDetails({ route }) {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
 
-  const onViewRef = React.useRef((viewableItems) => {
+  const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     setWalletIndex(index.index);
   });
-  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   function _renderItem({ item, index }: { item; index }) {
     const walletName = item?.presentationData?.name;
