@@ -209,7 +209,9 @@ function EnterSeedScreen() {
           <SeedWordsView
             title={seed?.enterRecoveryPhrase}
             subtitle={seed.recoverWallet}
-            onPressHandler={() => navigation.navigate('NewKeeperApp')}
+            onPressHandler={() =>
+              navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+            }
           />
         </Box>
         <View>

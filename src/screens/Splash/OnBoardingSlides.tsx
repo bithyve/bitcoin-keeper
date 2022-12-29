@@ -67,7 +67,7 @@ function OnBoardingSlides({ navigation }) {
           <Box justifyContent="center" mr={4} mt={10}>
             {currentPosition !== 1 && (
               <TouchableOpacity
-                onPress={() => navigation.replace('NewKeeperApp')}
+                onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
                 <Text fontSize={14} color="light.white" bold textAlign="right" opacity={0.7}>
@@ -143,7 +143,11 @@ function OnBoardingSlides({ navigation }) {
                 })
               ) : (
                 <Box alignSelf="center" backgroundColor="transparent">
-                  <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                    }
+                  >
                     <LinearGradient
                       start={[0, 0]}
                       end={[1, 1]}

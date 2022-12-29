@@ -178,7 +178,7 @@ function LoginScreen({ navigation, route }) {
         updateFCM();
         navigation.replace('App');
       } else {
-        navigation.replace('NewKeeperApp');
+        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] });
       }
       dispatch(credsAuthenticated(false));
     }
