@@ -108,7 +108,7 @@ function SetupInheritance() {
   }
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    showToast('Inheritance flow coming soon');
+    showToast('Inheritance flow coming soon', null, 1000);
   };
   return (
     <ScreenWrapper>
@@ -141,7 +141,7 @@ function SetupInheritance() {
           <Buttons
             primaryText="Select Country"
             primaryCallback={() => {
-              showToast('Inheritance flow coming soon');
+              showToast('Inheritance flow coming soon', null, 1000);
             }}
             paddingHorizontal={wp(20)}
           />

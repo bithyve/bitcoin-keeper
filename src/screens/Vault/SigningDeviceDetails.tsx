@@ -19,6 +19,7 @@ import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
 import { SignerType } from 'src/core/wallets/enums';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import ToastError from 'src/assets/images/toast_error.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -241,7 +242,7 @@ function SigningDeviceDetails({ route }) {
         break;
       default:
         // Alert.alert('Health check for this device is not supported currently');
-        showToast('Health check for this device is not supported currently');
+        showToast('Health check for this device is not supported currently', <ToastError />, 1000, false, '60%');
     }
   };
 
