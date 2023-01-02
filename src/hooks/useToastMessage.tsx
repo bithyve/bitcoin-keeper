@@ -7,7 +7,7 @@ const useToastMessage = () => {
 
   function showToast(title, image?, duration = 1000, error = false) {
     Toast.show({
-      render: () => <HexaToastMessages title={title} Image={image} error={error} />,
+      render: () => <HexaToastMessages title={title} Image={image} error={error} width={width} />,
       duration,
     });
   }
