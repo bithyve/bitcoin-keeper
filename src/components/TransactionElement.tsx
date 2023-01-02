@@ -50,9 +50,9 @@ function TransactionElement({
               {getUnit()}
             </Text>
           </Text>
-          <Box>
+          {/* <Box>
             <IconArrowGrey />
-          </Box>
+          </Box> */}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -62,11 +62,12 @@ function TransactionElement({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: getTransactionPadding(),
+    // height: getTransactionPadding(),
     borderRadius: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: hp(25),
+    paddingVertical: 1,
   },
   rowCenter: {
     flexDirection: 'row',
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     letterSpacing: 0.5,
     opacity: 0.82,
+    width: 120,
   },
   amountText: {
     fontSize: 19,
