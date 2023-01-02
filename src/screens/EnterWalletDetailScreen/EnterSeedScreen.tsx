@@ -126,16 +126,9 @@ function EnterSeedScreen() {
       setRecoveryLoading(true);
       openLoaderModal();
     }
-    // console.log('appImageRecoverd', appImageRecoverd);
-    // if (appImageRecoverd) {
-    //   console.log('if in appImageRecoverd', appImageRecoverd);
-    //   closeLoaderModal();
-    //   navigation.navigate('App', { screen: 'NewHome' });
-    // }
   }, [appRecoveryLoading, appImageError, appImageRecoverd]);
 
   useEffect(() => {
-    console.log('appRecreated', appRecreated);
     if (appRecreated) {
       setTimeout(() => {
         closeLoaderModal();
