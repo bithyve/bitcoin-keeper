@@ -278,7 +278,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - Signers.length}%`, zIndex: 2 }}
+      style={{ position: 'absolute', top: `${70 - Signers.length}%` }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -435,7 +435,7 @@ function VaultDetails({ route, navigation }) {
       start={[-0.5, 1]}
       end={[1, 1]}
     >
-      <VStack>
+      <VStack zIndex={1}>
         <VStack mx="8%" mt={5}>
           <Header />
           <VaultInfo vault={vault} />
