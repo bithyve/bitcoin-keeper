@@ -63,8 +63,8 @@ export default class Node {
     public static getModalParams(selectedNodeItem) {
         return {
             id: selectedNodeItem?.id || null,
-            host: selectedNodeItem?.host || '',
-            port: selectedNodeItem?.port || '',
+            host: selectedNodeItem?.host || null,
+            port: selectedNodeItem?.port || null,
             useKeeperNode: selectedNodeItem?.useKeeperNode || false,
             isConnected: selectedNodeItem?.isConnected || false,
             useSSL: selectedNodeItem?.useSSL || false

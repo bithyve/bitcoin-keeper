@@ -20,7 +20,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 import AddNode from './AddNodeModal';
 import Node from './node';
-import { mode } from 'native-base/lib/typescript/theme/tools';
 
 function NodeSettings() {
   const dispatch = useAppDispatch();
@@ -129,6 +128,7 @@ function NodeSettings() {
     setConnectToNode(value);
     dispatch(setConnectToMyNode(value));
     if (value) {
+      setSelectedNodeItem(Node.getModalParams(null));
       openAddNodeModal();
     } else {
       setLoading(true);

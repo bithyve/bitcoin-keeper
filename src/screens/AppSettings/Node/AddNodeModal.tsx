@@ -16,8 +16,8 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
 
   const [useKeeperNode, setuseKeeperNode] = useState(params?.useKeeperNode);
   const [useSSL, setUseSSL] = useState(params?.useSSL);
-  const [host, setHost] = useState(params?.host);
-  const [port, setPort] = useState(params?.port);
+  const [host, setHost] = useState(params?.host || '');
+  const [port, setPort] = useState(params?.port || '');
   const [isHostValid, setIsHostValid] = useState(true);
   const [isPortValid, setIsPortValid] = useState(true);
 
@@ -29,8 +29,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
     if (port === null || port.length === 0) {
       setIsPortValid(false);
     }
-
-    if (isHostValid && isPortValid) {
+    if (host !== null && host.length !== 0 && port !== null && port.length !== 0) {
       const nodeDetails: NodeDetail = {
         id: params.id,
         host,
@@ -60,7 +59,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           />
         </Box>
         <Box style={styles.inputArea}>
-          <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
+          <Box style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
             <Input
               placeholderTextColor="grey"
               backgroundColor="light.primaryBackground"
@@ -69,6 +68,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderWidth={0}
               height="12"
               value={host}
+              width="150"
               autoCorrect={false}
               autoComplete="off"
               keyboardType="name-phone-pad"
@@ -79,7 +79,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             />
           </Box>
           <Box style={styles.spacer} />
-          <Box
+          <Box w='50%'
             style={[styles.port, !isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
           >
             <Input
@@ -90,7 +90,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderRadius={10}
               borderWidth={0}
               height="12"
-              width='70%'
+              width="145"
               value={port}
               autoCorrect={false}
               autoComplete="off"
