@@ -78,7 +78,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             />
           </Box>
           <Box style={styles.spacer} />
-          <Box
+          <Box w='50%'
             style={[!isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
           >
             <Input
