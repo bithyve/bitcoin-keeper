@@ -59,7 +59,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           />
         </Box>
         <Box style={styles.inputArea}>
-          <Box style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
+          <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
             <Input
               placeholderTextColor="grey"
               backgroundColor="light.primaryBackground"
@@ -68,7 +68,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderWidth={0}
               height="12"
               value={host}
-              width="150"
               autoCorrect={false}
               autoComplete="off"
               keyboardType="name-phone-pad"
@@ -79,8 +78,8 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             />
           </Box>
           <Box style={styles.spacer} />
-          <Box w='50%'
-            style={[styles.port, !isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
+          <Box
+            style={[!isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
           >
             <Input
               placeholderTextColor="grey"
@@ -90,7 +89,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderRadius={10}
               borderWidth={0}
               height="12"
-              width="145"
               value={port}
               autoCorrect={false}
               autoComplete="off"
@@ -132,6 +130,7 @@ const styles = StyleSheet.create({
   inputArea: {
     paddingTop: 5,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   saveButton: {
     alignSelf: 'flex-end',
@@ -140,9 +139,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 7,
   },
-  port: {
-    flexDirection: 'row',
-  },
+
   useSSL: {
     flexDirection: 'row',
     justifyContent: 'space-between',
