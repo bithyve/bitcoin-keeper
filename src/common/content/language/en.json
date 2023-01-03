@@ -70,7 +70,6 @@
     "connect":"Connect",
     "disconnect":"Disconnect",
     "sats": "sats"
-
   },
   "noInternet": {
     "no": "No Internet",
@@ -275,9 +274,9 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
-    "AddNewWalletDescription":"Name and description for the wallet",
+    "AddNewWalletDescription": "Name and description for the wallet",
     "WalletNamePlaceHolder": "Maldives Funds",
-    "WalletDescriptionPlaceholder":"Single-sig",
+    "WalletDescriptionPlaceholder": "Single-sig",
     "AutoTransferInitiated": "Auto transfer initiated at (optional)",
     "AutoTransferInitiatedDesc": "When the wallet balance crosses the amount specified here, a transaction for transferring sats from the wallet to the Vault is initiated for user approval",
     "WalletDetails": "Wallet Details",
@@ -328,7 +327,9 @@
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Recovery Phrase",
-    "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase"
+    "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase",
+    "recoverYourKeeperApp": "Recovering your Keeper app",
+    "recoverYourKeeperAppSubTitle": "Recovering your wallets and vault for the Keeper app"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",

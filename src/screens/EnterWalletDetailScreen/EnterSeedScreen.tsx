@@ -8,7 +8,7 @@ import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/common/Fonts';
-import Illustration from 'src/assets/images/illustration.svg';
+import Check from 'src/assets/images/checkIcon.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -170,12 +170,35 @@ function EnterSeedScreen() {
 
   function RecoverWalletScreen() {
     return (
-      <View>
-        <Illustration />
+      <Box>
+        <Box style={styles.checkWrapper}>
+          <Check />
+          <Box marginLeft={5}>
+            <Text color={'#00715B'} style={styles.checkText}>
+              Valid Seed Words
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.checkWrapper}>
+          <Check />
+          <Box marginLeft={5}>
+            <Text color={'#00715B'} style={styles.checkText}>
+              Wallets created
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.checkWrapper}>
+          <Check />
+          <Box marginLeft={5}>
+            <Text color={'#00715B'} style={styles.checkText}>
+              Vault restored with app meta-data
+            </Text>
+          </Box>
+        </Box>
         <Text color="light.greenText" fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
-      </View>
+      </Box>
     );
   }
 
@@ -303,22 +326,13 @@ function EnterSeedScreen() {
           Content={InValidSeedsScreen}
         />
         <KeeperModal
-          visible={walletRecoverySuccessModal}
-          close={closeRecovery}
-          title={seed.walletRecoverySuccessful}
-          subTitle={seed.seedDescription}
-          buttonText="View Wallet"
-          buttonTextColor="light.white"
-          buttonCallback={closeWalletSuccessModal}
+          visible={recoveryLoading}
+          close={() => setRecoveryLoading(false)}
+          title={seed.recoverYourKeeperApp}
+          subTitle={seed.recoverYourKeeperAppSubTitle}
           textColor="light.primaryText"
           Content={RecoverWalletScreen}
         />
-        {/* <ModalWrapper
-            visible={createCloudBackupModal}
-            onSwipeComplete={() => setCreateCloudBackupModal(false)}
-          >
-            <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-          </ModalWrapper> */}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -406,6 +420,15 @@ const styles = ScaledSheet.create({
   bottomContainerView: {
     position: 'absolute',
     bottom: 20,
+  },
+  checkWrapper: {
+    flexDirection: 'row',
+    marginHorizontal: 8,
+    marginVertical: 25,
+    alignItems: 'center',
+  },
+  checkText: {
+    fontSize: 16,
   },
 });
 

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="45" height="45" viewBox="0 0 45 45">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.218" y1="0.132" x2="0.887" y2="0.779" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="check" transform="translate(-40 -544)">
+    <g id="Rectangle_7632" data-name="Rectangle 7632" transform="translate(40 544)" fill="#f7f2ec" stroke="#002c27" stroke-width="1">
+      <rect width="45" height="45" rx="22.5" stroke="none"/>
+      <rect x="0.5" y="0.5" width="44" height="44" rx="22" fill="none"/>
+    </g>
+    <g id="Group_39876" data-name="Group 39876" transform="translate(-40.906 244.094)">
+      <rect id="Rectangle_7630" data-name="Rectangle 7630" width="41" height="41" rx="20.5" transform="translate(82.906 301.906)" fill="url(#linear-gradient)"/>
+      <g id="Rectangle_7600" data-name="Rectangle 7600" transform="matrix(0.996, -0.087, 0.087, 0.996, 85.531, 307.407)" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="1.2 1.5">
+        <rect width="33" height="33" rx="16.5" stroke="none"/>
+        <rect x="0.6" y="0.6" width="31.8" height="31.8" rx="15.9" fill="none"/>
+      </g>
+    </g>
+    <path id="Path_27365" data-name="Path 27365" d="M5.774,4.006l-.093-.053a.145.145,0,0,1,0-.252l.093-.053a.41.41,0,0,0,.194-.254.42.42,0,0,0-.04-.318L5.74,2.751A.42.42,0,0,0,5.168,2.6l-.093.053a.145.145,0,0,1-.217-.124V2.418A.419.419,0,0,0,4.439,2H4.063a.419.419,0,0,0-.418.418v.108a.141.141,0,0,1-.071.124.143.143,0,0,1-.146,0L3.334,2.6a.418.418,0,0,0-.57.153l-.188.325a.417.417,0,0,0,.153.572L2.82,3.7a.145.145,0,0,1,0,.252l-.091.053a.417.417,0,0,0-.153.572l.188.325a.41.41,0,0,0,.254.2.416.416,0,0,0,.316-.042L3.427,5a.143.143,0,0,1,.146,0,.141.141,0,0,1,.071.124v.108a.419.419,0,0,0,.418.418h.376a.419.419,0,0,0,.418-.418V5.127A.145.145,0,0,1,5.075,5l.093.053A.418.418,0,0,0,5.74,4.9l.188-.325a.42.42,0,0,0,.04-.318A.41.41,0,0,0,5.774,4.006Zm-2.13-.179a.606.606,0,1,1,.606.606A.607.607,0,0,1,3.644,3.827Z" transform="translate(64.155 560.752) rotate(60)" fill="#fafcfc" opacity="0"/>
+    <path id="Checkmark" d="M9.164,14.051a1.27,1.27,0,0,1,1.784,0l1.565,1.565,3.568-3.568a1.261,1.261,0,0,1,1.784,1.784l-4.46,4.46a1.248,1.248,0,0,1-.892.37,1.194,1.194,0,0,1-.892-.37L9.164,15.835A1.24,1.24,0,0,1,9.164,14.051Z" transform="translate(49.458 551.174)" fill="#fafcfc"/>
+  </g>
+</svg>

@@ -68,16 +68,24 @@ function SignerAdvanceSettings({ route }: any) {
   const registerSigner = () => {
     switch (signer.type) {
       case SignerType.COLDCARD:
+        showToast('Comming soon', null, 1000);
         register();
         return;
       case SignerType.KEYSTONE:
+        showToast('Comming soon', null, 1000);
+        break
       case SignerType.JADE:
+        showToast('Comming soon', null, 1000);
+        break
       case SignerType.PASSPORT:
+        showToast('Comming soon', null, 1000);
+        break
       case SignerType.SEEDSIGNER:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
         break;
       default:
-        showToast('Comming soon');
+        console.log('default')
+        showToast('Comming soon', null, 1000);
         break;
     }
   };

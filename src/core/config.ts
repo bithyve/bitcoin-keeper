@@ -114,11 +114,15 @@ class Configuration {
   public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN?.trim() ? config.INSTABUG_TOKEN.trim() : '';
 
   constructor() {
-    this.NETWORK = bitcoinJS.networks.testnet;
-    this.NETWORK_TYPE = NetworkType.TESTNET;
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
       ? config.ENVIRONMENT.trim()
       : DEFAULT_CONFIG.ENVIRONMENT;
+    this.NETWORK =
+      this.ENVIRONMENT === APP_STAGE.PRODUCTION
+        ? bitcoinJS.networks.bitcoin
+        : bitcoinJS.networks.testnet;
+    this.NETWORK_TYPE =
+      this.ENVIRONMENT === APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
   }
 
   public BITHYVE_ESPLORA_API_ENDPOINTS = {

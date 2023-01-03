@@ -14,15 +14,21 @@ function HexaToastMessages({
   title,
   Image,
   error,
+  width
 }: {
   title: string;
   Image?: any;
   error?: boolean;
+  width?: number | string
 }) {
   return (
-    <Box backgroundColor={error ? 'error.500' : 'light.accent'} style={styles.toast}>
+    <Box backgroundColor={error ? 'error.500' : 'light.accent'}
+      style={styles.toast}>
       {Image && <Box>{Image}</Box>}
-      <Text marginLeft={Image ? 3 : 0} color={error ? 'error.200' : null}>
+      <Text marginLeft={Image ? 3 : 0} color={error ? 'error.200' : null}
+        style={{ width: width }}
+        numberOfLines={2}
+      >
         {title}
       </Text>
     </Box>
@@ -34,9 +40,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     alignItems: 'center',
+    width: windowWidth * 0.8,
     paddingLeft: 15,
     height: 70,
-    width: windowWidth * 0.8,
     fontSize: 13,
     elevation: 6,
     shadowOpacity: 0.6,
