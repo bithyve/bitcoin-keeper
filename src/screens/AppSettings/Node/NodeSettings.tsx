@@ -92,12 +92,10 @@ function NodeSettings() {
     updateNode(node);
 
     if (node.isConnected) {
-      console.log('node connected');
-      //showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />); 
+      showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
     }
     else {
-      console.log('node not connected');
-      //showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />, 1000, true); 
+      showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />, 1000, true);
     }
 
     setLoading(false);
