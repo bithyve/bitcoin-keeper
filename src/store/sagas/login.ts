@@ -114,7 +114,6 @@ function* credentialsAuthWorker({ payload }) {
   try {
     const { method } = payload;
     yield put(setupLoading('authenticating'));
-
     let hash;
     let encryptedKey;
     if (method === LoginMethod.PIN) {
@@ -140,27 +139,30 @@ function* credentialsAuthWorker({ payload }) {
     } else yield put(credsAuthenticated(false));
     return;
   }
-  yield put(credsAuthenticated(true));
-  yield put(setKey(key));
-  
-  // connect electrum-client
-  const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
-  ElectrumClient.setActivePeer(privateNodes);
-  yield call(ElectrumClient.connect);
-
   if (!payload.reLogin) {
-    // case: login
-    const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-
-    yield put(autoSyncWallets());
-
-    // fetch fee and exchange rates
-    yield put(fetchFeeRates());
-    yield put(fetchExchangeRates());
-
-    yield put(getMessages());
-    yield put(setWarning(history));
-    yield put(uaiChecks());
+    const { id, appID }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const response = yield call(Relay.verifyReceipt, id, appID);
+    if (response.isValid) {
+      yield put(credsAuthenticated(true));
+      yield put(setKey(key));
+      // case: login
+      const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+      yield put(autoSyncWallets());
+      // fetch fee and exchange rates
+      yield put(fetchFeeRates());
+      yield put(fetchExchangeRates());
+      yield put(getMessages());
+      yield put(setWarning(history));
+      yield put(uaiChecks());
+      // connect electrum-client
+      const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+      ElectrumClient.setActivePeer(privateNodes);
+      yield call(ElectrumClient.connect);
+    } else {
+      yield put(credsAuthenticated(false));
+    }
+  } else {
+    yield put(credsAuthenticated(true));
   }
   // check if the app has been upgraded
   const appVersion = yield select((state: RootState) => state.storage.appVersion);

@@ -10,7 +10,7 @@ import { NativeBaseProvider } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { sentryConfig } from 'src/core/services/sentry';
-import { withIAPContext } from 'react-native-iap';
+import { withIAPContext, initConnection, endConnection, } from 'react-native-iap';
 import { customTheme } from './src/common/themes';
 import Navigator from './src/navigation/Navigator';
 import { LocalizationProvider } from './src/common/content/LocContext';
@@ -31,7 +31,12 @@ if (Platform.OS === 'android') {
 
 function App() {
   useEffect(() => {
+    initConnection()
     Sentry.init(sentryConfig);
+
+    return () => {
+      endConnection()
+    }
   }, []);
 
   // linear-gradient configs for NativeBase

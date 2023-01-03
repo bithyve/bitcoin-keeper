@@ -141,9 +141,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (keeperInitiating) {
       setModalVisible(true);
-      dispatch(setupKeeperApp());
+      createNewApp()
     }
   }, [keeperInitiating]);
+
+  async function createNewApp() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(setupKeeperApp('', token));
+    } catch (error) {
+      console.log(error)
+      dispatch(setupKeeperApp('', ''));
+    }
+  }
 
   function SignUpModalContent() {
     return (
@@ -253,7 +263,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title="Shake to send feedback"
         subTitle="Shake your device to send us a bug report or a feature request"

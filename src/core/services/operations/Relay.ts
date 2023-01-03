@@ -213,6 +213,79 @@ export default class Relay {
     };
   };
 
+  public static createNewApp = async (
+    id: string,
+    appID: string,
+    fcmToken: string
+  ): Promise<{
+    created: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}createNewApp`, {
+        AUTH_ID,
+        appID,
+        id,
+        fcmToken,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    const { created } = res.data || res.json;
+    return {
+      created,
+    };
+  };
+
+  public static updateSubscription = async (
+    id: string,
+    appID: string,
+    data: object
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}updateSubscription`, {
+        AUTH_ID,
+        appID,
+        id,
+        data,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    const { updated } = res.data || res.json;
+    return {
+      updated,
+    };
+  };
+
+  public static verifyReceipt = async (
+    id: string,
+    appID: string
+  ): Promise<{
+    created: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}verifyReceipt`, {
+        AUTH_ID,
+        appID,
+        id,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res.data || res.json;
+  };
+
   public static updateMessageStatus = async (
     appId: string,
     data: []

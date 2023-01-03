@@ -29,6 +29,7 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import Relay from 'src/core/services/operations/Relay';
 import TierUpgradeModal from './TierUpgradeModal';
 
 const plans = [
@@ -40,8 +41,8 @@ const plans = [
       'Add one air gapped signing device',
       'Community support',
     ],
-    name: 'Pleb',
-    productId: 'Pleb',
+    name: 'Bronze',
+    productId: 'bronze',
     productType: 'free',
     subTitle: 'Beginner',
     icon: <Pleb />,
@@ -50,7 +51,7 @@ const plans = [
   },
   {
     benifits: [
-      'All features of Pleb tier',
+      'All features of Bronze tier',
       'Link wallets',
       'Add three signing devices',
       '2 of 3 multisig vault',
@@ -95,32 +96,29 @@ function ChoosePlan(props) {
   useEffect(() => {
     let purchaseUpdateSubscription;
     let purchaseErrorSubscription;
-    RNIap.initConnection()
-      .then((connected) => {
-        purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-          console.log('purchaseUpdatedListener', purchase);
-          const receipt = purchase.transactionReceipt;
-          const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-          const sub = await getSubscriptions([purchase.productId]);
-          const subscription: SubScription = {
-            productId: purchase.productId,
-            receipt,
-            name: sub[0].title.split(' ')[0],
-            level: 1, // todo get level
-          };
 
-          dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-            subscription,
-          });
-          const finish = await RNIap.finishTransaction(purchase, false);
+    purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
+      const receipt = purchase.transactionReceipt;
+      const { id, appID }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+      const sub = await getSubscriptions([purchase.productId]);
+      const response = await Relay.updateSubscription(id, appID, purchase)
+      if (response.updated) {
+        const subscription: SubScription = {
+          productId: purchase.productId,
+          receipt,
+          name: sub[0].title.split(' ')[0],
+          level: 1,
+        };
+        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+          subscription,
         });
-        purchaseErrorSubscription = purchaseErrorListener((error) => {
-          console.log('purchaseErrorListener', error);
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+      }
+      const finish = await RNIap.finishTransaction({ purchase, isConsumable: false });
+    });
+    purchaseErrorSubscription = purchaseErrorListener((error) => {
+      console.log('purchaseErrorListener', error);
+    });
+
     return () => {
       if (purchaseUpdateSubscription) {
         purchaseUpdateSubscription.remove();
@@ -149,31 +147,31 @@ function ChoosePlan(props) {
 
   async function init() {
     try {
-      /* const subscriptions = await getSubscriptions([
-         'io.hexawallet.keeper.development.hodler',
-         'io.hexawallet.keeper.development.whale',
-       ]);
-       const data = [plans[0]];
- 
-       subscriptions.forEach((subscription, index) => {
-         data.push({
-           ...subscription,
-           ...plans[index + 1],
-           price: getAmt(subscription),
-           name: subscription.title.split(' (')[0],
-         });
-       }); */
-      setItems(plans);
+      const subscriptions = await getSubscriptions({
+        skus: Platform.select({
+          ios: ['silver.monthly', 'silver.yearly'],
+          android: ['s', 'silver']
+        })
+      });
+      const data = [plans[0]];
+      subscriptions.forEach((subscription, index) => {
+        data.push({
+          ...subscription,
+          ...plans[index + 1],
+          price: getAmt(subscription),
+          name: subscription.title.split(' (')[0],
+        });
+      });
+      setItems(data);
       setLoading(false);
-      // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
     }
   }
 
-  async function processSubscription(item: Subscription, level: number) {
+  async function processSubscription(subscription: Subscription, level: number) {
     try {
-      const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+      /* const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const sub: SubScription = {
         productId: item.productId,
         receipt: 'mock-purchase',
@@ -194,9 +192,13 @@ function ChoosePlan(props) {
         setIsUpgrade(true);
       }
       setShowUpgradeModal(true);
-      return;
+      */
+
+      await requestSubscription({
+        sku: 'silver.monthly',
+      });
     } catch (err) {
-      console.log(err.code, err.message);
+      console.log(err);
     }
   }
 
