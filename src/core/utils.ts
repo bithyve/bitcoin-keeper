@@ -44,6 +44,6 @@ export const genrateOutputDescriptors = (
       signer.signerDescription
     )})`;
   } else {
-    return `sh(wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})))`;
+    return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)}))`;
   }
 };
