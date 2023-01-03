@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Image, Switch } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import { heightPercentageToDP, widthPercentageToDP } from 'react-native-responsive-screen';
+import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -24,6 +24,8 @@ import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
+import TestnetIndicator from 'src/components/TestnetIndicator';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -71,38 +73,9 @@ function LoginScreen({ navigation, route }) {
         setCanLogin(false);
       }, 100);
       return;
-      // if (!timer) {
-      //   setTimeout(waitingTime - retryTime)
-      //   setCanLogin(false)
-      //   return
-      // } else if (timeout !== 0) {
-      //   setCanLogin(false)
-      //   return
-      // }
     }
     setCanLogin(true);
   }, [failedAttempts, lastLoginFailedAt]);
-
-  // useEffect(() => {
-  //   if (timeout) {
-  //     const interval = setInterval(() => {
-  //       const timeLeft = timeout - 1
-  //       setTimeout(timeout - 1)
-  //       if (timeLeft <= 0) {
-  //         setLoginError(false)
-  //         setErrMessage('')
-  //         setTimer(null)
-  //       } else {
-  //         setLoginError(true)
-  //         setErrMessage(`Please try after ${Number(timeout - 1)} secs`)
-  //       }
-  //     }, 1000);
-  //     setTimer(interval)
-  //     return () => {
-  //       clearInterval(interval);
-  //     }
-  //   }
-  // }, [timeout]);
 
   useEffect(() => {
     biometricAuth();
@@ -231,28 +204,36 @@ function LoginScreen({ navigation, route }) {
         <StatusBar />
         <Box flex={1}>
           <Box>
+            <Box
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginTop: hp(44),
+              }}
+            >
+              {isTestnet() && <TestnetIndicator />}
+            </Box>
             <Text
               ml={5}
               color="light.white"
               fontSize={22}
               style={{
-                marginTop: heightPercentageToDP('10%'),
+                marginTop: hp(65),
               }}
             >
               {login.welcomeback}
-              {/* {wallet?wallet.walletName: ''} */}
             </Text>
             <Box>
               <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.textColor">
-                {/* {strings.EnterYourName}{' '} */}
                 {login.enter_your}
                 {login.passcode}
-                {/* <Text fontSize={(13)} >
-                  {login.passcode}
-                </Text> */}
               </Text>
               {/* pin input view */}
-              <Box marginTop={heightPercentageToDP(7)}>
+              <Box
+                style={{
+                  marginTop: hp(50),
+                }}
+              >
                 <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} />
               </Box>
               {/*  */}
@@ -279,7 +260,7 @@ function LoginScreen({ navigation, route }) {
                 disabled
                 trackColor={{ true: '#FFFA' }}
                 thumbColor="#358475"
-                onChange={() => {}}
+                onChange={() => { }}
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
@@ -359,7 +340,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
         subTitleColor="light.secondaryText"
