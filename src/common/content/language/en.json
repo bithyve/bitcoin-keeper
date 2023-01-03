@@ -68,7 +68,7 @@
     "needHelp": "Need Help?",
     "edit":"Edit",
     "connect":"Connect",
-    "connected":"Connected",
+    "disconnect":"Disconnect",
     "sats": "sats"
 
   },
@@ -430,7 +430,7 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle": "Configure your node settings",
-    "nodeSettingUsedSoFar": "Node settings used fo far",
+    "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
     "nodesUsedPreviously": "Nodes connected previously",

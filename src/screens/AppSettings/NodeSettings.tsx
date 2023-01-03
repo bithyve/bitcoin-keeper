@@ -85,6 +85,17 @@ function NodeSettings() {
     setSelectedNodeItem(selectedItem);
     const node = { ...selectedItem };
 
+    if (onNodeConnectionStatus(node)) {
+      ElectrumClient.setActivePeer([]);
+      await ElectrumClient.connect();
+      setConnectToNode(false);
+      dispatch(setConnectToMyNode(false));
+      node.isConnected = false;
+      updateNode(node);
+      setLoading(false);
+      return;
+    }
+
     const isValidNode = await ElectrumClient.testConnection(node.host, node.port, node.port);
 
     let isElectrumClientConnected = false;
@@ -120,6 +131,7 @@ function NodeSettings() {
     }
     setLoading(false);
   };
+
 
   const updateNode = (selectedItem) => {
     const nodes = [...nodeList];
@@ -233,8 +245,8 @@ function NodeSettings() {
                       backgroundColor={onNodeConnectionStatus(item) ? 'light.greenText2' : 'light.lightAccent'}
                       style={styles.connectButton}
                     >
-                      <Text>
-                        {onNodeConnectionStatus(item) ? common.connected : common.connect}
+                      <Text style={{ color: onNodeConnectionStatus(item) ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,1)' }}>
+                        {onNodeConnectionStatus(item) ? common.disconnect : common.connect}
                       </Text>
                     </Box>
                   </TouchableOpacity>

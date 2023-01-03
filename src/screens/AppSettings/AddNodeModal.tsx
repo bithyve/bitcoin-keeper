@@ -52,14 +52,12 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
         </Box>
         <Box style={styles.checkboxArea}>
           <Text style={styles.useKeeperNodeText}>{settings.useKeeperNode}</Text>
-          <Box style={styles.checkbox}>
-            <CheckBox
-              onPress={() => {
-                setuseKeeperNode(!useKeeperNode);
-              }}
-              isChecked={useKeeperNode}
-            />
-          </Box>
+          <CheckBox
+            onPress={() => {
+              setuseKeeperNode(!useKeeperNode);
+            }}
+            isChecked={useKeeperNode}
+          />
         </Box>
         <Box style={styles.inputArea}>
           <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
@@ -92,7 +90,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderRadius={10}
               borderWidth={0}
               height="12"
-              width={145}
+              width={155}
               value={port}
               autoCorrect={false}
               autoComplete="off"
@@ -129,14 +127,10 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     paddingLeft: 10,
     flexDirection: 'row',
-  },
-  checkbox: {
-    marginLeft: 50,
-    justifyContent: 'center',
+    width: '100%',
   },
   inputArea: {
     paddingTop: 5,
-
     flexDirection: 'row',
   },
   saveButton: {
@@ -166,6 +160,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.12,
     paddingTop: 7,
     paddingRight: 10,
+    width: '87%'
   },
 });
 
