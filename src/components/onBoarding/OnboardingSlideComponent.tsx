@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
-import Skip from 'src/assets/images/svgs/skip.svg';
+import Skip from 'src/assets/images/skip.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('window');
@@ -31,7 +31,7 @@ function OnboardingSlideComponent(props) {
       {props.currentPosition === 5 && (
         <Box justifyContent="center" mt={15}>
           <TouchableOpacity
-            onPress={() => props.navigation.replace('NewKeeperApp')}
+            onPress={() => props.navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
             style={styles.buttonWrapper}
           >
             <Text fontSize={14} color="light.white" textAlign="center" bold>

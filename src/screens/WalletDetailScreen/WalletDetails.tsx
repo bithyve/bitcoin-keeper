@@ -10,35 +10,33 @@ import {
 import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 // icons and images
-import AddSCardIcon from 'src/assets/images/svgs/card_add.svg';
-import AddWalletIcon from 'src/assets/images/svgs/addWallet_illustration.svg';
-import Arrow from 'src/assets/images/svgs/arrow_brown.svg';
-import BTC from 'src/assets/images/svgs/btc_wallet.svg';
-import BackIcon from 'src/assets/images/svgs/back.svg';
-import BtcWallet from 'src/assets/images/svgs/btc_walletCard.svg';
-import Carousel from 'react-native-snap-carousel';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
-import IconSettings from 'src/assets/images/svgs/icon_settings.svg';
+
+import AddSCardIcon from 'src/assets/images/card_add.svg';
+import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
+import BTC from 'src/assets/images/btc_wallet.svg';
+import BackIcon from 'src/assets/images/back.svg';
+import BtcWallet from 'src/assets/images/btc_walletCard.svg';
+import IconSettings from 'src/assets/images/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 // data
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import Recieve from 'src/assets/images/svgs/receive.svg';
-import Send from 'src/assets/images/svgs/send.svg';
+import Recieve from 'src/assets/images/receive.svg';
+import Send from 'src/assets/images/send.svg';
 import { Shadow } from 'react-native-shadow-2';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 // components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import VaultSetupIcon from 'src/assets/icons/vault_setup.svg';
+import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletInsideGreen from 'src/assets/images/svgs/Wallet_inside_green.svg';
+import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -52,7 +50,6 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const carasualRef = useRef<Carousel<FlatList>>(null);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
@@ -74,9 +71,11 @@ function WalletDetails({ route }) {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
 
-  const _onSnapToItem = (index: number) => {
-    setWalletIndex(index);
-  };
+  const onViewRef = useRef((viewableItems) => {
+    const index = viewableItems.changed.find((item) => item.isViewable === true);
+    setWalletIndex(index.index);
+  });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   function _renderItem({ item, index }: { item; index }) {
     const walletName = item?.presentationData?.name;
@@ -92,6 +91,7 @@ function WalletDetails({ route }) {
         offset={[0, 14]}
         viewStyle={{
           height: hp(150),
+          marginRight: 15,
         }}
       >
         <LinearGradient
@@ -140,9 +140,10 @@ function WalletDetails({ route }) {
                 </Box>
                 <Text
                   color="light.white"
-                  fontSize={hp(24)}
                   style={{
+                    fontSize: hp(24),
                     letterSpacing: 1.2,
+                    lineHeight: hp(34),
                   }}
                 >
                   {getAmount(walletBalance)}
@@ -211,6 +212,7 @@ function WalletDetails({ route }) {
       </View>
     );
   }
+
   return (
     <Box style={styles.container}>
       <StatusBarComponent padding={50} />
@@ -237,17 +239,14 @@ function WalletDetails({ route }) {
       </Box>
 
       <Box style={styles.walletsContainer}>
-        <Carousel
-          onSnapToItem={_onSnapToItem}
-          ref={carasualRef}
+        <FlatList
+          horizontal
+          showsHorizontalScrollIndicator={false}
           data={[...wallets, { isEnd: true }]}
           renderItem={_renderItem}
-          sliderWidth={windowWidth}
-          itemWidth={wp(170)}
-          itemHeight={hp(180)}
-          layout="default"
-          activeSlideAlignment="start"
-          inactiveSlideOpacity={1}
+          onViewableItemsChanged={onViewRef.current}
+          viewabilityConfig={viewConfigRef.current}
+          snapToAlignment={'start'}
         />
       </Box>
 
@@ -452,7 +451,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     borderRadius: hp(10),
     width: wp(170),
-    height: hp(Platform.OS === 'android' ? 170 : 165),
+    height: hp(170),
     position: 'relative',
     marginLeft: 0,
   },
@@ -472,7 +471,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
     fontSize: 10,
     fontWeight: '400',
-    marginTop: hp(16),
+    marginTop: hp(10),
   },
   walletBalance: {
     flexDirection: 'row',

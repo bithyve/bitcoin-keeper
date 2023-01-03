@@ -6,7 +6,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { hash512 } from 'src/core/services/operations/encryption';
-import Close from 'src/assets/icons/modal_close.svg';
+import Close from 'src/assets/images/modal_close.svg';
 
 function FogotPassword(props) {
   const [passwordText, setPasswordText] = useState('');

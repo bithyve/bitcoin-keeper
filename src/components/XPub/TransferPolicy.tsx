@@ -2,11 +2,11 @@ import React, { useContext, useState } from 'react';
 import { Box, View } from 'native-base';
 import { Alert } from 'react-native';
 
-import BtcInput from 'src/assets/images/svgs/btc_input.svg';
+import BtcInput from 'src/assets/images/btc_input.svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import DeleteIcon from 'src/assets/icons/deleteBlack.svg';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { WalletSpecs } from 'src/core/wallets/interfaces/wallet';

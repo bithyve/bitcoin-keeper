@@ -4,10 +4,10 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import { Box } from 'native-base';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
-import IconBitcoin from 'src/assets/icons/Wallets/icon_bitcoin.svg';
-import IconBitcoinWhite from 'src/assets/icons/Wallets/icon_bitcoin_white.svg';
-import IconDoller from 'src/assets/icons/Wallets/icon_dollar.svg';
-import IconDollerWhite from 'src/assets/icons/Wallets/icon_dollar_white.svg';
+import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
+import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';
+import IconDoller from 'src/assets/images/icon_dollar.svg';
+import IconDollerWhite from 'src/assets/images/icon_dollar_white.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';

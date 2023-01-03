@@ -8,7 +8,6 @@ import config, { APP_STAGE } from 'src/core/config';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -146,7 +145,6 @@ function TapSignerRecovery() {
           <KeyPadView
             onPressNumber={onPressHandler}
             keyColor="#041513"
-            ClearIcon={<DeleteIcon />}
             onDeletePressed={onDeletePressed}
           />
           <NfcPrompt visible={nfcVisible} />

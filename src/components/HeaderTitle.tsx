@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
 
-import BackButton from 'src/assets/images/svgs/back.svg';
+import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
@@ -65,9 +65,8 @@ function HeaderTitle({
           {title && (
             <Text
               numberOfLines={1}
-              style={styles.addWalletText}
+              style={[styles.addWalletText, { fontSize: titleFontSize }]}
               color={headerTitleColor}
-              fontSize={titleFontSize}
             >
               {title}
             </Text>

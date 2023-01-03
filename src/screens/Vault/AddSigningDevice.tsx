@@ -14,7 +14,7 @@ import {
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import IconArrowBlack from 'src/assets/images/svgs/icon_arrow_black.svg';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -323,10 +323,11 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(
-                  ' and '
-                )}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(
+                ' and '
+              )}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>

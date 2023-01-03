@@ -1,6 +1,6 @@
 import BlockChainHomeIcon from 'src/assets/images/blockchainHome.svg';
-import SingleSigIcon from 'src/assets/images/svgs/single_sig.svg';
-import BlueWalletIcon from 'src/assets/images/svgs/blue_wallet.svg';
+import SingleSigIcon from 'src/assets/images/single_sig.svg';
+import BlueWalletIcon from 'src/assets/images/blue_wallet.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 export interface WALLET {

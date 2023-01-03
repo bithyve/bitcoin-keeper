@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
-import DeleteIcon from 'src/assets/icons/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import React from 'react';
 import CharButton from './CharButton';
 
@@ -31,7 +31,8 @@ function AppNumPad({
       {numPadArr.map((char) => {
         if (char === 'ok' && ok) {
           return <CharButton key={char} char="" color={color} height={height} />;
-        } if (char === 'clear' && clear) {
+        }
+        if (char === 'clear' && clear) {
           return (
             <CharButton
               Icon={darkDeleteIcon ? <DeleteDarkIcon /> : <DeleteIcon />}
@@ -41,7 +42,8 @@ function AppNumPad({
               height={height}
             />
           );
-        } if (typeof char === 'number') {
+        }
+        if (typeof char === 'number') {
           return (
             <CharButton
               char={char}
@@ -51,7 +53,8 @@ function AppNumPad({
               height={height}
             />
           );
-        } return <CharButton char={' '} key={char} height={height} />;
+        }
+        return <CharButton char={' '} key={char} height={height} />;
       })}
     </View>
   );

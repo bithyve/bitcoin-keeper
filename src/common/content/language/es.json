@@ -68,7 +68,8 @@
     "needHelp": "Need Help?",
     "edit":"Edit",
     "connect":"Connect",
-    "connected":"Connected"
+    "disconnect":"Disconnect",
+    "sats": "sats"
   },
   "noInternet": {
     "no": "No Internet",
@@ -272,6 +273,11 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
+    "AddNewWalletDescription":"Name and description for the wallet",
+    "WalletNamePlaceHolder": "Maldives Funds",
+    "WalletDescriptionPlaceholder":"Single-sig",
+    "AutoTransferInitiated": "Auto transfer initiated at (optional)",
+    "AutoTransferInitiatedDesc": "When the wallet balance crosses the amount specified here, a transaction for transferring sats from the wallet to the Vault is initiated for user approval",
     "TransferSuccessful": "Transfer Successful!",
     "WalletDetails": "Wallet Details",
     "EditWalletDeatils": "Edit wallet name and descrition",
@@ -422,7 +428,7 @@
     "desc": "It would take some time for the sats to reflect in your account based on the network condition",
     "nodeSettings": "Node Settings",
     "nodeSettingsSubtitle":"Configure your node settings",
-    "nodeSettingUsedSoFar": "Node settings used fo far",
+    "nodeSettingUsedSoFar": "Node settings used so far",
     "connectToMyNode":"Connect to my node",
     "connectToMyNodeSubtitle":"Disable to use Keeper's node",
     "nodesUsedPreviously":"Nodes connected previously",

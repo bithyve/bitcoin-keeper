@@ -10,8 +10,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 // components and asserts
 import HeaderTitle from 'src/components/HeaderTitle';
-import BTC from 'src/assets/images/svgs/btc_black.svg';
-import Arrow from 'src/assets/images/svgs/icon_arrow.svg';
+import BTC from 'src/assets/images/btc_black.svg';
+import Arrow from 'src/assets/images/icon_arrow.svg';
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { StyleSheet } from 'react-native';
 

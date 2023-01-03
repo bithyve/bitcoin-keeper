@@ -14,7 +14,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 // asserts
-import VaultIcon from 'src/assets/images/svgs/icon_vault_brown.svg';
+import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';

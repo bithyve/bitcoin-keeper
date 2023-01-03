@@ -11,8 +11,8 @@ import {
 } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
-import ArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
-import BTC from 'src/assets/images/svgs/btc_grey.svg';
+import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import BTC from 'src/assets/images/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -22,12 +22,12 @@ import RadioButton from 'src/components/RadioButton';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SuccessIcon from 'src/assets/images/svgs/successSvg.svg';
+import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import WalletIcon from 'src/assets/images/svgs/icon_wallet.svg';
-import VaultIcon from 'src/assets/images/svgs/icon_vault.svg';
+import WalletIcon from 'src/assets/images/icon_wallet.svg';
+import VaultIcon from 'src/assets/images/icon_vault2.svg';
 
 import { getAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';

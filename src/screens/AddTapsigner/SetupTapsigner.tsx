@@ -9,7 +9,6 @@ import { getMockTapsignerDetails, getTapsignerDetails } from 'src/hardware/tapsi
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import DeleteIcon from 'src/assets/images/delete.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
@@ -138,7 +137,6 @@ function SetupTapsigner() {
         <KeyPadView
           onPressNumber={onPressHandler}
           keyColor="#041513"
-          ClearIcon={<DeleteIcon />}
           onDeletePressed={onDeletePressed}
         />
         <NfcPrompt visible={nfcVisible} />

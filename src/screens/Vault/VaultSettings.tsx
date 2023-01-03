@@ -1,29 +1,71 @@
-import React, { useContext } from 'react';
-import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
+import React, { useContext, useState } from 'react';
+import { Box, Text, Pressable, View } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-
+import { Alert, Clipboard } from 'react-native';
 // components and functions
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
-import Arrow from 'src/assets/images/svgs/icon_arrow_Wallet.svg';
-import BackupIcon from 'src/assets/icons/backup.svg';
-import LinearGradient from 'src/components/KeeperGradient';
+import IconCopy from 'src/assets/images/icon_copy.svg';
+import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
+import BackupIcon from 'src/assets/images/backup.svg';
+import LinearGradient from 'react-native-linear-gradient';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getAmount } from 'src/common/constants/Bitcoin';
+import KeeperModal from 'src/components/KeeperModal';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Note from 'src/components/Note/Note';
+import { genrateOutputDescriptors } from 'src/core/utils';
+import Colors from 'src/theme/Colors';
 
 type Props = {
   title: string;
   subTitle: string;
   onPress: () => void;
   Icon: boolean;
+};
+
+const DescritporsModalContent = ({ descriptorString }) => {
+  const copyDescriptor = () => {
+    Clipboard.setString(descriptorString);
+    Alert.alert('Decriptor Copied Successfully');
+  };
+
+  return (
+    <View width={'80%'}>
+      <TouchableOpacity onPress={copyDescriptor}>
+        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+          <Text width="100%" padding={10} noOfLines={4}>
+            {descriptorString}
+          </Text>
+        </Box>
+      </TouchableOpacity>
+      <Box>
+        <Note subtitle="The above contains xPub, address type, path and script type, for the vault" />
+      </Box>
+      <Box
+        flexDirection="row"
+        justifyContent="space-around"
+        alignItems="center"
+        style={styles.buttonContainer}
+      >
+        <TouchableOpacity style={styles.IconText} onPress={copyDescriptor}>
+          <Box>
+            <IconCopy />
+          </Box>
+          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
+            Copy
+          </Text>
+        </TouchableOpacity>
+      </Box>
+    </View>
+  );
 };
 
 function Option({ title, subTitle, onPress, Icon }: Props) {
@@ -58,11 +100,11 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
 function VaultSettings({ route }) {
   const navigtaion = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
-
+  const [genratorModalVisible, setGenratorModalVisible] = useState(false);
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-
+  const descriptorString = genrateOutputDescriptors(vault.isMultiSig, vault.signers, vault.scheme);
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -124,7 +166,7 @@ function VaultSettings({ route }) {
       <Box
         borderBottomColor="light.divider"
         borderBottomWidth={0.2}
-        marginTop={hp(60)}
+        marginTop={hp(30)}
         paddingX={wp(25)}
       >
         <VaultCard
@@ -135,31 +177,9 @@ function VaultSettings({ route }) {
       </Box>
       <Box alignItems="center" paddingX={wp(25)}>
         <Option
-          title="Timelock Vault"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {
-            console.log('Wallet Details');
-          }}
-          Icon={false}
-        />
-        <Option
           title="Generate Descriptors"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {}}
-          Icon={false}
-        />
-        <Option
-          title="Consectetur"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {}}
-          Icon={false}
-        />
-        <Option
-          title="Archived Vaults"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {
-            navigtaion.navigate('ArchivedVault');
-          }}
+          onPress={() => setGenratorModalVisible(true)}
           Icon={false}
         />
       </Box>
@@ -172,6 +192,14 @@ function VaultSettings({ route }) {
           width={250}
         />
       </Box>
+      <KeeperModal
+        close={() => setGenratorModalVisible(false)}
+        visible={genratorModalVisible}
+        title="Generate Vault Descriptor"
+        Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
+        subTitle="A descriptor contains sensitive information. Please use with caution"
+        showButtons={false}
+      />
     </Box>
   );
 }
@@ -181,6 +209,23 @@ const styles = ScaledSheet.create({
     flex: 1,
     padding: '20@s',
     position: 'relative',
+  },
+  inputWrapper: {
+    borderRadius: 10,
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  IconText: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonContainer: {
+    borderColor: Colors.Seashell,
+    marginTop: 10,
+    paddingTop: 20,
+    borderTopWidth: 0.5,
   },
 });
 export default VaultSettings;
