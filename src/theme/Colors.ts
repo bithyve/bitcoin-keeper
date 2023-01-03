@@ -35,6 +35,6 @@ const Colors = {
   CongoPink: 'rgba(255,143,121,1)',
   OutrageousOrange: 'rgba(248,107,80,1)',
   CarmineRed: 'rgba(255,0,51,1)',
-  
+  Seashell: 'rgba(253, 247, 240, 1)',
 };
 export default Colors;
