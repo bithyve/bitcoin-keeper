@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useState } from 'react';
 
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
@@ -73,7 +73,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={10} height={windowHeight / 1.5}>
+      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList
           data={words}
           numColumns={2}
@@ -82,7 +82,7 @@ function SetupSeedWordSigner({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
-      <Box alignItems="flex-end" mb={5}>
+      <Box style={styles.nextButtonWrapper}>
         {next && (
           <Box>
             <CustomGreenButton
@@ -95,14 +95,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         )}
       </Box>
       {!next && (
-        <Text
-          marginX={2}
-          marginTop={5}
-          fontSize={12}
-          letterSpacing={0.6}
-          marginRight={10}
-          color="light.GreyText"
-        >
+        <Text style={styles.seedDescParagraph} color="light.GreyText">
           {seedText.desc}
         </Text>
       )}
@@ -128,5 +121,18 @@ function SetupSeedWordSigner({ route, navigation }) {
     </Box>
   );
 }
-
+const styles = StyleSheet.create({
+  nextButtonWrapper: {
+    alignItems: 'flex-end',
+    marginBottom: 5,
+  },
+  seedDescParagraph: {
+    marginHorizontal: 2,
+    marginTop: 5,
+    fontSize: 12,
+    fontWeight: '400',
+    letterSpacing: 0.6,
+    marginRight: 10,
+  },
+});
 export default SetupSeedWordSigner;

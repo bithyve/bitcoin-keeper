@@ -14,9 +14,9 @@ import LinearGradient from 'src/components/KeeperGradient';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Illustration_1 from 'src/assets/images/svgs/illustration_1.svg';
-import Illustration_2 from 'src/assets/images/svgs/illustration_2.svg';
-import Skip from 'src/assets/images/svgs/skip.svg';
+import Illustration_1 from 'src/assets/images/illustration_1.svg';
+import Illustration_2 from 'src/assets/images/illustration_2.svg';
+import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
@@ -67,7 +67,7 @@ function OnBoardingSlides({ navigation }) {
           <Box justifyContent="center" mr={4} mt={10}>
             {currentPosition !== 1 && (
               <TouchableOpacity
-                onPress={() => navigation.replace('NewKeeperApp')}
+                onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}
               >
                 <Text fontSize={14} color="light.white" bold textAlign="right" opacity={0.7}>
@@ -143,7 +143,11 @@ function OnBoardingSlides({ navigation }) {
                 })
               ) : (
                 <Box alignSelf="center" backgroundColor="transparent">
-                  <TouchableOpacity onPress={() => navigation.replace('NewKeeperApp')}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                    }
+                  >
                     <LinearGradient
                       start={[0, 0]}
                       end={[1, 1]}

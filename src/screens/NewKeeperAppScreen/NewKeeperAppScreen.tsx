@@ -1,19 +1,19 @@
-import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, BackHandler, Platform, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import App from 'src/assets/images/svgs/app.svg';
-import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
+import App from 'src/assets/images/app.svg';
+import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import CloudRecoveryModal from 'src/components/CloudRecoveryModal';
 import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
-import Inheritance from 'src/assets/images/svgs/inheritanceKeeper.svg';
+import Inheritance from 'src/assets/images/inheritanceKeeper.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PasswordModal from 'src/components/PasswordModal';
-import Recover from 'src/assets/images/svgs/recover.svg';
+import Recover from 'src/assets/images/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { recoverBackup } from 'src/store/sagaActions/bhr';
@@ -118,6 +118,14 @@ function NewKeeperApp({ navigation }: { navigation }) {
       }, 3000);
     }
   }, [appRecreated]);
+
+  useEffect(() => {
+    const backAction = () => {
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
 
   const passwordScreen = () => {
     setCloudModal(false);

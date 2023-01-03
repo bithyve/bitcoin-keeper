@@ -8,9 +8,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
-import ArrowIcon from 'src/assets/images/svgs/icon_arrow.svg';
-import BtcGreen from 'src/assets/images/svgs/btc_round_green.svg';
-import CopyIcon from 'src/assets/images/svgs/icon_copy.svg';
+import ArrowIcon from 'src/assets/images/icon_arrow.svg';
+import BtcGreen from 'src/assets/images/btc_round_green.svg';
+import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';

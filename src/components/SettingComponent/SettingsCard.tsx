@@ -1,9 +1,9 @@
 import Text from 'src/components/KeeperText';
 import { Box, Pressable } from 'native-base';
 
-import LinkIcon from 'src/assets/icons/link.svg';
+import LinkIcon from 'src/assets/images/link.svg';
 import React from 'react';
-import RightArrowIcon from 'src/assets/icons/Wallets/icon_arrow.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 
 function SettingsCard(props) {
   return (

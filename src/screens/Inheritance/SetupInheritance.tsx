@@ -15,10 +15,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
-import Vault from 'src/assets/images/svgs/vault.svg';
-import SettingUp from 'src/assets/images/svgs/settingup.svg';
-import Recovery from 'src/assets/images/svgs/recovery.svg';
-import Inheritance from 'src/assets/images/svgs/inheritance_Inner.svg';
+import Vault from 'src/assets/images/vault.svg';
+import SettingUp from 'src/assets/images/settingup.svg';
+import Recovery from 'src/assets/images/recovery.svg';
+import Inheritance from 'src/assets/images/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -108,7 +108,7 @@ function SetupInheritance() {
   }
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    showToast('Inheritance flow coming soon');
+    showToast('Inheritance flow coming soon', null, 1000);
   };
   return (
     <ScreenWrapper>
@@ -141,7 +141,7 @@ function SetupInheritance() {
           <Buttons
             primaryText="Select Country"
             primaryCallback={() => {
-              showToast('Inheritance flow coming soon');
+              showToast('Inheritance flow coming soon', null, 1000);
             }}
             paddingHorizontal={wp(20)}
           />
