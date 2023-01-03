@@ -14,11 +14,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/icon_add_new.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import ElectrumClient from 'src/core/services/electrum/client';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 import AddNode from './AddNodeModal';
+import Node from './node';
+import { mode } from 'native-base/lib/typescript/theme/tools';
 
 function NodeSettings() {
   const dispatch = useAppDispatch();
@@ -46,28 +48,19 @@ function NodeSettings() {
   };
 
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
-    if (
-      nodeDetail.host == null ||
-      nodeDetail.host.length == 0 ||
-      nodeDetail.port == null ||
-      nodeDetail.port.length == 0
-    )
-      return;
-
+    setLoading(true);
     closeAddNodeModal();
-    const nodes = [...nodeList];
-    const node = { ...nodeDetail };
-    if (node.id == null) {
-      node.id = nodeList.length + 1;
-      nodes.push(node);
-    } else {
-      const index = nodes.findIndex((item) => item.id == node.id);
-      node.isConnected = false;
-      nodes[index] = node;
+    const { nodes, node } = await Node.save(nodeDetail, nodeList);
+    if (nodes === null || node === null) {
+      console.log('node not saved');
+      setLoading(false);
+      return;
     }
+
     setNodeList(nodes);
     dispatch(setNodeDetails(nodes));
     setSelectedNodeItem(node);
+    setLoading(false);
   };
 
   const onAdd = () => {
@@ -83,55 +76,40 @@ function NodeSettings() {
   const onConnectNode = async (selectedItem) => {
     setLoading(true);
     setSelectedNodeItem(selectedItem);
-    const node = { ...selectedItem };
+    let node = { ...selectedItem };
 
-    if (onNodeConnectionStatus(node)) {
-      ElectrumClient.setActivePeer([]);
-      await ElectrumClient.connect();
-      setConnectToNode(false);
-      dispatch(setConnectToMyNode(false));
-      node.isConnected = false;
-      updateNode(node);
+    if (!selectedItem.isConnected) {
+      node = await Node.connect(selectedItem, nodeList);
+    }
+    else {
+      await disconnectNode(node);
       setLoading(false);
       return;
     }
 
-    const isValidNode = await ElectrumClient.testConnection(node.host, node.port, node.port);
+    setConnectToNode(node?.isConnected);
+    dispatch(setConnectToMyNode(node?.isConnected));
+    updateNode(node);
 
-    let isElectrumClientConnected = false;
-    let activePeer = null;
-
-    if (isValidNode) {
-      node.isConnected = true;
-      ElectrumClient.setActivePeer(nodeList, node);
-      await ElectrumClient.connect();
-      isElectrumClientConnected = await ElectrumClient.ping();
-    } else {
-      ElectrumClient.setActivePeer([]);
-      await ElectrumClient.connect();
+    if (node.isConnected) {
+      console.log('node connected');
+      //showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />); 
+    }
+    else {
+      console.log('node not connected');
+      //showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />, 1000, true); 
     }
 
-    activePeer = ElectrumClient.getActivePeer();
-    if (
-      isElectrumClientConnected &&
-      node.host === activePeer?.host &&
-      (node.port === activePeer?.ssl || node.port === activePeer?.tcp)
-    ) {
-      showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
-      setConnectToNode(true);
-      dispatch(setConnectToMyNode(true));
-      node.isConnected = true;
-      updateNode(node);
-    } else {
-      showToast(`${settings.nodeConnectionFailure}`, null, 1000, true);
-      setConnectToNode(false);
-      dispatch(setConnectToMyNode(false));
-      node.isConnected = false;
-      updateNode(node);
-    }
     setLoading(false);
   };
 
+  const disconnectNode = async (node) => {
+    node.isConnected = false;
+    await Node.connectToDefaultNode();
+    setConnectToNode(node?.isConnected);
+    dispatch(setConnectToMyNode(node?.isConnected));
+    updateNode(node);
+  }
 
   const updateNode = (selectedItem) => {
     const nodes = [...nodeList];
@@ -157,30 +135,9 @@ function NodeSettings() {
     } else {
       setLoading(true);
       updateNode(null);
-      ElectrumClient.setActivePeer([]);
-      await ElectrumClient.connect();
+      Node.connectToDefaultNode();
       setLoading(false);
     }
-  };
-
-  const onNodeConnectionStatus = (node) => {
-    const activePeer = ElectrumClient.getActivePeer();
-    if (
-      activePeer?.host === node.host &&
-      (activePeer?.ssl === node.port || activePeer?.tcp === node.port)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  const modalParams: NodeDetail = {
-    id: selectedNodeItem?.id || null,
-    host: selectedNodeItem?.host || '',
-    port: selectedNodeItem?.port || '',
-    useKeeperNode: selectedNodeItem?.useKeeperNode || false,
-    isConnected: selectedNodeItem?.isConnected || false,
-    useSSL: selectedNodeItem?.useSSL || false,
   };
 
   return (
@@ -242,11 +199,11 @@ function NodeSettings() {
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => onConnectNode(item)}>
                     <Box
-                      backgroundColor={onNodeConnectionStatus(item) ? 'light.greenText2' : 'light.lightAccent'}
+                      backgroundColor={Node.nodeConnectionStatus(item) ? 'light.greenText2' : 'light.lightAccent'}
                       style={styles.connectButton}
                     >
-                      <Text style={{ color: onNodeConnectionStatus(item) ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,1)' }}>
-                        {onNodeConnectionStatus(item) ? common.disconnect : common.connect}
+                      <Text style={{ color: Node.nodeConnectionStatus(item) ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,1)' }}>
+                        {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
                       </Text>
                     </Box>
                   </TouchableOpacity>
@@ -280,7 +237,7 @@ function NodeSettings() {
         buttonCallback={closeAddNodeModal}
         textColor="#041513"
         closeOnOverlayClick={false}
-        Content={() => AddNode(modalParams, onSaveCallback)}
+        Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />
       <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
@@ -347,7 +304,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   nodeDetail: {
-    width: '50%',
+    width: '55%',
     padding: 10,
   },
   nodeList: {
