@@ -44,7 +44,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: 'light.mainBackground' }]}>
       <Box style={styles.box}>
         <Box style={styles.useSSL}>
           <Text style={styles.useSSLText}>{settings.useSSL}</Text>
@@ -52,22 +52,21 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
         </Box>
         <Box style={styles.checkboxArea}>
           <Text style={styles.useKeeperNodeText}>{settings.useKeeperNode}</Text>
-          <Box style={styles.checkbox}>
-            <CheckBox
-              onPress={() => {
-                setuseKeeperNode(!useKeeperNode);
-              }}
-              isChecked={useKeeperNode}
-            />
-          </Box>
+          <CheckBox
+            onPress={() => {
+              setuseKeeperNode(!useKeeperNode);
+            }}
+            isChecked={useKeeperNode}
+          />
         </Box>
         <Box style={styles.inputArea}>
-          <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: '#ff0033' }] : null}>
+          <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.lightYellow"
+              backgroundColor="light.primaryBackground"
               placeholder={settings.host}
               borderRadius={10}
+              borderWidth={0}
               height="12"
               value={host}
               autoCorrect={false}
@@ -81,16 +80,17 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           </Box>
           <Box style={styles.spacer} />
           <Box
-            style={[styles.port, !isPortValid ? [styles.error, { borderColor: '#ff0033' }] : null]}
+            style={[styles.port, !isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
           >
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.lightYellow"
+              backgroundColor="light.primaryBackground"
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"
               borderRadius={10}
+              borderWidth={0}
               height="12"
-              width="50%"
+              width={155}
               value={port}
               autoCorrect={false}
               autoComplete="off"
@@ -112,7 +112,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    padding: 0,
     width: '100%',
     flexDirection: 'row',
   },
@@ -128,10 +127,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     paddingLeft: 10,
     flexDirection: 'row',
-  },
-  checkbox: {
-    marginLeft: 80,
-    justifyContent: 'center',
+    width: '100%',
   },
   inputArea: {
     paddingTop: 5,
@@ -146,7 +142,6 @@ const styles = StyleSheet.create({
   },
   port: {
     flexDirection: 'row',
-    width: '100%',
   },
   useSSL: {
     flexDirection: 'row',
@@ -155,12 +150,17 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   useSSLText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
     paddingTop: 7,
     paddingRight: 10,
   },
   useKeeperNodeText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
     paddingTop: 7,
     paddingRight: 10,
+    width: '87%'
   },
 });
 
