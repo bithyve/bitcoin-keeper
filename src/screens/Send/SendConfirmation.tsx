@@ -180,7 +180,6 @@ function SendConfirmation({ route }) {
   }, []);
 
   const onTransferNow = () => {
-    console.log('press onTransferNow');
     dispatch(
       crossTransfer({
         sender: sourceWallet,
@@ -197,7 +196,6 @@ function SendConfirmation({ route }) {
         return;
       }
       if (defaultVault) {
-        console.log('preesed');
         setVisibleTransVaultModal(true);
       }
     } else {
@@ -657,10 +655,7 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        // buttonText={walletTransactions.TransNow}
-        // buttonCallback={() => console.log('TransNow')}
         textcolor="light.greenText"
-        // buttonTextColor="light.white"
         Content={ApproveTransVaultContent}
       />
     </ScreenWrapper>
