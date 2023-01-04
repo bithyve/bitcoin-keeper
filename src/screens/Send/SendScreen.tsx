@@ -39,6 +39,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import UploadImage from 'src/components/UploadImage';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
@@ -189,6 +190,10 @@ function SendScreen({ route }) {
                 }
               />
             </Box>
+            {/* Upload Image */}
+
+            <UploadImage onPress={() => { }} />
+
             {/* send manually option */}
             <Box style={styles.inputWrapper}>
               <TextInput
