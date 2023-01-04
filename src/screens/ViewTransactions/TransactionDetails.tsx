@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -12,6 +12,7 @@ import openLink from 'src/utils/OpenLink';
 // asserts
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
 import IconSend from 'src/assets/images/icon_send_lg.svg';
+import Link from 'src/assets/images/link.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 
@@ -21,7 +22,7 @@ function TransactionDetails({ route }) {
   const { transactions } = translations;
   const { transaction } = route.params;
 
-  function InfoCard({ title, describtion, width = 320 }) {
+  function InfoCard({ title, describtion, width = 320, icon }) {
     return (
       <Box
         backgroundColor="light.primaryBackground"
@@ -35,28 +36,32 @@ function TransactionDetails({ route }) {
           padding: 3,
         }}
       >
-        <Text
-          fontSize={14}
-          letterSpacing={1.12}
-          color="light.headerText"
-          width="90%"
-          numberOfLines={1}
-        >
-          {title}
-        </Text>
-        <Text
-          fontSize={12}
-          letterSpacing={2.4}
-          color="light.GreyText"
-          width="90%"
-          numberOfLines={1}
-        >
-          {describtion}
-        </Text>
+        <Box style={[icon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
+          <Box width={icon ? '90%' : '100%'}>
+            <Text
+              fontSize={14}
+              letterSpacing={1.12}
+              color="light.headerText"
+              width="90%"
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+            <Text
+              fontSize={12}
+              letterSpacing={2.4}
+              color="light.GreyText"
+              width={icon ? '60%' : '90%'}
+              numberOfLines={1}
+            >
+              {describtion}
+            </Text>
+          </Box>
+          {icon && <Link />}
+        </Box>
       </Box>
     );
   }
-
   return (
     <Box style={styles.Container}>
       <StatusBarComponent padding={50} />
@@ -106,26 +111,24 @@ function TransactionDetails({ route }) {
           </Box>
         </Box>
       </Box>
-
-      <Box alignItems="center" marginTop={hp(44)} justifyContent="center" marginX={3}>
-        <InfoCard title="To Address" describtion={transaction.recipientAddresses} />
-        <InfoCard title="From Address" describtion={transaction.senderAddresses} />
-        <TouchableOpacity onPress={() => openLink('https://explorer.btc.com/')}>
-          <InfoCard title="Transaction ID" describtion={transaction.txid} />
-        </TouchableOpacity>
-        <Box flexDirection="row" alignItems="center" justifyContent="space-between" width="100%">
-          <InfoCard title="Fee" describtion={transaction.fee} width={145} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box alignItems="center" marginTop={hp(44)} justifyContent="center" marginX={3}>
+          <InfoCard title="To Address" describtion={transaction.recipientAddresses} icon={false} />
+          <InfoCard title="From Address" describtion={transaction.senderAddresses} icon={false} />
+          <TouchableOpacity onPress={() => openLink('https://explorer.btc.com/')}>
+            <InfoCard title="Transaction ID" describtion={transaction.txid} icon={true} />
+          </TouchableOpacity>
+          {transaction.notes && (
+            <InfoCard title="Note" describtion={transaction.notes} icon={false} />
+          )}
+          <InfoCard title="Fee" describtion={transaction.fee + ' btc'} icon={false} />
           <InfoCard
             title="Confirmations"
             describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
-            width={145}
+            icon={false}
           />
         </Box>
-        {/* <Box flexDirection="row" justifyContent="space-between" width="100%">
-          <InfoCard title="Privacy" describtion={transaction.type} width={145} />
-          <InfoCard title="Type" describtion={transaction.transactionType} width={145} />
-        </Box> */}
-      </Box>
+      </ScrollView>
     </Box>
   );
 }
