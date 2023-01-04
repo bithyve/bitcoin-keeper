@@ -38,6 +38,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import UploadImage from 'src/components/UploadImage';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
@@ -111,15 +112,15 @@ function SendScreen({ route }) {
       case PaymentInfoKind.PAYMENT_URI:
         sender.entityKind === 'VAULT'
           ? navigateToNext(
-              address,
-              TransferType.VAULT_TO_ADDRESS,
-              amount ? amount.toString() : null
-            )
+            address,
+            TransferType.VAULT_TO_ADDRESS,
+            amount ? amount.toString() : null
+          )
           : navigateToNext(
-              address,
-              TransferType.WALLET_TO_ADDRESS,
-              amount ? amount.toString() : null
-            );
+            address,
+            TransferType.WALLET_TO_ADDRESS,
+            amount ? amount.toString() : null
+          );
         break;
       default:
     }
@@ -176,6 +177,10 @@ function SendScreen({ route }) {
                 }}
               />
             </Box>
+            {/* Upload Image */}
+
+            <UploadImage onPress={() => { }} />
+
             {/* send manually option */}
             <Box style={styles.inputWrapper}>
               <TextInput
