@@ -289,7 +289,7 @@ function SendConfirmation({ route }) {
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transfering: ${getAmount(amount)} sats`}
+              subTitle={`Transferring: ${getAmount(amount)} sats`}
             />
           );
         case TransferType.VAULT_TO_ADDRESS:
@@ -307,7 +307,7 @@ function SendConfirmation({ route }) {
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transfering: ${getAmount(amount)} sats`}
+              subTitle={`Transferring: ${getAmount(amount)} sats`}
             />
           );
         case TransferType.WALLET_TO_VAULT:
@@ -319,7 +319,7 @@ function SendConfirmation({ route }) {
               )} sats`}
             />
           ) : (
-            <Card title="Vault" subTitle="Transferings all avaiable funds" isVault />
+            <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
           );
         case TransferType.WALLET_TO_ADDRESS:
           return isSend ? (
@@ -328,7 +328,7 @@ function SendConfirmation({ route }) {
               subTitle={`Available balance: ${getAmount(sender.specs.balances.confirmed)} sats`}
             />
           ) : (
-            <Card title={address} subTitle={`Transfering: ${getAmount(amount)} sats `} />
+            <Card title={address} subTitle={`Transferring: ${getAmount(amount)} sats `} />
           );
       }
     };
