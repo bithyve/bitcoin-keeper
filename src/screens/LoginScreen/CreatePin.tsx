@@ -18,6 +18,7 @@ import { addToUaiStack } from 'src/store/sagaActions/uai';
 import config from 'src/core/config';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import { isTestnet as isTestnetUtil } from 'src/common/constants/Bitcoin';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
@@ -31,7 +32,7 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isTestnet, setTestnet] = useState(config.NETWORK_TYPE === NetworkType.TESTNET);
+  const [isTestnet, setTestnet] = useState(isTestnetUtil());
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;

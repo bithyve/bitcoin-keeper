@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-
+// asserts
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/back_white.svg';
@@ -93,7 +93,7 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            showToast('Comming Soon');
+            navigation.navigate('VaultSettings');
           }}
         >
           <IconSettings />

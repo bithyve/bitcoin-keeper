@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 
-import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
+import { LogBox, Platform, StatusBar, UIManager, BackHandler } from 'react-native';
 import React, { useEffect } from 'react';
 
 import { AppContextProvider } from 'src/common/content/AppContext';
@@ -33,11 +33,18 @@ function App() {
   useEffect(() => {
     initConnection()
     Sentry.init(sentryConfig);
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress
+    );
 
     return () => {
+      backHandler.remove()
       endConnection()
-    }
+    };
   }, []);
+
+  const handleBackPress = () => true  // do nothing on back button press
 
   // linear-gradient configs for NativeBase
   const config = {

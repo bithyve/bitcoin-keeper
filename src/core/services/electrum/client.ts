@@ -3,12 +3,12 @@
 /* eslint-disable no-console */
 
 import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
 import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import { NodeDetail } from 'src/core/wallets/interfaces';
+import { isTestnet } from 'src/common/constants/Bitcoin';
+import { ElectrumTransaction, ElectrumUTXO } from './interface';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '35.177.46.45', ssl: '50002' }],
@@ -24,14 +24,13 @@ const ELECTRUM_CLIENT = {
   isClientConnected: false,
   currentPeerIndex: Math.floor(Math.random() * ELECTRUM_CLIENT_CONFIG.predefinedPeers.length),
   connectionAttempt: 0,
-  activePeer: null
+  activePeer: null,
 };
 
 export default class ElectrumClient {
   public static async connect() {
     try {
-      if(!ELECTRUM_CLIENT.activePeer)
-      {
+      if (!ELECTRUM_CLIENT.activePeer) {
         console.log('No active peer is available');
         return;
       }
@@ -60,7 +59,7 @@ export default class ElectrumClient {
       });
       console.log('Connection to electrum server is established', { ver });
       if (ver && ver[0]) {
-            ELECTRUM_CLIENT.isClientConnected = true;
+        ELECTRUM_CLIENT.isClientConnected = true;
       }
     } catch (error) {
       ELECTRUM_CLIENT.isClientConnected = false;
@@ -68,7 +67,7 @@ export default class ElectrumClient {
     }
 
     if (ELECTRUM_CLIENT.isClientConnected) return ELECTRUM_CLIENT.isClientConnected;
-      return await ElectrumClient.reconnect();
+    return await ElectrumClient.reconnect();
   }
 
   public static async reconnect() {
@@ -89,23 +88,20 @@ export default class ElectrumClient {
     return await ElectrumClient.connect();
   }
 
-  public static getActivePrivateNodeToUse (peers : NodeDetail[]) {
+  public static getActivePrivateNodeToUse(peers: NodeDetail[]) {
     const node = peers?.filter((node) => node.isConnected)[0];
     let peer = null;
     let useKeeperNode = false;
 
-    if(node)
-    {
+    if (node) {
       useKeeperNode = node?.useKeeperNode || false;
-      if(node.useSSL)
-        peer = { host : node.host, ssl: node.port, tcp: null};
-      else  
-        peer = { host : node.host, tcp: node.port, ssl: null};
+      if (node.useSSL) peer = { host: node.host, ssl: node.port, tcp: null };
+      else peer = { host: node.host, tcp: node.port, ssl: null };
     }
-    return {peer, useKeeperNode};
+    return { peer, useKeeperNode };
   }
 
-  public static async ping () {
+  public static async ping() {
     try {
       await ELECTRUM_CLIENT.electrumClient?.server_ping();
     } catch (_) {
@@ -114,27 +110,26 @@ export default class ElectrumClient {
     return true;
   }
 
-  public static getActivePeer () {
+  public static getActivePeer() {
     return ELECTRUM_CLIENT.activePeer;
   }
 
   // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
   // if saved private node is not available, and use keeper node is true, it will use the keeper node
   // if current peer to use is provided, it will use that peer
-  public static setActivePeer (savedPrivateNodes: NodeDetail[], currentPeerToUse = null) {
-    const {peer: privatePeer, useKeeperNode} =  ElectrumClient.getActivePrivateNodeToUse(currentPeerToUse != null ? [currentPeerToUse] : savedPrivateNodes);
+  public static setActivePeer(savedPrivateNodes: NodeDetail[], currentPeerToUse = null) {
+    const { peer: privatePeer, useKeeperNode } = ElectrumClient.getActivePrivateNodeToUse(
+      currentPeerToUse != null ? [currentPeerToUse] : savedPrivateNodes
+    );
     let peer = null;
-    if(privatePeer != null)
-    {
+    if (privatePeer != null) {
       peer = privatePeer;
-      if(ElectrumClient.testConnection(peer?.host, peer?.tcp, peer?.ssl))
-      {
+      if (ElectrumClient.testConnection(peer?.host, peer?.tcp, peer?.ssl)) {
         ELECTRUM_CLIENT.activePeer = peer;
         return;
       }
 
-      if(useKeeperNode)
-      {
+      if (useKeeperNode) {
         peer = ElectrumClient.getNextPeer();
         ELECTRUM_CLIENT.activePeer = peer;
         return;
@@ -148,18 +143,16 @@ export default class ElectrumClient {
   }
 
   public static getPredefinedCurrentPeer() {
-    const isTestnet = config.NETWORK_TYPE === NetworkType.TESTNET;
-    return isTestnet
+    return isTestnet()
       ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers[ELECTRUM_CLIENT.currentPeerIndex]
       : ELECTRUM_CLIENT_CONFIG.predefinedPeers[ELECTRUM_CLIENT.currentPeerIndex];
   }
 
   public static getNextPeer() {
-    const isTestnet = config.NETWORK_TYPE === NetworkType.TESTNET;
     ELECTRUM_CLIENT.currentPeerIndex += 1;
     if (
       ELECTRUM_CLIENT.currentPeerIndex >
-      (isTestnet
+      (isTestnet()
         ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers.length - 1
         : ELECTRUM_CLIENT_CONFIG.predefinedPeers.length - 1)
     )
@@ -327,35 +320,35 @@ export default class ElectrumClient {
   }
 
   public static async testConnection(host, tcpPort, sslPort) {
-      console.log('testConnection', host, tcpPort, sslPort)
-      const client = new ElectrumCli(
-        global.net,
-        global.tls,
-        sslPort || tcpPort,
-        host,
-        sslPort ? 'tls' : 'tcp',
-      );
-    
-      client.onError = () => {}; // mute
-      let timeoutId = null;
-      try {
-        const rez = await Promise.race([
-          new Promise(resolve => {
-            timeoutId = setTimeout(() => resolve('timeout'), 5000);
-          }),
-          client.connect(),
-        ]);
-        if (rez === 'timeout') return false;
-    
-        await client.server_version('2.7.11', '1.4');
-        await client.server_ping();
-        return true;
-      } catch (_) {
-      } finally {
-        if (timeoutId) clearTimeout(timeoutId);
-        client.close();
-      }
-    
-      return false;
+    console.log('testConnection', host, tcpPort, sslPort);
+    const client = new ElectrumCli(
+      global.net,
+      global.tls,
+      sslPort || tcpPort,
+      host,
+      sslPort ? 'tls' : 'tcp'
+    );
+
+    client.onError = () => {}; // mute
+    let timeoutId = null;
+    try {
+      const rez = await Promise.race([
+        new Promise((resolve) => {
+          timeoutId = setTimeout(() => resolve('timeout'), 5000);
+        }),
+        client.connect(),
+      ]);
+      if (rez === 'timeout') return false;
+
+      await client.server_version('2.7.11', '1.4');
+      await client.server_ping();
+      return true;
+    } catch (_) {
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+      client.close();
+    }
+
+    return false;
   }
 }

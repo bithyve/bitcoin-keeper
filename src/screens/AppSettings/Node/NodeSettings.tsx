@@ -14,11 +14,12 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/icon_add_new.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import ElectrumClient from 'src/core/services/electrum/client';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 import AddNode from './AddNodeModal';
+import Node from './node';
 
 function NodeSettings() {
   const dispatch = useAppDispatch();
@@ -46,28 +47,19 @@ function NodeSettings() {
   };
 
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
-    if (
-      nodeDetail.host == null ||
-      nodeDetail.host.length == 0 ||
-      nodeDetail.port == null ||
-      nodeDetail.port.length == 0
-    )
-      return;
-
+    setLoading(true);
     closeAddNodeModal();
-    const nodes = [...nodeList];
-    const node = { ...nodeDetail };
-    if (node.id == null) {
-      node.id = nodeList.length + 1;
-      nodes.push(node);
-    } else {
-      const index = nodes.findIndex((item) => item.id == node.id);
-      node.isConnected = false;
-      nodes[index] = node;
+    const { nodes, node } = await Node.save(nodeDetail, nodeList);
+    if (nodes === null || node === null) {
+      console.log('node not saved');
+      setLoading(false);
+      return;
     }
+
     setNodeList(nodes);
     dispatch(setNodeDetails(nodes));
     setSelectedNodeItem(node);
+    setLoading(false);
   };
 
   const onAdd = () => {
@@ -83,45 +75,38 @@ function NodeSettings() {
   const onConnectNode = async (selectedItem) => {
     setLoading(true);
     setSelectedNodeItem(selectedItem);
-    const node = { ...selectedItem };
+    let node = { ...selectedItem };
 
-    const isValidNode = await ElectrumClient.testConnection(node.host, node.port, node.port);
-    console.log(`Is Valid node ${isValidNode}`);
-
-    let isElectrumClientConnected = false;
-    let activePeer = null;
-
-    if (isValidNode) {
-      node.isConnected = true;
-      ElectrumClient.setActivePeer(nodeList, node);
-      await ElectrumClient.connect();
-      isElectrumClientConnected = await ElectrumClient.ping();
-    } else {
-      ElectrumClient.setActivePeer([]);
-      await ElectrumClient.connect();
+    if (!selectedItem.isConnected) {
+      node = await Node.connect(selectedItem, nodeList);
+    }
+    else {
+      await disconnectNode(node);
+      setLoading(false);
+      return;
     }
 
-    activePeer = ElectrumClient.getActivePeer();
-    console.log(activePeer);
-    if (
-      isElectrumClientConnected &&
-      node.host === activePeer?.host &&
-      (node.port === activePeer?.ssl || node.port === activePeer?.tcp)
-    ) {
+    setConnectToNode(node?.isConnected);
+    dispatch(setConnectToMyNode(node?.isConnected));
+    updateNode(node);
+
+    if (node.isConnected) {
       showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
-      setConnectToNode(true);
-      dispatch(setConnectToMyNode(true));
-      node.isConnected = true;
-      updateNode(node);
-    } else {
-      showToast(`${settings.nodeConnectionFailure}`, null, 1000, true);
-      setConnectToNode(false);
-      dispatch(setConnectToMyNode(false));
-      node.isConnected = false;
-      updateNode(node);
     }
+    else {
+      showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />, 1000, true);
+    }
+
     setLoading(false);
   };
+
+  const disconnectNode = async (node) => {
+    node.isConnected = false;
+    await Node.connectToDefaultNode();
+    setConnectToNode(node?.isConnected);
+    dispatch(setConnectToMyNode(node?.isConnected));
+    updateNode(node);
+  }
 
   const updateNode = (selectedItem) => {
     const nodes = [...nodeList];
@@ -143,43 +128,30 @@ function NodeSettings() {
     setConnectToNode(value);
     dispatch(setConnectToMyNode(value));
     if (value) {
+      setSelectedNodeItem(Node.getModalParams(null));
       openAddNodeModal();
     } else {
       setLoading(true);
       updateNode(null);
-      ElectrumClient.setActivePeer([]);
-      await ElectrumClient.connect();
+      Node.connectToDefaultNode();
       setLoading(false);
     }
   };
 
-  const onNodeConnectionStatus = (node) => {
-    const activePeer = ElectrumClient.getActivePeer();
-    if (
-      activePeer?.host === node.host &&
-      (activePeer?.ssl === node.port || activePeer?.tcp === node.port)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  const modalParams: NodeDetail = {
-    id: selectedNodeItem?.id || null,
-    host: selectedNodeItem?.host || '',
-    port: selectedNodeItem?.port || '',
-    useKeeperNode: selectedNodeItem?.useKeeperNode || false,
-    isConnected: selectedNodeItem?.isConnected || false,
-    useSSL: selectedNodeItem?.useSSL || false,
-  };
-
   return (
-    <ScreenWrapper barStyle="dark-content">
-      <HeaderTitle title={settings.nodeSettings} subtitle={settings.nodeSettingUsedSoFar} />
+    <ScreenWrapper backgroundColor='light.mainBackground' barStyle="dark-content">
+      <HeaderTitle
+        paddingLeft={25}
+        title={settings.nodeSettings}
+        subtitle={settings.nodeSettingUsedSoFar} />
       <Box style={styles.nodeConnectSwitchWrapper}>
         <Box>
-          <Text style={styles.connectToMyNodeTitle}>{settings.connectToMyNode}</Text>
-          <Text style={styles.appSettingSubTitle} color="light.secondaryText">
+          <Text
+            color="light.primaryText"
+            style={styles.connectToMyNodeTitle}>{settings.connectToMyNode}</Text>
+          <Text
+            style={styles.appSettingSubTitle}
+            color="light.secondaryText">
             {settings.connectToMyNodeSubtitle}
           </Text>
         </Box>
@@ -205,28 +177,31 @@ function NodeSettings() {
                     : null
                 }
               >
-                <Box backgroundColor="light.lightYellow" style={styles.nodeList}>
-                  <Box style={styles.nodeDetail}>
-                    <Text style={[styles.nodeTextHeader, { color: '#4F5955' }]}>
+                <Box backgroundColor="light.primaryBackground" style={styles.nodeList}>
+                  <Box style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}>
+                    <Text
+                      color='light.secondaryText'
+                      style={[styles.nodeTextHeader]}>
                       {settings.host}
                     </Text>
                     <Text style={styles.nodeTextValue}>{item.host}</Text>
-                    <Text style={[styles.nodeTextHeader, { color: '#4F5955' }]}>
+                    <Text color='light.secondaryText' style={[styles.nodeTextHeader]}>
                       {settings.portNumber}
                     </Text>
                     <Text style={styles.nodeTextValue}>{item.port}</Text>
                   </Box>
                   <TouchableOpacity onPress={() => onEdit(item)}>
-                    <Text style={[styles.editText, { color: '#017963' }]}>{common.edit}</Text>
+                    <Text
+                      color='light.greenText2'
+                      style={[styles.editText]}>{common.edit}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => onConnectNode(item)}>
                     <Box
-                      borderColor="light.brownborder"
-                      backgroundColor={onNodeConnectionStatus(item) ? '#017963' : 'light.yellow2'}
+                      backgroundColor={Node.nodeConnectionStatus(item) ? 'light.greenText2' : 'light.lightAccent'}
                       style={styles.connectButton}
                     >
-                      <Text>
-                        {onNodeConnectionStatus(item) ? common.connected : common.connect}
+                      <Text style={{ color: Node.nodeConnectionStatus(item) ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,1)' }}>
+                        {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
                       </Text>
                     </Box>
                   </TouchableOpacity>
@@ -238,13 +213,13 @@ function NodeSettings() {
       )}
 
       <TouchableOpacity onPress={onAdd}>
-        <Box backgroundColor="light.lightYellow" style={styles.addNewNode}>
+        <Box backgroundColor="light.primaryBackground" style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
 
-      <Box style={styles.note} backgroundColor="light.ReceiveBackground">
+      <Box style={styles.note} backgroundColor="light.mainBackground">
         <Note title={common.note} subtitle={settings.nodeSettingsNote} />
       </Box>
       <KeeperModal
@@ -260,9 +235,9 @@ function NodeSettings() {
         buttonCallback={closeAddNodeModal}
         textColor="#041513"
         closeOnOverlayClick={false}
-        Content={() => AddNode(modalParams, onSaveCallback)}
+        Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -278,10 +253,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
     justifyContent: 'space-between',
     paddingHorizontal: 20,
+    paddingLeft: 47
   },
   appSettingTitle: {
     fontSize: 18,
-    fontWeight: '400',
     letterSpacing: 1.2,
     paddingBottom: 5,
   },
@@ -291,7 +266,7 @@ const styles = StyleSheet.create({
   },
   connectToMyNodeTitle: {
     fontSize: 14,
-    letterSpacing: 0.5,
+    letterSpacing: 1.12,
     paddingBottom: 5,
   },
   note: {
@@ -304,7 +279,8 @@ const styles = StyleSheet.create({
   splitter: {
     marginTop: 35,
     marginBottom: 25,
-    borderBottomWidth: 0.15,
+    opacity: 0.25,
+    borderBottomWidth: 1,
   },
   nodesListWrapper: {
     marginBottom: 4,
@@ -313,12 +289,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nodeListTitle: {
-    fontSize: 16,
-    fontWeight: '300',
-    letterSpacing: 0.5,
+    fontSize: 14,
+    letterSpacing: 1.12,
   },
   nodeListHeader: {
-    marginHorizontal: 30,
+    marginHorizontal: 35,
     marginBottom: 15,
     flexDirection: 'row',
     width: '100%',
@@ -327,7 +302,7 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   nodeDetail: {
-    width: '50%',
+    width: '55%',
     padding: 10,
   },
   nodeList: {
@@ -344,7 +319,7 @@ const styles = StyleSheet.create({
   },
   editText: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.96,
     fontWeight: '600',
   },
   connectButton: {
@@ -361,16 +336,13 @@ const styles = StyleSheet.create({
   nodeTextHeader: {
     marginHorizontal: 20,
     fontSize: 11,
-    letterSpacing: 0.6,
-    paddingTop: 2,
-    paddingBottom: 2,
+    letterSpacing: 0.6
   },
   nodeTextValue: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 1.56,
     marginHorizontal: 20,
-    paddingTop: 2,
-    paddingBottom: 5,
+    paddingBottom: 2,
   },
   activityIndicator: {
     flex: 1,
@@ -381,7 +353,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 25,
     paddingBottom: 25,
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',

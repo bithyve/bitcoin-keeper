@@ -31,17 +31,11 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
   const updateDescription = useCallback((text) => {
     descRef.current = text;
   }, []);
-  const inputRef = useRef<TextInput>();
-  useEffect(() => {
-    setTimeout(() => {
-      if (inputRef.current) inputRef.current.focus();
-    }, 100);
-  }, []);
+
   return (
     <VStack style={styles.descriptionContainer}>
       <SignerData signer={signer} />
       <TextInput
-        ref={inputRef}
         autoCapitalize="sentences"
         onChangeText={updateDescription}
         style={styles.descriptionEdit}
