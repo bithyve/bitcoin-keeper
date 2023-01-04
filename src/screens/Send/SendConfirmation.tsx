@@ -42,6 +42,8 @@ import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import CustomPriorityModal from './CustomPriorityModal';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -56,6 +58,7 @@ const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
 function SendConfirmation({ route }) {
   const navigtaion = useNavigation();
+  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const {
     sender,
@@ -156,7 +159,7 @@ function SendConfirmation({ route }) {
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
-        Alert.alert('Not enough Balance');
+        showToast('Not enough Balance', <ToastErrorIcon />);
         return;
       }
       if (defaultVault) {
