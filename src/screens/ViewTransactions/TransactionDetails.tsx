@@ -78,6 +78,7 @@ function TransactionDetails({ route }) {
           marginTop={hp(40)}
           width={wp(320)}
           justifyContent="space-between"
+          paddingBottom={hp(25)}
         >
           <Box flexDirection="row">
             {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
@@ -112,7 +113,7 @@ function TransactionDetails({ route }) {
         </Box>
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Box alignItems="center" marginTop={hp(44)} justifyContent="center" marginX={3}>
+        <Box alignItems="center" marginTop={hp(20)} justifyContent="center" marginX={3}>
           <InfoCard title="To Address" describtion={transaction.recipientAddresses} icon={false} />
           <InfoCard title="From Address" describtion={transaction.senderAddresses} icon={false} />
           <TouchableOpacity onPress={() => openLink('https://explorer.btc.com/')}>
