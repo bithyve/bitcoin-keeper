@@ -1,12 +1,5 @@
 /* eslint-disable react/prop-types */
-import {
-  Alert,
-  FlatList,
-  Platform,
-  RefreshControl,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { Alert, FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
@@ -45,10 +38,13 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
 import { TransferType } from 'src/common/data/enums/TransferType';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -284,7 +280,7 @@ function WalletDetails({ route }) {
                     transferType: TransferType.WALLET_TO_VAULT,
                     walletId: wallets[walletIndex].id,
                   });
-                } else Alert.alert('Vault is not created');
+                } else showToast('Vault is not created', <ToastErrorIcon />);
               }}
             >
               <Box style={{ paddingLeft: wp(10) }}>
