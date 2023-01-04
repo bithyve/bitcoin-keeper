@@ -10,7 +10,7 @@ import {
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { getLedgerDetails, getMockLedgerDetails } from 'src/hardware/ledger';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -28,6 +28,7 @@ import useBLE from 'src/hooks/useLedger';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function Item({ device, setConnecting, connectToDevice }: any) {
@@ -139,7 +140,7 @@ function AddLedger() {
     }
   };
 
-  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
+  const isAMF = isTestnet();
 
   const addLedger = async () => {
     try {

@@ -6,6 +6,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
 import NewWalletModal from 'src/components/NewWalletModal';
+import TestnetIndicator from 'src/components/TestnetIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import useUaiStack from 'src/hooks/useUaiStack';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -18,7 +19,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmount, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
 import BTC from 'src/assets/images/btc.svg';
@@ -390,21 +391,24 @@ function VaultInfo() {
     >
       <Box style={styles.vaultInfoContainer}>
         <Box style={styles.subscriptionContainer}>
-          <Pressable
-            style={styles.subscriptionIcon}
-            onPress={() => navigation.navigate('ChoosePlan')}
-          >
-            {getPlanIcon()}
-            <Box
-              backgroundColor="#015A53"
-              borderColor="light.white"
-              style={styles.subscriptionTextContainer}
+          <Box style={styles.rowCenter}>
+            <Pressable
+              style={styles.subscriptionIcon}
+              onPress={() => navigation.navigate('ChoosePlan')}
             >
-              <Text color="light.white" style={styles.subscriptionText}>
-                {plan}
-              </Text>
-            </Box>
-          </Pressable>
+              {getPlanIcon()}
+              <Box
+                backgroundColor="#015A53"
+                borderColor="light.white"
+                style={styles.subscriptionTextContainer}
+              >
+                <Text color="light.white" style={styles.subscriptionText}>
+                  {plan}
+                </Text>
+              </Box>
+            </Pressable>
+            {isTestnet() && <TestnetIndicator />}
+          </Box>
           <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
           </Pressable>
@@ -464,7 +468,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
@@ -512,6 +516,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    marginRight: wp(35)
   },
   subscriptionTextContainer: {
     borderWidth: 0.8,

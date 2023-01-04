@@ -16,8 +16,8 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
 
   const [useKeeperNode, setuseKeeperNode] = useState(params?.useKeeperNode);
   const [useSSL, setUseSSL] = useState(params?.useSSL);
-  const [host, setHost] = useState(params?.host);
-  const [port, setPort] = useState(params?.port);
+  const [host, setHost] = useState(params?.host || '');
+  const [port, setPort] = useState(params?.port || '');
   const [isHostValid, setIsHostValid] = useState(true);
   const [isPortValid, setIsPortValid] = useState(true);
 
@@ -29,8 +29,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
     if (port === null || port.length === 0) {
       setIsPortValid(false);
     }
-
-    if (isHostValid && isPortValid) {
+    if (host !== null && host.length !== 0 && port !== null && port.length !== 0) {
       const nodeDetails: NodeDetail = {
         id: params.id,
         host,
@@ -79,8 +78,8 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             />
           </Box>
           <Box style={styles.spacer} />
-          <Box
-            style={[styles.port, !isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
+          <Box w='50%'
+            style={[!isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
           >
             <Input
               placeholderTextColor="grey"
@@ -90,7 +89,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderRadius={10}
               borderWidth={0}
               height="12"
-              width={155}
               value={port}
               autoCorrect={false}
               autoComplete="off"
@@ -132,6 +130,7 @@ const styles = StyleSheet.create({
   inputArea: {
     paddingTop: 5,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   saveButton: {
     alignSelf: 'flex-end',
@@ -140,9 +139,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 7,
   },
-  port: {
-    flexDirection: 'row',
-  },
+
   useSSL: {
     flexDirection: 'row',
     justifyContent: 'space-between',
