@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
