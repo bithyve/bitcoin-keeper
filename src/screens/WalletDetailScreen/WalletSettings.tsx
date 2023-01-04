@@ -316,6 +316,7 @@ function WalletSettings({ route }) {
               subText="Cosigner Details"
               noteSubText="The cosigner details are only for the selected wallet and not other wallets in the app"
               copyable={false}
+              close={() => setCosignerVisible(false)}
             />
           )}
         />
