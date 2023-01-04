@@ -101,6 +101,7 @@ function SendConfirmation({ route }) {
   const walletTransactions = translations.wallet;
 
   const [visibleModal, setVisibleModal] = useState(false);
+  const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
 
@@ -149,12 +150,45 @@ function SendConfirmation({ route }) {
       </View>
     );
   }
+  function ApproveTransVaultContent() {
+    return (
+      <>
+        <View style={{ marginVertical: 25 }}>
+          <Text color="light.greenText" fontSize={13} py={3}>
+            Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
+          </Text>
+          <Text color="light.greenText" fontSize={13} py={3}>
+            You can change the policy that triggers auto-transfer to suit your needs
+          </Text>
+        </View>
+        <Buttons
+          secondaryText={'Remind me Later'}
+          secondaryCallback={() => {
+            setVisibleTransVaultModal(false);
+          }}
+          primaryText="Transfer Now"
+          primaryCallback={() => onTransferNow()}
+        />
+      </>
+    );
+  }
 
   useEffect(() => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
       dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
     }
   }, []);
+
+  const onTransferNow = () => {
+    console.log('press onTransferNow');
+    dispatch(
+      crossTransfer({
+        sender: sourceWallet,
+        recipient: defaultVault,
+        amount: sourceWallet.specs.balances.confirmed - sendMaxFee,
+      })
+    );
+  };
 
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
@@ -163,13 +197,8 @@ function SendConfirmation({ route }) {
         return;
       }
       if (defaultVault) {
-        dispatch(
-          crossTransfer({
-            sender: sourceWallet,
-            recipient: defaultVault,
-            amount: sourceWallet.specs.balances.confirmed - sendMaxFee,
-          })
-        );
+        console.log('preesed');
+        setVisibleTransVaultModal(true);
       }
     } else {
       dispatch(
@@ -622,6 +651,17 @@ function SendConfirmation({ route }) {
         textcolor="light.greenText"
         buttonTextColor="light.white"
         Content={SendSuccessfulContent}
+      />
+      <KeeperModal
+        visible={visibleTransVaultModal}
+        close={() => setVisibleTransVaultModal(false)}
+        title={walletTransactions.approveTransVault}
+        subTitle={walletTransactions.approveTransVaultSubtitle}
+        // buttonText={walletTransactions.TransNow}
+        // buttonCallback={() => console.log('TransNow')}
+        textcolor="light.greenText"
+        // buttonTextColor="light.white"
+        Content={ApproveTransVaultContent}
       />
     </ScreenWrapper>
   );
