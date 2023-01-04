@@ -14,19 +14,19 @@ function HexaToastMessages({
   title,
   Image,
   error,
-  width
+  width,
 }: {
   title: string;
+  width: number | string;
   Image?: any;
   error?: boolean;
-  width?: number | string
 }) {
   return (
-    <Box backgroundColor={error ? 'error.500' : 'light.accent'}
-      style={styles.toast}>
+    <Box backgroundColor={error ? 'error.500' : 'light.accent'} style={styles.toast}>
       {Image && <Box>{Image}</Box>}
-      <Text marginLeft={Image ? 3 : 0} color={error ? 'error.200' : null}
-        style={{ width: width }}
+      <Text
+        color={error ? 'error.200' : null}
+        style={{ marginLeft: Image ? 3 : 0, width }}
         numberOfLines={2}
       >
         {title}

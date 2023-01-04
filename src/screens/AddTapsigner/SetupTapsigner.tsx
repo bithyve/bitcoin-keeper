@@ -24,6 +24,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupTapsigner() {
@@ -49,7 +50,7 @@ function SetupTapsigner() {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
 
-  const isAMF = config.NETWORK_TYPE === NetworkType.TESTNET;
+  const isAMF = isTestnet();
 
   const addTapsigner = React.useCallback(async () => {
     try {
