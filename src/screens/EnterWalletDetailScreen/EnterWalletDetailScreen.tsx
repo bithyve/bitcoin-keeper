@@ -8,13 +8,13 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
-import { NetworkType, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
 import KeeperText from 'src/components/KeeperText';
-import config from 'src/core/config';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
@@ -24,9 +24,7 @@ function EnterWalletDetailScreen({ route }) {
   const { common } = translations;
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
-  const [transferPolicy, setTransferPolicy] = useState(
-    config.NETWORK_TYPE === NetworkType.TESTNET ? '5000' : '1000000'
-  );
+  const [transferPolicy, setTransferPolicy] = useState(isTestnet() ? '5000' : '1000000');
 
   const createNewWallet = useCallback(() => {
     const newWallet: NewWalletInfo = {
