@@ -69,7 +69,6 @@ const getDeviceStatus = (
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
     case SignerType.SEED_WORDS:
-    case SignerType.KEYSTONE:
     case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnL1, vaultSigners).message,
@@ -84,6 +83,7 @@ const getDeviceStatus = (
     case SignerType.JADE:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
+    case SignerType.KEYSTONE:
     default:
       return {
         message: '',
