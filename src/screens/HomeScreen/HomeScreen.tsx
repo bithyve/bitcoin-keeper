@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
+import { ImageBackground, InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -35,8 +35,8 @@ import VaultImage from 'src/assets/images/Vault.png';
 import VaultIcon from 'src/assets/images/vaultSuccess.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletMap } from '../Vault/WalletMap';
 import UaiDisplay from './UaiDisplay';
+import { WalletMap } from '../Vault/WalletMap';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -244,8 +244,10 @@ function VaultStatus(props) {
   };
 
   useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus);
-    identifyUser(keeper.appID);
+    InteractionManager.runAfterInteractions(() => {
+      RestClient.subToTorStatus(onChangeTorStatus);
+      identifyUser(keeper.appID);
+    });
     return () => {
       RestClient.unsubscribe(onChangeTorStatus);
     };
@@ -468,7 +470,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
@@ -516,7 +518,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    marginRight: wp(35)
+    marginRight: wp(35),
   },
   subscriptionTextContainer: {
     borderWidth: 0.8,

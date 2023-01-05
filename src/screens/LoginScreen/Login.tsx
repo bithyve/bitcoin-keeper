@@ -18,14 +18,14 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import TestnetIndicator from 'src/components/TestnetIndicator';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import TestnetIndicator from 'src/components/TestnetIndicator';
-import { isTestnet } from 'src/common/constants/Bitcoin';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -260,7 +260,7 @@ function LoginScreen({ navigation, route }) {
                 disabled
                 trackColor={{ true: '#FFFA' }}
                 thumbColor="#358475"
-                onChange={() => { }}
+                onChange={() => {}}
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
@@ -340,7 +340,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
         subTitleColor="light.secondaryText"
