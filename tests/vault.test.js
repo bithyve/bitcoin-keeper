@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import Relay from 'src/core/services/operations/Relay';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 import * as bitcoinJS from 'bitcoinjs-lib';
@@ -6,10 +5,20 @@ import { VerificationType } from 'src/core/services/interfaces';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import idx from 'idx';
 import { authenticator } from 'otplib';
-import WalletOperations from '../operations';
-import WalletUtilities from '../operations/utils';
-import { generateMobileKey, generateSeedWordsKey, generateVault } from '../factories/VaultFactory';
-import { NetworkType, SignerStorage, SignerType, TxPriority, VaultType } from '../enums';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import {
+  generateMobileKey,
+  generateSeedWordsKey,
+  generateVault,
+} from 'src/core/wallets/factories/VaultFactory';
+import {
+  NetworkType,
+  SignerStorage,
+  SignerType,
+  TxPriority,
+  VaultType,
+} from 'src/core/wallets/enums';
 
 jest.setTimeout(10000);
 
