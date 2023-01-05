@@ -25,7 +25,14 @@ function TransactionDetails({ route }) {
   const { transactions } = translations;
   const { transaction } = route.params;
 
-  function InfoCard({ title, describtion, width = 320, icon, letterSpacing = 1 }) {
+  function InfoCard({
+    title,
+    describtion,
+    width = 320,
+    icon,
+    letterSpacing = 1,
+    numberOfLines = 1,
+  }) {
     return (
       <Box
         backgroundColor="light.primaryBackground"
@@ -55,7 +62,7 @@ function TransactionDetails({ route }) {
               letterSpacing={letterSpacing}
               color="light.GreyText"
               width={icon ? '60%' : '90%'}
-              numberOfLines={1}
+              numberOfLines={numberOfLines}
             >
               {describtion}
             </Text>
@@ -118,8 +125,18 @@ function TransactionDetails({ route }) {
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box alignItems="center" marginTop={hp(20)} justifyContent="center" marginX={3}>
-          <InfoCard title="To Address" describtion={transaction.recipientAddresses} icon={false} />
-          <InfoCard title="From Address" describtion={transaction.senderAddresses} icon={false} />
+          <InfoCard
+            title="To Addresses"
+            describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
+            icon={false}
+            numberOfLines={transaction.recipientAddresses.length}
+          />
+          <InfoCard
+            title="From Addresses"
+            describtion={transaction.senderAddresses.toString().replace(/,/g, '\n')}
+            icon={false}
+            numberOfLines={transaction.senderAddresses.length}
+          />
           <TouchableOpacity onPress={redirectToBlockExplorer}>
             <InfoCard
               title="Transaction ID"
