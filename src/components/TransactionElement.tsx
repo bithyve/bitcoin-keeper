@@ -10,7 +10,6 @@ import { Transaction } from 'src/core/wallets/interfaces';
 import IconRecieve from 'src/assets/images/icon_received.svg';
 import IconSent from 'src/assets/images/icon_sent.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-// import IconArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
 import Text from 'src/components/KeeperText';
 
 function TransactionElement({
@@ -51,9 +50,6 @@ function TransactionElement({
               {getUnit()}
             </Text>
           </Text>
-          {/* <Box>
-            <IconArrowGrey />
-          </Box> */}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -63,7 +59,6 @@ function TransactionElement({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    // height: getTransactionPadding(),
     borderRadius: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
