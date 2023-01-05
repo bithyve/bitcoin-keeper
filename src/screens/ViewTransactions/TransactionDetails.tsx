@@ -15,6 +15,9 @@ import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
+import moment from 'moment';
+import config from 'src/core/config';
+import { NetworkType } from 'src/core/wallets/enums';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
@@ -22,7 +25,7 @@ function TransactionDetails({ route }) {
   const { transactions } = translations;
   const { transaction } = route.params;
 
-  function InfoCard({ title, describtion, width = 320, icon }) {
+  function InfoCard({ title, describtion, width = 320, icon, letterSpacing = 1 }) {
     return (
       <Box
         backgroundColor="light.primaryBackground"
@@ -49,7 +52,7 @@ function TransactionDetails({ route }) {
             </Text>
             <Text
               fontSize={12}
-              letterSpacing={2.4}
+              letterSpacing={letterSpacing}
               color="light.GreyText"
               width={icon ? '60%' : '90%'}
               numberOfLines={1}
@@ -62,6 +65,13 @@ function TransactionDetails({ route }) {
       </Box>
     );
   }
+  const redirectToBlockExplorer = () => {
+    openLink(
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/tx/${transaction.txid}`
+    );
+  };
   return (
     <Box style={styles.Container}>
       <StatusBarComponent padding={50} />
@@ -85,20 +95,14 @@ function TransactionDetails({ route }) {
             <Box
               style={{
                 marginLeft: wp(10),
-                width: wp(100),
+                width: wp(120),
               }}
             >
-              <Text
-                fontSize={14}
-                letterSpacing={0.7}
-                color="light.headerText"
-                numberOfLines={1}
-                width={wp(120)}
-              >
-                {transaction.address}
+              <Text fontSize={14} color="light.headerText" numberOfLines={1}>
+                {transaction.txid}
               </Text>
               <Text fontSize={10} letterSpacing={0.5} color="light.dateText">
-                {transaction.date}
+                {moment(transaction?.date).format('DD MMM YY  •  hh:mma')}
               </Text>
             </Box>
           </Box>
@@ -116,17 +120,33 @@ function TransactionDetails({ route }) {
         <Box alignItems="center" marginTop={hp(20)} justifyContent="center" marginX={3}>
           <InfoCard title="To Address" describtion={transaction.recipientAddresses} icon={false} />
           <InfoCard title="From Address" describtion={transaction.senderAddresses} icon={false} />
-          <TouchableOpacity onPress={() => openLink('https://explorer.btc.com/')}>
-            <InfoCard title="Transaction ID" describtion={transaction.txid} icon={true} />
+          <TouchableOpacity onPress={redirectToBlockExplorer}>
+            <InfoCard
+              title="Transaction ID"
+              describtion={transaction.txid}
+              icon={true}
+              letterSpacing={2.4}
+            />
           </TouchableOpacity>
           {transaction.notes && (
-            <InfoCard title="Note" describtion={transaction.notes} icon={false} />
+            <InfoCard
+              title="Note"
+              describtion={transaction.notes}
+              icon={false}
+              letterSpacing={2.4}
+            />
           )}
-          <InfoCard title="Fee" describtion={transaction.fee + ' btc'} icon={false} />
+          <InfoCard
+            title="Fee"
+            describtion={transaction.fee + ' sats'}
+            icon={false}
+            letterSpacing={2.4}
+          />
           <InfoCard
             title="Confirmations"
             describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
             icon={false}
+            letterSpacing={2.4}
           />
         </Box>
       </ScrollView>
