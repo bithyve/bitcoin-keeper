@@ -64,7 +64,7 @@ function OnBoardingSlides({ navigation }) {
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={{ flex: 1 }}>
       <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={OnboardingBackImage}>
         <SafeAreaView style={{ flex: 1, position: 'relative' }}>
-          <Box justifyContent="center" mr={4} mt={10}>
+          <Box justifyContent="center" mr={4} mt={10} height="10">
             {currentPosition !== 1 && (
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
@@ -83,7 +83,6 @@ function OnBoardingSlides({ navigation }) {
               horizontal
               snapToInterval={width}
               showsHorizontalScrollIndicator={false}
-              decelerationRate={0}
               snapToAlignment="center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
@@ -130,7 +129,7 @@ function OnBoardingSlides({ navigation }) {
                 </Box>
               </TouchableOpacity>
             </Box>
-            <Box flexDirection="row">
+            <Box flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => {
                   console.log(index);
