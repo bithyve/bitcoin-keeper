@@ -10,7 +10,7 @@ type Props = {
   onPress: () => void
 }
 
-function TestnetIndicator(
+function UploadImage(
   {
     onPress = () => { }
   }: Props
@@ -54,4 +54,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default TestnetIndicator;
+export default UploadImage;
