@@ -1,15 +1,15 @@
 import React from 'react';
 import { Box, useColorMode } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import moment from 'moment';
 
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
-import { getTransactionPadding, hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
 
 import IconRecieve from 'src/assets/images/icon_received.svg';
 import IconSent from 'src/assets/images/icon_sent.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import IconArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
-import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 
 function TransactionElement({
@@ -20,7 +20,7 @@ function TransactionElement({
   onPress?: () => void;
 }) {
   const { colorMode } = useColorMode();
-  const date = new Date(transaction?.date).toUTCString();
+  const date = moment(transaction?.date).format('DD MMM YY  •  hh:mma');
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -50,9 +50,6 @@ function TransactionElement({
               {getUnit()}
             </Text>
           </Text>
-          <Box>
-            <IconArrowGrey />
-          </Box>
         </Box>
       </Box>
     </TouchableOpacity>
@@ -62,11 +59,11 @@ function TransactionElement({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: getTransactionPadding(),
     borderRadius: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: hp(25),
+    paddingVertical: 1,
   },
   rowCenter: {
     flexDirection: 'row',
@@ -89,6 +86,7 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     letterSpacing: 0.5,
     opacity: 0.82,
+    width: 125,
   },
   amountText: {
     fontSize: 19,
