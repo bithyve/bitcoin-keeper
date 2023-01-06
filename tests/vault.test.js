@@ -25,12 +25,18 @@ import {
   generateSignerFromMetaData,
   getSignerNameFromType,
   getSignerSigTypeInfo,
+  getWalletConfig,
 } from 'src/hardware';
 import {
+  COLDCARD_MS_EXPORT,
   COLDCARD_SS_EXPORT,
+  JADE_MS_EXPORT,
   JADE_SS_EXPORT,
+  KEYSTONE_MS_EXPORT,
   KEYSTONE_SS_EXPORT,
+  PASSPORT_MS_EXPORT,
   PASSPORT_SS_EXPORT,
+  SEEDSIGNER_MS_EXPORT,
   SEEDSIGNER_SS_EXPORT,
 } from './signingDeviceExportFormats';
 import { getSeedSignerDetails, updateInputsForSeedSigner } from 'src/hardware/seedsigner';
@@ -40,7 +46,7 @@ import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getJadeDetails } from 'src/hardware/jade';
 
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 describe('Vault: Single-sig(1-of-1)', () => {
   let primaryMnemonic;
@@ -449,7 +455,7 @@ describe('Vault: AirGapping with Coldcard', () => {
     };
   });
 
-  test('coldcard: extract xpub, derivation and master fingerprint from cc export format', () => {
+  test('coldcard: extract xpub, derivation and master fingerprint from coldcard export format', () => {
     extract = extractColdCardExport(COLDCARD_SS_EXPORT.data, COLDCARD_SS_EXPORT.rtdName);
     expect(extract).toHaveProperty('xpub');
     expect(extract).toHaveProperty('derivationPath');
@@ -519,7 +525,7 @@ describe('Vault: AirGapping with SeedSigner', () => {
     };
   });
 
-  test('seedsigner: extract xpub, derivation and master fingerprint from cc export format', () => {
+  test('seedsigner: extract xpub, derivation and master fingerprint from seedsigner export format', () => {
     extract = getSeedSignerDetails(SEEDSIGNER_SS_EXPORT.data);
     expect(extract).toHaveProperty('xpub');
     expect(extract).toHaveProperty('derivationPath');
@@ -603,7 +609,7 @@ describe('Vault: AirGapping with Keystone', () => {
     };
   });
 
-  test('keystone: extract xpub, derivation and master fingerprint from cc export format', () => {
+  test('keystone: extract xpub, derivation and master fingerprint from keystone export format', () => {
     const decoder = new URRegistryDecoder();
     const bytes = decodeURBytes(decoder, KEYSTONE_SS_EXPORT.data);
     extract = getKeystoneDetails(bytes.data);
@@ -686,7 +692,7 @@ describe('Vault: AirGapping with Passport', () => {
     };
   });
 
-  test('passport: extract xpub, derivation and master fingerprint from cc export format', () => {
+  test('passport: extract xpub, derivation and master fingerprint from passport export format', () => {
     const decoder = new URRegistryDecoder();
     let bytes;
     PASSPORT_SS_EXPORT.forEach((item, index) => {
@@ -764,7 +770,7 @@ describe('Vault: AirGapping with Jade', () => {
     };
   });
 
-  test('jade: extract xpub, derivation and master fingerprint from cc export format', () => {
+  test('jade: extract xpub, derivation and master fingerprint from jade export format', () => {
     const decoder = new URRegistryDecoder();
     let bytes;
     JADE_SS_EXPORT.forEach((item, index) => {
@@ -826,5 +832,124 @@ describe('Vault: AirGapping with Jade', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1ql7vr9yn9u7qdsgfukyh5mt2ppv7njm93upu43c');
+  });
+});
+
+describe('Vault: Multi-sig(3-of-5)', () => {
+  let vaultShell;
+  let vault;
+  let signers;
+  let ccExtract;
+  let ssExtract;
+  let ksExtract;
+  let psExtract;
+  let jdExtract;
+
+  beforeAll(async () => {
+    vaultShell = {
+      id: getRandomBytes(12),
+      vaultInstances: {},
+    };
+  });
+
+  test('signers: extract xpub, derivation and master fingerprint from thier export format', () => {
+    ccExtract = extractColdCardExport(COLDCARD_MS_EXPORT.data, COLDCARD_MS_EXPORT.rtdName);
+    ssExtract = getSeedSignerDetails(SEEDSIGNER_MS_EXPORT.data);
+    let decoder = new URRegistryDecoder();
+    let bytes = decodeURBytes(decoder, KEYSTONE_MS_EXPORT.data);
+    ksExtract = getKeystoneDetails(bytes.data);
+    decoder = new URRegistryDecoder();
+    PASSPORT_MS_EXPORT.forEach((item, index) => {
+      const { percentage, data } = decodeURBytes(decoder, item.data);
+      if (percentage === 100) {
+        bytes = data;
+      }
+    });
+    psExtract = getPassportDetails(bytes);
+    decoder = new URRegistryDecoder();
+    JADE_MS_EXPORT.forEach((item, index) => {
+      const { percentage, data } = decodeURBytes(decoder, item.data);
+      if (percentage === 100) {
+        bytes = data;
+      }
+    });
+    jdExtract = getJadeDetails(bytes);
+    [ccExtract, ssExtract, ksExtract, psExtract, jdExtract].map((extract) => {
+      expect(extract).toHaveProperty('xpub');
+      expect(extract).toHaveProperty('derivationPath');
+      expect(extract).toHaveProperty('xfp');
+    });
+  });
+
+  test('vault: is able to generate signers from meta-data', () => {
+    const signerTypes = [
+      SignerType.COLDCARD,
+      SignerType.SEEDSIGNER,
+      SignerType.KEYSTONE,
+      SignerType.PASSPORT,
+      SignerType.JADE,
+    ];
+
+    signers = [ccExtract, ssExtract, ksExtract, psExtract, jdExtract].map((extract, index) => {
+      const { xpub, derivationPath, xfp } = extract;
+      return generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: signerTypes[index],
+        storageType: SignerStorage.COLD,
+      });
+    });
+
+    signers.map((signer, index) => {
+      expect(signer).toHaveProperty('xpub', signer.xpub);
+      expect(signer).toHaveProperty('xpubInfo.derivationPath', signer.xpubInfo.derivationPath);
+      expect(signer).toHaveProperty('xpubInfo.xfp', signer.xpubInfo.xfp);
+      expect(signer).toHaveProperty('type', signerTypes[index]);
+      expect(signer).toHaveProperty('storageType', SignerStorage.COLD);
+      expect(signer).toHaveProperty('signerName', getSignerNameFromType(signerTypes[index]));
+      const signerSigType = getSignerSigTypeInfo(signer);
+      expect(signerSigType.isSingleSig).toBeFalsy();
+      expect(signerSigType.isMultiSig).toBeTruthy();
+      expect(signerSigType.purpose).toBe(DerivationPurpose.BIP48.toString());
+    });
+  });
+
+  test('vault factory: creating a 3-of-5 vault', () => {
+    const scheme = { m: 3, n: 5 };
+    const vaultType = VaultType.DEFAULT;
+    const vaultSigners = signers;
+    const vaultDetails = {
+      name: 'Vault',
+      description: 'Secure your sats',
+    };
+
+    vault = generateVault({
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+    expect(vault.scheme.m).toEqual(3);
+    expect(vault.signers.length).toEqual(5);
+    expect(vault.isMultiSig).toEqual(true);
+  });
+
+  test('vault operations: generating a receive address', () => {
+    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
+    vault = updatedWallet;
+    expect(receivingAddress).toEqual(
+      'tb1qlwglqfsh3t4a7tzpkllwqassfspwm783wfhc2z38wut7kuuu8syq8qrchz'
+    );
+  });
+
+  test('registration: generate multisig wallet config from vault', () => {
+    const config = getWalletConfig({ vault });
+    expect(config).toEqual(
+      `# Multisig setup file (exported from Keeper)\nName: Keeper Vault\nPolicy: 3 of 5\nFormat: P2WSH\n\nDerivation: m/48'/1'/13'/2'\nB47CF9C5: tpubDEiMpcmjNAHc2cbp7WT3farFPeZELsp37xz6TRTcGVydvCueXPAC4kR5KsTwoDefF8cuqt7JNmZ47t9CkwZh9cVtvzZBjoYMtQHnWjqtJae\n\nDerivation: m/48'/1'/0'/2'\ne1e66310: tpubDErAEXwPSNh2Fvuhv9zPEEqBqYDfo17X9TBAmxQM95cKV21q6eBdhDpy9mn7wYCx7miazJVYETXf4AYKdatTJrr4XSLXoFDPoQTFYKuN1xX\n\nDerivation: m/48'/1'/0'/2'\n61b8fcc4: tpubDFPK2k7Xr8BKBi84KvVfLkztfRn9XCjWmjXkHcuL5Mur8pm5aJKQtorfKXcTFDAMbQ27Bbk8VnZUpHhu5fDz9aaWYQ6Hy2nDDaPpJL9KbNM\n\nDerivation: m/48'/1'/0'/2'\n2EBB3CC0: tpubDFE7HNZ4NACV7j7HLz2CdYWpFERVpn49oWFZxZfPdyhjS9NND7EPrnd95zy9JdmRMrSnAC5qL7Ld5ifYNXKmM7dJLSTKWjsM8SMFMzYujWK\n\nDerivation: m/48'/0'/0'/2'\nf61f3570: tpubDDqKgV5GfzCZbBokSaVQtnzBAFyo2knRwkZ62d5mV5ZpEFMCQFMmNZM5S6pRUexCFrKmhrae3KFfFt7hsh2F2J4DMa9WPpn8eYWAmZvUSbq\n\n`
+    );
   });
 });
