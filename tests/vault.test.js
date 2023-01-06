@@ -25,8 +25,15 @@ import {
   getSignerNameFromType,
   getSignerSigTypeInfo,
 } from 'src/hardware';
-import { COLDCARD_SS_EXPORT, SEEDSIGNER_SS_EXPORT } from './signingDeviceExportFormats';
+import {
+  COLDCARD_SS_EXPORT,
+  KEYSTONE_SS_EXPORT,
+  SEEDSIGNER_SS_EXPORT,
+} from './signingDeviceExportFormats';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
+import { decodeURBytes } from 'src/core/services/qr';
+import { getKeystoneDetails } from 'src/hardware/keystone';
+import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 
 jest.setTimeout(10000);
 
@@ -555,5 +562,74 @@ describe('Vault: AirGapping with SeedSigner', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1qae8ea8unjccsum9z75qvzhq6vauw88t503yrsf');
+  });
+});
+
+describe('Vault: AirGapping with Keystone', () => {
+  let vaultShell;
+  let vault;
+  let extract;
+  let keystone; // Signer
+
+  beforeAll(async () => {
+    vaultShell = {
+      id: getRandomBytes(12),
+      vaultInstances: {},
+    };
+  });
+
+  test('keystone: extract xpub, derivation and master fingerprint from cc export format', () => {
+    const decoder = new URRegistryDecoder();
+    const bytes = decodeURBytes(decoder, KEYSTONE_SS_EXPORT.data);
+    extract = getKeystoneDetails(bytes.data);
+    expect(extract).toHaveProperty('xpub');
+    expect(extract).toHaveProperty('derivationPath');
+    expect(extract).toHaveProperty('xfp');
+  });
+
+  test('vault: is able to generate signer from meta-data', () => {
+    const { xpub, derivationPath, xfp } = extract;
+    keystone = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.KEYSTONE,
+      storageType: SignerStorage.COLD,
+    });
+    expect(keystone).toHaveProperty('xpub', xpub);
+    expect(keystone).toHaveProperty('xpubInfo.derivationPath', derivationPath);
+    expect(keystone).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(keystone).toHaveProperty('type', SignerType.KEYSTONE);
+    expect(keystone).toHaveProperty('storageType', SignerStorage.COLD);
+    expect(keystone).toHaveProperty('signerName', getSignerNameFromType(SignerType.KEYSTONE));
+    expect(getSignerSigTypeInfo(keystone).isSingleSig).toBeTruthy();
+  });
+
+  test('vault factory: creating a airgapped keystone', () => {
+    const scheme = { m: 1, n: 1 };
+    const vaultType = VaultType.DEFAULT;
+    const vaultSigners = [keystone];
+    const vaultDetails = {
+      name: 'Vault',
+      description: 'Secure your sats',
+    };
+
+    vault = generateVault({
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+    expect(vault.signers.length).toEqual(1);
+    expect(vault.isMultiSig).toEqual(false);
+  });
+
+  test('vault operations: generating a receive address', () => {
+    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
+    vault = updatedWallet;
+    expect(receivingAddress).toEqual('tb1qpzgrhkjdkkwwc2gs4zvsw0y02z9jm5v5gvp55c');
   });
 });
