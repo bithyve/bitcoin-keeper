@@ -13,6 +13,7 @@ import {
   generateVault,
 } from 'src/core/wallets/factories/VaultFactory';
 import {
+  DerivationPurpose,
   NetworkType,
   SignerStorage,
   SignerType,
@@ -470,7 +471,10 @@ describe('Vault: AirGapping with Coldcard', () => {
     expect(coldcard).toHaveProperty('type', SignerType.COLDCARD);
     expect(coldcard).toHaveProperty('storageType', SignerStorage.COLD);
     expect(coldcard).toHaveProperty('signerName', getSignerNameFromType(SignerType.COLDCARD));
-    expect(getSignerSigTypeInfo(coldcard).isSingleSig).toBeTruthy();
+    const signerSigType = getSignerSigTypeInfo(coldcard);
+    expect(signerSigType.isSingleSig).toBeTruthy();
+    expect(signerSigType.isMultiSig).toBeFalsy();
+    expect(signerSigType.purpose).not.toBe(DerivationPurpose.BIP48.toString());
   });
 
   test('vault factory: creating a airgapped coldcard', () => {
@@ -537,7 +541,10 @@ describe('Vault: AirGapping with SeedSigner', () => {
     expect(seedsigner).toHaveProperty('type', SignerType.SEEDSIGNER);
     expect(seedsigner).toHaveProperty('storageType', SignerStorage.COLD);
     expect(seedsigner).toHaveProperty('signerName', getSignerNameFromType(SignerType.SEEDSIGNER));
-    expect(getSignerSigTypeInfo(seedsigner).isSingleSig).toBeTruthy();
+    const signerSigType = getSignerSigTypeInfo(seedsigner);
+    expect(signerSigType.isSingleSig).toBeTruthy();
+    expect(signerSigType.isMultiSig).toBeFalsy();
+    expect(signerSigType.purpose).not.toBe(DerivationPurpose.BIP48.toString());
   });
 
   test('vault factory: creating a airgapped seedsigner', () => {
@@ -606,7 +613,10 @@ describe('Vault: AirGapping with Keystone', () => {
     expect(keystone).toHaveProperty('type', SignerType.KEYSTONE);
     expect(keystone).toHaveProperty('storageType', SignerStorage.COLD);
     expect(keystone).toHaveProperty('signerName', getSignerNameFromType(SignerType.KEYSTONE));
-    expect(getSignerSigTypeInfo(keystone).isSingleSig).toBeTruthy();
+    const signerSigType = getSignerSigTypeInfo(keystone);
+    expect(signerSigType.isSingleSig).toBeTruthy();
+    expect(signerSigType.isMultiSig).toBeFalsy();
+    expect(signerSigType.purpose).not.toBe(DerivationPurpose.BIP48.toString());
   });
 
   test('vault factory: creating a airgapped keystone', () => {
@@ -681,7 +691,10 @@ describe('Vault: AirGapping with Passport', () => {
     expect(passport).toHaveProperty('type', SignerType.PASSPORT);
     expect(passport).toHaveProperty('storageType', SignerStorage.COLD);
     expect(passport).toHaveProperty('signerName', getSignerNameFromType(SignerType.PASSPORT));
-    expect(getSignerSigTypeInfo(passport).isSingleSig).toBeTruthy();
+    const signerSigType = getSignerSigTypeInfo(passport);
+    expect(signerSigType.isSingleSig).toBeTruthy();
+    expect(signerSigType.isMultiSig).toBeFalsy();
+    expect(signerSigType.purpose).not.toBe(DerivationPurpose.BIP48.toString());
   });
 
   test('vault factory: creating a airgapped passport', () => {
@@ -756,7 +769,10 @@ describe('Vault: AirGapping with Jade', () => {
     expect(jade).toHaveProperty('type', SignerType.JADE);
     expect(jade).toHaveProperty('storageType', SignerStorage.COLD);
     expect(jade).toHaveProperty('signerName', getSignerNameFromType(SignerType.JADE));
-    expect(getSignerSigTypeInfo(jade).isSingleSig).toBeTruthy();
+    const signerSigType = getSignerSigTypeInfo(jade);
+    expect(signerSigType.isSingleSig).toBeTruthy();
+    expect(signerSigType.isMultiSig).toBeFalsy();
+    expect(signerSigType.purpose).not.toBe(DerivationPurpose.BIP48.toString());
   });
 
   test('vault factory: creating a airgapped jade', () => {
