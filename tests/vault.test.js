@@ -28,12 +28,14 @@ import {
 import {
   COLDCARD_SS_EXPORT,
   KEYSTONE_SS_EXPORT,
+  PASSPORT_SS_EXPORT,
   SEEDSIGNER_SS_EXPORT,
 } from './signingDeviceExportFormats';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { decodeURBytes } from 'src/core/services/qr';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
+import { getPassportDetails } from 'src/hardware/passport';
 
 jest.setTimeout(10000);
 
@@ -631,5 +633,80 @@ describe('Vault: AirGapping with Keystone', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1qpzgrhkjdkkwwc2gs4zvsw0y02z9jm5v5gvp55c');
+  });
+});
+
+describe('Vault: AirGapping with Passport', () => {
+  let vaultShell;
+  let vault;
+  let extract;
+  let passport; // Signer
+
+  beforeAll(async () => {
+    vaultShell = {
+      id: getRandomBytes(12),
+      vaultInstances: {},
+    };
+  });
+
+  test('passport: extract xpub, derivation and master fingerprint from cc export format', () => {
+    const decoder = new URRegistryDecoder();
+    let bytes;
+    PASSPORT_SS_EXPORT.forEach((item, index) => {
+      const { percentage, data } = decodeURBytes(decoder, item.data);
+      if (percentage === 100) {
+        bytes = data;
+      }
+    });
+    extract = getPassportDetails(bytes);
+    expect(extract).toHaveProperty('xpub');
+    expect(extract).toHaveProperty('derivationPath');
+    expect(extract).toHaveProperty('xfp');
+  });
+
+  test('vault: is able to generate signer from meta-data', () => {
+    const { xpub, derivationPath, xfp } = extract;
+    passport = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.PASSPORT,
+      storageType: SignerStorage.COLD,
+    });
+    expect(passport).toHaveProperty('xpub', xpub);
+    expect(passport).toHaveProperty('xpubInfo.derivationPath', derivationPath);
+    expect(passport).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(passport).toHaveProperty('type', SignerType.PASSPORT);
+    expect(passport).toHaveProperty('storageType', SignerStorage.COLD);
+    expect(passport).toHaveProperty('signerName', getSignerNameFromType(SignerType.PASSPORT));
+    expect(getSignerSigTypeInfo(passport).isSingleSig).toBeTruthy();
+  });
+
+  test('vault factory: creating a airgapped passport', () => {
+    const scheme = { m: 1, n: 1 };
+    const vaultType = VaultType.DEFAULT;
+    const vaultSigners = [passport];
+    const vaultDetails = {
+      name: 'Vault',
+      description: 'Secure your sats',
+    };
+
+    vault = generateVault({
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+    expect(vault.signers.length).toEqual(1);
+    expect(vault.isMultiSig).toEqual(false);
+  });
+
+  test('vault operations: generating a receive address', () => {
+    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
+    vault = updatedWallet;
+    expect(receivingAddress).toEqual('tb1qk2k65grkkct3pql0hfzjkl0app8eaxuhf5l206');
   });
 });
