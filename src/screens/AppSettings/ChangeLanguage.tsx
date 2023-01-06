@@ -1,9 +1,8 @@
 import React, { useState, useContext } from 'react';
-
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Text from 'src/components/KeeperText';
 import { Box, ScrollView, useColorMode } from 'native-base';
+
+import Text from 'src/components/KeeperText';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
@@ -152,7 +151,6 @@ const styles = StyleSheet.create({
 function ChangeLanguage() {
   const [currencyList] = useState(FiatCurrencies);
   const [countryList] = useState(CountryCode);
-  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const [satsMode, setSatsMode] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
