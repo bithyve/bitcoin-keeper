@@ -23,7 +23,6 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import { Shadow } from 'react-native-shadow-2';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 // components and interfaces and hooks
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -40,6 +39,7 @@ import openLink from 'src/utils/OpenLink';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -210,12 +210,10 @@ function WalletDetails({ route }) {
   }
 
   return (
-    <Box style={styles.container}>
-      <StatusBarComponent padding={50} />
+    <ScreenWrapper>
       <Pressable onPress={() => navigation.goBack()} style={styles.backIcon}>
         <BackIcon />
       </Pressable>
-
       <Box style={styles.headerContainer}>
         <Text color="light.textWallet" style={styles.headerTitle}>
           {wallets?.length} Linked Wallets
@@ -376,22 +374,16 @@ function WalletDetails({ route }) {
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
-    </Box>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingLeft: wp(28),
-    paddingRight: wp(27),
-    paddingTop: hp(30),
-  },
   backIcon: {
-    zIndex: 999,
-    width: 5,
-    padding: 2,
-    alignItems: 'center',
+    height: 50,
+    width: 50,
+    paddingTop: 6,
+    alignItems: 'flex-start',
   },
   IconText: {
     justifyContent: 'center',
