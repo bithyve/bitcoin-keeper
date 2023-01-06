@@ -27,6 +27,7 @@ import {
 } from 'src/hardware';
 import {
   COLDCARD_SS_EXPORT,
+  JADE_SS_EXPORT,
   KEYSTONE_SS_EXPORT,
   PASSPORT_SS_EXPORT,
   SEEDSIGNER_SS_EXPORT,
@@ -36,6 +37,7 @@ import { decodeURBytes } from 'src/core/services/qr';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { getPassportDetails } from 'src/hardware/passport';
+import { getJadeDetails } from 'src/hardware/jade';
 
 jest.setTimeout(10000);
 
@@ -708,5 +710,80 @@ describe('Vault: AirGapping with Passport', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1qk2k65grkkct3pql0hfzjkl0app8eaxuhf5l206');
+  });
+});
+
+describe('Vault: AirGapping with Jade', () => {
+  let vaultShell;
+  let vault;
+  let extract;
+  let jade; // Signer
+
+  beforeAll(async () => {
+    vaultShell = {
+      id: getRandomBytes(12),
+      vaultInstances: {},
+    };
+  });
+
+  test('jade: extract xpub, derivation and master fingerprint from cc export format', () => {
+    const decoder = new URRegistryDecoder();
+    let bytes;
+    JADE_SS_EXPORT.forEach((item, index) => {
+      const { percentage, data } = decodeURBytes(decoder, item.data);
+      if (percentage === 100) {
+        bytes = data;
+      }
+    });
+    extract = getJadeDetails(bytes);
+    expect(extract).toHaveProperty('xpub');
+    expect(extract).toHaveProperty('derivationPath');
+    expect(extract).toHaveProperty('xfp');
+  });
+
+  test('vault: is able to generate signer from meta-data', () => {
+    const { xpub, derivationPath, xfp } = extract;
+    jade = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.JADE,
+      storageType: SignerStorage.COLD,
+    });
+    expect(jade).toHaveProperty('xpub', xpub);
+    expect(jade).toHaveProperty('xpubInfo.derivationPath', derivationPath);
+    expect(jade).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(jade).toHaveProperty('type', SignerType.JADE);
+    expect(jade).toHaveProperty('storageType', SignerStorage.COLD);
+    expect(jade).toHaveProperty('signerName', getSignerNameFromType(SignerType.JADE));
+    expect(getSignerSigTypeInfo(jade).isSingleSig).toBeTruthy();
+  });
+
+  test('vault factory: creating a airgapped jade', () => {
+    const scheme = { m: 1, n: 1 };
+    const vaultType = VaultType.DEFAULT;
+    const vaultSigners = [jade];
+    const vaultDetails = {
+      name: 'Vault',
+      description: 'Secure your sats',
+    };
+
+    vault = generateVault({
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+    expect(vault.signers.length).toEqual(1);
+    expect(vault.isMultiSig).toEqual(false);
+  });
+
+  test('vault operations: generating a receive address', () => {
+    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
+    vault = updatedWallet;
+    expect(receivingAddress).toEqual('tb1ql7vr9yn9u7qdsgfukyh5mt2ppv7njm93upu43c');
   });
 });
