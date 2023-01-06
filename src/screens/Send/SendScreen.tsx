@@ -54,7 +54,6 @@ function SendScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [image, setImage] = useState(null);
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
   const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -106,7 +105,7 @@ function SendScreen({ route }) {
         showToast(response.errorMessage);
         return;
       } else {
-        setImage(response.assets[0].uri)
+        // Read QR here
       }
     });
   };
@@ -204,19 +203,13 @@ function SendScreen({ route }) {
           />
           <Box>
             <Box style={styles.qrcontainer}>
-              {image ?
-                <Image
-                  style={styles.cameraView}
-                  source={{ uri: image }}
-                /> :
-                <RNCamera
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={(data) => {
-                    handleTextChange(data.data);
-                  }}
-                />
-              }
+              <RNCamera
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={(data) => {
+                  handleTextChange(data.data);
+                }}
+              />
             </Box>
             {/* Upload Image */}
 
