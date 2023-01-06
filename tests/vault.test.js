@@ -33,9 +33,9 @@ import {
   PASSPORT_SS_EXPORT,
   SEEDSIGNER_SS_EXPORT,
 } from './signingDeviceExportFormats';
-import { getSeedSignerDetails } from 'src/hardware/seedsigner';
+import { getSeedSignerDetails, updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { decodeURBytes } from 'src/core/services/qr';
-import { getKeystoneDetails } from 'src/hardware/keystone';
+import { getKeystoneDetails, getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getJadeDetails } from 'src/hardware/jade';
@@ -574,6 +574,20 @@ describe('Vault: AirGapping with SeedSigner', () => {
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1qae8ea8unjccsum9z75qvzhq6vauw88t503yrsf');
   });
+
+  test('seedsigner: able to finalise signed PSBT from seedsigner partial signature', () => {
+    const unsignedPSBT =
+      'cHNidP8BAFICAAAAAdV/bwKJ4yO8cWQBdGyO7rcbQRFTpRSrawxJmPh3yHRJAQAAAAD/////AREHAAAAAAAAFgAUWuqKm/XkjrJ7aXnZe991fPmIYNsAAAAAAAEBH9AHAAAAAAAAFgAUZXZJ33JeEh4yl7uMQZ5i0agCuZ8iBgLTClhWB9tTYUNHkts1hfzm29IyXWRAL8ttspe8dWmHQBjh5mMQVAAAgAEAAIAAAACAAAAAAAIAAAAAAA==';
+    const signedDataFromSeedSigner =
+      'cHNidP8BAFICAAAAAdV/bwKJ4yO8cWQBdGyO7rcbQRFTpRSrawxJmPh3yHRJAQAAAAD/////AREHAAAAAAAAFgAUWuqKm/XkjrJ7aXnZe991fPmIYNsAAAAAACICAtMKWFYH21NhQ0eS2zWF/Obb0jJdZEAvy22yl7x1aYdARzBEAiAsOx0YL/VV9qaApH9mAM5q6B5SyPFMOFlvP+j7cOybPAIgU8bLfjCK+uj9mEg08VhY7TrkCdmsKWwj59sifxmHseEBAAA=';
+    const { signedPsbt } = updateInputsForSeedSigner({
+      serializedPSBT: unsignedPSBT,
+      signedSerializedPSBT: signedDataFromSeedSigner,
+    });
+    expect(signedPsbt).toEqual(
+      'cHNidP8BAFICAAAAAdV/bwKJ4yO8cWQBdGyO7rcbQRFTpRSrawxJmPh3yHRJAQAAAAD/////AREHAAAAAAAAFgAUWuqKm/XkjrJ7aXnZe991fPmIYNsAAAAAAAEBH9AHAAAAAAAAFgAUZXZJ33JeEh4yl7uMQZ5i0agCuZ8iAgLTClhWB9tTYUNHkts1hfzm29IyXWRAL8ttspe8dWmHQEcwRAIgLDsdGC/1VfamgKR/ZgDOaugeUsjxTDhZbz/o+3DsmzwCIFPGy34wivro/ZhINPFYWO065AnZrClsI+fbIn8Zh7HhASIGAtMKWFYH21NhQ0eS2zWF/Obb0jJdZEAvy22yl7x1aYdAGOHmYxBUAACAAQAAgAAAAIAAAAAAAgAAAAAA'
+    );
+  });
 });
 
 describe('Vault: AirGapping with Keystone', () => {
@@ -645,6 +659,17 @@ describe('Vault: AirGapping with Keystone', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1qpzgrhkjdkkwwc2gs4zvsw0y02z9jm5v5gvp55c');
+  });
+
+  test('keystone: able to tx hex from keystone signed PSBT', () => {
+    const unsignedPSBT =
+      'cHNidP8BAFICAAAAAWDZhpqs0eI234UqgV99Z4M2nkksep5tN5UEU31zTvSOAAAAAAD/////AREHAAAAAAAAFgAUKWbDXXd/+5CjjqWG6QEFgK4DR1YAAAAAAAEBH9AHAAAAAAAAFgAUBZ/+krqj5Ua1FrT3Pa8ki7GRoGEiBgOCErqEPy/FMfK1ExL62IBT7B10wfQqyw/aTo1cs8R6fBhhuPzEVAAAgAEAAIAAAACAAAAAAAIAAAAAAA==';
+    const signedDataFromKeystone =
+      'cHNidP8BAFICAAAAAWDZhpqs0eI234UqgV99Z4M2nkksep5tN5UEU31zTvSOAAAAAAD/////AREHAAAAAAAAFgAUKWbDXXd/+5CjjqWG6QEFgK4DR1YAAAAAAAEBH9AHAAAAAAAAFgAUBZ/+krqj5Ua1FrT3Pa8ki7GRoGEBCGsCRzBEAiBjWgWBZVfMI0N6FhqsnQa6BFk8Vp4YN0TIBckBu8ZOYAIgfnMLj/Its93d2hzbUP2IKARGR4vs5SaZvOv9lucNq3oBIQOCErqEPy/FMfK1ExL62IBT7B10wfQqyw/aTo1cs8R6fAAA';
+    const extractedTransaction = getTxHexFromKeystonePSBT(unsignedPSBT, signedDataFromKeystone);
+    expect(extractedTransaction.toHex()).toEqual(
+      '0200000000010160d9869aacd1e236df852a815f7d6783369e492c7a9e6d379504537d734ef48e0000000000ffffffff0111070000000000001600142966c35d777ffb90a38ea586e9010580ae034756024730440220635a05816557cc23437a161aac9d06ba04593c569e183744c805c901bbc64e6002207e730b8ff22db3ddddda1cdb50fd88280446478bece52699bcebfd96e70dab7a0121038212ba843f2fc531f2b51312fad88053ec1d74c1f42acb0fda4e8d5cb3c47a7c00000000'
+    );
   });
 });
 
