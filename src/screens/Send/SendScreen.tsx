@@ -95,13 +95,13 @@ function SendScreen({ route }) {
     launchImageLibrary(options, async response => {
       if (response.didCancel) {
         return;
-      } else if (response.errorCode == 'camera_unavailable') {
+      } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device');
         return;
-      } else if (response.errorCode == 'permission') {
+      } else if (response.errorCode === 'permission') {
         showToast('Permission not satisfied');
         return;
-      } else if (response.errorCode == 'others') {
+      } else if (response.errorCode === 'others') {
         showToast(response.errorMessage);
         return;
       } else {
