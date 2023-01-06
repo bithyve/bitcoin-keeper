@@ -19,6 +19,9 @@ import {
   TxPriority,
   VaultType,
 } from 'src/core/wallets/enums';
+import { extractColdCardExport } from 'src/hardware/coldcard';
+import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
+import { COLDCARD_SS_EXPORT } from './signingDeviceExportFormats';
 
 jest.setTimeout(10000);
 
@@ -413,5 +416,69 @@ describe('Vault: Multi-sig(2-of-3)', () => {
 
     const txHex = combinedPSBT.finalizeAllInputs().extractTransaction().toHex();
     expect(txHex).toBeDefined();
+  });
+});
+
+describe('Vault: AirGapping with Coldcard', () => {
+  let vaultShell;
+  let vault;
+  let extract;
+  let coldcard; // Signer
+
+  beforeAll(async () => {
+    vaultShell = {
+      id: getRandomBytes(12),
+      vaultInstances: {},
+    };
+  });
+
+  test('coldcard: extract xpub, derivation and master fingerprint from cc export format', () => {
+    extract = extractColdCardExport(COLDCARD_SS_EXPORT.data, COLDCARD_SS_EXPORT.rtdName);
+    expect(extract).toHaveProperty('xpub');
+  });
+
+  test('vault: is able to generate signer from meta-data', () => {
+    const { xpub, derivationPath, xfp } = extract;
+    coldcard = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.COLDCARD,
+      storageType: SignerStorage.COLD,
+    });
+    expect(coldcard).toHaveProperty('xpub', xpub);
+    expect(coldcard).toHaveProperty('xpubInfo.derivationPath', derivationPath);
+    expect(coldcard).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(coldcard).toHaveProperty('type', SignerType.COLDCARD);
+    expect(coldcard).toHaveProperty('storageType', SignerStorage.COLD);
+    expect(coldcard).toHaveProperty('signerName', getSignerNameFromType(SignerType.COLDCARD));
+  });
+
+  test('vault factory: creating a airgapped coldcard', () => {
+    const scheme = { m: 1, n: 1 };
+    const vaultType = VaultType.DEFAULT;
+    const vaultSigners = [coldcard];
+    const vaultDetails = {
+      name: 'Vault',
+      description: 'Secure your sats',
+    };
+
+    vault = generateVault({
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+    expect(vault.signers.length).toEqual(1);
+    expect(vault.isMultiSig).toEqual(false);
+  });
+
+  test('vault operations: generating a receive address', () => {
+    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
+    vault = updatedWallet;
+    expect(receivingAddress).toEqual('tb1qclvfyg5v9gahygk5la56afevcnpdxt203609gp');
   });
 });
