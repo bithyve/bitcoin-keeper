@@ -11,8 +11,7 @@ function CountryCard(props) {
       backgroundColor={`${colorMode}.white`}
       flexDirection="row"
       justifyContent="space-evenly"
-      mx={7}
-      padding={3}
+      padding={4}
       borderRadius={10}
       {...props}
     >
