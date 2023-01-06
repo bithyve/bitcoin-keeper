@@ -44,3 +44,7 @@ export const COLDCARD_SS_EXPORT = {
   },
   rtdName: 'application/json',
 };
+
+export const SEEDSIGNER_SS_EXPORT = {
+  data: "[e1e66310/84'/1'/0']vpub5Yaq4u2kgKTnHrv67VHj8FswPcZu3K42rUhXk59kcZuTnDQDkwks19kT5jmpdtseQN9y63tiFvGPcas8AH7wBPG6nxEbG7TP5Kp269gdV87",
+};

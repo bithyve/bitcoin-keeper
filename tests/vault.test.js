@@ -20,8 +20,13 @@ import {
   VaultType,
 } from 'src/core/wallets/enums';
 import { extractColdCardExport } from 'src/hardware/coldcard';
-import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import { COLDCARD_SS_EXPORT } from './signingDeviceExportFormats';
+import {
+  generateSignerFromMetaData,
+  getSignerNameFromType,
+  getSignerSigTypeInfo,
+} from 'src/hardware';
+import { COLDCARD_SS_EXPORT, SEEDSIGNER_SS_EXPORT } from './signingDeviceExportFormats';
+import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 
 jest.setTimeout(10000);
 
@@ -435,6 +440,8 @@ describe('Vault: AirGapping with Coldcard', () => {
   test('coldcard: extract xpub, derivation and master fingerprint from cc export format', () => {
     extract = extractColdCardExport(COLDCARD_SS_EXPORT.data, COLDCARD_SS_EXPORT.rtdName);
     expect(extract).toHaveProperty('xpub');
+    expect(extract).toHaveProperty('derivationPath');
+    expect(extract).toHaveProperty('xfp');
   });
 
   test('vault: is able to generate signer from meta-data', () => {
@@ -452,6 +459,7 @@ describe('Vault: AirGapping with Coldcard', () => {
     expect(coldcard).toHaveProperty('type', SignerType.COLDCARD);
     expect(coldcard).toHaveProperty('storageType', SignerStorage.COLD);
     expect(coldcard).toHaveProperty('signerName', getSignerNameFromType(SignerType.COLDCARD));
+    expect(getSignerSigTypeInfo(coldcard).isSingleSig).toBeTruthy();
   });
 
   test('vault factory: creating a airgapped coldcard', () => {
@@ -480,5 +488,72 @@ describe('Vault: AirGapping with Coldcard', () => {
     const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
     vault = updatedWallet;
     expect(receivingAddress).toEqual('tb1qclvfyg5v9gahygk5la56afevcnpdxt203609gp');
+  });
+});
+
+describe('Vault: AirGapping with SeedSigner', () => {
+  let vaultShell;
+  let vault;
+  let extract;
+  let seedsigner; // Signer
+
+  beforeAll(async () => {
+    vaultShell = {
+      id: getRandomBytes(12),
+      vaultInstances: {},
+    };
+  });
+
+  test('seedsigner: extract xpub, derivation and master fingerprint from cc export format', () => {
+    extract = getSeedSignerDetails(SEEDSIGNER_SS_EXPORT.data);
+    expect(extract).toHaveProperty('xpub');
+    expect(extract).toHaveProperty('derivationPath');
+    expect(extract).toHaveProperty('xfp');
+  });
+
+  test('vault: is able to generate signer from meta-data', () => {
+    const { xpub, derivationPath, xfp } = extract;
+    seedsigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.SEEDSIGNER,
+      storageType: SignerStorage.COLD,
+    });
+    expect(seedsigner).toHaveProperty('xpub', xpub);
+    expect(seedsigner).toHaveProperty('xpubInfo.derivationPath', derivationPath);
+    expect(seedsigner).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(seedsigner).toHaveProperty('type', SignerType.SEEDSIGNER);
+    expect(seedsigner).toHaveProperty('storageType', SignerStorage.COLD);
+    expect(seedsigner).toHaveProperty('signerName', getSignerNameFromType(SignerType.SEEDSIGNER));
+    expect(getSignerSigTypeInfo(seedsigner).isSingleSig).toBeTruthy();
+  });
+
+  test('vault factory: creating a airgapped seedsigner', () => {
+    const scheme = { m: 1, n: 1 };
+    const vaultType = VaultType.DEFAULT;
+    const vaultSigners = [seedsigner];
+    const vaultDetails = {
+      name: 'Vault',
+      description: 'Secure your sats',
+    };
+
+    vault = generateVault({
+      type: vaultType,
+      vaultShellId: vaultShell.id,
+      vaultName: vaultDetails.name,
+      vaultDescription: vaultDetails.description,
+      scheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+    expect(vault.signers.length).toEqual(1);
+    expect(vault.isMultiSig).toEqual(false);
+  });
+
+  test('vault operations: generating a receive address', () => {
+    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
+    vault = updatedWallet;
+    expect(receivingAddress).toEqual('tb1qae8ea8unjccsum9z75qvzhq6vauw88t503yrsf');
   });
 });
