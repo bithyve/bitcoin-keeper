@@ -82,8 +82,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (appCreated) {
       setInitiating(false);
+      updateFCM();
     }
   }, [appCreated]);
+
+  async function updateFCM() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(updateFCMTokens([token]));
+    } catch (error) {
+      //
+    }
+  }
 
   useEffect(() => {
     if (appImageError) {

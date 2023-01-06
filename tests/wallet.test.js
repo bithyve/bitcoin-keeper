@@ -1,10 +1,9 @@
-/* eslint-disable no-undef */
 import Relay from 'src/core/services/operations/Relay';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
-import WalletOperations from '../operations';
-import WalletUtilities from '../operations/utils';
-import { WalletType, NetworkType, TxPriority } from '../enums';
-import { generateWallet } from '../factories/WalletFactory';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { WalletType, NetworkType, TxPriority } from 'src/core/wallets/enums';
+import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 
 describe('Wallet primitives', () => {
   let primaryMnemonic;

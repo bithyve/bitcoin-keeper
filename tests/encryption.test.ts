@@ -1,4 +1,10 @@
-import { hash256, hash512, generateEncryptionKey, encrypt, decrypt } from './index';
+import {
+  hash256,
+  hash512,
+  generateEncryptionKey,
+  encrypt,
+  decrypt,
+} from '../src/core/services/operations/encryption/index';
 
 describe('Testing cryptographic primitives', () => {
   test('hashing::sha256', () => {
