@@ -203,7 +203,11 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       if (serializedPSBTEnvelop.isSigned) {
         availableSignatures++;
       }
-      if (serializedPSBTEnvelop.signerType === SignerType.COLDCARD && serializedPSBTEnvelop.txHex) {
+      if (
+        (serializedPSBTEnvelop.signerType === SignerType.COLDCARD ||
+          serializedPSBTEnvelop.signerType === SignerType.KEYSTONE) &&
+        serializedPSBTEnvelop.txHex
+      ) {
         txHex = serializedPSBTEnvelop.txHex;
       }
     }

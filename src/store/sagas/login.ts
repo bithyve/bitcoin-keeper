@@ -140,9 +140,9 @@ function* credentialsAuthWorker({ payload }) {
     } else yield put(credsAuthenticated(false));
     return;
   }
-  yield put(credsAuthenticated(true));
+
   yield put(setKey(key));
-  
+
   // connect electrum-client
   const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
   ElectrumClient.setActivePeer(privateNodes);
@@ -152,20 +152,21 @@ function* credentialsAuthWorker({ payload }) {
     // case: login
     const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
 
-    yield put(autoSyncWallets());
+    yield call(autoSyncWallets);
 
     // fetch fee and exchange rates
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
-    yield put(getMessages());
     yield put(setWarning(history));
+    yield put(getMessages());
     yield put(uaiChecks());
   }
   // check if the app has been upgraded
   const appVersion = yield select((state: RootState) => state.storage.appVersion);
   const currentVersion = DeviceInfo.getVersion();
   if (currentVersion !== appVersion) yield put(updateApplication(currentVersion, appVersion));
+  yield put(credsAuthenticated(true));
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);

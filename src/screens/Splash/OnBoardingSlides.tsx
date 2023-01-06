@@ -84,7 +84,6 @@ function OnBoardingSlides({ navigation }) {
               horizontal
               snapToInterval={width}
               showsHorizontalScrollIndicator={false}
-              decelerationRate={0}
               snapToAlignment="center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
@@ -109,7 +108,7 @@ function OnBoardingSlides({ navigation }) {
                 </Box>
               </TouchableOpacity>
             </Box>
-            <Box flexDirection="row">
+            <Box flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => {
                   console.log(index);
