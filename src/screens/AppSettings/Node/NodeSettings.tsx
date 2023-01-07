@@ -13,6 +13,10 @@ import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/icon_add_new.svg';
+import EditIcon from 'src/assets/images/edit_yellow.svg';
+import ConnectIcon from 'src/assets/images/connect.svg';
+import DisconnectIcon from 'src/assets/images/disconnect.svg';
+import DeleteIcon from 'src/assets/images/delete_orange.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -39,16 +43,16 @@ function NodeSettings() {
     setVisible(true);
   };
 
-  const closeAddNodeModal = () => {
+  const closeAddNodeModal = async () => {
     if (nodeList.length == 0 || nodeList.filter((item) => item.isConnected == true).length == 0) {
-      onChangeConnectToMyNode(false);
+      await onChangeConnectToMyNode(false);
     }
     setVisible(false);
   };
 
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     setLoading(true);
-    closeAddNodeModal();
+    await closeAddNodeModal();
     const { nodes, node } = await Node.save(nodeDetail, nodeList);
     if (nodes === null || node === null) {
       console.log('node not saved');
@@ -71,6 +75,23 @@ function NodeSettings() {
     setSelectedNodeItem(selectedItem);
     openAddNodeModal();
   };
+
+  const onDelete = async (selectedItem: NodeDetail) => {
+    const filteredNodes = nodeList?.filter((item) => item.id !== selectedItem.id);
+    setNodeList(filteredNodes);
+    dispatch(setNodeDetails(filteredNodes));
+    setSelectedNodeItem(null);
+
+    if (filteredNodes?.length === 0 || selectedItem.isConnected) {
+      console.log('defaut node')
+      setConnectToNode(false);
+      dispatch(setConnectToMyNode(false));
+      setLoading(true);
+      await Node.connectToDefaultNode();
+      setLoading(false);
+    }
+  };
+
 
   const onConnectNode = async (selectedItem) => {
     setLoading(true);
@@ -133,7 +154,7 @@ function NodeSettings() {
     } else {
       setLoading(true);
       updateNode(null);
-      Node.connectToDefaultNode();
+      await Node.connectToDefaultNode();
       setLoading(false);
     }
   };
@@ -177,7 +198,8 @@ function NodeSettings() {
                     : null
                 }
               >
-                <Box backgroundColor="light.primaryBackground" style={styles.nodeList}>
+                <Box backgroundColor={ConnectToNode ? "light.primaryBackground" : "light.fadedGray"}
+                  style={[styles.nodeList, { opacity: ConnectToNode ? 1 : 0.50 }]}>
                   <Box style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}>
                     <Text
                       color='light.secondaryText'
@@ -190,19 +212,32 @@ function NodeSettings() {
                     </Text>
                     <Text style={styles.nodeTextValue}>{item.port}</Text>
                   </Box>
+                  <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+
                   <TouchableOpacity onPress={() => onEdit(item)}>
-                    <Text
-                      color='light.greenText2'
-                      style={[styles.editText]}>{common.edit}</Text>
+                    <Box style={[styles.actionArea, { paddingLeft: 15, paddingRight: 15 }]}>
+                      <EditIcon />
+                      <Text
+                        style={[styles.actionText]}>{common.edit}</Text>
+                    </Box>
                   </TouchableOpacity>
+                  <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+
                   <TouchableOpacity onPress={() => onConnectNode(item)}>
-                    <Box
-                      backgroundColor={Node.nodeConnectionStatus(item) ? 'light.greenText2' : 'light.lightAccent'}
-                      style={styles.connectButton}
-                    >
-                      <Text style={{ color: Node.nodeConnectionStatus(item) ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,1)' }}>
+                    <Box style={[styles.actionArea, { width: 70 }]}>
+                      {Node.nodeConnectionStatus(item) ? <DisconnectIcon /> : <ConnectIcon />}
+                      <Text style={[styles.actionText, { paddingTop: 0 }]}>
                         {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
                       </Text>
+                    </Box>
+                  </TouchableOpacity>
+                  <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+
+                  <TouchableOpacity onPress={() => onDelete(item)}>
+                    <Box style={[styles.actionArea, { paddingLeft: 15 }]}>
+                      <DeleteIcon />
+                      <Text
+                        style={[styles.actionText]}>{common.delete}</Text>
                     </Box>
                   </TouchableOpacity>
                 </Box>
@@ -210,7 +245,8 @@ function NodeSettings() {
             )}
           />
         </Box>
-      )}
+      )
+      }
 
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor="light.primaryBackground" style={styles.addNewNode}>
@@ -242,7 +278,7 @@ function NodeSettings() {
           <ActivityIndicator color="#017963" size="large" />
         </View>
       </Modal>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 const styles = StyleSheet.create({
@@ -282,6 +318,11 @@ const styles = StyleSheet.create({
     opacity: 0.25,
     borderBottomWidth: 1,
   },
+  verticleSplitter: {
+    opacity: 0.40,
+    borderWidth: 0.4,
+    height: 45,
+  },
   nodesListWrapper: {
     marginBottom: 4,
     flexDirection: 'row',
@@ -302,35 +343,36 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   nodeDetail: {
-    width: '55%',
-    padding: 10,
+    width: '50%',
+    padding: 5,
   },
   nodeList: {
     flexDirection: 'row',
-    width: '100%',
+    width: '99%',
     marginBottom: 4,
     alignItems: 'center',
     borderRadius: 5,
-    justifyContent: 'space-between',
   },
   selectedItem: {
     borderWidth: 1,
     borderRadius: 5,
   },
-  editText: {
-    fontSize: 12,
-    letterSpacing: 0.96,
-    fontWeight: '600',
-  },
-  connectButton: {
-    fontSize: 11,
-    letterSpacing: 0.6,
-    padding: 5,
-    borderRadius: 5,
-    marginRight: 25,
-    width: 90,
+  edit: {
     alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  actionText: {
+    fontSize: 11,
+    letterSpacing: 0.36,
+    fontWeight: '600',
+    paddingTop: 4
+  },
+  actionArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  delete: {
+    alignItems: 'center',
     justifyContent: 'center',
   },
   nodeTextHeader: {
