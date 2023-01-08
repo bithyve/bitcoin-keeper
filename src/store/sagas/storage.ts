@@ -18,7 +18,7 @@ import { addNewWallets } from '../sagaActions/wallets';
 import config from '../../core/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
-import { NewWalletInfo } from './wallets';
+import { addNewWalletsWorker, NewWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 
@@ -43,7 +43,13 @@ function* setupKeeperAppWorker({ payload }) {
       primaryMnemonic
     );
     const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-    const response = yield call(Relay.createNewApp, id, appID, fcmToken);
+    const response = yield call(Relay.createNewApp, id, appID, fcmToken, {
+      appID,
+      walletObject: {},
+      networkType: config.NETWORK_TYPE,
+      walletShellInstances: JSON.stringify({}),
+      walletShells: JSON.stringify({}),
+    });
     if (response && response.created) {
       const app: KeeperApp = {
         id,
@@ -80,9 +86,13 @@ function* setupKeeperAppWorker({ payload }) {
           transferPolicy: 5000,
         },
       };
-      yield put(addNewWallets([defaultWallet]));
-      yield put(setAppCreationError(false));
-      yield put(setAppId(appID));
+      const { created, err } = yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+      if (created) {
+        yield put(setAppCreationError(false));
+        yield put(setAppId(appID));
+      } else {
+        yield put(setAppCreationError(true));
+      }
     } else {
       yield put(setAppCreationError(true));
     }

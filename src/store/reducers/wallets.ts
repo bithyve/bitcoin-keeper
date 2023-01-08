@@ -24,6 +24,8 @@ export type WalletsState = {
 
   resetTwoFALoader: boolean;
   introModal: boolean;
+
+  err: string;
 };
 
 const initialState: WalletsState = {
@@ -46,6 +48,8 @@ const initialState: WalletsState = {
 
   resetTwoFALoader: false,
   introModal: true,
+
+  err: '',
 };
 
 const walletSlice = createSlice({
@@ -70,12 +74,30 @@ const walletSlice = createSlice({
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
     },
+    walletGenerationFailed: (state, action: PayloadAction<string>) => {
+      state.hasNewWalletsGenerationFailed = true;
+      state.isGeneratingNewWallet = false;
+      state.err = action.payload;
+    },
+    newWalletCreated: (state) => {
+      state.isGeneratingNewWallet = false;
+      state.hasNewWalletsGenerationSucceeded = true;
+      state.hasNewWalletsGenerationFailed = false;
+      state.err = '';
+    },
+    resetWalletStateFlags: (state) => {
+      state.isGeneratingNewWallet = false;
+      state.hasNewWalletsGenerationSucceeded = false;
+      state.hasNewWalletsGenerationFailed = false;
+      state.err = '';
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
       state.isGeneratingNewWallet = true;
       state.hasNewWalletsGenerationSucceeded = false;
       state.hasNewWalletsGenerationFailed = false;
+      state.err = '';
     });
   },
 });
@@ -87,11 +109,20 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
+  walletGenerationFailed,
+  newWalletCreated,
+  resetWalletStateFlags,
 } = walletSlice.actions;
 
 const walletPersistConfig = {
   key: 'wallet',
   storage: reduxStorage,
-  blacklist: ['testCoinsReceived', 'testCoinsFailed'],
+  blacklist: [
+    'testCoinsReceived',
+    'testCoinsFailed',
+    'hasNewWalletsGenerationFailed',
+    'hasNewWalletsGenerationSucceeded',
+    'isGeneratingNewWallet',
+  ],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);

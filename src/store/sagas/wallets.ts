@@ -18,10 +18,12 @@ import { Vault, VaultScheme, VaultShell, VaultSigner } from 'src/core/wallets/in
 import { Wallet, WalletPresentationData, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
+  newWalletCreated,
   setNetBalance,
   setTestCoinsFailed,
   setTestCoinsReceived,
   signingServerRegistrationVerified,
+  walletGenerationFailed,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -38,7 +40,11 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getRandomBytes } from 'src/core/services/operations/encryption';
+import {
+  encrypt,
+  generateEncryptionKey,
+  getRandomBytes,
+} from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { RootState } from '../store';
 import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
@@ -181,21 +187,49 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
     walletIds.push(wallet.id);
     wallets.push(wallet);
   }
-
   let presentWalletInstances = { ...walletShell.walletInstances };
-
   wallets.forEach((wallet: Wallet) => {
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
-
-  yield call(dbManager.updateObjectById, RealmSchema.WalletShell, walletShell.id, {
-    walletInstances: presentWalletInstances,
-  });
-
+  const walletObject = {};
+  const encryptionKey = generateEncryptionKey(app.primarySeed);
   for (const wallet of wallets) {
-    yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-    yield put(updateAppImage(wallet.id));
+    const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+    walletObject[wallet.id] = encrytedWallet;
+  }
+  try {
+    const response = yield call(Relay.updateAppImage, {
+      appID: app.appID,
+      walletObject,
+      networkType: app.networkType,
+      walletShellInstances: JSON.stringify(walletShellInstances),
+      walletShells: JSON.stringify(presentWalletInstances),
+    });
+    if (response && response.updated) {
+      yield call(dbManager.updateObjectById, RealmSchema.WalletShell, walletShell.id, {
+        walletInstances: presentWalletInstances,
+      });
+      for (const wallet of wallets) {
+        yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+      }
+      yield put(newWalletCreated());
+      return {
+        created: true,
+        err: response.err,
+      };
+    }
+    yield put(walletGenerationFailed(response.err));
+    return {
+      created: false,
+    };
+  } catch (err) {
+    console.error('app image update failed', err);
+    yield put(walletGenerationFailed(`${err}`));
+    return {
+      created: false,
+      err: `${err}`,
+    };
   }
 }
 

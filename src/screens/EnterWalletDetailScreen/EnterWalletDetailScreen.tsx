@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -15,6 +15,11 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
 import KeeperText from 'src/components/KeeperText';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { useAppSelector } from 'src/store/hooks';
+import KeeperModal from 'src/components/KeeperModal';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import { resetWalletStateFlags } from 'src/store/reducers/wallets';
+
 
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
@@ -25,6 +30,19 @@ function EnterWalletDetailScreen({ route }) {
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
   const [transferPolicy, setTransferPolicy] = useState(isTestnet() ? '5000' : '1000000');
+  const { hasNewWalletsGenerationFailed, hasNewWalletsGenerationSucceeded, isGeneratingNewWallet, err } = useAppSelector(state => state.wallet)
+
+  useEffect(() => {
+    if (!isGeneratingNewWallet && hasNewWalletsGenerationSucceeded) {
+      navigtaion.goBack()
+    }
+  }, [hasNewWalletsGenerationFailed, hasNewWalletsGenerationSucceeded, isGeneratingNewWallet])
+
+  useEffect(() => () => {
+    dispatch(resetWalletStateFlags())
+  }, [])
+
+
 
   const createNewWallet = useCallback(() => {
     const newWallet: NewWalletInfo = {
@@ -36,13 +54,30 @@ function EnterWalletDetailScreen({ route }) {
       },
     };
     dispatch(addNewWallets([newWallet]));
-    navigtaion.goBack();
+    // navigtaion.goBack();
   }, [walletName, walletDescription, transferPolicy]);
 
   // Format number with comma
   // Example: 1000000 => 1,000,000
   const formatNumber = (value: string) =>
     value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  function FailedModalContent() {
+    return (
+      <Box w="100%">
+        <Buttons
+          primaryCallback={() => {
+            navigtaion.replace('ChoosePlan')
+          }}
+          primaryText="View Subsciption"
+          activeOpacity={0.5}
+          secondaryCallback={() => { dispatch(resetWalletStateFlags()) }}
+          secondaryText={common.cancel}
+          paddingHorizontal={wp(30)}
+        />
+      </Box>
+    )
+  }
 
   return (
     <View style={styles.Container} background="light.mainBackground">
@@ -125,6 +160,23 @@ function EnterWalletDetailScreen({ route }) {
           />
         </View>
       </View>
+
+      <KeeperModal
+        dismissible
+        close={() => { }}
+        visible={hasNewWalletsGenerationFailed}
+        title="Failed"
+        subTitle={err}
+        Content={FailedModalContent}
+        buttonText=""
+        buttonCallback={() => {
+          // setInitiating(true)
+        }}
+        showButtons
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </View>
   );
 }
