@@ -33,18 +33,11 @@ function App() {
   useEffect(() => {
     initConnection()
     Sentry.init(sentryConfig);
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackPress
-    );
-
     return () => {
-      backHandler.remove()
       endConnection()
-    };
+    }
   }, []);
 
-  const handleBackPress = () => true  // do nothing on back button press
 
   // linear-gradient configs for NativeBase
   const config = {

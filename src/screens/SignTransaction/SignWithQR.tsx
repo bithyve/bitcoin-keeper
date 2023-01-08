@@ -15,6 +15,7 @@ import { captureError } from 'src/core/services/sentry';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
+import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import DisplayQR from '../QRScreens/DisplayQR';
 
 function SignWithQR() {
@@ -34,11 +35,19 @@ function SignWithQR() {
   const signTransaction = (signedSerializedPSBT) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
-      if (isSingleSig && signer.type === SignerType.SEEDSIGNER) {
-        const { signedPsbt } = updateInputsForSeedSigner({ serializedPSBT, signedSerializedPSBT });
-        dispatch(
-          updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
-        );
+      if (isSingleSig) {
+        if (signer.type === SignerType.SEEDSIGNER) {
+          const { signedPsbt } = updateInputsForSeedSigner({
+            serializedPSBT,
+            signedSerializedPSBT,
+          });
+          dispatch(
+            updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
+          );
+        } else if (signer.type === SignerType.KEYSTONE) {
+          const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
+          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: tx.toHex() }));
+        }
       } else {
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
       }

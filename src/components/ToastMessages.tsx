@@ -26,7 +26,7 @@ function HexaToastMessages({
       {Image && <Box>{Image}</Box>}
       <Text
         color={error ? 'error.200' : null}
-        style={{ marginLeft: Image ? 3 : 0, width }}
+        style={{ marginLeft: Image ? 5 : 0, width }}
         numberOfLines={2}
       >
         {title}

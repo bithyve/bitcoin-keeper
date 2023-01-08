@@ -66,10 +66,11 @@
     "EditDetails": "Edit Details",
     "next": "Next",
     "needHelp": "Need Help?",
-    "edit":"Edit",
-    "connect":"Connect",
-    "disconnect":"Disconnect",
-    "sats": "sats"
+    "edit": "Edit",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "sats": "sats",
+    "delete": "Delete"
   },
   "noInternet": {
     "no": "No Internet",
@@ -290,7 +291,10 @@
     "confirmPassTitle": "Confirm Passcode",
     "confirmPassSubTitle": "To show recovery phrase for this wallet",
     "SendSuccess": "Send Successful",
-    "ViewDetails": "View Details"
+    "ViewDetails": "View Details",
+    "approveTransVault": "Approve Transfer to Vault",
+    "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction attransaction, at 100,000 sats that needs your approval",
+    "TransNow": "Transfer Now"
   },
   "vault": {
     "SetupyourVault": "Setup your vault",

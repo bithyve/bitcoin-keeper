@@ -16,8 +16,7 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   await NFC.send(NfcTech.Ndef, enc);
 };
 
-export const getColdcardDetails = async () => {
-  const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
+export const extractColdCardExport = (data, rtdName) => {
   try {
     let xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
@@ -40,6 +39,11 @@ export const getColdcardDetails = async () => {
     console.log('Not exported for singlesig!');
     throw new HWError(HWErrorType.INCORRECT_HW);
   }
+};
+
+export const getColdcardDetails = async () => {
+  const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
+  return extractColdCardExport(data, rtdName);
 };
 
 export const getMockColdcardDetails = () => {

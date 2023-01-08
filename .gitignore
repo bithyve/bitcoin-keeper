@@ -64,3 +64,6 @@ buck-out/
 .env*
 env*
 !.env.example
+
+# test
+coverage/

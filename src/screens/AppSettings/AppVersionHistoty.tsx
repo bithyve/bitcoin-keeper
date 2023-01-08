@@ -1,23 +1,18 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView, StatusBar } from 'native-base';
-import { SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, ScrollView } from 'native-base';
+import { StyleSheet } from 'react-native';
 
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
-import BackIcon from 'src/assets/images/back.svg';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import HeaderTitle from 'src/components/HeaderTitle';
 
-function AppVersionHistory({ navigation }) {
+function AppVersionHistory() {
   return (
-    <SafeAreaView style={styles.wrapper}>
-      <StatusBar backgroundColor="light.secondaryBackground" barStyle="dark-content" />
-      <Box style={styles.backBtnWrapper}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
-
+    <ScreenWrapper>
+      <HeaderTitle />
       <Box style={styles.versionHistoryTitleWrapper}>
         <Text color="light.headerText" style={styles.versionHistoryTitle}>
           Version History
@@ -28,19 +23,10 @@ function AppVersionHistory({ navigation }) {
           <VersionHistoryList />
         </Box>
       </ScrollView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#F7F2EC',
-  },
-  backBtnWrapper: {
-    marginTop: wp('18%'),
-    marginBottom: wp('12%'),
-    marginHorizontal: wp('8%'),
-  },
   versionHistoryTitleWrapper: {
     marginHorizontal: wp('10%'),
     marginBottom: 5,
