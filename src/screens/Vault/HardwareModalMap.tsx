@@ -354,12 +354,8 @@ const setupSeedWordsBasedKey = (mnemonic) => {
   return softSigner;
 };
 
-function PasswordEnter(primaryMnemonic) {
+function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
   const [password, setPassword] = useState('');
-  const { pinHash } = useAppSelector((state) => state.storage);
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -440,6 +436,7 @@ function HardwareModalMap({
   )[0];
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
+  const { pinHash } = useAppSelector((state) => state.storage);
 
   const navigateToTapsignerSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddTapsigner', params: {} }));
@@ -613,7 +610,7 @@ function HardwareModalMap({
         title="Enter your password"
         subTitle="The one you use to login to the app"
         textColor="light.primaryText"
-        Content={() => PasswordEnter(primaryMnemonic)}
+        Content={() => PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash })}
       />
     </>
   );

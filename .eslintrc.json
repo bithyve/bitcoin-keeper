@@ -41,6 +41,7 @@
   },
   "ignorePatterns": [
     "test-setup.js",
+    "tests/**/*",
     "src/hardware/ledger/client/",
     "src/core/services/qr/bc-ur-registry/"
   ]

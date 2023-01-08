@@ -12,9 +12,7 @@ import { ElectrumTransaction, ElectrumUTXO } from './interface';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '35.177.46.45', ssl: '50002' }],
-  predefinedPeers: [
-    // peers for production server goes here.
-  ],
+  predefinedPeers: [{ host: '52.56.32.52', ssl: '50002' }],
   maxConnectionAttempt: 5,
   reconnectDelay: 1000, // 1 second
 };

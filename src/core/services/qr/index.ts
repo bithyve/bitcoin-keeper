@@ -38,9 +38,8 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
       // get the original message, assuming it was a JSON object
       const data = JSON.parse(decoded.toString());
       return { data, percentage: scanPercentage };
-    } 
-      return { data: null, percentage: scanPercentage };
-    
+    }
+    return { data: null, percentage: scanPercentage };
   } catch (error) {
     captureError(error);
   }
