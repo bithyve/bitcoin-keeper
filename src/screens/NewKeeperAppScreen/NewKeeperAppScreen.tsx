@@ -72,6 +72,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
     (state) => state.bhr
   );
   const appCreated = useAppSelector((state) => state.storage.appId);
+  const appCreationError = useAppSelector((state) => state.login.appCreationError);
   const openLoaderModal = () => setCreateCloudBackupModal(true);
   const closeLoaderModal = () => setCreateCloudBackupModal(false);
   const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
@@ -84,7 +85,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
       setInitiating(false);
       updateFCM();
     }
-  }, [appCreated]);
+    if (appCreationError) {
+      setModalVisible(false)
+      setInitiating(false);
+    }
+  }, [appCreated, appCreationError]);
 
   async function updateFCM() {
     try {
@@ -270,6 +275,21 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonCallback={() => {
           setModalVisible(false);
           navigation.replace('App', { screen: 'NewHome' });
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
         }}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}

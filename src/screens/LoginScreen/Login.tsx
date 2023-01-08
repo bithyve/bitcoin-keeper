@@ -22,7 +22,7 @@ import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
-import { credsAuthenticated } from '../../store/reducers/login';
+import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
@@ -47,7 +47,7 @@ function LoginScreen({ navigation, route }) {
   const [attempts, setAttempts] = useState(0);
 
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
+  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -58,6 +58,13 @@ function LoginScreen({ navigation, route }) {
       attemptLogin(passcode);
     }
   }, [loggingIn]);
+
+  useEffect(() => {
+    if (recepitVerificationError) {
+      setLogging(false)
+      setLoginModal(false)
+    }
+  }, [recepitVerificationError]);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -177,6 +184,7 @@ function LoginScreen({ navigation, route }) {
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
+
   function LoginModalContent() {
     return (
       <Box>
@@ -260,7 +268,7 @@ function LoginScreen({ navigation, route }) {
                 disabled
                 trackColor={{ true: '#FFFA' }}
                 thumbColor="#358475"
-                onChange={() => {}}
+                onChange={() => { }}
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
@@ -340,7 +348,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title="Share Feedback"
         subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
         subTitleColor="light.secondaryText"
@@ -349,6 +357,24 @@ function LoginScreen({ navigation, route }) {
         buttonCallback={loginModalAction}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
+      />
+
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={recepitVerificationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setLoginError(false);
+          setLogging(true);
+          dispatch(setRecepitVerificationError(false));
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
       />
     </LinearGradient>
   );

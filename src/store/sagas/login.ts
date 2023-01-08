@@ -34,6 +34,7 @@ import {
   setCredStored,
   setKey,
   setupLoading,
+  setRecepitVerificationError,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -111,6 +112,7 @@ export const credentialStorageWatcher = createWatcher(credentialsStorageWorker, 
 
 function* credentialsAuthWorker({ payload }) {
   let key;
+  const appId = yield select((state: RootState) => state.storage.appId);
   try {
     const { method } = payload;
     yield put(setupLoading('authenticating'));
@@ -120,7 +122,6 @@ function* credentialsAuthWorker({ payload }) {
       hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
-      const appId = yield select((state: RootState) => state.storage.appId);
       const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
       if (!res.success) throw new Error('Biometric Auth Failed');
       hash = res.hash;
@@ -131,7 +132,6 @@ function* credentialsAuthWorker({ payload }) {
     if (!key) throw new Error('Encryption key is missing');
     const uint8array = yield call(stringToArrayBuffer, key);
     yield call(dbManager.initializeRealm, uint8array);
-    yield call(generateSeedHash);
     yield put(setPinHash(hash));
   } catch (err) {
     if (payload.reLogin) {
@@ -140,26 +140,41 @@ function* credentialsAuthWorker({ payload }) {
     return;
   }
   if (!payload.reLogin) {
-    const { id, appID }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const response = yield call(Relay.verifyReceipt, id, appID);
-    if (response.isValid) {
+    if (appId !== '') {
+      try {
+        const { id, appID }: KeeperApp = yield call(
+          dbManager.getObjectByIndex,
+          RealmSchema.KeeperApp
+        );
+        const response = yield call(Relay.verifyReceipt, id, appID);
+        if (response.isValid) {
+          yield put(credsAuthenticated(true));
+          yield put(setKey(key));
+          // case: login
+          const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+          yield put(autoSyncWallets());
+          // fetch fee and exchange rates
+          yield put(fetchFeeRates());
+          yield put(fetchExchangeRates());
+          yield put(getMessages());
+          yield put(setWarning(history));
+          yield put(uaiChecks());
+          yield call(generateSeedHash);
+          // connect electrum-client
+          const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+          ElectrumClient.setActivePeer(privateNodes);
+          yield call(ElectrumClient.connect);
+        } else {
+          yield put(credsAuthenticated(false));
+        }
+      } catch (error) {
+        yield put(setRecepitVerificationError(true));
+        console.log(error);
+      }
+    } else {
       yield put(credsAuthenticated(true));
-      yield put(setKey(key));
-      // case: login
-      const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-      yield put(autoSyncWallets());
-      // fetch fee and exchange rates
-      yield put(fetchFeeRates());
-      yield put(fetchExchangeRates());
-      yield put(getMessages());
-      yield put(setWarning(history));
-      yield put(uaiChecks());
-      // connect electrum-client
       const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
       ElectrumClient.setActivePeer(privateNodes);
-      yield call(ElectrumClient.connect);
-    } else {
-      yield put(credsAuthenticated(false));
     }
   } else {
     yield put(credsAuthenticated(true));

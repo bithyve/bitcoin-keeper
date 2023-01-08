@@ -16,6 +16,8 @@ export const initialState: {
   pinChangedFailed: boolean;
   initializeRecoveryCompleted: boolean;
   key: string | null;
+  appCreationError: boolean;
+  recepitVerificationError: boolean;
 } = {
   hasCreds: false,
   isAuthenticated: false,
@@ -32,6 +34,8 @@ export const initialState: {
   pinChangedFailed: false,
   initializeRecoveryCompleted: false,
   key: null,
+  appCreationError: false,
+  recepitVerificationError: false,
 };
 
 const loginSlice = createSlice({
@@ -71,6 +75,12 @@ const loginSlice = createSlice({
     setKey: (state, action: PayloadAction<string>) => {
       state.key = action.payload;
     },
+    setAppCreationError: (state, action: PayloadAction<boolean>) => {
+      state.appCreationError = action.payload;
+    },
+    setRecepitVerificationError: (state, action: PayloadAction<boolean>) => {
+      state.recepitVerificationError = action.payload;
+    },
   },
 });
 
@@ -81,5 +91,7 @@ export const {
   setCredStored,
   setupLoading,
   setKey,
+  setAppCreationError,
+  setRecepitVerificationError,
 } = loginSlice.actions;
 export default loginSlice.reducer;

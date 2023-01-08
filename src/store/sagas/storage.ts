@@ -20,9 +20,11 @@ import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { NewWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
+import { setAppCreationError } from '../reducers/login';
 
 function* setupKeeperAppWorker({ payload }) {
   try {
+    yield put(setAppCreationError(false));
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
@@ -79,11 +81,13 @@ function* setupKeeperAppWorker({ payload }) {
         },
       };
       yield put(addNewWallets([defaultWallet]));
-
+      yield put(setAppCreationError(false));
       yield put(setAppId(appID));
     } else {
+      yield put(setAppCreationError(true));
     }
   } catch (error) {
+    yield put(setAppCreationError(true));
     console.log({ error });
   }
 }
