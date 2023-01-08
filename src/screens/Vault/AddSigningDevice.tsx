@@ -290,7 +290,6 @@ function AddSigningDevice() {
         title={`${preTitle} Signing Devices`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor="light.textBlack"
-        paddingTop={hp(5)}
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}

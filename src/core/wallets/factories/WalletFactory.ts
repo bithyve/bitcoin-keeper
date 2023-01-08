@@ -123,17 +123,35 @@ export const generateWallet = async ({
   return wallet;
 };
 
+const generateExtendedKeysForCosigner = (wallet: Wallet) => {
+  const seed = bip39.mnemonicToSeedSync(wallet.derivationDetails.mnemonic).toString('hex');
+  const xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.VAULT, wallet.networkType);
+
+  const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed,
+    network,
+    xDerivationPath
+  );
+  return { extendedKeys, xDerivationPath };
+};
+
 export const getCosignerDetails = (wallet: Wallet, appId: string) => {
   const deviceId = appId;
   const masterFingerprint = wallet.id;
-  const derivationPath = wallet.derivationDetails.xDerivationPath;
-  const { xpub } = wallet.specs;
 
-  return { deviceId, mfp: masterFingerprint, xpub, derivationPath };
+  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(wallet);
+  return {
+    deviceId,
+    mfp: masterFingerprint,
+    xpub: extendedKeys.xpub,
+    derivationPath: xDerivationPath,
+  };
 };
 
 export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
   const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+  const { extendedKeys } = generateExtendedKeysForCosigner(wallet);
 
   let vin = 0;
   // eslint-disable-next-line consistent-return
@@ -148,7 +166,7 @@ export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
 
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
-      wallet.specs.xpriv,
+      extendedKeys.xpriv,
       internal,
       childIndex,
       network

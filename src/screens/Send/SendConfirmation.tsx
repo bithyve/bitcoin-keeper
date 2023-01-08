@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -42,6 +42,8 @@ import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import CustomPriorityModal from './CustomPriorityModal';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -56,6 +58,7 @@ const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
 function SendConfirmation({ route }) {
   const navigtaion = useNavigation();
+  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const {
     sender,
@@ -98,6 +101,7 @@ function SendConfirmation({ route }) {
   const walletTransactions = translations.wallet;
 
   const [visibleModal, setVisibleModal] = useState(false);
+  const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
 
@@ -146,6 +150,28 @@ function SendConfirmation({ route }) {
       </View>
     );
   }
+  function ApproveTransVaultContent() {
+    return (
+      <>
+        <View style={{ marginVertical: 25 }}>
+          <Text color="light.greenText" fontSize={13} py={3}>
+            Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
+          </Text>
+          <Text color="light.greenText" fontSize={13} py={3}>
+            You can change the policy that triggers auto-transfer to suit your needs
+          </Text>
+        </View>
+        <Buttons
+          secondaryText={'Remind me Later'}
+          secondaryCallback={() => {
+            setVisibleTransVaultModal(false);
+          }}
+          primaryText="Transfer Now"
+          primaryCallback={() => onTransferNow()}
+        />
+      </>
+    );
+  }
 
   useEffect(() => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
@@ -153,20 +179,24 @@ function SendConfirmation({ route }) {
     }
   }, []);
 
+  const onTransferNow = () => {
+    dispatch(
+      crossTransfer({
+        sender: sourceWallet,
+        recipient: defaultVault,
+        amount: sourceWallet.specs.balances.confirmed - sendMaxFee,
+      })
+    );
+  };
+
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
-        Alert.alert('Not enough Balance');
+        showToast('Not enough Balance', <ToastErrorIcon />);
         return;
       }
       if (defaultVault) {
-        dispatch(
-          crossTransfer({
-            sender: sourceWallet,
-            recipient: defaultVault,
-            amount: sourceWallet.specs.balances.confirmed - sendMaxFee,
-          })
-        );
+        setVisibleTransVaultModal(true);
       }
     } else {
       dispatch(
@@ -289,7 +319,7 @@ function SendConfirmation({ route }) {
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transfering: ${getAmount(amount)} sats`}
+              subTitle={`Transferring: ${getAmount(amount)} sats`}
             />
           );
         case TransferType.VAULT_TO_ADDRESS:
@@ -307,7 +337,7 @@ function SendConfirmation({ route }) {
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transfering: ${getAmount(amount)} sats`}
+              subTitle={`Transferring: ${getAmount(amount)} sats`}
             />
           );
         case TransferType.WALLET_TO_VAULT:
@@ -319,7 +349,7 @@ function SendConfirmation({ route }) {
               )} sats`}
             />
           ) : (
-            <Card title="Vault" subTitle="Transferings all avaiable funds" isVault />
+            <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
           );
         case TransferType.WALLET_TO_ADDRESS:
           return isSend ? (
@@ -328,7 +358,7 @@ function SendConfirmation({ route }) {
               subTitle={`Available balance: ${getAmount(sender.specs.balances.confirmed)} sats`}
             />
           ) : (
-            <Card title={address} subTitle={`Transfering: ${getAmount(amount)} sats `} />
+            <Card title={address} subTitle={`Transferring: ${getAmount(amount)} sats `} />
           );
       }
     };
@@ -619,6 +649,14 @@ function SendConfirmation({ route }) {
         textcolor="light.greenText"
         buttonTextColor="light.white"
         Content={SendSuccessfulContent}
+      />
+      <KeeperModal
+        visible={visibleTransVaultModal}
+        close={() => setVisibleTransVaultModal(false)}
+        title={walletTransactions.approveTransVault}
+        subTitle={walletTransactions.approveTransVaultSubtitle}
+        textcolor="light.greenText"
+        Content={ApproveTransVaultContent}
       />
     </ScreenWrapper>
   );

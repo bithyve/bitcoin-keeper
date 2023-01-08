@@ -69,7 +69,8 @@
     "edit":"Edit",
     "connect":"Connect",
     "disconnect":"Disconnect",
-    "sats": "sats"
+    "sats": "sats",
+    "delete": "Delete"
   },
   "noInternet": {
     "no": "No Internet",

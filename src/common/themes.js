@@ -91,6 +91,7 @@ export const customTheme = extendTheme({
       gradientEnd: Colors.RichGreen, // linearGradient
       error: Colors.CongoPink,
       black: Colors.Black,
+      fadedGray: Colors.FadedGray,
     },
     dark: {
       black: Colors.Black,
