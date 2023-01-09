@@ -38,7 +38,7 @@ const findKeyInServer = (vaultSigners, type: SignerType) =>
 const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   // Keys Incase of level 1 we have level 1
   if (isOnL1) {
-    return { disabled: true, message: 'Upgrade to use these keys' };
+    return { disabled: true, message: 'Upgrade tier to use as key' };
   }
   // Keys Incase of already added
   if (findKeyInServer(vaultSigners, type)) {
@@ -63,7 +63,7 @@ const getDeviceStatus = (
       };
     case SignerType.LEDGER:
       return {
-        message: !isBLESupported ? 'BLE is not enabled in your device' : '',
+        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.MOBILE_KEY:
