@@ -19,7 +19,11 @@ export const StoreSubscriptionSchema: ObjectSchema = {
     },
     level: {
       type: 'int',
-      default: 0,
+      default: 1,
+    },
+    icon: {
+      type: 'string',
+      default: 'assets/ic_pleb.svg',
     },
   },
 };

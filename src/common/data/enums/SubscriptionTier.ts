@@ -1,5 +1,6 @@
 export enum SubscriptionTier {
-  L1 = 'bronze',
-  L2 = 'silver',
-  L3 = 'gold',
+  L1 = 'Pleb',
+  L2 = 'Hodler',
+  L3 = 'Diamond Hands',
+  L4 = 'Whale',
 }
