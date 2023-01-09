@@ -40,6 +40,7 @@ import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -211,9 +212,7 @@ function WalletDetails({ route }) {
 
   return (
     <ScreenWrapper>
-      <Pressable onPress={() => navigation.goBack()} style={styles.backIcon}>
-        <BackIcon />
-      </Pressable>
+      <HeaderTitle />
       <Box style={styles.headerContainer}>
         <Text color="light.textWallet" style={styles.headerTitle}>
           {wallets?.length} Linked Wallets
