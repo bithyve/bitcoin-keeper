@@ -33,7 +33,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -149,29 +149,24 @@ function VaultInfo({ vault }: { vault: Vault }) {
             </Text>
           </VStack>
         </HStack>
-        <HStack alignItems="center">
-          <BTC />
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={30}>
-            {getAmount(confirmed + unconfirmed)}
+        <VStack alignItems="flex-end">
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+            Unconfirmed
           </Text>
-        </HStack>
+          {getNetworkAmount(unconfirmed, [styles.vaultInfoText, { fontSize: 12 }], 0.9)}
+        </VStack>
       </HStack>
-      <HStack justifyContent="space-between" paddingBottom={10} paddingTop={6}>
-        <Text color="light.white" style={styles.vaultInfoText} fontSize={10} bold>
-          Available to spend
+      <VStack paddingBottom="16" paddingTop="6">
+        {getNetworkAmount(confirmed, [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2])}
+        <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+          Available Balance
         </Text>
-        <HStack alignItems="center">
-          <BTC />
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={14} bold>
-            {confirmed}
-          </Text>
-        </HStack>
-      </HStack>
+      </VStack>
     </VStack>
   );
 }
 
-function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) {
+function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
   const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
@@ -188,7 +183,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.12 }}>
+      <VStack style={{ paddingTop: windowHeight * 0.09 }}>
         <HStack justifyContent="space-between">
           <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
