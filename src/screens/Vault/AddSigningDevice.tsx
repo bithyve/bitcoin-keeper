@@ -241,6 +241,8 @@ function AddSigningDevice() {
       } else {
         fills = [];
       }
+    } else if (vaultSigners.length > currentSignerLimit) {
+      fills = []; // if signers are added but no vault is created
     } else {
       fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
     }
@@ -324,9 +326,7 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`Looks like you've added a ${
                 plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(
-                ' and '
-              )}'s xpub from the right section`}
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
