@@ -43,13 +43,7 @@ function* setupKeeperAppWorker({ payload }) {
       primaryMnemonic
     );
     const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-    const response = yield call(Relay.createNewApp, id, appID, fcmToken, {
-      appID,
-      walletObject: {},
-      networkType: config.NETWORK_TYPE,
-      walletShellInstances: JSON.stringify({}),
-      walletShells: JSON.stringify({}),
-    });
+    const response = yield call(Relay.createNewApp, id, appID, fcmToken);
     if (response && response.created) {
       const app: KeeperApp = {
         id,
@@ -69,7 +63,7 @@ function* setupKeeperAppWorker({ payload }) {
         subscription: {
           productId: SubscriptionTier.L1,
           name: SubscriptionTier.L1,
-          level: 0,
+          level: 1,
         },
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
