@@ -72,24 +72,24 @@ function ReceiveScreen({ route }: { route }) {
         </Box>
       </Box>
       {/* {Input Field} */}
-      <Box style={styles.inputContainer}>
+      <TouchableOpacity
+        activeOpacity={0.4}
+        onPress={() => {
+          Clipboard.setString(paymentURI || receivingAddress);
+          showToast('Address Copied Successfully', <TickIcon />);
+        }}
+        style={styles.inputContainer}
+      >
         <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
           <Text width="80%" marginLeft={4} numberOfLines={1}>
             {paymentURI || receivingAddress}
           </Text>
-          <TouchableOpacity
-            activeOpacity={0.4}
-            onPress={() => {
-              Clipboard.setString(paymentURI || receivingAddress);
-              showToast('Address Copied Successfully', <TickIcon />);
-            }}
-          >
-            <Box backgroundColor="light.copyBackground" style={styles.copyIconWrapper}>
-              <CopyIcon />
-            </Box>
-          </TouchableOpacity>
+
+          <Box backgroundColor="light.copyBackground" style={styles.copyIconWrapper}>
+            <CopyIcon />
+          </Box>
         </Box>
-      </Box>
+      </TouchableOpacity>
       {/* {Add amount component} */}
       <TouchableOpacity
         activeOpacity={0.5}
