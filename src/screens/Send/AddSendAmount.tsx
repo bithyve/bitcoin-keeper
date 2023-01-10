@@ -41,6 +41,7 @@ function AddSendAmount({ route }) {
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
+  const [error, setError] = useState(false); // this state will handle error
   const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
@@ -117,8 +118,22 @@ function AddSendAmount({ route }) {
           marginVertical: hp(10),
         }}
       />
+
       <Box marginX={3}>
-        <Box backgroundColor="light.primaryBackground" style={styles.inputWrapper}>
+        {error && <Text
+          color='light.indicator'
+          style={{
+            fontSize: 10,
+            letterSpacing: 0.1,
+            fontStyle: 'italic',
+            textAlign: 'right',
+            marginRight: 10
+          }}>
+          Amount entered is more than available to spend
+        </Text>}
+        <Box backgroundColor="light.primaryBackground"
+          borderColor={error ? 'light.indicator' : 'transparent'}
+          style={styles.inputWrapper}>
           <Box flexDirection="row" alignItems="center">
             <Box marginRight={2}>
               <BitcoinInput />
@@ -134,9 +149,10 @@ function AddSendAmount({ route }) {
               placeholder="Enter Amount (sats)"
               placeholderTextColor="light.greenText"
               color="light.greenText"
-              opacity={0.5}
-              width="70%"
-              fontSize={12}
+              opacity={1}
+              width="68%"
+              fontSize={14}
+              fontWeight={300}
               letterSpacing={1.04}
               borderWidth="0"
               value={amount}
@@ -152,6 +168,7 @@ function AddSendAmount({ route }) {
                   calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet: sender })
                 );
             }}
+            backgroundColor='light.accent'
             style={styles.sendMaxWrapper}
           >
             <Text color="light.sendMax" style={styles.sendMaxText}>
@@ -220,6 +237,7 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     padding: 10,
+    borderWidth: 1,
   },
   sendMaxWrapper: {
     paddingHorizontal: hp(10),
@@ -229,7 +247,6 @@ const styles = ScaledSheet.create({
   sendMaxText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '500',
   },
   addNoteWrapper: {
     flexDirection: 'row',
