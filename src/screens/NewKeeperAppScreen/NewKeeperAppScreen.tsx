@@ -194,7 +194,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
             <Tile
               title="Recover for myself"
-              subTitle="Using Phrase"
+              subTitle="Using Backup Phrase"
               Icon={<Recover />}
               onPress={() => {
                 navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
