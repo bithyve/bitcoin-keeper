@@ -71,12 +71,14 @@ function* updateAppImageWorker({ payload }) {
     subscription,
     networkType,
   }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.WalletShell,
     0,
     true
   );
+
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (walletId) {
@@ -101,7 +103,7 @@ function* updateAppImageWorker({ payload }) {
       subscription: JSON.stringify(subscription),
     });
   } catch (err) {
-    console.error('update failed', err);
+    console.error('app image update failed', err);
   }
 }
 
@@ -132,12 +134,27 @@ const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
 };
 
 function* updateVaultImageWorker({ payload }) {
+  const { archiveVaultId, isUpdate } = payload;
+
+  console.log({ archiveVaultId, isUpdate });
   const { primarySeed, appID, vaultShellInstances, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
-  const vault: Vault = vaults[vaults.length - 1];
+  const vault: Vault = vaults.filter((vault) => !vault.archived)[0];
+
+  //Vault Encrypted with VAC
+  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
+
+  if (isUpdate) {
+    Relay.updateVaultImage({
+      isUpdate,
+      vaultId: vault.id,
+      vaultEncryptedVAC,
+    });
+  }
+
   const { m } = vault.scheme;
   let signersIds = [];
   const signerIdXpubMap = {};
@@ -161,7 +178,6 @@ function* updateVaultImageWorker({ payload }) {
   const subscriptionStrings = JSON.stringify(subscription);
   const encryptionKey = generateEncryptionKey(primarySeed);
   const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
-  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
   const vacMap = createVACMap(signersIds, signerIdXpubMap, m, vault.VAC);
 
   try {
@@ -175,6 +191,7 @@ function* updateVaultImageWorker({ payload }) {
       vaultShellInstances: vaultShellInstancesString,
       vacMap,
       subscription: subscriptionStrings,
+      archiveVaultId,
     });
   } catch (err) {
     captureError(err);
