@@ -41,7 +41,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getRandomBytes } from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { RootState } from '../store';
-import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
+import { updateVaultImage, updateAppImage } from '../sagaActions/bhr';
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -212,10 +212,15 @@ export interface NewVaultInfo {
 function* addNewVaultWorker({
   payload,
 }: {
-  payload: { newVaultInfo?: NewVaultInfo; vault?: Vault };
+  payload: {
+    newVaultInfo?: NewVaultInfo;
+    vault?: Vault;
+    isMigrated?: Boolean;
+    oldVaultId?: string;
+  };
 }) {
   try {
-    const { newVaultInfo } = payload;
+    const { newVaultInfo, isMigrated, oldVaultId } = payload;
     let { vault } = payload;
     let vaultShell: VaultShell;
     let newVaultShell: boolean = false;
@@ -279,7 +284,9 @@ function* addNewVaultWorker({
       });
     }
     yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
-    yield put(updatVaultImage());
+    isMigrated
+      ? yield put(updateVaultImage({ archiveVaultId: oldVaultId }))
+      : yield put(updateVaultImage());
   } catch (err) {
     yield put(
       vaultCreated({
@@ -350,7 +357,9 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
       archived: true,
     });
     const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
-    yield call(addNewVaultWorker, { payload: { vault: migratedVault } });
+    yield call(addNewVaultWorker, {
+      payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
+    });
     yield put(
       vaultMigrationCompleted({
         isMigratingNewVault: false,

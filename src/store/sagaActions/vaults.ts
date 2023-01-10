@@ -9,7 +9,12 @@ export const ADD_SIGINING_DEVICE = 'ADD_SIGINING_DEVICE';
 export const MIGRATE_VAULT = 'MIGRATE_VAULT';
 export const FINALISE_VAULT_MIGRATION = 'FINALISE_VAULT_MIGRATION';
 
-export const addNewVault = (payload: { newVaultInfo: NewVaultInfo; payload?: Vault }) => ({
+export const addNewVault = (payload: {
+  newVaultInfo: NewVaultInfo;
+  payload?: Vault;
+  isMigrated?: Boolean;
+  oldVaultId?: String;
+}) => ({
   type: ADD_NEW_VAULT,
   payload,
 });

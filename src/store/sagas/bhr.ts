@@ -3,7 +3,12 @@ import * as bip39 from 'bip39';
 import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
-import { decrypt, encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+import {
+  decrypt,
+  encrypt,
+  generateEncryptionKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
 import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 
@@ -13,7 +18,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { Platform } from 'react-native';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
 import crypto from 'crypto';
@@ -71,12 +76,14 @@ function* updateAppImageWorker({ payload }) {
     subscription,
     networkType,
   }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.WalletShell,
     0,
     true
   );
+
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (walletId) {
@@ -101,7 +108,7 @@ function* updateAppImageWorker({ payload }) {
       subscription: JSON.stringify(subscription),
     });
   } catch (err) {
-    console.error('update failed', err);
+    console.error('app image update failed', err);
   }
 }
 
@@ -131,51 +138,91 @@ const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
   return vacMap;
 };
 
-function* updateVaultImageWorker({ payload }) {
+function* updateVaultImageWorker({
+  payload,
+}: {
+  payload: {
+    archiveVaultId?: String;
+    isUpdate?: Boolean;
+  };
+}) {
+  const { archiveVaultId, isUpdate } = payload;
   const { primarySeed, appID, vaultShellInstances, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
-  const vault: Vault = vaults[vaults.length - 1];
+  const vault: Vault = vaults.filter((vault) => !vault.archived)[0];
+
+  //Vault Encrypted with VAC
+  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
+
+  if (isUpdate) {
+    Relay.updateVaultImage({
+      isUpdate,
+      vaultId: vault.id,
+      vaultEncryptedVAC,
+    });
+  }
+
   const { m } = vault.scheme;
-  let signersIds = [];
+  let signersData: Array<{
+    signerId: String;
+    xfpHash: String;
+  }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
     signerIdXpubMap[signer.signerId] = signer.xpub;
-    signersIds.push(signer.signerId);
+    signersData.push({ signerId: signer.signerId, xfpHash: hash256(signer.xpubInfo.xfp) });
   }
-
   // updating signerIdXpubMap if the signer was created through automated mock flow
   const signerIdsToFilter = [];
   for (const signer of vault.signers) {
     if (signer.amfData && signer.amfData.xpub) {
       signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
-      signersIds.push(signer.amfData.signerId);
+      signersData.push({
+        signerId: signer.amfData.signerId,
+        xfpHash: hash256(signer.xpubInfo.xfp),
+      });
       signerIdsToFilter.push(signer.signerId);
     }
   }
-  signersIds = signersIds.filter((signerId) => !signerIdsToFilter.includes(signerId));
+  signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
+  const signerIds = signersData.map((signer) => signer.signerId);
   const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
   const subscriptionStrings = JSON.stringify(subscription);
   const encryptionKey = generateEncryptionKey(primarySeed);
   const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
-  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
-  const vacMap = createVACMap(signersIds, signerIdXpubMap, m, vault.VAC);
+  const vacMap = createVACMap(signerIds, signerIdXpubMap, m, vault.VAC);
 
   try {
-    Relay.updateVaultImage({
-      appID,
-      vaultId: vault.id,
-      m,
-      vacEncryptedApp,
-      signersId: signersIds,
-      vaultEncryptedVAC,
-      vaultShellInstances: vaultShellInstancesString,
-      vacMap,
-      subscription: subscriptionStrings,
-    });
+    if (archiveVaultId)
+      Relay.updateVaultImage({
+        appID,
+        vaultId: vault.id,
+        m,
+        vacEncryptedApp,
+        signersData,
+        vaultEncryptedVAC,
+        vaultShellInstances: vaultShellInstancesString,
+        vacMap,
+        subscription: subscriptionStrings,
+        archiveVaultId,
+      });
+    else {
+      Relay.updateVaultImage({
+        appID,
+        vaultId: vault.id,
+        m,
+        vacEncryptedApp,
+        signersData,
+        vaultEncryptedVAC,
+        vaultShellInstances: vaultShellInstancesString,
+        vacMap,
+        subscription: subscriptionStrings,
+      });
+    }
   } catch (err) {
     captureError(err);
   }
