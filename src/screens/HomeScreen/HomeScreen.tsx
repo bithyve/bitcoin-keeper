@@ -302,7 +302,7 @@ function VaultStatus(props) {
 
               <Text color="light.white" style={styles.vaultSubHeading} bold>
                 {!signers.length
-                  ? 'Add a signing device to upgrade '
+                  ? 'Add a signing device to enable '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
               </Text>
 
