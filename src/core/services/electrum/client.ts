@@ -50,6 +50,7 @@ export default class ElectrumClient {
 
         ELECTRUM_CLIENT.isClientConnected = false;
         console.log('Error: Close the connection');
+        setTimeout(ElectrumClient.connect, ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500);
       };
 
       console.log('Initiate electrum server');
@@ -280,7 +281,6 @@ export default class ElectrumClient {
     txids = [...new Set(txids)]; // remove duplicates, if any
 
     // TODO: lets try cache first
-
     const chunks = ElectrumClient.splitIntoChunks(txids, batchsize);
     for (const chunk of chunks) {
       let results = [];
