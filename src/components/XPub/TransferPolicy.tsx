@@ -38,6 +38,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   const presshandler = () => {
     if (Number(policyText) > 0) {
       specs.transferPolicy = Number(policyText);
+      //To-Do: Remove DB calls from UI and API Calls biniding to saga
       dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
       dispatch(updateAppImage(wallet.id));
       close();
