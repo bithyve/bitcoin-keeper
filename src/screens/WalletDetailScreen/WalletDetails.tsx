@@ -3,7 +3,7 @@ import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-na
 import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 // icons and images
@@ -11,7 +11,7 @@ import Text from 'src/components/KeeperText';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import BTC from 'src/assets/images/btc_wallet.svg';
-import BackIcon from 'src/assets/images/back.svg';
+import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -41,6 +41,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
+import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -310,6 +311,12 @@ function WalletDetails({ route }) {
               renderItem={renderTransactionElement}
               keyExtractor={(item) => item}
               showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <EmptyStateView
+                  IllustartionImage={NoTransactionIcon}
+                  title={'No transactions yet.'}
+                />
+              }
             />
           </Box>
           <Box style={styles.footerContainer}>
@@ -502,8 +509,8 @@ const styles = StyleSheet.create({
   },
   footerItemContainer: {
     flexDirection: 'row',
-    marginTop: 15,
-    marginBottom: hp(10),
+    marginTop: windowHeight > 800 ? 15 : 5,
+    marginBottom: windowHeight > 800 ? hp(10) : 0,
     justifyContent: 'space-evenly',
     marginHorizontal: 16,
   },
@@ -524,6 +531,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+  },
+  noTransactionsContainer: {
+    paddingTop: hp(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noTransactionText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    opacity: 0.85,
+    fontWeight: '300',
   },
 });
 export default WalletDetails;
