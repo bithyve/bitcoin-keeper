@@ -1254,14 +1254,33 @@ export default class WalletOperations {
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
-    } else if (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) {
+    } else if (
+      (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) ||
+      signer.type === SignerType.LEDGER
+    ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-        const { subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
-          inputs[inputIndex].address,
-          wallet
-        );
-        const publicKey = signerPubkeyMap.get(signer.xpub);
+        let publicKey;
+        let subPath;
+        if (wallet.isMultiSig) {
+          const multisigAddress = WalletUtilities.addressToMultiSig(
+            inputs[inputIndex].address,
+            wallet
+          );
+          publicKey = multisigAddress.signerPubkeyMap.get(signer.xpub);
+          subPath = multisigAddress.subPath;
+        } else {
+          const singlesigAddress = WalletUtilities.addressToKey(
+            inputs[inputIndex].address,
+            wallet,
+            true
+          ) as {
+            publicKey: Buffer;
+            subPath: number[];
+          };
+          publicKey = singlesigAddress.publicKey;
+          subPath = singlesigAddress.subPath;
+        }
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
         inputsToSign.push({
           digest: hash.toString('hex'),
@@ -1436,7 +1455,7 @@ export default class WalletOperations {
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-    const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
+    const txid = await this.broadcastTransaction(wallet, txHex, inputs);
     return {
       txid,
     };
