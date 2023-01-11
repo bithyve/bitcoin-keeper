@@ -9,18 +9,19 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { WalletSpecs } from 'src/core/wallets/interfaces/wallet';
+import { Wallet, WalletSpecs } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
+import { useDispatch } from 'react-redux';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
 
-function TransferPolicy({ wallet, close }) {
+function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
-
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [policyText, setPolicyText] = useState(specs.transferPolicy);
-
+  const dispatch = useDispatch();
   const onPressNumber = (digit) => {
     let temp = policyText;
     if (digit !== 'x') {
@@ -38,6 +39,7 @@ function TransferPolicy({ wallet, close }) {
     if (Number(policyText) > 0) {
       specs.transferPolicy = Number(policyText);
       dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
+      dispatch(updateAppImage(wallet.id));
       close();
       Alert.alert('Transfer Policy Changed');
     } else {
