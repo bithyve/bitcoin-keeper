@@ -211,8 +211,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
         </Box>
       </ScrollView>
       <Text color="light.primaryText" style={styles.noteText}>
-        When you use signing devices to restore Keeper, only vault is restored and the app has new
-        wallets
+        When you use signing devices to restore Keeper, only the vault is restored and the app has
+        new wallets
       </Text>
       <CloudRecoveryModal
         visible={cloudModal}
