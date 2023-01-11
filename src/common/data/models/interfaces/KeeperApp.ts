@@ -24,7 +24,6 @@ export interface KeeperApp {
   uai?: any;
   notification?: any;
   version: string;
-  agsp?: string;
   backupMethod?: BackupType;
   backupPasswordHint?: string;
   backupPassword?: string;
